@@ -320,6 +320,12 @@ export const dictionary = {
     ],
     detailsButton: 'Details ansehen',
   },
+      pagination: {
+      page: 'Seite',
+      of: 'von',
+      next: 'Nächste',
+      previous: 'Vorherige',
+    },
   qualityPromise: {
     title: 'Unser Qualitätsversprechen',
     item1: {
