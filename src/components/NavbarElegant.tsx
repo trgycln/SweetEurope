@@ -6,11 +6,27 @@ import { FaGlobe, FaChevronDown } from 'react-icons/fa';
 import { CgMenuRight, CgClose } from "react-icons/cg";
 import MegaMenu from './MegaMenu';
 
-const NavbarElegant: React.FC<{ dictionary: any }> = ({ dictionary }) => {
+// Navbar'ın ihtiyaç duyduğu metinlerin tipini tanımlıyoruz
+interface NavDictionary {
+  navigation: {
+    home: string;
+    products: string;
+    about: string;
+    contact: string;
+    partnerPortal: string;
+  };
+  topBar: {
+    announcement: string;
+  };
+  megaMenu: any; // MegaMenu kendi içinde tipini yönettiği için 'any' kalabilir
+}
+
+const NavbarElegant: React.FC<{ dictionary: NavDictionary }> = ({ dictionary }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
-  const mainLinks = [
+  const navLinks = [
     { href: '/', label: dictionary.navigation.home },
+    { href: '/produkte', label: dictionary.navigation.products },
     { href: '/ueber-uns', label: dictionary.navigation.about },
     { href: '/kontakt', label: dictionary.navigation.contact },
   ];
@@ -44,19 +60,13 @@ const NavbarElegant: React.FC<{ dictionary: any }> = ({ dictionary }) => {
               {dictionary.navigation.home}
             </Link>
             
-            {/* --- MEGA MENU TRIGGER (DÜZELTİLDİ) --- */}
-            {/* Bu kapsayıcıya, fare için görünmez bir köprü oluşturmak üzere padding eklendi */}
-            <div className="group h-full flex items-center pb-5 -mb-5">
+            <div className="group h-full flex items-center">
               <Link href="/produkte" className="font-sans text-lg hover:text-accent transition-colors flex items-center gap-1">
                 {dictionary.navigation.products}
                 <FaChevronDown size={12} className="opacity-70 transition-transform group-hover:rotate-180 duration-300" />
               </Link>
-              {/* Mega Menu Panel - Gecikme kaldırıldı, artık köprü sayesinde gerek yok */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[90vw] max-w-6xl pt-5
-                            opacity-0 invisible group-hover:opacity-100 group-hover:visible 
-                            pointer-events-none group-hover:pointer-events-auto
-                            transition-opacity duration-300">
-                <MegaMenu dictionary={dictionary} />
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[90vw] max-w-6xl pt-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible pointer-events-none group-hover:pointer-events-auto transition-opacity duration-300">
+                 <MegaMenu dictionary={dictionary} />
               </div>
             </div>
           </div>
@@ -101,7 +111,7 @@ const NavbarElegant: React.FC<{ dictionary: any }> = ({ dictionary }) => {
         </nav>
       </div>
 
-       {/* --- Mobil Menü Paneli --- */}
+       {/* Mobil Menü Paneli */}
        <div className={`md:hidden fixed inset-0 bg-primary z-50 transition-transform transform duration-500 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex justify-between items-center p-6 h-20">
              <Link href="/" className="text-3xl font-serif font-bold text-secondary" onClick={() => setIsMenuOpen(false)}>
@@ -112,18 +122,13 @@ const NavbarElegant: React.FC<{ dictionary: any }> = ({ dictionary }) => {
             </button>
           </div>
           <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)] space-y-6">
-            {[
-              { href: '/', label: dictionary.navigation.home },
-              { href: '/produkte', label: dictionary.navigation.products },
-              { href: '/ueber-uns', label: dictionary.navigation.about },
-              { href: '/kontakt', label: dictionary.navigation.contact },
-            ].map((link) => (
+            {navLinks.map((link) => (
               <Link key={link.href} href={link.href} className="font-serif text-4xl text-secondary hover:text-accent transition-colors" onClick={() => setIsMenuOpen(false)}>
                 {link.label}
               </Link>
             ))}
              <div className="border-t border-gray-600 w-1/2 my-4"></div>
-             <Link href="/portal" className="bg-accent text-primary font-bold py-3 px-6 rounded-md text-lg hover:opacity-90 transition-opacity" onClick={() => setIsMenuOpen(false)}>
+             <Link href="/portal" className="bg-accent text-primary font-bold py-3 px-6 rounded-md text-lg hover:opacity-90 transition-opacity">
               {dictionary.navigation.partnerPortal}
             </Link>
          </div>
@@ -133,4 +138,3 @@ const NavbarElegant: React.FC<{ dictionary: any }> = ({ dictionary }) => {
 };
 
 export default NavbarElegant;
-
