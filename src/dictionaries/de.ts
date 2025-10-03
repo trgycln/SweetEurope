@@ -116,7 +116,7 @@ export const dictionary = {
   },
   marketingKit: {
     title: 'Ihr Marketing- & Menü-Kit',
-    description: 'Nutzen Sie unsere professionellen Materialien, um SweetDreams-Produkte in Ihrem Geschäft zu bewerben.',
+    description: 'Nutzen Sie unsere professionellen Materialien, um SweetTraum-Produkte in Ihrem Geschäft zu bewerben.',
     assets: [
       { name: 'Produktfotos (Hohe Auflösung)', type: 'Bilder', action: 'Herunterladen' },
       { name: 'Menüvorlagen (PDF)', type: 'Dokumente', action: 'Herunterladen' },
