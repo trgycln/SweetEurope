@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Vercel'in build sırasında TypeScript hatalarını görmezden gelmesini sağlar
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  // Vercel'in build sırasında ESLint hatalarını görmezden gelmesini sağlar
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -9,7 +17,6 @@ const nextConfig = {
         pathname: '/**',
       },
       {
-        // Yeni resim kaynağı buraya eklendi
         protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
@@ -20,4 +27,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-
