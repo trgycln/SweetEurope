@@ -12,6 +12,20 @@ import MarketingKitSection from '@/components/MarketingKitSection';
 import SalesChart from '@/components/SalesChart';
 import OrderDetailModal from '@/components/OrderDetailModal';
 
+// Ürünler için gerekli tip tanımı (order_items içinden geliyor)
+interface OrderItemProduct {
+  name: string;
+  price: number;
+  // Diğer ürün alanlarını buraya ekleyin
+}
+
+// Sipariş Kalemleri (Order Items) için tip tanımı
+interface OrderItem {
+    id: number;
+    quantity: number;
+    products: OrderItemProduct; // products(*)'dan gelen ürün detayları
+}
+
 // Sipariş verisi için tip tanımı (Supabase'den gelen veriye uygun)
 interface Order {
   id: number; // Siparişin ana, sayısal ID'si
@@ -19,7 +33,7 @@ interface Order {
   order_id: string; // "SD-9001" gibi metin tabanlı ID
   total: number;
   status: string;
-  order_items?: any[]; // Tıklandığında doldurulacak olan ürünler
+  order_items?: OrderItem[]; // <-- 22. SATIR DÜZELTİLDİ: 'any[]' yerine 'OrderItem[]' kullanıldı
 }
 
 export default function DashboardPage() {
@@ -44,7 +58,9 @@ export default function DashboardPage() {
         if (error) {
           console.error('Siparişler çekilirken hata oluştu:', error);
         } else if (ordersData) {
-          setOrders(ordersData as Order[]);
+          // Supabase verileri tip olarak her zaman array of objects (Object[]) döndürür.
+          // Güvenli şekilde 'as Order[]' ile tipi belirtiyoruz.
+          setOrders(ordersData as Order[]); 
         }
       } else {
         router.push('/portal');
@@ -73,8 +89,8 @@ export default function DashboardPage() {
     if (error) {
       console.error("Sipariş detayları çekilirken hata:", error);
     } else {
-      // Tıklanan siparişin bilgilerini ve çektiğimiz ürünleri birleştirip state'e kaydederek pencereyi aç
-      setSelectedOrder({ ...clickedOrder, order_items: items });
+      // Çekilen 'items' verisinin tipini de 'OrderItem[]' olarak kabul ediyoruz.
+      setSelectedOrder({ ...clickedOrder, order_items: items as OrderItem[] }); 
     }
   };
 
@@ -119,7 +135,7 @@ export default function DashboardPage() {
               {dictionary.dashboard.welcome} <span className="text-accent">{userEmail}</span>
             </h2>
           </div>
-                    {/* --- HIZLI EYLEMLER BÖLÜMÜ EKLENDİ --- */}
+                        {/* --- HIZLI EYLEMLER BÖLÜMÜ EKLENDİ --- */}
           <div className="mb-8">
             <h3 className="text-xl font-serif font-bold text-primary mb-4">{dictionary.dashboard.quickActions}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

@@ -41,9 +41,14 @@ export async function approvePartner(application: { id: number, email: string, c
     revalidatePath('/admin/applications');
     return { success: true, message: 'Partner başarıyla onaylandı ve davet edildi.' };
 
-  } catch (error: any) {
+  } catch (error: unknown) { // <-- 'any' yerine 'unknown' kullanıldı
     console.error('Partner onaylama hatası:', error);
-    return { success: false, message: error.message };
+    
+    // NOT: error.message'ı kullanmadan önce tip kontrolü yapın
+    const message = error instanceof Error ? error.message : 'Bilinmeyen bir hata oluştu.';
+return { success: false, message: message };
+
+    return { success: false, message: message };
   }
 }
 
