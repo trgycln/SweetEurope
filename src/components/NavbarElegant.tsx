@@ -127,7 +127,7 @@ const NavbarElegant: React.FC<{ dictionary: NavDictionary }> = ({ dictionary }) 
                 {link.label}
               </Link>
             ))}
-             <div className="border-t border-gray-600 w-1/2 my-4"></div>
+             <div className="border-t border-gray-600 w-1-2 my-4"></div>
              <Link href="/portal" className="bg-accent text-primary font-bold py-3 px-6 rounded-md text-lg hover:opacity-90 transition-opacity">
               {dictionary.navigation.partnerPortal}
             </Link>
