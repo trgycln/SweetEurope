@@ -92,11 +92,17 @@ export default function NewOrderPage() {
       router.push('/dashboard');
       router.refresh();
     } catch (error) {
-      console.error('Sipariş oluşturulurken hata oluştu:', error);
-      alert('Fehler bei der Bestellung.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    // NEUE VERSION MIT DETAILLIERTERER FEHLERMELDUNG
+    console.error('Detaillierter Fehler beim Erstellen der Bestellung:', error);
+    
+    // Zeige den Fehlerinhalt an. Supabase-Fehler sind oft im 'message' oder 'details' Feld
+    const errorMessage = (error as any)?.message || (error as any)?.details || 'Unbekannter RLS- oder Datenbankfehler.';
+    
+    alert(`Fehler bei der Bestellung. Bitte Admin kontaktieren. Details: ${errorMessage}`);
+    
+ } finally {
+    setIsSubmitting(false);
+ }
   };
 
   return (
