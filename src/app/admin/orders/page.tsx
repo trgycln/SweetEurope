@@ -1,205 +1,190 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, useTransition } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import { dictionary } from '@/dictionaries/de';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Menu, MenuItem, IconButton } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import AdminOrderDetailModal from '@/components/AdminOrderDetailModal';
-import { updateOrderStatus } from './actions';
+import { getAllOrders, updateOrderStatus, Order, OrderStatus, OrderActionState } from './actions'; 
+import { FaTruck, FaSpinner, FaCheckCircle, FaTimesCircle, FaClock, FaBoxOpen } from 'react-icons/fa';
 
-interface Product {
-  id: number;
-  name_de: string;
-  category_de: string;
-  price: number;
-  stock_quantity: number;
-  image_url: string;
-}
+// Deutsche Status-Texte
+const STATUS_TEXTS: Record<OrderStatus, string> = {
+    pending: 'Ausstehend',
+    processing: 'In Bearbeitung',
+    shipped: 'Versandt',
+    delivered: 'Zugestellt',
+    cancelled: 'Storniert',
+};
 
-interface OrderItem {
-  id: number;
-  order_id: number;
-  product_id: number;
-  quantity: number;
-  price: number;
-  products: Product;
-}
+// CSS-Klassen für Status-Farben
+const STATUS_COLORS: Record<OrderStatus, string> = {
+    pending: 'bg-yellow-100 border-yellow-500 text-yellow-700',
+    processing: 'bg-blue-100 border-blue-500 text-blue-700',
+    shipped: 'bg-purple-100 border-purple-500 text-purple-700',
+    delivered: 'bg-green-100 border-green-500 text-green-700',
+    cancelled: 'bg-red-100 border-red-500 text-red-700',
+};
 
-interface Order {
-  id: number;
-  order_id: string;
-  created_at: string;
-  total: number;
-  status: string;
-  user_id: string;
-  order_items?: OrderItem[];
-  profiles: { company_name: string } | null;
-}
+// ---------------------------------------------
+// HAUPTKOMPONENTE
+// ---------------------------------------------
+export default function OrderManagementPage() {
+    const dict = dictionary;
+    const content = dict.adminDashboard;
+    
+    const [orders, setOrders] = useState<Order[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isPending, startTransition] = useTransition();
+    const [feedback, setFeedback] = useState<OrderActionState | null>(null);
 
-export default function AdminOrdersPage() {
-  const content = dictionary.adminDashboard.ordersPage;
-  const supabase = createClient();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isPending, startTransition] = useTransition();
-  
-  const [actionsAnchorEl, setActionsAnchorEl] = useState<null | HTMLElement>(null);
-  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
-  
-  const [statusAnchorEl, setStatusAnchorEl] = useState<null | HTMLElement>(null);
+    // Alle Bestellungen abrufen
+    const fetchOrders = useCallback(async () => {
+        setLoading(true);
+        const data = await getAllOrders();
+        setOrders(data);
+        setLoading(false);
+    }, []);
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-      
-    if (error) {
-      console.error("Siparişler çekilirken hata:", error);
-      setOrders([]);
-    } else {
-      setOrders((data || []) as Order[]);
+    useEffect(() => {
+        fetchOrders();
+    }, [fetchOrders]);
+
+    // Statusaktualisierung
+    const handleStatusChange = (orderId: number, newStatus: OrderStatus) => {
+        // Optimistische UI-Aktualisierung
+        setOrders(prev => 
+            prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
+        );
+
+        startTransition(async () => {
+            setFeedback(null);
+            const result = await updateOrderStatus(orderId, newStatus);
+            if (!result.success) {
+                setFeedback({ type: false, message: `Status-Update Fehler: ${result.message}` });
+                fetchOrders(); // Bei Fehler erneut laden
+            } else {
+                setFeedback({ success: true, message: result.message });
+            }
+        });
+    };
+    
+    // Feedback-Nachricht automatisch ausblenden
+    useEffect(() => {
+        if (feedback) {
+            const timer = setTimeout(() => setFeedback(null), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [feedback]);
+
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-full min-h-[500px] text-primary">
+                <FaSpinner className="animate-spin mr-2" /> Bestellungen werden geladen...
+            </div>
+        );
     }
-    setLoading(false);
-  }, [supabase]);
 
-  useEffect(() => {
-    const channel = supabase.channel('realtime orders')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, 
-        () => { fetchOrders(); }
-      ).subscribe();
-      
-    fetchOrders();
+    return (
+        <div className="bg-secondary p-8 rounded-lg shadow-lg h-full flex flex-col">
+            <header className="flex justify-between items-center mb-6 flex-shrink-0">
+                <h1 className="font-serif text-4xl text-primary flex items-center gap-3">
+                    <FaTruck className="text-accent"/> {content.sidebar.orders}
+                </h1>
+            </header>
+            
+            {/* Feedback Nachricht */}
+            {feedback && (
+                <div className={`p-4 rounded-md mb-4 flex items-center ${feedback.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {feedback.success ? <FaCheckCircle className="mr-2" /> : <FaTimesCircle className="mr-2" />}
+                    {feedback.message}
+                </div>
+            )}
 
-    return () => { supabase.removeChannel(channel); };
-  }, [supabase, fetchOrders]);
-  
-  const handleActionsMenuClick = (event: React.MouseEvent<HTMLElement>, order: Order) => {
-    setActionsAnchorEl(event.currentTarget);
-    setCurrentOrder(order);
-  };
-  
-  const handleActionsMenuClose = () => {
-    setActionsAnchorEl(null);
-  };
-  
-  const handleStatusMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setStatusAnchorEl(event.currentTarget);
-  };
-  
-  const handleStatusMenuClose = () => {
-    setStatusAnchorEl(null);
-    setActionsAnchorEl(null);
-    setCurrentOrder(null);
-  };
+            {/* Bestell-Liste */}
+            <div className="flex-1 min-h-0 overflow-y-auto">
+                {orders.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                        Keine Bestellungen gefunden.
+                    </div>
+                ) : (
+                    <>
+                        {/* MASAÜSTÜ/TABLET GÖRÜNÜMÜ */}
+                        <div className="hidden md:block w-full text-left font-sans bg-white rounded-lg shadow-md">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="border-b-2 sticky top-0 bg-white">
+                                        <th className="py-3 px-4 uppercase text-sm w-[10%]"># ID</th>
+                                        <th className="py-3 px-4 uppercase text-sm w-[30%]">Partner / Firma</th>
+                                        <th className="py-3 px-4 uppercase text-sm w-[15%] text-right">Gesamtsumme</th>
+                                        <th className="py-3 px-4 uppercase text-sm w-[20%]">Bestellt am</th>
+                                        <th className="py-3 px-4 uppercase text-sm w-[25%]">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orders.map((order) => (
+                                        <tr key={order.id} className="border-b hover:bg-gray-50">
+                                            <td className="py-4 px-4 font-bold text-primary">#{order.id}</td>
+                                            <td className="py-4 px-4">{order.partner_company_name}</td>
+                                            <td className="py-4 px-4 text-right font-mono text-lg text-accent">€{order.total_amount.toFixed(2)}</td>
+                                            <td className="py-4 px-4 text-sm">{new Date(order.created_at).toLocaleDateString('de-DE', { dateStyle: 'medium' })}</td>
+                                            
+                                            {/* Status Dropdown */}
+                                            <td className="py-4 px-4">
+                                                <select
+                                                    value={order.status}
+                                                    onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
+                                                    disabled={isPending}
+                                                    className={`p-2 rounded-md border text-sm transition-colors ${STATUS_COLORS[order.status]}`}
+                                                >
+                                                    {Object.keys(STATUS_TEXTS).map(key => (
+                                                        <option key={key} value={key}>
+                                                            {STATUS_TEXTS[key as OrderStatus]}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-  const handleViewDetails = async (orderToView?: Order) => {
-    const orderForDetails = orderToView || currentOrder;
-    if (!orderForDetails) return;
-    const { data: items, error } = await supabase.from('order_items').select('*, products(*)').eq('order_id', orderForDetails.id);
-    if (error) {
-      console.error("Sipariş detayları çekilirken hata:", error);
-    } else {
-      setSelectedOrder({ ...orderForDetails, order_items: items });
-    }
-    handleActionsMenuClose();
-  };
-
-  const handleStatusUpdate = (newStatus: string) => {
-    if (!currentOrder) return;
-    startTransition(async () => {
-      await updateOrderStatus(currentOrder.id, newStatus);
-    });
-    handleStatusMenuClose();
-  };
-
-  const columns: GridColDef[] = [
-    { field: 'order_id', headerName: content.orderId, width: 150 },
-    { field: 'created_at', headerName: content.date, width: 180, type: 'dateTime', valueGetter: (value) => new Date(value) },
-    { 
-      field: 'customer', 
-      headerName: content.customer, 
-      flex: 1, 
-      minWidth: 200,
-      valueGetter: (value, row) => row.profiles?.company_name || row.user_id 
-    },
-    { field: 'total', headerName: content.total, type: 'number', width: 130, valueFormatter: (value: number | null) => { if (value == null) { return ''; } return `€${value.toFixed(2)}`; } },
-    { field: 'status', headerName: content.status, width: 150 },
-    {
-      field: 'actions',
-      headerName: content.actions,
-      width: 150,
-      sortable: false,
-      renderCell: (params) => (
-        <IconButton
-          aria-label="eylemler"
-          onClick={(e) => handleActionsMenuClick(e, params.row)}
-          disabled={isPending}
-        >
-          <MoreVertIcon />
-        </IconButton>
-      ),
-    },
-  ];
-
-  return (
-    <>
-      <div className="bg-white rounded-lg shadow-lg flex-1 flex flex-col min-h-0">
-        <div className="flex justify-between items-center mb-6 flex-shrink-0">
-          <h1 className="font-serif text-4xl text-primary">{content.title}</h1>
+                        {/* MOBİL GÖRÜNÜMÜ */}
+                        <div className="grid grid-cols-1 gap-4 md:hidden">
+                            {orders.map((order) => (
+                                <div key={order.id} className="bg-white p-4 rounded-lg shadow space-y-2 border-l-4 border-accent">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="font-bold text-lg text-primary">Bestellung #{order.id}</h3>
+                                        <span className="font-serif font-bold text-xl text-accent">€{order.total_amount.toFixed(2)}</span>
+                                    </div>
+                                    <p className="text-sm text-gray-600">
+                                        <span className="font-semibold">Firma:</span> {order.partner_company_name}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        <span className="font-semibold">Datum:</span> {new Date(order.created_at).toLocaleDateString('de-DE', { dateStyle: 'medium' })}
+                                    </p>
+                                    
+                                    {/* Status Dropdown (Mobil) */}
+                                    <div>
+                                        <span className="font-semibold text-sm block mb-1">Status:</span>
+                                        <select
+                                            value={order.status}
+                                            onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
+                                            disabled={isPending}
+                                            className={`p-2 rounded-md border text-sm transition-colors w-full ${STATUS_COLORS[order.status]}`}
+                                        >
+                                            {Object.keys(STATUS_TEXTS).map(key => (
+                                                <option key={key} value={key}>
+                                                    {STATUS_TEXTS[key as OrderStatus]}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
-          {/* Desktop DataGrid */}
-          <div className="hidden md:block flex-1 min-h-0">
-            <DataGrid
-              rows={orders}
-              columns={columns}
-              loading={loading || isPending}
-              getRowId={(row) => row.id}
-            />
-          </div>
-          {/* Mobile Card List */}
-          <div className="md:hidden flex-1 space-y-4 overflow-y-auto">
-            {loading ? <p>Yükleniyor...</p> : orders.map(order => (
-              <div key={order.id} className="border rounded-lg p-4 space-y-2 shadow">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="font-bold text-primary">{order.order_id}</span>
-                    <p className="text-sm font-medium text-gray-700">{order.profiles?.company_name || 'Unbekannt'}</p>
-                  </div>
-                  <span className="font-serif font-bold text-accent">€{order.total.toFixed(2)}</span>
-                </div>
-                <div className="text-sm text-gray-600 border-t pt-2">
-                  <p>Datum: {new Date(order.created_at).toLocaleDateString('de-DE')}</p>
-                  <p className="capitalize">Status: {order.status}</p>
-                </div>
-                <div className="flex justify-end pt-1">
-                  <IconButton aria-label="eylemler" onClick={(e) => handleActionsMenuClick(e, order)} disabled={isPending}>
-                    <MoreVertIcon />
-                  </IconButton>
-                </div>
-              </div>
-            ))}
-          </div>
-      </div>
-      
-      {selectedOrder && <AdminOrderDetailModal order={selectedOrder} dictionary={dictionary} onClose={() => setSelectedOrder(null)} />}
-      
-      <Menu anchorEl={actionsAnchorEl} open={Boolean(actionsAnchorEl)} onClose={handleActionsMenuClose}>
-        <MenuItem onClick={() => handleViewDetails()}>{content.viewDetails}</MenuItem>
-        <MenuItem onClick={handleStatusMenuClick}>{content.updateStatus}</MenuItem>
-      </Menu>
-
-      <Menu anchorEl={statusAnchorEl} open={Boolean(statusAnchorEl)} onClose={handleStatusMenuClose}>
-        {content.statusOptions && Object.entries(content.statusOptions).map(([key, value]) => (
-          <MenuItem key={key} onClick={() => handleStatusUpdate(value as string)}>
-            {value as string}
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
-  );
+    );
 }

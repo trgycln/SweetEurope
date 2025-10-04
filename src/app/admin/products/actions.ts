@@ -3,78 +3,185 @@
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
-// Tip Tanımlaması: Fonksiyonların alabileceği önceki durum ve döndüreceği sonuç için interface oluşturuldu.
-// Bu, "any" hatasını çözer ve kodun okunabilirliğini artırır.
-interface SaveProductState {
-  success: boolean;
-  message: string;
+// Tip Tanımlaması: Server Action'ların döndürdüğü durum tipi (useFormState ile uyumlu)
+export interface SaveProductState {
+    success: boolean;
+    message: string;
 }
 
-// Bu fonksiyon hem ekleme hem de güncelleme yapar
-// previousState: Formun önceki durumu için tip SafeAction'dan alınmıştır, geçici olarak unknown olarak tanımlanabilir.
-// FormData: Next.js/React standardıdır ve tipi bellidir.
+// Tip Tanımlaması: Ürün veritabanı yapısı
+export interface Product {
+    id: number;
+    name_de: string;
+    description_de: string | null; // Açıklamayı ekledik
+    price: number;
+    stock_quantity: number;
+    is_active: boolean;
+    image_url: string | null;
+    category_de: string | null;
+}
+
+const createAdminClient = () => createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// ---------------------------------------------
+// FONKSİYON 1: Tüm Ürünleri Çekme (EKLENDİ)
+// ---------------------------------------------
+export async function getAllProducts(): Promise<Product[]> {
+    const supabaseAdmin = createAdminClient();
+
+    const { data: products, error } = await supabaseAdmin
+        .from('products')
+        .select('*') 
+        .order('name_de', { ascending: true });
+
+    if (error) {
+        console.error("Ürünler çekilirken hata:", error);
+        return [];
+    }
+    
+    return products as Product[];
+}
+
+// ---------------------------------------------
+// FONKSİYON 2: Ürün Kaydetme (Ekleme ve Güncelleme)
+// ---------------------------------------------
 export async function saveProduct(previousState: SaveProductState | unknown, formData: FormData): Promise<SaveProductState> {
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+    const supabaseAdmin = createAdminClient();
 
-  // Gelen veriyi güvenli şekilde string'e dönüştürür.
-  const productId = formData.get('id') ? String(formData.get('id')) : null; 
+    const productId = formData.get('id') ? Number(formData.get('id')) : null; 
+    const imageFile = formData.get('image_file') as File;
+    const currentImageUrl = formData.get('current_image_url') as string | null;
+    const shouldDeleteImage = formData.get('delete_image') === 'on';
+    
+    // Temel Ürün Verisi
+    const productBaseData: any = {
+        name_de: String(formData.get('name_de')),
+        description_de: String(formData.get('description_de')), // Description alanı eklendi
+        category_de: String(formData.get('category_de')),
+        price: Number(formData.get('price')),
+        stock_quantity: Number(formData.get('stock_quantity')),
+        is_active: formData.get('is_active') === 'on', // Checkbox değeri
+    };
 
-  const productData = {
-    // string dönüştürmeleri eklendi
-    name_de: String(formData.get('name_de')),
-    category_de: String(formData.get('category_de')),
-    // Sayısal alanları kontrol et
-    price: Number(formData.get('price')),
-    stock_quantity: Number(formData.get('stock_quantity')),
-    image_url: String(formData.get('current_image_url')),
-  };
+    let newImageUrl = currentImageUrl; // Varsayılan olarak mevcut URL
 
-  let error: { message: string } | null; // Tipini Supabase hata objesine uygun belirttik.
+    try {
+        // 1. GÖRSEL YÖNETİMİ
+        
+        // Mevcut görseli silme isteği varsa
+        if (shouldDeleteImage && currentImageUrl) {
+            const fileName = currentImageUrl.split('/').pop();
+            if (fileName) {
+                await supabaseAdmin.storage.from('product_images').remove([fileName]);
+            }
+            newImageUrl = null;
+        }
 
-  if (productId) {
-    // ID varsa, güncelle
-    const { error: updateError } = await supabaseAdmin
-      .from('products')
-      .update(productData)
-      .eq('id', productId);
-    error = updateError;
-  } else {
-    // ID yoksa, yeni ekle
-    const { error: insertError } = await supabaseAdmin
-      .from('products')
-      .insert(productData);
-    error = insertError;
-  }
+        // Yeni görsel yükleme isteği varsa (Eski görseli otomatik silmiyoruz, yönetimi geliştirilebilir)
+        if (imageFile && imageFile.size > 0) {
+            const fileName = `${Date.now()}-${imageFile.name.replace(/\s/g, '_')}`;
+            
+            // Eğer güncelleme yapılıyorsa ve yeni görsel yükleniyorsa, eski görseli sil
+            if (productId && newImageUrl && newImageUrl !== currentImageUrl && !shouldDeleteImage) {
+                 const oldFileName = currentImageUrl!.split('/').pop();
+                 if(oldFileName) await supabaseAdmin.storage.from('product_images').remove([oldFileName]);
+            }
 
-  if (error) {
-    console.error('Ürün kaydedilirken hata oluştu:', error.message);
-    return { success: false, message: `Hata: ${error.message}` };
-  }
+            const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+                .from('product_images') 
+                .upload(fileName, imageFile, { upsert: true });
 
-  revalidatePath('/admin/products');
-  return { success: true, message: 'Ürün başarıyla kaydedildi.' };
+            if (uploadError) throw new Error("Görsel yükleme hatası: " + uploadError.message);
+
+            const { data: urlData } = supabaseAdmin.storage
+                .from('product_images')
+                .getPublicUrl(uploadData.path);
+            
+            newImageUrl = urlData.publicUrl;
+        }
+
+        // 2. Veritabanı Kaydı
+        productBaseData.image_url = newImageUrl;
+        
+        let error: { message: string } | null;
+
+        if (productId) {
+            // ID varsa, güncelle
+            const { error: updateError } = await supabaseAdmin
+                .from('products')
+                .update(productBaseData)
+                .eq('id', productId);
+            error = updateError;
+        } else {
+            // ID yoksa, yeni ekle
+            const { error: insertError } = await supabaseAdmin
+                .from('products')
+                .insert(productBaseData);
+            error = insertError;
+        }
+
+        if (error) {
+            // Eğer DB kaydı başarısız olursa, yüklenen görseli geri silmek iyi bir uygulamadır
+            if (imageFile && imageFile.size > 0 && newImageUrl) {
+                 const fileName = newImageUrl.split('/').pop();
+                 if(fileName) await supabaseAdmin.storage.from('product_images').remove([fileName]);
+            }
+            console.error('Ürün kaydedilirken hata oluştu:', error.message);
+            return { success: false, message: `Hata: ${error.message}` };
+        }
+
+        revalidatePath('/admin/products');
+        return { success: true, message: 'Ürün başarıyla kaydedildi.' };
+
+    } catch (error: any) {
+        console.error('Genel İşlem Hatası:', error.message);
+        return { success: false, message: `Hata: ${error.message}` };
+    }
 }
 
-// deleteProduct fonksiyonunda "any" hatası yoktu, ancak kodun tip güvenliğini artırdık.
-export async function deleteProduct(productId: string | number): Promise<SaveProductState> { // productId tipini string/number yaptık
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+// ---------------------------------------------
+// FONKSİYON 3: Ürünü Silme
+// ---------------------------------------------
+export async function deleteProduct(productId: number): Promise<SaveProductState> { 
+    const supabaseAdmin = createAdminClient();
 
-  const { error } = await supabaseAdmin
-    .from('products')
-    .delete()
-    .eq('id', productId);
+    try {
+        // 1. Önce ürün detaylarını çek (Görsel URL'sini almak için)
+        const { data: product, error: fetchError } = await supabaseAdmin
+            .from('products')
+            .select('image_url')
+            .eq('id', productId)
+            .single();
 
-  if (error) {
-    console.error('Ürün silinirken hata oluştu:', error.message);
-    return { success: false, message: `Hata: ${error.message}` };
-  }
+        if (fetchError) throw new Error("Ürün bulunamadı.");
+        
+        // 2. Ürünü veritabanından sil
+        const { error: deleteError } = await supabaseAdmin
+            .from('products')
+            .delete()
+            .eq('id', productId);
 
-  revalidatePath('/admin/products');
-  return { success: true, message: 'Ürün başarıyla silindi.' };
+        if (deleteError) throw deleteError;
+
+        // 3. İlişkili görseli Supabase Storage'dan sil
+        if (product && product.image_url) {
+            const fileName = product.image_url.split('/').pop();
+            if (fileName) {
+                const { error: storageError } = await supabaseAdmin.storage
+                    .from('product_images')
+                    .remove([fileName]);
+                
+                if(storageError) console.warn("Görsel silinirken uyarı: " + storageError.message);
+            }
+        }
+
+        revalidatePath('/admin/products');
+        return { success: true, message: 'Ürün başarıyla silindi.' };
+    } catch (error: any) {
+        console.error('Ürün silinirken hata oluştu:', error.message);
+        return { success: false, message: `Hata: ${error.message}` };
+    }
 }
