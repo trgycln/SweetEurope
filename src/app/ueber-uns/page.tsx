@@ -9,13 +9,13 @@ const DecorativeSeparator = () => (
 );
 
 export default function AboutPage() {
-  const content = dictionary.aboutPage;
+  const content = dictionary.ueberUnsPage || {}; 
 
   return (
     <div className="bg-secondary text-text-main">
       {/* Hero Section */}
       <div className="relative bg-primary text-secondary text-center py-20 md:py-32">
-        <p className="font-sans tracking-widest uppercase">{content.heroSubtitle}</p>
+        <p className="font-sans tracking-widest uppercase">{content?.heroSubtitle}</p>
         <h1 className="text-5xl md:text-7xl font-serif mt-4">{content.title}</h1>
       </div>
 

@@ -8,7 +8,28 @@ export const dictionary = {
     partnerPortal: 'Partnerportal',
     search: 'Suche',
   },
-  
+  ueberUnsPage: { 
+  // --- Hero Section ---
+  title: 'Unsere Geschichte & Werte', // Zuvor kullanılan
+  heroSubtitle: 'HANDWERKSKUNST AUS TRADITION', // Zuvor düzeltilen
+
+  // --- Mission Section ---
+  missionTitle: 'Unsere Mission', // YENİ EKLENDİ
+  missionP1: 'Unsere Mission ist es, die Premium-Patisserie-Kultur in Deutschland zugänglich zu machen. Wir bieten unseren Partnern nicht nur Produkte, sondern ein komplettes Erlebnis, das auf Qualität, Zuverlässigkeit und Exklusivität basiert.', // YENİ EKLENDİ
+
+  // --- Story Section ---
+  storyTitle: 'Von der Manufaktur zum Marktführer', // YENİ EKLENDİ
+  storyP1: 'SweetDreams wurde 2010 als kleine Manufaktur in Berlin gegründet, angetrieben von der Leidenschaft, traditionelle Rezepte mit moderner Ästhetik zu verbinden. Jedes Rezept wurde über Generationen perfektioniert.', // YENİ EKLENDİ
+  storyP2: 'Heute sind wir stolz darauf, ein wachsendes Netzwerk von Geschäftspartnern in ganz Deutschland zu beliefern und unsere kompromisslose Verpflichtung zur Qualität beizubehalten, während wir expandieren.', // YENİ EKLENDİ
+
+  // --- Image Alts (Resim Açıklamaları) ---
+  image1Alt: 'SweetDreams Konditor bei der Handarbeit an einer Torte.', // YENİ EKLENDİ
+  image2Alt: 'Historische Aufnahme der ersten SweetDreams Manufaktur-Küche.', // YENİ EKLENDİ
+  
+  // --- Zuvor Düzeltilmiş Diğer Anahtarlar ---
+  section1Title: 'Das Herz von SweetDreams',
+  section1Text: 'Wir wählen nur die feinsten Zutaten und garantieren meisterhafte Handwerkskunst in jeder Kreation. Qualität ist kein Versprechen, sondern unser Standard.',
+},
   adminDashboard: {
     title: 'Admin Dashboard',
     sidebar: {
