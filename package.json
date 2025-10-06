@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+     "gen:types": "chcp 65001 && npx supabase gen types typescript --project-id \"atydffkpyvxcmzxyibhj\" --schema public > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -14,11 +15,10 @@
     "@mui/icons-material": "^7.3.3",
     "@mui/material": "^7.3.3",
     "@mui/x-data-grid": "^8.13.1",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.58.0",
     "chart.js": "^4.5.0",
-    "next": "15.5.4",
+    "next": "^15.5.4",
     "react": "19.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "19.1.0",
@@ -34,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "postcss": "^8.4.38",
+    "supabase": "^2.48.3",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
