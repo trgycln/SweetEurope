@@ -5,7 +5,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { dictionary } from '@/dictionaries/de';
 import ProductCard from '@/components/ProductCard';
 import { createClient } from '@/lib/supabase/client';
-import Pagination from '@/components/Pagination';
 import { FaChevronLeft } from 'react-icons/fa';
 
 interface Product {
@@ -131,14 +130,7 @@ export default function ProductsPage() {
                       <ProductCard key={product.id} product={{...product, name: product.name_de, imageUrl: product.image_url, category: product.category_de, alt: product.name_de }} dictionary={dictionary} />
                   ))}
                 </div>
-                {totalPages > 1 && (
-                  <Pagination 
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                    dictionary={dictionary.pagination}
-                  />
-                )}
+             
               </>
             )}
           </main>
