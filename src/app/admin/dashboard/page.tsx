@@ -1,99 +1,145 @@
-// src/app/admin/dashboard/page.tsx (DOĞRU ANA PANEL KODU)
+// src/app/admin/dashboard/page.tsx
 
 import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Tables } from '@/lib/supabase/database.types';
+import { notFound } from 'next/navigation';
+import { FiDollarSign, FiTrendingUp, FiPackage, FiAlertTriangle, FiUsers, FiClipboard, FiPlus, FiBriefcase } from 'react-icons/fi';
 import Link from 'next/link';
-import { FiClipboard, FiBox, FiAlertTriangle } from 'react-icons/fi';
+import { Enums } from '@/lib/supabase/database.types';
+import { dictionary } from '@/dictionaries/de';
 
-// Tip Tanımları
-const MetricCard = ({ title, value, color, icon }: { title: string, value: number | string, color: string, icon: React.ReactNode }) => (
-  <div className={`bg-white p-6 rounded-2xl shadow-lg border-l-4 ${color} flex items-center gap-4`}>
-    <div className={`p-3 rounded-full ${color.replace('border-', 'bg-').replace('500', '100').replace('accent', 'accent/20')}`}>
+type ReportData = {
+    totalRevenue: number;
+    netProfit: number;
+};
+
+const StatCard = ({ title, value, icon, link }: { title: string, value: string | number, icon: React.ReactNode, link?: string }) => {
+    const content = (
+        <>
+            <div className="flex-shrink-0">{icon}</div>
+            <div>
+                <p className="text-sm font-medium text-text-main/70">{title}</p>
+                <p className="text-3xl font-bold text-primary mt-1">{value}</p>
+            </div>
+        </>
+    );
+    if (link) {
+        return <Link href={link} className="bg-white p-6 rounded-2xl shadow-lg flex items-center gap-4 hover:bg-bg-subtle transition-colors">{content}</Link>;
+    }
+    return <div className="bg-white p-6 rounded-2xl shadow-lg flex items-center gap-4">{content}</div>;
+};
+
+const QuickActionButton = ({ label, icon, href }: { label: string, icon: React.ReactNode, href: string }) => (
+    <Link href={href} className="bg-accent text-white p-4 rounded-lg flex flex-col items-center justify-center text-center font-bold text-sm hover:bg-opacity-90 transition-opacity">
         {icon}
-    </div>
-    <div>
-        <p className="text-sm font-medium text-text-main/70">{title}</p>
-        <p className="text-3xl font-bold text-primary mt-1">{value}</p>
-    </div>
-  </div>
+        <span className="mt-2">{label}</span>
+    </Link>
 );
 
-type SonGorev = Pick<Tables<'gorevler'>, 'id' | 'baslik' | 'son_tarih' | 'oncelik'>;
+async function ManagerDashboard() {
+    const supabase = createSupabaseServerClient();
+    // DÜZELTME: 'dashboardPage' zu 'dashboard' geändert, um mit de.ts übereinzustimmen
+    const content = dictionary.dashboard;
+    
+    const now = new Date();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    const [
+        pnlRes,
+        ordersRes,
+        stockRes,
+        tasksRes
+    ] = await Promise.all([
+        supabase.rpc('get_pl_report', { start_date: startDate, end_date: endDate }).returns<ReportData>().single(),
+        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_statusu', ['Beklemede', 'Hazırlanıyor']),
+        supabase.rpc('get_kritik_stok_count'),
+        supabase.from('gorevler').select('id', { count: 'exact' }).eq('tamamlandi', false).lt('son_tarih', new Date().toISOString())
+    ]);
+
+    const formatCurrency = (value: number) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
+    const pnlData = pnlRes.data;
+
+    return (
+        <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard title={content.cardRevenueThisMonth} value={formatCurrency(pnlData?.totalRevenue ?? 0)} icon={<FiDollarSign size={28} className="text-green-500"/>} />
+                <StatCard title={content.cardNetProfitThisMonth} value={formatCurrency(pnlData?.netProfit ?? 0)} icon={<FiTrendingUp size={28} className="text-blue-500"/>} />
+                <StatCard title={content.cardActiveOrders} value={ordersRes.count ?? 0} icon={<FiPackage size={28} className="text-yellow-500"/>} link="/admin/operasyon/siparisler" />
+                <StatCard title={content.cardCriticalStock} value={stockRes.data ?? 0} icon={<FiAlertTriangle size={28} className="text-red-500"/>} link="/admin/operasyon/urunler" />
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 className="font-serif text-2xl font-bold text-primary mb-4">{content.agendaTitle}</h2>
+                    <p className="text-text-main">{tasksRes.count ?? 0} <span className="font-bold text-red-600">{content.overdueTasks}</span></p>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 className="font-serif text-2xl font-bold text-primary mb-4">{content.quickActionsTitle}</h2>
+                    <div className="grid grid-cols-3 gap-4">
+                        <QuickActionButton label={content.actionNewOrder} icon={<FiPackage size={24}/>} href="/admin/crm/firmalar" />
+                        <QuickActionButton label={content.actionNewCompany} icon={<FiUsers size={24}/>} href="/admin/crm/firmalar/yeni" />
+                        <QuickActionButton label={content.actionNewExpense} icon={<FiBriefcase size={24}/>} href="/admin/idari/finans/giderler" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+async function TeamMemberDashboard({ userId }: { userId: string }) {
+    const supabase = createSupabaseServerClient();
+    // DÜZELTME: 'dashboardPage' zu 'dashboard' geändert
+    const content = dictionary.dashboard;
+    
+    const { data, error } = await supabase.rpc('get_dashboard_summary_for_member', { p_member_id: userId }).single();
+
+    if (error) {
+        console.error("Team member dashboard error:", error);
+        return <div>{content.errorLoadingTeamDashboard}</div>
+    }
+
+    return (
+        <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <StatCard title={content.cardOpenTasks} value={data?.openTasksCount ?? 0} icon={<FiClipboard size={28} className="text-blue-500"/>} link="/admin/idari/gorevler" />
+                <StatCard title={content.cardNewOrdersFromClients} value={data?.newOrdersCount ?? 0} icon={<FiPackage size={28} className="text-green-500"/>} link="/admin/operasyon/siparisler" />
+            </div>
+             <div className="bg-white p-6 rounded-2xl shadow-lg">
+                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{content.quickAccessTitle}</h2>
+                <div className="flex gap-4">
+                    <Link href="/admin/crm/firmalar" className="font-bold text-accent hover:underline">{content.linkMyClients}</Link>
+                    <Link href="/admin/idari/gorevler" className="font-bold text-accent hover:underline">{content.linkMyTasks}</Link>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default async function AdminDashboardPage() {
-  const supabase = createSupabaseServerClient();
+    const supabase = createSupabaseServerClient();
+    // DÜZELTME: 'dashboardPage' zu 'dashboard' geändert
+    const content = dictionary.dashboard;
 
-  const [
-    gorevlerResponse,
-    kritikStokResponse,
-    urunlerResponse,
-    sonGorevlerResponse
-  ] = await Promise.all([
-    supabase.from('gorevler').select('id', { count: 'exact' }).eq('tamamlandi', false),
-    supabase.rpc('get_kritik_stok_count'),
-    supabase.from('urunler').select('id', { count: 'exact' }),
-    supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).order('son_tarih', { ascending: true }).limit(5)
-  ]);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) notFound();
 
-  const errors = [gorevlerResponse.error, kritikStokResponse.error, urunlerResponse.error, sonGorevlerResponse.error].filter(Boolean);
-  if (errors.length > 0) {
-    console.error("Dashboard veri çekme hataları:", errors);
-    return <div className="p-6 text-red-500 font-serif">Ana Panel verileri yüklenirken bir hata oluştu.</div>;
-  }
+    const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+    const userRole = profile?.rol;
 
-  const aktifGorevSayisi = gorevlerResponse.count ?? 0;
-  const kritikStokCount = kritikStokResponse.data ?? 0;
-  const toplamUrun = urunlerResponse.count ?? 0;
-  const sonBesGorev: SonGorev[] = sonGorevlerResponse.data ?? [];
+    return (
+        <div className="space-y-8">
+            <header>
+                <h1 className="font-serif text-4xl font-bold text-primary">
+                    {userRole === 'Yönetici' ? content.managerTitle : content.teamMemberTitle}
+                </h1>
+                <p className="text-text-main/80 mt-1">
+                    {userRole === 'Yönetici' ? content.managerSubtitle : content.teamMemberSubtitle}
+                </p>
+            </header>
 
-  const getOncelikStili = (oncelik: SonGorev['oncelik']) => {
-    switch (oncelik) {
-      case 'Yüksek': return 'bg-red-100 text-red-800';
-      case 'Orta': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-blue-100 text-blue-800';
-    }
-  };
-
-  return (
-    <div className="space-y-8">
-      <header>
-        <h1 className="font-serif text-4xl font-bold text-primary">Ana Panel</h1>
-        <p className="text-text-main/80 mt-1">İşletmenizin genel durumuna hoş geldiniz.</p>
-      </header>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <MetricCard title="Aktif Görevler" value={aktifGorevSayisi} color="border-accent" icon={<FiClipboard className="text-accent"/>} />
-        <MetricCard title="Toplam Ürün" value={toplamUrun} color="border-blue-500" icon={<FiBox className="text-blue-500"/>} />
-        <MetricCard title="Kritik Stok" value={kritikStokCount} color="border-red-500" icon={<FiAlertTriangle className="text-red-500"/>} />
-      </div>
-
-      <div className="bg-white p-6 rounded-2xl shadow-lg">
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="font-serif text-2xl font-bold text-primary">Yaklaşan Görevler</h2>
-            <Link href="/admin/gorevler" className="text-sm font-bold text-accent hover:underline">Tümünü Gör</Link>
+            {userRole === 'Yönetici' && <ManagerDashboard />}
+            {userRole === 'Ekip Üyesi' && <TeamMemberDashboard userId={user.id} />}
         </div>
-        
-        {sonBesGorev.length === 0 ? (
-          <p className="text-text-main/70">Yaklaşan önemli bir görev yok. Harika iş!</p>
-        ) : (
-          <ul className="divide-y divide-bg-subtle">
-            {sonBesGorev.map((gorev) => (
-              <li key={gorev.id} className="py-4 flex justify-between items-center">
-                <div>
-                    <p className="text-primary font-bold">{gorev.baslik}</p>
-                    <p className="text-sm text-text-main/60 mt-1">
-                        Son Tarih: {gorev.son_tarih ? new Date(gorev.son_tarih).toLocaleDateString('tr-TR') : 'Belirtilmemiş'}
-                    </p>
-                </div>
-                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getOncelikStili(gorev.oncelik)}`}>
-                  {gorev.oncelik}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-  );
+    );
 }

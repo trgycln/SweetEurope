@@ -1,12 +1,13 @@
-// src/app/admin/crm/firmalar/[firmaId]/page.tsx (GÜNCELLENMİŞ HALİ)
+// src/app/admin/crm/firmalar/[firmaId]/page.tsx
 
 import React from 'react';
+// DÜZELTME: Eksik olan import satırı eklendi.
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Database, Tables, Enums } from '@/lib/supabase/database.types';
 import Link from 'next/link';
 import { 
     FiArrowLeft, FiMapPin, FiPhone, FiMail, FiPercent, FiCalendar, FiEdit, FiFileText, 
-    FiPlus, FiMessageSquare, FiTrendingUp, FiPhoneCall, FiMail as FiMailIcon, FiUsers, FiMoreHorizontal 
+    FiPlus, FiMessageSquare, FiTrendingUp, FiPhoneCall, FiMail as FiMailIcon, FiUsers, FiMoreHorizontal, FiHeart 
 } from 'react-icons/fi';
 import { revalidatePath } from 'next/cache';
 
@@ -17,7 +18,7 @@ type Etkinlik = Tables<'etkinlikler'> & { profiller: Pick<Tables<'profiller'>, '
 type UserRole = Enums<'user_role'>;
 type EtkinlikTuru = Enums<'etkinlik_turu'>;
 
-// SERVER ACTION: Yeni etkinlik ekler
+// Server Action: Yeni etkinlik ekler
 async function aktiviteEkleAction(formData: FormData) {
     'use server';
     const supabase = createSupabaseServerClient();
@@ -145,6 +146,15 @@ export default async function FirmaDetayPage({ params }: { params: { firmaId: st
         return <ErrorMessage message="Firma bulunamadı veya bu firmayı görmeye yetkiniz yok." />;
     }
 
+    let favoriUrunler: { urunler: { urun_adi: string | null } | null }[] = [];
+    if (firma.portal_kullanicisi_id) {
+        const { data } = await supabase
+            .from('favori_urunler')
+            .select('urunler(urun_adi)')
+            .eq('kullanici_id', firma.portal_kullanicisi_id);
+        favoriUrunler = data || [];
+    }
+
     return (
         <div className="space-y-8">
             <header>
@@ -157,10 +167,19 @@ export default async function FirmaDetayPage({ params }: { params: { firmaId: st
                         <h1 className="font-serif text-4xl font-bold text-primary">{firma.unvan}</h1>
                         <p className="text-text-main/80 mt-1">{firma.kategori}</p>
                     </div>
-                    <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
-                        <FiEdit size={16} />
-                        Firmayı Düzenle
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <button className="flex items-center justify-center gap-2 px-5 py-3 bg-secondary text-primary rounded-lg shadow-md hover:bg-bg-subtle transition-all duration-200 font-bold text-sm w-full sm:w-auto border border-bg-subtle">
+                            <FiEdit size={16} />
+                            Firmayı Düzenle
+                        </button>
+                        <Link 
+                            href={`/admin/operasyon/siparisler/yeni?firmaId=${firma.id}`}
+                            className="flex items-center justify-center gap-2 px-5 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-all duration-200 font-bold text-sm w-full sm:w-auto"
+                        >
+                            <FiPlus size={18} />
+                            Yeni Sipariş Oluştur
+                        </Link>
+                    </div>
                 </div>
             </header>
 
@@ -200,6 +219,19 @@ export default async function FirmaDetayPage({ params }: { params: { firmaId: st
                             <p className="text-sm font-bold text-text-main/60 uppercase tracking-wider">Mevcut Durum</p>
                             <p className="text-2xl font-bold text-accent mt-1">{firma.status}</p>
                         </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 className="font-serif text-xl font-bold text-primary mb-4 flex items-center gap-2"><FiHeart /> Partner'in Favorileri</h3>
+                        {favoriUrunler.length > 0 ? (
+                            <ul className="space-y-2 text-sm list-disc list-inside text-text-main">
+                                {favoriUrunler.map((fav, index) => (
+                                    fav.urunler && <li key={index}>{fav.urunler.urun_adi}</li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-sm text-text-main/70">Bu partner henüz bir favori ürün belirlemedi.</p>
+                        )}
                     </div>
 
                     {userRole === 'Yönetici' && (

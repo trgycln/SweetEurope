@@ -1,4 +1,4 @@
-// src/components/AdminLayoutClient.tsx (HEADER ÜST ÜSTE BİNME SORUNU GİDERİLDİ)
+// src/components/AdminLayoutClient.tsx
 
 'use client';
 
@@ -7,13 +7,17 @@ import { usePathname } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
+// DÜZELTME: 'Enums' importieren, damit wir den UserRole-Typ kennen
+import { Enums } from '@/lib/supabase/database.types';
 
+// DÜZELTME: 'userRole' zur Prop-Liste hinzufügen
 type AdminLayoutClientProps = {
   user: User;
+  userRole: Enums<'user_role'> | null;
   children: React.ReactNode;
 };
 
-export function AdminLayoutClient({ user, children }: AdminLayoutClientProps) {
+export function AdminLayoutClient({ user, userRole, children }: AdminLayoutClientProps) {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
 
@@ -25,25 +29,15 @@ export function AdminLayoutClient({ user, children }: AdminLayoutClientProps) {
 
   return (
     <div className="h-screen w-full bg-secondary text-text-main antialiased font-sans">
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} />
+      {/* DÜZELTME: 'userRole' wird hier an die Sidebar weitergegeben */}
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} userRole={userRole} />
 
       <div className="flex h-full flex-col lg:ml-64">
-        
-        {/* Sabit Header'ımız burada */}
         <Header userEmail={userEmail} setIsSidebarOpen={setSidebarOpen} />
         
-        {/* --- EN ÖNEMLİ DÜZELTME BURADA ---
-          
-          pt-24 sınıfı (padding-top: 6rem), 64px (h-16 veya 4rem) yüksekliğindeki 
-          sabit Header'ın içeriğin üzerine binmesini kalıcı olarak engeller
-          ve arada 2rem'lik (32px) bir boşluk bırakır.
-          
-          p-8 sınıfı ise içeriğin yanlardan ve alttan boşluğunu ayarlar.
-        */}
         <main className="flex-1 overflow-y-auto p-8 pt-24"> 
           {children}
         </main>
-
       </div>
     </div>
   );

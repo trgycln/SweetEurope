@@ -1,101 +1,116 @@
-// src/app/login/page.tsx
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import Link from 'next/link';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { FiLoader } from 'react-icons/fi';
+// DÜZELTME: Wörterbuch importiert
+import { dictionary } from '@/dictionaries/de'; 
 
-// Supabase Client'ını kullanarak giriş işlemini Server Action yerine Client tarafında yapıyoruz.
-const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const router = useRouter();
-    const supabase = createClient();
+export default function LoginPage() {
+  const supabase = createSupabaseBrowserClient();
+  const router = useRouter();
+  // DÜZELTME: Textinhalte aus dem Wörterbuch geholt
+  const content = dictionary.loginPage;
 
-    const handleSignIn = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(''); // Hataları temizle
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
-        if (signInError) {
-            // Hata olursa kullanıcıya göster
-            setError(signInError.message || 'Giriş yapılırken bir hata oluştu.');
-            return;
-        }
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-        // Başarılı girişten sonra Admin Dashboard'a yönlendir.
-        router.push('/admin/dashboard');
-    };
+    if (error) {
+      setError(error.message);
+    } else {
+      router.push('/admin/dashboard'); 
+      router.refresh();
+    }
+    setIsSubmitting(false);
+  };
 
-    return (
-        <div className="flex h-screen items-center justify-center bg-gray-100">
-            <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-xl">
-                <h2 className="text-3xl font-bold text-center text-gray-900">
-                    Partner Portal Girişi
-                </h2>
-                {error && (
-                    <div className="p-3 text-sm font-medium text-red-700 bg-red-100 rounded-lg">
-                        {error}
-                    </div>
-                )}
-                <form className="space-y-6" onSubmit={handleSignIn}>
-                    <div>
-                        <label 
-                            htmlFor="email" 
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            E-posta Adresi
-                        </label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        />
-                    </div>
-                    <div>
-                        <label 
-                            htmlFor="password" 
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Şifre
-                        </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                        />
-                    </div>
-                    <div>
-                        <button
-                            type="submit"
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            Giriş Yap
-                        </button>
-                    </div>
-                </form>
-                <div className="text-sm text-center">
-                    <Link href="/" className="font-medium text-indigo-600 hover:text-indigo-500">
-                        Ana Sayfaya Geri Dön
-                    </Link>
-                </div>
-            </div>
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-secondary px-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          {/* DÜZELTME: Texte aus 'content' verwendet */}
+          <h1 className="font-serif text-5xl font-bold text-primary">{content.title}</h1>
+          <p className="mt-2 text-text-main/80">{content.subtitle}</p>
         </div>
-    );
-};
+        <form onSubmit={handleSignIn} className="space-y-6 bg-white p-8 rounded-2xl shadow-lg">
+          
+          <div>
+            {/* DÜZELTME: Texte aus 'content' verwendet */}
+            <label htmlFor="email" className="block text-sm font-bold text-text-main/80 mb-2">{content.emailLabel}</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={content.emailPlaceholder}
+              className="w-full bg-secondary border border-bg-subtle rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent"
+            />
+          </div>
 
-export default LoginPage;
+          <div>
+            {/* DÜZELTME: Texte aus 'content' verwendet */}
+            <label htmlFor="password" className="block text-sm font-bold text-text-main/80 mb-2">{content.passwordLabel}</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={content.passwordPlaceholder}
+              className="w-full bg-secondary border border-bg-subtle rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent"
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md">
+              {/* DÜZELTME: Texte aus 'content' verwendet */}
+              <p className="font-bold">{content.errorTitle}</p>
+              <p>{error}</p>
+            </div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center rounded-lg bg-accent py-3 px-4 text-sm font-bold text-white shadow-md hover:bg-opacity-90 transition-all disabled:cursor-not-allowed disabled:bg-accent/50"
+            >
+              {isSubmitting && (
+                <FiLoader className="animate-spin mr-2" />
+              )}
+              {/* DÜZELTME: Texte aus 'content' verwendet */}
+              {isSubmitting ? content.submittingButton : content.submitButton}
+            </button>
+          </div>
+        </form>
+        
+        <div className="text-center text-sm">
+          {/* DÜZELTME: Texte aus 'content' verwendet */}
+          <Link href="/auth/forgot-password" className="font-medium text-accent hover:underline">
+            {content.forgotPasswordLink}
+          </Link>
+        </div>
+        
+      </div>
+    </div>
+  );
+}

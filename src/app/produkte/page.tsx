@@ -1,53 +1,62 @@
-// bu sayfadaki hatayi bul ve cöz
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { dictionary } from '@/dictionaries/de';
 import ProductCard from '@/components/ProductCard';
-import { createClient } from '@/lib/supabase/client';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { FaChevronLeft } from 'react-icons/fa';
+// DÜZELTME: Veritabanından gelen tipleri import ediyoruz
+import { Tables } from '@/lib/supabase/database.types';
 
-interface Product {
-  id: number;
-  name_de: string;
-  category_de: string;
-  image_url: string;
-  price: number;
+// DÜZELTME: Manuel 'Product' arayüzü kaldırıldı.
+// Yerine, Supabase'in 'urunler' tablosu için otomatik oluşturduğu 'Row' tipi kullanıldı.
+type Product = Tables<'urunler'>;
+
+interface Category {
+    name: string;
+    subCategories: { name: string }[];
 }
 
 const PRODUCTS_PER_PAGE = 9;
 
 export default function ProductsPage() {
-  const supabase = createClient();
+  const supabase = createSupabaseBrowserClient();
   const content = dictionary.productsPage;
   const { mainCategories } = dictionary.megaMenu;
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const [activeMainCategory, setActiveMainCategory] = useState<any | null>(null);
+  const [activeMainCategory, setActiveMainCategory] = useState<Category | null>(null);
   const [activeSubCategory, setActiveSubCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
-      const { data, error } = await supabase.from('products').select('*');
+      setLoading(true);
+      // DÜZELTME: Sorgu, doğru tablo adı olan 'urunler' tablosuna yapıldı.
+      const { data, error } = await supabase.from('urunler').select('*');
+      
       if (error) {
         console.error("Tüm ürünler çekilirken hata:", error);
+        setAllProducts([]);
       } else {
-        setAllProducts(data as Product[]);
+        setAllProducts(data || []);
       }
       setLoading(false);
     };
+
     fetchAllProducts();
   }, [supabase]);
 
   const filteredProducts = useMemo(() => {
     if (activeSubCategory) {
-      return allProducts.filter(p => p.category_de === activeSubCategory);
+      // DÜZELTME: Kolon adı 'category_de' yerine 'kategori' olarak güncellendi.
+      return allProducts.filter(p => p.kategori === activeSubCategory);
     }
     if (activeMainCategory) {
-      const subCategoryNames = activeMainCategory.subCategories.map((sc: any) => sc.name);
-      return allProducts.filter(p => subCategoryNames.includes(p.category_de));
+      const subCategoryNames = activeMainCategory.subCategories.map(sc => sc.name);
+      // DÜZELTME: Kolon adı 'category_de' yerine 'kategori' olarak güncellendi.
+      return allProducts.filter(p => p.kategori ? subCategoryNames.includes(p.kategori) : false);
     }
     return allProducts;
   }, [activeSubCategory, activeMainCategory, allProducts]);
@@ -62,19 +71,27 @@ export default function ProductsPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [activeMainCategory, activeSubCategory]);
-
-  const handleMainCategoryClick = (category: any) => {
-    setActiveMainCategory(category);
-    setActiveSubCategory(null);
-  };
   
-  const handleBackClick = () => {
+  const handleClearFilters = () => {
     setActiveMainCategory(null);
     setActiveSubCategory(null);
   };
 
+  const handleMainCategoryClick = (category: Category) => {
+    if (activeMainCategory?.name === category.name) {
+        handleClearFilters();
+    } else {
+        setActiveMainCategory(category);
+        setActiveSubCategory(null);
+    }
+  };
+
   const handleSubCategoryClick = (subCategoryName: string) => {
-    setActiveSubCategory(subCategoryName);
+    if (activeSubCategory === subCategoryName) {
+        setActiveSubCategory(null);
+    } else {
+        setActiveSubCategory(subCategoryName);
+    }
   };
 
   return (
@@ -90,47 +107,67 @@ export default function ProductsPage() {
               {content.filterTitle}
             </h2>
             <nav className="flex flex-col space-y-3">
-              {activeMainCategory ? (
-                <>
-                  <button onClick={handleBackClick} className="flex items-center gap-2 text-left transition-colors text-text-main hover:text-accent font-bold mb-3">
-                    <FaChevronLeft size={12} />
-                    <span>{content.allProducts}</span>
+              <button
+                onClick={handleClearFilters}
+                className={`text-left transition-colors font-bold ${!activeMainCategory ? 'text-accent' : 'text-text-main hover:text-accent'}`}
+              >
+                {content.allProducts}
+              </button>
+              <hr className="border-bg-subtle"/>
+              {mainCategories.map((category: Category) => (
+                <div key={category.name}>
+                  <button
+                    onClick={() => handleMainCategoryClick(category)}
+                    className={`text-left w-full transition-colors font-bold ${activeMainCategory?.name === category.name ? 'text-accent' : 'text-text-main hover:text-accent'}`}
+                  >
+                    {category.name}
                   </button>
-                  <h3 className="font-bold text-accent">{activeMainCategory.name}</h3>
-                  {activeMainCategory.subCategories.map((subCat: any) => ( 
-                      <button
+                  {activeMainCategory?.name === category.name && (
+                    <div className="flex flex-col space-y-2 pl-4 pt-2 mt-2 border-l border-bg-subtle">
+                      {category.subCategories.map((subCat: {name: string}) => (
+                        <button
                           key={subCat.name}
                           onClick={() => handleSubCategoryClick(subCat.name)}
-                          className={`text-left transition-colors text-text-main hover:text-accent pl-4 ${activeSubCategory === subCat.name ? 'font-bold text-accent' : ''}`}
-                      >
+                          className={`text-left transition-colors text-text-main hover:text-accent text-sm ${activeSubCategory === subCat.name ? 'font-bold text-accent' : ''}`}
+                        >
                           {subCat.name}
-                      </button>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <button onClick={() => { setActiveMainCategory(null); setActiveSubCategory(null); }} className={`text-left transition-colors text-text-main hover:text-accent font-bold text-accent`}>
-                    {content.allProducts}
-                  </button>
-                  {mainCategories.map((category: any) => (
-                    <button key={category.name} onClick={() => handleMainCategoryClick(category)} className="text-left transition-colors text-text-main hover:text-accent">
-                      {category.name}
-                    </button>
-                  ))}
-                </>
-              )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </nav>
           </aside>
 
           <main className="md:w-3/4">
             {loading ? <p>Yükleniyor...</p> : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {paginatedProducts.map((product) => ( 
-                      <ProductCard key={product.id} product={{...product, name: product.name_de, imageUrl: product.image_url, category: product.category_de, alt: product.name_de }} dictionary={dictionary} />
-                  ))}
-                </div>
-             
+                {paginatedProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {paginatedProducts.map((product) => (
+                        // DÜZELTME: 'ProductCard' bileşenine gönderilen proplar,
+                        // 'urunler' tablosundaki doğru kolon adlarıyla eşleştirildi.
+                        <ProductCard 
+                            key={product.id} 
+                            product={{
+                                id: product.id,
+                                name: product.urun_adi,
+                                // fotograf_url_listesi bir dizi olduğu için ilk elemanı alıyoruz.
+                                imageUrl: product.fotograf_url_listesi?.[0] || '', 
+                                category: product.kategori || 'Kategorisiz',
+                                price: product.temel_satis_fiyati,
+                                alt: product.urun_adi
+                            }} 
+                            dictionary={dictionary} 
+                        />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16">
+                    <p className="font-serif text-xl">Seçili Kriterlere Uygun Ürün Bulunamadı.</p>
+                  </div>
+                )}
               </>
             )}
           </main>

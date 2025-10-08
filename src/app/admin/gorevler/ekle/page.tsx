@@ -30,7 +30,7 @@ async function gorevEkleAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect('/login');
+    return redirect('/admin/idari/gorevler');
   }
 
   const { error } = await supabase

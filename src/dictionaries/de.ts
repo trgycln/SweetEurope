@@ -30,6 +30,60 @@ export const dictionary = {
   section1Title: 'Das Herz von SweetDreams',
   section1Text: 'Wir wählen nur die feinsten Zutaten und garantieren meisterhafte Handwerkskunst in jeder Kreation. Qualität ist kein Versprechen, sondern unser Standard.',
 },
+
+  loginPage: {
+    title: "SweetHeaven",
+    subtitle: "Willkommen im Admin-Panel",
+    emailLabel: "E-Mail-Adresse",
+    passwordLabel: "Passwort",
+    errorTitle: "Anmeldung fehlgeschlagen",
+    submitButton: "Anmelden",
+    submittingButton: "Anmeldung läuft...",
+    forgotPasswordLink: "Passwort vergessen?",
+    emailPlaceholder: "admin@example.com",
+    passwordPlaceholder: "••••••••"
+  },
+
+  portal: {
+    sidebar: {
+      title: "Partner-Portal",
+      dashboard: "Dashboard",
+      orders: "Meine Bestellungen",
+      products: "Produktkatalog",
+    },
+    header: {
+      titleSuffix: "Portal",
+      logout: "Abmelden",
+    },
+    dashboard: {
+      welcome: "Willkommen, ",
+      subtitle: "Hier ist eine Übersicht Ihrer letzten Aktivitäten.",
+      newOrderButton: "Neue Bestellung aufgeben",
+      announcementsTitle: "Ankündigungen",
+      announcementsPlaceholder: "Zukünftige Ankündigungen und Aktionen werden hier angezeigt.",
+      recentOrdersTitle: "Letzte Bestellungen",
+      noOrders: "Sie haben noch keine Bestellungen aufgegeben.",
+      ordersPlaceholder: "Bestellliste wird hier angezeigt.",
+    }
+  },
+
+  pnlReportPage: {
+    pageTitle: "Gewinn & Verlust Bericht",
+    pageSubtitle: "Die finanzielle Gesundheit deines Unternehmens auf einen Blick.",
+    filterLabel: "Zeitraum wählen:",
+    periodThisMonth: "Dieser Monat",
+    periodLastMonth: "Letzter Monat",
+    periodThisYear: "Dieses Jahr",
+    totalRevenue: "Gesamteinnahmen",
+    totalCogs: "Kosten der verkauften Waren (SMM)",
+    grossProfit: "Bruttogewinn",
+    opExHeader: "Betriebsausgaben",
+    totalOpEx: "Gesamte Betriebsausgaben",
+    netProfit: "Nettogewinn",
+    netLoss: "Nettoverlust",
+    errorLoading: "Bericht konnte nicht geladen werden.",
+    accessDenied: "Zugriff verweigert"
+  },
   adminDashboard: {
     title: 'Admin Dashboard',
     sidebar: {
@@ -112,34 +166,34 @@ export const dictionary = {
   // src/dictionaries/de.ts dosyasındaki adminDashboard.dashboardPage bloğu
 
 dashboardPage: {
-    statusTitle: 'Kundenbeziehungsstatus',
-    revenueTitle: 'Finanzielle Performance',
-    otherAnalyses: 'Weitere Analysen',
-    loading: 'Berichtsdaten werden geladen...',
-    chartTitle: 'Umsatzentwicklung der letzten 6 Monate',
-    noRevenueData: 'Es sind keine Umsatzzahlen zum Anzeigen vorhanden.',
+    managerTitle: "CEO Cockpit",
+    managerSubtitle: "Willkommen zur Live-Übersicht deines Unternehmens.",
+    teamMemberTitle: "Mein Persönliches Panel",
+    teamMemberSubtitle: "Hier ist, worauf du dich heute konzentrieren solltest.",
     
-    // --- PARTNER/CRM DURUMLARI (public.profiles tablosundaki 'status' sütunu) ---
-    // Potansiyel Müşteriler
-    status_Potansiyel: 'Potenzielle Kunden', 
-    status_İlk_Temas_Kuruldu: "Erster Kontakt",
-    status_Numune_Bırakıldı: "Muster hinterlassen",
-    status_Anlaşma_Sağlanamadı: "Kein Vertrag",
+    // Manager Widgets
+    cardRevenueThisMonth: "Umsatz (Dieser Monat)",
+    cardNetProfitThisMonth: "Nettogewinn (Dieser Monat)",
+    cardActiveOrders: "Aktive Bestellungen",
+    cardCriticalStock: "Kritischer Lagerbestand",
+    agendaTitle: "Agenda & Dringende Aufgaben",
+    overdueTasks: "überfällige Aufgaben gefunden.",
+    quickActionsTitle: "Schnellaktionen",
+    actionNewOrder: "Neue Bestellung",
+    actionNewCompany: "Neue Firma",
+    actionNewExpense: "Neue Ausgabe",
+
+    // Team Member Widgets
+    cardOpenTasks: "Mir zugewiesene offene Aufgaben",
+    cardNewOrdersFromClients: "Neue Bestellungen von meinen Kunden",
+    quickAccessTitle: "Schnellzugriff",
+    linkMyClients: "Meine Kunden",
+    linkMyTasks: "Meine Aufgaben",
     
-    // Aktif/Onaylanmış Partnerler
-    status_Anlaşıldı: 'Vertrag abgeschlossen', // Bu, yeni CRM durumudur (Partner Portal'ı açan durum)
-    status_Aktif_Partner: 'Aktive Partner',     // Eğer 'Anlaşıldı'dan sonra başka bir durum kullanacaksanız
-    status_Pasif: 'Passive Kunden',
-    status_İşOrtagi: 'Unterhändler (Sub-Distributor)',
-    
-    // Uygulama Durumları (Partner Başvuruları sayfasından gelen durumlar)
-    status_approved: "Bestätigt (Antrag)", // Partner_applications'dan onaylandı
-    status_pending: "Ausstehend (Antrag)", // Partner_applications'dan beklemede
-    status_reddedildi: "Abgelehnt (Antrag)", // Partner_applications'dan reddedildi
-    
-    // Diğer Tanımlamalar
-    status_Tanımsız: 'Unbekannter Status',
-},
+    // Error messages
+    errorLoadingTeamDashboard: "Dein persönliches Panel konnte nicht geladen werden.",
+  },
+
   },
   search: {
     placeholder: 'Suchen Sie nach Produkten, Rezepten und mehr...',
@@ -148,41 +202,34 @@ dashboardPage: {
   topBar: {
     announcement: 'Premium-Qualität, zugänglich gemacht.',
   },
-  dashboard: {
-    title: 'Partner-Dashboard',
-    welcome: 'Willkommen zurück,',
-    logout: 'Abmelden',
-    loading: 'Laden...',
-    monthlyRevenue: 'Monatlicher Umsatz',
-    newOrders: 'Neue Bestellungen',
-    topProduct: 'Top-Produkt',
-    salesOverview: 'Verkaufsübersicht',
-    recentOrders: 'Letzte Bestellungen',
-    orderId: 'Bestell-ID',
-    date: 'Datum',
-    total: 'Gesamt',
-    status: 'Status',
-    statusProcessing: 'In Bearbeitung',
-    statusShipped: 'Versendet',
-    statusDelivered: 'Zugestellt',
-    quickActions: 'Schnellaktionen',
-    newOrder: 'Neue Bestellung aufgeben',
-    // HATALI KISIM DÜZELTİLDİ: customerReports eklendi
-    customerReports: {
-        topProductsTitle: 'Am häufigsten bestellte Produkte',
-        noProductData: 'Es sind noch keine ausreichenden Bestelldaten vorhanden.',
-        unit: 'Stück', // 'Adet' için çeviri
-    },
-    orderDetailModal: {
-      title: 'Bestelldetails',
-      close: 'Schließen',
-      products: 'Produkte',
-      quantity: 'Menge',
-      price: 'Preis',
-      subtotal: 'Zwischensumme',
-      shippingAddress: 'Lieferadresse',
-    },
-  },
+ dashboard: {
+    managerTitle: "CEO Cockpit",
+    managerSubtitle: "Willkommen zur Live-Übersicht deines Unternehmens.",
+    teamMemberTitle: "Mein Persönliches Panel",
+    teamMemberSubtitle: "Hier ist, worauf du dich heute konzentrieren solltest.",
+    
+    cardRevenueThisMonth: "Umsatz (Dieser Monat)",
+    cardNetProfitThisMonth: "Nettogewinn (Dieser Monat)",
+    cardActiveOrders: "Aktive Bestellungen",
+    cardCriticalStock: "Kritischer Lagerbestand",
+    
+    agendaTitle: "Agenda & Dringende Aufgaben",
+    overdueTasks: "überfällige Aufgaben gefunden.",
+    
+    quickActionsTitle: "Schnellaktionen",
+    actionNewOrder: "Neue Bestellung",
+    actionNewCompany: "Neue Firma",
+    actionNewExpense: "Neue Ausgabe",
+
+    cardOpenTasks: "Mir zugewiesene offene Aufgaben",
+    cardNewOrdersFromClients: "Neue Bestellungen von meinen Kunden",
+    
+    quickAccessTitle: "Schnellzugriff",
+    linkMyClients: "Meine Kunden",
+    linkMyTasks: "Meine Aufgaben",
+    
+    errorLoadingTeamDashboard: "Dein persönliches Panel konnte nicht geladen werden.",
+},
   marketingKit: {
     title: 'Ihr Marketing- & Menü-Kit',
     description: 'Nutzen Sie unsere professionellen Materialien, um SweetTraum-Produkte in Ihrem Geschäft zu bewerben.',

@@ -1,9 +1,14 @@
-// Import yolu yeni ve doğru paket olan '@supabase/ssr' olarak güncellendi
-import { createBrowserClient } from '@supabase/ssr'
+// src/lib/supabase/client.ts
 
-export const createClient = () =>
-  createBrowserClient(
+// Doğru paketten import ediyoruz.
+import { createBrowserClient } from '@supabase/ssr';
+// Veritabanı tiplerimizi import ederek tip güvenliği sağlıyoruz.
+import { Database } from '@/lib/supabase/database.types';
+
+// Fonksiyonun adını yeni bileşenlerimizin beklediği gibi 'createSupabaseBrowserClient' yapıyoruz
+// ve <Database> tipi ile güçlendiriyoruz.
+export const createSupabaseBrowserClient = () =>
+  createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-
+  );

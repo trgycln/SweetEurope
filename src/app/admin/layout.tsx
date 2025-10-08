@@ -41,7 +41,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Tüm kontrollerden geçildikten sonra, kullanıcı bilgisi ve sayfa içeriği (children)
   // görsel iskeleti oluşturan Client Component'e prop olarak gönderilir.
   return (
-    <AdminLayoutClient user={user}>
+  <AdminLayoutClient user={user} userRole={userRole}>
       {children}
     </AdminLayoutClient>
   );
