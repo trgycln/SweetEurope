@@ -77,3 +77,36 @@ export async function getInvoiceDownloadUrlAction(siparisId: number, filePath: s
     
     return { url: data.signedUrl };
 }
+
+export async function siparisDurumGuncelleAction(siparisId: number, yeniDurum: Enums<'siparis_durumu'>) {
+    'use server';
+    
+    // 1. Yetki Kontrolü
+    const supabase = createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Sadece admin/yetkili kullanıcıların durumu değiştirmesine izin verilmeli
+    // Not: Gerçek uygulamada daha detaylı rol kontrolü yapılmalıdır.
+    if (!user) {
+        return { error: "Yetkisiz işlem. Lütfen giriş yapın." };
+    }
+
+    // 2. Veritabanında Güncelleme İşlemi
+    const { error } = await supabase
+        .from('siparisler')
+        .update({ siparis_statusu: yeniDurum })
+        .eq('id', siparisId);
+
+    if (error) {
+        console.error("Sipariş durum güncelleme hatası:", error);
+        return { error: "Durum güncellenirken bir hata oluştu." };
+    }
+
+    // 3. İlgili Sayfaları Yenileme (Revalidation)
+    // Güncellenen siparişin detay sayfasını ve siparişler listesini yenile
+    revalidatePath(`/admin/operasyon/siparisler/${siparisId}`);
+    revalidatePath('/admin/operasyon/siparisler');
+    
+    // İşlem başarılı mesajı
+    return { success: `Sipariş #${siparisId} durumu başarıyla "${yeniDurum}" olarak güncellendi.` };
+}
