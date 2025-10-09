@@ -1,9 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  
   // Vercel'in build sırasında TypeScript hatalarını görmezden gelmesini sağlar
   typescript: {
     ignoreBuildErrors: true,
   },
+
   // Vercel'in build sırasında ESLint hatalarını görmezden gelmesini sağlar
   eslint: {
     ignoreDuringBuilds: true,

@@ -1,16 +1,13 @@
-// src/components/AdminLayoutClient.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar';
-// DÜZELTME: 'Enums' importieren, damit wir den UserRole-Typ kennen
+// DİKKAT: Burada Admin'e ait olan, 'Sidebar.tsx' dosyasındaki Sidebar'ı import ediyoruz.
+import { Sidebar } from '@/components/Sidebar'; 
 import { Enums } from '@/lib/supabase/database.types';
 
-// DÜZELTME: 'userRole' zur Prop-Liste hinzufügen
 type AdminLayoutClientProps = {
   user: User;
   userRole: Enums<'user_role'> | null;
@@ -29,12 +26,10 @@ export function AdminLayoutClient({ user, userRole, children }: AdminLayoutClien
 
   return (
     <div className="h-screen w-full bg-secondary text-text-main antialiased font-sans">
-      {/* DÜZELTME: 'userRole' wird hier an die Sidebar weitergegeben */}
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} userRole={userRole} />
 
       <div className="flex h-full flex-col lg:ml-64">
         <Header userEmail={userEmail} setIsSidebarOpen={setSidebarOpen} />
-        
         <main className="flex-1 overflow-y-auto p-8 pt-24"> 
           {children}
         </main>

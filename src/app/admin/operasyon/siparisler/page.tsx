@@ -1,85 +1,130 @@
-// src/app/admin/operasyon/siparisler/page.tsx
+// src/app/admin/crm/firmalar/page.tsx (GÜNCEL HALİ)
 
 import React from 'react';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Enums } from '@/lib/supabase/database.types';
-import { FiPackage, FiFilter } from 'react-icons/fi';
+import { Database, Tables } from '@/lib/supabase/database.types';
+import { FiPlus, FiUsers, FiPhone } from 'react-icons/fi';
 
-type SiparisStatus = Enums<'siparis_durumu'>;
+type FirmaRow = Tables<'firmalar'> & {
+  profiller: {
+    tam_ad: string | null;
+  } | null;
+};
+type FirmaStatus = Database['public']['Enums']['firma_status'];
 
-const STATUS_RENKLERI: Record<SiparisStatus, string> = {
-    "Beklemede": "bg-gray-100 text-gray-800", "Hazırlanıyor": "bg-blue-100 text-blue-800",
-    "Yola Çıktı": "bg-yellow-100 text-yellow-800", "Teslim Edildi": "bg-green-100 text-green-800",
-    "İptal Edildi": "bg-red-100 text-red-800"
+const STATUS_RENKLERI: Record<FirmaStatus, string> = {
+    "Potansiyel": "bg-blue-100 text-blue-800",
+    "İlk Temas": "bg-gray-100 text-gray-800",
+    "Numune Sunuldu": "bg-yellow-100 text-yellow-800",
+    "Teklif Verildi": "bg-purple-100 text-purple-800",
+    "Anlaşma Sağlandı": "bg-green-100 text-green-800",
+    "Pasif": "bg-red-100 text-red-800"
 };
 
-export default async function SiparislerListPage({ searchParams }: { searchParams: { status?: SiparisStatus, sortBy?: string } }) {
+export default async function FirmalarListPage() {
   const supabase = createSupabaseServerClient();
 
-  let query = supabase.from('siparisler').select(`
-    id, siparis_tarihi, toplam_tutar, siparis_statusu,
-    firmalar (unvan)
-  `);
-
-  // Filtreleme
-  if (searchParams.status) {
-    query = query.eq('siparis_statusu', searchParams.status);
-  }
-
-  // Sıralama
-  const [sortBy, sortOrder] = (searchParams.sortBy || 'tarih_desc').split('_');
-  if (sortBy === 'tarih') {
-    query = query.order('siparis_tarihi', { ascending: sortOrder === 'asc' });
-  } else if (sortBy === 'tutar') {
-    query = query.order('toplam_tutar', { ascending: sortOrder === 'asc' });
-  }
-
-  const { data: siparisler, error } = await query;
+  // DÜZELTME: Sorgu artık veritabanında var olan ilişki sayesinde doğru çalışacak.
+  const { data: firmalar, error } = await supabase
+    .from('firmalar')
+    .select(`
+      id,
+      unvan,
+      kategori,
+      status,
+      telefon,
+      profiller (tam_ad)
+    `)
+    .order('unvan', { ascending: true });
 
   if (error) {
-    console.error("Siparişler çekilirken hata:", error);
-    return <div>Siparişler yüklenemedi.</div>;
+    console.error("Server: Firma verileri çekilirken hata oluştu:", error);
+    return <div className="p-6 text-red-500">Firma listesi yüklenirken bir hata oluştu.</div>;
   }
-  
-  const formatFiyat = (fiyat: number) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(fiyat);
-  const formatDate = (tarih: string) => new Date(tarih).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
-  
+
+  const firmaListesi: FirmaRow[] = firmalar as any;
+  const firmaSayisi = firmaListesi.length;
+
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="font-serif text-4xl font-bold text-primary">Sipariş Yönetimi</h1>
-        <p className="text-text-main/80 mt-1">{siparisler.length} adet sipariş listeleniyor.</p>
+      <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <div>
+            <h1 className="font-serif text-4xl font-bold text-primary">Müşteri Yönetimi (CRM)</h1>
+            <p className="text-text-main/80 mt-1">{firmaSayisi} adet firma listeleniyor.</p>
+        </div>
+  <Link href="/admin/crm/firmalar/yeni" passHref>
+  <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
+    <FiPlus size={18} />
+    Yeni Firma Ekle
+  </button>
+</Link>
       </header>
-      
-      {/* TODO: Filtreleme ve Sıralama Arayüzü Eklenecek */}
 
-      {siparisler.length === 0 ? (
-        <div className="text-center mt-12"><FiPackage className="mx-auto text-5xl text-gray-300"/><h2 className="font-serif mt-4">Henüz Sipariş Yok</h2></div>
+      {firmaSayisi === 0 ? (
+        <div className="mt-12 text-center p-10 border-2 border-dashed border-bg-subtle rounded-lg bg-white shadow-sm">
+            <FiUsers className="mx-auto text-5xl text-gray-300 mb-4" />
+            <h2 className="font-serif text-2xl font-semibold text-primary">Henüz Firma Kaydı Yok</h2>
+            <p className="mt-2 text-text-main/70">Başlamak için yeni bir firma ekleyin.</p>
+        </div>
       ) : (
-        <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-          <table className="min-w-full divide-y divide-bg-subtle">
-            <thead className="bg-bg-subtle">
-              <tr>
-                {['Sipariş ID', 'Müşteri', 'Sipariş Tarihi', 'Tutar', 'Durum'].map(h => <th key={h} className="px-6 py-3 text-left text-xs font-bold text-text-main uppercase tracking-wider">{h}</th>)}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-bg-subtle">
-              {siparisler.map(siparis => (
-                <tr key={siparis.id} className="hover:bg-bg-subtle/50">
-                  <td className="px-6 py-4 font-mono text-sm text-accent">
-                    <Link href={`/admin/operasyon/siparisler/${siparis.id}`} className="hover:underline">#{siparis.id}</Link>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-bold text-primary">{siparis.firmalar?.unvan || 'Bilinmiyor'}</td>
-                  <td className="px-6 py-4 text-sm text-text-main">{formatDate(siparis.siparis_tarihi)}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-text-main">{formatFiyat(siparis.toplam_tutar)}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[siparis.siparis_statusu]}`}>{siparis.siparis_statusu}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-6">
+                {firmaListesi.map((firma) => (
+                    <Link key={firma.id} href={`/admin/crm/firmalar/${firma.id}`} className="block bg-white rounded-lg shadow-lg p-5 border-l-4 border-accent hover:shadow-xl hover:-translate-y-1 transition-all">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className="font-serif text-xl font-bold text-primary">{firma.unvan}</h3>
+                                <p className="text-sm text-gray-500">{firma.kategori}</p>
+                            </div>
+                            <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_RENKLERI[firma.status] || 'bg-gray-100'}`}>
+                                {firma.status}
+                            </span>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-bg-subtle space-y-2 text-sm">
+                            <div className="flex items-center gap-2 text-text-main">
+                                <FiPhone size={14} className="text-gray-400"/>
+                                <span>{firma.telefon || 'Telefon belirtilmemiş'}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-text-main">
+                                <FiUsers size={14} className="text-gray-400"/>
+                                <span>Sorumlu: {firma.profiller?.tam_ad || 'Atanmamış'}</span>
+                            </div>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+
+            <div className="hidden lg:block overflow-x-auto bg-white rounded-lg shadow-md">
+              <table className="min-w-full divide-y divide-bg-subtle">
+                <thead className="bg-bg-subtle">
+                  <tr>
+                    {['Firma Unvanı', 'Kategori', 'Telefon', 'Sorumlu Personel', 'Statü'].map(header => (
+                        <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-text-main uppercase tracking-wider">
+                            {header}
+                        </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-bg-subtle">
+                  {firmaListesi.map((firma) => (
+                    <tr key={firma.id} className="hover:bg-bg-subtle/50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
+                        <Link href={`/admin/crm/firmalar/${firma.id}`} className="hover:underline text-accent">
+                          {firma.unvan}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.kategori}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.telefon || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.profiller?.tam_ad || 'Atanmamış'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status] || 'bg-gray-100'}`}>{firma.status}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
         </div>
       )}
     </div>

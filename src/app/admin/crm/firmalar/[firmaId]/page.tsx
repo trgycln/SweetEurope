@@ -1,266 +1,149 @@
 // src/app/admin/crm/firmalar/[firmaId]/page.tsx
+'use client'; 
 
-import React from 'react';
-// DÜZELTME: Eksik olan import satırı eklendi.
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Database, Tables, Enums } from '@/lib/supabase/database.types';
+import { useState, useEffect } from 'react';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { notFound, useParams } from 'next/navigation'; // DÜZELTME 1: useParams import edildi
+import { Tables } from '@/lib/supabase/database.types';
 import Link from 'next/link';
-import { 
-    FiArrowLeft, FiMapPin, FiPhone, FiMail, FiPercent, FiCalendar, FiEdit, FiFileText, 
-    FiPlus, FiMessageSquare, FiTrendingUp, FiPhoneCall, FiMail as FiMailIcon, FiUsers, FiMoreHorizontal, FiHeart 
-} from 'react-icons/fi';
-import { revalidatePath } from 'next/cache';
+import { FiArrowLeft, FiEdit, FiSave, FiX, FiCheckSquare, FiImage } from 'react-icons/fi';
+import Image from 'next/image';
 
-// Tip Tanımları
 type Firma = Tables<'firmalar'>;
-type Finansal = Tables<'firmalar_finansal'>;
-type Etkinlik = Tables<'etkinlikler'> & { profiller: Pick<Tables<'profiller'>, 'tam_ad'> | null };
-type UserRole = Enums<'user_role'>;
-type EtkinlikTuru = Enums<'etkinlik_turu'>;
 
-// Server Action: Yeni etkinlik ekler
-async function aktiviteEkleAction(formData: FormData) {
-    'use server';
-    const supabase = createSupabaseServerClient();
+// DÜZELTME 2: Fonksiyon artık 'params' prop'u almıyor.
+export default function FirmaDetayDuzenlePage() {
+    const supabase = createSupabaseBrowserClient();
+    const params = useParams(); // DÜZELTME 3: Parametreleri almak için hook'u kullanıyoruz.
+    const firmaId = params.firmaId as string; // 'firmaId'yi buradan alıyoruz.
+
+    const [firma, setFirma] = useState<Firma | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [editMode, setEditMode] = useState(false);
+
+    useEffect(() => {
+        const fetchFirma = async () => {
+            setLoading(true);
+            const { data } = await supabase.from('firmalar').select('*').eq('id', firmaId).single();
+            if (data) {
+                setFirma(data);
+            } else {
+                // notFound() sadece Server Component'lerde çalışır.
+                // Client'ta kullanıcıyı yönlendirmek daha iyi bir yoldur.
+                // router.push('/admin/crm/firmalar'); 
+            }
+            setLoading(false);
+        };
+        if(firmaId) {
+            fetchFirma();
+        }
+    }, [firmaId, supabase]);
+
+    const handleUpdate = async (formData: FormData) => {
+        if (!firma) return;
+        
+        const referansGoster = formData.get('referans_olarak_goster') === 'on';
+        const logoFile = formData.get('firma_logosu') as File;
+        let logoUrl = firma.firma_logosu_url;
+
+        if (logoFile && logoFile.size > 0) {
+            const filePath = `public/${Date.now()}-${logoFile.name}`;
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('firma-logolari')
+                .upload(filePath, logoFile, { upsert: true });
+
+            if (uploadError) {
+                alert("Logo yüklenirken hata oluştu.");
+                return;
+            }
+            
+            logoUrl = supabase.storage.from('firma-logolari').getPublicUrl(uploadData.path).data.publicUrl;
+        }
+
+        const { data: updatedFirma, error } = await supabase
+            .from('firmalar')
+            .update({
+                referans_olarak_goster: referansGoster,
+                firma_logosu_url: logoUrl
+            })
+            .eq('id', firma.id)
+            .select()
+            .single();
+        
+        if (error) {
+            alert("Güncelleme başarısız.");
+        } else if (updatedFirma) {
+            setFirma(updatedFirma);
+            setEditMode(false);
+        }
+    };
     
-    const ozet = formData.get('ozet') as string;
-    const tur = formData.get('tur') as EtkinlikTuru;
-    const firmaId = formData.get('firmaId') as string;
-
-    if (!ozet || !tur || !firmaId) {
-        console.error("Özet, tür ve firma ID zorunludur.");
-        return;
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase.from('etkinlikler').insert({
-        firma_id: firmaId,
-        kullanici_id: user.id,
-        tur: tur,
-        ozet: ozet,
-    });
-
-    if (error) {
-        console.error("Etkinlik eklenirken hata oluştu:", error.message);
-    } else {
-        revalidatePath(`/admin/crm/firmalar/${firmaId}`);
-    }
-}
-
-// -- SAYFA İÇİ YARDIMCI BİLEŞENLER --
-
-const InfoItem = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | null | undefined }) => (
-    <div className="flex items-start gap-4">
-        <div className="flex-shrink-0 text-accent pt-1">{icon}</div>
-        <div>
-            <p className="text-sm font-bold text-text-main/60">{label}</p>
-            <p className="text-base text-primary font-medium">{value || '-'}</p>
-        </div>
-    </div>
-);
-
-const ErrorMessage = ({ message }: { message: string }) => (
-    <div className="flex flex-col items-center justify-center text-center p-10 border-2 border-dashed border-red-200 rounded-lg bg-red-50">
-        <h2 className="font-serif text-2xl font-bold text-red-700">Bir Sorun Oluştu</h2>
-        <p className="mt-2 text-red-600">{message}</p>
-        <Link href="/admin/crm/firmalar" className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 transition-colors">
-            <FiArrowLeft /> Firma Listesine Geri Dön
-        </Link>
-    </div>
-);
-
-const AktiviteEkleFormu = ({ firmaId }: { firmaId: string }) => {
-    const etkinlikTurleri: EtkinlikTuru[] = ['Telefon Görüşmesi', 'Müşteri Ziyareti', 'E-posta', 'Diğer'];
-    return (
-        <form action={aktiviteEkleAction} className="bg-bg-subtle p-4 rounded-lg">
-            <input type="hidden" name="firmaId" value={firmaId} />
-            <div className="space-y-4">
-                <textarea
-                    name="ozet"
-                    rows={3}
-                    required
-                    className="w-full bg-white border border-gray-300 rounded-md p-3 text-sm text-text-main focus:ring-2 focus:ring-accent focus:border-transparent transition-colors placeholder:text-text-main/50"
-                    placeholder="Görüşme notlarınızı veya etkinliği buraya ekleyin..."
-                />
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <select name="tur" required className="w-full sm:w-auto bg-white border border-gray-300 rounded-md p-2 text-sm text-text-main focus:ring-2 focus:ring-accent focus:border-transparent">
-                        {etkinlikTurleri.map(tur => <option key={tur} value={tur}>{tur}</option>)}
-                    </select>
-                    <button type="submit" className="flex w-full sm:w-auto items-center justify-center gap-2 px-5 py-2.5 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 font-bold text-sm">
-                        <FiPlus /> Not Ekle
-                    </button>
-                </div>
-            </div>
-        </form>
-    );
-};
-
-const etkinlikIkonlari: Record<EtkinlikTuru, React.ReactNode> = {
-    'Telefon Görüşmesi': <FiPhoneCall />, 'Müşteri Ziyareti': <FiUsers />,
-    'E-posta': <FiMailIcon />, 'Durum Değişikliği': <FiTrendingUp />, 'Diğer': <FiMessageSquare />,
-};
-
-const ZamanTuneliItem = ({ etkinlik }: { etkinlik: Etkinlik }) => (
-    <li className="flex gap-4">
-        <div className="flex flex-col items-center">
-            <div className="flex items-center justify-center w-10 h-10 bg-bg-subtle text-accent rounded-full">{etkinlikIkonlari[etkinlik.tur] || <FiMoreHorizontal />}</div>
-            <div className="flex-1 w-px bg-gray-200 mt-2"></div>
-        </div>
-        <div className="pb-8 flex-1">
-            <p className="text-sm text-text-main/60">
-                <span className="font-bold text-primary">{etkinlik.profiller?.tam_ad || 'Sistem'}</span> tarafından
-                <span className="ml-1">{new Date(etkinlik.created_at).toLocaleString('tr-TR', { dateStyle: 'long', timeStyle: 'short' })} tarihinde eklendi</span>
-            </p>
-            <p className="mt-2 text-primary bg-white border border-gray-200 p-4 rounded-md whitespace-pre-wrap">{etkinlik.ozet}</p>
-        </div>
-    </li>
-);
-
-// ANA SAYFA BİLEŞENİ
-export default async function FirmaDetayPage({ params }: { params: { firmaId: string } }) {
-    
-    const supabase = createSupabaseServerClient();
-    const { firmaId } = params;
-
-    const [firmaRes, finansalRes, userRes, etkinliklerRes] = await Promise.all([
-        supabase.from('firmalar').select('*').eq('id', firmaId).single(),
-        supabase.from('firmalar_finansal').select('*').eq('firma_id', firmaId).single(),
-        supabase.auth.getUser(),
-        supabase.from('etkinlikler').select('*, profiller(tam_ad)').eq('firma_id', firmaId).order('created_at', { ascending: false }),
-    ]);
-
-    let userRole: UserRole | null = null;
-    if (userRes.data.user) {
-        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', userRes.data.user.id).single();
-        userRole = profile?.rol ?? null;
-    }
-
-    const firma: Firma | null = firmaRes.data;
-    const finansal: Finansal | null = finansalRes.data;
-    const etkinlikler: Etkinlik[] = etkinliklerRes.data || [];
-
-    if (firmaRes.error || !firma) {
-        console.error("Firma çekme hatası:", firmaRes.error?.message);
-        return <ErrorMessage message="Firma bulunamadı veya bu firmayı görmeye yetkiniz yok." />;
-    }
-
-    let favoriUrunler: { urunler: { urun_adi: string | null } | null }[] = [];
-    if (firma.portal_kullanicisi_id) {
-        const { data } = await supabase
-            .from('favori_urunler')
-            .select('urunler(urun_adi)')
-            .eq('kullanici_id', firma.portal_kullanicisi_id);
-        favoriUrunler = data || [];
-    }
+    if (loading) return <div>Yükleniyor...</div>;
+    if (!firma) return <div>Firma bulunamadı. <Link href="/admin/crm/firmalar" className="underline">Geri dön</Link></div>;
 
     return (
         <div className="space-y-8">
-            <header>
-                <Link href="/admin/crm/firmalar" className="inline-flex items-center gap-2 text-sm text-text-main/80 hover:text-accent transition-colors mb-4">
-                    <FiArrowLeft />
-                    Tüm Firmalara Geri Dön
-                </Link>
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                    <div>
-                        <h1 className="font-serif text-4xl font-bold text-primary">{firma.unvan}</h1>
-                        <p className="text-text-main/80 mt-1">{firma.kategori}</p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                        <button className="flex items-center justify-center gap-2 px-5 py-3 bg-secondary text-primary rounded-lg shadow-md hover:bg-bg-subtle transition-all duration-200 font-bold text-sm w-full sm:w-auto border border-bg-subtle">
-                            <FiEdit size={16} />
-                            Firmayı Düzenle
-                        </button>
-                        <Link 
-                            href={`/admin/operasyon/siparisler/yeni?firmaId=${firma.id}`}
-                            className="flex items-center justify-center gap-2 px-5 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-all duration-200 font-bold text-sm w-full sm:w-auto"
-                        >
-                            <FiPlus size={18} />
-                            Yeni Sipariş Oluştur
-                        </Link>
-                    </div>
+            <header className="flex justify-between items-center">
+                <div>
+                    <h1 className="font-serif text-4xl font-bold text-primary">{firma.unvan}</h1>
+                    <p className="text-text-main/80 mt-1">CRM Detay ve Referans Yönetimi</p>
                 </div>
+                {!editMode && (
+                    <button onClick={() => setEditMode(true)} className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg">
+                        <FiEdit /> Düzenle
+                    </button>
+                )}
             </header>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-                        <h2 className="font-serif text-2xl font-bold text-primary border-b border-bg-subtle pb-4 mb-6">Firma Kimliği</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
-                            <InfoItem icon={<FiMapPin size={22} />} label="Adres" value={firma.adres} />
-                            <InfoItem icon={<FiPhone size={22} />} label="Telefon" value={firma.telefon} />
-                            <InfoItem icon={<FiMail size={22} />} label="E-posta" value={firma.email} />
-                            <InfoItem icon={<FiFileText size={22} />} label="Vergi Numarası" value={firma.vergi_no} />
-                        </div>
-                    </div>
-
-                    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-                        <h2 className="font-serif text-2xl font-bold text-primary border-b border-bg-subtle pb-4 mb-6">Etkinlik Zaman Tüneli</h2>
-                        <div className="space-y-6">
-                            <AktiviteEkleFormu firmaId={firmaId} />
-                            {etkinlikler.length > 0 ? (
-                                <ul className="pt-6">
-                                    {etkinlikler.map(etkinlik => <ZamanTuneliItem key={etkinlik.id} etkinlik={etkinlik} />)}
-                                </ul>
+            
+            <form action={handleUpdate}>
+                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                    <h2 className="font-serif text-2xl font-bold text-primary mb-6">Referans Ayarları</h2>
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                            <label htmlFor="referans_olarak_goster" className="font-bold text-text-main">Ana Sayfada Referans Olarak Göster:</label>
+                            {editMode ? (
+                                <input
+                                    id="referans_olarak_goster"
+                                    name="referans_olarak_goster"
+                                    type="checkbox"
+                                    defaultChecked={firma.referans_olarak_goster}
+                                    className="h-6 w-6 rounded text-accent focus:ring-accent"
+                                />
                             ) : (
-                                <div className="text-center py-8">
-                                    <p className="text-text-main/70">Bu firma için henüz bir etkinlik kaydedilmemiş.</p>
+                                <div className={`font-bold ${firma.referans_olarak_goster ? 'text-green-600' : 'text-red-600'}`}>
+                                    {firma.referans_olarak_goster ? 'Evet' : 'Hayır'}
                                 </div>
                             )}
                         </div>
-                    </div>
-                </div>
-
-                <div className="space-y-8">
-                    <div className="bg-white p-6 rounded-2xl shadow-lg">
-                        <h3 className="font-serif text-xl font-bold text-primary mb-4">Satış Süreci</h3>
-                        <div className="bg-bg-subtle p-4 rounded-lg text-center">
-                            <p className="text-sm font-bold text-text-main/60 uppercase tracking-wider">Mevcut Durum</p>
-                            <p className="text-2xl font-bold text-accent mt-1">{firma.status}</p>
+                        
+                        <div>
+                            <label htmlFor="firma_logosu" className="block font-bold text-text-main mb-2">Firma Logosu:</label>
+                            {firma.firma_logosu_url && (
+                                <Image src={firma.firma_logosu_url} alt={`${firma.unvan} logosu`} width={128} height={128} className="rounded-md bg-gray-100 p-2 mb-4"/>
+                            )}
+                            {editMode && (
+                                <input
+                                    id="firma_logosu"
+                                    name="firma_logosu"
+                                    type="file"
+                                    accept="image/png, image/jpeg, image/svg+xml"
+                                    className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-accent/20 file:text-accent hover:file:bg-accent/30"
+                                />
+                            )}
                         </div>
                     </div>
-
-                    <div className="bg-white p-6 rounded-2xl shadow-lg">
-                        <h3 className="font-serif text-xl font-bold text-primary mb-4 flex items-center gap-2"><FiHeart /> Partner'in Favorileri</h3>
-                        {favoriUrunler.length > 0 ? (
-                            <ul className="space-y-2 text-sm list-disc list-inside text-text-main">
-                                {favoriUrunler.map((fav, index) => (
-                                    fav.urunler && <li key={index}>{fav.urunler.urun_adi}</li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-sm text-text-main/70">Bu partner henüz bir favori ürün belirlemedi.</p>
-                        )}
-                    </div>
-
-                    {userRole === 'Yönetici' && (
-                        <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-accent/50">
-                            <h3 className="font-serif text-xl font-bold text-primary mb-4">Finansal Ayarlar</h3>
-                            {finansal ? (
-                                <div className="space-y-6">
-                                    <div className="flex items-center gap-3">
-                                        <FiPercent size={20} className="text-accent" />
-                                        <div>
-                                            <p className="text-sm font-bold text-text-main/60">Özel İndirim Oranı</p>
-                                            <p className="text-lg font-bold text-primary">{finansal.ozel_indirim_orani}%</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <FiCalendar size={20} className="text-accent" />
-                                        <div>
-                                            <p className="text-sm font-bold text-text-main/60">Ödeme Vadesi</p>
-                                            <p className="text-lg font-bold text-primary">{finansal.odeme_vadesi_gun} gün</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <p className="text-sm text-text-main/70">Bu firma için finansal ayar bulunamadı.</p>
-                            )}
+                    {editMode && (
+                        <div className="mt-8 pt-6 border-t flex justify-end gap-4">
+                            <button type="button" onClick={() => setEditMode(false)} className="px-6 py-2 bg-secondary rounded-lg font-bold text-sm">
+                                <FiX className="inline -mt-1 mr-1"/> İptal
+                            </button>
+                            <button type="submit" className="px-6 py-2 bg-green-600 text-white rounded-lg font-bold text-sm">
+                                <FiSave className="inline -mt-1 mr-1"/> Kaydet
+                            </button>
                         </div>
                     )}
                 </div>
-            </div>
+            </form>
         </div>
     );
 }

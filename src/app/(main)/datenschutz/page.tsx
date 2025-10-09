@@ -39,7 +39,6 @@ export default function DatenschutzPage() {
               </ul>
               <p className="mt-4">{content.p3}</p>
             </div>
-
           </div>
         </div>
       </section>

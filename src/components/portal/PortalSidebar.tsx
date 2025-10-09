@@ -3,7 +3,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiGrid, FiPackage, FiBox, FiBarChart2, FiX } from 'react-icons/fi';
+import React from 'react';
+import { FiGrid, FiPackage, FiBox, FiArchive, FiBarChart2, FiX } from 'react-icons/fi';
 import { dictionary } from '@/dictionaries/de';
 import { Enums } from '@/lib/supabase/database.types';
 
@@ -11,8 +12,8 @@ type UserRole = Enums<'user_role'> | null;
 
 interface SidebarProps {
     userRole: UserRole;
-    isOpen?: boolean;
-    setIsOpen?: (isOpen: boolean) => void;
+    isOpen: boolean;
+    setIsOpen: (isOpen: boolean) => void;
 }
 
 export function PortalSidebar({ userRole, isOpen, setIsOpen }: SidebarProps) {
@@ -23,25 +24,28 @@ export function PortalSidebar({ userRole, isOpen, setIsOpen }: SidebarProps) {
         { name: content.dashboard, href: '/portal/dashboard', icon: FiGrid },
         { name: content.orders, href: '/portal/siparislerim', icon: FiPackage },
         { name: content.products, href: '/portal/katalog', icon: FiBox },
-        { name: 'Performansım', href: '/portal/analiz', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
+        { name: content.requests, href: '/portal/taleplerim', icon: FiArchive },
+        { name: content.performance, href: '/portal/analiz', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
     ];
 
     return (
     <>
+      {/* Mobil Menü Açıkken Arka Planı Karartan Overlay (z-40) */}
       <div
-        onClick={() => setIsOpen?.(false)}
-        className={`fixed inset-0 z-30 bg-black/60 transition-opacity duration-300 lg:hidden ${
+        onClick={() => setIsOpen(false)}
+        className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 lg:hidden ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       />
+      {/* Sidebar Paneli (z-50, en üstte) */}
       <div
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-primary text-secondary transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-primary text-secondary transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/10 px-6">
           <h1 className="text-white text-2xl font-serif font-bold">{content.title}</h1>
-          <button onClick={() => setIsOpen?.(false)} className="lg:hidden text-secondary/70 hover:text-white">
+          <button onClick={() => setIsOpen(false)} className="lg:hidden text-secondary/70 hover:text-white">
             <FiX size={24} />
           </button>
         </div>

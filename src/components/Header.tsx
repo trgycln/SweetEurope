@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { BiLogOut, BiUserCircle } from 'react-icons/bi';
-import { FiMenu, FiSearch } from 'react-icons/fi'; // İkonlar güncellendi
+import { FiMenu, FiSearch } from 'react-icons/fi';
+import { Bildirimler } from './Bildirimler'; // YENİ: Bildirimler bileşeni import edildi
 
 interface HeaderProps {
   userEmail: string | undefined | null;
@@ -27,16 +28,13 @@ export const Header: React.FC<HeaderProps> = ({ userEmail, setIsSidebarOpen }) =
   return (
     <header className="fixed top-0 left-0 z-20 flex h-16 w-full items-center justify-between border-b border-bg-subtle bg-secondary px-4 sm:px-6 lg:left-64 lg:w-[calc(100%-16rem)]">
       
-      {/* Sol Alan: Hamburger Menü (Sadece Mobilde) ve Arama Çubuğu */}
       <div className="flex items-center gap-4">
-        {/* Hamburger Menü Butonu */}
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="lg:hidden text-text-main/70 hover:text-primary"
         >
           <FiMenu size={24} />
         </button>
-
         <div className="relative hidden sm:block">
           <FiSearch size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-main/40" />
           <input 
@@ -47,8 +45,10 @@ export const Header: React.FC<HeaderProps> = ({ userEmail, setIsSidebarOpen }) =
         </div>
       </div>
 
-      {/* Sağ Alan: Kullanıcı Bilgisi ve Çıkış Butonu */}
       <div className="flex items-center gap-4">
+        {/* YENİ: Bildirimler bileşeni eklendi */}
+        <Bildirimler />
+        <div className="h-8 w-px bg-bg-subtle hidden sm:block" />
         <div className="flex items-center gap-2 rounded-lg bg-bg-subtle p-2">
             <BiUserCircle size={22} className="text-accent" />
             <span className="hidden sm:inline text-sm font-medium text-text-main">

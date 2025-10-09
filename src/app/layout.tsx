@@ -1,8 +1,11 @@
+// src/app/layout.tsx (NİHAİ HALİ)
+
 import type { Metadata } from "next";
+// DÜZELTME: Fontları buraya, en dış layout'a import ediyoruz.
 import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
-import PageLayout from "@/components/PageLayout"; // Yeni bileşenimizi import ettik
 
+// DÜZELTME: Font değişkenlerini burada, global alanda tanımlıyoruz.
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: "700",
@@ -16,22 +19,20 @@ const lato = Lato({
   variable: "--font-lato",
 });
 
-// Artık bu dosya bir Sunucu Bileşeni olduğu için metadata sorunsuz çalışacaktır
 export const metadata: Metadata = {
-  title: "SweetDreams Germany",
-  description: "Premium Pastacılık ve Gurme Lezzetler",
+  title: "SweetHeaven & SweetDreams",
+  description: "Yönetim ve Partner Portalı",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="de" className={`${playfair.variable} ${lato.variable}`}>
-      <body className="bg-secondary">
-        <PageLayout>{children}</PageLayout>
-      </body>
+    // DÜZELTME: Font değişkenlerini <html> etiketine uygulayarak tüm projeye yayıyoruz.
+    <html lang="tr" className={`${playfair.variable} ${lato.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

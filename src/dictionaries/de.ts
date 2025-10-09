@@ -50,6 +50,8 @@ export const dictionary = {
       dashboard: "Dashboard",
       orders: "Meine Bestellungen",
       products: "Produktkatalog",
+      requests: "Meine Anfragen",
+      performance: "Meine Performance" 
     },
     header: {
       titleSuffix: "Portal",
