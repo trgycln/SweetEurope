@@ -4,10 +4,11 @@
 import { useState, useTransition, useEffect } from 'react';
 import { Tables } from '@/lib/supabase/database.types';
 import Link from 'next/link';
-import { FiArrowLeft, FiSave, FiX, FiInfo, FiClipboard, FiDollarSign, FiLoader, FiCheckCircle } from 'react-icons/fi';
-import { createUrunAction, updateUrunAction } from './actions';
+import { FiArrowLeft, FiSave, FiX, FiInfo, FiClipboard, FiDollarSign, FiLoader, FiCheckCircle, FiTrash2 } from 'react-icons/fi';
+import { createUrunAction, updateUrunAction, deleteUrunAction } from './actions'; // Silme action'ı import edildi
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { toast } from 'sonner'; // Toaster import edildi
 
 // Gerekli veri tipleri
 type Urun = Tables<'urunler'>;
@@ -25,17 +26,14 @@ interface UrunFormuProps {
 }
 
 const diller = [
-  { kod: 'de', ad: 'Almanca' },
-  { kod: 'en', ad: 'İngilizce' },
-  { kod: 'tr', ad: 'Türkçe' },
-  { kod: 'ar', ad: 'Arapça' },
+  { kod: 'de', ad: 'Almanca' }, { kod: 'en', ad: 'İngilizce' },
+  { kod: 'tr', ad: 'Türkçe' }, { kod: 'ar', ad: 'Arapça' },
 ];
 
 export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler, birimler }: UrunFormuProps) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const [isPending, startTransition] = useTransition();
-  const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [aktifDil, setAktifDil] = useState('de');
   
   const [seciliKategoriId, setSeciliKategoriId] = useState<string | null>(mevcutUrun?.kategori_id || null);
@@ -43,10 +41,7 @@ export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler, birimler }: U
 
   useEffect(() => {
     const fetchSablon = async () => {
-      if (!seciliKategoriId) {
-        setAktifSablon([]);
-        return;
-      }
+      if (!seciliKategoriId) { setAktifSablon([]); return; }
       const { data } = await supabase.from('kategori_ozellik_sablonlari').select('*').eq('kategori_id', seciliKategoriId).order('sira');
       setAktifSablon(data || []);
     };
@@ -54,22 +49,57 @@ export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler, birimler }: U
   }, [seciliKategoriId, supabase]);
 
   const handleFormSubmit = (formData: FormData) => {
-    setFormMessage(null);
-    startTransition(async () => {
+    startTransition(() => {
       const action = mevcutUrun 
         ? updateUrunAction.bind(null, mevcutUrun.id) 
         : createUrunAction;
       
-      const result = await action(formData);
-      if (result.success) {
-        setFormMessage({ type: 'success', text: result.message });
-        setTimeout(() => router.push('/admin/operasyon/urunler'), 1500);
-      } else {
-        setFormMessage({ type: 'error', text: result.message });
-      }
+      toast.promise(action(formData), {
+        loading: mevcutUrun ? 'Ürün güncelleniyor...' : 'Yeni ürün oluşturuluyor...',
+        success: (result) => {
+          if (result.success) {
+            // Yönlendirme için 1 saniye bekle, kullanıcı mesajı görsün.
+            setTimeout(() => router.push('/admin/operasyon/urunler'), 1000); 
+            return result.message;
+          } else {
+            throw new Error(result.message);
+          }
+        },
+        error: (err) => err.message,
+      });
     });
   };
   
+  const handleDelete = () => {
+    if (!mevcutUrun) return;
+
+    toast.warning(`"${mevcutUrun.ad?.['tr'] || 'Bu ürün'}" kalıcı olarak silinecektir.`, {
+        description: 'Bu işlem geri alınamaz. Emin misiniz?',
+        action: {
+            label: "Evet, Sil",
+            onClick: () => {
+                startTransition(() => {
+                    toast.promise(deleteUrunAction(mevcutUrun.id), {
+                        loading: 'Ürün siliniyor...',
+                        success: (result) => {
+                            if (result.success) {
+                                setTimeout(() => router.push('/admin/operasyon/urunler'), 1000);
+                                return result.message;
+                            } else {
+                                throw new Error(result.message);
+                            }
+                        },
+                        error: (err) => err.message,
+                    });
+                });
+            }
+        },
+        cancel: {
+            label: "İptal",
+        }
+    });
+  };
+
   const isEditMode = !!mevcutUrun;
 
   return (
@@ -88,17 +118,18 @@ export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler, birimler }: U
             </p>
           </div>
         </div>
+        {/* Silme butonu sadece düzenleme modunda görünür */}
+        {isEditMode && (
+          <button onClick={handleDelete} disabled={isPending} className="flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-red-500 text-red-500 rounded-lg font-bold text-sm hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50">
+            <FiTrash2 /> Sil
+          </button>
+        )}
       </header>
 
-      {formMessage && (
-        <div className={`p-4 rounded-md text-sm font-semibold flex items-center gap-3 ${formMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-          <FiCheckCircle />
-          {formMessage.text}
-        </div>
-      )}
-
+      {/* Formun kendisi action'a değil, handleFormSubmit fonksiyonuna bağlanacak */}
       <form action={handleFormSubmit} className="space-y-10">
         
+        {/* Temel Tanım Bölümü */}
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
           <h2 className="font-serif text-2xl font-bold text-primary mb-4">Temel Tanım</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -119,6 +150,7 @@ export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler, birimler }: U
           </div>
         </div>
 
+        {/* Ürün Bilgileri (Çok Dilli) Bölümü */}
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
           <h2 className="font-serif text-2xl font-bold text-primary mb-2 flex items-center gap-3"><FiInfo />Ürün Bilgileri (Çok Dilli)</h2>
           <div className="border-b border-gray-200 mb-6">
@@ -144,71 +176,39 @@ export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler, birimler }: U
           </div>
         </div>
 
+        {/* Operasyonel Bilgiler Bölümü */}
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
              <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiClipboard />Operasyonel Bilgiler</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">Stok Kodu (SKU)</label>
-                    <input type="text" name="stok_kodu" defaultValue={mevcutUrun?.stok_kodu || ''} className="w-full p-2 border rounded-md bg-gray-50 font-mono" />
-                </div>
-                <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">Stok Miktarı</label>
-                    <input type="number" name="stok_miktari" defaultValue={mevcutUrun?.stok_miktari || 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                </div>
-                <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">Stok Eşiği</label>
-                    <input type="number" name="stok_esigi" defaultValue={mevcutUrun?.stok_esigi || 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                </div>
-                <div>
-                    <label htmlFor="ana_satis_birimi_id" className="block text-sm font-bold text-gray-600 mb-1">Ana Satış Birimi</label>
-                    <select id="ana_satis_birimi_id" name="ana_satis_birimi_id" defaultValue={mevcutUrun?.ana_satis_birimi_id || ""} className="w-full p-2 border rounded-md bg-gray-50" required>
-                        <option value="" disabled>Bir birim seçin...</option>
-                        {birimler.map(b => (
-                            <option key={b.id} value={b.id}>
-                                {b.ad?.['tr'] || 'İsimsiz Birim'}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="flex items-center pt-5">
-                    <input type="checkbox" id="aktif" name="aktif" defaultChecked={mevcutUrun?.aktif ?? true} className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" />
-                    <label htmlFor="aktif" className="ml-3 block text-sm font-bold text-gray-600">Ürün Satışa Aktif mi?</label>
-                </div>
+                <div><label className="block text-sm font-bold text-gray-600 mb-1">Stok Kodu (SKU)</label><input type="text" name="stok_kodu" defaultValue={mevcutUrun?.stok_kodu || ''} className="w-full p-2 border rounded-md bg-gray-50 font-mono" /></div>
+                <div><label className="block text-sm font-bold text-gray-600 mb-1">Stok Miktarı</label><input type="number" name="stok_miktari" defaultValue={mevcutUrun?.stok_miktari || 0} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                <div><label className="block text-sm font-bold text-gray-600 mb-1">Stok Eşiği</label><input type="number" name="stok_esigi" defaultValue={mevcutUrun?.stok_esigi || 0} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                <div><label htmlFor="ana_satis_birimi_id" className="block text-sm font-bold text-gray-600 mb-1">Ana Satış Birimi</label><select id="ana_satis_birimi_id" name="ana_satis_birimi_id" defaultValue={mevcutUrun?.ana_satis_birimi_id || ""} className="w-full p-2 border rounded-md bg-gray-50" required><option value="" disabled>Bir birim seçin...</option>{birimler.map(b => (<option key={b.id} value={b.id}>{b.ad?.['tr'] || 'İsimsiz Birim'}</option>))}</select></div>
+                <div className="flex items-center pt-5"><input type="checkbox" id="aktif" name="aktif" defaultChecked={mevcutUrun?.aktif ?? true} className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" /><label htmlFor="aktif" className="ml-3 block text-sm font-bold text-gray-600">Ürün Satışa Aktif mi?</label></div>
              </div>
         </div>
 
+        {/* Fiyatlandırma Bölümü */}
         <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
              <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiDollarSign />Fiyatlandırma (EUR)</h2>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">Distribütör Alış Fiyatı (Net)</label>
-                    <input type="number" step="0.01" name="distributor_alis_fiyati" defaultValue={mevcutUrun?.distributor_alis_fiyati || 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                </div>
-                 <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">Satış Fiyatı - Müşteri (Net)</label>
-                    <input type="number" step="0.01" name="satis_fiyati_musteri" defaultValue={mevcutUrun?.satis_fiyati_musteri || 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                </div>
-                 <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">Satış Fiyatı - Alt Bayi (Net)</label>
-                    <input type="number" step="0.01" name="satis_fiyati_alt_bayi" defaultValue={mevcutUrun?.satis_fiyati_alt_bayi || 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                </div>
+                <div><label className="block text-sm font-bold text-gray-600 mb-1">Distribütör Alış Fiyatı (Net)</label><input type="number" step="0.01" name="distributor_alis_fiyati" defaultValue={mevcutUrun?.distributor_alis_fiyati || 0} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                 <div><label className="block text-sm font-bold text-gray-600 mb-1">Satış Fiyatı - Müşteri (Net)</label><input type="number" step="0.01" name="satis_fiyati_musteri" defaultValue={mevcutUrun?.satis_fiyati_musteri || 0} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                 <div><label className="block text-sm font-bold text-gray-600 mb-1">Satış Fiyatı - Alt Bayi (Net)</label><input type="number" step="0.01" name="satis_fiyati_alt_bayi" defaultValue={mevcutUrun?.satis_fiyati_alt_bayi || 0} className="w-full p-2 border rounded-md bg-gray-50" /></div>
              </div>
         </div>
 
+        {/* Teknik Özellikler Bölümü */}
         {aktifSablon.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
             <h2 className="font-serif text-2xl font-bold text-primary mb-6">Teknik Özellikler</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {aktifSablon.map(alan => (
-                <div key={alan.id}>
-                  <label className="block text-sm font-bold text-gray-600 mb-1">{alan.gosterim_adi}</label>
-                  <input type={alan.alan_tipi === 'sayı' ? 'number' : 'text'} name={`teknik_${alan.alan_adi}`} defaultValue={mevcutUrun?.teknik_ozellikler?.[alan.alan_adi] || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                </div>
-              ))}
+              {aktifSablon.map(alan => (<div key={alan.id}><label className="block text-sm font-bold text-gray-600 mb-1">{alan.gosterim_adi}</label><input type={alan.alan_tipi === 'sayı' ? 'number' : 'text'} name={`teknik_${alan.alan_adi}`} defaultValue={mevcutUrun?.teknik_ozellikler?.[alan.alan_adi] || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>))}
             </div>
           </div>
         )}
 
+        {/* Form Butonları */}
         <div className="flex justify-end gap-4 pt-6 border-t">
             <Link href="/admin/operasyon/urunler" passHref>
                 <button type="button" className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold text-sm">İptal</button>

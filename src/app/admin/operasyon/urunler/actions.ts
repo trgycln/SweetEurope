@@ -8,11 +8,9 @@ import { Tables } from '@/lib/supabase/database.types';
 type UrunUpdate = Partial<Tables<'urunler'>>;
 const diller = ['de', 'en', 'tr', 'ar'];
 
-// YENİDEN KULLANILABİLİR FONKSİYON: FormData'yı veritabanına uygun bir Urun objesine çevirir.
 function formDataToUrunObject(formData: FormData): UrunUpdate {
     const adJson: { [key: string]: string } = {};
     const aciklamalarJson: { [key: string]: string } = {};
-
     diller.forEach(dil => {
         adJson[dil] = formData.get(`ad_${dil}`) as string || '';
         aciklamalarJson[dil] = formData.get(`aciklamalar_${dil}`) as string || '';
@@ -45,49 +43,48 @@ function formDataToUrunObject(formData: FormData): UrunUpdate {
     return data;
 }
 
-// MEVCUT ÜRÜNÜ GÜNCELLEYEN ACTION
 export async function updateUrunAction(urunId: string, formData: FormData) {
   const supabase = createSupabaseServerClient();
   const guncellenecekVeri = formDataToUrunObject(formData);
-  
-  // Kategori, düzenleme sırasında değiştirilemez. Bu yüzden objeden siliyoruz.
   delete guncellenecekVeri.kategori_id; 
-
-  const { error } = await supabase
-    .from('urunler')
-    .update(guncellenecekVeri)
-    .eq('id', urunId);
-
+  const { error } = await supabase.from('urunler').update(guncellenecekVeri).eq('id', urunId);
   if (error) {
     console.error('Supabase Update Hatası:', error);
     return { success: false, message: 'Ürün güncellenirken bir hata oluştu: ' + error.message };
   }
-
-  // İlgili sayfaların önbelleğini temizle ki güncel veriler görünsün.
   revalidatePath(`/admin/operasyon/urunler`);
   revalidatePath(`/admin/operasyon/urunler/${urunId}`);
-
   return { success: true, message: 'Ürün başarıyla güncellendi!' };
 }
 
-// YENİ ÜRÜN OLUŞTURAN ACTION
 export async function createUrunAction(formData: FormData) {
   const supabase = createSupabaseServerClient();
   const yeniVeri = formDataToUrunObject(formData);
-  
-  // Yeni ürün için zorunlu alanları kontrol et.
   if (!yeniVeri.kategori_id || !yeniVeri.ana_satis_birimi_id) {
     return { success: false, message: 'Lütfen Kategori ve Ana Satış Birimi seçin.' };
   }
-
   const { error } = await supabase.from('urunler').insert(yeniVeri as Tables<'urunler'>);
-
   if (error) {
     console.error('Supabase Insert Hatası:', error);
     return { success: false, message: 'Ürün oluşturulurken bir hata oluştu: ' + error.message };
   }
-
-  // Ürün listesi sayfasının önbelleğini temizle.
   revalidatePath('/admin/operasyon/urunler');
   return { success: true, message: 'Ürün başarıyla oluşturuldu!' };
+}
+
+// YENİ: ÜRÜN SİLME ACTION'I
+export async function deleteUrunAction(urunId: string) {
+    const supabase = createSupabaseServerClient();
+    const { error } = await supabase.from('urunler').delete().eq('id', urunId);
+
+    if (error) {
+        console.error("Ürün silme hatası:", error);
+        if (error.code === '23503') { // Foreign key kısıtlaması ihlali
+            return { success: false, message: 'Bu ürün bir siparişe bağlı olduğu için silinemez.' };
+        }
+        return { success: false, message: 'Ürün silinirken bir hata oluştu: ' + error.message };
+    }
+
+    revalidatePath('/admin/operasyon/urunler');
+    return { success: true, message: 'Ürün başarıyla silindi.' };
 }
