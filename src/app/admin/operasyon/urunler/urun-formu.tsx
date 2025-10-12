@@ -13,6 +13,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 type Urun = Tables<'urunler'>;
 type Kategori = Tables<'kategoriler'>;
 type Tedarikci = Pick<Tables<'tedarikciler'>, 'id' | 'unvan'>;
+type Birim = Tables<'birimler'>;
 type Sablon = Tables<'kategori_ozellik_sablonlari'>;
 
 // Bileşenin alacağı props'lar
@@ -20,6 +21,7 @@ interface UrunFormuProps {
   mevcutUrun?: Urun;
   kategoriler: Kategori[];
   tedarikciler: Tedarikci[];
+  birimler: Birim[];
 }
 
 const diller = [
@@ -29,7 +31,7 @@ const diller = [
   { kod: 'ar', ad: 'Arapça' },
 ];
 
-export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler }: UrunFormuProps) {
+export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler, birimler }: UrunFormuProps) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const [isPending, startTransition] = useTransition();
@@ -151,15 +153,26 @@ export function UrunFormu({ mevcutUrun, kategoriler, tedarikciler }: UrunFormuPr
                 </div>
                 <div>
                     <label className="block text-sm font-bold text-gray-600 mb-1">Stok Miktarı</label>
-                    <input type="number" name="stok_miktari" defaultValue={mevcutUrun?.stok_miktari} className="w-full p-2 border rounded-md bg-gray-50" />
+                    <input type="number" name="stok_miktari" defaultValue={mevcutUrun?.stok_miktari || 0} className="w-full p-2 border rounded-md bg-gray-50" />
                 </div>
                 <div>
                     <label className="block text-sm font-bold text-gray-600 mb-1">Stok Eşiği</label>
                     <input type="number" name="stok_esigi" defaultValue={mevcutUrun?.stok_esigi || 0} className="w-full p-2 border rounded-md bg-gray-50" />
                 </div>
                 <div>
-                    <label className="block text-sm font-bold text-gray-600 mb-1">Satış Birimi</label>
-                    <input type="text" name="birim" defaultValue={mevcutUrun?.birim || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                    <label htmlFor="ana_satis_birimi_id" className="block text-sm font-bold text-gray-600 mb-1">Ana Satış Birimi</label>
+                    <select id="ana_satis_birimi_id" name="ana_satis_birimi_id" defaultValue={mevcutUrun?.ana_satis_birimi_id || ""} className="w-full p-2 border rounded-md bg-gray-50" required>
+                        <option value="" disabled>Bir birim seçin...</option>
+                        {birimler.map(b => (
+                            <option key={b.id} value={b.id}>
+                                {b.ad?.['tr'] || 'İsimsiz Birim'}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="flex items-center pt-5">
+                    <input type="checkbox" id="aktif" name="aktif" defaultChecked={mevcutUrun?.aktif ?? true} className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" />
+                    <label htmlFor="aktif" className="ml-3 block text-sm font-bold text-gray-600">Ürün Satışa Aktif mi?</label>
                 </div>
              </div>
         </div>
