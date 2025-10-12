@@ -1,84 +1,94 @@
-// src/components/urun-detay-gorunumu.tsx
-import React from 'react';
+'use client';
+
+import React from 'react'; // DÜZELTME: 'from' kelimesi eklendi.
 import Image from 'next/image';
 import { Tables } from '@/lib/supabase/database.types';
-import { productSchemas } from '@/lib/product-schemas';
-import { FiPackage, FiInfo } from 'react-icons/fi';
+import { getLocalizedName, formatCurrency } from '@/lib/utils';
+import { FaCookieBite, FaWeightHanging, FaBoxOpen, FaSnowflake, FaCalendarAlt, FaClock, FaInfoCircle } from 'react-icons/fa';
 
-type Urun = Tables<'urunler'>;
+// Tipleri daha net tanımlıyoruz
+type Urun = Tables<'urunler'> & { kategoriler: Pick<Tables<'kategoriler'>, 'ad'> | null };
+type Lang = 'de' | 'tr' | 'en' | 'ar';
 
-// Teknik özellikleri dinamik olarak listeleyen yardımcı bileşen
-const TeknikOzelliklerListesi = ({ urun }: { urun: Urun }) => {
-    const schema = productSchemas[urun.ana_kategori || ''];
-    if (!schema || !urun.teknik_ozellikler) return null;
+// Teknik özelliklerin ikon ve etiketlerini tanımlayan yapı
+const ozelliklerMap = [
+    { key: 'dilim_sayisi', label: 'Portionen', icon: <FaCookieBite className="text-accent"/>, suffix: '' },
+    { key: 'agirlik_gr', label: 'Gewicht', icon: <FaWeightHanging className="text-accent"/>, suffix: ' gr' },
+    { key: 'porsiyon_boyutu_gr', label: 'Portionsgröße', icon: <FaBoxOpen className="text-accent"/>, suffix: ' gr' },
+    { key: 'saklama_kosullari', label: 'Lagerung', icon: <FaSnowflake className="text-accent"/>, suffix: '' },
+    { key: 'saklama_suresi_ay', label: 'Haltbarkeit (tiefgekühlt)', icon: <FaCalendarAlt className="text-accent"/>, suffix: ' Monate' },
+    { key: 'cozunme_suresi_dk', label: 'Auftauzeit', icon: <FaClock className="text-accent"/>, suffix: ' min' },
+    { key: 'raf_omru_gun', label: 'Haltbarkeit (aufgetaut)', icon: <FaClock className="text-accent"/>, suffix: ' Tage' },
+    // Gelecekte kahve için eklenebilecek bir örnek:
+    { key: 'mensei', label: 'Herkunft', icon: <FaInfoCircle className="text-accent"/>, suffix: '' },
+];
 
-    const allFields = [...schema.teknikDetaylar, ...schema.kullanimVeSaklama];
+export function UrunDetayGorunumu({ urun, lang }: { urun: Urun, lang: Lang }) {
+    const urunAdi = getLocalizedName(urun.urun_adi, lang);
+    const aciklama = getLocalizedName(urun.aciklama, lang);
+    const kategoriAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, lang) : '';
+    
+    // JSONB verisinden gelen ve haritamızda tanımlı olan özellikleri filtreleyip gösterime hazırlıyoruz
+    const gosterilecekOzellikler = urun.teknik_ozellikler 
+        ? ozelliklerMap
+            .filter(item => (urun.teknik_ozellikler as any)[item.key] !== null && (urun.teknik_ozellikler as any)[item.key] !== undefined)
+            .map(item => ({...item, value: (urun.teknik_ozellikler as any)[item.key]}))
+        : [];
 
     return (
-        <div className="space-y-4">
-            {allFields.map(field => {
-                const value = urun.teknik_ozellikler[field.id as keyof typeof urun.teknik_ozellikler];
-                if (!value) return null;
-                
-                return (
-                    <div key={field.id} className="flex justify-between border-b pb-2">
-                        <span className="font-medium text-text-main/80">{field.label}</span>
-                        <span className="font-bold text-primary">{value} {field.unit || ''}</span>
-                    </div>
-                );
-            })}
-        </div>
-    );
-};
-
-// Ana Detay Görünümü Bileşeni
-export function UrunDetayGorunumu({ urun, price }: { urun: Urun, price: number }) {
-    const formatPrice = (p: number) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(p);
-
-    return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Sol Sütun: Resim Galerisi */}
-            <div>
-                <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg mb-4">
-                    <Image src={urun.fotograf_url_listesi?.[0] || '/placeholder.png'} alt={urun.urun_adi} fill priority className="object-cover"/>
-                </div>
-                <div className="flex gap-4">
-                    {urun.fotograf_url_listesi?.map((imgUrl, index) => (
-                        <div key={index} className="relative w-24 h-24 rounded-md overflow-hidden">
-                             <Image src={imgUrl} alt={`${urun.urun_adi} - ${index + 1}`} fill className="object-cover" />
+        <div className="bg-secondary py-12 md:py-20">
+            <div className="container mx-auto px-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
+                    {/* Resim Galerisi */}
+                    <div>
+                        <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg mb-4">
+                           {(urun.fotograf_url_listesi && urun.fotograf_url_listesi.length > 0) ? (
+                             <Image 
+                                src={urun.fotograf_url_listesi[0]} 
+                                alt={urunAdi} 
+                                layout="fill" 
+                                objectFit="cover" 
+                                priority 
+                                className="transition-transform duration-500 hover:scale-105"
+                             />
+                           ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <span className="text-gray-500">Görsel Yok</span>
+                            </div>
+                           )}
                         </div>
-                    ))}
-                </div>
-            </div>
+                        {/* Küçük galeri resimleri buraya eklenebilir */}
+                    </div>
 
-            {/* Sağ Sütun: Ürün Bilgileri */}
-            <div className="space-y-6">
-                <div>
-                    <p className="font-sans text-sm text-gray-500 mb-2">{urun.ana_kategori} / {urun.alt_kategori}</p>
-                    <h1 className="text-4xl md:text-5xl font-serif text-primary">{urun.urun_adi}</h1>
-                    <p className="font-serif text-3xl text-accent mt-4">{formatPrice(price)}</p>
-                </div>
+                    {/* Ürün Detayları */}
+                    <div className="flex flex-col">
+                        <p className="font-sans text-sm text-gray-500 mb-2 uppercase tracking-wider">{kategoriAdi}</p>
+                        <h1 className="text-4xl md:text-5xl font-serif text-primary mb-4">{urunAdi}</h1>
+                        <p className="font-serif text-3xl text-accent mb-6">{formatCurrency(urun.temel_satis_fiyati, 'EUR')}</p>
+                        
+                        <div className="font-sans text-text-main leading-relaxed mb-8 prose">
+                            <p>{aciklama}</p>
+                        </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 className="font-serif text-2xl font-bold text-primary flex items-center gap-3 mb-4"><FiPackage /> Ürün Açıklaması</h2>
-                    <p className="text-text-main leading-relaxed whitespace-pre-wrap">{urun.aciklama}</p>
-                    {urun.icindekiler_listesi && (
-                        <>
-                            <h3 className="font-bold text-sm uppercase mt-6 mb-2">İçindekiler</h3>
-                            <p className="text-sm text-text-main/80">{urun.icindekiler_listesi}</p>
-                        </>
-                    )}
-                    {urun.alerjen_listesi && (
-                         <>
-                            <h3 className="font-bold text-sm uppercase mt-4 mb-2">Alerjenler</h3>
-                            <p className="text-sm text-text-main/80">{urun.alerjen_listesi}</p>
-                        </>
-                    )}
-                </div>
-
-                <div className="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 className="font-serif text-2xl font-bold text-primary flex items-center gap-3 mb-4"><FiInfo /> Teknik Detaylar</h2>
-                    <TeknikOzelliklerListesi urun={urun} />
+                        {gosterilecekOzellikler.length > 0 && (
+                             <div className="border-t border-gray-300 pt-6">
+                                <h3 className="font-bold font-sans tracking-wider uppercase mb-2 text-primary">Details</h3>
+                                <div className="space-y-2">
+                                    {gosterilecekOzellikler.map(item => (
+                                         <div key={item.key} className="flex justify-between items-center py-3 border-b border-gray-200">
+                                             <div className="flex items-center gap-3">
+                                                 {item.icon}
+                                                 <span className="font-medium text-text-main">{item.label}</span>
+                                             </div>
+                                             <span className="font-semibold text-primary">
+                                                 {item.value}{item.suffix || ''}
+                                             </span>
+                                         </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

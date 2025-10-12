@@ -1,10 +1,13 @@
+// src/app/admin/layout.tsx
+
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { AdminLayoutClient } from '@/components/AdminLayoutClient';
 import { Enums } from '@/lib/supabase/database.types';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createSupabaseServerClient();
+  // DEĞİŞİKLİK: 'await' eklendi.
+  const supabase = await createSupabaseServerClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

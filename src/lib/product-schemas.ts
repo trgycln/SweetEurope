@@ -1,5 +1,7 @@
 // src/lib/product-schemas.ts
 
+import { Enums } from "./supabase/database.types";
+
 // Formdaki bir alanın yapısını tanımlar.
 export type FieldType = "text" | "number" | "textarea";
 
@@ -18,6 +20,7 @@ export interface CategorySchema {
 }
 
 // ANA KURAL LİSTESİ: Hangi kategoride hangi alanların gösterileceği burada tanımlanır.
+// Gelecekte yeni bir kategori (örn: 'Kahveler') eklemek için tek yapman gereken buraya yeni bir giriş eklemek.
 export const productSchemas: Record<string, CategorySchema> = {
   "Yaş Pasta": {
     teknikDetaylar: [
@@ -52,7 +55,7 @@ export const productSchemas: Record<string, CategorySchema> = {
   },
 };
 
-// Formda kullanılacak ana kategori seçenekleri
+// Formda kullanılacak ana kategori seçeneklerini merkezi bir yerden alıyoruz.
 export const anaKategoriOptions: (string & {})[] = [
     "Yaş Pasta", "Cheesecake", "Kuru Pasta", "Muffin", "Kek", "Sütlü Tatlı", "Tuzlular", "Cookie"
 ];

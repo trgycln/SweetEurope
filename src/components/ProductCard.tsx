@@ -1,49 +1,52 @@
-// src/components/ProductCard.tsx (NİHAİ VE DOĞRU HALİ)
-import React from 'react';
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { Tables } from '@/lib/supabase/database.types';
+import { getLocalizedName } from '@/lib/utils';
+import { Tables } from '@/lib-supabase/database.types';
 
-// Prop olarak doğrudan veritabanı tipini ('urunler' satırı) alacak şekilde güncelliyoruz.
 type ProductCardProps = {
-  urun: Tables<'urunler'>;
-  dictionary: any; // Şimdilik any kalabilir
-  linkHref: string; // Kartın nereye link vereceğini dışarıdan alıyoruz
+    urun: Tables<'urunler'> & { kategoriler: { ad: any } | null };
+    lang: 'de' | 'tr' | 'en' | 'ar';
+    linkHref: string;
 };
 
-// Fiyatı formatlamak için yardımcı fonksiyon
-const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(price);
-};
+export default function ProductCard({ urun, lang, linkHref }: ProductCardProps) {
+    const urunAdi = getLocalizedName(urun.urun_adi, lang);
+    const kategoriAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, lang) : '';
+    const imageUrl = (urun.fotograf_url_listesi && urun.fotograf_url_listesi.length > 0) 
+        ? urun.fotograf_url_listesi[0] 
+        : '/placeholder.jpg'; // Varsayılan bir görsel yolu
 
-const ProductCard: React.FC<ProductCardProps> = ({ urun, dictionary, linkHref }) => {
-  return (
-    <Link href={linkHref} className="group bg-white rounded-lg shadow-lg overflow-hidden flex flex-col h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
-      <div className="relative w-full h-64 overflow-hidden">
-        <Image
-          src={urun.fotograf_url_listesi?.[0] || '/placeholder.png'} // veritabanındaki doğru kolon adı
-          alt={urun.urun_adi} // veritabanındaki doğru kolon adı
-          fill // Modern Next.js kullanımı
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transform group-hover:scale-110 transition-transform duration-500 ease-in-out"
-        />
-      </div>
-      <div className="p-6 flex-grow flex flex-col">
-        <p className="font-sans text-sm text-gray-500 mb-1">{urun.kategori}</p> 
-        <h3 className="font-serif text-xl font-bold text-primary mb-4 flex-grow">
-          {urun.urun_adi}
-        </h3>
-        <div className="flex justify-between items-center mt-auto">
-            <p className="font-sans font-bold text-xl text-accent">
-                {formatPrice(urun.temel_satis_fiyati)} 
-            </p>
-            <div className="text-secondary bg-primary text-center font-bold py-2 px-4 rounded-md text-sm">
-              {dictionary.productsPage.detailsButton}
+    return (
+        <Link href={linkHref} passHref>
+            <div className="group block bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div className="relative w-full aspect-[4/3] overflow-hidden">
+                    <Image
+                        src={imageUrl}
+                        alt={urunAdi}
+                        layout="fill"
+                        objectFit="cover"
+                        className="transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <div className="absolute bottom-4 left-4">
+                        <p className="text-xs font-semibold text-white uppercase tracking-wider bg-black/30 px-2 py-1 rounded">
+                            {kategoriAdi}
+                        </p>
+                    </div>
+                </div>
+                <div className="p-4">
+                    <h3 className="font-serif text-lg font-semibold text-primary truncate" title={urunAdi}>
+                        {urunAdi}
+                    </h3>
+                    <div className="mt-4 flex justify-center items-center">
+                        <span className="text-sm font-bold text-white bg-accent px-6 py-2 rounded-full transition-all duration-300 group-hover:bg-primary">
+                            Details ansehen
+                        </span>
+                    </div>
+                </div>
             </div>
-        </div>
-      </div>
-    </Link>
-  );
-};
-
-export default ProductCard;
+        </Link>
+    );
+}

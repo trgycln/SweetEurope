@@ -37,8 +37,8 @@ const QuickActionButton = ({ label, icon, href }: { label: string, icon: React.R
 );
 
 async function ManagerDashboard() {
-    const supabase = createSupabaseServerClient();
-    // DÜZELTME: 'dashboardPage' zu 'dashboard' geändert, um mit de.ts übereinzustimmen
+    // ## CHANGE 1: Added 'await' here.
+    const supabase = await createSupabaseServerClient();
     const content = dictionary.dashboard;
     
     const now = new Date();
@@ -57,7 +57,7 @@ async function ManagerDashboard() {
         supabase.from('gorevler').select('id', { count: 'exact' }).eq('tamamlandi', false).lt('son_tarih', new Date().toISOString())
     ]);
 
-    const formatCurrency = (value: number) => new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
+    const formatCurrency = (value: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
     const pnlData = pnlRes.data;
 
     return (
@@ -88,8 +88,8 @@ async function ManagerDashboard() {
 }
 
 async function TeamMemberDashboard({ userId }: { userId: string }) {
-    const supabase = createSupabaseServerClient();
-    // DÜZELTME: 'dashboardPage' zu 'dashboard' geändert
+    // ## CHANGE 2: Added 'await' here.
+    const supabase = await createSupabaseServerClient();
     const content = dictionary.dashboard;
     
     const { data, error } = await supabase.rpc('get_dashboard_summary_for_member', { p_member_id: userId }).single();
@@ -117,8 +117,8 @@ async function TeamMemberDashboard({ userId }: { userId: string }) {
 }
 
 export default async function AdminDashboardPage() {
-    const supabase = createSupabaseServerClient();
-    // DÜZELTME: 'dashboardPage' zu 'dashboard' geändert
+    // ## CHANGE 3: Added 'await' here.
+    const supabase = await createSupabaseServerClient();
     const content = dictionary.dashboard;
 
     const { data: { user } } = await supabase.auth.getUser();

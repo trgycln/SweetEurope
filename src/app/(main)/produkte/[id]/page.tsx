@@ -1,21 +1,27 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { UrunDetayGorunumu } from "@/components/urun-detay-gorunumu";
+import { UrunDetayGorunumu } from "@/components/urun-detay-gorunumu"; // Bu bileşeni de güncelleyeceğiz
 import { notFound } from "next/navigation";
 
 export default async function PublicUrunDetayPage({ params }: { params: { id: string } }) {
-    const supabase = createSupabaseServerClient();
-    
-    const { data: urun } = await supabase.from('urunler').select('*').eq('id', params.id).single();
+    // ## KORREKTUR: 'await' wurde hier hinzugefügt ##
+    const supabase = await createSupabaseServerClient();
+    const lang = 'de'; // Dil sabit
 
-    if (!urun) {
+    const { data: urun, error } = await supabase
+        .from('urunler')
+        .select('*, kategoriler(ad)')
+        .eq('id', params.id)
+        .eq('gorunurluk', 'Herkese Açık') // Sadece halka açık olanları getir
+        .single();
+
+    if (error || !urun) {
         notFound();
     }
 
     return (
-        <div className="bg-secondary py-12 md:py-20">
-            <div className="container mx-auto px-6">
-                <UrunDetayGorunumu urun={urun} price={urun.temel_satis_fiyati} />
-            </div>
-        </div>
+        <UrunDetayGorunumu 
+            urun={urun}
+            lang={lang}
+        />
     );
 }

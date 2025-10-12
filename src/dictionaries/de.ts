@@ -19,15 +19,15 @@ export const dictionary = {
 
   // --- Story Section ---
   storyTitle: 'Von der Manufaktur zum Marktführer', // YENİ EKLENDİ
-  storyP1: 'SweetDreams wurde 2010 als kleine Manufaktur in Berlin gegründet, angetrieben von der Leidenschaft, traditionelle Rezepte mit moderner Ästhetik zu verbinden. Jedes Rezept wurde über Generationen perfektioniert.', // YENİ EKLENDİ
+  storyP1: 'ElysonSweets wurde 2010 als kleine Manufaktur in Berlin gegründet, angetrieben von der Leidenschaft, traditionelle Rezepte mit moderner Ästhetik zu verbinden. Jedes Rezept wurde über Generationen perfektioniert.', // YENİ EKLENDİ
   storyP2: 'Heute sind wir stolz darauf, ein wachsendes Netzwerk von Geschäftspartnern in ganz Deutschland zu beliefern und unsere kompromisslose Verpflichtung zur Qualität beizubehalten, während wir expandieren.', // YENİ EKLENDİ
 
   // --- Image Alts (Resim Açıklamaları) ---
-  image1Alt: 'SweetDreams Konditor bei der Handarbeit an einer Torte.', // YENİ EKLENDİ
-  image2Alt: 'Historische Aufnahme der ersten SweetDreams Manufaktur-Küche.', // YENİ EKLENDİ
+  image1Alt: 'ElysonSweets Konditor bei der Handarbeit an einer Torte.', // YENİ EKLENDİ
+  image2Alt: 'Historische Aufnahme der ersten ElysonSweets Manufaktur-Küche.', // YENİ EKLENDİ
   
   // --- Zuvor Düzeltilmiş Diğer Anahtarlar ---
-  section1Title: 'Das Herz von SweetDreams',
+  section1Title: 'Das Herz von ElysonSweets',
   section1Text: 'Wir wählen nur die feinsten Zutaten und garantieren meisterhafte Handwerkskunst in jeder Kreation. Qualität ist kein Versprechen, sondern unser Standard.',
 },
 
@@ -254,7 +254,7 @@ dashboardPage: {
     welcomeText: 'Profitieren Sie von exklusiven Preisen, Marketingmaterialien und einem engagierten Support-Team, das Ihnen zum Erfolg verhilft.',
   },
   registerPage: { 
-    title: 'Werden Sie SweetDreams-Partner',
+    title: 'Werden Sie ElysonSweets-Partner',
     subtitle: 'Füllen Sie das Antragsformular aus und werden Sie Teil unseres exklusiven Netzwerks.',
     companyName: 'Name des Unternehmens',
     contactPerson: 'Ansprechpartner',
@@ -329,9 +329,9 @@ dashboardPage: {
   },
   philosophy: {
     title: 'Unsere Philosophie',
-    paragraph1: 'Bei SweetDreams glauben wir, dass wahrer Luxus in der kompromisslosen Qualität der Zutaten und der leidenschaftlichen Handwerkskunst unserer Meisterkonditoren liegt.',
+    paragraph1: 'Bei ElysonSweets glauben wir, dass wahrer Luxus in der kompromisslosen Qualität der Zutaten und der leidenschaftlichen Handwerkskunst unserer Meisterkonditoren liegt.',
     paragraph2: 'Jede Kreation ist ein Versprechen – ein unvergessliches Geschmackserlebnis, das aus Tradition geboren und für den modernen Gaumen perfektioniert wurde.',
-    imageAlt: 'SweetDreams tarafından özel olarak hazırlanmış, arka fonsuz bir pasta görseli',
+    imageAlt: 'ElysonSweets tarafından özel olarak hazırlanmış, arka fonsuz bir pasta görseli',
   },
   categories: {
     title: 'Unsere Produktkategorien',
@@ -344,10 +344,10 @@ dashboardPage: {
   },
   testimonials: {
     title: 'Stimmen unserer Partner',
-    review1: 'Die Qualität und Kreativität von SweetDreams hat unser Café auf ein neues Level gehoben. Unsere Kunden lieben die Desserts!',
+    review1: 'Die Qualität und Kreativität von ElysonSweets hat unser Café auf ein neues Level gehoben. Unsere Kunden lieben die Desserts!',
     name1: 'Anna Schmidt',
     company1: 'Inhaberin, Café Bellevue',
-    review2: 'Zuverlässige Lieferung und konstant herausragende Produkte. SweetDreams ist für unsere Events ein unverzichtbarer Partner geworden.',
+    review2: 'Zuverlässige Lieferung und konstant herausragende Produkte. ElysonSweets ist für unsere Events ein unverzichtbarer Partner geworden.',
     name2: 'Maximilian Huber',
     company2: 'Eventmanager, Huber & Co.',
     review3: 'Vom ersten Kontakt bis zur Lieferung – absolute Professionalität. Die Patisserie ist nicht nur lecker, sondern auch ein Kunstwerk.',
@@ -379,9 +379,9 @@ dashboardPage: {
     legal: 'Rechtliches',
     impressum: 'Impressum',
     datenschutz: 'Datenschutz',
-    copyright: '© 2025 SweetDreams Germany. Alle Rechte vorbehalten.',
+    copyright: '© 2025 ElysonSweets Germany. Alle Rechte vorbehalten.',
   },
-  logoAlt: 'SweetDreams Logo',
+  logoAlt: 'ElysonSweets Logo',
   productDetailPage: {
     description: 'Beschreibung',
     ingredients: 'Zutaten',
@@ -467,10 +467,10 @@ dashboardPage: {
     sectionTitle1: '1. Verantwortliche Stelle',
     responsibleBody: 'Verantwortliche Stelle im Sinne der Datenschutzgesetze, insbesondere der EU-Datenschutzgrundverordnung (DSGVO), ist:',
     companyDetails: [
-      'SweetDreams GmbH',
+      'ElysonSweets GmbH',
       'Musterstraße 123',
       '12345 Berlin',
-      'E-Mail: info@sweetdreams.de',
+      'E-Mail: info@ElysonSweets.de',
     ],
     sectionTitle2: '2. Ihre Betroffenenrechte',
     rightsIntro: 'Unter den angegebenen Kontaktdaten unseres Datenschutzbeauftragten können Sie jederzeit folgende Rechte ausüben:',
@@ -488,7 +488,7 @@ dashboardPage: {
     title: 'Impressum',
     section1Title: 'Angaben gemäß § 5 TMG',
     address: [
-      'SweetDreams GmbH',
+      'ElysonSweets GmbH',
       'Musterstraße 123',
       '12345 Berlin',
       'Deutschland',
@@ -497,7 +497,7 @@ dashboardPage: {
     managingDirector: 'Turgay Celen',
     section3Title: 'Kontakt',
     phone: 'Telefon: +49 (0) 123 456 789',
-    email: 'E-Mail: info@sweetdreams.de',
+    email: 'E-Mail: info@ElysonSweets.de',
     section4Title: 'Registereintrag',
     registerCourt: 'Amtsgericht Charlottenburg',
     registerNumber: 'HRB 123456 B',
@@ -517,7 +517,7 @@ dashboardPage: {
     detailsTitle: 'Direkter Kontakt',
     address: 'Musterstraße 123, 12345 Berlin, Deutschland',
     phone: '+49 (0) 123 456 789',
-    email: 'info@sweetdreams.de',
+    email: 'info@ElysonSweets.de',
   },
     adminPartners: {
         title: "Partner-Verwaltung",

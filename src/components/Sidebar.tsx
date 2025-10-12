@@ -13,13 +13,18 @@ type UserRole = Enums<'user_role'> | null;
 const menuItems = [
   { name: 'Ana Panel', href: '/admin/dashboard', icon: FiGrid },
   { name: 'Firmalar (CRM)', href: '/admin/crm/firmalar', icon: FiUsers },
+  { name: 'Katagoriler', href: '/admin/ayarlar/sablonlar', label: 'Özellik Şablonları', icon: FiGrid },
   { name: 'Ürünler', href: '/admin/operasyon/urunler', icon: FiBox },
+  
   { name: 'Siparişler', href: '/admin/operasyon/siparisler', icon: FiPackage },
   { name: 'Görevler', href: '/admin/idari/gorevler', icon: FiClipboard },
   { name: 'Tedarikçi Yönetimi', href: '/admin/idari/kontaklar', icon: FiBriefcase },
   { name: 'Pazarlama Materyalleri', href: '/admin/idari/materyaller', icon: FiGift, roles: ['Yönetici'] as UserRole[] },
   { name: 'İçerik Yönetimi (Blog)', href: '/admin/pazarlama/blog', icon: FiEdit, roles: ['Yönetici'] },
   { name: 'Finans Raporu', href: '/admin/idari/finans/raporlama', icon: FiBarChart2, roles: ['Yönetici'] as UserRole[] },
+  { name: 'Fiyat Listesi', href: '/admin/operasyon/fiyat-listesi', icon: FiBarChart2, roles: ['Yönetici'] as UserRole[] },
+  { name: 'Kategori Yönetimi', href: '/admin/idari/kategoriler', icon: FiGift, roles: ['Yönetici'] as UserRole[] },
+
 ];
 
 type SidebarProps = {

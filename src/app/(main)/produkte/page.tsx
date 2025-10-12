@@ -1,68 +1,80 @@
-"use client";
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { getLocalizedName } from '@/lib/utils';
+import ProductCard from '@/components/ProductCard';
+import { ProduktFilterClient } from '@/components/produkt-filter-client';
+import { dictionary } from '@/dictionaries/de'; 
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { dictionary } from '@/dictionaries/de';
-import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { Tables } from '@/lib/supabase/database.types';
-import ProductCard from '@/components/ProductCard'; // Merkezi ProductCard'ı import et
+export const revalidate = 0;
 
-type Product = Tables<'urunler'>;
-interface Category { name: string; subCategories: { name: string }[]; }
-const PRODUCTS_PER_PAGE = 9;
+export default async function ProductsPage({
+    searchParams,
+}: {
+    searchParams?: { [key: string]: string | undefined };
+}) {
+    // ## KORREKTUR: 'await' wurde hier hinzugefügt ##
+    const supabase = await createSupabaseServerClient();
+    const lang = 'de';
 
-export default function ProductsPage() {
-  const supabase = createSupabaseBrowserClient();
-  const content = dictionary.productsPage;
-  const { mainCategories } = dictionary.megaMenu;
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  // ... (Filtreleme state'leri aynı)
+    const { data: kategorilerData } = await supabase.from('kategoriler').select('id, ad, ust_kategori_id');
+    
+    // Kategori listesini, public sitede kullanılacak formata dönüştürüyoruz.
+    const kategoriListesi = kategorilerData?.map(k => ({
+        id: k.id,
+        ad: getLocalizedName(k.ad, lang),
+        ust_kategori_id: k.ust_kategori_id
+    })) || [];
 
-  useEffect(() => {
-    const fetchAllProducts = async () => {
-      setLoading(true);
-      const { data, error } = await supabase.from('urunler').select('*'); // Veritabanından canlı veri
-      if (error) {
-        console.error("Ürünler çekilirken hata:", error);
-        setAllProducts([]);
-      } else {
-        setAllProducts(data || []);
-      }
-      setLoading(false);
-    };
-    fetchAllProducts();
-  }, [supabase]);
+    const seciliKategoriId = searchParams?.kategori;
+    
+    let query = supabase
+        .from('urunler')
+        .select('*, kategoriler(id, ad)')
+        .eq('gorunurluk', 'Herkese Açık');
 
-  // ... (filteredProducts, pagination, event handler'lar aynı)
+    if (seciliKategoriId) {
+        // Seçilen kategorinin alt kategorileri olup olmadığını kontrol et
+        const altKategoriler = kategoriListesi.filter(k => k.ust_kategori_id === seciliKategoriId).map(k => k.id);
+        const idFilterList = [seciliKategoriId, ...altKategoriler];
+        
+        // Hem ana kategoriye hem de onun altındaki tüm kategorilere ait ürünleri getir
+        query = query.in('kategori_id', idFilterList);
+    }
 
-  return (
-    <div className="bg-secondary">
-      <div className="container mx-auto px-6 py-12">
-        {/* ... (Başlık ve filtreleme menüsü aynı) ... */}
-        <main className="md:w-3/4">
-          {loading ? <p>Yükleniyor...</p> : (
-            <>
-              {paginatedProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {paginatedProducts.map((product) => (
-                    <ProductCard 
-                        key={product.id}
-                        urun={product}
-                        dictionary={dictionary}
-                        linkHref={`/produkte/${product.id}`} // Doğru detay sayfasına link
-                    />
-                  ))}
+    const { data: urunler, error } = await query.order('created_at', { ascending: false });
+
+    return (
+        <div className="bg-secondary">
+            <div className="container mx-auto px-6 py-12">
+                <div className="text-center mb-12">
+                    <h1 className="text-5xl font-serif">{dictionary.productsPage.title}</h1>
                 </div>
-              ) : (
-                <div className="text-center py-16">
-                  <p className="font-serif text-xl">Seçili Kriterlere Uygun Ürün Bulunamadı.</p>
+                <div className="flex flex-col md:flex-row gap-12">
+                    <aside className="md:w-1/4">
+                         <h2 className="font-bold font-sans tracking-wider uppercase mb-4 text-primary">
+                            {dictionary.productsPage.filterTitle}
+                         </h2>
+                        <ProduktFilterClient kategoriler={kategoriListesi} />
+                    </aside>
+                    <main className="md:w-3/4">
+                        {(!urunler || urunler.length === 0) ? (
+                            <div className="text-center py-16">
+                                <p className="font-serif text-xl">Für die ausgewählten Kriterien wurden keine Produkte gefunden.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {urunler.map((urun) => (
+                                    <ProductCard 
+                                        key={urun.id} 
+                                        urun={urun} 
+                                        lang={lang}
+                                        linkHref={`/produkte/${urun.id}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </main>
                 </div>
-              )}
-            </>
-          )}
-        </main>
-      </div>
-    </div>
-  );
+            </div>
+        </div>
+    );
 }
