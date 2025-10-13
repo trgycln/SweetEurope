@@ -2,7 +2,7 @@
 
 ++++++database.types.ts dosyanı güncelle
 npx supabase gen types typescript --project-id "atydffkpyvxcmzxyibhj" --schema public > src/lib/supabase/database.types.ts 
-
+npx supabase gen types typescript --project-id "atydffkpyvxcmzxyibhj" | Set-Content -Encoding UTF8 database.types.ts
 
 
 ++++++Reload schema" (🔄) bunu yine

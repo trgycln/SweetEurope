@@ -4,11 +4,9 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { AdminLayoutClient } from '@/components/AdminLayoutClient';
 import { Enums } from '@/lib/supabase/database.types';
-import { Toaster } from 'sonner'; // Import ist bereits vorhanden, sehr gut.
+import { getDictionary } from '@/dictionaries'; // Akıllı sözlük yükleyiciyi import et
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  // DEĞİŞİKLİK: 'await' eklendi.
-  // KORREKTUR: createSupabaseServerClient gibt keinen Promise zurück. 'await' ist hier nicht nötig.
   const supabase = createSupabaseServerClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -16,24 +14,28 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return redirect('/login');
   }
 
+  // Kullanıcı profilinden hem 'rol' hem de 'tercih_edilen_dil' alanlarını çekiyoruz.
   const { data: profileData } = await supabase
     .from('profiller')
-    .select('rol')
+    .select('rol, tercih_edilen_dil')
     .eq('id', user.id)
     .single();
 
   if (!profileData) {
     console.error("Kullanıcı profili bulunamadı.");
-    // Anmerkung: Den Benutzer auszuloggen könnte hier eine bessere UX sein als nur ein Redirect.
     return redirect('/login');
   }
 
   const userRole = profileData.rol as Enums<'user_role'> | null;
+  // Veritabanından gelen dil tercihini al, eğer yoksa varsayılan olarak 'tr' kullan.
+  const userLocale = profileData.tercih_edilen_dil as any || 'tr'; 
+
+  // Veritabanından gelen dil tercihine göre doğru sözlüğü (de.ts, tr.ts vb.) çekiyoruz.
+  const dictionary = await getDictionary(userLocale);
 
   return (
-    <AdminLayoutClient user={user} userRole={userRole}>
-       {/* HINZUGEFÜGT: Die Toaster-Komponente wird hier platziert, um auf allen Admin-Seiten verfügbar zu sein. */}
-      <Toaster position="top-right" richColors closeButton />
+    // dictionary prop'unu AdminLayoutClient'a gönderiyoruz.
+    <AdminLayoutClient user={user} userRole={userRole} dictionary={dictionary}>
       {children}
     </AdminLayoutClient>
   );

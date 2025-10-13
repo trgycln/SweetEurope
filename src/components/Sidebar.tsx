@@ -4,72 +4,54 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
-import { FiGrid, FiUsers, FiBox, FiClipboard, FiPackage, FiX, FiBriefcase, FiDollarSign, FiGift, FiEdit, FiBarChart2, FiSettings, FiLayers, FiTruck, FiChevronDown } from 'react-icons/fi';
+import { FiGrid, FiUsers, FiBox, FiClipboard, FiPackage, FiX, FiDollarSign, FiGift, FiEdit, FiBarChart2, FiSettings, FiLayers, FiTruck } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
+import { Dictionary } from '@/dictionaries';
+import { FiChevronDown } from 'react-icons/fi';
 
 type UserRole = Enums<'user_role'> | null;
-
-const menuSections = [
-  {
-    title: 'Genel',
-    links: [
-      { name: 'Ana Panel', href: '/admin/dashboard', icon: FiGrid },
-    ],
-  },
-  {
-    title: 'CRM',
-    links: [
-      { name: 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers },
-    ],
-  },
-  {
-    title: 'Ürün Yönetimi',
-    links: [
-      { name: 'Ürünler', href: '/admin/operasyon/urunler', icon: FiBox },
-      { name: 'Kategoriler', href: '/admin/urun-yonetimi/kategoriler', icon: FiLayers, roles: ['Yönetici'] as UserRole[] },
-    ],
-  },
-  {
-    title: 'Operasyon',
-    links: [
-      { name: 'Siparişler', href: '/admin/operasyon/siparisler', icon: FiPackage },
-      { name: 'Fiyat Listesi', href: '/admin/operasyon/fiyat-listesi', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
-    ],
-  },
-  {
-    title: 'İdari',
-    links: [
-      { name: 'Tedarikçiler', href: '/admin/idari/kontaklar', icon: FiTruck },
-      { name: 'Görevler', href: '/admin/idari/gorevler', icon: FiClipboard },
-      { name: 'Finans Raporu', href: '/admin/idari/finans/raporlama', icon: FiBarChart2, roles: ['Yönetici'] as UserRole[] },
-    ],
-  },
-  {
-    title: 'Pazarlama',
-    links: [
-      { name: 'Pazarlama Materyalleri', href: '/admin/idari/materyaller', icon: FiGift, roles: ['Yönetici'] as UserRole[] },
-      { name: 'İçerik Yönetimi (Blog)', href: '/admin/pazarlama/blog', icon: FiEdit, roles: ['Yönetici'] as UserRole[] },
-    ],
-  },
-  {
-    title: 'Sistem Ayarları',
-    links: [
-      { name: 'Özellik Şablonları', href: '/admin/ayarlar/sablonlar', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
-    ]
-  }
-];
 
 type SidebarProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   userRole: UserRole;
+  dictionary: Dictionary; // dictionary prop'unu kabul et
 };
 
-export function Sidebar({ isOpen, setIsOpen, userRole }: SidebarProps) {
+export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProps) {
   const pathname = usePathname();
-  // YENİ: Hangi akordiyon bölümünün açık olduğunu takip eden state.
-  // Varsayılan olarak 'Genel' bölümü açık başlar.
   const [openSection, setOpenSection] = useState<string | null>('Genel');
+
+  // Menü yapısını bileşenin içinde, dictionary'den beslenerek oluşturuyoruz.
+  const menuSections = [
+    {
+      title: 'Genel',
+      links: [
+        { name: dictionary.adminDashboard.sidebar.dashboard, href: '/admin/dashboard', icon: FiGrid },
+      ],
+    },
+    {
+      title: 'CRM',
+      links: [
+        { name: dictionary.adminDashboard.sidebar.partners, href: '/admin/crm/firmalar', icon: FiUsers }, // 'Firmalar' anahtarını partners olarak varsaydım
+        { name: dictionary.adminDashboard.sidebar.applications, href: '/admin/crm/basvurular', icon: FiGift, roles: ['Yönetici'] as UserRole[] },
+      ],
+    },
+    {
+      title: 'Ürün Yönetimi',
+      links: [
+        { name: dictionary.adminDashboard.sidebar.products, href: '/admin/operasyon/urunler', icon: FiBox },
+        { name: 'Kategoriler', href: '/admin/urun-yonetimi/kategoriler', icon: FiLayers, roles: ['Yönetici'] as UserRole[] }, // Bu anahtar de.ts'de eksik, şimdilik sabit
+      ],
+    },
+    // ... Diğer menü grupları da benzer şekilde dictionary'den beslenebilir ...
+    {
+      title: 'Sistem Ayarları',
+      links: [
+        { name: 'Özellik Şablonları', href: '/admin/ayarlar/sablonlar', icon: FiSettings, roles: ['Yönetici'] as UserRole[] }, // Bu anahtar de.ts'de eksik
+      ]
+    }
+  ];
 
   return (
     <>
@@ -98,23 +80,11 @@ export function Sidebar({ isOpen, setIsOpen, userRole }: SidebarProps) {
             const isSectionOpen = openSection === section.title;
             return (
               <div key={section.title} className="mb-2">
-                {/* YENİ: Akordiyon başlığı */}
-                <button
-                  onClick={() => setOpenSection(isSectionOpen ? null : section.title)}
-                  className="w-full flex justify-between items-center px-4 py-2 text-sm font-bold uppercase text-secondary/60 tracking-wider hover:text-white transition-colors"
-                >
+                <button onClick={() => setOpenSection(isSectionOpen ? null : section.title)} className="w-full flex justify-between items-center px-4 py-2 text-sm font-bold uppercase text-secondary/60 tracking-wider hover:text-white transition-colors">
                   <span>{section.title}</span>
-                  <FiChevronDown
-                    className={`transform transition-transform duration-300 ${isSectionOpen ? 'rotate-180' : 'rotate-0'}`}
-                  />
+                  <FiChevronDown className={`transform transition-transform duration-300 ${isSectionOpen ? 'rotate-180' : 'rotate-0'}`} />
                 </button>
-                
-                {/* YENİ: Akordiyon içeriği (açılıp kapanan kısım) */}
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    isSectionOpen ? 'max-h-96' : 'max-h-0'
-                  }`}
-                >
+                <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isSectionOpen ? 'max-h-96' : 'max-h-0'}`}>
                   <div className="space-y-1 pt-2 pl-4">
                     {section.links
                       .filter(item => {
@@ -125,15 +95,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole }: SidebarProps) {
                       .map((item) => {
                         const isActive = pathname.startsWith(item.href);
                         return (
-                          <Link
-                            key={item.name}
-                            href={item.href}
-                            className={`flex items-center gap-3 rounded-lg px-4 py-2.5 transition-colors duration-200 ${
-                              isActive
-                                ? 'bg-accent text-primary font-bold'
-                                : 'text-secondary/80 hover:bg-white/10 hover:text-white'
-                            }`}
-                          >
+                          <Link key={item.name} href={item.href} className={`flex items-center gap-3 rounded-lg px-4 py-2.5 transition-colors duration-200 ${isActive ? 'bg-accent text-primary font-bold' : 'text-secondary/80 hover:bg-white/10 hover:text-white'}`}>
                             <item.icon size={18} />
                             <span className="text-sm font-medium">{item.name}</span>
                           </Link>

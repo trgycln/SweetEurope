@@ -26,6 +26,12 @@ const nextConfig = {
       },
     ],
   },
+  // i18n: {
+    // Desteklediğimiz dillerin kodları
+   // locales: ['de', 'en', 'tr', 'ar'],
+    // Varsayılan dil (örn: site.com adresine gidildiğinde /de açılır)
+   // defaultLocale: 'de',
+ // },
 };
 
 module.exports = nextConfig;

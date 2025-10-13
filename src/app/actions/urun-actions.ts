@@ -66,12 +66,10 @@ export async function guncelleUrunGorunurluk(urunId: string, yeniDurum: Tables<'
 }
 
 
-// --- Yeni Ürün Detay Formu için Fonksiyon ---
 
 // Sadece saveUrun fonksiyonunu güncelliyoru
 
-// Sadece saveUrun fonksiyonunu güncelliyoruz
-
+// saveUrun fonksiyonu calisiyor ama veritabanina kayit yapmiyor. Duzenleme butonu ile yeni veri ekleyince kayit etmiyor. simdi yeni ürün ekle diyerek kayit etmeyi denedim, "veritabani hatasi: new violates row-level security policy for table "urunler" hatasi verdi
 export async function saveUrun(formData: FormData) {
   const supabase = await createSupabaseServerClient();
 
