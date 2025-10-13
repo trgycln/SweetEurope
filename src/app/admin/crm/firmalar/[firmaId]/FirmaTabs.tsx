@@ -10,8 +10,9 @@ export default function FirmaTabs({ firmaId }: { firmaId: string }) {
     const tabs = [
         { name: 'Genel Bilgiler', href: `/admin/crm/firmalar/${firmaId}` },
         { name: 'Etkinlik Akışı', href: `/admin/crm/firmalar/${firmaId}/etkinlikler` },
+        // YENİ SEKME EKLENDİ
+        { name: 'İlgili Kişiler', href: `/admin/crm/firmalar/${firmaId}/kisiler` },
         // Gelecekte eklenecek diğer sekmeler...
-        // { name: 'İlgili Kişiler', href: `/admin/crm/firmalar/${firmaId}/kisiler` },
         // { name: 'Siparişler', href: `/admin/crm/firmalar/${firmaId}/siparisler` },
     ];
 
@@ -22,7 +23,13 @@ export default function FirmaTabs({ firmaId }: { firmaId: string }) {
     return (
         <nav className="flex border-b border-bg-subtle bg-white rounded-t-2xl shadow-lg overflow-hidden">
             {tabs.map((tab) => {
-                const isActive = pathname === tab.href;
+                // GÜNCELLEME: Tam eşleşme yerine 'startsWith' kullanarak
+                // alt rotaların da ana sekmeyi aktif göstermesini engelleyelim.
+                // Sadece ana sekme için tam eşleşme kontrolü yapalım.
+                const isActive = (tab.href === `/admin/crm/firmalar/${firmaId}`) 
+                    ? pathname === tab.href 
+                    : pathname.startsWith(tab.href);
+
                 return (
                     <Link
                         key={tab.name}
