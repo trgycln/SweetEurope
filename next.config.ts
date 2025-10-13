@@ -1,3 +1,5 @@
+// next.config.ts
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   
@@ -10,8 +12,17 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  
   images: {
     remotePatterns: [
+      // Supabase Storage Hostname'i Eklendi
+      
+      {
+        protocol: 'https',
+        hostname: 'atydffkpyvxcmzxyibhj.supabase.co', // Hata mesajındaki hostname
+        port: '',
+        pathname: '/storage/v1/object/public/**', // Tüm public bucket'ları kapsar
+      },
       {
         protocol: 'https',
         hostname: 'images.pexels.com',
@@ -26,12 +37,6 @@ const nextConfig = {
       },
     ],
   },
-  // i18n: {
-    // Desteklediğimiz dillerin kodları
-   // locales: ['de', 'en', 'tr', 'ar'],
-    // Varsayılan dil (örn: site.com adresine gidildiğinde /de açılır)
-   // defaultLocale: 'de',
- // },
 };
 
 module.exports = nextConfig;

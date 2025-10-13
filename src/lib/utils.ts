@@ -1,3 +1,5 @@
+// src/lib/utils.ts
+
 // Bu dosya, proje genelinde kullanılacak yardımcı fonksiyonları barındırır.
 
 /**
@@ -26,3 +28,25 @@ export const formatCurrency = (value: number | null | undefined, currency: 'EUR'
         currency: currency 
     }).format(value);
 };
+
+/**
+ * YENİ EKLENEN FONKSİYON
+ * Bir metni, URL'de kullanılabilecek, SEO dostu bir "slug" formatına çevirir.
+ * Örnek: "Fıstıklı Rüya Pasta" -> "fistikli-ruya-pasta"
+ */
+export function slugify(text: string): string {
+  if (!text) return '';
+
+  const a = 'àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż·/_,:;'
+  const b = 'aaaaaaaaaacccddeeeeeeeegghiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz------'
+  const p = new RegExp(a.split('').join('|'), 'g')
+
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-') // Boşlukları - ile değiştir
+    .replace(p, c => b.charAt(a.indexOf(c))) // Türkçe ve diğer özel karakterleri çevir
+    .replace(/&/g, '-and-') // & karakterini '-and-' ile değiştir
+    .replace(/[^\w\-]+/g, '') // Alfanümerik olmayan tüm karakterleri kaldır (tire hariç)
+    .replace(/\-\-+/g, '-') // Birden fazla tireyi tek tire yap
+    .replace(/^-+/, '') // Başlangıçtaki tireleri kaldır
+    .replace(/-+$/, '') // Sondaki tireleri kaldır
+}

@@ -3,7 +3,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getDictionary } from '@/dictionaries';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
+import { UrunGalerisi } from './urun-galerisi'; // İnteraktif galeri bileşenini import et
 
 export default async function PublicUrunDetayPage({ params }: { params: { locale: string; slug: string } }) {
     const supabase = createSupabaseServerClient();
@@ -20,13 +20,13 @@ export default async function PublicUrunDetayPage({ params }: { params: { locale
     ]);
 
     if (!urun) {
-        return notFound();
+        return notFound(); // Ürün bulunamazsa veya aktif değilse 404
     }
 
     // @ts-ignore
     const kategoriId = urun.kategoriler?.id;
 
-    // GÜNCELLEME: Artık "gosterim_adi" sütununun tamamını (JSONB objesi) çekiyoruz.
+    // Ürünün kategorisine ait ve "public_gorunur" olarak işaretlenmiş özellikleri çek
     const { data: gosterilecekOzellikler } = await supabase
         .from('kategori_ozellik_sablonlari')
         .select('alan_adi, gosterim_adi')
@@ -38,42 +38,45 @@ export default async function PublicUrunDetayPage({ params }: { params: { locale
 
     return (
         <div className="bg-white">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
                     
-                    {/* Ürün Resim Galerisi (Değişiklik yok) */}
-                    <div className="sticky top-24">
-                        {/* ... galeri kodları aynı ... */}
-                    </div>
+                    {/* Sol Taraf: Ürün Resim Galerisi */}
+                    <UrunGalerisi 
+                        anaResim={urun.ana_resim_url} 
+                        galeri={urun.galeri_resim_urls} 
+                        urunAdi={urun.ad?.[locale] || 'Ürün Resmi'} 
+                    />
 
-                    {/* Ürün Bilgileri */}
-                    <div>
-                        <h1 className="text-4xl lg:text-5xl font-serif font-bold text-primary">
+                    {/* Sağ Taraf: Ürün Bilgileri */}
+                    <div className="space-y-6">
+                        <h1 className="text-4xl lg:text-5xl font-serif font-bold text-primary leading-tight">
                             {urun.ad?.[locale] || urun.ad?.['de']}
                         </h1>
                         
-                        <div className="mt-4 text-3xl font-light text-gray-800">
+                        <div className="text-3xl font-light text-gray-800">
                             {urun.satis_fiyati_musteri?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                         </div>
 
+                        {/* Açıklama */}
                         {urun.aciklamalar?.[locale] && (
-                            <div className="mt-6 prose max-w-none text-gray-600">
+                            <div className="prose max-w-none text-gray-600">
                                 <p>{urun.aciklamalar[locale]}</p>
                             </div>
                         )}
                         
-                        {/* DİNAMİK TEKNİK ÖZELLİKLER (GÜNCELLENDİ) */}
+                        {/* Dinamik Teknik Özellikler */}
                         {gosterilecekOzellikler && gosterilecekOzellikler.length > 0 && (
                             <div className="mt-8 pt-6 border-t">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4">{pageContent.tabDetails}</h3>
-                                <dl className="space-y-2">
+                                <dl className="space-y-3">
                                     {gosterilecekOzellikler.map(ozellik => {
+                                        // Ürünün teknik_ozellikler JSON'ından ilgili değeri bul
                                         const deger = urun.teknik_ozellikler?.[ozellik.alan_adi];
-                                        if (!deger) return null;
+                                        if (!deger) return null; // Değeri olmayan özellikleri gösterme
 
                                         return (
                                             <div key={ozellik.alan_adi} className="grid grid-cols-2 gap-4 text-sm">
-                                                {/* GÜNCELLEME: Artık 'gosterim_adi' objesinden aktif dile göre metni çekiyoruz. */}
                                                 <dt className="text-gray-500">
                                                     {ozellik.gosterim_adi?.[locale] || ozellik.gosterim_adi?.['tr']}:
                                                 </dt>
@@ -84,6 +87,14 @@ export default async function PublicUrunDetayPage({ params }: { params: { locale
                                 </dl>
                             </div>
                         )}
+
+                        {/* Müşteri Portalı için "Sepete Ekle" Butonu (şimdilik gizli) */}
+                        {/* <div className="mt-8">
+                            <button className="w-full px-8 py-3 bg-accent text-white rounded-lg font-bold text-lg hover:bg-opacity-90 transition-all">
+                                {pageContent.addToCart}
+                            </button>
+                        </div> 
+                        */}
                     </div>
                 </div>
             </div>
