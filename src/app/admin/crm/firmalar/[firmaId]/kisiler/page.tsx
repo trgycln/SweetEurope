@@ -1,8 +1,9 @@
 // src/app/admin/crm/firmalar/[firmaId]/kisiler/page.tsx
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { FiUserPlus, FiUser, FiMail, FiPhone, FiBriefcase } from 'react-icons/fi';
+import { FiUserPlus } from 'react-icons/fi';
 import { yeniKisiEkleAction } from './actions';
+import KisiKarti from './KisiKarti'; // YENİ: KisiKarti bileşenini import et
 
 export default async function IlgiliKisilerPage({ params }: { params: { firmaId: string } }) {
     const supabase = createSupabaseServerClient();
@@ -23,7 +24,7 @@ export default async function IlgiliKisilerPage({ params }: { params: { firmaId:
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Sol Taraf: Yeni Kişi Ekleme Formu */}
+            {/* Sol Taraf: Yeni Kişi Ekleme Formu (değişiklik yok) */}
             <div className="lg:col-span-1">
                 <h2 className="font-serif text-2xl font-bold text-primary mb-4">Yeni Kişi Ekle</h2>
                 <form action={formActionWithId} className="space-y-4 p-4 bg-secondary/50 rounded-lg border">
@@ -51,40 +52,14 @@ export default async function IlgiliKisilerPage({ params }: { params: { firmaId:
                 </form>
             </div>
 
-            {/* Sağ Taraf: İlgili Kişiler Listesi */}
+            {/* Sağ Taraf: İlgili Kişiler Listesi (GÜNCELLENDİ) */}
             <div className="lg:col-span-2">
                 <h2 className="font-serif text-2xl font-bold text-primary mb-4">İlgili Kişiler</h2>
                 <div className="space-y-4">
                     {kisiler && kisiler.length > 0 ? (
+                        // Eski karmaşık JSX yerine, artık sadece KisiKarti bileşenini kullanıyoruz.
                         kisiler.map(kisi => (
-                            <div key={kisi.id} className="bg-secondary/50 p-4 rounded-lg border flex items-start gap-4">
-                                <div className="flex-shrink-0 w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center">
-                                    <FiUser className="text-accent text-2xl" />
-                                </div>
-                                <div className="flex-grow">
-                                    <h3 className="font-bold text-primary">{kisi.ad_soyad}</h3>
-                                    {kisi.unvan && (
-                                        <div className="flex items-center gap-2 text-sm text-text-main/70 mt-1">
-                                            <FiBriefcase size={14} />
-                                            <span>{kisi.unvan}</span>
-                                        </div>
-                                    )}
-                                    <div className="mt-2 space-y-1 text-sm">
-                                        {kisi.email && (
-                                            <div className="flex items-center gap-2 text-text-main">
-                                                <FiMail size={14} className="text-gray-400" />
-                                                <a href={`mailto:${kisi.email}`} className="hover:text-accent">{kisi.email}</a>
-                                            </div>
-                                        )}
-                                        {kisi.telefon && (
-                                            <div className="flex items-center gap-2 text-text-main">
-                                                <FiPhone size={14} className="text-gray-400" />
-                                                <span>{kisi.telefon}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+                            <KisiKarti key={kisi.id} kisi={kisi} />
                         ))
                     ) : (
                         <div className="text-center p-8 border-2 border-dashed rounded-lg">
