@@ -86,6 +86,22 @@ export const dictionary = {
     errorLoading: "Bericht konnte nicht geladen werden.",
     accessDenied: "Zugriff verweigert"
   },
+    adminSidebar: {
+    title: "Admin-Panel",
+    mainMenu: "Hauptmenü",
+    crm: "CRM",
+    management: "Verwaltung",
+    operations: "Betrieb",
+    settings: "Einstellungen",
+    dashboard: "Dashboard",
+    customers: "Kunden",
+    applications: "Anwendungen",
+    tasks: "Aufgaben",
+    products: "Produkte",
+    categories: "Kategorien",
+    orders: "Bestellungen",
+    templates: "Vorlagen",
+  },
   adminDashboard: {
     title: 'Admin Dashboard',
     sidebar: {
@@ -519,6 +535,13 @@ dashboardPage: {
     phone: '+49 (0) 123 456 789',
     email: 'info@ElysonSweets.de',
   },
+
+orderStatuses : {
+    processing: 'In Vorbereitung',
+    shipped: 'Versandt',
+    delivered: 'Zugestellt',
+    cancelled: 'Storniert',
+},
     adminPartners: {
         title: "Partner-Verwaltung",
         partnerId: "Partner-ID",

@@ -463,6 +463,12 @@ export const dictionary = {
     phone: '+49 (0) 123 456 789',
     email: 'info@ElysonSweets.de',
   },
+  orderStatuses : {
+    processing: 'قيد المعالجة',
+    shipped: 'تم الشحن / تم الإرسال',
+    delivered: 'تم التوصيل / تم التسليم',
+    cancelled: 'تم الإلغاء',
+},
   adminPartners: {
     title: "إدارة الشركاء",
     partnerId: "معرّف الشريك",

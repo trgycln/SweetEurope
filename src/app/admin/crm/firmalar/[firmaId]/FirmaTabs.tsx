@@ -11,8 +11,9 @@ export default function FirmaTabs({ firmaId }: { firmaId: string }) {
         { name: 'Genel Bilgiler', href: `/admin/crm/firmalar/${firmaId}` },
         { name: 'Etkinlik Akışı', href: `/admin/crm/firmalar/${firmaId}/etkinlikler` },
         { name: 'İlgili Kişiler', href: `/admin/crm/firmalar/${firmaId}/kisiler` },
-        // YENİ SEKME EKLENDİ
         { name: 'Siparişler', href: `/admin/crm/firmalar/${firmaId}/siparisler` },
+        // YENİ SEKME EKLENDİ
+        { name: 'Görevler', href: `/admin/crm/firmalar/${firmaId}/gorevler` },
     ];
 
     const baseClasses = "px-4 py-3 text-sm font-bold transition-colors duration-200";
