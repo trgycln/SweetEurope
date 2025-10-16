@@ -1,35 +1,35 @@
 export const dictionary = {
-  navigation: {
-    home: 'Startseite',
-    products: 'Produkte',
-    about: 'Über uns',
-    contact: 'Kontakt',
-    menu: 'Menü',
-    partnerPortal: 'Partnerportal',
-    search: 'Suche',
-  },
-  ueberUnsPage: { 
-  // --- Hero Section ---
-  title: 'Unsere Geschichte & Werte', // Zuvor kullanılan
-  heroSubtitle: 'HANDWERKSKUNST AUS TRADITION', // Zuvor düzeltilen
+  navigation: {
+    home: 'Startseite',
+    products: 'Produkte',
+    about: 'Über uns',
+    contact: 'Kontakt',
+    menu: 'Menü',
+    partnerPortal: 'Partnerportal',
+    search: 'Suche',
+  },
+  ueberUnsPage: {
+    // --- Hero Section ---
+    title: 'Unsere Geschichte & Werte', // Zuvor kullanılan
+    heroSubtitle: 'HANDWERKSKUNST AUS TRADITION', // Zuvor düzeltilen
 
-  // --- Mission Section ---
-  missionTitle: 'Unsere Mission', // YENİ EKLENDİ
-  missionP1: 'Unsere Mission ist es, die Premium-Patisserie-Kultur in Deutschland zugänglich zu machen. Wir bieten unseren Partnern nicht nur Produkte, sondern ein komplettes Erlebnis, das auf Qualität, Zuverlässigkeit und Exklusivität basiert.', // YENİ EKLENDİ
+    // --- Mission Section ---
+    missionTitle: 'Unsere Mission', // YENİ EKLENDİ
+    missionP1: 'Unsere Mission ist es, die Premium-Patisserie-Kultur in Deutschland zugänglich zu machen. Wir bieten unseren Partnern nicht nur Produkte, sondern ein komplettes Erlebnis, das auf Qualität, Zuverlässigkeit und Exklusivität basiert.', // YENİ EKLENDİ
 
-  // --- Story Section ---
-  storyTitle: 'Von der Manufaktur zum Marktführer', // YENİ EKLENDİ
-  storyP1: 'ElysonSweets wurde 2010 als kleine Manufaktur in Berlin gegründet, angetrieben von der Leidenschaft, traditionelle Rezepte mit moderner Ästhetik zu verbinden. Jedes Rezept wurde über Generationen perfektioniert.', // YENİ EKLENDİ
-  storyP2: 'Heute sind wir stolz darauf, ein wachsendes Netzwerk von Geschäftspartnern in ganz Deutschland zu beliefern und unsere kompromisslose Verpflichtung zur Qualität beizubehalten, während wir expandieren.', // YENİ EKLENDİ
+    // --- Story Section ---
+    storyTitle: 'Von der Manufaktur zum Marktführer', // YENİ EKLENDİ
+    storyP1: 'ElysonSweets wurde 2010 als kleine Manufaktur in Berlin gegründet, angetrieben von der Leidenschaft, traditionelle Rezepte mit moderner Ästhetik zu verbinden. Jedes Rezept wurde über Generationen perfektioniert.', // YENİ EKLENDİ
+    storyP2: 'Heute sind wir stolz darauf, ein wachsendes Netzwerk von Geschäftspartnern in ganz Deutschland zu beliefern und unsere kompromisslose Verpflichtung zur Qualität beizubehalten, während wir expandieren.', // YENİ EKLENDİ
 
-  // --- Image Alts (Resim Açıklamaları) ---
-  image1Alt: 'ElysonSweets Konditor bei der Handarbeit an einer Torte.', // YENİ EKLENDİ
-  image2Alt: 'Historische Aufnahme der ersten ElysonSweets Manufaktur-Küche.', // YENİ EKLENDİ
-  
-  // --- Zuvor Düzeltilmiş Diğer Anahtarlar ---
-  section1Title: 'Das Herz von ElysonSweets',
-  section1Text: 'Wir wählen nur die feinsten Zutaten und garantieren meisterhafte Handwerkskunst in jeder Kreation. Qualität ist kein Versprechen, sondern unser Standard.',
-},
+    // --- Image Alts (Resim Açıklamaları) ---
+    image1Alt: 'ElysonSweets Konditor bei der Handarbeit an einer Torte.', // YENİ EKLENDİ
+    image2Alt: 'Historische Aufnahme der ersten ElysonSweets Manufaktur-Küche.', // YENİ EKLENDİ
+
+    // --- Zuvor Düzeltilmiş Diğer Anahtarlar ---
+    section1Title: 'Das Herz von ElysonSweets',
+    section1Text: 'Wir wählen nur die feinsten Zutaten und garantieren meisterhafte Handwerkskunst in jeder Kreation. Qualität ist kein Versprechen, sondern unser Standard.',
+  },
 
   loginPage: {
     title: "SweetHeaven",
@@ -41,17 +41,75 @@ export const dictionary = {
     submittingButton: "Anmeldung läuft...",
     forgotPasswordLink: "Passwort vergessen?",
     emailPlaceholder: "admin@example.com",
-    passwordPlaceholder: "••••••••"
+    passwordPlaceholder: "••••••••",
+    unauthorizedError: 'Sie sind nicht berechtigt, auf diese Seite zuzugreifen.'
   },
 
   portal: {
+    newOrderPage: {
+      title: 'Neue Bestellung erstellen',
+      subtitle: 'Stellen Sie Ihren Warenkorb aus dem Katalog zusammen.',
+      searchPlaceholder: 'Nach Produktname oder -code suchen...',
+      favoritesButton: 'Meine Favoriten',
+      stockStatus: {
+        inStock: 'Auf Lager',
+        lowStock: 'Wenig Lagerbestand',
+        outOfStock: 'Ausverkauft',
+      },
+      noProductsFound: 'Keine Produkte für diese Kriterien gefunden.',
+      cartTitle: 'Ihr Warenkorb',
+      cartEmpty: 'Ihr Warenkorb ist leer.',
+      cartTotal: 'Gesamt:',
+      cartDiscountApplied: 'Ihr persönlicher Rabatt von %{discount}% wurde angewendet.',
+      confirmOrderButton: 'Bestellung bestätigen',
+      processingOrder: 'Bestellung wird bearbeitet...',
+      error: {
+        stockNotAvailable: 'Nicht genügend Lagerbestand! Maximal %{stock} Einheiten verfügbar.',
+        productOutOfStock: 'Dieses Produkt ist ausverkauft.',
+        cartEmpty: 'Bitte fügen Sie Produkte zum Warenkorb hinzu, um eine Bestellung aufzugeben.',
+      },
+    }, // Virgül eklendi
+    ordersPage: {
+      title: 'Meine Bestellungen',
+      subtitle: 'Verfolgen Sie hier alle Ihre vergangenen und aktuellen Bestellungen.',
+      newOrderButton: 'Neue Bestellung',
+      loadError: 'Beim Laden Ihrer Bestellungen ist ein Fehler aufgetreten.',
+      noOrders: 'Sie haben noch keine Bestellungen aufgegeben.',
+      noOrdersForFilter: 'Für Ihre Filterkriterien wurden keine Bestellungen gefunden.',
+      orderId: 'Bestell-ID',
+      orderDate: 'Datum',
+      totalAmount: 'Gesamtbetrag',
+      status: 'Status',
+      searchPlaceholder: 'Nach Bestell-ID suchen...',
+      filterByStatus: 'Nach Status filtern',
+      allStatuses: 'Alle Status',
+      page: 'Seite',
+      of: 'von',
+      previous: 'Zurück',
+      next: 'Weiter',
+    },
+    orderDetailsPage: {
+      backToList: 'Zurück zur Bestellliste',
+      title: 'Bestellung',
+      creationDate: 'Erstellt am',
+      orderItems: 'Bestellpositionen',
+      product: 'Produkt',
+      quantity: 'Menge',
+      unitPrice: 'Stückpreis',
+      lineTotal: 'Gesamt',
+      subtotal: 'Zwischensumme',
+      vat: 'MwSt.',
+      grandTotal: 'Gesamtsumme',
+      customerInfo: 'Kundeninformation',
+      deliveryInfo: 'Lieferinformation',
+    },
     sidebar: {
       title: "Partner-Portal",
       dashboard: "Dashboard",
       orders: "Meine Bestellungen",
       products: "Produktkatalog",
       requests: "Meine Anfragen",
-      performance: "Meine Performance" 
+      performance: "Meine Performance"
     },
     header: {
       titleSuffix: "Portal",
@@ -66,7 +124,8 @@ export const dictionary = {
       recentOrdersTitle: "Letzte Bestellungen",
       noOrders: "Sie haben noch keine Bestellungen aufgegeben.",
       ordersPlaceholder: "Bestellliste wird hier angezeigt.",
-    }
+      pendingBalance: "Offener Saldo",
+    } // Virgül eklendi
   },
 
   pnlReportPage: {
@@ -86,7 +145,7 @@ export const dictionary = {
     errorLoading: "Bericht konnte nicht geladen werden.",
     accessDenied: "Zugriff verweigert"
   },
-    adminSidebar: {
+  adminSidebar: {
     title: "Admin-Panel",
     mainMenu: "Hauptmenü",
     crm: "CRM",
@@ -102,457 +161,454 @@ export const dictionary = {
     orders: "Bestellungen",
     templates: "Vorlagen",
   },
-  adminDashboard: {
-    title: 'Admin Dashboard',
-    sidebar: {
-      dashboard: "Übersicht", 
-      applications: 'Partneranträge',
-      products: 'Produktverwaltung',
-      orders: 'Bestellungen',
-      partners: 'Partner',
-    },
-    partnersPage: { 
-      title: 'Partnerverwaltung',
-      companyName: 'Unternehmen',
-      contactPerson: 'Ansprechpartner',
-      email: 'E-Mail',
-      totalOrders: 'Bestellungen gesamt',
-      totalRevenue: 'AUmsatz gesamt',
-      status: 'Status',
-    },
-    applicationsPage: {
-      title: 'Neue Partneranträge',
-      company: 'Unternehmen',
-      contact: 'Ansprechpartner',
-      email: 'E-Mail',
-      status: 'Status',
-      date: 'Datum',
-      actions: 'Aktionen',
-      approve: 'Genehmigen',
-      reject: 'Ablehnen',
-      approving: 'Wird genehmigt...',
-      rejecting: 'Wird abgelehnt...',
-      approved: 'Genehmigt',
-      noApplications: 'Aktuell keine neuen Anträge.',
-    },
-    productsPage: {
-      title: 'Produktverwaltung',
-      addProduct: 'Neues Produkt hinzufügen',
-      productName: 'Produktname',
-      category: 'Kategorie',
-      price: 'Preis',
-      stock: 'Lagerbestand',
-      actions: 'Aktionen',
-      edit: 'Bearbeiten',
-      delete: 'Löschen',
-      modalTitle: 'Neues Produkt erstellen',
-      modalTitleEdit: 'Produkt bearbeiten',
-      imageUrl: 'Bild-URL',
-      save: 'Speichern',
-      cancel: 'Abbrechen',
-      deleteConfirmation: "'{productName}' ürününü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
-      deleting: 'Wird gelöscht...',
-      imageUpload: 'Bild hochladen',
-      imagePreview: 'Bild Vorschau',
-      noImage: 'Kein Bild',
-    },
-    ordersPage: { 
-      title: 'Alle Bestellungen',
-      orderId: 'Bestell-ID',
-      date: 'Datum',
-      customer: 'Kunde (User ID)',
-      total: 'Gesamtbetrag',
-      status: 'Status',
-      actions: 'Aktionen',
-      viewDetails: 'Details ansehen',
-      updateStatus: 'Status aktualisieren',
-      statusOptions: {
-        processing: 'In Bearbeitung',
-        shipped: 'Versendet',
-        delivered: 'Zugestellt',
-        cancelled: 'Storniert',
-      },
-      orderDetailModal: {
-        title: 'Bestelldetails',
-        products: 'Produkte',
-        quantity: 'Menge',
-        price: 'Preis',
-        subtotal: 'Zwischensumme',
-        shippingAddress: 'Lieferadresse',
-      }
-    },
-  // src/dictionaries/de.ts dosyasındaki adminDashboard.dashboardPage bloğu
+  adminDashboard: {
+    title: 'Admin Dashboard',
+    sidebar: {
+      dashboard: "Übersicht",
+      applications: 'Partneranträge',
+      products: 'Produktverwaltung',
+      orders: 'Bestellungen',
+      partners: 'Partner',
+    },
+    partnersPage: {
+      title: 'Partnerverwaltung',
+      companyName: 'Unternehmen',
+      contactPerson: 'Ansprechpartner',
+      email: 'E-Mail',
+      totalOrders: 'Bestellungen gesamt',
+      totalRevenue: 'AUmsatz gesamt',
+      status: 'Status',
+    },
+    applicationsPage: {
+      title: 'Neue Partneranträge',
+      company: 'Unternehmen',
+      contact: 'Ansprechpartner',
+      email: 'E-Mail',
+      status: 'Status',
+      date: 'Datum',
+      actions: 'Aktionen',
+      approve: 'Genehmigen',
+      reject: 'Ablehnen',
+      approving: 'Wird genehmigt...',
+      rejecting: 'Wird abgelehnt...',
+      approved: 'Genehmigt',
+      noApplications: 'Aktuell keine neuen Anträge.',
+    },
+    productsPage: {
+      title: 'Produktverwaltung',
+      addProduct: 'Neues Produkt hinzufügen',
+      productName: 'Produktname',
+      category: 'Kategorie',
+      price: 'Preis',
+      stock: 'Lagerbestand',
+      actions: 'Aktionen',
+      edit: 'Bearbeiten',
+      delete: 'Löschen',
+      modalTitle: 'Neues Produkt erstellen',
+      modalTitleEdit: 'Produkt bearbeiten',
+      imageUrl: 'Bild-URL',
+      save: 'Speichern',
+      cancel: 'Abbrechen',
+      deleteConfirmation: "'{productName}' ürününü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+      deleting: 'Wird gelöscht...',
+      imageUpload: 'Bild hochladen',
+      imagePreview: 'Bild Vorschau',
+      noImage: 'Kein Bild',
+    },
+    ordersPage: {
+      title: 'Alle Bestellungen',
+      orderId: 'Bestell-ID',
+      date: 'Datum',
+      customer: 'Kunde (User ID)',
+      total: 'Gesamtbetrag',
+      status: 'Status',
+      actions: 'Aktionen',
+      viewDetails: 'Details ansehen',
+      updateStatus: 'Status aktualisieren',
+      statusOptions: {
+        processing: 'In Bearbeitung',
+        shipped: 'Versendet',
+        delivered: 'Zugestellt',
+        cancelled: 'Storniert',
+      },
+      orderDetailModal: {
+        title: 'Bestelldetails',
+        products: 'Produkte',
+        quantity: 'Menge',
+        price: 'Preis',
+        subtotal: 'Zwischensumme',
+        shippingAddress: 'Lieferadresse',
+      } // Virgül eklendi
+    },
+    dashboardPage: {
+      managerTitle: "CEO Cockpit",
+      managerSubtitle: "Willkommen zur Live-Übersicht deines Unternehmens.",
+      teamMemberTitle: "Mein Persönliches Panel",
+      teamMemberSubtitle: "Hier ist, worauf du dich heute konzentrieren solltest.",
 
-dashboardPage: {
+      // Manager Widgets
+      cardRevenueThisMonth: "Umsatz (Dieser Monat)",
+      cardNetProfitThisMonth: "Nettogewinn (Dieser Monat)",
+      cardActiveOrders: "Aktive Bestellungen",
+      cardCriticalStock: "Kritischer Lagerbestand",
+      agendaTitle: "Agenda & Dringende Aufgaben",
+      overdueTasks: "überfällige Aufgaben gefunden.",
+      quickActionsTitle: "Schnellaktionen",
+      actionNewOrder: "Neue Bestellung",
+      actionNewCompany: "Neue Firma",
+      actionNewExpense: "Neue Ausgabe",
+
+      // Team Member Widgets
+      cardOpenTasks: "Mir zugewiesene offene Aufgaben",
+      cardNewOrdersFromClients: "Neue Bestellungen von meinen Kunden",
+      quickAccessTitle: "Schnellzugriff",
+      linkMyClients: "Meine Kunden",
+      linkMyTasks: "Meine Aufgaben",
+
+      // Error messages
+      errorLoadingTeamDashboard: "Dein persönliches Panel konnte nicht geladen werden.",
+    },
+  },
+  search: {
+    placeholder: 'Suchen Sie nach Produkten, Rezepten und mehr...',
+    close: 'Schließen',
+  },
+  topBar: {
+    announcement: 'Premium-Qualität, zugänglich gemacht.',
+  },
+  dashboard: {
     managerTitle: "CEO Cockpit",
     managerSubtitle: "Willkommen zur Live-Übersicht deines Unternehmens.",
     teamMemberTitle: "Mein Persönliches Panel",
     teamMemberSubtitle: "Hier ist, worauf du dich heute konzentrieren solltest.",
-    
-    // Manager Widgets
+
     cardRevenueThisMonth: "Umsatz (Dieser Monat)",
     cardNetProfitThisMonth: "Nettogewinn (Dieser Monat)",
     cardActiveOrders: "Aktive Bestellungen",
     cardCriticalStock: "Kritischer Lagerbestand",
+
     agendaTitle: "Agenda & Dringende Aufgaben",
     overdueTasks: "überfällige Aufgaben gefunden.",
+
     quickActionsTitle: "Schnellaktionen",
     actionNewOrder: "Neue Bestellung",
     actionNewCompany: "Neue Firma",
     actionNewExpense: "Neue Ausgabe",
 
-    // Team Member Widgets
     cardOpenTasks: "Mir zugewiesene offene Aufgaben",
     cardNewOrdersFromClients: "Neue Bestellungen von meinen Kunden",
+
     quickAccessTitle: "Schnellzugriff",
     linkMyClients: "Meine Kunden",
     linkMyTasks: "Meine Aufgaben",
-    
-    // Error messages
+
     errorLoadingTeamDashboard: "Dein persönliches Panel konnte nicht geladen werden.",
   },
+  marketingKit: {
+    title: 'Ihr Marketing- & Menü-Kit',
+    description: 'Nutzen Sie unsere professionellen Materialien, um SweetTraum-Produkte in Ihrem Geschäft zu bewerben.',
+    assets: [
+      { name: 'Produktfotos (Hohe Auflösung)', type: 'Bilder', action: 'Herunterladen' },
+      { name: 'Menüvorlagen (PDF)', type: 'Dokumente', action: 'Herunterladen' },
+      { name: 'Social Media Posts (Vorlage)', type: 'Vorlagen', action: 'Herunterladen' },
+    ]
+  },
+  portalLoginPage: {
+    title: 'Willkommen zurück, Partner.',
+    subtitle: 'Bitte melden Sie sich an, um auf Ihr exklusives Dashboard zuzugreifen.',
+    emailLabel: 'E-Mail-Adresse',
+    passwordLabel: 'Passwort',
+    loginButton: 'Anmelden',
+    forgotPassword: 'Passwort vergessen?',
+    registerPrompt: 'Noch kein Partner?',
+    registerLink: 'Jetzt registrieren.',
+    welcomeTitle: 'Exklusiver Zugang für unsere Geschäftspartner',
+    welcomeText: 'Profitieren Sie von exklusiven Preisen, Marketingmaterialien und einem engagierten Support-Team, das Ihnen zum Erfolg verhilft.',
+  },
+  registerPage: {
+    title: 'Werden Sie ElysonSweets-Partner',
+    subtitle: 'Füllen Sie das Antragsformular aus und werden Sie Teil unseres exklusiven Netzwerks.',
+    companyName: 'Name des Unternehmens',
+    contactPerson: 'Ansprechpartner',
+    email: 'E-Mail-Adresse',
+    phone: 'Telefonnummer (Optional)',
+    address: 'Adresse (Optional)',
+    vatId: 'Umsatzsteuer-ID (Optional)',
+    message: 'Ihre Nachricht an uns (Optional)',
+    submitButton: 'Antrag Senden',
+    submitting: 'Wird gesendet...',
+    successTitle: 'Vielen Dank!',
+    successMessage: 'Ihr Antrag wurde erfolgreich übermittelt. Wir werden ihn prüfen und uns in Kürze bei Ihnen melden.',
+    backToLogin: 'Zurück zum Login',
+  },
+  newOrderPage: {
+    title: 'Neue Bestellung aufgeben',
+    searchPlaceholder: 'Produkt suchen...',
+    product: 'Produkt',
+    price: 'Preis',
+    quantity: 'Menge',
+    subtotal: 'Zwischensumme',
+    addToCart: 'Hinzufügen',
+    orderSummary: 'Bestellübersicht',
+    total: 'Gesamtbetrag',
+    placeOrder: 'Bestellung aufgeben',
+    noItems: 'Noch keine Artikel im Warenkorb.',
+    stock: 'Lagerbestand:',
+  },
+  megaMenu: {
+    promo: {
+      title: 'Produkt des Monats',
+      description: 'Entdecken Sie unseren neuen Pistazien-Himbeer-Traum.',
+      button: 'Jetzt ansehen',
+      href: '/produkte/torten-kuchen/pistazie-himbeer',
+      imageAlt: 'Ein köstliches Stück Pistazien-Himbeer-Torte',
+      imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
+    },
+    mainCategories: [
+      {
+        name: 'Patisserie',
+        promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Torten & Kuchen', href: '/produkte/torten-kuchen', description: '125 Sorten' },
+          { name: 'Vegane Produkte', href: '/produkte/vegan', description: '19 Sorten' },
+          { name: 'Kurabiye & Gebäck', href: '/produkte/kurabiye', description: '17 Sorten' },
+        ]
+      },
+      {
+        name: 'Kaffee & Getränke',
+        promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Kaffee', href: '/produkte/kaffee', description: '35 Sorten' },
+          { name: 'Tee & Pulvergetränke', href: '/produkte/tee', description: '35 Sorten' },
+          { name: 'Erfrischungsgetränke', href: '/produkte/getraenke', description: '20 Sorten' },
+        ]
+      },
+      {
+        name: 'Zutaten & Sirupe',
+        promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Kaffeesirupe', href: '/produkte/sirupe', description: '44 Sorten' },
+        ]
+      },
+      {
+        name: 'Herzhaftes',
+        promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Gourmet Pizza', href: '/produkte/pizza', description: '' },
+        ]
+      },
+    ]
+  },
+  philosophy: {
+    title: 'Unsere Philosophie',
+    paragraph1: 'Bei ElysonSweets glauben wir, dass wahrer Luxus in der kompromisslosen Qualität der Zutaten und der leidenschaftlichen Handwerkskunst unserer Meisterkonditoren liegt.',
+    paragraph2: 'Jede Kreation ist ein Versprechen – ein unvergessliches Geschmackserlebnis, das aus Tradition geboren und für den modernen Gaumen perfektioniert wurde.',
+    imageAlt: 'ElysonSweets tarafından özel olarak hazırlanmış, arka fonsuz bir pasta görseli',
+  },
+  categories: {
+    title: 'Unsere Produktkategorien',
+    cakes: 'Torten & Kuchen',
+    desserts: 'Pralinen & Macarons',
+    pastries: 'Feingebäck',
+    cakes_alt: 'Ein Stück köstlicher Schokoladenkuchen',
+    desserts_alt: 'Bunte Macarons',
+    pastries_alt: 'Frisch gebackene Croissants',
+  },
+  testimonials: {
+    title: 'Stimmen unserer Partner',
+    review1: 'Die Qualität und Kreativität von ElysonSweets hat unser Café auf ein neues Level gehoben. Unsere Kunden lieben die Desserts!',
+    name1: 'Anna Schmidt',
+    company1: 'Inhaberin, Café Bellevue',
+    review2: 'Zuverlässige Lieferung und konstant herausragende Produkte. ElysonSweets ist für unsere Events ein unverzichtbarer Partner geworden.',
+    name2: 'Maximilian Huber',
+    company2: 'Eventmanager, Huber & Co.',
+    review3: 'Vom ersten Kontakt bis zur Lieferung – absolute Professionalität. Die Patisserie ist nicht nur lecker, sondern auch ein Kunstwerk.',
+    name3: 'Sophia Weber',
+    company3: 'Chefköchin, Restaurant "Zur Eiche"',
+  },
+  cta: {
+    title: 'Bereit, Ihr Angebot zu veredeln?',
+    subtitle: 'Werden Sie Teil unseres exklusiven Partnernetzwerks und erhalten Sie Zugang zu Premium-Produkten, die Ihre Kunden begeistern werden.',
+    button: 'Jetzt Partner Werden',
+  },
+  socials: {
+    instagram: 'Folgen Sie uns auf Instagram',
+    facebook: 'Finden Sie uns auf Facebook',
+    pinterest: 'Entdecken Sie uns auf Pinterest',
+    twitter: 'Folgen Sie uns auf Twitter',
+    tiktok: 'Folgen Sie uns auf TikTok',
+    linkedin: 'Vernetzen Sie sich mit uns auf LinkedIn',
+    youtube: 'Abonnieren Sie unseren YouTube-Kanal',
+    followUs: 'Folgen Sie uns',
+  },
+  hero: {
+    title: 'Handwerkskunst, die ',
+    highlight: 'Ihre Gäste verzaubert.',
+    subtitle: 'Erlesene Patisserie-Kreationen, die Luxus neu definieren – zugänglich für Ihr Unternehmen.',
+    button: 'Partner Werden',
+  },
+  footer: {
+    legal: 'Rechtliches',
+    impressum: 'Impressum',
+    datenschutz: 'Datenschutz',
+    copyright: '© 2025 ElysonSweets Germany. Alle Rechte vorbehalten.',
+  },
+  logoAlt: 'ElysonSweets Logo',
+  productDetailPage: {
+    description: 'Beschreibung',
+    ingredients: 'Zutaten',
+    allergens: 'Allergene',
+    addToCart: 'Zum Warenkorb hinzufügen',
+    tabDescription: 'Beschreibung',
+    tabDetails: 'Produktdetails',
+    tabHandling: 'Lagerung & Handhabung',
+    sliceCount: 'Stückzahl',
+    weight: 'Gewicht',
+    portionSize: 'Portionsgröße',
+    storageConditions: 'Lagerbedingungen',
+    storageDuration: 'Lagerdauer',
+    thawingTime: 'Auftauzeit',
+    shelfLife: 'Haltbarkeit (aufgetaut)',
+    sampleProduct: {
+      id: 1,
+      name: 'Fıstık Rüyası',
+      category: 'Torten & Kuchen',
+      price: '45,00 €',
+      mainImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1200',
+      gallery: [
+        'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=400',
+        'https://images.unsplash.com/photo-1606313564205-5b6910373802?q=80&w=400',
+        'https://images.unsplash.com/photo-1616030113563-34e351591125?q=80&w=400'
+      ],
+      descriptionText: 'Kakaobiskuit, Mousse von Zartbitterschokolade, Ganache von weißer Schokolade, dragierte Pistazien...',
+      ingredientsList: 'Dunkle Schokolade, Weizenmehl, Bio-Eier, Rohrzucker, frische Sahne, Butter, Pistazien.',
+      allergensList: 'Kann Spuren von Nüssen enthalten. Enthält Gluten, Eier und Milchprodukte.',
+      technicalDetails: {
+        sliceCount: '12 Stück',
+        weight: '1540 g ± 5 g',
+        portionSize: '128 g ± 5 g',
+      },
+      storageInfo: {
+        conditions: 'bei -18 °C',
+        duration: '12 Monate',
+        thawingTime: '3-3,5 Stunden bei +4 °C',
+        shelfLife: '3-4 Tage bei +4 °C',
+      }
+    }
+  },
+  productsPage: {
+    title: 'Unsere Kollektionen',
+    filterTitle: 'Kategorien filtern',
+    allProducts: 'Alle Produkte',
+    sampleProducts: [
+      { id: 1, name: 'Klassische Schokoladentorte', category: 'Torten & Kuchen', imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800', alt: 'Ein Stück Schokoladenkuchen' },
+      { id: 2, name: 'Französische Macarons', category: 'Pralinen & Macarons', imageUrl: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=800', alt: 'Bunte Macarons' },
+      { id: 3, name: 'Frische Croissants', category: 'Feingebäck', imageUrl: 'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=800', alt: 'Frisch gebackene Croissants' },
+      { id: 4, name: 'Äthiopischer Yirgacheffe', category: 'Kaffee & Tee', imageUrl: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=800', alt: 'Eine Tasse Kaffee' },
+      { id: 5, name: 'Vegane Himbeertorte', category: 'Vegane Produkte', imageUrl: 'https://images.unsplash.com/photo-1562440102-37424bae392a?q=80&w=800', alt: 'Ein Stück veganer Himbeerkuchen' },
+      { id: 6, name: 'Gourmet Salami Pizza', category: 'Gourmet Pizza', imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800', alt: 'Eine Gourmet-Salami-Pizza' },
+    ],
+    detailsButton: 'Details ansehen',
+  },
+  pagination: {
+    page: 'Seite',
+    of: 'von',
+    next: 'Nächste',
+    previous: 'Vorherige',
+  },
+  qualityPromise: {
+    title: 'Unser Qualitätsversprechen',
+    item1: {
+      title: 'Beste Zutaten',
+      description: 'Wir wählen nur die feinsten und frischesten Rohstoffe von vertrauenswürdigen Lieferanten aus.',
+    },
+    item2: {
+      title: 'Meisterhafte Verarbeitung',
+      description: 'Unsere Produkte werden von erfahrenen Konditoren mit Leidenschaft und Präzision handgefertigt.',
+    },
+    item3: {
+      title: 'Zuverlässige Lieferung',
+      description: 'Wir garantieren eine pünktliche und sorgfältige Lieferung, damit Ihre Ware stets in perfektem Zustand ankommt.',
+    },
+  },
+  datenschutzPage: {
+    title: 'Datenschutzerklärung',
+    lastUpdated: 'Stand: 01. Oktober 2025',
+    p1: 'Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.',
+    p2: 'Die Nutzung unserer Webseite ist in der Regel ohne Angabe personenbezogener Daten möglich. Soweit auf unseren Seiten personenbezogene Daten (beispielsweise Name, Anschrift oder E-Mail-Adressen) erhoben werden, erfolgt dies, soweit möglich, stets auf freiwilliger Basis.',
+    sectionTitle1: '1. Verantwortliche Stelle',
+    responsibleBody: 'Verantwortliche Stelle im Sinne der Datenschutzgesetze, insbesondere der EU-Datenschutzgrundverordnung (DSGVO), ist:',
+    companyDetails: [
+      'ElysonSweets GmbH',
+      'Musterstraße 123',
+      '12345 Berlin',
+      'E-Mail: info@ElysonSweets.de',
+    ],
+    sectionTitle2: '2. Ihre Betroffenenrechte',
+    rightsIntro: 'Unter den angegebenen Kontaktdaten unseres Datenschutzbeauftragten können Sie jederzeit folgende Rechte ausüben:',
+    rightsList: [
+      'Auskunft über Ihre bei uns gespeicherten Daten und deren Verarbeitung,',
+      'Berichtigung unrichtiger personenbezogener Daten,',
+      'Löschung Ihrer bei uns gespeicherten Daten,',
+      'Einschränkung der Datenverarbeitung, sofern wir Ihre Daten aufgrund gesetzlicher Pflichten noch nicht löschen dürfen,',
+      'Widerspruch gegen die Verarbeitung Ihrer Daten bei uns und',
+      'Datenübertragbarkeit, sofern Sie in die Datenverarbeitung eingewilligt haben oder einen Vertrag mit uns abgeschlossen haben.',
+    ],
+    p3: 'Sofern Sie uns eine Einwilligung erteilt haben, können Sie diese jederzeit mit Wirkung für die Zukunft widerrufen.'
+  },
+  impressumPage: {
+    title: 'Impressum',
+    section1Title: 'Angaben gemäß § 5 TMG',
+    address: [
+      'ElysonSweets GmbH',
+      'Musterstraße 123',
+      '12345 Berlin',
+      'Deutschland',
+    ],
+    section2Title: 'Vertreten durch',
+    managingDirector: 'Turgay Celen',
+    section3Title: 'Kontakt',
+    phone: 'Telefon: +49 (0) 123 456 789',
+    email: 'E-Mail: info@ElysonSweets.de',
+    section4Title: 'Registereintrag',
+    registerCourt: 'Amtsgericht Charlottenburg',
+    registerNumber: 'HRB 123456 B',
+    section5Title: 'Umsatzsteuer-ID',
+    vatId: 'DE123456789',
+    section6Title: 'Haftungsausschluss',
+    disclaimerText: 'Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.',
+  },
+  contactPage: {
+    title: 'Kontakt aufnehmen',
+    heroSubtitle: 'WIR FREUEN UNS, VON IHNEN ZU HÖREN',
+    formTitle: 'Senden Sie uns eine Nachricht',
+    formName: 'Ihr Name',
+    formEmail: 'Ihre E-Mail-Adresse',
+    formMessage: 'Ihre Nachricht',
+    formButton: 'Nachricht Senden',
+    detailsTitle: 'Direkter Kontakt',
+    address: 'Musterstraße 123, 12345 Berlin, Deutschland',
+    phone: '+49 (0) 123 456 789',
+    email: 'info@ElysonSweets.de',
+  }, // Virgül eklendi
 
-  },
-  search: {
-    placeholder: 'Suchen Sie nach Produkten, Rezepten und mehr...',
-    close: 'Schließen',
-  },
-  topBar: {
-    announcement: 'Premium-Qualität, zugänglich gemacht.',
-  },
- dashboard: {
-    managerTitle: "CEO Cockpit",
-    managerSubtitle: "Willkommen zur Live-Übersicht deines Unternehmens.",
-    teamMemberTitle: "Mein Persönliches Panel",
-    teamMemberSubtitle: "Hier ist, worauf du dich heute konzentrieren solltest.",
-    
-    cardRevenueThisMonth: "Umsatz (Dieser Monat)",
-    cardNetProfitThisMonth: "Nettogewinn (Dieser Monat)",
-    cardActiveOrders: "Aktive Bestellungen",
-    cardCriticalStock: "Kritischer Lagerbestand",
-    
-    agendaTitle: "Agenda & Dringende Aufgaben",
-    overdueTasks: "überfällige Aufgaben gefunden.",
-    
-    quickActionsTitle: "Schnellaktionen",
-    actionNewOrder: "Neue Bestellung",
-    actionNewCompany: "Neue Firma",
-    actionNewExpense: "Neue Ausgabe",
-
-    cardOpenTasks: "Mir zugewiesene offene Aufgaben",
-    cardNewOrdersFromClients: "Neue Bestellungen von meinen Kunden",
-    
-    quickAccessTitle: "Schnellzugriff",
-    linkMyClients: "Meine Kunden",
-    linkMyTasks: "Meine Aufgaben",
-    
-    errorLoadingTeamDashboard: "Dein persönliches Panel konnte nicht geladen werden.",
-},
-  marketingKit: {
-    title: 'Ihr Marketing- & Menü-Kit',
-    description: 'Nutzen Sie unsere professionellen Materialien, um SweetTraum-Produkte in Ihrem Geschäft zu bewerben.',
-    assets: [
-      { name: 'Produktfotos (Hohe Auflösung)', type: 'Bilder', action: 'Herunterladen' },
-      { name: 'Menüvorlagen (PDF)', type: 'Dokumente', action: 'Herunterladen' },
-      { name: 'Social Media Posts (Vorlage)', type: 'Vorlagen', action: 'Herunterladen' },
-    ]
-  },
-  portalLoginPage: {
-    title: 'Willkommen zurück, Partner.',
-    subtitle: 'Bitte melden Sie sich an, um auf Ihr exklusives Dashboard zuzugreifen.',
-    emailLabel: 'E-Mail-Adresse',
-    passwordLabel: 'Passwort',
-    loginButton: 'Anmelden',
-    forgotPassword: 'Passwort vergessen?',
-    registerPrompt: 'Noch kein Partner?',
-    registerLink: 'Jetzt registrieren.',
-    welcomeTitle: 'Exklusiver Zugang für unsere Geschäftspartner',
-    welcomeText: 'Profitieren Sie von exklusiven Preisen, Marketingmaterialien und einem engagierten Support-Team, das Ihnen zum Erfolg verhilft.',
-  },
-  registerPage: { 
-    title: 'Werden Sie ElysonSweets-Partner',
-    subtitle: 'Füllen Sie das Antragsformular aus und werden Sie Teil unseres exklusiven Netzwerks.',
-    companyName: 'Name des Unternehmens',
-    contactPerson: 'Ansprechpartner',
-    email: 'E-Mail-Adresse',
-    phone: 'Telefonnummer (Optional)',
-    address: 'Adresse (Optional)',
-    vatId: 'Umsatzsteuer-ID (Optional)',
-    message: 'Ihre Nachricht an uns (Optional)',
-    submitButton: 'Antrag Senden',
-    submitting: 'Wird gesendet...',
-    successTitle: 'Vielen Dank!',
-    successMessage: 'Ihr Antrag wurde erfolgreich übermittelt. Wir werden ihn prüfen und uns in Kürze bei Ihnen melden.',
-    backToLogin: 'Zurück zum Login',
-  },
-  newOrderPage: {
-    title: 'Neue Bestellung aufgeben',
-    searchPlaceholder: 'Produkt suchen...',
-    product: 'Produkt',
-    price: 'Preis',
-    quantity: 'Menge',
-    subtotal: 'Zwischensumme',
-    addToCart: 'Hinzufügen',
-    orderSummary: 'Bestellübersicht',
-    total: 'Gesamtbetrag',
-    placeOrder: 'Bestellung aufgeben',
-    noItems: 'Noch keine Artikel im Warenkorb.',
-    stock: 'Lagerbestand:',
-  },
-  megaMenu: {
-    promo: {
-      title: 'Produkt des Monats',
-      description: 'Entdecken Sie unseren neuen Pistazien-Himbeer-Traum.',
-      button: 'Jetzt ansehen',
-      href: '/produkte/torten-kuchen/pistazie-himbeer',
-      imageAlt: 'Ein köstliches Stück Pistazien-Himbeer-Torte',
-      imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
-    },
-    mainCategories: [
-      {
-        name: 'Patisserie',
-        promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
-        subCategories: [
-          { name: 'Torten & Kuchen', href: '/produkte/torten-kuchen', description: '125 Sorten' },
-          { name: 'Vegane Produkte', href: '/produkte/vegan', description: '19 Sorten' },
-          { name: 'Kurabiye & Gebäck', href: '/produkte/kurabiye', description: '17 Sorten' },
-        ]
-      },
-      {
-        name: 'Kaffee & Getränke',
-        promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
-        subCategories: [
-          { name: 'Kaffee', href: '/produkte/kaffee', description: '35 Sorten' },
-          { name: 'Tee & Pulvergetränke', href: '/produkte/tee', description: '35 Sorten' },
-          { name: 'Erfrischungsgetränke', href: '/produkte/getraenke', description: '20 Sorten' },
-        ]
-      },
-      {
-        name: 'Zutaten & Sirupe',
-        promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
-        subCategories: [
-          { name: 'Kaffeesirupe', href: '/produkte/sirupe', description: '44 Sorten' },
-        ]
-      },
-       {
-        name: 'Herzhaftes',
-        promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
-        subCategories: [
-          { name: 'Gourmet Pizza', href: '/produkte/pizza', description: '' },
-        ]
-      },
-    ]
-  },
-  philosophy: {
-    title: 'Unsere Philosophie',
-    paragraph1: 'Bei ElysonSweets glauben wir, dass wahrer Luxus in der kompromisslosen Qualität der Zutaten und der leidenschaftlichen Handwerkskunst unserer Meisterkonditoren liegt.',
-    paragraph2: 'Jede Kreation ist ein Versprechen – ein unvergessliches Geschmackserlebnis, das aus Tradition geboren und für den modernen Gaumen perfektioniert wurde.',
-    imageAlt: 'ElysonSweets tarafından özel olarak hazırlanmış, arka fonsuz bir pasta görseli',
-  },
-  categories: {
-    title: 'Unsere Produktkategorien',
-    cakes: 'Torten & Kuchen',
-    desserts: 'Pralinen & Macarons',
-    pastries: 'Feingebäck',
-    cakes_alt: 'Ein Stück köstlicher Schokoladenkuchen',
-    desserts_alt: 'Bunte Macarons',
-    pastries_alt: 'Frisch gebackene Croissants',
-  },
-  testimonials: {
-    title: 'Stimmen unserer Partner',
-    review1: 'Die Qualität und Kreativität von ElysonSweets hat unser Café auf ein neues Level gehoben. Unsere Kunden lieben die Desserts!',
-    name1: 'Anna Schmidt',
-    company1: 'Inhaberin, Café Bellevue',
-    review2: 'Zuverlässige Lieferung und konstant herausragende Produkte. ElysonSweets ist für unsere Events ein unverzichtbarer Partner geworden.',
-    name2: 'Maximilian Huber',
-    company2: 'Eventmanager, Huber & Co.',
-    review3: 'Vom ersten Kontakt bis zur Lieferung – absolute Professionalität. Die Patisserie ist nicht nur lecker, sondern auch ein Kunstwerk.',
-    name3: 'Sophia Weber',
-    company3: 'Chefköchin, Restaurant "Zur Eiche"',
-  },
-  cta: {
-    title: 'Bereit, Ihr Angebot zu veredeln?',
-    subtitle: 'Werden Sie Teil unseres exklusiven Partnernetzwerks und erhalten Sie Zugang zu Premium-Produkten, die Ihre Kunden begeistern werden.',
-    button: 'Jetzt Partner Werden',
-  },
-  socials: {
-    instagram: 'Folgen Sie uns auf Instagram',
-    facebook: 'Finden Sie uns auf Facebook',
-    pinterest: 'Entdecken Sie uns auf Pinterest',
-    twitter: 'Folgen Sie uns auf Twitter',
-    tiktok: 'Folgen Sie uns auf TikTok',
-    linkedin: 'Vernetzen Sie sich mit uns auf LinkedIn',
-    youtube: 'Abonnieren Sie unseren YouTube-Kanal',
-    followUs: 'Folgen Sie uns',
-  },
-  hero: {
-    title: 'Handwerkskunst, die ',
-    highlight: 'Ihre Gäste verzaubert.',
-    subtitle: 'Erlesene Patisserie-Kreationen, die Luxus neu definieren – zugänglich für Ihr Unternehmen.',
-    button: 'Partner Werden',
-  },
-  footer: {
-    legal: 'Rechtliches',
-    impressum: 'Impressum',
-    datenschutz: 'Datenschutz',
-    copyright: '© 2025 ElysonSweets Germany. Alle Rechte vorbehalten.',
-  },
-  logoAlt: 'ElysonSweets Logo',
-  productDetailPage: {
-    description: 'Beschreibung',
-    ingredients: 'Zutaten',
-    allergens: 'Allergene',
-    addToCart: 'Zum Warenkorb hinzufügen',
-    tabDescription: 'Beschreibung',
-    tabDetails: 'Produktdetails',
-    tabHandling: 'Lagerung & Handhabung',
-    sliceCount: 'Stückzahl',
-    weight: 'Gewicht',
-    portionSize: 'Portionsgröße',
-    storageConditions: 'Lagerbedingungen',
-    storageDuration: 'Lagerdauer',
-    thawingTime: 'Auftauzeit',
-    shelfLife: 'Haltbarkeit (aufgetaut)',
-    sampleProduct: {
-      id: 1,
-      name: 'Fıstık Rüyası',
-      category: 'Torten & Kuchen',
-      price: '45,00 €',
-      mainImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1200',
-      gallery: [
-        'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=400',
-        'https://images.unsplash.com/photo-1606313564205-5b6910373802?q=80&w=400',
-        'https://images.unsplash.com/photo-1616030113563-34e351591125?q=80&w=400'
-      ],
-      descriptionText: 'Kakaobiskuit, Mousse von Zartbitterschokolade, Ganache von weißer Schokolade, dragierte Pistazien...',
-      ingredientsList: 'Dunkle Schokolade, Weizenmehl, Bio-Eier, Rohrzucker, frische Sahne, Butter, Pistazien.',
-      allergensList: 'Kann Spuren von Nüssen enthalten. Enthält Gluten, Eier und Milchprodukte.',
-      technicalDetails: {
-        sliceCount: '12 Stück',
-        weight: '1540 g ± 5 g',
-        portionSize: '128 g ± 5 g',
-      },
-      storageInfo: {
-        conditions: 'bei -18 °C',
-        duration: '12 Monate',
-        thawingTime: '3-3,5 Stunden bei +4 °C',
-        shelfLife: '3-4 Tage bei +4 °C',
-      }
-    }
-  },
-  productsPage: {
-    title: 'Unsere Kollektionen',
-    filterTitle: 'Kategorien filtern',
-    allProducts: 'Alle Produkte',
-    sampleProducts: [
-      { id: 1, name: 'Klassische Schokoladentorte', category: 'Torten & Kuchen', imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800', alt: 'Ein Stück Schokoladenkuchen' },
-      { id: 2, name: 'Französische Macarons', category: 'Pralinen & Macarons', imageUrl: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=800', alt: 'Bunte Macarons' },
-      { id: 3, name: 'Frische Croissants', category: 'Feingebäck', imageUrl: 'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=800', alt: 'Frisch gebackene Croissants' },
-      { id: 4, name: 'Äthiopischer Yirgacheffe', category: 'Kaffee & Tee', imageUrl: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=800', alt: 'Eine Tasse Kaffee' },
-      { id: 5, name: 'Vegane Himbeertorte', category: 'Vegane Produkte', imageUrl: 'https://images.unsplash.com/photo-1562440102-37424bae392a?q=80&w=800', alt: 'Ein Stück veganer Himbeerkuchen' },
-      { id: 6, name: 'Gourmet Salami Pizza', category: 'Gourmet Pizza', imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800', alt: 'Eine Gourmet-Salami-Pizza' },
-    ],
-    detailsButton: 'Details ansehen',
-  },
-  pagination: {
-    page: 'Seite',
-    of: 'von',
-    next: 'Nächste',
-    previous: 'Vorherige',
-  },
-  qualityPromise: {
-    title: 'Unser Qualitätsversprechen',
-    item1: {
-      title: 'Beste Zutaten',
-      description: 'Wir wählen nur die feinsten und frischesten Rohstoffe von vertrauenswürdigen Lieferanten aus.',
-    },
-    item2: {
-      title: 'Meisterhafte Verarbeitung',
-      description: 'Unsere Produkte werden von erfahrenen Konditoren mit Leidenschaft und Präzision handgefertigt.',
-    },
-    item3: {
-      title: 'Zuverlässige Lieferung',
-      description: 'Wir garantieren eine pünktliche und sorgfältige Lieferung, damit Ihre Ware stets in perfektem Zustand ankommt.',
-    },
-  },
-  datenschutzPage: {
-    title: 'Datenschutzerklärung',
-    lastUpdated: 'Stand: 01. Oktober 2025',
-    p1: 'Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend der gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.',
-    p2: 'Die Nutzung unserer Webseite ist in der Regel ohne Angabe personenbezogener Daten möglich. Soweit auf unseren Seiten personenbezogene Daten (beispielsweise Name, Anschrift oder E-Mail-Adressen) erhoben werden, erfolgt dies, soweit möglich, stets auf freiwilliger Basis.',
-    sectionTitle1: '1. Verantwortliche Stelle',
-    responsibleBody: 'Verantwortliche Stelle im Sinne der Datenschutzgesetze, insbesondere der EU-Datenschutzgrundverordnung (DSGVO), ist:',
-    companyDetails: [
-      'ElysonSweets GmbH',
-      'Musterstraße 123',
-      '12345 Berlin',
-      'E-Mail: info@ElysonSweets.de',
-    ],
-    sectionTitle2: '2. Ihre Betroffenenrechte',
-    rightsIntro: 'Unter den angegebenen Kontaktdaten unseres Datenschutzbeauftragten können Sie jederzeit folgende Rechte ausüben:',
-    rightsList: [
-      'Auskunft über Ihre bei uns gespeicherten Daten und deren Verarbeitung,',
-      'Berichtigung unrichtiger personenbezogener Daten,',
-      'Löschung Ihrer bei uns gespeicherten Daten,',
-      'Einschränkung der Datenverarbeitung, sofern wir Ihre Daten aufgrund gesetzlicher Pflichten noch nicht löschen dürfen,',
-      'Widerspruch gegen die Verarbeitung Ihrer Daten bei uns und',
-      'Datenübertragbarkeit, sofern Sie in die Datenverarbeitung eingewilligt haben oder einen Vertrag mit uns abgeschlossen haben.',
-    ],
-    p3: 'Sofern Sie uns eine Einwilligung erteilt haben, können Sie diese jederzeit mit Wirkung für die Zukunft widerrufen.'
-  },
-  impressumPage: {
-    title: 'Impressum',
-    section1Title: 'Angaben gemäß § 5 TMG',
-    address: [
-      'ElysonSweets GmbH',
-      'Musterstraße 123',
-      '12345 Berlin',
-      'Deutschland',
-    ],
-    section2Title: 'Vertreten durch',
-    managingDirector: 'Turgay Celen',
-    section3Title: 'Kontakt',
-    phone: 'Telefon: +49 (0) 123 456 789',
-    email: 'E-Mail: info@ElysonSweets.de',
-    section4Title: 'Registereintrag',
-    registerCourt: 'Amtsgericht Charlottenburg',
-    registerNumber: 'HRB 123456 B',
-    section5Title: 'Umsatzsteuer-ID',
-    vatId: 'DE123456789',
-    section6Title: 'Haftungsausschluss',
-    disclaimerText: 'Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.',
-  },
-  contactPage: {
-    title: 'Kontakt aufnehmen',
-    heroSubtitle: 'WIR FREUEN UNS, VON IHNEN ZU HÖREN',
-    formTitle: 'Senden Sie uns eine Nachricht',
-    formName: 'Ihr Name',
-    formEmail: 'Ihre E-Mail-Adresse',
-    formMessage: 'Ihre Nachricht',
-    formButton: 'Nachricht Senden',
-    detailsTitle: 'Direkter Kontakt',
-    address: 'Musterstraße 123, 12345 Berlin, Deutschland',
-    phone: '+49 (0) 123 456 789',
-    email: 'info@ElysonSweets.de',
-  },
-
-orderStatuses : {
+  orderStatuses: {
     processing: 'In Vorbereitung',
     shipped: 'Versandt',
     delivered: 'Zugestellt',
     cancelled: 'Storniert',
-},
-    adminPartners: {
-        title: "Partner-Verwaltung",
-        partnerId: "Partner-ID",
-        companyName: "Firma",
-        contactPerson: "Ansprechpartner",
-        status: "Vertriebsstatus",
-        createdAt: "Erstellt am",
-        viewApplicationsButton: "Neue Partner erstellen",
-        noPartners: "Es sind keine aktiven Partner vorhanden.",
-        deleteConfirmation: "Möchten Sie diesen Partner wirklich löschen?",
-        createPartnerButton: "Neuen Partner erstellen",
-        // Füge hier alle Texte hinzu, die du auf der Seite benutzt
-    },
-};
+  },
+  adminPartners: {
+    title: "Partner-Verwaltung",
+    partnerId: "Partner-ID",
+    companyName: "Firma",
+    contactPerson: "Ansprechpartner",
+    status: "Vertriebsstatus",
+    createdAt: "Erstellt am",
+    viewApplicationsButton: "Neue Partner erstellen",
+    noPartners: "Es sind keine aktiven Partner vorhanden.",
+    deleteConfirmation: "Möchten Sie diesen Partner wirklich löschen?",
+    createPartnerButton: "Neuen Partner erstellen",
+    // Füge hier alle Texte hinzu, die du auf der Seite benutzt
+  },
+}

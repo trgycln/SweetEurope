@@ -1,8 +1,9 @@
+// src/components/Sidebar.tsx
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { useState } from 'react'; // KORRIGIERT: Syntaxfehler behoben
+import React, { useState } from 'react';
 import { 
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX, 
     FiGift, FiLayers, FiSettings, FiChevronDown 
@@ -23,7 +24,6 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
     const pathname = usePathname();
     const content = dictionary.adminSidebar;
 
-    // Menüstruktur mit den korrekten Übersetzungen aus dem dictionary
     const menuSections = [
         {
             title: content.mainMenu,
@@ -39,18 +39,19 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             ],
         },
         {
+            title: content.operations,
+            links: [
+                // KORREKTUR: Der Link zeigt jetzt auf die korrekte Seite im 'operasyon'-Modul.
+                { name: content.orders, href: '/admin/operasyon/siparisler', icon: FiTruck, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
+                { name: content.tasks, href: '/admin/gorevler', icon: FiClipboard, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
+            ]
+        },
+        {
             title: content.management,
             links: [
                 { name: content.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici'] as UserRole[] },
                 { name: content.categories, href: '/admin/urun-yonetimi/kategoriler', icon: FiLayers, roles: ['Yönetici'] as UserRole[] },
             ],
-        },
-        {
-            title: content.operations,
-            links: [
-                { name: content.tasks, href: '/admin/gorevler', icon: FiClipboard, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
-                { name: content.orders, href: '/admin/operasyon/siparisler', icon: FiTruck, roles: ['Yönetici'] as UserRole[] },
-            ]
         },
         {
             title: content.settings,
@@ -60,22 +61,22 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
         }
     ];
 
-    // Aktive Sektion beim ersten Laden der Seite bestimmen
     const [openSection, setOpenSection] = useState<string | null>(() => {
         for (const section of menuSections) {
             if (section.links.some(link => pathname.startsWith(link.href))) {
                 return section.title;
             }
         }
-        return content.mainMenu; // Standardmäßig Hauptmenü öffnen
+        return content.mainMenu;
     });
 
     return (
+        // JSX bleibt unverändert...
         <>
             <div
                 onClick={() => setIsOpen(false)}
                 className={`fixed inset-0 z-30 bg-black/60 transition-opacity duration-300 lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-            />
+            ></div>
             <div
                 className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-primary text-secondary transition-transform duration-300 ease-in-out lg:translate-x-0 overflow-y-auto ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >

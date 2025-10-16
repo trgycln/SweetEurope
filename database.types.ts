@@ -161,63 +161,78 @@ export type Database = {
       }
       dis_kontaklar: {
         Row: {
-          aciklama: string | null
+          ad_soyad: string
           created_at: string
           email: string | null
+          firma_id: string
           id: string
-          kurum_adi: string
-          sorumlu_kisi: string | null
           telefon: string | null
+          unvan: string | null
         }
         Insert: {
-          aciklama?: string | null
+          ad_soyad: string
           created_at?: string
           email?: string | null
+          firma_id: string
           id?: string
-          kurum_adi: string
-          sorumlu_kisi?: string | null
           telefon?: string | null
+          unvan?: string | null
         }
         Update: {
-          aciklama?: string | null
+          ad_soyad?: string
           created_at?: string
           email?: string | null
-          id?: string
-          kurum_adi?: string
-          sorumlu_kisi?: string | null
-          telefon?: string | null
-        }
-        Relationships: []
-      }
-      etkinlikler: {
-        Row: {
-          created_at: string
-          firma_id: string
-          id: string
-          kullanici_id: string
-          ozet: string
-          tur: Database["public"]["Enums"]["etkinlik_turu"]
-        }
-        Insert: {
-          created_at?: string
-          firma_id: string
-          id?: string
-          kullanici_id: string
-          ozet: string
-          tur: Database["public"]["Enums"]["etkinlik_turu"]
-        }
-        Update: {
-          created_at?: string
           firma_id?: string
           id?: string
-          kullanici_id?: string
-          ozet?: string
-          tur?: Database["public"]["Enums"]["etkinlik_turu"]
+          telefon?: string | null
+          unvan?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "etkinlikler_kullanici_id_fkey"
-            columns: ["kullanici_id"]
+            foreignKeyName: "dis_kontaklar_firma_id_fkey"
+            columns: ["firma_id"]
+            isOneToOne: false
+            referencedRelation: "firmalar"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      etkinlikler: {
+        Row: {
+          aciklama: string
+          created_at: string
+          etkinlik_tipi: Database["public"]["Enums"]["etkinlik_tipi"]
+          firma_id: string
+          id: string
+          olusturan_personel_id: string
+        }
+        Insert: {
+          aciklama: string
+          created_at?: string
+          etkinlik_tipi: Database["public"]["Enums"]["etkinlik_tipi"]
+          firma_id: string
+          id?: string
+          olusturan_personel_id: string
+        }
+        Update: {
+          aciklama?: string
+          created_at?: string
+          etkinlik_tipi?: Database["public"]["Enums"]["etkinlik_tipi"]
+          firma_id?: string
+          id?: string
+          olusturan_personel_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etkinlikler_firma_id_fkey"
+            columns: ["firma_id"]
+            isOneToOne: false
+            referencedRelation: "firmalar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "etkinlikler_olusturan_personel_id_fkey"
+            columns: ["olusturan_personel_id"]
             isOneToOne: false
             referencedRelation: "profiller"
             referencedColumns: ["id"]
@@ -251,6 +266,7 @@ export type Database = {
           id: string
           iskonto_orani: number
           kategori: string | null
+          referans_olarak_goster: boolean
           sorumlu_personel_id: string | null
           status: string | null
           telefon: string | null
@@ -266,6 +282,7 @@ export type Database = {
           id?: string
           iskonto_orani?: number
           kategori?: string | null
+          referans_olarak_goster?: boolean
           sorumlu_personel_id?: string | null
           status?: string | null
           telefon?: string | null
@@ -281,6 +298,7 @@ export type Database = {
           id?: string
           iskonto_orani?: number
           kategori?: string | null
+          referans_olarak_goster?: boolean
           sorumlu_personel_id?: string | null
           status?: string | null
           telefon?: string | null
@@ -364,7 +382,7 @@ export type Database = {
           baslik: string
           created_at: string
           durum: Database["public"]["Enums"]["gorev_durumu"]
-          id: number
+          id: string
           ilgili_firma_id: string | null
           olusturan_kisi_id: string | null
           oncelik: Database["public"]["Enums"]["gorev_oncelik"]
@@ -377,7 +395,7 @@ export type Database = {
           baslik: string
           created_at?: string
           durum?: Database["public"]["Enums"]["gorev_durumu"]
-          id?: number
+          id?: string
           ilgili_firma_id?: string | null
           olusturan_kisi_id?: string | null
           oncelik?: Database["public"]["Enums"]["gorev_oncelik"]
@@ -390,7 +408,7 @@ export type Database = {
           baslik?: string
           created_at?: string
           durum?: Database["public"]["Enums"]["gorev_durumu"]
-          id?: number
+          id?: string
           ilgili_firma_id?: string | null
           olusturan_kisi_id?: string | null
           oncelik?: Database["public"]["Enums"]["gorev_oncelik"]
@@ -398,6 +416,13 @@ export type Database = {
           tamamlandi?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "gorevler_atanan_kisi_id_fkey"
+            columns: ["atanan_kisi_id"]
+            isOneToOne: false
+            referencedRelation: "profiller"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "gorevler_olusturan_kisi_id_fkey"
             columns: ["olusturan_kisi_id"]
@@ -413,7 +438,7 @@ export type Database = {
           alan_tipi: string
           alt_bayi_gorunur: boolean
           created_at: string
-          gosterim_adi: string
+          gosterim_adi: Json
           id: string
           kategori_id: string
           musteri_gorunur: boolean
@@ -425,7 +450,7 @@ export type Database = {
           alan_tipi?: string
           alt_bayi_gorunur?: boolean
           created_at?: string
-          gosterim_adi: string
+          gosterim_adi: Json
           id?: string
           kategori_id: string
           musteri_gorunur?: boolean
@@ -437,7 +462,7 @@ export type Database = {
           alan_tipi?: string
           alt_bayi_gorunur?: boolean
           created_at?: string
-          gosterim_adi?: string
+          gosterim_adi?: Json
           id?: string
           kategori_id?: string
           musteri_gorunur?: boolean
@@ -459,18 +484,21 @@ export type Database = {
           ad: Json
           created_at: string
           id: string
+          slug: string | null
           ust_kategori_id: string | null
         }
         Insert: {
           ad: Json
           created_at?: string
           id?: string
+          slug?: string | null
           ust_kategori_id?: string | null
         }
         Update: {
           ad?: Json
           created_at?: string
           id?: string
+          slug?: string | null
           ust_kategori_id?: string | null
         }
         Relationships: [
@@ -545,60 +573,74 @@ export type Database = {
       }
       profiller: {
         Row: {
+          firma_id: string | null
           id: string
           rol: Database["public"]["Enums"]["user_role"]
           tam_ad: string | null
+          tercih_edilen_dil: string
         }
         Insert: {
+          firma_id?: string | null
           id: string
           rol?: Database["public"]["Enums"]["user_role"]
           tam_ad?: string | null
+          tercih_edilen_dil?: string
         }
         Update: {
+          firma_id?: string | null
           id?: string
           rol?: Database["public"]["Enums"]["user_role"]
           tam_ad?: string | null
+          tercih_edilen_dil?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiller_firma_id_fkey"
+            columns: ["firma_id"]
+            isOneToOne: false
+            referencedRelation: "firmalar"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      siparis_detaylari: {
+      siparis_detay: {
         Row: {
-          birim_fiyat_net: number
+          birim_fiyat: number
+          created_at: string
           id: string
-          iskonto_orani: number
           miktar: number
-          satir_toplami_net: number
           siparis_id: string
+          toplam_fiyat: number
           urun_id: string
         }
         Insert: {
-          birim_fiyat_net: number
+          birim_fiyat: number
+          created_at?: string
           id?: string
-          iskonto_orani: number
           miktar: number
-          satir_toplami_net: number
           siparis_id: string
+          toplam_fiyat: number
           urun_id: string
         }
         Update: {
-          birim_fiyat_net?: number
+          birim_fiyat?: number
+          created_at?: string
           id?: string
-          iskonto_orani?: number
           miktar?: number
-          satir_toplami_net?: number
           siparis_id?: string
+          toplam_fiyat?: number
           urun_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "siparis_detaylari_siparis_id_fkey"
+            foreignKeyName: "siparis_detay_siparis_id_fkey"
             columns: ["siparis_id"]
             isOneToOne: false
             referencedRelation: "siparisler"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "siparis_detaylari_urun_id_fkey"
+            foreignKeyName: "siparis_detay_urun_id_fkey"
             columns: ["urun_id"]
             isOneToOne: false
             referencedRelation: "urunler"
@@ -612,8 +654,11 @@ export type Database = {
           firma_id: string
           id: string
           kdv_orani: number
+          olusturan_kullanici_id: string | null
           siparis_durumu: string
+          siparis_kaynagi: Database["public"]["Enums"]["siparis_kaynagi"] | null
           siparis_tarihi: string
+          teslimat_adresi: string | null
           toplam_tutar_brut: number
           toplam_tutar_net: number
         }
@@ -622,8 +667,13 @@ export type Database = {
           firma_id: string
           id?: string
           kdv_orani: number
+          olusturan_kullanici_id?: string | null
           siparis_durumu: string
+          siparis_kaynagi?:
+            | Database["public"]["Enums"]["siparis_kaynagi"]
+            | null
           siparis_tarihi?: string
+          teslimat_adresi?: string | null
           toplam_tutar_brut: number
           toplam_tutar_net: number
         }
@@ -632,8 +682,13 @@ export type Database = {
           firma_id?: string
           id?: string
           kdv_orani?: number
+          olusturan_kullanici_id?: string | null
           siparis_durumu?: string
+          siparis_kaynagi?:
+            | Database["public"]["Enums"]["siparis_kaynagi"]
+            | null
           siparis_tarihi?: string
+          teslimat_adresi?: string | null
           toplam_tutar_brut?: number
           toplam_tutar_net?: number
         }
@@ -643,6 +698,13 @@ export type Database = {
             columns: ["firma_id"]
             isOneToOne: false
             referencedRelation: "firmalar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "siparisler_olusturan_kullanici_id_fkey"
+            columns: ["olusturan_kullanici_id"]
+            isOneToOne: false
+            referencedRelation: "profiller"
             referencedColumns: ["id"]
           },
         ]
@@ -679,9 +741,11 @@ export type Database = {
           aciklamalar: Json | null
           ad: Json
           aktif: boolean
+          ana_resim_url: string | null
           ana_satis_birimi_id: string | null
           created_at: string
           distributor_alis_fiyati: number
+          galeri_resim_urls: string[] | null
           id: string
           kategori_id: string
           satis_fiyati_alt_bayi: number
@@ -697,9 +761,11 @@ export type Database = {
           aciklamalar?: Json | null
           ad: Json
           aktif?: boolean
+          ana_resim_url?: string | null
           ana_satis_birimi_id?: string | null
           created_at?: string
           distributor_alis_fiyati?: number
+          galeri_resim_urls?: string[] | null
           id?: string
           kategori_id: string
           satis_fiyati_alt_bayi?: number
@@ -715,9 +781,11 @@ export type Database = {
           aciklamalar?: Json | null
           ad?: Json
           aktif?: boolean
+          ana_resim_url?: string | null
           ana_satis_birimi_id?: string | null
           created_at?: string
           distributor_alis_fiyati?: number
+          galeri_resim_urls?: string[] | null
           id?: string
           kategori_id?: string
           satis_fiyati_alt_bayi?: number
@@ -780,7 +848,7 @@ export type Database = {
           p_olusturma_kaynagi: Database["public"]["Enums"]["siparis_kaynagi"]
           p_teslimat_adresi: string
         }
-        Returns: number
+        Returns: string
       }
       get_dashboard_summary_for_member: {
         Args: { p_member_id: string }
@@ -820,13 +888,19 @@ export type Database = {
       update_order_status_and_log_activity: {
         Args: {
           p_kullanici_id: string
-          p_siparis_id: number
+          p_siparis_id: string
           p_yeni_status: Database["public"]["Enums"]["siparis_durumu"]
         }
         Returns: undefined
       }
     }
     Enums: {
+      etkinlik_tipi:
+        | "Not"
+        | "Telefon Görüşmesi"
+        | "Toplantı"
+        | "E-posta"
+        | "Teklif"
       etkinlik_turu:
         | "Telefon Görüşmesi"
         | "Müşteri Ziyareti"
@@ -873,7 +947,11 @@ export type Database = {
         | "Yola Çıktı"
         | "Teslim Edildi"
         | "İptal Edildi"
-      siparis_kaynagi: "İç Sistem" | "Müşteri Portalı"
+        | "processing"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
+      siparis_kaynagi: "Admin Paneli" | "Müşteri Portalı"
       urun_gorunurluk: "Dahili" | "Portal" | "Herkese Açık"
       user_role: "Yönetici" | "Ekip Üyesi" | "Müşteri" | "Alt Bayi"
       yazi_durumu: "Taslak" | "Yayınlandı"
@@ -1008,6 +1086,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      etkinlik_tipi: [
+        "Not",
+        "Telefon Görüşmesi",
+        "Toplantı",
+        "E-posta",
+        "Teklif",
+      ],
       etkinlik_turu: [
         "Telefon Görüşmesi",
         "Müşteri Ziyareti",
@@ -1054,8 +1139,12 @@ export const Constants = {
         "Yola Çıktı",
         "Teslim Edildi",
         "İptal Edildi",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
       ],
-      siparis_kaynagi: ["İç Sistem", "Müşteri Portalı"],
+      siparis_kaynagi: ["Admin Paneli", "Müşteri Portalı"],
       urun_gorunurluk: ["Dahili", "Portal", "Herkese Açık"],
       user_role: ["Yönetici", "Ekip Üyesi", "Müşteri", "Alt Bayi"],
       yazi_durumu: ["Taslak", "Yayınlandı"],

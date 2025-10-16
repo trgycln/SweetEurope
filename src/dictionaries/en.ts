@@ -32,7 +32,8 @@ export const dictionary = {
     submittingButton: "Logging in...",
     forgotPasswordLink: "Forgot password?",
     emailPlaceholder: "admin@example.com",
-    passwordPlaceholder: "••••••••"
+    passwordPlaceholder: "••••••••",
+    unauthorizedError :'You are not authorized to access this page.'
   },
   portal: {
     sidebar: {

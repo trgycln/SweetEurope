@@ -32,7 +32,8 @@ export const dictionary = {
     submittingButton: "Giriş yapılıyor...",
     forgotPasswordLink: "Şifremi unuttum?",
     emailPlaceholder: "admin@example.com",
-    passwordPlaceholder: "••••••••"
+    passwordPlaceholder: "••••••••",
+    unauthorizedError : 'Bu sayfaya erişim yetkiniz yok.'
   },
   portal: {
     sidebar: {
@@ -496,5 +497,6 @@ export const dictionary = {
     categories: "Kategoriler",
     orders: "Siparişler",
     templates: "Şablonlar",
+
   },
 };

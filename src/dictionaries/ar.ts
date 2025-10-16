@@ -32,7 +32,9 @@ export const dictionary = {
     submittingButton: "جارٍ تسجيل الدخول...",
     forgotPasswordLink: "هل نسيت كلمة المرور؟",
     emailPlaceholder: "admin@example.com",
-    passwordPlaceholder: "••••••••"
+    passwordPlaceholder: "••••••••",
+    unauthorizedError : 'ليس لديك إذن للوصول إلى هذه الصفحة.'
+
   },
   portal: {
     sidebar: {

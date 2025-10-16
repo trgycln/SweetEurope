@@ -1,30 +1,36 @@
-// src/app/[locale]/layout.tsx
+// app/[locale]/layout.tsx (DÜZELTİLMİŞ)
 
 import { ReactNode } from 'react';
-import { Header } from '@/components/Header';
-import { getDictionary } from '@/dictionaries';
-// DÜZELTME: Süslü parantezler kaldırıldı.
-import Footer from '@/components/Footer'; 
+import '@/app/globals.css';
+import { Lato, Playfair_Display } from 'next/font/google';
 
-export default async function LocaleLayout({
+const lato = Lato({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-lato',
+});
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['700', '800', '900'],
+  variable: '--font-playfair',
+});
+
+// DEĞİŞİKLİK: Fonksiyon imzasını güncelledik. Artık 'params' doğrudan parçalanmıyor.
+export default function RootLayout({
   children,
   params,
 }: {
   children: ReactNode;
   params: { locale: string };
 }) {
-  const dictionary = await getDictionary(params.locale as any);
+  // DEĞİŞİKLİK: 'locale'i fonksiyonun gövdesi içinde alıyoruz.
+  const { locale } = params;
 
   return (
-    <div>
-      <Header dictionary={dictionary} />
-      
-      <main className="bg-gray-50">
+    <html lang={locale} className={`${lato.variable} ${playfair.variable}`}>
+      <body>
         {children}
-      </main>
-
-      {/* Footer bileşenini burada çağırıyoruz */}
-      <Footer dictionary={dictionary} />
-    </div>
+      </body>
+    </html>
   );
 }

@@ -7,3 +7,5 @@ npx supabase gen types typescript --project-id "atydffkpyvxcmzxyibhj" | Set-Cont
 
 ++++++Reload schema" (🔄) bunu yine
 NOTIFY pgrst, 'reload schema';
+
+

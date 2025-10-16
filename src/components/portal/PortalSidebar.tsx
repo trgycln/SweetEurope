@@ -22,7 +22,7 @@ export function PortalSidebar({ userRole, isOpen, setIsOpen }: SidebarProps) {
 
     const menuItems = [
         { name: content.dashboard, href: '/portal/dashboard', icon: FiGrid },
-        { name: content.orders, href: '/portal/siparislerim', icon: FiPackage },
+        { name: content.orders, href: '/portal/siparisler', icon: FiPackage },
         { name: content.products, href: '/portal/katalog', icon: FiBox },
         { name: content.requests, href: '/portal/taleplerim', icon: FiArchive },
         { name: content.performance, href: '/portal/analiz', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
