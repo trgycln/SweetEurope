@@ -2,11 +2,13 @@
 'use client';
 
 import { useState, useTransition } from "react";
+// DÜZELTME 1: Sayfayı yönlendirmek için useRouter'ı import ediyoruz.
+import { useRouter } from "next/navigation";
 import { siparisOlusturAction } from "@/app/actions/siparis-actions";
 import { toast } from "sonner";
 import { FiPlus, FiTrash2, FiSend, FiLoader } from "react-icons/fi";
 
-// Prop tiplerini tanımlıyoruz
+// Prop tipleri
 type Urun = {
     id: string;
     ad: any;
@@ -19,7 +21,7 @@ interface YeniSiparisFormuProps {
     urunler: Urun[];
 }
 
-// Sepetteki ürünün tipini tanımlıyoruz
+// Sepetteki ürünün tipi
 type SepetUrunu = {
     urun_id: string;
     adet: number;
@@ -28,6 +30,8 @@ type SepetUrunu = {
 };
 
 export default function YeniSiparisFormu({ firmaId, varsayilanTeslimatAdresi, urunler }: YeniSiparisFormuProps) {
+    // DÜZELTME 2: useRouter hook'unu bileşen içinde çağırıyoruz.
+    const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [sepet, setSepet] = useState<SepetUrunu[]>([]);
     const [seciliUrun, setSeciliUrun] = useState<string>('');
@@ -69,8 +73,14 @@ export default function YeniSiparisFormu({ firmaId, varsayilanTeslimatAdresi, ur
     };
 
     const handleSubmit = () => {
-        if (sepet.length === 0) { /* ... */ return; }
-        if (!teslimatAdresi) { /* ... */ return; }
+        if (sepet.length === 0) {
+            toast.error("Sipariş oluşturmak için önce sepete ürün eklemelisiniz.");
+            return;
+        }
+        if (!teslimatAdresi) {
+            toast.error("Teslimat adresi boş olamaz.");
+            return;
+        }
         
         const payloadItems = sepet.map(({ urun_id, adet, o_anki_satis_fiyati }) => ({
             urun_id,
@@ -83,12 +93,15 @@ export default function YeniSiparisFormu({ firmaId, varsayilanTeslimatAdresi, ur
                 firmaId: firmaId,
                 teslimatAdresi: teslimatAdresi,
                 items: payloadItems,
-                // KESİN ÇÖZÜM: Artık veritabanını standart hale getirdiğimiz için
-                // kodumuzda da her zaman bu standart değeri kullanıyoruz.
                 kaynak: 'Admin Paneli' 
             });
 
-            if (result?.error) {
+            // DÜZELTME 3: Başarı durumunu kontrol edip toast ve yönlendirme işlemlerini yapıyoruz.
+            if (result?.success) {
+                toast.success("Sipariş başarıyla oluşturuldu!");
+                // Kullanıcıyı firmanın sipariş listesi sayfasına yönlendiriyoruz.
+                router.push(`/admin/crm/firmalar/${firmaId}/siparisler`);
+            } else if (result?.error) {
                 toast.error(result.error);
             }
         });
@@ -98,7 +111,6 @@ export default function YeniSiparisFormu({ firmaId, varsayilanTeslimatAdresi, ur
     const formatCurrency = (amount: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
 
     return (
-        // JSX KISMI DEĞİŞMEDİ, YUKARIDAKİ GİBİ AYNI KALIYOR
         <div className="bg-white p-8 rounded-2xl shadow-lg space-y-8">
             <div className="flex flex-col sm:flex-row gap-2">
                 <select 

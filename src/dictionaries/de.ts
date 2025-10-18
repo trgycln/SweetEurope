@@ -42,7 +42,8 @@ export const dictionary = {
     forgotPasswordLink: "Passwort vergessen?",
     emailPlaceholder: "admin@example.com",
     passwordPlaceholder: "••••••••",
-    unauthorizedError: 'Sie sind nicht berechtigt, auf diese Seite zuzugreifen.'
+    unauthorizedError: 'Sie sind nicht berechtigt, auf diese Seite zuzugreifen.',
+    rememberMe: 'Angemeldet bleiben',
   },
 
   portal: {
@@ -68,7 +69,7 @@ export const dictionary = {
         productOutOfStock: 'Dieses Produkt ist ausverkauft.',
         cartEmpty: 'Bitte fügen Sie Produkte zum Warenkorb hinzu, um eine Bestellung aufzugeben.',
       },
-    }, // Virgül eklendi
+    },
     ordersPage: {
       title: 'Meine Bestellungen',
       subtitle: 'Verfolgen Sie hier alle Ihre vergangenen und aktuellen Bestellungen.',
@@ -109,7 +110,8 @@ export const dictionary = {
       orders: "Meine Bestellungen",
       products: "Produktkatalog",
       requests: "Meine Anfragen",
-      performance: "Meine Performance"
+      performance: "Meine Performance",
+       materials: "Materialien",  
     },
     header: {
       titleSuffix: "Portal",
@@ -125,9 +127,27 @@ export const dictionary = {
       noOrders: "Sie haben noch keine Bestellungen aufgegeben.",
       ordersPlaceholder: "Bestellliste wird hier angezeigt.",
       pendingBalance: "Offener Saldo",
-    } // Virgül eklendi
+    },
+    materialsPage: {
+        title: "Marketingmaterialien",
+        description: "Hier finden Sie nützliche Materialien wie Broschüren, Preislisten und Bilder.",
+        noMaterials: "Aktuell sind keine Marketingmaterialien verfügbar.",
+        download: "Herunterladen",
+    },
+    materialsWidget: {
+          title: "Neueste Materialien",
+          viewAll: "Alle ansehen",
+          noMaterials: "Keine neuen Materialien.",
+      },
   },
-
+  invoices: {
+    status: {
+      pending: 'Ausstehend',
+      paid: 'Bezahlt',
+      overdue: 'Überfällig',
+      cancelled: 'Storniert'
+    },
+  },
   pnlReportPage: {
     pageTitle: "Gewinn & Verlust Bericht",
     pageSubtitle: "Die finanzielle Gesundheit deines Unternehmens auf einen Blick.",
@@ -160,6 +180,11 @@ export const dictionary = {
     categories: "Kategorien",
     orders: "Bestellungen",
     templates: "Vorlagen",
+    announcements: "Ankündigungen",
+    adminHeader: {
+    logout: "Abmelden",
+    Marketingmaterial :"Marketingmaterial"
+  },
   },
   adminDashboard: {
     title: 'Admin Dashboard',
@@ -238,7 +263,7 @@ export const dictionary = {
         price: 'Preis',
         subtotal: 'Zwischensumme',
         shippingAddress: 'Lieferadresse',
-      } // Virgül eklendi
+      },
     },
     dashboardPage: {
       managerTitle: "CEO Cockpit",
@@ -307,11 +332,19 @@ export const dictionary = {
   marketingKit: {
     title: 'Ihr Marketing- & Menü-Kit',
     description: 'Nutzen Sie unsere professionellen Materialien, um SweetTraum-Produkte in Ihrem Geschäft zu bewerben.',
-    assets: [
-      { name: 'Produktfotos (Hohe Auflösung)', type: 'Bilder', action: 'Herunterladen' },
-      { name: 'Menüvorlagen (PDF)', type: 'Dokumente', action: 'Herunterladen' },
-      { name: 'Social Media Posts (Vorlage)', type: 'Vorlagen', action: 'Herunterladen' },
-    ]
+    assets: [{
+      name: 'Produktfotos (Hohe Auflösung)',
+      type: 'Bilder',
+      action: 'Herunterladen'
+    }, {
+      name: 'Menüvorlagen (PDF)',
+      type: 'Dokumente',
+      action: 'Herunterladen'
+    }, {
+      name: 'Social Media Posts (Vorlage)',
+      type: 'Vorlagen',
+      action: 'Herunterladen'
+    }, ]
   },
   portalLoginPage: {
     title: 'Willkommen zurück, Partner.',
@@ -364,40 +397,55 @@ export const dictionary = {
       imageAlt: 'Ein köstliches Stück Pistazien-Himbeer-Torte',
       imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
     },
-    mainCategories: [
-      {
-        name: 'Patisserie',
-        promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
-        subCategories: [
-          { name: 'Torten & Kuchen', href: '/produkte/torten-kuchen', description: '125 Sorten' },
-          { name: 'Vegane Produkte', href: '/produkte/vegan', description: '19 Sorten' },
-          { name: 'Kurabiye & Gebäck', href: '/produkte/kurabiye', description: '17 Sorten' },
-        ]
-      },
-      {
-        name: 'Kaffee & Getränke',
-        promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
-        subCategories: [
-          { name: 'Kaffee', href: '/produkte/kaffee', description: '35 Sorten' },
-          { name: 'Tee & Pulvergetränke', href: '/produkte/tee', description: '35 Sorten' },
-          { name: 'Erfrischungsgetränke', href: '/produkte/getraenke', description: '20 Sorten' },
-        ]
-      },
-      {
-        name: 'Zutaten & Sirupe',
-        promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
-        subCategories: [
-          { name: 'Kaffeesirupe', href: '/produkte/sirupe', description: '44 Sorten' },
-        ]
-      },
-      {
-        name: 'Herzhaftes',
-        promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
-        subCategories: [
-          { name: 'Gourmet Pizza', href: '/produkte/pizza', description: '' },
-        ]
-      },
-    ]
+    mainCategories: [{
+      name: 'Patisserie',
+      promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
+      subCategories: [{
+        name: 'Torten & Kuchen',
+        href: '/produkte/torten-kuchen',
+        description: '125 Sorten'
+      }, {
+        name: 'Vegane Produkte',
+        href: '/produkte/vegan',
+        description: '19 Sorten'
+      }, {
+        name: 'Kurabiye & Gebäck',
+        href: '/produkte/kurabiye',
+        description: '17 Sorten'
+      }, ]
+    }, {
+      name: 'Kaffee & Getränke',
+      promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
+      subCategories: [{
+        name: 'Kaffee',
+        href: '/produkte/kaffee',
+        description: '35 Sorten'
+      }, {
+        name: 'Tee & Pulvergetränke',
+        href: '/produkte/tee',
+        description: '35 Sorten'
+      }, {
+        name: 'Erfrischungsgetränke',
+        href: '/produkte/getraenke',
+        description: '20 Sorten'
+      }, ]
+    }, {
+      name: 'Zutaten & Sirupe',
+      promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
+      subCategories: [{
+        name: 'Kaffeesirupe',
+        href: '/produkte/sirupe',
+        description: '44 Sorten'
+      }, ]
+    }, {
+      name: 'Herzhaftes',
+      promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
+      subCategories: [{
+        name: 'Gourmet Pizza',
+        href: '/produkte/pizza',
+        description: ''
+      }, ]
+    }, ]
   },
   philosophy: {
     title: 'Unsere Philosophie',
@@ -500,14 +548,43 @@ export const dictionary = {
     title: 'Unsere Kollektionen',
     filterTitle: 'Kategorien filtern',
     allProducts: 'Alle Produkte',
-    sampleProducts: [
-      { id: 1, name: 'Klassische Schokoladentorte', category: 'Torten & Kuchen', imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800', alt: 'Ein Stück Schokoladenkuchen' },
-      { id: 2, name: 'Französische Macarons', category: 'Pralinen & Macarons', imageUrl: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=800', alt: 'Bunte Macarons' },
-      { id: 3, name: 'Frische Croissants', category: 'Feingebäck', imageUrl: 'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=800', alt: 'Frisch gebackene Croissants' },
-      { id: 4, name: 'Äthiopischer Yirgacheffe', category: 'Kaffee & Tee', imageUrl: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=800', alt: 'Eine Tasse Kaffee' },
-      { id: 5, name: 'Vegane Himbeertorte', category: 'Vegane Produkte', imageUrl: 'https://images.unsplash.com/photo-1562440102-37424bae392a?q=80&w=800', alt: 'Ein Stück veganer Himbeerkuchen' },
-      { id: 6, name: 'Gourmet Salami Pizza', category: 'Gourmet Pizza', imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800', alt: 'Eine Gourmet-Salami-Pizza' },
-    ],
+    sampleProducts: [{
+      id: 1,
+      name: 'Klassische Schokoladentorte',
+      category: 'Torten & Kuchen',
+      imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800',
+      alt: 'Ein Stück Schokoladenkuchen'
+    }, {
+      id: 2,
+      name: 'Französische Macarons',
+      category: 'Pralinen & Macarons',
+      imageUrl: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=800',
+      alt: 'Bunte Macarons'
+    }, {
+      id: 3,
+      name: 'Frische Croissants',
+      category: 'Feingebäck',
+      imageUrl: 'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=800',
+      alt: 'Frisch gebackene Croissants'
+    }, {
+      id: 4,
+      name: 'Äthiopischer Yirgacheffe',
+      category: 'Kaffee & Tee',
+      imageUrl: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=800',
+      alt: 'Eine Tasse Kaffee'
+    }, {
+      id: 5,
+      name: 'Vegane Himbeertorte',
+      category: 'Vegane Produkte',
+      imageUrl: 'https://images.unsplash.com/photo-1562440102-37424bae392a?q=80&w=800',
+      alt: 'Ein Stück veganer Himbeerkuchen'
+    }, {
+      id: 6,
+      name: 'Gourmet Salami Pizza',
+      category: 'Gourmet Pizza',
+      imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800',
+      alt: 'Eine Gourmet-Salami-Pizza'
+    }, ],
     detailsButton: 'Details ansehen',
   },
   pagination: {
@@ -590,8 +667,7 @@ export const dictionary = {
     address: 'Musterstraße 123, 12345 Berlin, Deutschland',
     phone: '+49 (0) 123 456 789',
     email: 'info@ElysonSweets.de',
-  }, // Virgül eklendi
-
+  },
   orderStatuses: {
     processing: 'In Vorbereitung',
     shipped: 'Versandt',
@@ -609,6 +685,5 @@ export const dictionary = {
     noPartners: "Es sind keine aktiven Partner vorhanden.",
     deleteConfirmation: "Möchten Sie diesen Partner wirklich löschen?",
     createPartnerButton: "Neuen Partner erstellen",
-    // Füge hier alle Texte hinzu, die du auf der Seite benutzt
   },
-}
+};

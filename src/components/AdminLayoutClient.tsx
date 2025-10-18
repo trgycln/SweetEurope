@@ -1,48 +1,53 @@
-// src/components/AdminLayoutClient.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
-import { Header } from '@/components/Header';
-import { Sidebar } from '@/components/Sidebar'; 
+import { Header } from '@/components/Header'; // Header importieren
+import { Sidebar } from '@/components/Sidebar';
 import { Enums } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
-import { Toaster } from 'sonner'; // DÜZELTME: react-hot-toast yerine sonner kullanıyoruz.
+import { Toaster } from 'sonner';
 
 type AdminLayoutClientProps = {
-  user: User;
-  userRole: Enums<'user_role'> | null;
-  children: React.ReactNode;
-  dictionary: Dictionary; // dictionary prop'unu kabul et
+    user: User;
+    userRole: Enums<'user_role'> | null;
+    children: React.ReactNode;
+    dictionary: Dictionary;
 };
 
 export function AdminLayoutClient({ user, userRole, children, dictionary }: AdminLayoutClientProps) {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const pathname = usePathname();
+    // useState für die Sidebar bleibt hier
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const pathname = usePathname();
 
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [pathname]);
+    // Schließt die Sidebar bei Navigation (bleibt gleich)
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, [pathname]);
 
-  const userEmail = user.email ?? 'E-posta Yok';
+    const userEmail = user.email ?? 'E-posta Yok';
 
-  return (
-    <div className="h-screen w-full bg-secondary text-text-main antialiased font-sans">
-      
-      {/* Toaster bileşeni artık burada ve sonner kullanıyor. */}
-      <Toaster position="top-right" richColors closeButton />
+    return (
+        <div className="h-screen w-full bg-secondary text-text-main antialiased font-sans">
+            
+            <Toaster position="top-right" richColors closeButton />
 
-      {/* Sidebar'a dictionary prop'unu gönderiyoruz. */}
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} userRole={userRole} dictionary={dictionary} />
+            {/* Sidebar bleibt unverändert */}
+            <Sidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} userRole={userRole} dictionary={dictionary} />
 
-      <div className="flex h-full flex-col lg:ml-64">
-        {/* Header'a dictionary prop'unu gönderiyoruz. */}
-        <Header userEmail={userEmail} setIsSidebarOpen={setSidebarOpen} dictionary={dictionary} />
-        <main className="flex-1 overflow-y-auto p-8 pt-24"> 
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+            <div className="flex h-full flex-col lg:ml-64"> {/* Margin links nur auf lg+ */}
+                {/* Header wird jetzt mit den neuen Props gerendert */}
+                <Header
+                    isAdminHeader={true} // Sagt dem Header, dass er im Admin-Modus ist
+                    setIsSidebarOpen={setSidebarOpen} // Funktion zum Öffnen übergeben
+                    userEmail={userEmail} // Benutzer-E-Mail übergeben
+                    dictionary={dictionary} // Dictionary übergeben
+                />
+                <main className="flex-1 overflow-y-auto p-8 pt-24"> {/* Padding oben für den Header */}
+                  {children}
+                </main>
+            </div>
+        </div>
+    );
 }

@@ -1,15 +1,14 @@
-// src/app/login/page.tsx (SON VE DOĞRU HALİ)
+// src/components/LoginForm.tsx (YÖNLENDİRME MANTIĞI DÜZELTİLDİ)
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-// DEĞİŞİKLİK 1: Hatanın kaynağı olan import'u düzeltiyoruz.
 import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { FiLoader } from 'react-icons/fi';
-import { dictionary } from '@/dictionaries/de';
+import { Dictionary } from '@/dictionaries';
 
-export default function LoginPage() {
+export default function LoginForm({ dictionary }: { dictionary: Dictionary }) {
     const searchParams = useSearchParams();
     const content = dictionary.loginPage;
 
@@ -23,16 +22,16 @@ export default function LoginPage() {
         const errorParam = searchParams.get('error');
         if (errorParam === 'unauthorized') {
             setError(content.unauthorizedError || 'Bu sayfaya erişim yetkiniz yok.');
-            setIsSubmitting(false);
+        } else if (errorParam) {
+            setError(content.errorMessage || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
         }
-    }, [searchParams, content.unauthorizedError]);
+    }, [searchParams, content]);
 
     const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
         setIsSubmitting(true);
 
-        // DEĞİŞİKLİK 2: "Beni Hatırla" durumuna göre doğru Supabase istemcisini oluşturuyoruz.
         const supabase = createDynamicSupabaseClient(rememberMe);
 
         const { error } = await supabase.auth.signInWithPassword({
@@ -45,7 +44,10 @@ export default function LoginPage() {
             console.error("Giriş Hatası:", error.message);
             setIsSubmitting(false);
         } else {
-            window.location.reload();
+            // DEĞİŞİKLİK: 'reload()' kullanarak daha güvenilir bir yönlendirme sağlıyoruz.
+            // Sayfa yeniden yüklendiğinde, 'login/page.tsx'deki sunucu kodu
+            // kullanıcıyı doğru dashboard'a yönlendirecektir.
+            window.location.reload(); 
         }
     };
 
@@ -71,7 +73,7 @@ export default function LoginPage() {
                             <label htmlFor="remember-me" className="ml-2 block text-sm text-text-main/80">{content.rememberMe}</label>
                         </div>
                         <div className="text-sm">
-                            <Link href="/auth/forgot-password" className="font-medium text-accent hover:underline">{content.forgotPasswordLink}</Link>
+                            <Link href="#" className="font-medium text-accent hover:underline">{content.forgotPasswordLink}</Link>
                         </div>
                     </div>
                     {error && (

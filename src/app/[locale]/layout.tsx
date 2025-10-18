@@ -1,36 +1,20 @@
-// app/[locale]/layout.tsx (DÜZELTİLMİŞ)
+// app/[locale]/layout.tsx (SADELEŞTİRİLMİŞ DİL LAYOUT'U)
 
 import { ReactNode } from 'react';
-import '@/app/globals.css';
-import { Lato, Playfair_Display } from 'next/font/google';
 
-const lato = Lato({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-lato',
-});
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['700', '800', '900'],
-  variable: '--font-playfair',
-});
-
-// DEĞİŞİKLİK: Fonksiyon imzasını güncelledik. Artık 'params' doğrudan parçalanmıyor.
-export default function RootLayout({
+export default function LocaleLayout({
   children,
   params,
 }: {
   children: ReactNode;
   params: { locale: string };
 }) {
-  // DEĞİŞİKLİK: 'locale'i fonksiyonun gövdesi içinde alıyoruz.
-  const { locale } = params;
-
-  return (
-    <html lang={locale} className={`${lato.variable} ${playfair.variable}`}>
-      <body>
-        {children}
-      </body>
-    </html>
-  );
+  // Bu layout'un içeriği değişti, ancak Kök Layout'a (app/layout.tsx)
+  // lang attribute'ünü dinamik olarak ekleyemediğimiz için bu dosyayı şimdilik
+  // sadece bir "geçirgen" olarak kullanacağız.
+  // Gelecekte Next.js bu konuda daha iyi çözümler sunabilir.
+  
+  // ÖNEMLİ: Bu layout artık <html> veya <body> etiketleri İÇERMEZ.
+  // Onlar bir üst katmandaki app/layout.tsx tarafından sağlanır.
+  return <>{children}</>;
 }

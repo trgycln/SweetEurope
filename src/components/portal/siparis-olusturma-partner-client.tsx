@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+// DÜZELTME 1: 'useSearchParams' hook'unu import ediyoruz.
+import { useState, useMemo, useTransition, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Tables } from '@/lib/supabase/database.types';
 import { FiPlus, FiTrash2, FiShoppingCart, FiSearch, FiHeart } from 'react-icons/fi';
 import { siparisOlusturAction } from '@/app/actions/siparis-actions';
@@ -15,9 +16,8 @@ import { usePortal } from '@/contexts/PortalContext';
 type UrunWithPrice = Tables<'urunler'> & { fiyat: number };
 type Firma = Tables<'firmalar'> & { firmalar_finansal: Tables<'firmalar_finansal'>[] | null };
 type SepetItem = { urun: UrunWithPrice; adet: number; indirimliFiyat: number };
-type SearchParams = { [key: string]: string | string[] | undefined };
 
-// Ürün Kartı Bileşeni
+// Ürün Kartı Bileşeni (Değişiklik yok)
 function ProduktKarte({ urun, onSepeteEkle, locale, dictionary }: { urun: UrunWithPrice, onSepeteEkle: (urun: UrunWithPrice) => void, locale: Locale, dictionary: Dictionary }) {
     const content = (dictionary as any)?.portal?.newOrderPage || {};
     const stockStatusContent = content.stockStatus || {};
@@ -57,7 +57,10 @@ function ProduktKarte({ urun, onSepeteEkle, locale, dictionary }: { urun: UrunWi
 }
 
 // Ana İstemci Bileşeni
-export function SiparisOlusturmaPartnerClient({ urunler, favoriIdSet, dictionary, locale, searchParams }: { urunler: UrunWithPrice[]; favoriIdSet: Set<string>; dictionary: Dictionary; locale: Locale; searchParams: SearchParams }) {
+// DÜZELTME 2: Artık 'searchParams' prop'unu dışarıdan almıyoruz.
+export function SiparisOlusturmaPartnerClient({ urunler, favoriIdSet, dictionary, locale }: { urunler: UrunWithPrice[]; favoriIdSet: Set<string>; dictionary: Dictionary; locale: Locale; }) {
+    // DÜZELTME 3: `useSearchParams` hook'unu kullanarak URL parametrelerini doğrudan burada okuyoruz.
+    const searchParams = useSearchParams();
     const { firma } = usePortal();
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState('');
@@ -66,14 +69,17 @@ export function SiparisOlusturmaPartnerClient({ urunler, favoriIdSet, dictionary
     const content = (dictionary as any)?.portal?.newOrderPage || {};
     const indirimOrani = (firma as Firma)?.firmalar_finansal?.[0]?.ozel_indirim_orani ?? 0;
 
-    const [sepet, setSepet] = useState<SepetItem[]>(() => {
-        const initialSepet: SepetItem[] = [];
-        if (!searchParams) return initialSepet;
+    const [sepet, setSepet] = useState<SepetItem[]>([]);
 
-        for (const [key, value] of Object.entries(searchParams)) {
+    useEffect(() => {
+        const initialSepet: SepetItem[] = [];
+        // `searchParams` artık hook'tan geldiği için `entries()` metoduna sahip
+        if (!searchParams) return;
+
+        for (const [key, value] of searchParams.entries()) {
             if (key.startsWith('urun_') && value) {
                 const urunId = key.substring(5);
-                const adet = parseInt(value as string, 10);
+                const adet = parseInt(value, 10);
                 const urun = urunler.find(u => u.id === urunId);
 
                 if (urun && adet > 0 && adet <= urun.stok_miktari) {
@@ -82,9 +88,17 @@ export function SiparisOlusturmaPartnerClient({ urunler, favoriIdSet, dictionary
                 }
             }
         }
-        return initialSepet;
-    });
+        
+        if (initialSepet.length > 0) {
+            setSepet(initialSepet);
+        }
+    }, [searchParams, urunler, indirimOrani]); // DÜZELTME 4: Bağımlılıkları ekleyerek daha sağlam hale getirdik.
 
+    // ... (Geri kalan tüm fonksiyonlar: formatFiyat, urunEkle, adetGuncelle, vb. aynı kalacak) ...
+    // ... (Bu fonksiyonlarda hiçbir değişiklik yapmaya gerek yok) ...
+    
+    // ----- Buradan sonraki tüm fonksiyonlar ve JSX kısmı önceki kodla birebir aynıdır -----
+    
     const formatFiyat = (fiyat: number) => new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(fiyat);
 
     const urunEkle = (urun: UrunWithPrice) => {
@@ -167,52 +181,53 @@ export function SiparisOlusturmaPartnerClient({ urunler, favoriIdSet, dictionary
             </header>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                  <div className="lg:col-span-2 space-y-6">
-                     <div className="flex flex-col sm:flex-row gap-4">
-                         <div className="relative flex-grow">
-                             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                             <input type="text" placeholder={content.searchPlaceholder} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-12 p-3 bg-white border border-bg-subtle rounded-lg shadow-sm" />
-                         </div>
-                         <button onClick={() => setShowFavorites(!showFavorites)} className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors w-full sm:w-auto ${showFavorites ? 'bg-accent text-white' : 'bg-white shadow-sm border'}`}>
-                             <FiHeart /> {content.favoritesButton}
-                         </button>
-                     </div>
-                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                         {filtrelenmisUrunler.map(urun => (
-                             <ProduktKarte key={urun.id} urun={urun} onSepeteEkle={urunEkle} locale={locale} dictionary={dictionary} />
-                         ))}
-                     </div>
-                     {filtrelenmisUrunler.length === 0 && <p className="text-center py-12 text-gray-500">{content.noProductsFound}</p>}
+                      <div className="flex flex-col sm:flex-row gap-4">
+                           <div className="relative flex-grow">
+                                <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                                <input type="text" placeholder={content.searchPlaceholder} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-12 p-3 bg-white border border-bg-subtle rounded-lg shadow-sm" />
+                           </div>
+                           <button onClick={() => setShowFavorites(!showFavorites)} className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors w-full sm:w-auto ${showFavorites ? 'bg-accent text-white' : 'bg-white shadow-sm border'}`}>
+                                <FiHeart /> {content.favoritesButton}
+                           </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                           {filtrelenmisUrunler.map(urun => (
+                               <ProduktKarte key={urun.id} urun={urun} onSepeteEkle={urunEkle} locale={locale} dictionary={dictionary} />
+                           ))}
+                      </div>
+                      {filtrelenmisUrunler.length === 0 && <p className="text-center py-12 text-gray-500">{content.noProductsFound}</p>}
                  </div>
                  <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg sticky top-24">
-                     <h2 className="font-serif text-2xl font-bold text-primary flex items-center gap-2 mb-4"><FiShoppingCart /> {content.cartTitle}</h2>
-                     <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 divide-y divide-bg-subtle">
-                         {sepet.length === 0 ? <p className="text-gray-500 text-center py-4">{content.cartEmpty}</p> : sepet.map(item => (
-                             <div key={item.urun.id} className="flex justify-between items-center pt-4 first:pt-0">
-                                 <div className='flex-grow pr-2'>
-                                     <p className="font-bold text-primary text-sm line-clamp-1">{(item.urun.ad as any)?.[locale]}</p>
-                                     <p className="text-xs text-gray-500">{formatFiyat(item.indirimliFiyat)} x {item.adet}</p>
-                                 </div>
-                                 <div className="flex items-center gap-2 flex-shrink-0">
-                                     <input type="number" value={item.adet} onChange={e => adetGuncelle(item.urun.id, parseInt(e.target.value))} className="w-16 p-1 text-center border rounded-md" min="0" max={item.urun.stok_miktari}/>
-                                     <button onClick={() => setSepet(prev => prev.filter(p => p.urun.id !== item.urun.id))} className="p-1 text-red-500 hover:text-red-700"><FiTrash2 /></button>
-                                 </div>
-                             </div>
-                         ))}
-                     </div>
-                     {sepet.length > 0 && (
-                         <div className="mt-6 pt-6 border-t border-bg-subtle">
-                             {indirimOrani > 0 && <p className="text-sm font-semibold text-green-600">{content.cartDiscountApplied.replace('%{discount}', indirimOrani.toString())}</p>}
-                             <div className="flex justify-between items-center text-xl font-bold text-primary mt-2">
-                                 <span>{content.cartTotal}</span>
-                                 <span>{formatFiyat(toplamTutar)}</span>
-                             </div>
-                             <button onClick={handleSiparisOnayla} disabled={isPending} className="w-full mt-4 p-3 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 disabled:bg-gray-400 transition-all">
-                                 {isPending ? content.processingOrder : content.confirmOrderButton}
-                             </button>
-                         </div>
-                     )}
+                      <h2 className="font-serif text-2xl font-bold text-primary flex items-center gap-2 mb-4"><FiShoppingCart /> {content.cartTitle}</h2>
+                      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 divide-y divide-bg-subtle">
+                           {sepet.length === 0 ? <p className="text-gray-500 text-center py-4">{content.cartEmpty}</p> : sepet.map(item => (
+                               <div key={item.urun.id} className="flex justify-between items-center pt-4 first:pt-0">
+                                    <div className='flex-grow pr-2'>
+                                         <p className="font-bold text-primary text-sm line-clamp-1">{(item.urun.ad as any)?.[locale]}</p>
+                                         <p className="text-xs text-gray-500">{formatFiyat(item.indirimliFiyat)} x {item.adet}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                         <input type="number" value={item.adet} onChange={e => adetGuncelle(item.urun.id, parseInt(e.target.value))} className="w-16 p-1 text-center border rounded-md" min="0" max={item.urun.stok_miktari}/>
+                                         <button onClick={() => setSepet(prev => prev.filter(p => p.urun.id !== item.urun.id))} className="p-1 text-red-500 hover:text-red-700"><FiTrash2 /></button>
+                                    </div>
+                               </div>
+                           ))}
+                      </div>
+                      {sepet.length > 0 && (
+                           <div className="mt-6 pt-6 border-t border-bg-subtle">
+                                {indirimOrani > 0 && <p className="text-sm font-semibold text-green-600">{content.cartDiscountApplied.replace('%{discount}', indirimOrani.toString())}</p>}
+                                <div className="flex justify-between items-center text-xl font-bold text-primary mt-2">
+                                     <span>{content.cartTotal}</span>
+                                     <span>{formatFiyat(toplamTutar)}</span>
+                                </div>
+                                <button onClick={handleSiparisOnayla} disabled={isPending} className="w-full mt-4 p-3 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 disabled:bg-gray-400 transition-all">
+                                     {isPending ? content.processingOrder : content.confirmOrderButton}
+                                </button>
+                           </div>
+                      )}
                  </div>
             </div>
         </div>
     );
 }
+

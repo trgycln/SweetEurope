@@ -1,11 +1,10 @@
-// src/components/portal/PortalSidebar.tsx
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
-import { FiGrid, FiPackage, FiBox, FiArchive, FiBarChart2, FiX } from 'react-icons/fi';
-import { dictionary } from '@/dictionaries/de';
+import { FiGrid, FiPackage, FiBox, FiArchive, FiBarChart2, FiX, FiPaperclip } from 'react-icons/fi'; // FiPaperclip importieren
+import { Dictionary } from '@/dictionaries'; // Dictionary importieren
 import { Enums } from '@/lib/supabase/database.types';
 
 type UserRole = Enums<'user_role'> | null;
@@ -14,30 +13,33 @@ interface SidebarProps {
     userRole: UserRole;
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
+    dictionary: Dictionary; // Dictionary Prop hinzufügen
 }
 
-export function PortalSidebar({ userRole, isOpen, setIsOpen }: SidebarProps) {
+export function PortalSidebar({ userRole, isOpen, setIsOpen, dictionary }: SidebarProps) {
     const pathname = usePathname();
+    // Dictionary Prop verwenden
     const content = dictionary.portal.sidebar;
 
     const menuItems = [
         { name: content.dashboard, href: '/portal/dashboard', icon: FiGrid },
         { name: content.orders, href: '/portal/siparisler', icon: FiPackage },
         { name: content.products, href: '/portal/katalog', icon: FiBox },
+        // --- NEUER LINK ---
+        { name: content.materials || "Materialien", href: '/portal/materialien', icon: FiPaperclip },
+        // ------------------
         { name: content.requests, href: '/portal/taleplerim', icon: FiArchive },
         { name: content.performance, href: '/portal/analiz', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
     ];
 
     return (
     <>
-      {/* Mobil Menü Açıkken Arka Planı Karartan Overlay (z-40) */}
       <div
         onClick={() => setIsOpen(false)}
         className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 lg:hidden ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       />
-      {/* Sidebar Paneli (z-50, en üstte) */}
       <div
         className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-primary text-secondary transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
@@ -57,9 +59,12 @@ export function PortalSidebar({ userRole, isOpen, setIsOpen }: SidebarProps) {
                     return item.roles.includes(userRole);
                 })
                 .map(item => {
-                const isActive = pathname.startsWith(item.href);
+                // Pfad-Präfix für die Locale aus dem aktuellen Pfad extrahieren
+                const localePrefix = pathname.split('/')[1];
+                const hrefWithLocale = `/${localePrefix}${item.href}`;
+                const isActive = pathname.startsWith(hrefWithLocale);
                 return (
-                    <Link key={item.name} href={item.href}
+                    <Link key={item.name} href={hrefWithLocale}
                         className={`flex items-center gap-3 rounded-lg px-4 py-2.5 transition-colors ${isActive ? 'bg-accent text-primary font-bold' : 'text-secondary/70 hover:bg-white/10'}`}>
                         <item.icon size={20} />
                         <span className="text-sm font-medium">{item.name}</span>

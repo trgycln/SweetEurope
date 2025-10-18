@@ -1,11 +1,10 @@
-// src/app/layout.tsx (NİHAİ HALİ)
+// app/layout.tsx (YENİ ANA KÖK LAYOUT)
 
+import { ReactNode } from 'react';
 import type { Metadata } from "next";
-// DÜZELTME: Fontları buraya, en dış layout'a import ediyoruz.
 import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 
-// DÜZELTME: Font değişkenlerini burada, global alanda tanımlıyoruz.
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: "700",
@@ -26,12 +25,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: ReactNode;
+}) {
   return (
-    // DÜZELTME: Font değişkenlerini <html> etiketine uygulayarak tüm projeye yayıyoruz.
-    <html lang="tr" className={`${playfair.variable} ${lato.variable}`}>
+    // DİKKAT: Burada 'lang' attribute'ü YOKTUR. Dil, [locale]/layout.tsx içinde eklenecek.
+    <html className={`${playfair.variable} ${lato.variable}`} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );

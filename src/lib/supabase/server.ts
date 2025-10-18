@@ -2,32 +2,36 @@
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { Database } from './database.types' // Stellen Sie sicher, dass dieser Pfad korrekt ist
+import { Database } from './database.types'; // Veritabanı tiplerinizin yolunu kontrol edin
 
-export function createSupabaseServerClient() {
+export const createSupabaseServerClient = () => {
   const cookieStore = cookies()
 
-  // Dies erstellt den vollständigen Supabase-Client mit der .from()-Methode
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
+        // 'get' fonksiyonunu asenkron hale getiriyoruz
+        async get(name: string) {
           return cookieStore.get(name)?.value
         },
-        set(name: string, value: string, options: CookieOptions) {
+        // 'set' fonksiyonunu asenkron hale getiriyoruz
+        async set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
-            // Die `set` Methode kann in Server-Aktionen oder Route Handlers fehlschlagen
+            // Sunucu eylemleri ve rota işleyicileri gibi
+            // istemci tarafında güncellenmiş cookie'yi geri gönderemediğimizde
+            // bu bir hataya neden olabilir. Bu durumda hata yoksayılabilir.
           }
         },
-        remove(name: string, options: CookieOptions) {
+        // 'remove' fonksiyonunu asenkron hale getiriyoruz
+        async remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options })
           } catch (error) {
-            // Die `delete` Methode kann in Server-Aktionen oder Route Handlers fehlschlagen
+            // Yukarıdakiyle aynı nedenle hata yoksayılabilir.
           }
         },
       },

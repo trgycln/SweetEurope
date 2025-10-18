@@ -1,5 +1,4 @@
-// src/app/actions/siparis-actions.ts (BİLDİRİM MANTIĞI DÜZELTİLMİŞ NİHAİ HALİ)
-
+// src/app/actions/siparis-actions.ts
 'use server';
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -12,7 +11,7 @@ type OrderItem = {
     o_anki_satis_fiyati: number;
 };
 
-// Yöneticilere bildirim gönderme fonksiyonu (değişiklik yok)
+// Yöneticilere bildirim gönderme fonksiyonu
 async function yoneticilereBildirimGonder(mesaj: string, link: string) {
     const supabase = createSupabaseServerClient();
     const { data: yoneticiler } = await supabase
@@ -30,7 +29,7 @@ async function yoneticilereBildirimGonder(mesaj: string, link: string) {
     }
 }
 
-// === ANA SİPARİŞ OLUŞTURMA FONKSİYONU (değişiklik yok) ===
+// === ANA SİPARİŞ OLUŞTURMA FONKSİYONU (DÜZELTİLDİ) ===
 export async function siparisOlusturAction(payload: {
     firmaId: string, 
     teslimatAdresi: string, 
@@ -47,7 +46,9 @@ export async function siparisOlusturAction(payload: {
 
     const { data: newOrderId, error } = await supabase.rpc('create_order_with_items_and_update_stock', {
         p_firma_id: payload.firmaId,
-        p_teslimat_Adresi: payload.teslimatAdresi,
+        // DÜZELTME: Hatalı olan 'p_teslimat_Adresi' parametresi, veritabanının
+        // beklediği doğru format olan 'p_teslimat_adresi' olarak değiştirildi.
+        p_teslimat_adresi: payload.teslimatAdresi,
         p_items: payload.items,
         p_olusturan_kullanici_id: user.id,
         p_olusturma_kaynagi: payload.kaynak
@@ -69,11 +70,13 @@ export async function siparisOlusturAction(payload: {
     revalidatePath(`/admin/crm/firmalar/${payload.firmaId}/siparisler`);
     revalidatePath('/portal/siparisler');
 
+    // Başarılı durumda redirect yapmıyoruz, form tarafı bunu yönetecek.
+    // Başarılı sonucunu ve yeni sipariş ID'sini döndürüyoruz.
     return { success: true, orderId: newOrderId };
 }
 
 
-// === SİPARİŞ DURUM GÜNCELLEME FONKSİYONU (DÜZELTİLDİ) ===
+// === SİPARİŞ DURUM GÜNCELLEME FONKSİYONU ===
 export async function siparisDurumGuncelleAction(
     siparisId: string, 
     yeniDurum: Enums<'siparis_durumu'>
@@ -95,8 +98,6 @@ export async function siparisDurumGuncelleAction(
         return { error: "Durum güncellenirken bir veritabanı hatası oluştu." };
     }
 
-    // DEĞİŞİKLİK: Müşteriye bildirim göndermek için doğru mantığı kuruyoruz.
-    // 1. Siparişten firma_id'yi al.
     const { data: siparisData } = await supabase
         .from('siparisler')
         .select('firma_id')
@@ -106,14 +107,12 @@ export async function siparisDurumGuncelleAction(
     const firmaId = siparisData?.firma_id;
     
     if (firmaId) {
-        // 2. Bu firma_id'ye sahip tüm Müşteri ve Alt Bayi profillerini bul.
         const { data: partnerKullanicilari } = await supabase
             .from('profiller')
             .select('id')
             .eq('firma_id', firmaId)
             .in('rol', ['Müşteri', 'Alt Bayi']);
 
-        // 3. Bulunan tüm kullanıcılara bildirim gönder.
         if (partnerKullanicilari && partnerKullanicilari.length > 0) {
             const bildirimler = partnerKullanicilari.map(partner => ({
                 alici_id: partner.id,
@@ -131,7 +130,7 @@ export async function siparisDurumGuncelleAction(
 }
 
 
-// === FATURA İNDİRME LİNKİ OLUŞTURMA FONKSİYONU (değişiklik yok) ===
+// === FATURA İNDİRME LİNKİ OLUŞTURMA FONKSİYONU ===
 export async function getInvoiceDownloadUrlAction(siparisId: string) {
     'use server';
     // ... (bu fonksiyonun içeriği aynı kalabilir)

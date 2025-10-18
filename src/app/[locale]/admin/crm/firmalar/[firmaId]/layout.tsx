@@ -1,24 +1,26 @@
-// src/app/admin/crm/firmalar/[firmaId]/layout.tsx
+// src/app/[locale]/admin/crm/firmalar/[firmaId]/layout.tsx
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import React from 'react';
-import FirmaTabs from './FirmaTabs'; // Sekme navigasyonunu import ediyoruz
+import FirmaTabs from './FirmaTabs';
 
+// DÜZELTME: Fonksiyonun parametrelerini doğrudan alıyoruz.
+// `{ params }` yerine `{ params: { firmaId } }` kullanıyoruz.
 export default async function FirmaDetailLayout({
     children,
-    params,
+    params: { firmaId },
 }: {
     children: React.ReactNode;
     params: { firmaId: string };
 }) {
     const supabase = createSupabaseServerClient();
 
-    // Firma adını başlıkta göstermek için temel bilgiyi çekelim
     const { data: firma } = await supabase
         .from('firmalar')
         .select('unvan')
-        .eq('id', params.firmaId)
+        // DÜZELTME: `params.firmaId` yerine doğrudan `firmaId` kullanıyoruz.
+        .eq('id', firmaId)
         .single();
 
     if (!firma) {
@@ -33,10 +35,9 @@ export default async function FirmaDetailLayout({
             </header>
 
             <main>
-                {/* Sekme Linkleri */}
-                <FirmaTabs firmaId={params.firmaId} />
+                {/* DÜZELTME: `params.firmaId` yerine doğrudan `firmaId` kullanıyoruz. */}
+                <FirmaTabs firmaId={firmaId} />
                 
-                {/* Aktif Sekmenin İçeriği (`page.tsx` dosyaları) */}
                 <div className="mt-6 bg-white p-6 sm:p-8 rounded-b-2xl shadow-lg">
                     {children}
                 </div>

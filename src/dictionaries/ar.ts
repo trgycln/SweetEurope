@@ -33,8 +33,8 @@ export const dictionary = {
     forgotPasswordLink: "هل نسيت كلمة المرور؟",
     emailPlaceholder: "admin@example.com",
     passwordPlaceholder: "••••••••",
-    unauthorizedError : 'ليس لديك إذن للوصول إلى هذه الصفحة.'
-
+    unauthorizedError : 'ليس لديك إذن للوصول إلى هذه الصفحة.',
+    rememberMe: 'تذكرني'
   },
   portal: {
     sidebar: {

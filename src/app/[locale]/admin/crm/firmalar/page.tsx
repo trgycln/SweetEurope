@@ -1,3 +1,5 @@
+// src/app/[locale]/admin/crm/firmalar/page.tsx
+
 import React from 'react';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
@@ -36,10 +38,12 @@ export default async function FirmalarListPage({
     const searchQuery = searchParams?.q || '';
     const statusFilter = searchParams?.status || '';
 
+    // DÜZELTME: Sorguda 'firmalar' tablosunun tüm sütunlarını (*) alıyoruz.
+    // Bu, filtreleme işleminin RLS politikalarıyla sorunsuz çalışmasını sağlar.
     let query = supabase
         .from('firmalar')
         .select(`
-            id, unvan, kategori, status, telefon,
+            *, 
             sorumlu_personel:profiller!firmalar_sorumlu_personel_id_fkey(tam_ad)
         `);
 
@@ -54,7 +58,7 @@ export default async function FirmalarListPage({
     const { data: firmalar, error } = await query.order('unvan', { ascending: true });
 
     if (error) {
-        console.error("Server: Firma verileri çekilirken hata oluştu:", error);
+        console.error("Server: Firma verileri çekilirken hata oluştu:", JSON.stringify(error, null, 2));
         return <div className="p-6 text-red-500">Firma listesi yüklenirken bir hata oluştu.</div>;
     }
 
@@ -100,7 +104,7 @@ export default async function FirmalarListPage({
                                         <h3 className="font-serif text-xl font-bold text-primary">{firma.unvan}</h3>
                                         <p className="text-sm text-gray-500">{firma.kategori}</p>
                                     </div>
-                                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_RENKLERI[firma.status] || 'bg-gray-100'}`}>
+                                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_RENKLERI[firma.status as FirmaStatus] || 'bg-gray-100'}`}>
                                         {firma.status}
                                     </span>
                                 </div>
@@ -141,7 +145,7 @@ export default async function FirmalarListPage({
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.telefon || '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.sorumlu_personel?.tam_ad || 'Atanmamış'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status] || 'bg-gray-100'}`}>{firma.status}</span>
+                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status as FirmaStatus] || 'bg-gray-100'}`}>{firma.status}</span>
                                         </td>
                                     </tr>
                                 ))}
