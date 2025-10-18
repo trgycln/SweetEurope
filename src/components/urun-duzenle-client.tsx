@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Tables, Enums } from '@/lib/supabase/database.types';
-import { UrunFormu } from './urun-formu';
+import { UrunFormu } from '../app/[locale]/admin/urun-yonetimi/urunler/urun-formu';
 import { productSchemas } from '@/lib/product-schemas';
 import { FiEdit, FiArrowLeft } from 'react-icons/fi';
 import Link from 'next/link';

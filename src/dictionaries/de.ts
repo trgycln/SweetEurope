@@ -47,6 +47,17 @@ export const dictionary = {
   },
 
   portal: {
+catalogPage: { // <--- UND DIESER SCHLÜSSEL MUSS HIER DRIN SEIN
+        title: "Produktkatalog",
+        description: "Durchstöbern Sie unser komplettes Produktsortiment.",
+        searchPlaceholder: "Produkt nach Name oder Code suchen...",
+        allCategories: "Alle Kategorien",
+        noProductsFoundFilter: "Keine Produkte für die aktuellen Filter gefunden.",
+        noProductsFound: "Derzeit sind keine Produkte im Katalog verfügbar.",
+        toggleFavoriteAdd: "Zu Favoriten hinzufügen",
+        toggleFavoriteRemove: "Von Favoriten entfernen",
+        viewDetails: "Details ansehen",
+    },
     newOrderPage: {
       title: 'Neue Bestellung erstellen',
       subtitle: 'Stellen Sie Ihren Warenkorb aus dem Katalog zusammen.',
