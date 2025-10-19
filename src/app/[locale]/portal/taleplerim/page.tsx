@@ -1,31 +1,63 @@
-// src/app/portal/taleplerim/page.tsx
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { Enums } from "@/lib/supabase/database.types";
-import Link from 'next/link';
+// src/app/[locale]/portal/taleplerim/page.tsx (Korrigierter Import)
 
-export default async function PartnerTaleplerimPage() {
+import React from 'react';
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { Enums, Tables } from "@/lib/supabase/database.types";
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { getDictionary } from '@/dictionaries';
+import { Locale } from '@/i18n-config'; // Pfad ggf. anpassen
+// KORREKTUR: Import aus demselben Ordner
+import { TaleplerimClient, NumuneTalepWithUrun, YeniUrunTalepWithProfil } from './TaleplerimClient';
+
+export default async function PartnerTaleplerimPage({ params }: { params: { locale: Locale } }) {
     const supabase = createSupabaseServerClient();
-    // RLS filtert automatisch
-    const { data: talepler, error } = await supabase
-        .from('numune_talepleri')
-        .select('id, durum, created_at, urunler(urun_adi)')
-        .order('created_at', { ascending: false });
+    const locale = params.locale;
+    const dictionary = await getDictionary(locale);
+
+    // Benutzer und Profil holen
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return redirect(`/${locale}/login`);
+    }
+    const { data: profile } = await supabase
+        .from('profiller')
+        .select('firma_id')
+        .eq('id', user.id)
+        .single();
+        
+    if (!profile) {
+        return redirect(`/${locale}/login?error=unauthorized`);
+    }
+    
+    // Daten für beide Tabs parallel abrufen
+    const [numuneRes, urunTalepRes] = await Promise.all([
+        supabase
+            .from('numune_talepleri')
+            .select('*, urunler(ad, stok_kodu, id)')
+            .order('created_at', { ascending: false }),
+        supabase
+            .from('yeni_urun_talepleri')
+            .select('*, profiller(tam_ad)')
+            .order('created_at', { ascending: false })
+    ]);
+
+    if (numuneRes.error) {
+         console.error("Fehler beim Laden der Musteranfragen:", numuneRes.error);
+    }
+    if (urunTalepRes.error) {
+         console.error("Fehler beim Laden der Produktanfragen:", urunTalepRes.error);
+    }
+    
+    const numuneTalepleri = (numuneRes.data || []) as NumuneTalepWithUrun[];
+    const urunTalepleri = (urunTalepRes.data || []) as YeniUrunTalepWithProfil[];
 
     return (
-        <div className="space-y-8">
-            <header><h1 className="font-serif text-4xl font-bold text-primary">Numune Taleplerim</h1></header>
-            <div className="bg-white rounded-lg shadow-md divide-y">
-                {talepler?.map(talep => (
-                    <div key={talep.id} className="p-4 flex justify-between items-center">
-                        <div>
-                            <p className="font-bold text-primary">{talep.urunler?.urun_adi}</p>
-                            <p className="text-sm text-gray-500">Talep Tarihi: {new Date(talep.created_at).toLocaleDateString('tr-TR')}</p>
-                        </div>
-                        <span className="text-sm font-semibold px-2 py-1 bg-blue-100 text-blue-800 rounded-full">{talep.durum}</span>
-                    </div>
-                ))}
-                {talepler?.length === 0 && <p className="p-8 text-center text-gray-500">Henüz numune talebiniz yok.</p>}
-            </div>
-        </div>
+        <TaleplerimClient
+            initialNumuneTalepleri={numuneTalepleri}
+            initialUrunTalepleri={urunTalepleri}
+            locale={locale}
+            dictionary={dictionary}
+        />
     );
 }

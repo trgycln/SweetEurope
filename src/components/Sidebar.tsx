@@ -65,6 +65,12 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             title: sidebarContent.management,
             links: [
                 { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici'] as UserRole[] },
+                { 
+                name: sidebarContent.productRequests || 'Produktanfragen', 
+                href: '/admin/urun-yonetimi/urun-talepleri', 
+                icon: FiGift, // (oder FiPlusSquare)
+                roles: ['Yönetici'] as UserRole[] 
+            },
                 { name: sidebarContent.categories, href: '/admin/urun-yonetimi/kategoriler', icon: FiLayers, roles: ['Yönetici'] as UserRole[] },
                 {
                     name: sidebarContent.announcements || 'Ankündigungen',

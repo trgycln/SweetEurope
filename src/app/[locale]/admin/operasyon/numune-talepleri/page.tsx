@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FiPackage, FiCalendar, FiClock, FiCheckCircle, FiTruck, FiHardDrive, FiXCircle } from 'react-icons/fi';
 import { getDictionary } from '@/dictionaries';
 import { Enums, Tables } from '@/lib/supabase/database.types';
-import { Locale } from '@/i18n-config'; // Pfad ggf. anpassen
+import { Locale } from '@/i18n-config';
 import NumuneStatusUpdateButton from './NumuneStatusUpdateButton';
 import NumuneCancelButton from './NumuneCancelButton';
 // NEU: Filterkomponente importieren

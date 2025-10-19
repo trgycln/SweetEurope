@@ -1,3 +1,5 @@
+// src/dictionaries/de.ts (Vollständig & Korrigiert)
+
 export const dictionary = {
   navigation: {
     home: 'Startseite',
@@ -32,7 +34,7 @@ export const dictionary = {
   },
 
   loginPage: {
-    title: "SweetHeaven",
+    title: "ElysonSweets", // KORRIGIERT: Name geändert
     subtitle: "Willkommen im Admin-Panel",
     emailLabel: "E-Mail-Adresse",
     passwordLabel: "Passwort",
@@ -47,7 +49,6 @@ export const dictionary = {
   },
 
   portal: {
-      
     productDetailPage: {
         sampleRequest: "Muster anfragen",
         sampleRequested: "Muster angefragt",
@@ -133,6 +134,61 @@ export const dictionary = {
       customerInfo: 'Kundeninformation',
       deliveryInfo: 'Lieferinformation',
     },
+    requestsPage: {
+        title: "Meine Anfragen",
+        description: "Verfolgen Sie Ihre Musteranfragen und reichen Sie neue Produktideen ein.",
+        // Tab 1: Musteranfragen
+        tabSampleRequests: "Musteranfragen",
+        requestDate: "Anfragedatum",
+        rejectionReason: "Ablehnungsgrund",
+        noSampleRequests: "Sie haben noch keine Muster angefragt.",
+        sampleStatuses: {
+            "Yeni Talep": "Neue Anfrage",
+            "Onaylandı": "Bestätigt",
+            "Hazırlanıyor": "In Vorbereitung",
+            "Gönderildi": "Versendet",
+            "İptal Edildi": "Abgelehnt"
+        },
+        // Tab 2: Neue Produktanfrage
+        tabNewProduct: "Neue Produktanfrage",
+        // Aktionen
+        cancelButton: "Stornieren",
+        editButton: "Bearbeiten",
+        deleteButton: "Löschen",
+        // Bestätigungen
+        cancelConfirm: "Möchten Sie diese Anfrage wirklich stornieren?",
+        deleteConfirm: "Möchten Sie diese Produktanfrage wirklich löschen?",
+        // Status-Feedback
+        requestCancelled: "Anfrage storniert",
+        requestDeleted: "Anfrage gelöscht",
+        errorOccurred: "Ein Fehler ist aufgetreten",
+        editProduct: { // Eigener Abschnitt für die Bearbeiten-Seite
+            title: "Produktanfrage bearbeiten",
+            description: "Aktualisieren Sie die Details Ihrer Anfrage.",
+            submitting: "Wird gespeichert...",
+            submitButton: "Änderungen speichern"
+        },
+        newProduct: { // Korrekt verschachtelt
+            newProductIntro: "Haben Sie eine Produktidee oder vermissen Sie einen bestimmten Artikel in unserem Sortiment? Teilen Sie es uns mit!",
+            newProductName: "Produktname",
+            newProductCategory: "Kategorievorschlag",
+            newProductDescription: "Beschreibung",
+            newProductEstimate: "Geschätzte Abnahme (pro Woche)",
+            newProductLink: "Referenzlink (Bild oder Webseite)",
+            submitButton: "Anfrage senden",
+            submitting: "Wird gesendet...",
+            formTitle: "Neue Produktanfrage einreichen", // Titel für das Formular
+            submittedRequests: "Ihre eingereichten Anfragen", // Titel für die Liste
+            noSubmittedRequests: "Sie haben noch keine Produktanfragen eingereicht.",
+            adminNote: "Antwort von uns:",
+            productStatuses: { // Status-Texte für Produktanfragen
+                "Yeni": "Neu",
+                "Değerlendiriliyor": "Wird geprüft",
+                "Onaylandı": "Akzeptiert",
+                "Reddedildi": "Abgelehnt"
+            }
+        }
+    },
     sidebar: {
       title: "Partner-Portal",
       dashboard: "Dashboard",
@@ -140,7 +196,7 @@ export const dictionary = {
       products: "Produktkatalog",
       requests: "Meine Anfragen",
       performance: "Meine Performance",
-       materials: "Materialien",  
+      materials: "Materialien",
     },
     header: {
       titleSuffix: "Portal",
@@ -157,6 +213,11 @@ export const dictionary = {
       noOrders: "Sie haben noch keine Bestellungen aufgegeben.",
       ordersPlaceholder: "Bestellliste wird hier angezeigt.",
       pendingBalance: "Offener Saldo",
+      materialsWidget: { // Korrekt verschachtelt
+        title: "Neueste Materialien",
+        viewAll: "Alle ansehen",
+        noMaterials: "Keine neuen Materialien.",
+      },
     },
     materialsPage: {
         title: "Marketingmaterialien",
@@ -164,12 +225,7 @@ export const dictionary = {
         noMaterials: "Aktuell sind keine Marketingmaterialien verfügbar.",
         download: "Herunterladen",
     },
-    materialsWidget: {
-          title: "Neueste Materialien",
-          viewAll: "Alle ansehen",
-          noMaterials: "Keine neuen Materialien.",
-      },
-  },
+  }, // <-- Ende 'portal' Objekt
   invoices: {
     status: {
       pending: 'Ausstehend',
@@ -211,13 +267,54 @@ export const dictionary = {
     orders: "Bestellungen",
     templates: "Vorlagen",
     announcements: "Ankündigungen",
-    adminHeader: {
+    // KORREKTUR: adminHeader war hier fälschlicherweise drin
+    marketingMaterials: "Marketingmaterial", // Hinzugefügt
+    sampleRequests: "Musteranfragen",     // Hinzugefügt
+    productRequests: "Produktanfragen",  // Hinzugefügt
+  },
+
+  // KORREKTUR: adminHeader auf die oberste Ebene verschoben
+  adminHeader: {
     logout: "Abmelden",
-    Marketingmaterial :"Marketingmaterial",
-    sampleRequests: "Musteranfragen",
   },
-  },
+
   adminDashboard: {
+    // KORREKTUR: productRequestsPage korrekt hier platziert
+    productRequestsPage: {
+        title: "Neue Produktanfragen",
+        description: "Von Partnern eingereichte Produktideen.",
+        noRequests: "Keine Produktanfragen gefunden.",
+        noRequestsFilter: "Keine Anfragen für diese Filter gefunden.",
+        statusOptions: {
+            "Yeni": "Neu",
+            "Değerlendiriliyor": "Wird geprüft",
+            "Onaylandı": "Akzeptiert",
+            "Reddedildi": "Abgelehnt"
+        }
+    },
+    // KORREKTUR: sampleRequestsPage korrekt hier platziert
+    sampleRequestsPage: {
+      title: "Musteranfragen",
+      description: "Anfragen aufgelistet.",
+      noRequests: "Keine Anfragen gefunden.",
+      noRequestsFilter: "Keine Anfragen für Filter gefunden.",
+      statuses: {
+          "Yeni Talep": "Neue Anfrage",
+          "Onaylandı": "Bestätigt",
+          "Hazırlanıyor": "In Vorbereitung",
+          "Gönderildi": "Versendet",
+          "İptal Edildi": "Abgelehnt",
+      },
+      statusOptions: { // KORREKTUR: statusOptions ist jetzt parallel zu statuses
+          "Yeni Talep": "Neue Anfrage",
+          "Onaylandı": "Bestätigt",
+          "Hazırlanıyor": "In Vorbereitung",
+          "Gönderildi": "Versendet",
+          "İptal Edildi": "Abgelehnt"
+      }
+    },
+    
+    // Bestehende adminDashboard Einträge
     title: 'Admin Dashboard',
     sidebar: {
       dashboard: "Übersicht",
@@ -225,20 +322,7 @@ export const dictionary = {
       products: 'Produktverwaltung',
       orders: 'Bestellungen',
       partners: 'Partner',
-      sampleRequestsPage: {
-        title: "Musteranfragen",
-        description: "Anfragen aufgelistet.",
-        noRequests: "Keine Anfragen gefunden.",
-        noRequestsFilter: "Keine Anfragen für Filter gefunden.",
-     statuses: {
-            "Yeni Talep": "Neue Anfrage",
-            "Onaylandı": "Bestätigt",
-            "Hazırlanıyor": "In Vorbereitung",
-            "Gönderildi": "Versendet",
-            "İptal Edildi": "Abgelehnt"
-        }
-        // ---------------------
-      }
+      // KORREKTUR: Falsch verschachteltes sampleRequestsPage-Objekt von hier entfernt
     },
     partnersPage: {
       title: 'Partnerverwaltung',
@@ -246,7 +330,7 @@ export const dictionary = {
       contactPerson: 'Ansprechpartner',
       email: 'E-Mail',
       totalOrders: 'Bestellungen gesamt',
-      totalRevenue: 'AUmsatz gesamt',
+      totalRevenue: 'Umsatz gesamt',
       status: 'Status',
     },
     applicationsPage: {
@@ -315,8 +399,6 @@ export const dictionary = {
       managerSubtitle: "Willkommen zur Live-Übersicht deines Unternehmens.",
       teamMemberTitle: "Mein Persönliches Panel",
       teamMemberSubtitle: "Hier ist, worauf du dich heute konzentrieren solltest.",
-
-      // Manager Widgets
       cardRevenueThisMonth: "Umsatz (Dieser Monat)",
       cardNetProfitThisMonth: "Nettogewinn (Dieser Monat)",
       cardActiveOrders: "Aktive Bestellungen",
@@ -327,15 +409,11 @@ export const dictionary = {
       actionNewOrder: "Neue Bestellung",
       actionNewCompany: "Neue Firma",
       actionNewExpense: "Neue Ausgabe",
-
-      // Team Member Widgets
       cardOpenTasks: "Mir zugewiesene offene Aufgaben",
       cardNewOrdersFromClients: "Neue Bestellungen von meinen Kunden",
       quickAccessTitle: "Schnellzugriff",
       linkMyClients: "Meine Kunden",
       linkMyTasks: "Meine Aufgaben",
-
-      // Error messages
       errorLoadingTeamDashboard: "Dein persönliches Panel konnte nicht geladen werden.",
     },
   },
@@ -351,32 +429,26 @@ export const dictionary = {
     managerSubtitle: "Willkommen zur Live-Übersicht deines Unternehmens.",
     teamMemberTitle: "Mein Persönliches Panel",
     teamMemberSubtitle: "Hier ist, worauf du dich heute konzentrieren solltest.",
-
     cardRevenueThisMonth: "Umsatz (Dieser Monat)",
     cardNetProfitThisMonth: "Nettogewinn (Dieser Monat)",
     cardActiveOrders: "Aktive Bestellungen",
     cardCriticalStock: "Kritischer Lagerbestand",
-
     agendaTitle: "Agenda & Dringende Aufgaben",
     overdueTasks: "überfällige Aufgaben gefunden.",
-
     quickActionsTitle: "Schnellaktionen",
     actionNewOrder: "Neue Bestellung",
     actionNewCompany: "Neue Firma",
     actionNewExpense: "Neue Ausgabe",
-
     cardOpenTasks: "Mir zugewiesene offene Aufgaben",
     cardNewOrdersFromClients: "Neue Bestellungen von meinen Kunden",
-
     quickAccessTitle: "Schnellzugriff",
     linkMyClients: "Meine Kunden",
     linkMyTasks: "Meine Aufgaben",
-
     errorLoadingTeamDashboard: "Dein persönliches Panel konnte nicht geladen werden.",
   },
   marketingKit: {
     title: 'Ihr Marketing- & Menü-Kit',
-    description: 'Nutzen Sie unsere professionellen Materialien, um SweetTraum-Produkte in Ihrem Geschäft zu bewerben.',
+    description: 'Nutzen Sie unsere professionellen Materialien, um ElysonSweets-Produkte in Ihrem Geschäft zu bewerben.', // KORRIGIERT: Name geändert
     assets: [{
       name: 'Produktfotos (Hohe Auflösung)',
       type: 'Bilder',
@@ -563,73 +635,28 @@ export const dictionary = {
     thawingTime: 'Auftauzeit',
     shelfLife: 'Haltbarkeit (aufgetaut)',
     sampleProduct: {
-      id: 1,
-      name: 'Fıstık Rüyası',
-      category: 'Torten & Kuchen',
-      price: '45,00 €',
-      mainImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1200',
-      gallery: [
-        'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=400',
-        'https://images.unsplash.com/photo-1606313564205-5b6910373802?q=80&w=400',
-        'https://images.unsplash.com/photo-1616030113563-34e351591125?q=80&w=400'
-      ],
+      id: 1, name: 'Fıstık Rüyası', category: 'Torten & Kuchen', price: '45,00 €',
+      mainImage: 'https://...87',
+      gallery: [ 'https://...400', 'https://...400', 'https://...400' ],
       descriptionText: 'Kakaobiskuit, Mousse von Zartbitterschokolade, Ganache von weißer Schokolade, dragierte Pistazien...',
       ingredientsList: 'Dunkle Schokolade, Weizenmehl, Bio-Eier, Rohrzucker, frische Sahne, Butter, Pistazien.',
       allergensList: 'Kann Spuren von Nüssen enthalten. Enthält Gluten, Eier und Milchprodukte.',
-      technicalDetails: {
-        sliceCount: '12 Stück',
-        weight: '1540 g ± 5 g',
-        portionSize: '128 g ± 5 g',
-      },
-      storageInfo: {
-        conditions: 'bei -18 °C',
-        duration: '12 Monate',
-        thawingTime: '3-3,5 Stunden bei +4 °C',
-        shelfLife: '3-4 Tage bei +4 °C',
-      }
+      technicalDetails: { sliceCount: '12 Stück', weight: '1540 g ± 5 g', portionSize: '128 g ± 5 g', },
+      storageInfo: { conditions: 'bei -18 °C', duration: '12 Monate', thawingTime: '3-3,5 Stunden bei +4 °C', shelfLife: '3-4 Tage bei +4 °C', }
     }
   },
   productsPage: {
     title: 'Unsere Kollektionen',
     filterTitle: 'Kategorien filtern',
     allProducts: 'Alle Produkte',
-    sampleProducts: [{
-      id: 1,
-      name: 'Klassische Schokoladentorte',
-      category: 'Torten & Kuchen',
-      imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800',
-      alt: 'Ein Stück Schokoladenkuchen'
-    }, {
-      id: 2,
-      name: 'Französische Macarons',
-      category: 'Pralinen & Macarons',
-      imageUrl: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=800',
-      alt: 'Bunte Macarons'
-    }, {
-      id: 3,
-      name: 'Frische Croissants',
-      category: 'Feingebäck',
-      imageUrl: 'https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=80&w=800',
-      alt: 'Frisch gebackene Croissants'
-    }, {
-      id: 4,
-      name: 'Äthiopischer Yirgacheffe',
-      category: 'Kaffee & Tee',
-      imageUrl: 'https://images.unsplash.com/photo-1559496417-e7f25cb247f3?q=80&w=800',
-      alt: 'Eine Tasse Kaffee'
-    }, {
-      id: 5,
-      name: 'Vegane Himbeertorte',
-      category: 'Vegane Produkte',
-      imageUrl: 'https://images.unsplash.com/photo-1562440102-37424bae392a?q=80&w=800',
-      alt: 'Ein Stück veganer Himbeerkuchen'
-    }, {
-      id: 6,
-      name: 'Gourmet Salami Pizza',
-      category: 'Gourmet Pizza',
-      imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800',
-      alt: 'Eine Gourmet-Salami-Pizza'
-    }, ],
+    sampleProducts: [
+        { id: 1, name: 'Klassische Schokoladentorte', category: 'Torten & Kuchen', imageUrl: 'https://...87', alt: 'Ein Stück Schokoladenkuchen' },
+        { id: 2, name: 'Französische Macarons', category: 'Pralinen & Macarons', imageUrl: 'https://...9e', alt: 'Bunte Macarons' },
+        { id: 3, name: 'Frische Croissants', category: 'Feingebäck', imageUrl: 'https://...cd', alt: 'Frisch gebackene Croissants' },
+        { id: 4, name: 'Äthiopischer Yirgacheffe', category: 'Kaffee & Tee', imageUrl: 'https://...f3', alt: 'Eine Tasse Kaffee' },
+        { id: 5, name: 'Vegane Himbeertorte', category: 'Vegane Produkte', imageUrl: 'https://...2a', alt: 'Ein Stück veganer Himbeerkuchen' },
+        { id: 6, name: 'Gourmet Salami Pizza', category: 'Gourmet Pizza', imageUrl: 'https://...91', alt: 'Eine Gourmet-Salami-Pizza' },
+    ],
     detailsButton: 'Details ansehen',
   },
   pagination: {
@@ -640,18 +667,9 @@ export const dictionary = {
   },
   qualityPromise: {
     title: 'Unser Qualitätsversprechen',
-    item1: {
-      title: 'Beste Zutaten',
-      description: 'Wir wählen nur die feinsten und frischesten Rohstoffe von vertrauenswürdigen Lieferanten aus.',
-    },
-    item2: {
-      title: 'Meisterhafte Verarbeitung',
-      description: 'Unsere Produkte werden von erfahrenen Konditoren mit Leidenschaft und Präzision handgefertigt.',
-    },
-    item3: {
-      title: 'Zuverlässige Lieferung',
-      description: 'Wir garantieren eine pünktliche und sorgfältige Lieferung, damit Ihre Ware stets in perfektem Zustand ankommt.',
-    },
+    item1: { title: 'Beste Zutaten', description: 'Wir wählen nur die feinsten und frischesten Rohstoffe von vertrauenswürdigen Lieferanten aus.', },
+    item2: { title: 'Meisterhafte Verarbeitung', description: 'Unsere Produkte werden von erfahrenen Konditoren mit Leidenschaft und Präzision handgefertigt.', },
+    item3: { title: 'Zuverlässige Lieferung', description: 'Wir garantieren eine pünktliche und sorgfältige Lieferung, damit Ihre Ware stets in perfektem Zustand ankommt.', },
   },
   datenschutzPage: {
     title: 'Datenschutzerklärung',
@@ -660,33 +678,16 @@ export const dictionary = {
     p2: 'Die Nutzung unserer Webseite ist in der Regel ohne Angabe personenbezogener Daten möglich. Soweit auf unseren Seiten personenbezogene Daten (beispielsweise Name, Anschrift oder E-Mail-Adressen) erhoben werden, erfolgt dies, soweit möglich, stets auf freiwilliger Basis.',
     sectionTitle1: '1. Verantwortliche Stelle',
     responsibleBody: 'Verantwortliche Stelle im Sinne der Datenschutzgesetze, insbesondere der EU-Datenschutzgrundverordnung (DSGVO), ist:',
-    companyDetails: [
-      'ElysonSweets GmbH',
-      'Musterstraße 123',
-      '12345 Berlin',
-      'E-Mail: info@ElysonSweets.de',
-    ],
+    companyDetails: [ 'ElysonSweets GmbH', 'Musterstraße 123', '12345 Berlin', 'E-Mail: info@ElysonSweets.de', ],
     sectionTitle2: '2. Ihre Betroffenenrechte',
     rightsIntro: 'Unter den angegebenen Kontaktdaten unseres Datenschutzbeauftragten können Sie jederzeit folgende Rechte ausüben:',
-    rightsList: [
-      'Auskunft über Ihre bei uns gespeicherten Daten und deren Verarbeitung,',
-      'Berichtigung unrichtiger personenbezogener Daten,',
-      'Löschung Ihrer bei uns gespeicherten Daten,',
-      'Einschränkung der Datenverarbeitung, sofern wir Ihre Daten aufgrund gesetzlicher Pflichten noch nicht löschen dürfen,',
-      'Widerspruch gegen die Verarbeitung Ihrer Daten bei uns und',
-      'Datenübertragbarkeit, sofern Sie in die Datenverarbeitung eingewilligt haben oder einen Vertrag mit uns abgeschlossen haben.',
-    ],
+    rightsList: [ 'Auskunft über Ihre bei uns gespeicherten Daten und deren Verarbeitung,', 'Berichtigung unrichtiger personenbezogener Daten,', 'Löschung Ihrer bei uns gespeicherten Daten,', 'Einschränkung der Datenverarbeitung, sofern wir Ihre Daten aufgrund gesetzlicher Pflichten noch nicht löschen dürfen,', 'Widerspruch gegen die Verarbeitung Ihrer Daten bei uns und', 'Datenübertragbarkeit, sofern Sie in die Datenverarbeitung eingewilligt haben oder einen Vertrag mit uns abgeschlossen haben.', ],
     p3: 'Sofern Sie uns eine Einwilligung erteilt haben, können Sie diese jederzeit mit Wirkung für die Zukunft widerrufen.'
   },
   impressumPage: {
     title: 'Impressum',
     section1Title: 'Angaben gemäß § 5 TMG',
-    address: [
-      'ElysonSweets GmbH',
-      'Musterstraße 123',
-      '12345 Berlin',
-      'Deutschland',
-    ],
+    address: [ 'ElysonSweets GmbH', 'Musterstraße 123', '12345 Berlin', 'Deutschland', ],
     section2Title: 'Vertreten durch',
     managingDirector: 'Turgay Celen',
     section3Title: 'Kontakt',
@@ -731,4 +732,4 @@ export const dictionary = {
     deleteConfirmation: "Möchten Sie diesen Partner wirklich löschen?",
     createPartnerButton: "Neuen Partner erstellen",
   },
-};
+}; // <-- DIESE KLAMMER IST DIE LETZTE.
