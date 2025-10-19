@@ -23,7 +23,7 @@ export const dictionary = {
     section1Text: 'We select only the finest ingredients and guarantee master craftsmanship in every creation. Quality is not a promise, but our standard.',
   },
   loginPage: {
-    title: "SweetHeaven",
+    title: "ElysonSweets",
     subtitle: "Welcome to the Admin Panel",
     emailLabel: "Email Address",
     passwordLabel: "Password",
@@ -210,7 +210,7 @@ export const dictionary = {
   },
   marketingKit: {
     title: 'Your Marketing & Menu Kit',
-    description: 'Use our professional materials to promote SweetDream products in your establishment.',
+    description: 'Use our professional materials to promote ElysonSweets products in your establishment.',
     assets: [
       { name: 'Product Photos (High Resolution)', type: 'Images', action: 'Download' },
       { name: 'Menu Templates (PDF)', type: 'Documents', action: 'Download' },

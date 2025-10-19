@@ -74,7 +74,7 @@ const NavbarElegant: React.FC<{ dictionary: NavDictionary }> = ({ dictionary }) 
           {/* Centered Logo */}
           <div className="w-auto md:w-1/3 text-center md:text-center">
             <Link href="/" className="text-3xl font-serif font-bold hover:text-accent transition-colors">
-              SweetDreams
+              ElysonSweets
             </Link>
           </div>
 
@@ -115,7 +115,7 @@ const NavbarElegant: React.FC<{ dictionary: NavDictionary }> = ({ dictionary }) 
        <div className={`md:hidden fixed inset-0 bg-primary z-50 transition-transform transform duration-500 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex justify-between items-center p-6 h-20">
              <Link href="/" className="text-3xl font-serif font-bold text-secondary" onClick={() => setIsMenuOpen(false)}>
-              SweetDreams
+              ElysonSweets
             </Link>
             <button onClick={() => setIsMenuOpen(false)}>
               <CgClose size={32} className="text-secondary"/>

@@ -85,7 +85,7 @@ const KontaktPage = () => {
                 allowFullScreen={true}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="SweetDreams Konumu"
+                title="ElysonSweets Konumu"
               ></iframe>
             </div>
           </div>

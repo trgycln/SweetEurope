@@ -48,7 +48,7 @@ export function PublicHeader({ dictionary }: PublicHeaderProps) {
       {/* Sol Taraf: Logo ve Navigasyon */}
       <div className="flex items-center gap-8">
         <Link href={`/${currentLocale}`} className="text-white text-2xl font-serif font-bold">
-          SweetHeaven
+          ElysonSweets
         </Link>
         {/* Navigasyon Linkleri (Doğru ve Çok Dilli) */}
         <nav className="hidden lg:flex items-center gap-6">

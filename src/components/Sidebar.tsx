@@ -114,7 +114,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             >
                 <div className="flex flex-shrink-0 items-center justify-between p-4 border-b border-white/10 sticky top-0 bg-primary z-10">
                     <Link href="/admin/dashboard" className="text-white text-2xl font-serif font-bold flex items-center">
-                        SweetHeaven
+                        ElysonSweets
                     </Link>
                     <button onClick={() => setIsOpen(false)} className="lg:hidden text-secondary/70 hover:text-white">
                         <FiX size={24} />

@@ -19,7 +19,7 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "SweetHeaven & SweetDreams",
+  title: "ElysonSweets",
   description: "Yönetim ve Partner Portalı",
 };
 

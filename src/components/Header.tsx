@@ -91,7 +91,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                  )}
 
                 <Link href={`/${currentLocale}${isAdminHeader ? '/admin/dashboard' : ''}`} className={`text-2xl font-serif font-bold ${isAdminHeader ? 'text-primary' : 'text-white'}`}>
-                    SweetHeaven {isAdminHeader && <span className="text-sm font-sans font-normal text-gray-500 ml-1">Admin</span>}
+                    ElysonSweets {isAdminHeader && <span className="text-sm font-sans font-normal text-gray-500 ml-1">Admin</span>}
                 </Link>
 
                 {!isAdminHeader && (

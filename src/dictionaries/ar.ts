@@ -23,7 +23,7 @@ export const dictionary = {
     section1Text: 'نختار فقط أجود المكونات ونضمن حرفية عالية في كل إبداع. الجودة ليست وعدًا، بل هي معيارنا.',
   },
   loginPage: {
-    title: "SweetHeaven",
+    title: "ElysonSweets",
     subtitle: "مرحبًا بك في لوحة التحكم",
     emailLabel: "البريد الإلكتروني",
     passwordLabel: "كلمة المرور",
@@ -210,7 +210,7 @@ export const dictionary = {
   },
   marketingKit: {
     title: 'مجموعة التسويق والقائمة الخاصة بك',
-    description: 'استخدم موادنا الاحترافية للترويج لمنتجات SweetDream في مؤسستك.',
+    description: 'استخدم موادنا الاحترافية للترويج لمنتجات ElysonSweets في مؤسستك.',
     assets: [
       { name: 'صور المنتجات (عالية الدقة)', type: 'صور', action: 'تحميل' },
       { name: 'قوالب القائمة (PDF)', type: 'مستندات', action: 'تحميل' },
