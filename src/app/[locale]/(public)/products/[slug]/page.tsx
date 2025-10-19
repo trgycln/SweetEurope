@@ -1,103 +1,62 @@
-// src/app/[locale]/products/[slug]/page.tsx
-
+import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getDictionary } from '@/dictionaries';
 import { notFound } from 'next/navigation';
-import { UrunGalerisi } from './urun-galerisi'; // İnteraktif galeri bileşenini import et
+// Korrekte Komponente importieren
+import { UrunDetayGorunumu } from '@/components/urun-detay-gorunumu';
+import { Locale } from '@/lib/utils'; // Locale aus utils holen
+import { Tables } from '@/lib/supabase/database.types';
 
-export default async function PublicUrunDetayPage({ params }: { params: { locale: string; slug: string } }) {
+// Typ für die Sablon-Daten
+type Sablon = Pick<Tables<'kategori_ozellik_sablonlari'>, 'alan_adi' | 'gosterim_adi'>;
+// Typ für Urun mit Kategorie
+type UrunWithKategorie = Tables<'urunler'> & {
+    kategoriler?: Pick<Tables<'kategoriler'>, 'id' | 'ad'> | null;
+};
+
+export default async function PublicUrunDetayPage({ params }: { params: { locale: Locale; slug: string } }) {
     const supabase = createSupabaseServerClient();
     const { locale, slug } = params;
 
-    const [dictionary, { data: urun }] = await Promise.all([
-        getDictionary(locale as any),
+    // Dictionary und Produkt parallel abrufen
+    const [dictionary, { data: urunData }] = await Promise.all([
+        getDictionary(locale),
         supabase
             .from('urunler')
-            .select(`*, kategoriler (id)`)
+            // Kategorie-Daten für Anzeige mit abrufen
+            .select(`*, kategoriler (id, ad)`)
             .eq('slug', slug)
-            .eq('aktif', true)
+            // KORREKTUR: 'aktif' = true entfernt, um alle Produkte anzuzeigen
+            // .eq('aktif', true) 
             .single()
     ]);
+    
+    const urun = urunData as UrunWithKategorie | null;
 
     if (!urun) {
-        return notFound(); // Ürün bulunamazsa veya aktif değilse 404
+        return notFound();
     }
 
-    // @ts-ignore
     const kategoriId = urun.kategoriler?.id;
+    let ozellikSablonu: Sablon[] = [];
 
-    // Ürünün kategorisine ait ve "public_gorunur" olarak işaretlenmiş özellikleri çek
-    const { data: gosterilecekOzellikler } = await supabase
-        .from('kategori_ozellik_sablonlari')
-        .select('alan_adi, gosterim_adi')
-        .eq('kategori_id', kategoriId)
-        .eq('public_gorunur', true)
-        .order('sira');
+    if (kategoriId) {
+        // Die Namen der technischen Eigenschaften für die Anzeige abrufen
+        const { data } = await supabase
+            .from('kategori_ozellik_sablonlari')
+            .select('alan_adi, gosterim_adi') // Nur die benötigten Felder
+            .eq('kategori_id', kategoriId)
+            .eq('public_gorunur', true) // Nur öffentliche anzeigen
+            .order('sira');
+        ozellikSablonu = data || [];
+    }
 
-    const pageContent = dictionary.productDetailPage;
-
+    // KORREKTUR: 'price'-Prop wird nicht mehr übergeben
     return (
-        <div className="bg-white">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-                    
-                    {/* Sol Taraf: Ürün Resim Galerisi */}
-                    <UrunGalerisi 
-                        anaResim={urun.ana_resim_url} 
-                        galeri={urun.galeri_resim_urls} 
-                        urunAdi={urun.ad?.[locale] || 'Ürün Resmi'} 
-                    />
-
-                    {/* Sağ Taraf: Ürün Bilgileri */}
-                    <div className="space-y-6">
-                        <h1 className="text-4xl lg:text-5xl font-serif font-bold text-primary leading-tight">
-                            {urun.ad?.[locale] || urun.ad?.['de']}
-                        </h1>
-                        
-                        <div className="text-3xl font-light text-gray-800">
-                            {urun.satis_fiyati_musteri?.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                        </div>
-
-                        {/* Açıklama */}
-                        {urun.aciklamalar?.[locale] && (
-                            <div className="prose max-w-none text-gray-600">
-                                <p>{urun.aciklamalar[locale]}</p>
-                            </div>
-                        )}
-                        
-                        {/* Dinamik Teknik Özellikler */}
-                        {gosterilecekOzellikler && gosterilecekOzellikler.length > 0 && (
-                            <div className="mt-8 pt-6 border-t">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">{pageContent.tabDetails}</h3>
-                                <dl className="space-y-3">
-                                    {gosterilecekOzellikler.map(ozellik => {
-                                        // Ürünün teknik_ozellikler JSON'ından ilgili değeri bul
-                                        const deger = urun.teknik_ozellikler?.[ozellik.alan_adi];
-                                        if (!deger) return null; // Değeri olmayan özellikleri gösterme
-
-                                        return (
-                                            <div key={ozellik.alan_adi} className="grid grid-cols-2 gap-4 text-sm">
-                                                <dt className="text-gray-500">
-                                                    {ozellik.gosterim_adi?.[locale] || ozellik.gosterim_adi?.['tr']}:
-                                                </dt>
-                                                <dd className="font-semibold text-gray-800">{deger}</dd>
-                                            </div>
-                                        );
-                                    })}
-                                </dl>
-                            </div>
-                        )}
-
-                        {/* Müşteri Portalı için "Sepete Ekle" Butonu (şimdilik gizli) */}
-                        {/* <div className="mt-8">
-                            <button className="w-full px-8 py-3 bg-accent text-white rounded-lg font-bold text-lg hover:bg-opacity-90 transition-all">
-                                {pageContent.addToCart}
-                            </button>
-                        </div> 
-                        */}
-                    </div>
-                </div>
-            </div>
-        </div>
+        <UrunDetayGorunumu
+            urun={urun}
+            ozellikSablonu={ozellikSablonu}
+            locale={locale}
+        />
     );
 }

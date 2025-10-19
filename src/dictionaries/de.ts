@@ -47,7 +47,20 @@ export const dictionary = {
   },
 
   portal: {
-catalogPage: { // <--- UND DIESER SCHLÜSSEL MUSS HIER DRIN SEIN
+      
+    productDetailPage: {
+        sampleRequest: "Muster anfragen",
+        sampleRequested: "Muster angefragt",
+        // --- NEUE TEXTE ---
+        yourPrice: "Ihr Preis (Netto)",
+        availability: "Verfügbarkeit",
+        availabilityInStock: "Auf Lager",
+        availabilityLowStock: "Wenig Bestand",
+        availabilityOutOfStock: "Ausverkauft",
+        
+        // ------------------
+    },
+    catalogPage: { // <--- UND DIESER SCHLÜSSEL MUSS HIER DRIN SEIN
         title: "Produktkatalog",
         description: "Durchstöbern Sie unser komplettes Produktsortiment.",
         searchPlaceholder: "Produkt nach Name oder Code suchen...",
@@ -57,6 +70,7 @@ catalogPage: { // <--- UND DIESER SCHLÜSSEL MUSS HIER DRIN SEIN
         toggleFavoriteAdd: "Zu Favoriten hinzufügen",
         toggleFavoriteRemove: "Von Favoriten entfernen",
         viewDetails: "Details ansehen",
+        backToList: "Zurück zum Katalog",
     },
     newOrderPage: {
       title: 'Neue Bestellung erstellen',
@@ -67,6 +81,10 @@ catalogPage: { // <--- UND DIESER SCHLÜSSEL MUSS HIER DRIN SEIN
         inStock: 'Auf Lager',
         lowStock: 'Wenig Lagerbestand',
         outOfStock: 'Ausverkauft',
+        addToCart: "In den Warenkorb", // Button-Text
+        addedToCart: "sepete eklendi!", // Toast-Nachricht (oder "zum Warenkorb hinzugefügt!")
+        stockNotAvailable: "Stok yetersiz! Maksimum %{stock} adet.", // Warnung
+        productOutOfStock: "Dieses Produkt ist ausverkauft.",
       },
       noProductsFound: 'Keine Produkte für diese Kriterien gefunden.',
       cartTitle: 'Ihr Warenkorb',
@@ -127,6 +145,7 @@ catalogPage: { // <--- UND DIESER SCHLÜSSEL MUSS HIER DRIN SEIN
     header: {
       titleSuffix: "Portal",
       logout: "Abmelden",
+      cartTitle: "Warenkorb",
     },
     dashboard: {
       welcome: "Willkommen, ",
@@ -194,7 +213,8 @@ catalogPage: { // <--- UND DIESER SCHLÜSSEL MUSS HIER DRIN SEIN
     announcements: "Ankündigungen",
     adminHeader: {
     logout: "Abmelden",
-    Marketingmaterial :"Marketingmaterial"
+    Marketingmaterial :"Marketingmaterial",
+    sampleRequests: "Musteranfragen",
   },
   },
   adminDashboard: {
@@ -205,6 +225,20 @@ catalogPage: { // <--- UND DIESER SCHLÜSSEL MUSS HIER DRIN SEIN
       products: 'Produktverwaltung',
       orders: 'Bestellungen',
       partners: 'Partner',
+      sampleRequestsPage: {
+        title: "Musteranfragen",
+        description: "Anfragen aufgelistet.",
+        noRequests: "Keine Anfragen gefunden.",
+        noRequestsFilter: "Keine Anfragen für Filter gefunden.",
+     statuses: {
+            "Yeni Talep": "Neue Anfrage",
+            "Onaylandı": "Bestätigt",
+            "Hazırlanıyor": "In Vorbereitung",
+            "Gönderildi": "Versendet",
+            "İptal Edildi": "Abgelehnt"
+        }
+        // ---------------------
+      }
     },
     partnersPage: {
       title: 'Partnerverwaltung',

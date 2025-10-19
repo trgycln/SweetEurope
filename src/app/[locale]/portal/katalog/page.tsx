@@ -1,15 +1,16 @@
-// src/app/[locale]/portal/katalog/page.tsx (maybeMatch entfernt)
+// src/app/[locale]/portal/katalog/page.tsx (Angepasst für Hierarchie)
 
 import React from 'react';
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { KatalogClient } from "@/components/portal/katalog/KatalogClient";
 import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/dictionaries";
-import { Locale } from "@/i18n-config";
+import { Locale } from "@/i18n-config"; // Annahme, dass Locale hier ist, sonst aus utils
 import { Database, Tables, Enums } from "@/lib/supabase/database.types";
 
 export type ProduktMitPreis = Tables<'urunler'> & { partnerPreis: number | null };
-type Kategorie = Pick<Tables<'kategoriler'>, 'id' | 'ad'>;
+// KORREKTUR: Kategorie-Typ erweitern
+export type Kategorie = Pick<Tables<'kategoriler'>, 'id' | 'ad' | 'ust_kategori_id'>;
 
 export default async function KatalogPage({
     params,
@@ -40,36 +41,39 @@ export default async function KatalogPage({
     const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : '';
     const categoryFilter = typeof searchParams.kategorie === 'string' ? searchParams.kategorie : '';
 
-    // 3. Daten abrufen: Produkte, Kategorien, Favoriten
-    // KORREKTUR: Query schrittweise aufbauen
+    // 3. Daten abrufen
     let produkteQuery = supabase
         .from('urunler')
-        .select('*, kategoriler(ad)') // Wähle alle Felder und den Kategorienamen
-        .eq('aktif', true) // Nur aktive Produkte
-        .ilike( `ad->>${locale}`, `%${searchQuery}%`); // Suche im lokalisierten Namen
+        .select('*, kategoriler(ad)')
+        .eq('aktif', true)
+        .ilike( `ad->>${locale}`, `%${searchQuery}%`);
 
-    // KORREKTUR: Kategorie-Filter nur anwenden, wenn categoryFilter existiert
     if (categoryFilter) {
         produkteQuery = produkteQuery.eq('kategori_id', categoryFilter);
     }
-
-    // Sortierung NACH den Filtern hinzufügen
+    
     produkteQuery = produkteQuery.order(`ad->>${locale}`);
 
-    // Restliche Abfragen parallel ausführen
     const [produkteRes, kategorienRes, favoritenRes] = await Promise.all([
-        produkteQuery, // Die aufgebaute Produkt-Query ausführen
-        supabase.from('kategoriler').select('id, ad').order(`ad->>${locale}`),
+        produkteQuery,
+        // KORREKTUR: 'ust_kategori_id' abrufen und korrekt sortieren
+        supabase
+            .from('kategoriler')
+            .select('id, ad, ust_kategori_id') // ust_kategori_id hinzugefügt
+            .order('ust_kategori_id', { ascending: true, nullsFirst: true }) // Hauptkategorien zuerst
+            .order(`ad->>${locale}`), // Dann alphabetisch
         supabase.from('favori_urunler').select('urun_id').eq('kullanici_id', user.id)
     ]);
 
-    // Datenverarbeitung (wie zuvor)
+    // 4. Datenverarbeitung
     let produkte: Tables<'urunler'>[] = [];
     if (produkteRes.error) {
         console.error("Fehler beim Laden der Produkte:", produkteRes.error);
     } else {
         produkte = produkteRes.data || [];
     }
+    
+    // KORREKTUR: 'kategorien' wird jetzt als volle Liste mit 'ust_kategori_id' übergeben
     const kategorien: Kategorie[] = kategorienRes.data || [];
     const favoritenIds = new Set((favoritenRes.data || []).map(f => f.urun_id));
 
@@ -80,11 +84,11 @@ export default async function KatalogPage({
         return { ...produkt, partnerPreis };
     });
 
-    // Client Komponente aufrufen (wie zuvor)
+    // 5. An Client übergeben
     return (
         <KatalogClient
             initialProdukte={personalisierteProdukte}
-            kategorien={kategorien}
+            kategorien={kategorien} // Übergibt die volle, sortierte Liste
             favoritenIds={favoritenIds}
             locale={locale}
             dictionary={dictionary}
