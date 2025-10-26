@@ -1,3 +1,6 @@
+// src/app/[locale]/portal/dashboard/page.tsx
+// KORRIGIERTE VERSION (await cookies + await createClient)
+
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { DashboardKpiCard } from '@/components/portal/dashboard/DashboardKpiCard';
@@ -7,15 +10,25 @@ import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 import { HizliSiparisClient } from '@/components/portal/dashboard/HizliSiparisClient';
 import { MarketingMaterialsWidget } from '@/components/portal/dashboard/MarketingMaterialsWidget';
-import { QuickActionsCard } from '@/components/portal/dashboard/QuickActionsCard'; // Behalten wir für andere Aktionen
+import { QuickActionsCard } from '@/components/portal/dashboard/QuickActionsCard';
+import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
+import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { Database, Tables, Enums } from '@/lib/supabase/database.types'; // Import für Typisierung
+
+export const dynamic = 'force-dynamic';
 
 type PageProps = {
     params: { locale: Locale };
 };
 
-export default async function PartnerDashboardPage(props: PageProps) {
-    const { params } = props;
+export default async function PartnerDashboardPage({ params }: PageProps) { // Korrekten Prop-Typ verwenden
+    noStore(); // Caching deaktivieren
     const { locale } = params;
+
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies(); // await hinzufügen
+    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
+    // --- ENDE KORREKTUR ---
 
     const dictionary = await getDictionary(locale);
     // Sicherer Zugriff auf das Dictionary mit Fallbacks
@@ -23,16 +36,14 @@ export default async function PartnerDashboardPage(props: PageProps) {
         welcome: "Willkommen",
         subtitle: "Übersicht Ihrer Aktivitäten.",
         openOrders: "Offene Bestellungen",
-        myFavorites: "Meine Favoriten", // Fallback
-        openSampleRequests: "Offene Musteranfragen", // Fallback
-        viewFavorites: "Favoriten ansehen", // Fallback
-        viewRequests: "Anfragen ansehen", // Fallback
-        viewOpenOrders: "Offene Bestellungen anzeigen", // Fallback
+        myFavorites: "Meine Favoriten",
+        openSampleRequests: "Offene Musteranfragen",
+        viewFavorites: "Favoriten ansehen",
+        viewRequests: "Anfragen ansehen",
+        viewOpenOrders: "Offene Bestellungen anzeigen",
     };
 
-    const supabase = createSupabaseServerClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase
@@ -41,17 +52,26 @@ export default async function PartnerDashboardPage(props: PageProps) {
         .eq('id', user.id)
         .single();
 
-    if (!profile || !profile.firma_id) return redirect(`/${locale}/login?error=unauthorized`);
+    if (!profile || !profile.firma_id) {
+         // Sicherstellen, dass Admins/Team nicht hier landen (obwohl Middleware dies tun sollte)
+         if (profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi') {
+              return redirect(`/${locale}/admin/dashboard`);
+         }
+        return redirect(`/${locale}/login?error=unauthorized`);
+    }
 
     const firmaId = profile.firma_id;
     const userId = user.id; // Benutzer-ID für Favoriten
 
-    // Daten parallel abrufen - MIT Favoriten und Musteranfragen
+    // Status für offene Musteranfragen
+    const OFFENE_MUSTER_STATUS: Enums<'numune_talep_durumu'>[] = ['Yeni Talep', 'Onaylandı', 'Hazırlanıyor'];
+
+    // Daten parallel abrufen
     const [
         openOrderData,
         hizliSiparisData,
-        favoritesData, // NEU
-        openRequestsData // NEU
+        favoritesData,
+        openRequestsData
     ] = await Promise.all([
         // Offene Bestellungen
         supabase.from('siparisler')
@@ -60,16 +80,15 @@ export default async function PartnerDashboardPage(props: PageProps) {
             .in('siparis_durumu', ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing']),
         // Schnellbestellung Produkte
         supabase.rpc('get_hizli_siparis_urunleri', { p_firma_id: firmaId }),
-        // Favoriten zählen (filtert nach user_id)
+        // Favoriten zählen
         supabase.from('favori_urunler')
             .select('*', { count: 'exact', head: true })
             .eq('kullanici_id', userId),
-        // Offene Musteranfragen zählen (filtert nach firma_id und Status)
-        // KORREKTUR: Verwenden Sie die tatsächlichen Statuswerte aus Ihrer DB
+        // Offene Musteranfragen zählen
         supabase.from('numune_talepleri')
             .select('*', { count: 'exact', head: true })
             .eq('firma_id', firmaId)
-            .in('durum', ['Yeni Talep', 'Onaylandı', 'Hazırlanıyor']) // Passen Sie diese ggf. an!
+            .in('durum', OFFENE_MUSTER_STATUS)
     ]);
 
     // Ergebnisse extrahieren
@@ -78,16 +97,20 @@ export default async function PartnerDashboardPage(props: PageProps) {
     const openRequestsCount = openRequestsData.count ?? 0;
 
     // Fehler loggen, falls vorhanden
+    if (openOrderData.error) console.error("Fehler beim Zählen der offenen Bestellungen:", openOrderData.error);
+    if (hizliSiparisData.error) console.error("Fehler beim Laden der Schnellbestellung-Produkte:", hizliSiparisData.error);
     if (favoritesData.error) console.error("Fehler beim Zählen der Favoriten:", favoritesData.error);
     if (openRequestsData.error) console.error("Fehler beim Zählen der Musteranfragen:", openRequestsData.error);
 
-    // Schnellbestellung Produkte (unverändert)
-    const hizliSiparisUrunler = (hizliSiparisData.data || []).map((urun: any) => {
+    // Schnellbestellung Produkte verarbeiten
+    // Typ-Annahme für RPC-Ergebnis
+    type HizliSiparisUrun = { id: string, urun_id?: string, ad: any, satis_fiyati_alt_bayi: number, satis_fiyati_musteri: number };
+    
+    const hizliSiparisUrunler = (hizliSiparisData.data as HizliSiparisUrun[] || []).map((urun) => {
         const preis = profile.rol === 'Alt Bayi'
             ? urun.satis_fiyati_alt_bayi
             : urun.satis_fiyati_musteri;
-        // Stellen Sie sicher, dass id vorhanden ist (entweder als id oder urun_id vom RPC)
-        return { ...urun, id: urun.id || urun.urun_id, partnerPreis: preis || 0 };
+        return { ...urun, id: urun.id || urun.urun_id, partnerPreis: preis || 0 }; // ID Fallback
     });
 
     return (
@@ -97,52 +120,55 @@ export default async function PartnerDashboardPage(props: PageProps) {
                 <p className="text-text-main/80 mt-1">{content.subtitle}</p>
             </header>
 
-            {/* --- NEUE KPI Karten --- */}
-            {/* Das Grid hat jetzt 3 Elemente */}
+            {/* --- KPI Karten --- */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* 1. Offene Bestellungen (Info + Link) */}
+                {/* 1. Offene Bestellungen */}
                 <DashboardKpiCard
                     title={content.openOrders}
                     value={openOrderCount}
-                    icon="truck" // Icon-Name als String
+                    icon="truck"
                     color="orange"
-                    href={`/${locale}/portal/siparisler?filter=offen`} // Link zur Bestellliste mit Filter
-                    linkText={content.viewOpenOrders} // Text für den Link
+                    href={`/${locale}/portal/siparisler?filter=offen`}
+                    linkText={content.viewOpenOrders}
                 />
-                {/* 2. Meine Favoriten (Info + Link) */}
+                {/* 2. Meine Favoriten */}
                 <DashboardKpiCard
                     title={content.myFavorites}
                     value={favoritesCount}
-                    icon="heart" // Icon-Name als String
+                    icon="heart"
                     color="red"
-                    href={`/${locale}/portal/katalog?favoriten=true`} // Link zum Katalog mit Filter
-                    linkText={content.viewFavorites} // Link-Text aus Dictionary
+                    href={`/${locale}/portal/katalog?favoriten=true`}
+                    linkText={content.viewFavorites}
                 />
-                {/* 3. Offene Musteranfragen (Info + Link) */}
+                {/* 3. Offene Musteranfragen */}
                 <DashboardKpiCard
                     title={content.openSampleRequests}
                     value={openRequestsCount}
-                    icon="beaker" // Icon-Name als String (oder ein passenderes)
+                    icon="beaker" // (Faustregel: FiBeaker)
                     color="blue"
-                    href={`/${locale}/portal/taleplerim`} // Link zur Anfragen-Seite
-                    linkText={content.viewRequests} // Link-Text aus Dictionary
+                    href={`/${locale}/portal/taleplerim`}
+                    linkText={content.viewRequests}
                 />
             </div>
             {/* --- Ende KPI Karten --- */}
 
-            {/* Hauptinhalt Grid (unverändert) */}
+            {/* Hauptinhalt Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
+                    {/* Schnellbestellung (Client Komponente) */}
                     <HizliSiparisClient urunler={hizliSiparisUrunler} locale={locale} dictionary={dictionary} />
+                    {/* Letzte Bestellungen (Client Komponente) */}
                     <RecentOrders firmaId={firmaId} locale={locale} />
                 </div>
                 <div className="space-y-8">
+                    {/* Schnellaktionen (Client Komponente) */}
                     <QuickActionsCard locale={locale} dictionary={dictionary} />
+                    {/* Ankündigungen (Client Komponente) */}
                     <Announcements locale={locale} />
+                    {/* Marketingmaterial (Client Komponente) */}
                     <MarketingMaterialsWidget locale={locale} />
                 </div>
             </div>
         </div>
     );
 }
-

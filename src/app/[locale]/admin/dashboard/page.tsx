@@ -1,31 +1,42 @@
 // src/app/[locale]/admin/dashboard/page.tsx
-// KORRIGIERTE VERSION (behebt cookieStore UND Zähl-Logik)
+// GÜNCELLENMİŞ (Client Component dışa aktarıldı, cookieStore düzeltildi, Düzen güncellendi)
 
 import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies, ReadonlyRequestCookies } from 'next/headers'; // ReadonlyRequestCookies importieren
+import { cookies, ReadonlyRequestCookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import {
-    FiDollarSign, FiTrendingUp, FiPackage, FiAlertTriangle, FiUsers,
+    FiDollarSign, FiTrendingUp, FiTrendingDown, FiPackage, FiAlertTriangle, FiUsers,
     FiClipboard, FiPlus, FiBriefcase, FiUserPlus, FiGift, FiBox, FiArchive, FiClock
 } from 'react-icons/fi';
 import Link from 'next/link';
-import { Tables, Enums, Database } from '@/lib/supabase/database.types'; // Database importieren
+import { Tables, Enums, Database } from '@/lib/supabase/database.types';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
-import { formatDate } from '@/lib/utils'; // utils importieren
-import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { formatDate } from '@/lib/utils';
+import { unstable_noStore as noStore } from 'next/cache';
 
-export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
+// --- YENİ: Chart bileşenini ayrı dosyadan import et ---
+import { FinanzChartClient } from './FinanzChartClient';
+// --- BİTTİ ---
 
-// StatCard Komponente (unverändert)
-const StatCard = ({ title, value, icon, link, linkText }: { title: string, value: string | number, icon: React.ReactNode, link?: string, linkText?: string }) => {
+export const dynamic = 'force-dynamic';
+
+// --- Para Formatlama (Server-side) ---
+const formatCurrency = (value: number | null | undefined) => {
+    if (value === null || value === undefined) return 'N/A';
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
+};
+
+// StatCard Komponente
+const StatCard = ({ title, value, icon, link, linkText, isNegative }: { title: string, value: string | number, icon: React.ReactNode, link?: string, linkText?: string, isNegative?: boolean }) => {
+    const valueColorClass = isNegative ? 'text-red-600' : 'text-primary'; // Renk koşulu
     const content = (
         <>
             <div className="flex-shrink-0">{icon}</div>
             <div className="flex-grow min-w-0">
                 <p className="text-sm font-medium text-text-main/70 truncate">{title}</p>
-                <p className="text-3xl font-bold text-primary mt-1 truncate">{value}</p>
+                <p className={`text-3xl font-bold ${valueColorClass} mt-1 truncate`}>{value}</p>
                 {link && linkText && (
                     <p className="text-xs text-accent font-semibold mt-2 hover:underline">{linkText} &rarr;</p>
                 )}
@@ -38,7 +49,7 @@ const StatCard = ({ title, value, icon, link, linkText }: { title: string, value
     return <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 flex items-center gap-4">{content}</div>;
 };
 
-// Schnellaktions-Button (unverändert)
+// Schnellaktions-Button
 const QuickActionButton = ({ label, icon, href }: { label: string, icon: React.ReactNode, href: string }) => (
      <Link href={href} className="bg-accent text-white p-3 rounded-lg flex flex-col items-center justify-center text-center font-bold text-xs hover:bg-opacity-85 transition-opacity aspect-square">
          {icon}
@@ -46,35 +57,47 @@ const QuickActionButton = ({ label, icon, href }: { label: string, icon: React.R
      </Link>
 );
 
-// Typ für eine Aufgabe (unverändert)
+// Typ für eine Aufgabe
 type OverdueTask = Pick<Tables<'gorevler'>, 'id' | 'baslik' | 'son_tarih'>;
 
 // Props-Typ für die Unter-Dashboards
 interface DashboardProps {
     locale: Locale;
     dictionary: any;
-    cookieStore: ReadonlyRequestCookies; // cookieStore als Prop
+    cookieStore: ReadonlyRequestCookies;
 }
 
-// Manager Dashboard Komponente (KORRIGIERT)
-async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardProps) { // cookieStore empfangen
-    
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+// Raporlama (P&L) fonksiyonundan dönecek veri tipi
+type ReportData = {
+    totalGrossRevenue: number;
+    totalRevenue: number;
+    totalCogs: number;
+    grossProfit: number;
+    totalExpenses: number;
+    netProfit: number;
+    expenseBreakdown: any[];
+};
 
-    const content = dictionary.adminDashboard || {};
+// Manager Dashboard Komponente (YENİ DÜZEN)
+async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardProps) {
+    
+    const supabase = await createSupabaseServerClient(cookieStore);
+    
+    // Sözlük içeriklerini güvenle al
+    const pageContent = (dictionary.adminDashboard && dictionary.adminDashboard.dashboardPage) ? dictionary.adminDashboard.dashboardPage : {};
+    const operationalContent = dictionary.adminDashboard || {};
+    const pnlContent = dictionary.pnlReportPage || {};
+
     const now = new Date();
     const todayISO = now.toISOString();
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
-    // Statusdefinitionen für Zählungen und Filter
+    // Statusdefinitionen
     const OFFENE_BESTELL_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
     const NEUE_MUSTER_STATUS: Enums<'numune_talep_durumu'> = 'Yeni Talep';
     const NEUE_PRODUKTANFRAGE_STATUS: Enums<'urun_talep_durumu'> = 'Yeni';
-    
-    // --- KORREKTUR (LOGIK): Abgeschlossene Status definieren ---
     const ABGESCHLOSSENE_ANTRAG_STATUS: Enums<'firma_status'>[] = ['Anlaşma Sağlandı', 'Pasif'];
-    // --- ENDE KORREKTUR ---
 
     // Parallele Datenabfragen
     const [
@@ -83,90 +106,82 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         tasksRes,
         applicationsRes,
         sampleRequestsRes,
-        productRequestsRes
+        productRequestsRes,
+        plReportRes
     ] = await Promise.all([
         supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_BESTELL_STATUS),
         supabase.rpc('get_kritik_stok_count'),
         supabase.from('gorevler').select('id, baslik, son_tarih').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(5),
-        
-        // --- KORREKTUR (LOGIK): Zählung schließt jetzt 'Anlaşma Sağlandı' und 'Pasif' aus ---
-        // Stellt sicher, dass die Strings korrekt in Anführungszeichen gesetzt werden
-        supabase.from('firmalar').select('id', { count: 'exact' })
-            .not('status', 'in', `(${ABGESCHLOSSENE_ANTRAG_STATUS.map(s => `'${s}'`).join(',')})`), 
-        // --- ENDE KORREKTUR ---
-            
+        // KORREKTUR: 'Anlaşma Sağlandı' ve 'Pasif' hariç say
+        supabase.from('firmalar').select('id', { count: 'exact' }).not('status', 'in', `(${ABGESCHLOSSENE_ANTRAG_STATUS.map(s => `'${s}'`).join(',')})`),
         supabase.from('numune_talepleri').select('id', { count: 'exact' }).eq('durum', NEUE_MUSTER_STATUS),
-        supabase.from('yeni_urun_talepleri').select('id', { count: 'exact' }).eq('status', NEUE_PRODUKTANFRAGE_STATUS)
-             .then(res => res, err => ({ data: null, count: null, error: err })) // Fehler abfangen
+        supabase.from('yeni_urun_talepleri').select('id', { count: 'exact' }).eq('status', NEUE_PRODUKTANFRAGE_STATUS).then(res => res, err => ({ data: null, count: null, error: err })),
+        supabase.rpc('get_pl_report', { start_date: startDate, end_date: endDate }).returns<ReportData>().single()
     ]);
 
-    // Fehler loggen
+    // Hata loglama
     if (ordersRes.error) console.error("Active Orders Error:", ordersRes.error);
     if (stockRes.error) console.error("Critical Stock Error:", stockRes.error);
     if (tasksRes.error) console.error("Overdue Tasks Error:", tasksRes.error);
-    if (applicationsRes.error) console.error("New Applications Error:", applicationsRes.error); // Dieser Fehler könnte jetzt auftreten, falls die SQL-Syntax immer noch fehlschlägt
+    if (applicationsRes.error) console.error("New Applications Error:", applicationsRes.error);
     if (sampleRequestsRes.error) console.error("Sample Requests Error:", sampleRequestsRes.error);
+    if (plReportRes.error) console.error("P&L Report Error (Dashboard):", plReportRes.error);
     if (productRequestsRes && productRequestsRes.error && !productRequestsRes.error?.message?.includes('relation "public.yeni_urun_talepleri" does not exist')) {
         console.error("Product Requests Error:", productRequestsRes.error);
     }
-
+    
+    const plReport = plReportRes.data;
     const overdueTasks: OverdueTask[] = tasksRes.data || [];
 
-    const formatCurrency = (value: number | null | undefined) => {
-        if (value === null || value === undefined) return 'N/A';
-        return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
-    };
-
-
     return (
-        <div className="space-y-8">
-            {/* KPI Karten */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                 <StatCard
-                     title={content.cardNewApplications || "Neue Anträge"}
-                     value={applicationsRes.count ?? 0} // Sollte jetzt 6 sein (oder was auch immer 9-3 ist)
-                     icon={<FiUserPlus size={28} className="text-indigo-500"/>}
-                     link={`/${locale}/admin/crm/firmalar?status_not_in=${encodeURIComponent(ABGESCHLOSSENE_ANTRAG_STATUS.join(','))}`}
-                     linkText={content.viewApplications || "Anträge prüfen"}
-                 />
-                 <StatCard
-                     title={content.cardActiveOrders || "Aktive Bestellungen"}
-                     value={ordersRes.count ?? 0}
-                     icon={<FiPackage size={28} className="text-yellow-500"/>}
-                     link={`/${locale}/admin/operasyon/siparisler?filter=offen`}
-                     linkText={"Offene Bestellungen ansehen"}
-                 />
-                 <StatCard
-                     title={content.cardOpenSampleRequests || "Neue Musteranfragen"}
-                     value={sampleRequestsRes.count ?? 0}
-                     icon={<FiGift size={28} className="text-purple-500"/>}
-                     link={`/${locale}/admin/operasyon/numune-talepleri?durum=${encodeURIComponent(NEUE_MUSTER_STATUS)}`}
-                     linkText={content.viewSampleRequests || "Neue Muster prüfen"}
-                 />
-                 {productRequestsRes && !productRequestsRes.error?.message?.includes('relation "public.yeni_urun_talepleri" does not exist') && (
-                      <StatCard
-                          title={content.cardNewProductRequests || "Neue Produktanfragen"}
-                          value={productRequestsRes.count ?? 0}
-                          icon={<FiBox size={28} className="text-teal-500"/>}
-                           link={`/${locale}/admin/urun-yonetimi/urun-talepleri?status=${encodeURIComponent(NEUE_PRODUKTANFRAGE_STATUS)}`}
-                          linkText={content.viewProductRequests || "Neue Anfragen prüfen"}
-                      />
-                 )}
-                 <StatCard
-                     title={content.cardCriticalStock || "Kritischer Lagerbestand"}
-                     value={stockRes.data ?? 0}
-                     icon={<FiAlertTriangle size={28} className="text-red-500"/>}
-                     link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
-                     linkText={"Kritische Artikel ansehen"}
-                 />
-            </div>
-
-            {/* Agenda & Schnellaktionen */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                 <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+        // 3 Sütunlu Düzen
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Sol ve Orta Sütun (Ana İçerik) */}
+            <div className="lg:col-span-2 space-y-6">
+                
+                {/* BÖLÜM 1: FİNANSAL GRAFİK */}
+                <FinanzChartClient plReport={plReport} dictionary={dictionary} />
+                
+                {/* BÖLÜM 2: OPERASYONEL GÖSTERGELER (4 Kart) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <StatCard
+                         title={operationalContent.cardNewApplications || "Neue Anträge"}
+                         value={applicationsRes.count ?? 0}
+                         icon={<FiUserPlus size={28} className="text-indigo-500"/>}
+                         link={`/${locale}/admin/crm/firmalar?status_not_in=${encodeURIComponent(ABGESCHLOSSENE_ANTRAG_STATUS.join(','))}`}
+                         linkText={operationalContent.viewApplications || "Anträge prüfen"}
+                     />
+                     <StatCard
+                         title={operationalContent.cardActiveOrders || "Aktive Bestellungen"}
+                         value={ordersRes.count ?? 0}
+                         icon={<FiPackage size={28} className="text-yellow-500"/>}
+                         link={`/${locale}/admin/operasyon/siparisler?filter=offen`}
+                         linkText={"Offene Bestellungen ansehen"}
+                     />
+                     <StatCard
+                         title={operationalContent.cardOpenSampleRequests || "Neue Musteranfragen"}
+                         value={sampleRequestsRes.count ?? 0}
+                         icon={<FiGift size={28} className="text-purple-500"/>}
+                         link={`/${locale}/admin/operasyon/numune-talepleri?durum=${encodeURIComponent(NEUE_MUSTER_STATUS)}`}
+                         linkText={operationalContent.viewSampleRequests || "Neue Muster prüfen"}
+                     />
+                     {productRequestsRes && !productRequestsRes.error?.message?.includes('relation "public.yeni_urun_talepleri" does not exist') && (
+                          <StatCard
+                              title={operationalContent.cardNewProductRequests || "Neue Produktanfragen"}
+                              value={productRequestsRes.count ?? 0}
+                              icon={<FiBox size={28} className="text-teal-500"/>}
+                               link={`/${locale}/admin/urun-yonetimi/urun-talepleri?status=${encodeURIComponent(NEUE_PRODUKTANFRAGE_STATUS)}`}
+                              linkText={operationalContent.viewProductRequests || "Neue Anfragen prüfen"}
+                          />
+                     )}
+                </div>
+                 
+                {/* BÖLÜM 3: AJANDA */}
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
                      <div className="flex justify-between items-center mb-4">
-                         <h2 className="font-serif text-2xl font-bold text-primary">{content.agendaTitle || "Agenda & Dringende Aufgaben"}</h2>
-                         <Link href={`/${locale}/admin/gorevler`} className="text-accent text-sm font-semibold hover:underline flex-shrink-0">{content.viewAllTasks || "Alle Aufgaben anzeigen"} &rarr;</Link>
+                         <h2 className="font-serif text-2xl font-bold text-primary">{pageContent.agendaTitle || "Agenda & Dringende Aufgaben"}</h2>
+                         <Link href={`/${locale}/admin/gorevler`} className="text-accent text-sm font-semibold hover:underline flex-shrink-0">{operationalContent.viewAllTasks || "Alle Aufgaben anzeigen"} &rarr;</Link>
                      </div>
                      {overdueTasks.length > 0 ? (
                          <div className="space-y-3 divide-y divide-gray-100">
@@ -176,39 +191,51 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                                          <p className="font-semibold text-primary group-hover:text-accent transition-colors truncate">{task.baslik}</p>
                                          <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
                                              <FiClock size={12}/>
-                                             {content.dueDate || "Fällig am:"} {formatDate(task.son_tarih, locale)}
+                                             {operationalContent.dueDate || "Fällig am:"} {formatDate(task.son_tarih, locale)}
                                          </p>
                                      </Link>
                                  </div>
                              ))}
                          </div>
                      ) : (
-                         <p className="text-center text-gray-500 py-6">{content.noOverdueTasks || "Aktuell keine überfälligen Aufgaben."}</p>
+                         <p className="text-center text-gray-500 py-6">{operationalContent.noOverdueTasks || "Aktuell keine überfälligen Aufgaben."}</p>
                      )}
                  </div>
-                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                       <h2 className="font-serif text-2xl font-bold text-primary mb-4">{content.quickActionsTitle || "Schnellaktionen"}</h2>
+            </div>
+            
+            {/* Sağ Sütun (Hızlı Eylemler ve Uyarılar) */}
+            <div className="lg:col-span-1 space-y-6">
+                
+                {/* BÖLÜM 1: HIZLI EYLEMLER */}
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                       <h2 className="font-serif text-2xl font-bold text-primary mb-4">{pageContent.quickActionsTitle || "Schnellaktionen"}</h2>
                        <div className="grid grid-cols-3 gap-3">
-                           <QuickActionButton label={content.actionNewCompany || "Neue Firma"} icon={<FiUsers size={20}/>} href={`/${locale}/admin/crm/firmalar/yeni`} />
-                           <QuickActionButton label={content.actionNewProduct || "Neues Produkt"} icon={<FiArchive size={20}/>} href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} />
-                           <QuickActionButton label={content.actionNewOrder || "Neue Bestellung"} icon={<FiPackage size={20}/>} href={`/${locale}/admin/operasyon/siparisler/yeni`} />
+                           <QuickActionButton label={pageContent.actionNewCompany || "Neue Firma"} icon={<FiUsers size={20}/>} href={`/${locale}/admin/crm/firmalar/yeni`} />
+                           <QuickActionButton label={operationalContent.actionNewProduct || "Neues Produkt"} icon={<FiArchive size={20}/>} href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} />
+                           <QuickActionButton label={pageContent.actionNewOrder || "Neue Bestellung"} icon={<FiPackage size={20}/>} href={`/${locale}/admin/operasyon/siparisler/yeni`} />
                            <QuickActionButton label={"Neue Aufgabe"} icon={<FiClipboard size={20}/>} href={`/${locale}/admin/gorevler/ekle`} />
-                           <QuickActionButton label={content.actionNewExpense || "Neue Ausgabe"} icon={<FiBriefcase size={20}/>} href={`/${locale}/admin/idari/finans/giderler`} />
+                           <QuickActionButton label={pageContent.actionNewExpense || "Neue Ausgabe"} icon={<FiBriefcase size={20}/>} href={`/${locale}/admin/idari/finans/giderler`} />
                        </div>
                  </div>
+
+                {/* BÖLÜM 2: UYARILAR (Kritik Stok) */}
+                <StatCard
+                     title={operationalContent.cardCriticalStock || "Kritischer Lagerbestand"}
+                     value={stockRes.data ?? 0}
+                     icon={<FiAlertTriangle size={28} className="text-red-500"/>}
+                     link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
+                     linkText={"Kritische Artikel ansehen"}
+                 />
             </div>
+            
         </div>
     );
 }
 
-// TeamMemberDashboard (KORRIGIERT)
-async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: DashboardProps & { userId: string }) { // cookieStore empfangen
-
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
-    
-    const content = dictionary.adminDashboard || {};
+// TeamMemberDashboard (DÜZELTİLMİŞ)
+async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: DashboardProps & { userId: string }) {
+    const supabase = await createSupabaseServerClient(cookieStore);
+    const content = (dictionary.adminDashboard && dictionary.adminDashboard.dashboardPage) ? dictionary.adminDashboard.dashboardPage : {};
 
     const { data, error } = await supabase.rpc('get_dashboard_summary_for_member', { p_member_id: userId }).single();
 
@@ -249,7 +276,7 @@ async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: 
 }
 
 
-// Hauptkomponente (KORRIGIERT)
+// Hauptkomponente (DÜZELTİLMİŞ)
 export default async function AdminDashboardPage({ 
     params
 }: { 
@@ -258,14 +285,13 @@ export default async function AdminDashboardPage({
     noStore(); // Caching deaktivieren
     const locale = params.locale;
     const dictionary = await getDictionary(locale);
-    const content = dictionary.adminDashboard || {};
+    const pageContent = (dictionary.adminDashboard && dictionary.adminDashboard.dashboardPage) ? dictionary.adminDashboard.dashboardPage : {};
 
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+    // Supabase Client korrekt initialisieren
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return redirect(`/${locale}/login`);
     }
@@ -282,22 +308,20 @@ export default async function AdminDashboardPage({
          return redirect(`/${locale}/portal/dashboard`);
     }
 
-
     return (
         <div className="space-y-8">
             <header>
                 <h1 className="font-serif text-4xl font-bold text-primary">
-                    {userRole === 'Yönetici' ? content.managerTitle : content.teamMemberTitle}
+                    {userRole === 'Yönetici' ? pageContent.managerTitle : pageContent.teamMemberTitle}
                 </h1>
                 <p className="text-text-main/80 mt-1">
-                    {userRole === 'Yönetici' ? content.managerSubtitle : content.teamMemberSubtitle}
+                    {userRole === 'Yönetici' ? pageContent.managerSubtitle : pageContent.teamMemberSubtitle}
                 </p>
             </header>
 
-            {/* --- KORREKTUR: cookieStore wird übergeben --- */}
+            {/* cookieStore wird übergeben */}
             {userRole === 'Yönetici' && <ManagerDashboard locale={locale} dictionary={dictionary} cookieStore={cookieStore} />}
             {userRole === 'Ekip Üyesi' && <TeamMemberDashboard userId={user.id} locale={locale} dictionary={dictionary} cookieStore={cookieStore} />}
-            {/* --- ENDE KORREKTUR --- */}
         </div>
     );
 }
