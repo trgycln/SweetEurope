@@ -1,4 +1,4 @@
-// src/lib/utils.ts (Vollständig und Korrigiert)
+// src/lib/utils.ts (Ihre vorhandenen Funktionen + die neue formatDate Funktion)
 
 // --- Locale Typ Definition ---
 // Da du keine separate i18n-config.ts hast, definieren wir den Typ hier
@@ -68,6 +68,29 @@ export const formatCurrency = (
 };
 
 /**
+ * ++ NEU HINZUGEFÜGT ++
+ * Konvertiert einen Datum-String in ein lesbares, lokalisiertes Format.
+ * @param dateString Der zu formatierende Datum-String (z.B. aus der Datenbank).
+ * @param locale Der Sprachcode für die Formatierung.
+ * @returns Der formatierte Datums- und Zeit-String.
+ */
+export const formatDate = (dateString: string | null | undefined, locale: Locale): string => {
+    if (!dateString) return '-';
+    try {
+        // Bestimme das Locale-Format für die korrekte Darstellung
+        const localeFormat = locale === 'tr' ? 'tr-TR' : 'de-DE';
+        return new Date(dateString).toLocaleString(localeFormat, {
+            dateStyle: 'long',  // z.B. "20. Oktober 2025"
+            timeStyle: 'short', // z.B. "10:30"
+        });
+    } catch (error) {
+        console.error("Ungültiges Datumsformat:", dateString, error);
+        return dateString; // Fallback auf den Originalstring
+    }
+};
+
+
+/**
  * Konvertiert einen Text in ein URL-freundliches "Slug"-Format.
  * @param text Der zu konvertierende Text.
  * @returns Der Slug-String.
@@ -88,5 +111,3 @@ export function slugify(text: string): string {
         .replace(/^-+/, '') // Führende '-' entfernen
         .replace(/-+$/, ''); // Nachfolgende '-' entfernen
 }
-
-// Hier könnten weitere Utility-Funktionen hinzugefügt werden...

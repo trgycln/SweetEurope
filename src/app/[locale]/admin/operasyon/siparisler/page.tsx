@@ -1,140 +1,262 @@
-// src/app/admin/operasyon/siparisler/page.tsx (NİHAİ DÜZELTME)
+// src/app/[locale]/admin/operasyon/siparisler/page.tsx
+// KORRIGIERTE VERSION (await cookies + await createClient)
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { FiPackage, FiCalendar, FiDollarSign, FiCheckCircle, FiClock, FiTruck, FiXCircle } from 'react-icons/fi';
 import { getDictionary } from '@/dictionaries';
-import StatusUpdateButton from './StatusUpdateButton';
-import SiparisFiltreleri from './SiparisFiltreleri';
-import { Enums } from '@/lib/supabase/database.types';
+import StatusUpdateButton from './StatusUpdateButton'; // Stellen Sie sicher, dass dieser Pfad korrekt ist
+import SiparisFiltreleri from './SiparisFiltreleri'; // Stellen Sie sicher, dass dieser Pfad korrekt ist
+import { Enums, Tables, Database } from '@/lib/supabase/database.types'; // Database und Tables importieren
+import { Locale } from '@/i18n-config';
+import { redirect } from 'next/navigation';
+import { formatCurrency, formatDate } from '@/lib/utils'; // utils importieren
+import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 
-// ######################################################################
-// ###                      NİHAİ ÇÖZÜM BURADA                        ###
-// ### Bu satır, Next.js'e bu sayfayı her zaman dinamik olarak         ###
-// ###    oluşturmasını söyleyerek 'searchParams' sorununu çözer.      ###
-// ######################################################################
 export const dynamic = 'force-dynamic';
 
-type SiparisStatusKey = 'processing' | 'shipped' | 'delivered' | 'cancelled';
+// Typ für die erweiterten Siparis-Daten mit Firma
+type SiparisWithFirma = Tables<'siparisler'> & {
+    firma: Pick<Tables<'firmalar'>, 'unvan'> | null; // Firma-Objekt oder null
+};
 
-const STATUS_ICONS: Record<string, React.ElementType> = { 'processing': FiClock, 'shipped': FiTruck, 'delivered': FiCheckCircle, 'cancelled': FiXCircle };
-const STATUS_COLORS: Record<string, string> = { 'processing': 'text-yellow-600 bg-yellow-100', 'shipped': 'text-blue-600 bg-blue-100', 'delivered': 'text-green-600 bg-green-100', 'cancelled': 'text-red-600 bg-red-100' };
+// Mögliche Statuswerte aus der DB (inklusive Ihrer spezifischen Werte)
+const DB_STATUSES: ReadonlyArray<Enums<'siparis_durumu'>> = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'Teslim Edildi', 'İptal Edildi', 'processing']; // ReadonlyArray für Sicherheit
+const OFFENE_STATUS: ReadonlyArray<Enums<'siparis_durumu'>> = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
 
-export default async function AlleSiparislerPage({ searchParams }: { searchParams?: { status?: string; firmaId?: string; q?: string; } }) {
-    const supabase = createSupabaseServerClient();
-    const dictionary = await getDictionary('de');
-    const orderStatusTranslations = dictionary.orderStatuses;
+// Status Icons und Farben (mit Anführungszeichen für Schlüssel mit Sonderzeichen)
+const STATUS_ICONS: Record<string, React.ElementType> = {
+    'Beklemede': FiClock,
+    'Hazırlanıyor': FiClock,
+    'processing': FiClock,
+    'Yola Çıktı': FiTruck,
+    'Teslim Edildi': FiCheckCircle,
+    'İptal Edildi': FiXCircle
+};
+const STATUS_COLORS: Record<string, string> = {
+    'Beklemede': 'text-gray-600 bg-gray-100',
+    'Hazırlanıyor': 'text-blue-600 bg-blue-100',
+    'processing': 'text-blue-600 bg-blue-100',
+    'Yola Çıktı': 'text-purple-600 bg-purple-100', // Farbe angepasst
+    'Teslim Edildi': 'text-green-600 bg-green-100',
+    'İptal Edildi': 'text-red-600 bg-red-100'
+};
 
+
+// Props-Typ für die Seite
+interface AlleSiparislerPageProps { // Props-Typ hinzugefügt
+    params: { locale: Locale };
+    searchParams?: { status?: string; firmaId?: string; q?: string; filter?: string; };
+}
+
+export default async function AlleSiparislerPage({
+    params: { locale }, // locale aus params holen
+    searchParams
+}: AlleSiparislerPageProps) { // Props-Typ verwenden
+
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies(); // await hinzufügen
+    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
+    // --- ENDE KORREKTUR ---
+
+    const dictionary = await getDictionary(locale);
+    // Sicherer Zugriff auf Dictionary-Inhalte
+    const content = (dictionary as any).adminDashboard?.ordersPage || {};
+    const orderStatusTranslations = (dictionary as any).orderStatuses || {}; // Pfad zu Status-Übersetzungen anpassen!
+
+    // Benutzer prüfen
+    const { data: { user }, error: userAuthError } = await supabase.auth.getUser(); // Funktioniert jetzt
+    if (!user) {
+        console.log("Kein Benutzer gefunden in AlleSiparislerPage, redirect zu Login.");
+        return redirect(`/${locale}/login?next=/admin/operasyon/siparisler`);
+    }
+     // Optional: Rollenprüfung
+     // const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+     // if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') { return redirect(`/${locale}/dashboard`); }
+
+    // Abfrage erstellen
     let query = supabase
         .from('siparisler')
-        .select(`*, firma: firmalar!firma_id (unvan)`);
+        // Korrekter Join-Syntax für Supabase JS v2 (oder höher): `tabelle(spalten)` oder `alias:tabelle(spalten)`
+        // Annahme: Es gibt eine direkte Beziehung 'firma_id' -> 'firmalar.id'
+        .select(`*, firma:firmalar (unvan)`); // Alias 'firma' verwenden, 'firmalar' ist der Tabellenname
 
-    if (searchParams?.status) {
-        query = query.eq('siparis_durumu', searchParams.status);
-    }
-    if (searchParams?.firmaId) {
-        query = query.eq('firma_id', searchParams.firmaId);
-    }
-    if (searchParams?.q) {
-        const aramaTerimi = `%${searchParams.q}%`;
-        const { data: eslesenFirmalar } = await supabase.from('firmalar').select('id').ilike('unvan', aramaTerimi);
-        const firmaIdListesi = eslesenFirmalar?.map(f => f.id) || [];
-        if (firmaIdListesi.length > 0) {
-            query = query.in('firma_id', firmaIdListesi);
-        } else {
-            query = query.eq('id', '00000000-0000-0000-0000-000000000000');
-        }
-    }
+    // Filter anwenden
+    const statusParam = searchParams?.status as Enums<'siparis_durumu'> | undefined;
+    const firmaIdParam = searchParams?.firmaId;
+    const queryParam = searchParams?.q;
+    const filterParam = searchParams?.filter;
 
-    const [siparislerRes, firmalarRes] = await Promise.all([
-        query.order('siparis_tarihi', { ascending: false }),
-        supabase.from('firmalar').select('id, unvan').order('unvan')
-    ]);
+    // Filterlogik (Priorität beachten)
+    let appliedStatusFilter: Enums<'siparis_durumu'>[] | null = null; // Für die Filterkomponente merken
 
-    const { data: siparisler, error } = siparislerRes;
-    const { data: firmalar, error: firmalarError } = firmalarRes; // firmalarRes'den firmalar'ı al
-
-    if (error || firmalarError) { // İki hatadan birini kontrol et
-        console.error("Siparişler veya firmalar çekilirken hata oluştu:", error || firmalarError);
-        return <div className="p-6 text-red-500">Veri yüklenirken bir hata oluştu.</div>;
+    if (statusParam && DB_STATUSES.includes(statusParam)) {
+        query = query.eq('siparis_durumu', statusParam);
+        appliedStatusFilter = [statusParam];
+    } else if (filterParam === 'offen') {
+        query = query.in('siparis_durumu', OFFENE_STATUS);
+        appliedStatusFilter = [...OFFENE_STATUS]; // Kopie übergeben
     }
 
-    const durumSecenekleri = Object.entries(orderStatusTranslations).map(([anahtar, deger]) => ({
-        anahtar: anahtar as SiparisStatusKey,
-        deger: deger as string
+    if (firmaIdParam) {
+        query = query.eq('firma_id', firmaIdParam);
+    }
+
+    // Suche implementieren
+    if (queryParam) {
+        const searchQuery = `%${queryParam}%`;
+        // Suche in Firmennamen über den Join oder in der Bestell-ID
+        // WICHTIG: Die .or() Syntax muss auf Spalten der Haupttabelle ('siparisler')
+        // oder korrekt referenzierten Join-Tabellen angewendet werden.
+        // Die Suche nach Firmennamen über den Join erfordert spezielle Syntax oder eine Subquery.
+
+        // Einfachere Variante: Nur in Bestell-ID suchen
+         query = query.ilike('id::text', searchQuery); // Suche in ID (als Text konvertiert)
+
+        // Komplexere Variante (Suche in Firma ODER ID):
+        /*
+        const { data: matchingFirmaIds, error: firmaSearchError } = await supabase
+             .from('firmalar')
+             .select('id')
+             .ilike('unvan', searchQuery);
+        if (firmaSearchError) console.error("Fehler bei Firmensuche:", firmaSearchError);
+        const firmaIds = matchingFirmaIds?.map(f => f.id) || [];
+        query = query.or(`id::text.ilike.${searchQuery},firma_id.in.(${firmaIds.length > 0 ? firmaIds.map(id => `"${id}"`).join(',') : '"00000000-0000-0000-0000-000000000000"'})`);
+        */
+    }
+
+
+    // Sortieren und Daten abrufen
+    const { data: siparislerData, error: siparislerError } = await query.order('siparis_tarihi', { ascending: false });
+
+    // Firmen separat laden (für Filter-Dropdown)
+    const { data: firmalar, error: firmalarError } = await supabase.from('firmalar').select('id, unvan').order('unvan');
+
+    if (siparislerError || firmalarError) {
+        console.error("Fehler beim Laden von Bestellungen oder Firmen:", siparislerError || firmalarError);
+        return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Fehler beim Laden der Daten. Details in den Server-Logs.</div>;
+    }
+
+    // Typ-Anpassung
+    const siparisler: SiparisWithFirma[] = (siparislerData as any[]) || []; // Sicherer Cast
+
+    // Optionen für Status-Dropdown erstellen
+    const durumSecenekleri = DB_STATUSES.map(dbStatus => ({
+        anahtar: dbStatus, // Der DB-Wert
+        deger: orderStatusTranslations[dbStatus] || dbStatus // Übersetzung oder DB-Wert
     }));
 
-    const formatCurrency = (amount: number | null) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount || 0);
-    const formatDate = (dateStr: string | null) => new Date(dateStr || 0).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
     return (
-        <main className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-            <header>
-                <h1 className="font-serif text-4xl font-bold text-primary">Sipariş Yönetimi</h1>
-                <p className="text-text-main/80 mt-1">{siparisler?.length || 0} adet sipariş listeleniyor.</p>
+        // Container hinzugefügt für Padding etc.
+        <main className="space-y-8">
+            <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div>
+                     <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Bestellverwaltung'}</h1>
+                     <p className="text-text-main/80 mt-1">{siparisler.length} {content.ordersListed || 'Bestellungen gefunden.'}</p> {/* Angepasst */}
+                </div>
+                 {/* Optional: Button für "Neue Bestellung" (ohne spezifische Firma) */}
+                 {/* <Link href={`/${locale}/admin/operasyon/siparisler/yeni`} ... >Neue Bestellung</Link> */}
             </header>
-            
-            <SiparisFiltreleri firmalar={firmalar || []} durumlar={durumSecenekleri} />
 
-            {(!siparisler || siparisler.length === 0) ? (
-                 <div className="mt-12 text-center p-10 border-2 border-dashed border-bg-subtle rounded-lg bg-white shadow-sm">
+             {/* Filterkomponente */}
+             <SiparisFiltreleri
+                 firmalar={firmalar || []}
+                 durumlar={durumSecenekleri}
+                 locale={locale}
+                 dictionary={dictionary} // Gesamtes Dictionary übergeben
+             />
+
+
+            {siparisler.length === 0 ? (
+                <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm"> {/* Styling angepasst */}
                     <FiPackage className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                        {Object.keys(searchParams || {}).length > 0 ? 'Filtreye Uygun Sipariş Bulunamadı' : 'Henüz Sipariş Yok'}
+                         {Object.keys(searchParams || {}).length > 0 ? (content.noOrdersFoundFilter || 'Keine Bestellungen für Filter gefunden') : (content.noOrdersYet || 'Keine Bestellungen vorhanden')}
                     </h2>
-                 </div>
+                     <p className="text-gray-500 mt-1">
+                         {Object.keys(searchParams || {}).length > 0 ? 'Versuchen Sie, Ihre Filterkriterien zu ändern.' : ''}
+                     </p>
+                </div>
             ) : (
-                <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-                    <table className="min-w-full divide-y divide-bg-subtle">
-                        <thead className="bg-bg-subtle">
+                <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
                             <tr>
-                                {['Sipariş No', 'Firma', 'Tarih', 'Brüt Tutar', 'Durum', 'Eylemler'].map(header => (
-                                    <th key={header} className="px-6 py-3 text-left text-xs font-bold text-text-main uppercase tracking-wider">{header}</th>
-                                ))}
+                                 {/* Spaltenüberschriften */}
+                                 {['Bestell-Nr.', 'Firma', 'Datum', 'Gesamt (Brutto)', 'Status', 'Aktionen'].map(header => (
+                                     <th key={header} className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{header}</th>
+                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-bg-subtle">
+                        <tbody className="bg-white divide-y divide-gray-200">
                             {siparisler.map((siparis) => {
-                                const firmaUnvan = (siparis as any).firma?.unvan || 'Bilinmiyor';
-                                const statusKey = siparis.siparis_durumu as SiparisStatusKey;
-                                const translatedText = (orderStatusTranslations as any)[statusKey] || statusKey;
-                                const StatusIcon = STATUS_ICONS[statusKey] || FiPackage;
-                                const statusColor = STATUS_COLORS[statusKey] || 'text-gray-600 bg-gray-100';
-                                
+                                // Sicherer Zugriff auf Firma, da LEFT JOIN verwendet wird
+                                const firmaUnvan = siparis.firma?.unvan || 'Unbekannt';
+                                const dbStatus = siparis.siparis_durumu;
+                                // Sicherer Zugriff auf Übersetzungen
+                                const translatedText = (orderStatusTranslations as Record<string, string>)[dbStatus] || dbStatus;
+                                const StatusIcon = STATUS_ICONS[dbStatus] || FiPackage; // Fallback Icon
+                                const statusColor = STATUS_COLORS[dbStatus] || 'text-gray-600 bg-gray-100'; // Fallback Farbe
+
                                 return (
-                                    <tr key={siparis.id} className="hover:bg-bg-subtle/50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <Link href={`/admin/operasyon/siparisler/${siparis.id}`} className="font-bold text-accent hover:underline">
+                                    <tr key={siparis.id} className="hover:bg-gray-50/50 transition-colors">
+                                        {/* Bestellnummer Link */}
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <Link href={`/${locale}/admin/operasyon/siparisler/${siparis.id}`} className="font-bold text-accent hover:underline">
                                                 #{siparis.id.substring(0, 8).toUpperCase()}
                                             </Link>
                                         </td>
-                                        <td className="px-6 py-4 text-sm">{firmaUnvan}</td>
-                                        <td className="px-6 py-4 text-sm">{formatDate(siparis.siparis_tarihi)}</td>
-                                        <td className="px-6 py-4 text-sm font-semibold">{formatCurrency(siparis.toplam_tutar_brut)}</td>
-                                        <td className="px-6 py-4">
+                                        {/* Firma Link */}
+                                        <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                             {siparis.firma_id ? (
+                                                 <Link href={`/${locale}/admin/crm/firmalar/${siparis.firma_id}`} className="hover:underline hover:text-accent">
+                                                     {firmaUnvan}
+                                                 </Link>
+                                             ) : (
+                                                 firmaUnvan
+                                             )}
+                                        </td>
+                                        {/* Datum */}
+                                        <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                                             {formatDate(siparis.siparis_tarihi, locale)}
+                                        </td>
+                                        {/* Betrag */}
+                                        <td className="px-6 py-4 text-sm font-semibold text-gray-900 text-right whitespace-nowrap">
+                                             {formatCurrency(siparis.toplam_tutar_brut, locale)} {/* Locale übergeben */}
+                                        </td>
+                                        {/* Status Badge */}
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full ${statusColor}`}>
-                                                <StatusIcon /> {translatedText}
+                                                <StatusIcon size={12}/> {translatedText}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm space-x-2">
-                                            {statusKey === 'processing' && (
-                                                <StatusUpdateButton 
-                                                    siparisId={siparis.id} 
-                                                    neuerStatus="shipped"
-                                                    label="Gönder"
-                                                    icon={<FiTruck size={12}/>}
-                                                    className="bg-blue-100 text-blue-700 hover:bg-blue-200"
-                                                />
-                                            )}
-                                            {statusKey === 'shipped' && (
-                                                <StatusUpdateButton 
-                                                    siparisId={siparis.id} 
-                                                    neuerStatus="delivered"
-                                                    label="Teslim Et"
-                                                    icon={<FiCheckCircle size={12}/>}
-                                                    className="bg-green-100 text-green-700 hover:bg-green-200"
-                                                />
-                                            )}
+                                        {/* Aktionen (Status Update Buttons) */}
+                                        <td className="px-6 py-4 text-sm space-x-2 whitespace-nowrap">
+                                             {/* Zeigt Buttons basierend auf aktuellem Status */}
+                                             {/* "Als versandt markieren" */}
+                                             {(dbStatus === 'Beklemede' || dbStatus === 'processing' || dbStatus === 'Hazırlanıyor') && ( // 'Hazırlanıyor' hinzugefügt
+                                                 <StatusUpdateButton
+                                                     siparisId={siparis.id}
+                                                     neuerStatus="Yola Çıktı" // Nächster Status
+                                                     label={content.markShipped || "Als versandt markieren"}
+                                                     icon={<FiTruck size={12}/>}
+                                                     className="bg-purple-100 text-purple-700 hover:bg-purple-200" // Farbe angepasst
+                                                     locale={locale} // Locale übergeben
+                                                 />
+                                             )}
+                                             {/* "Als zugestellt markieren" */}
+                                             {dbStatus === 'Yola Çıktı' && (
+                                                  <StatusUpdateButton
+                                                      siparisId={siparis.id}
+                                                      neuerStatus="Teslim Edildi" // Nächster Status
+                                                      label={content.markDelivered || "Als zugestellt markieren"}
+                                                      icon={<FiCheckCircle size={12}/>}
+                                                      className="bg-green-100 text-green-700 hover:bg-green-200"
+                                                      locale={locale} // Locale übergeben
+                                                  />
+                                             )}
+                                              {/* Optional: Stornieren Button */}
+                                             {/* {(dbStatus === 'Beklemede' || dbStatus === 'processing') && ( ... )} */}
                                         </td>
                                     </tr>
                                 );
@@ -143,6 +265,7 @@ export default async function AlleSiparislerPage({ searchParams }: { searchParam
                     </table>
                 </div>
             )}
+            {/* Optional: Paginierung hier */}
         </main>
     );
 }

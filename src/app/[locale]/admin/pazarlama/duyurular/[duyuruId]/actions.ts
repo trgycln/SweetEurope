@@ -1,11 +1,15 @@
+// src/app/[locale]/admin/pazarlama/duyurular/[duyuruId]/actions.ts
+// KORRIGIERTE VERSION (await cookies + await createClient in allen Funktionen + locale für redirect)
+
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { TablesUpdate } from '@/lib/supabase/database.types';
+import { TablesUpdate, Enums } from '@/lib/supabase/database.types'; // Enums importieren
+import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 
-// Typ für den Rückgabewert (identisch zur create Action)
+// Typ für den Rückgabewert
 export type UpdateFormState = {
     success: boolean;
     message: string;
@@ -13,20 +17,27 @@ export type UpdateFormState = {
 } | null;
 
 export async function updateDuyuruAction(
-    duyuruId: string, // Die ID der zu bearbeitenden Ankündigung
+    duyuruId: string,
     prevState: UpdateFormState,
     formData: FormData
 ): Promise<UpdateFormState> {
-    const supabase = createSupabaseServerClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    // --- ENDE KORREKTUR ---
+
+    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
     if (!user) {
         return { success: false, message: 'Nicht authentifiziert.' };
     }
+    // Optional: Rollenprüfung
+    // ...
 
+    // Formulardaten auslesen
     const baslik = formData.get('baslik') as string;
     const icerik = formData.get('icerik') as string | null;
-    const hedef_kitle = formData.get('hedef_kitle') as TablesUpdate<'duyurular'>['hedef_kitle'];
+    const hedef_kitle = formData.get('hedef_kitle') as Enums<'hedef_rol'> | null; // Typ angepasst
     const aktif = formData.get('aktif') === 'on';
     const yayin_tarihi = formData.get('yayin_tarihi') as string | null;
     const bitis_tarihi = formData.get('bitis_tarihi') as string | null;
@@ -35,42 +46,49 @@ export async function updateDuyuruAction(
         return { success: false, message: 'Fehler: Betreff und Zielgruppe sind Pflichtfelder.' };
     }
 
-    // Daten für das Update vorbereiten
     const updateData: TablesUpdate<'duyurular'> = {
         baslik,
         icerik: icerik || null,
         hedef_kitle,
         aktif,
-        // olusturan_id wird normalerweise nicht aktualisiert
         yayin_tarihi: yayin_tarihi ? new Date(yayin_tarihi).toISOString() : new Date().toISOString(),
         bitis_tarihi: bitis_tarihi ? new Date(bitis_tarihi).toISOString() : null,
     };
 
-    // In Datenbank aktualisieren, basierend auf der ID
     const { error } = await supabase
         .from('duyurular')
         .update(updateData)
-        .eq('id', duyuruId); // Wichtig: Nur den spezifischen Datensatz aktualisieren
+        .eq('id', duyuruId);
 
     if (error) {
         console.error('Fehler beim Aktualisieren der Ankündigung:', error);
         return { success: false, message: 'Datenbankfehler: Die Ankündigung konnte nicht aktualisiert werden.' };
     }
 
-    // Cache für die Liste UND die Detailseite leeren
     revalidatePath('/admin/pazarlama/duyurular');
     revalidatePath(`/admin/pazarlama/duyurular/${duyuruId}`);
+    revalidatePath('/portal/dashboard');
 
-    // Erfolg! Gib eine Erfolgsmeldung zurück.
     return { success: true, message: 'Ankündigung erfolgreich aktualisiert!' };
-    // Keine Weiterleitung hier, die Komponente kann entscheiden, was als Nächstes passiert.
 }
 
-// Funktion zum Löschen einer Ankündigung (Bonus)
-export async function deleteDuyuruAction(duyuruId: string): Promise<{ success: boolean; message: string }> {
-    const supabase = createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { success: false, message: 'Nicht authentifiziert.' };
+// Funktion zum Löschen (KORRIGIERT)
+export async function deleteDuyuruAction(
+    duyuruId: string,
+    locale: string // <-- WICHTIG: Locale als Parameter empfangen
+): Promise<{ success: boolean; message: string }> {
+
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    // --- ENDE KORREKTUR ---
+
+    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    if (!user) {
+        return { success: false, message: 'Nicht authentifiziert.' };
+    }
+    // Optional: Rollenprüfung
+    // ...
 
     const { error } = await supabase
         .from('duyurular')
@@ -83,6 +101,8 @@ export async function deleteDuyuruAction(duyuruId: string): Promise<{ success: b
     }
 
     revalidatePath('/admin/pazarlama/duyurular');
-    // Nach dem Löschen leiten wir direkt zur Liste weiter.
-    redirect('/admin/pazarlama/duyurular');
+    revalidatePath('/portal/dashboard');
+
+    // KORREKTUR: Sprachspezifischer Redirect
+    redirect(`/${locale}/admin/pazarlama/duyurular`);
 }

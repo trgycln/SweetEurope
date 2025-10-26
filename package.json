@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "gen:types": "chcp 65001 && npx supabase gen types typescript --project-id \"atydffkpyvxcmzxyibhj\" --schema public > src/lib/supabase/database.types.ts"
@@ -31,7 +31,8 @@
     "recharts": "^3.2.1",
     "sonner": "^2.0.7",
     "use-debounce": "^10.0.6",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

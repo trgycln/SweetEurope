@@ -1,38 +1,67 @@
+// src/app/[locale]/admin/pazarlama/duyurular/page.tsx
+// KORRIGIERTE VERSION (await cookies + await createClient)
+
 import React from 'react';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Database, Tables, Enums } from '@/lib/supabase/database.types';
 import { FiPlus, FiRss, FiCalendar } from 'react-icons/fi';
 import DuyuruFiltreleri from './DuyuruFiltreleri';
+import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
+import { Locale } from '@/i18n-config'; // Importiere Locale
+import { redirect } from 'next/navigation'; // Import für Redirect
+import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
+// Typ für die Zeile in der Tabelle
 type DuyuruRow = Tables<'duyurular'> & {
     olusturan: {
         tam_ad: string | null;
     } | null;
 };
 
-const HEDEF_RENKLERI: Record<Enums<'hedef_rol'>, string> = {
+// Typ für Zielgruppe Enum
+type HedefRol = Enums<'hedef_rol'>;
+
+// Styling für Zielgruppen
+const HEDEF_RENKLERI: Record<string, string> = { // String als Schlüssel für Flexibilität
     "Tüm Partnerler": "bg-blue-100 text-blue-800",
     "Sadece Alt Bayiler": "bg-purple-100 text-purple-800",
 };
 
-export default async function DuyurularListPage({
-    searchParams,
-}: {
+// Props-Typ für die Seite
+interface DuyurularListPageProps { // Props-Typ hinzugefügt
+    params: { locale: Locale };
     searchParams?: {
         q?: string;
         aktif?: string;
         hedef?: string;
     };
-}) {
-    const supabase = createSupabaseServerClient();
+}
 
+export default async function DuyurularListPage({
+    params: { locale }, // locale aus params holen
+    searchParams
+}: DuyurularListPageProps) { // Props-Typ verwenden
+    noStore(); // Caching deaktivieren
+
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies(); // await hinzufügen
+    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
+    // --- ENDE KORREKTUR ---
+
+    // Optional: Benutzerprüfung
+    // const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    // if (!user) { return redirect(`/${locale}/login`); }
+    // ... Rollenprüfung ...
+
+    // Filterwerte extrahieren
     const searchQuery = searchParams?.q || '';
     const aktifFilter = searchParams?.aktif || '';
     const hedefFilter = searchParams?.hedef || '';
 
+    // Basisabfrage mit Join
     let query = supabase
         .from('duyurular')
         .select(`
@@ -40,99 +69,111 @@ export default async function DuyurularListPage({
             olusturan:profiller(tam_ad)
         `);
 
+    // Filter anwenden
     if (searchQuery) {
         query = query.ilike('baslik', `%${searchQuery}%`);
     }
     if (aktifFilter) {
+        // Stellt sicher, dass der String 'true' zu boolean true wird
         query = query.eq('aktif', aktifFilter === 'true');
     }
     if (hedefFilter) {
-        query = query.eq('hedef_kitle', hedefFilter);
+        query = query.eq('hedef_kitle', hedefFilter as HedefRol); // Typ-Zuweisung
     }
-    
+
+    // Daten abrufen
     const { data: duyurular, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
-        console.error("Server: Duyuru verileri çekilirken hata oluştu:", JSON.stringify(error, null, 2));
-        return <div className="p-6 text-red-500">Duyuru listesi yüklenirken bir hata oluştu.</div>;
+        console.error("Server: Fehler beim Laden der Ankündigungen:", JSON.stringify(error, null, 2));
+        return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Fehler beim Laden der Ankündigungsliste. Details: {error.message}</div>;
     }
 
-    const duyuruListesi: DuyuruRow[] = duyurular as any;
+    // Typ-Zuweisung
+    const duyuruListesi: DuyuruRow[] = (duyurular as any[]) || []; // Sicherer Cast
     const duyuruSayisi = duyuruListesi.length;
-    
-    // Filtre bileşenine göndermek için ENUM değerlerini alıyoruz
-    const hedefKitleOptions: Enums<'hedef_rol'>[] = ["Tüm Partnerler", "Sadece Alt Bayiler"];
 
+    // Optionen für Filter-Dropdown
+    const hedefKitleOptions: HedefRol[] = ["Tüm Partnerler", "Sadece Alt Bayiler"];
+
+    // Datumsformatierung (Locale-sensitiv)
     const formatDate = (dateStr: string | null) => {
         if (!dateStr) return 'N/A';
-        return new Date(dateStr).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        try {
+             return new Date(dateStr).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
+        } catch {
+             return new Date(dateStr).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
     };
 
     return (
         <div className="space-y-8">
+            {/* Header */}
             <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="font-serif text-4xl font-bold text-primary">Duyuru Yönetimi</h1>
-                    <p className="text-text-main/80 mt-1">{duyuruSayisi} adet duyuru listeleniyor.</p>
+                    <h1 className="font-serif text-4xl font-bold text-primary">Ankündigungen</h1> {/* Angepasst */}
+                    <p className="text-text-main/80 mt-1">{duyuruSayisi} Ankündigungen gefunden.</p> {/* Angepasst */}
                 </div>
-                {/* Gelecek adımda bu link için yeni bir sayfa oluşturacağız */}
-                <Link href="/admin/pazarlama/duyurular/yeni" passHref>
+                {/* Link zur Erstellseite (sprachspezifisch) */}
+                <Link href={`/${locale}/admin/pazarlama/duyurular/yeni`} passHref>
                     <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
                         <FiPlus size={18} />
-                        Yeni Duyuru Oluştur
+                        Neue Ankündigung {/* Angepasst */}
                     </button>
                 </Link>
             </header>
 
-            <DuyuruFiltreleri hedefKitleOptions={hedefKitleOptions} />
+            {/* Filter */}
+            <DuyuruFiltreleri hedefKitleOptions={hedefKitleOptions} locale={locale} /> {/* Locale übergeben */}
 
+            {/* Liste oder "Keine Ergebnisse" */}
             {duyuruSayisi === 0 ? (
-                <div className="mt-12 text-center p-10 border-2 border-dashed border-bg-subtle rounded-lg bg-white shadow-sm">
+                <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                     <FiRss className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                        {searchQuery || aktifFilter || hedefFilter ? 'Filtreye Uygun Duyuru Bulunamadı' : 'Henüz Duyuru Oluşturulmamış'}
+                        {searchQuery || aktifFilter || hedefFilter ? 'Keine Ankündigungen für Filter gefunden' : 'Noch keine Ankündigungen erstellt'}
                     </h2>
-                    <p className="mt-2 text-text-main/70">
-                        {searchQuery || aktifFilter || hedefFilter ? 'Arama kriterlerinizi değiştirmeyi deneyin.' : 'Başlamak için yeni bir duyuru oluşturun.'}
+                    <p className="mt-2 text-gray-600">
+                        {searchQuery || aktifFilter || hedefFilter ? 'Versuchen Sie, Ihre Suchkriterien zu ändern.' : 'Erstellen Sie eine neue Ankündigung, um zu beginnen.'}
                     </p>
                 </div>
             ) : (
-                <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-                    <table className="min-w-full divide-y divide-bg-subtle">
-                        <thead className="bg-bg-subtle">
+                <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
                             <tr>
-                                {['Başlık', 'Hedef Kitle', 'Oluşturan', 'Yayın Tarihi', 'Durum'].map(header => (
-                                    <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-text-main uppercase tracking-wider">
+                                {['Titel', 'Zielgruppe', 'Erstellt von', 'Veröffentlicht am', 'Status'].map(header => (
+                                    <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                         {header}
                                     </th>
                                 ))}
-                                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Düzenle</span></th>
+                                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Bearbeiten</span></th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-bg-subtle">
+                        <tbody className="bg-white divide-y divide-gray-200">
                             {duyuruListesi.map((duyuru) => (
-                                <tr key={duyuru.id} className="hover:bg-bg-subtle/50 transition-colors duration-150">
+                                <tr key={duyuru.id} className="hover:bg-gray-50/50 transition-colors duration-150">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
-                                        {/* Gelecekte bu link düzenleme sayfasına gidecek */}
-                                        <Link href={`/admin/pazarlama/duyurular/${duyuru.id}`} className="hover:underline text-accent">
+                                        {/* Link zur Bearbeiten-Seite (sprachspezifisch) */}
+                                        <Link href={`/${locale}/admin/pazarlama/duyurular/${duyuru.id}`} className="hover:underline text-accent">
                                             {duyuru.baslik}
                                         </Link>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold leading-5 rounded-full ${HEDEF_RENKLERI[duyuru.hedef_kitle] || 'bg-gray-100'}`}>
+                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold leading-5 rounded-full ${HEDEF_RENKLERI[duyuru.hedef_kitle] || 'bg-gray-100 text-gray-800'}`}>
                                             {duyuru.hedef_kitle}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{duyuru.olusturan?.tam_ad || 'Bilinmiyor'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{duyuru.olusturan?.tam_ad || 'Unbekannt'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{formatDate(duyuru.yayin_tarihi)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                         <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${duyuru.aktif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                            {duyuru.aktif ? 'Aktif' : 'Pasif'}
+                                            {duyuru.aktif ? 'Aktiv' : 'Inaktiv'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <Link href={`/admin/pazarlama/duyurular/${duyuru.id}`} className="text-accent hover:text-accent-dark">
-                                            Düzenle
+                                        <Link href={`/${locale}/admin/pazarlama/duyurular/${duyuru.id}`} className="text-accent hover:text-accent-dark">
+                                            Bearbeiten
                                         </Link>
                                     </td>
                                 </tr>

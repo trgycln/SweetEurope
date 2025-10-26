@@ -1,69 +1,149 @@
+// src/app/[locale]/admin/crm/firmalar/[firmaId]/actions.ts
+// KORRIGIERTE VERSION (await cookies + await createClient)
+
 'use server';
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Enums, Tables } from "@/lib/supabase/database.types";
 import { revalidatePath } from "next/cache";
+import { sendNotification } from '@/lib/notificationUtils'; // Importieren
+import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 
 type FirmaStatus = Enums<'firma_status'>;
+type FirmaKategorie = Enums<'firma_kategori'>;
 
-// Bu "akıllı" fonksiyon, hem firma bilgilerini günceller hem de statü değişikliğini loglar.
+// Typ für Rückgabewert
+type UpdateFirmaResult = {
+    success: boolean;
+    data?: Tables<'firmalar'>; // Nur bei Erfolg senden
+    error?: string;
+};
+
+// Diese Server Action aktualisiert die Firmendaten
 export async function updateFirmaAction(
-    firmaId: string, 
-    oncekiStatus: FirmaStatus,
+    firmaId: string,
+    oncekiStatus: FirmaStatus | null, // Kann auch null sein, falls vorher nicht gesetzt
     formData: FormData
-) {
-    const supabase = createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { error: "Yetkisiz işlem." };
+): Promise<UpdateFirmaResult> {
 
-    const yeniStatus = formData.get('status') as FirmaStatus;
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies(); // await hinzufügen
+    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
+    // --- ENDE KORREKTUR ---
 
-    // Formdan gelen diğer verileri alıyoruz.
-    const updatedData: Partial<Tables<'firmalar'>> = {
-        unvan: formData.get('unvan') as string,
-        kategori: formData.get('kategori') as Enums<'firma_kategori'>,
-        status: yeniStatus,
-        adres: formData.get('adres') as string,
-        telefon: formData.get('telefon') as string,
-        email: formData.get('email') as string,
-        referans_olarak_goster: formData.get('referans_olarak_goster') === 'on',
-    };
+    // Benutzerprüfung
+    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    if (!user) return { success: false, error: "Nicht authentifiziert." }; // Fehlermeldung angepasst
 
-    // Firmanın ana bilgilerini güncelleme işlemi
+    // --- Formulardaten sicher auslesen ---
+    const unvan = formData.get('unvan') as string | null;
+    const kategorie = formData.get('kategori') as FirmaKategorie | null;
+    const yeniStatus = formData.get('status') as FirmaStatus | null;
+    const adres = formData.get('adres') as string | null;
+    const telefon = formData.get('telefon') as string | null;
+    const email = formData.get('email') as string | null;
+    // Checkbox-Wert korrekt auslesen
+    const referans_olarak_goster = formData.get('referans_olarak_goster') === 'on';
+
+    // Einfache Validierung (Beispiel)
+    if (!unvan) { // Status ist oft optional oder wird nicht immer geändert
+        return { success: false, error: "Firmenname darf nicht leer sein." };
+    }
+    // Stellen Sie sicher, dass der Status gültig ist, falls er übergeben wurde
+    const validStatusOptions: ReadonlyArray<FirmaStatus> = ["Potenzial", "İlk Temas", "Numune Sunuldu", "Teklif Verildi", "Anlaşma Sağlandı", "Pasif"];
+    if (yeniStatus && !validStatusOptions.includes(yeniStatus)) {
+         return { success: false, error: `Ungültiger Status: ${yeniStatus}` };
+    }
+
+    // Objekt für das Update erstellen
+    const updatedData: Partial<Tables<'firmalar'>> = {};
+    if (unvan) updatedData.unvan = unvan;
+    if (kategorie) updatedData.kategori = kategorie; else updatedData.kategori = null; // Explizit null setzen, wenn leer
+    if (yeniStatus) updatedData.status = yeniStatus;
+    if (adres) updatedData.adres = adres; else updatedData.adres = null;
+    if (telefon) updatedData.telefon = telefon; else updatedData.telefon = null;
+    if (email) updatedData.email = email; else updatedData.email = null;
+    // Checkbox-Wert immer setzen (true oder false)
+    updatedData.referans_olarak_goster = referans_olarak_goster;
+
+    // --- Ab hier Logik für Update, Statusänderung und Benachrichtigung ---
+    const promises = [];
+
+    // 1. Update-Promise vorbereiten
     const updatePromise = supabase
         .from('firmalar')
         .update(updatedData)
         .eq('id', firmaId)
-        .select()
+        .select() // Aktualisierte Daten zurückgeben
         .single();
+    promises.push(updatePromise);
 
-    const promises = [updatePromise];
+    // 2. Bei Statusänderung: Log und Benachrichtigung hinzufügen
+    if (yeniStatus && yeniStatus !== oncekiStatus) {
+        console.log(`Statusänderung erkannt für Firma ${firmaId}: ${oncekiStatus} -> ${yeniStatus}`);
 
-    // EĞER STATÜ DEĞİŞTİYSE: Etkinlik Akışına bir not ekle.
-    if (yeniStatus !== oncekiStatus) {
+        // a) Aktivität loggen (Namen der Spalten prüfen!)
+        // Annahme: Ihre 'etkinlikler' Tabelle hat 'olusturan_personel_id', 'etkinlik_tipi', 'aciklama'
         const logPromise = supabase.from('etkinlikler').insert({
             firma_id: firmaId,
-            olusturan_personel_id: user.id,
-            etkinlik_tipi: 'Not',
-            aciklama: `Durum '${oncekiStatus}' -> '${yeniStatus}' olarak güncellendi.`
+            olusturan_personel_id: user.id, // ID des eingeloggten Admin/Teammitglieds
+            etkinlik_tipi: 'Not', // Oder einen spezifischen Typ 'Statusänderung'
+            aciklama: `Status von '${oncekiStatus || 'Unbekannt'}' zu '${yeniStatus}' geändert.` // Text anpassen
         });
         promises.push(logPromise);
+
+        // b) Partner benachrichtigen
+        const bildirimMesaj = `Ihr Firmenstatus wurde zu "${yeniStatus}" geändert.`;
+        const bildirimLink = `/portal/dashboard`; // Ziel-Link für den Partner
+        // sendNotification direkt aufrufen
+        promises.push(sendNotification({
+            aliciFirmaId: firmaId, // ID der Firma, deren Benutzer benachrichtigt werden sollen
+            icerik: bildirimMesaj,
+            link: bildirimLink,
+            supabaseClient: supabase // Übergeben Sie den bereits erstellten Client
+        }));
     }
 
+    // Alle Promises parallel ausführen
     try {
-        const [updateResult, ..._] = await Promise.all(promises);
-        
-        if (updateResult.error) throw updateResult.error;
+        const results = await Promise.all(promises);
+        // Erstes Ergebnis ist das Update-Ergebnis
+        const updateResult = results[0] as typeof updatePromise extends Promise<infer U> ? U : never;
 
-        // İlgili sayfaların önbelleğini temizleyerek anında güncellenmesini sağlıyoruz.
-        revalidatePath('/admin/crm/firmalar');
-        revalidatePath(`/admin/crm/firmalar/${firmaId}`);
-        revalidatePath(`/admin/crm/firmalar/${firmaId}/etkinlikler`);
+        // Prüfen, ob das Haupt-Update fehlgeschlagen ist
+        if (updateResult.error) {
+            console.error("Fehler beim Firma-Update (DB):", updateResult.error);
+            throw updateResult.error; // Fehler werfen, um ins catch zu springen
+        }
 
-        return { success: true, data: updateResult.data };
+        // Optional: Fehler beim Loggen oder Benachrichtigen prüfen und loggen
+        if (yeniStatus && yeniStatus !== oncekiStatus) {
+            if (results[1] && (results[1] as any).error) { // Prüfung auf Fehler im Log-Promise
+                 console.warn(`Firma ${firmaId} aktualisiert, aber Aktivitätslog fehlgeschlagen:`, (results[1] as any).error);
+            }
+            if (results[2]) { // Prüfung auf Ergebnis des Benachrichtigungs-Promises
+                 const notificationResult = results[2] as { success: boolean, error?: any };
+                 if (!notificationResult.success) {
+                     console.warn(`Firma ${firmaId} aktualisiert, aber Benachrichtigung fehlgeschlagen:`, notificationResult.error);
+                 } else {
+                     console.log(`Benachrichtigung für Firma ${firmaId} erfolgreich gesendet.`);
+                 }
+            }
+        }
+
+        // Relevante Pfade neu validieren, damit die UI die Änderungen zeigt
+        revalidatePath('/admin/crm/firmalar'); // Liste neu laden
+        revalidatePath(`/admin/crm/firmalar/${firmaId}`); // Detailseite neu laden
+        if (yeniStatus && yeniStatus !== oncekiStatus) {
+             revalidatePath(`/admin/crm/firmalar/${firmaId}/etkinlikler`); // Aktivitätenliste neu laden
+        }
+        // revalidatePath('/portal/dashboard'); // Ggf. für Partner relevant
+
+        console.log(`Firma ${firmaId} erfolgreich aktualisiert.`);
+        return { success: true, data: updateResult.data }; // Erfolg mit aktualisierten Daten zurückgeben
 
     } catch (error: any) {
-        console.error("Firma güncelleme hatası:", error);
-        return { error: "Güncelleme sırasında bir veritabanı hatası oluştu: " + error.message };
+        console.error("Fehler in updateFirmaAction Promise.all:", error);
+        return { success: false, error: "Update fehlgeschlagen: " + error.message }; // Allgemeine Fehlermeldung
     }
 }

@@ -1,40 +1,68 @@
-// src/lib/supabase/server.ts
+// lib/supabase/server.ts
+// FINALE VERSION (async, erwartet cookieStore, async Cookie-Handler, KEIN await headers, KEINE global.headers)
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { Database } from './database.types'; // Veritabanı tiplerinizin yolunu kontrol edin
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { headers, cookies, ReadonlyRequestCookies } from 'next/headers'; // ReadonlyRequestCookies importieren
+import { Database } from './database.types';
 
-export const createSupabaseServerClient = () => {
-  const cookieStore = cookies()
+// Hauptfunktion ist async, erwartet cookieStore
+export const createSupabaseServerClient = async (cookieStoreInput?: ReadonlyRequestCookies | Awaited<ReturnType<typeof cookies>>) => {
+
+  const store = cookieStoreInput;
+  if (!store) {
+      // Wichtiger Check
+      console.error("FATAL: cookieStore wurde nicht an createSupabaseServerClient übergeben!");
+      throw new Error("cookieStore fehlt in createSupabaseServerClient");
+  }
+
+  // KEIN await hier, da headers() synchron sein sollte in diesem Kontext
+  const hdrs = headers();
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('FATAL: Supabase URL/Key fehlt im Server-Kontext.');
+    // Optional: Fehler werfen statt nur loggen
+    throw new Error('Supabase-Umgebungsvariablen (URL oder Key) fehlen im Server-Kontext.');
+  }
 
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl!,
+    supabaseKey!,
     {
       cookies: {
-        // 'get' fonksiyonunu asenkron hale getiriyoruz
+        // 'async' HIER ist wichtig für die Kompatibilität mit @supabase/ssr
         async get(name: string) {
-          return cookieStore.get(name)?.value
+          // Verwende get direkt auf dem store
+          // 'get' kann async sein, je nach Adapter/Next.js Version
+          const cookie = await store.get(name);
+          return cookie?.value;
         },
-        // 'set' fonksiyonunu asenkron hale getiriyoruz
         async set(name: string, value: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value, ...options })
+            // Verwende set direkt auf dem store
+            await store.set({ name, value, ...options });
           } catch (error) {
-            // Sunucu eylemleri ve rota işleyicileri gibi
-            // istemci tarafında güncellenmiş cookie'yi geri gönderemediğimizde
-            // bu bir hataya neden olabilir. Bu durumda hata yoksayılabilir.
+            // Fehler beim Setzen des Cookies ignorieren (kann in Server Actions passieren)
+            // console.warn('Fehler beim Setzen des Cookies:', error);
           }
         },
-        // 'remove' fonksiyonunu asenkron hale getiriyoruz
         async remove(name: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value: '', ...options })
+            // Verwende set zum Löschen direkt auf dem store
+            await store.set({ name, value: '', ...options });
           } catch (error) {
-            // Yukarıdakiyle aynı nedenle hata yoksayılabilir.
+             // Fehler beim Löschen ignorieren
+             // console.warn('Fehler beim Löschen des Cookies:', error);
           }
         },
       },
+      // global: { // Auskommentiert, da es möglicherweise Probleme verursacht
+      //   headers: {
+      //     ...Object.fromEntries(hdrs.entries()),
+      //   },
+      // },
     }
-  )
-}
+  );
+};

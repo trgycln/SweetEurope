@@ -10,6 +10,13 @@ export const dictionary = {
     partnerPortal: 'Partnerportal',
     search: 'Suche',
   },
+  notifications: {
+        title: "Benachrichtigungen",
+        markAllAsRead: "Alle als gelesen markieren",
+        noNewNotifications: "Keine neuen Benachrichtigungen.",
+        errorLoading: "Fehler beim Laden.",
+        viewDetails: "Details ansehen", // Fallback-Linktext
+    },
   ueberUnsPage: {
     // --- Hero Section ---
     title: 'Unsere Geschichte & Werte', // Zuvor kullanılan
@@ -204,6 +211,22 @@ export const dictionary = {
       cartTitle: "Warenkorb",
     },
     dashboard: {
+      // ++ NEUE TEXTE FÜR SCHNELLBESTELLUNG ++
+            quickOrderTitle: "Schnellbestellung", // Titel des Widgets
+            searchProductPlaceholder: "Produktname oder Code suchen...", // Platzhalter für Suchfeld
+            addSelectedToCart: "Auswahl zum Warenkorb hinzufügen", // Button-Text (ohne Zahl)
+            addNItemsToCart: "{count} Artikel zum Warenkorb hinzufügen", // Button-Text (mit Zahl)
+            noProductsFound: "Keine Produkte für Ihre Suche gefunden.", // Meldung, wenn Suche leer ist
+            pleaseSelectItems: "Bitte Artikel auswählen.", // Fehlermeldung, wenn keine Menge > 0
+            stockWarning: "Nicht genügend Lagerbestand! Max. {stock} verfügbar.", // Warnung bei Mengeneingabe
+            itemRemoved: "Artikel aus Auswahl entfernt.", // Toast-Nachricht (optional)
+            addingToCart: "Wird hinzugefügt...", // Text für Button während des Ladens
+      viewOpenOrders: "Offene Bestellungen",
+      myFavorites: "Meine Favoriten",
+      openSampleRequests: "Offene Musteranfragen",
+      viewFavorites: "Favoriten ansehen", // Text für den Link/Button
+      viewRequests: "Anfragen ansehen",
+      orderDetails: "Details ansehen",
       welcome: "Willkommen, ",
       subtitle: "Hier ist eine Übersicht Ihrer letzten Aktivitäten.",
       newOrderButton: "Neue Bestellung aufgeben",
@@ -213,6 +236,8 @@ export const dictionary = {
       noOrders: "Sie haben noch keine Bestellungen aufgegeben.",
       ordersPlaceholder: "Bestellliste wird hier angezeigt.",
       pendingBalance: "Offener Saldo",
+      openOrders: "Offene Bestellungen",
+      newOrderButtonValue: "Jetzt einkaufen",
       materialsWidget: { // Korrekt verschachtelt
         title: "Neueste Materialien",
         viewAll: "Alle ansehen",
@@ -279,6 +304,16 @@ export const dictionary = {
   },
 
   adminDashboard: {
+    noOverdueTasks: "Aktuell keine überfälligen Aufgaben.", // Für die leere Liste
+        dueDate: "Fällig am:", // Präfix für das Datum
+        viewAllTasks: "Alle Aufgaben anzeigen", // Link-Text
+    cardNewApplications: "Neue Partneranträge",
+        cardOpenSampleRequests: "Offene Musteranfragen",
+        cardNewProductRequests: "Neue Produktanfragen", // Nur wenn Tabelle existiert
+        viewApplications: "Anträge prüfen",
+        viewSampleRequests: "Muster prüfen",
+        viewProductRequests: "Anfragen prüfen",
+        actionNewProduct: "Neues Produkt", // Für Schnellaktion
     // KORREKTUR: productRequestsPage korrekt hier platziert
     productRequestsPage: {
         title: "Neue Produktanfragen",
@@ -379,12 +414,16 @@ export const dictionary = {
       actions: 'Aktionen',
       viewDetails: 'Details ansehen',
       updateStatus: 'Status aktualisieren',
-      statusOptions: {
-        processing: 'In Bearbeitung',
-        shipped: 'Versendet',
-        delivered: 'Zugestellt',
-        cancelled: 'Storniert',
-      },
+      reorderButton: "Erneut bestellen",
+      cancelButton: "Bestellung stornieren",
+      cancellingButton: "Wird storniert...",
+statusOptions: {
+                "Beklemede": "Ausstehend", // oder "Neu" / "Wartend"
+                "Hazırlanıyor": "In Bearbeitung",
+                "Yola Çıktı": "Versandt",
+                "Teslim Edildi": "Zugestellt",
+                "İptal Edildi": "Storniert"
+            },
       orderDetailModal: {
         title: 'Bestelldetails',
         products: 'Produkte',
@@ -420,6 +459,8 @@ export const dictionary = {
   search: {
     placeholder: 'Suchen Sie nach Produkten, Rezepten und mehr...',
     close: 'Schließen',
+    modalPlaceholder: 'Wonach suchen Sie?',
+    searchButton: 'Suchen',
   },
   topBar: {
     announcement: 'Premium-Qualität, zugänglich gemacht.',

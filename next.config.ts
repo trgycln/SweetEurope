@@ -3,6 +3,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   
+  reactStrictMode: false,
   // Vercel'in build sırasında TypeScript hatalarını görmezden gelmesini sağlar
   typescript: {
     ignoreBuildErrors: true,

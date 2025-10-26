@@ -1,73 +1,143 @@
-// src/app/admin/crm/firmalar/[firmaId]/etkinlikler/actions.ts
+// src/app/[locale]/admin/crm/firmalar/[firmaId]/etkinlikler/actions.ts
+// KORRIGIERTE VERSION (await cookies + await createClient)
+
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
+import { Enums, Tables } from '@/lib/supabase/database.types'; // Tables importieren für Typisierung
 
-export async function yeniEtkinlikEkleAction(firmaId: string, formData: FormData) {
-    const supabase = createSupabaseServerClient();
+// Typen definieren (optional, aber empfohlen)
+type EtkinlikTipi = Enums<'etkinlik_tipi'>;
+type EtkinlikInsert = Tables<'etkinlikler'>; // Korrekter Typ für Insert-Daten
 
-    // 1. Oturum açmış kullanıcıyı al
-    const { data: { user } } = await supabase.auth.getUser();
+// Rückgabetypen für Actions definieren
+type ActionResult = {
+    success: boolean;
+    message?: string;
+    error?: string;
+    data?: Tables<'etkinlikler'>; // Optional: Daten zurückgeben
+};
+
+
+// Fügt eine neue Aktivität hinzu
+export async function yeniEtkinlikEkleAction(
+    firmaId: string,
+    formData: FormData
+): Promise<ActionResult> { // Rückgabetyp verwenden
+
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    // --- ENDE KORREKTUR ---
+
+    // 1. Benutzer abrufen
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (!user) {
-        return redirect('/login');
+        console.error("Nicht authentifiziert in yeniEtkinlikEkleAction:", userError);
+        // Redirect ist hier weniger sinnvoll, besser Fehler zurückgeben
+        // return redirect('/login'); // Nicht empfohlen in Actions, die Daten zurückgeben
+        return { success: false, error: "Nicht authentifiziert." };
     }
 
-    // 2. Form verilerini al ve doğrula
-    const aciklama = formData.get('aciklama') as string;
-    const etkinlik_tipi = formData.get('etkinlik_tipi') as string;
+    // 2. Formulardaten abrufen und validieren
+    const aciklama = formData.get('aciklama') as string | null;
+    // Explizite Typumwandlung und Validierung für Enum
+    const etkinlik_tipi_raw = formData.get('etkinlik_tipi');
+    const etkinlik_tipi = etkinlik_tipi_raw as EtkinlikTipi | null; // Typumwandlung versuchen
 
-    if (!aciklama || !etkinlik_tipi) {
-        return { success: false, message: 'Açıklama ve etkinlik tipi zorunludur.' };
+    // Überprüfen, ob der Typ gültig ist (falls Sie Enum-Werte verwenden)
+    const validEtkinlikTipleri: ReadonlyArray<EtkinlikTipi> = ['Not', 'Telefon Görüşmesi', 'Toplantı', 'E-posta', 'Teklif']; // Oder aus Constants
+    if (!aciklama || !etkinlik_tipi || !validEtkinlikTipleri.includes(etkinlik_tipi)) {
+        return { success: false, error: 'Beschreibung und gültiger Aktivitätstyp sind erforderlich.' }; // Fehlermeldung angepasst
     }
 
-    // 3. Veritabanına yeni etkinliği ekle
-    const { error } = await supabase.from('etkinlikler').insert({
+    // 3. Aktivität in die Datenbank einfügen
+    const insertData: Partial<EtkinlikInsert> = { // Partial verwenden, da ID etc. nicht gesetzt werden
         firma_id: firmaId,
         olusturan_personel_id: user.id,
         aciklama: aciklama,
         etkinlik_tipi: etkinlik_tipi,
-    });
+    };
 
-    if (error) {
-        console.error('Etkinlik ekleme hatası:', error);
-        return { success: false, message: 'Etkinlik eklenirken bir veritabanı hatası oluştu.' };
+    const { error: insertError } = await supabase.from('etkinlikler').insert(insertData);
+
+    if (insertError) {
+        console.error('Fehler beim Hinzufügen der Aktivität:', insertError);
+        return { success: false, error: 'Datenbankfehler beim Hinzufügen der Aktivität.' }; // Fehlermeldung angepasst
     }
 
-    // 4. İlgili sayfanın önbelleğini temizle ki yeni veri anında görünsün
-    revalidatePath(`/admin/crm/firmalar/${firmaId}/etkinlikler`);
-    
-    return { success: true, message: 'Etkinlik başarıyla eklendi.' };
+    // 4. Cache für die betroffene Seite neu validieren
+    // Locale muss hier bekannt sein, um den Pfad korrekt zu bauen.
+    // Sie muss entweder übergeben werden oder aus einer anderen Quelle kommen.
+    // Annahme: Wir haben Zugriff auf die Locale (z.B. aus params der aufrufenden Seite)
+    // Wenn nicht, müssen Sie den Pfad generischer gestalten oder locale übergeben.
+    // const locale = 'de'; // Beispiel - ersetzen Sie dies dynamisch!
+    // revalidatePath(`/${locale}/admin/crm/firmalar/${firmaId}/etkinlikler`);
+    // Generischer Pfad (funktioniert meistens, aber spezifischer ist besser)
+    revalidatePath(`/admin/crm/firmalar/[firmaId]/etkinlikler`, 'page'); // Typ 'page' hinzugefügt
+
+    console.log(`Neue Aktivität für Firma ${firmaId} erfolgreich hinzugefügt.`);
+    return { success: true, message: 'Aktivität erfolgreich hinzugefügt.' }; // Meldung angepasst
 }
 
-// YENİ: Bir etkinlik notunu güncelleyen fonksiyon
-export async function updateEtkinlikAction(etkinlikId: string, formData: FormData) {
-    const supabase = createSupabaseServerClient();
+
+// Aktualisiert eine vorhandene Aktivitätsnotiz
+export async function updateEtkinlikAction(
+    etkinlikId: string,
+    formData: FormData
+): Promise<ActionResult> { // Rückgabetyp verwenden
+
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    // --- ENDE KORREKTUR ---
+
+    // Benutzer abrufen
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { error: "Yetkisiz işlem." };
+    if (!user) {
+         return { success: false, error: "Nicht authentifiziert." };
+    }
 
-    const aciklama = formData.get('aciklama') as string;
-    if (!aciklama) return { error: "Açıklama boş olamaz." };
+    // Formulardaten abrufen und validieren
+    const aciklama = formData.get('aciklama') as string | null;
+    if (!aciklama) {
+        return { success: false, error: "Beschreibung darf nicht leer sein." };
+    }
 
-    // Güvenlik: Sadece notu oluşturan kişi, ilk 15 dakika içinde güncelleyebilir.
+    // Zeitlimit für Updates definieren (z.B. 15 Minuten)
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
 
+    // Aktivität aktualisieren (nur eigene, kürzlich erstellte)
     const { data, error } = await supabase
         .from('etkinlikler')
         .update({ aciklama: aciklama })
         .eq('id', etkinlikId)
-        .eq('olusturan_personel_id', user.id) // Sadece kendi notunu güncelleyebilir
-        .gte('created_at', fifteenMinutesAgo) // Sadece 15 dakikadan yeniyse
-        .select()
-        .single();
-    
+        .eq('olusturan_personel_id', user.id) // Nur der Ersteller darf ändern
+        .gte('created_at', fifteenMinutesAgo) // Nur innerhalb des Zeitlimits
+        .select() // Aktualisierte Daten zurückgeben
+        .single(); // Erwartet genau ein Ergebnis
+
     if (error || !data) {
-        console.error("Etkinlik güncelleme hatası:", error);
-        return { error: "Güncelleme başarısız oldu. Süre dolmuş veya yetkiniz yok." };
+        console.error("Fehler beim Aktualisieren der Aktivität:", error);
+        // Fehlerdetails geben Aufschluss, z.B. wenn kein Datensatz gefunden wurde (Zeitlimit überschritten)
+        let errorMessage = "Update fehlgeschlagen.";
+        if (error?.code === 'PGRST116') { // PostgREST Code für "Keine Zeilen zurückgegeben"
+             errorMessage = "Update fehlgeschlagen. Zeitlimit überschritten oder keine Berechtigung.";
+        } else if (error) {
+             errorMessage = `Datenbankfehler: ${error.message}`;
+        }
+        return { success: false, error: errorMessage };
     }
-    
-    revalidatePath(`/admin/crm/firmalar/${data.firma_id}/etkinlikler`);
-    
-    return { success: true, data };
+
+    // Cache neu validieren
+    // Locale wird wieder benötigt, falls Pfad sprachspezifisch ist
+    // const locale = 'de'; // Beispiel
+    // revalidatePath(`/${locale}/admin/crm/firmalar/${data.firma_id}/etkinlikler`);
+    revalidatePath(`/admin/crm/firmalar/[firmaId]/etkinlikler`, 'page');
+
+    console.log(`Aktivität ${etkinlikId} erfolgreich aktualisiert.`);
+    return { success: true, data: data }; // Erfolg mit Daten zurückgeben
 }

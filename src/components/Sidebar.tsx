@@ -1,4 +1,4 @@
-// src/components/Sidebar.tsx (Vollständig mit Numune Talepleri)
+// src/components/Sidebar.tsx (Güncellenmiş Hali)
 'use client';
 
 import Link from 'next/link';
@@ -7,7 +7,8 @@ import React, { useState } from 'react';
 import {
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX,
     FiGift, FiLayers, FiSettings, FiChevronDown,
-    FiRss, FiPaperclip, FiHardDrive // FiHardDrive für Muster
+    FiRss, FiPaperclip, FiHardDrive, 
+    FiDollarSign, FiBarChart2 // Yeni eklenen ikonlar
 } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
@@ -25,11 +26,15 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
     const pathname = usePathname();
     const content = dictionary.adminSidebar;
 
-    // Type assertion für erweiterte Einträge
+    // Type assertion için yeni finans anahtarları eklendi
     const sidebarContent = content as typeof content & {
         announcements?: string;
         marketingMaterials?: string;
-        sampleRequests?: string; // NEU
+        sampleRequests?: string;
+        productRequests?: string;
+        finances?: string; // YENİ BÖLÜM BAŞLIĞI
+        expenses?: string; // YENİ LİNK
+        reporting?: string; // YENİ LİNK
     };
 
     const menuSections = [
@@ -43,21 +48,19 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             title: sidebarContent.crm,
             links: [
                 { name: sidebarContent.customers, href: '/admin/crm/firmalar', icon: FiUsers },
-                { name: sidebarContent.applications, href: '/admin/crm/basvurular', icon: FiGift, roles: ['Yönetici'] as UserRole[] },
+                // { name: sidebarContent.applications, href: '/admin/crm/basvurular', icon: FiGift, roles: ['Yönetici'] as UserRole[] }, // <-- İSTEK ÜZERİNE KALDIRILDI
             ],
         },
         {
             title: sidebarContent.operations,
             links: [
                 { name: sidebarContent.orders, href: '/admin/operasyon/siparisler', icon: FiTruck, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
-                // --- NEUER LINK HIER ---
                 { 
                     name: sidebarContent.sampleRequests || 'Musteranfragen', 
                     href: '/admin/operasyon/numune-talepleri', 
                     icon: FiHardDrive, 
                     roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
                 },
-                // -----------------------
                 { name: sidebarContent.tasks, href: '/admin/gorevler', icon: FiClipboard, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
             ]
         },
@@ -66,11 +69,11 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             links: [
                 { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici'] as UserRole[] },
                 { 
-                name: sidebarContent.productRequests || 'Produktanfragen', 
-                href: '/admin/urun-yonetimi/urun-talepleri', 
-                icon: FiGift, // (oder FiPlusSquare)
-                roles: ['Yönetici'] as UserRole[] 
-            },
+                    name: sidebarContent.productRequests || 'Produktanfragen', 
+                    href: '/admin/urun-yonetimi/urun-talepleri', 
+                    icon: FiGift,
+                    roles: ['Yönetici'] as UserRole[] 
+                },
                 { name: sidebarContent.categories, href: '/admin/urun-yonetimi/kategoriler', icon: FiLayers, roles: ['Yönetici'] as UserRole[] },
                 {
                     name: sidebarContent.announcements || 'Ankündigungen',
@@ -86,6 +89,28 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                 },
             ],
         },
+        // --- YENİ FİNANS BÖLÜMÜ ---
+        // 'idari/finans' yoluna uygun olarak 'Management' ve 'Settings' arasına eklendi.
+        {
+            title: sidebarContent.finances || 'Finanzen',
+            links: [
+                { 
+                    name: sidebarContent.expenses || 'Giderler', 
+                    href: '/admin/idari/finans/giderler', 
+                    icon: FiDollarSign, 
+                    // Giderler sayfasındaki role göre ayarlandı
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
+                },
+                { 
+                    name: sidebarContent.reporting || 'Raporlama', 
+                    href: '/admin/idari/finans/raporlama', 
+                    icon: FiBarChart2, 
+                    // Raporlama sayfasındaki role göre ayarlandı
+                    roles: ['Yönetici'] as UserRole[] 
+                },
+            ]
+        },
+        // -------------------------
         {
             title: sidebarContent.settings,
             links: [

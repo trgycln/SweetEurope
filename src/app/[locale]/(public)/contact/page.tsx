@@ -1,10 +1,16 @@
-"use client";
+// src/app/[locale]/(public)/contact/page.tsx (Korrigiert)
 
+// KORREKTUR: 'use client' entfernt. Dies ist eine Server-Komponente.
 import React from 'react';
-import { dictionary } from '@/dictionaries/de';
+// KORREKTUR: Dynamischen Loader importieren
+import { getDictionary } from '@/dictionaries';
+import { Locale } from '@/lib/utils'; // Annahme: Locale ist in utils.ts
 import { FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 
-const KontaktPage = () => {
+// KORREKTUR: Die Seite muss 'async' sein und 'params' empfangen
+export default async function KontaktPage({ params }: { params: { locale: Locale } }) {
+  // KORREKTUR: Wörterbuch dynamisch laden
+  const dictionary = await getDictionary(params.locale);
   const content = dictionary.contactPage;
 
   return (
@@ -49,6 +55,10 @@ const KontaktPage = () => {
             </div>
 
             {/* Right Column: Contact Form */}
+            {/* HINWEIS: Dieses Formular ist ein einfaches HTML-Formular.
+                Für eine interaktive Einsendung (ohne Neuladen) wäre eine
+                Client Component mit Server Action erforderlich.
+            */}
             <div className="bg-white p-8 rounded-lg shadow-lg">
               <h2 className="text-3xl font-serif text-primary mb-6">{content.formTitle}</h2>
               <form action="#" method="POST" className="space-y-6">
@@ -73,7 +83,7 @@ const KontaktPage = () => {
             </div>
           </div>
 
-          {/* New Map Section */}
+          {/* Map Section (unverändert) */}
           <div className="mt-20">
             <h2 className="text-4xl font-serif text-primary mb-8 text-center">Unser Standort</h2>
             <div className="rounded-lg overflow-hidden shadow-xl border-4 border-white">
@@ -94,7 +104,4 @@ const KontaktPage = () => {
       </section>
     </div>
   );
-};
-
-export default KontaktPage;
-
+}

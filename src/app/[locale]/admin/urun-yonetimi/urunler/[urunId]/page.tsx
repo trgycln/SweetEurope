@@ -1,26 +1,41 @@
-// src/app/[locale]/admin/urun-yonetimi/urunler/[urunId]/page.tsx (Korrigiert)
+// src/app/[locale]/admin/urun-yonetimi/urunler/[urunId]/page.tsx
+// KORRIGIERTE VERSION (await cookies + await createClient)
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 // KORREKTUR: Korrekten Pfad zur UrunFormu verwenden
 import { UrunFormu } from '../urun-formu';
-import { Tables } from '@/lib/supabase/database.types'; // Tables importieren
+import { Tables, Database } from '@/lib/supabase/database.types'; // Database importieren
+import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
+import { Locale } from '@/i18n-config'; // Locale importieren
+import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
-// Typdefinition für Klarheit
+// Typdefinitionen
 type Urun = Tables<'urunler'>;
 type Kategori = Tables<'kategoriler'>;
 type Tedarikci = Pick<Tables<'tedarikciler'>, 'id' | 'unvan'>;
 type Birim = Tables<'birimler'>;
 type Sablon = Tables<'kategori_ozellik_sablonlari'>;
 
+// Props-Typ für die Seite
+interface UrunBearbeitenSeiteProps {
+    params: {
+        urunId: string;
+        locale: Locale; // Korrekten Typ verwenden
+    };
+}
 
-export default async function UrunBearbeitenSeite({ params }: { params: { urunId: string; locale: string } }) { // locale zu params hinzufügen
-    const supabase = createSupabaseServerClient();
-    const urunId = params.urunId;
-    const locale = params.locale; // locale holen
+export default async function UrunBearbeitenSeite({ params }: UrunBearbeitenSeiteProps) { // Typ verwenden
+    noStore(); // Caching deaktivieren
+    const { urunId, locale } = params; // urunId und locale aus params extrahieren
+
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies(); // await hinzufügen
+    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
+    // --- ENDE KORREKTUR ---
 
     // Sicherheit: Benutzerprüfung
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
     if (!user) {
         return redirect(`/${locale}/login`);
     }
@@ -28,13 +43,15 @@ export default async function UrunBearbeitenSeite({ params }: { params: { urunId
     // Daten parallel abrufen: Produkt, Kategorien, Lieferanten, Einheiten
     const [urunRes, kategorilerRes, tedarikcilerRes, birimlerRes] = await Promise.all([
         // Produkt mit Kategorie-ID abrufen
-        supabase.from('urunler').select('*').eq('id', urunId).maybeSingle(), // maybeSingle statt single
-        supabase.from('kategoriler').select('*').order(`ad->>${locale}`),
+        supabase.from('urunler').select('*').eq('id', urunId).maybeSingle(),
+        // Kategorien nach lokalisiertem Namen sortieren
+        supabase.from('kategoriler').select('*').order(`ad->>${locale}`, { ascending: true }).order(`ad->>de`),
         supabase.from('tedarikciler').select('id, unvan').order('unvan'),
-        supabase.from('birimler').select('*').order(`ad->>${locale}`)
+        // Einheiten nach lokalisiertem Namen sortieren
+        supabase.from('birimler').select('*').order(`ad->>${locale}`, { ascending: true }).order(`ad->>de`)
     ]);
 
-    const mevcutUrun = urunRes.data as Urun | null; // Typ casten
+    const mevcutUrun = urunRes.data as Urun | null;
 
     // Fehlerbehandlung: Produkt nicht gefunden
     if (urunRes.error || !mevcutUrun) {
@@ -55,14 +72,13 @@ export default async function UrunBearbeitenSeite({ params }: { params: { urunId
             .order('sira', { ascending: true });
 
         if (sablonError) {
-             console.error("Fehler beim Laden des Sablons:", sablonError);
-            // Fehler anzeigen, aber Seite trotzdem rendern
-             // Optional: return <div className="p-6 text-red-500">Fehler beim Laden der technischen Felder.</div>;
+            console.error("Fehler beim Laden des Sablons:", sablonError);
+            // Fehler anzeigen, aber Seite trotzdem rendern (ohne technische Felder)
         } else {
-             sablon = sablonData || [];
+            sablon = sablonData || [];
         }
     } else {
-         console.warn(`Produkt ${urunId} hat keine Kategorie-ID.`);
+        console.warn(`Produkt ${urunId} hat keine Kategorie-ID.`);
     }
 
     // Daten für das Formular vorbereiten
@@ -73,13 +89,17 @@ export default async function UrunBearbeitenSeite({ params }: { params: { urunId
     // UrunFormu aufrufen und alle Daten übergeben
     return (
         <div className="max-w-5xl mx-auto">
+            {/* Stellen Sie sicher, dass 'UrunFormu' eine Client-Komponente ist
+              und die Logik zum Abrufen des Sablons jetzt im Client (useEffect) liegt,
+              oder übergeben Sie 'sablon' als serverSablon={sablon}
+            */}
             <UrunFormu
                 locale={locale} // locale übergeben
                 mevcutUrun={mevcutUrun}
                 kategoriler={kategorien}
                 tedarikciler={tedarikciler}
                 birimler={birimler}
-                // serverSablon={sablon} // Sablon wird jetzt im Client geladen
+                // serverSablon={sablon} // Übergeben, falls UrunFormu dies erwartet
             />
         </div>
     );
