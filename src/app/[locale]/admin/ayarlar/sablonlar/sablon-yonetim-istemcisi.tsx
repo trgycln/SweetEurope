@@ -254,16 +254,51 @@ export function SablonYonetimIstemcisi({ serverKategoriler, locale }: SablonYone
             <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
               <h2 className="font-serif text-xl font-bold text-primary mb-4 border-b pb-2">Kategoriler</h2>
               <ul className="space-y-1">
-                {serverKategoriler.map(kategori => {
-                  const kategoriAd = kategori.ad as Record<string, string> | undefined;
-                  return (
-                    <li key={kategori.id}>
-                      <button onClick={() => setSeciliKategoriId(kategori.id)} className={`w-full text-left p-3 rounded-md transition-colors text-sm font-semibold ${ seciliKategoriId === kategori.id ? 'bg-accent text-white shadow-sm' : 'text-text-main hover:bg-gray-100' }`}>
-                        {kategoriAd?.[locale] || kategoriAd?.tr || 'İsimsiz Kategori'}
-                      </button>
-                    </li>
-                  );
-                })}
+                {serverKategoriler
+                  .filter(k => !k.ust_kategori_id) // Önce üst kategoriler
+                  .map(ustKategori => {
+                    const ustKategoriAd = ustKategori.ad as Record<string, string> | undefined;
+                    const altKategoriler = serverKategoriler.filter(k => k.ust_kategori_id === ustKategori.id);
+                    
+                    return (
+                      <li key={ustKategori.id} className="space-y-1">
+                        {/* ÜST KATEGORİ */}
+                        <button 
+                          onClick={() => setSeciliKategoriId(ustKategori.id)} 
+                          className={`w-full text-left p-3 rounded-md transition-colors text-sm font-bold border-l-4 ${
+                            seciliKategoriId === ustKategori.id 
+                              ? 'bg-accent text-white shadow-sm border-accent' 
+                              : 'text-primary hover:bg-gray-100 border-primary/30'
+                          }`}
+                        >
+                          📁 {ustKategoriAd?.[locale] || ustKategoriAd?.tr || 'İsimsiz Kategori'}
+                        </button>
+                        
+                        {/* ALT KATEGORİLER */}
+                        {altKategoriler.length > 0 && (
+                          <ul className="ml-4 space-y-1 border-l-2 border-gray-200 pl-2">
+                            {altKategoriler.map(altKategori => {
+                              const altKategoriAd = altKategori.ad as Record<string, string> | undefined;
+                              return (
+                                <li key={altKategori.id}>
+                                  <button 
+                                    onClick={() => setSeciliKategoriId(altKategori.id)} 
+                                    className={`w-full text-left p-2 px-3 rounded-md transition-colors text-xs font-medium ${
+                                      seciliKategoriId === altKategori.id 
+                                        ? 'bg-accent/90 text-white shadow-sm' 
+                                        : 'text-gray-700 hover:bg-gray-100'
+                                    }`}
+                                  >
+                                    └ {altKategoriAd?.[locale] || altKategoriAd?.tr || 'İsimsiz Kategori'}
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                      </li>
+                    );
+                  })}
               </ul>
             </div>
         </div>
