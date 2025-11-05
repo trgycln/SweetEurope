@@ -710,7 +710,7 @@ statusOptions: {
   qualityPromise: {
     title: 'Unser Qualitätsversprechen',
     item1: { title: 'Beste Zutaten', description: 'Wir wählen nur die feinsten und frischesten Rohstoffe von vertrauenswürdigen Lieferanten aus.', },
-    item2: { title: 'Meisterhafte Verarbeitung', description: 'Unsere Produkte werden von erfahrenen Konditoren mit Leidenschaft und Präzision handgefertigt.', },
+    item2: { title: 'Geprüfte Markenqualität', description: 'Als Distributor beziehen wir ausschließlich von zertifizierten Herstellern – mit konstanter Serienqualität, lückenloser Rückverfolgbarkeit und verlässlichen Produktspezifikationen.', },
     item3: { title: 'Zuverlässige Lieferung', description: 'Wir garantieren eine pünktliche und sorgfältige Lieferung, damit Ihre Ware stets in perfektem Zustand ankommt.', },
   },
   datenschutzPage: {

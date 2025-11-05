@@ -591,7 +591,7 @@ export const dictionary: Partial<Dictionary> = {
   qualityPromise: {
     title: 'Kalite Sözümüz',
     item1: { title: 'En İyi İçerikler', description: 'Yalnızca güvenilir tedarikçilerden en iyi ve en taze hammaddeleri seçiyoruz.', },
-    item2: { title: 'Usta İşçilik', description: 'Ürünlerimiz, deneyimli pastacılar tarafından tutku ve hassasiyetle el yapımı olarak üretilmektedir.', },
+    item2: { title: 'Onaylı Marka Kalitesi', description: 'Bir distribütör olarak sertifikalı üreticilerle çalışıyoruz. Sürekli seri kalitesi, tam izlenebilirlik ve güvenilir ürün spesifikasyonları sunuyoruz.', },
     item3: { title: 'Güvenilir Teslimat', description: 'Ürünlerinizin her zaman mükemmel durumda size ulaşması için zamanında ve özenli teslimatı garanti ediyoruz.', },
   },
   datenschutzPage: {

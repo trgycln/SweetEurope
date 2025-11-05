@@ -26,6 +26,32 @@ const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ dictionary, locale,
     .filter(cat => !cat.slug.includes('/')) // Alt kategorileri hariç tut (slash içermeyenler ana kategori)
     .slice(0, 6);
 
+  // Debug: Kategorileri kontrol et
+  console.log('CategoryShowcase - Total categories:', categories?.length);
+  console.log('CategoryShowcase - Featured categories:', featuredCategories?.length);
+  console.log('CategoryShowcase - First category:', featuredCategories[0]);
+
+  // Eğer kategori yoksa, fallback mesajı göster
+  if (!categories || categories.length === 0) {
+    return (
+      <section className="bg-bg-subtle py-24 px-6">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-4">
+              {dictionary.categories.title}
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              {dictionary.categories.subtitle || 'Entdecken Sie unsere exquisite Auswahl'}
+            </p>
+          </div>
+          <div className="text-center text-gray-500">
+            <p>Kategoriler yükleniyor...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-bg-subtle py-24 px-6">
       <div className="container mx-auto">
@@ -41,6 +67,7 @@ const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ dictionary, locale,
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featuredCategories.map((category) => {
             const categoryName = category.ad?.[locale as keyof typeof category.ad] || category.ad?.de || '';
+            // Sunucuda belirlenmiş image_url ya da placeholder
             const imageUrl = category.image_url || '/placeholder-category.jpg';
             
             return (

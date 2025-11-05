@@ -591,7 +591,7 @@ export const dictionary: Partial<Dictionary> = {
   qualityPromise: {
     title: 'Our Quality Promise',
     item1: { title: 'Best Ingredients', description: 'We select only the finest and freshest raw materials from trusted suppliers.', },
-    item2: { title: 'Masterful Craftsmanship', description: 'Our products are handcrafted with passion and precision by experienced confectioners.', },
+    item2: { title: 'Verified Brand Quality', description: 'As a distributor, we source from certified manufacturers – delivering consistent batch quality, full traceability, and reliable product specifications.', },
     item3: { title: 'Reliable Delivery', description: 'We guarantee punctual and careful delivery, so your goods always arrive in perfect condition.', },
   },
   datenschutzPage: {
