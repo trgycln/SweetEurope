@@ -494,6 +494,7 @@ export const dictionary: Partial<Dictionary> = {
   },
   categories: {
     title: 'فئات منتجاتنا',
+    subtitle: 'اكتشف مجموعتنا الرائعة من الحلويات المصنوعة يدويًا',
     cakes: 'الكعك والتورتات',
     desserts: 'الشوكولاتة والماكارون',
     pastries: 'المعجنات الفاخرة',

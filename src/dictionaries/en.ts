@@ -494,6 +494,7 @@ export const dictionary: Partial<Dictionary> = {
   },
   categories: {
     title: 'Our Product Categories',
+    subtitle: 'Discover our exquisite selection of handcrafted delicacies',
     cakes: 'Cakes & Tarts',
     desserts: 'Chocolates & Macarons',
     pastries: 'Fine Pastries',

@@ -613,6 +613,7 @@ statusOptions: {
   },
   categories: {
     title: 'Unsere Produktkategorien',
+    subtitle: 'Entdecken Sie unsere exquisite Auswahl an handgefertigten Köstlichkeiten',
     cakes: 'Torten & Kuchen',
     desserts: 'Pralinen & Macarons',
     pastries: 'Feingebäck',

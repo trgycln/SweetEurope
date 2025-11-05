@@ -494,6 +494,7 @@ export const dictionary: Partial<Dictionary> = {
   },
   categories: {
     title: 'Ürün Kategorilerimiz',
+    subtitle: 'El yapımı nefis lezzetlerimizin seçkin koleksiyonunu keşfedin',
     cakes: 'Pastalar & Kekler',
     desserts: 'Pralinler & Makaronlar',
     pastries: 'İnce Hamur İşleri',

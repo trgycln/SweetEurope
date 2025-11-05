@@ -10,33 +10,39 @@ const DecorativeSeparator = () => (
 
 const PhilosophySection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
   return (
-    <section className="bg-secondary py-20 px-6">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        {/* Text Content */}
-        <div className="text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl font-serif">
-            {dictionary.philosophy.title}
-          </h2>
-          
-          <DecorativeSeparator />
+    <section className="bg-secondary py-24 px-6">
+      <div className="container mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          {/* Text Content */}
+          <div className="text-center lg:text-left order-2 lg:order-1">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-6">
+              {dictionary.philosophy.title}
+            </h2>
+            
+            <DecorativeSeparator />
 
-          <p className="font-sans text-lg text-text-main leading-loose">
-            {dictionary.philosophy.paragraph1}
-          </p>
-          <p className="font-sans text-lg text-text-main leading-loose mt-6">
-            {dictionary.philosophy.paragraph2}
-          </p>
-        </div>
+            <p className="font-sans text-lg md:text-xl text-text-main leading-relaxed">
+              {dictionary.philosophy.paragraph1}
+            </p>
+            <p className="font-sans text-lg md:text-xl text-text-main leading-relaxed mt-6">
+              {dictionary.philosophy.paragraph2}
+            </p>
+          </div>
 
-        {/* Image Content (Arka fonsuz resim için düzenlendi) */}
-        <div className="relative h-96 w-full flex items-center justify-center">
-          <Image
-            src="/philosophy-cake.png" // Resminizin adının bu olduğundan ve /public klasöründe olduğundan emin olun
-            alt={dictionary.philosophy.imageAlt}
-            width={800} // Resminizin en uygun genişliğini buraya girin
-            height={800} // Resminizin en uygun yüksekliğini buraya girin
-            className="transform hover:scale-105 transition-transform duration-500 ease-in-out drop-shadow-2xl"
-          />
+          {/* Image Content - Daha büyük ve etkileyici */}
+          <div className="relative w-full order-1 lg:order-2">
+            <div className="relative aspect-square max-w-2xl mx-auto">
+              <div className="absolute inset-0 bg-accent/10 rounded-full blur-3xl transform scale-90"></div>
+              <Image
+                src="/philosophy-cake.png"
+                alt={dictionary.philosophy.imageAlt}
+                fill
+                className="object-contain transform hover:scale-105 transition-transform duration-700 ease-in-out drop-shadow-2xl relative z-10"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                priority
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>
