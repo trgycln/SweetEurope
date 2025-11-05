@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies, ReadonlyRequestCookies } from 'next/headers';
+import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import {
     FiDollarSign, FiTrendingUp, FiTrendingDown, FiPackage, FiAlertTriangle, FiUsers,
@@ -12,7 +12,7 @@ import {
 import Link from 'next/link';
 import { Tables, Enums, Database } from '@/lib/supabase/database.types';
 import { getDictionary } from '@/dictionaries';
-import { Locale } from '@/i18n-config';
+import { Locale } from '@/lib/utils';
 import { formatDate } from '@/lib/utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
@@ -60,11 +60,14 @@ const QuickActionButton = ({ label, icon, href }: { label: string, icon: React.R
 // Typ für eine Aufgabe
 type OverdueTask = Pick<Tables<'gorevler'>, 'id' | 'baslik' | 'son_tarih'>;
 
+// Relax type where needed to avoid missing type exports in next/headers version
+type ReadonlyRequestCookiesLike = any;
+
 // Props-Typ für die Unter-Dashboards
 interface DashboardProps {
     locale: Locale;
     dictionary: any;
-    cookieStore: ReadonlyRequestCookies;
+    cookieStore: ReadonlyRequestCookiesLike;
 }
 
 // Raporlama (P&L) fonksiyonundan dönecek veri tipi

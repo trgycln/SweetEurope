@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { UrunReviewSection } from '@/components/UrunReviewSection';
 
 export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
@@ -23,8 +24,8 @@ type UrunWithKategori = Tables<'urunler'> & {
 
 // Props-Typ für die Seite
 interface PartnerUrunDetayPageProps { // Props-Typ hinzugefügt
-    params: { urunId: string; locale: Locale };
-    searchParams?: { [key: string]: string | string[] | undefined };
+    params: Promise<{ urunId: string; locale: Locale }>;
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function PartnerUrunDetayPage({
@@ -32,7 +33,7 @@ export default async function PartnerUrunDetayPage({
     searchParams // searchParams hinzugefügt, falls benötigt
 }: PartnerUrunDetayPageProps) { // Props-Typ verwenden
     noStore(); // Caching deaktivieren
-    const { urunId, locale } = params;
+    const { urunId, locale } = await params;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen
@@ -137,6 +138,13 @@ export default async function PartnerUrunDetayPage({
                     requestedText={productDetailContent.sampleRequested || "Muster angefragt"}
                 />
             </div>
+
+            {/* Review Section (Portal) */}
+            <UrunReviewSection
+                urunId={urunData.id}
+                ortalamaPuan={urunData.ortalama_puan as any}
+                degerlendirmeSayisi={urunData.degerlendirme_sayisi as any}
+            />
         </div>
     );
 }

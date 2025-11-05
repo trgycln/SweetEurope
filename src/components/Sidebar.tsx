@@ -8,7 +8,7 @@ import {
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX,
     FiGift, FiLayers, FiSettings, FiChevronDown,
     FiRss, FiPaperclip, FiHardDrive, 
-    FiDollarSign, FiBarChart2 // Yeni eklenen ikonlar
+    FiDollarSign, FiBarChart2, FiUser, FiStar // Yeni eklenen ikonlar
 } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
@@ -35,6 +35,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
         finances?: string; // YENİ BÖLÜM BAŞLIĞI
         expenses?: string; // YENİ LİNK
         reporting?: string; // YENİ LİNK
+        reviews?: string; // YENİ LİNK - Değerlendirmeler
     };
 
     const menuSections = [
@@ -75,6 +76,12 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                     roles: ['Yönetici'] as UserRole[] 
                 },
                 { name: sidebarContent.categories, href: '/admin/urun-yonetimi/kategoriler', icon: FiLayers, roles: ['Yönetici'] as UserRole[] },
+                { 
+                    name: sidebarContent.reviews || 'Bewertungen', 
+                    href: '/admin/urun-yonetimi/degerlendirmeler', 
+                    icon: FiStar,
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
+                },
                 {
                     name: sidebarContent.announcements || 'Ankündigungen',
                     href: '/admin/pazarlama/duyurular',
@@ -115,6 +122,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             title: sidebarContent.settings,
             links: [
                 { name: sidebarContent.templates, href: '/admin/ayarlar/sablonlar', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
+                { name: 'Profil', href: '/admin/profil', icon: FiUser },
             ]
         }
     ];

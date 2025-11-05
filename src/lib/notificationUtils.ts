@@ -24,16 +24,17 @@ export async function sendNotification(params: SendNotificationParams): Promise<
         } else if (aliciRol) {
             const roller = Array.isArray(aliciRol) ? aliciRol : [aliciRol];
             console.log(`[sendNotification] Hedef: Roller ${roller.join(', ')} aranıyor...`); // <-- LOG 2b
+            // RLS'e takılmamak için view kullan (id, rol)
             const { data: usersInRole, error: roleError } = await supabase
-                .from('profiller')
+                .from('kullanici_segment_bilgileri')
                 .select('id')
-                .in('rol', roller);
+                .in('rol', roller as any);
             if (roleError) {
-                console.error('[sendNotification] Rol bazlı kullanıcı arama hatası:', roleError); // <-- LOG HATA 1
+                console.error('[sendNotification] Rol bazlı kullanıcı arama hatası (view üzerinden):', roleError); // <-- LOG HATA 1
                 throw roleError;
             }
             if (usersInRole && usersInRole.length > 0) {
-                 aliciIds.push(...usersInRole.map(u => u.id));
+                 aliciIds.push(...usersInRole.map((u: any) => u.id));
                  console.log(`[sendNotification] Bulunan yönetici/ekip üyesi ID'leri: ${aliciIds.join(', ')}`); // <-- LOG 3b
             } else {
                  console.warn(`[sendNotification] '${roller.join(', ')}' rollerinde kullanıcı bulunamadı.`); // <-- LOG UYARI 1

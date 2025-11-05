@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown, FiCheckCircle, FiCircle } from 'react-icons/fi';
 import { type Kategori } from './types';
 
 interface KategoriFiltreMenusuProps {
@@ -38,21 +38,30 @@ export function KategoriFiltreMenusu({
     const anaKategoriler = kategoriler.filter(k => !k.ust_kategori_id);
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h2 className="text-lg font-bold text-gray-800 mb-4">{dictionary.filterTitle}</h2>
-            <ul className="space-y-1">
-                <li>
-                    <Link 
-                        href={`/${locale}/products`} 
-                        className={`block p-2 rounded-md text-sm font-semibold transition-colors ${!seciliSlug ? 'bg-accent text-white' : 'hover:bg-gray-100 text-gray-600'}`}
-                    >
-                        {dictionary.allProducts}
-                    </Link>
-                </li>
+        <div className="space-y-2">
+            {/* All Products Button */}
+            <Link 
+                href={`/${locale}/products`} 
+                className={`flex items-center gap-3 p-4 rounded-xl font-semibold transition-all duration-300 ${
+                    !seciliSlug 
+                        ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg transform scale-105' 
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
+                }`}
+            >
+                {!seciliSlug ? (
+                    <FiCheckCircle className="w-5 h-5 flex-shrink-0" />
+                ) : (
+                    <FiCircle className="w-5 h-5 flex-shrink-0 text-gray-400" />
+                )}
+                <span className="flex-grow">{dictionary.allProducts}</span>
+                {!seciliSlug && (
+                    <span className="px-2 py-1 bg-white/20 rounded-full text-xs font-bold">✓</span>
+                )}
+            </Link>
 
+            {/* Category List */}
+            <div className="space-y-1">
                 {anaKategoriler.map(anaKategori => {
-                    // --- KORUYUCU ÖNLEM EKLENDİ ---
-                    // Eğer ana kategorinin slug'ı yoksa, menüde hiç gösterme.
                     if (!anaKategori.slug) return null;
 
                     const altKategoriler = kategoriler.filter(k => k.ust_kategori_id === anaKategori.id);
@@ -61,58 +70,98 @@ export function KategoriFiltreMenusu({
                     
                     if (altKategoriler.length === 0) {
                         return (
-                            <li key={anaKategori.id}>
-                                <Link 
-                                    href={`/${locale}/products?kategori=${anaKategori.slug}`} 
-                                    className={`block p-2 rounded-md text-sm font-semibold transition-colors ${isAktif ? 'bg-accent text-white' : 'hover:bg-gray-100 text-gray-600'}`}
-                                >
-                                    {anaKategori.ad?.[locale] || anaKategori.ad?.['de']}
-                                </Link>
-                            </li>
+                            <Link 
+                                key={anaKategori.id}
+                                href={`/${locale}/products?kategori=${anaKategori.slug}`} 
+                                className={`flex items-center gap-3 p-4 rounded-xl font-semibold transition-all duration-300 ${
+                                    isAktif 
+                                        ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg transform scale-105' 
+                                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
+                                }`}
+                            >
+                                {isAktif ? (
+                                    <FiCheckCircle className="w-5 h-5 flex-shrink-0" />
+                                ) : (
+                                    <FiCircle className="w-5 h-5 flex-shrink-0 text-gray-400" />
+                                )}
+                                <span className="flex-grow">{anaKategori.ad?.[locale] || anaKategori.ad?.['de']}</span>
+                                {isAktif && (
+                                    <span className="px-2 py-1 bg-white/20 rounded-full text-xs font-bold">✓</span>
+                                )}
+                            </Link>
                         );
                     }
                     
                     return (
-                        <li key={anaKategori.id}>
-                            <div className="flex justify-between items-center">
+                        <div key={anaKategori.id} className="space-y-1">
+                            <div className="flex items-stretch gap-1">
                                 <Link 
                                     href={`/${locale}/products?kategori=${anaKategori.slug}`} 
-                                    className={`flex-grow p-2 rounded-l-md text-sm font-semibold transition-colors ${isAktif ? 'bg-accent text-white' : 'hover:bg-gray-100 text-gray-600'}`}
+                                    className={`flex items-center gap-3 p-4 rounded-l-xl font-semibold transition-all duration-300 flex-grow ${
+                                        isAktif 
+                                            ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg' 
+                                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                    }`}
                                 >
-                                    {anaKategori.ad?.[locale] || anaKategori.ad?.['de']}
+                                    {isAktif ? (
+                                        <FiCheckCircle className="w-5 h-5 flex-shrink-0" />
+                                    ) : (
+                                        <FiCircle className="w-5 h-5 flex-shrink-0 text-gray-400" />
+                                    )}
+                                    <span className="flex-grow">{anaKategori.ad?.[locale] || anaKategori.ad?.['de']}</span>
                                 </Link>
                                 <button 
                                     onClick={() => toggleKategori(anaKategori.id)} 
-                                    className={`p-2 rounded-r-md transition-colors ${isAktif ? 'bg-accent text-white hover:bg-accent/90' : 'hover:bg-gray-100 text-gray-600'}`}
+                                    className={`px-4 rounded-r-xl transition-all duration-300 ${
+                                        isAktif 
+                                            ? 'bg-gradient-to-r from-primary to-accent text-white hover:opacity-90' 
+                                            : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                                    }`}
                                 >
-                                    <FiChevronDown className={`transform transition-transform duration-300 ${isAcik ? 'rotate-180' : ''}`} />
+                                    <FiChevronDown 
+                                        className={`w-5 h-5 transform transition-transform duration-300 ${
+                                            isAcik ? 'rotate-180' : ''
+                                        }`} 
+                                    />
                                 </button>
                             </div>
 
-                            <div className={`pl-4 overflow-hidden transition-all duration-300 ${isAcik ? 'max-h-96 pt-1' : 'max-h-0'}`}>
-                                <ul className="space-y-1 border-l-2 border-gray-200 ml-2">
+                            <div 
+                                className={`overflow-hidden transition-all duration-300 ${
+                                    isAcik ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                                }`}
+                            >
+                                <div className="pl-4 pt-1 space-y-1">
                                     {altKategoriler.map(altKategori => {
-                                        // --- KORUYUCU ÖNLEM EKLENDİ ---
-                                        // Eğer alt kategorinin slug'ı yoksa, menüde hiç gösterme.
                                         if (!altKategori.slug) return null;
+                                        const isAltAktif = seciliSlug === altKategori.slug;
                                         
                                         return (
-                                            <li key={altKategori.id}>
-                                                <Link 
-                                                    href={`/${locale}/products?kategori=${altKategori.slug}`} 
-                                                    className={`block p-2 rounded-md text-sm font-semibold transition-colors ml-2 ${seciliSlug === altKategori.slug ? 'bg-accent text-white' : 'hover:bg-gray-100 text-gray-600'}`}
-                                                >
-                                                    {altKategori.ad?.[locale] || altKategori.ad?.['de']}
-                                                </Link>
-                                            </li>
+                                            <Link 
+                                                key={altKategori.id}
+                                                href={`/${locale}/products?kategori=${altKategori.slug}`} 
+                                                className={`flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-all duration-300 ${
+                                                    isAltAktif 
+                                                        ? 'bg-gradient-to-r from-primary/90 to-accent/90 text-white shadow-md ml-2' 
+                                                        : 'bg-gray-50/80 text-gray-600 hover:bg-gray-100 hover:ml-2'
+                                                }`}
+                                            >
+                                                <div className={`w-2 h-2 rounded-full ${
+                                                    isAltAktif ? 'bg-white' : 'bg-gray-400'
+                                                }`} />
+                                                <span className="flex-grow">{altKategori.ad?.[locale] || altKategori.ad?.['de']}</span>
+                                                {isAltAktif && (
+                                                    <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs font-bold">✓</span>
+                                                )}
+                                            </Link>
                                         );
                                     })}
-                                </ul>
+                                </div>
                             </div>
-                        </li>
+                        </div>
                     );
                 })}
-            </ul>
+            </div>
         </div>
     );
 }

@@ -489,11 +489,50 @@ export type Database = {
           },
         ]
       }
+      gider_sablonlari: {
+        Row: {
+          id: string
+          gider_kalemi_id: string
+          varsayilan_tutar: number
+          odeme_sikligi: Database["public"]["Enums"]["zahlungshaeufigkeit"]
+          aciklama_sablonu: string | null
+          aktif: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          gider_kalemi_id: string
+          varsayilan_tutar?: number
+          odeme_sikligi?: Database["public"]["Enums"]["zahlungshaeufigkeit"]
+          aciklama_sablonu?: string | null
+          aktif?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          gider_kalemi_id?: string
+          varsayilan_tutar?: number
+          odeme_sikligi?: Database["public"]["Enums"]["zahlungshaeufigkeit"]
+          aciklama_sablonu?: string | null
+          aktif?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gider_sablonlari_gider_kalemi_id_fkey"
+            columns: ["gider_kalemi_id"]
+            isOneToOne: false
+            referencedRelation: "gider_kalemleri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       giderler: {
         Row: {
           aciklama: string | null
           belge_url: string | null
           created_at: string
+          durum: Database["public"]["Enums"]["gider_durumu"]
           gider_kalemi_id: string | null
           id: string
           islem_yapan_kullanici_id: string | null
@@ -507,6 +546,7 @@ export type Database = {
           aciklama?: string | null
           belge_url?: string | null
           created_at?: string
+          durum?: Database["public"]["Enums"]["gider_durumu"]
           gider_kalemi_id?: string | null
           id?: string
           islem_yapan_kullanici_id?: string | null
@@ -520,6 +560,7 @@ export type Database = {
           aciklama?: string | null
           belge_url?: string | null
           created_at?: string
+          durum?: Database["public"]["Enums"]["gider_durumu"]
           gider_kalemi_id?: string | null
           id?: string
           islem_yapan_kullanici_id?: string | null
@@ -1207,6 +1248,7 @@ export type Database = {
         | "Teklif Verildi"
         | "Anlaşma Sağlandı"
         | "Pasif"
+      gider_durumu: "Taslak" | "Onaylandı"
       gorev_durumu: "Yapılacak" | "Devam Ediyor" | "Tamamlandı"
       gorev_oncelik: "Düşük" | "Orta" | "Yüksek"
       hedef_rol: "Tüm Partnerler" | "Sadece Alt Bayiler"

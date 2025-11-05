@@ -8,6 +8,7 @@ import { Enums, Tables, Database } from "@/lib/supabase/database.types"; // Data
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers"; // <-- WICHTIG: Importiert
 import { SupabaseClient } from "@supabase/supabase-js"; // Typ für Client importieren
+import { sendNotification } from '@/lib/notificationUtils';
 import { redirect } from 'next/navigation'; // Import für Redirect
 
 // Typ für Rückgabewerte
@@ -26,38 +27,7 @@ type OrderItemPayload = {
     o_anki_satis_fiyati: number;
 };
 
-// Hilfsfunktion: Yöneticilere bildirim gönderme
-// Empfängt den initialisierten Supabase Client
-async function yoneticilereBildirimGonder(
-    supabase: SupabaseClient<Database>, // Client übergeben
-    mesaj: string,
-    link: string
-): Promise<void> {
-    // KEINE NEUE CLIENT-ERSTELLUNG HIER!
-    const { data: yoneticiler, error: profilError } = await supabase
-        .from('profiller')
-        .select('id')
-        .in('rol', ['Yönetici', 'Ekip Üyesi']); // Nur relevante Rollen
-
-    if (profilError) {
-        console.error("Fehler beim Abrufen der Admins/Teammitglieder für Benachrichtigung:", profilError);
-        return; // Stiller Fehler
-    }
-
-    if (yoneticiler && yoneticiler.length > 0) {
-        const bildirimler = yoneticiler.map(y => ({
-            alici_id: y.id,
-            icerik: mesaj,
-            link: link
-        }));
-        const { error: insertError } = await supabase.from('bildirimler').insert(bildirimler);
-        if (insertError) {
-             console.error("Fehler beim Einfügen der Admin-Benachrichtigungen:", insertError);
-        } else {
-             console.log(`${bildirimler.length} Admin(s)/Teammitglied(er) benachrichtigt.`);
-        }
-    }
-}
+// Not: Admin/Team notification helper is replaced by sendNotification to unify logic
 
 // === HAUPTFUNKTION: BESTELLUNG ERSTELLEN (MIT DETAILLIERTEM LOGGING) ===
 export async function siparisOlusturAction(payload: {
@@ -129,14 +99,19 @@ export async function siparisOlusturAction(payload: {
 
     // Wenn Bestellung vom Kundenportal kommt, Admins benachrichtigen
     if (payload.kaynak === 'Müşteri Portalı') {
-        try {
-             const { data: firma } = await supabase.from('firmalar').select('unvan').eq('id', payload.firmaId).single();
-             const mesaj = `${firma?.unvan || 'Ein Partner'} hat eine neue Bestellung (#${newOrderId.substring(0,8)}) erstellt.`;
-             const link = `/admin/operasyon/siparisler/${newOrderId}`;
-             await yoneticilereBildirimGonder(supabase, mesaj, link); // Client übergeben
-        } catch(notifyError) {
-             console.error("Fehler beim Senden der Admin-Benachrichtigung:", notifyError);
-        }
+       try {
+           const { data: firma } = await supabase.from('firmalar').select('unvan').eq('id', payload.firmaId).single();
+           const mesaj = `${firma?.unvan || 'Ein Partner'} hat eine neue Bestellung (#${newOrderId.substring(0,8)}) erstellt.`;
+           const link = `/admin/operasyon/siparisler/${newOrderId}`;
+           await sendNotification({
+              aliciRol: ['Yönetici', 'Ekip Üyesi'],
+              icerik: mesaj,
+              link,
+              supabaseClient: supabase
+           });
+       } catch(notifyError) {
+           console.error("Fehler beim Senden der Admin-Benachrichtigung:", notifyError);
+       }
     }
 
     // Cache für relevante Seiten neu validieren
@@ -177,6 +152,28 @@ export async function siparisDurumGuncelleAction(
     if (rpcError) {
         console.error("Fehler beim RPC-Aufruf 'update_order_status...':", rpcError);
         return { error: "Datenbankfehler beim Aktualisieren des Status." };
+    }
+
+    // Partner/Müşteri'yi bilgilendir (ilgili firmanın tüm portal kullanıcıları)
+    try {
+        const { data: siparis } = await supabase
+            .from('siparisler')
+            .select('id, firma_id')
+            .eq('id', siparisId)
+            .single();
+
+        if (siparis?.firma_id) {
+            const mesaj = `Sipariş #${siparisId.substring(0,8)} durumunuz "${yeniDurum}" olarak güncellendi.`;
+            const link = `/portal/siparisler/${siparisId}`;
+            await sendNotification({
+                aliciFirmaId: siparis.firma_id,
+                icerik: mesaj,
+                link,
+                supabaseClient: supabase
+            });
+        }
+    } catch (e) {
+        console.warn('Müşteri bildirimini gönderirken sorun oluştu (durum güncellemesi):', e);
     }
 
     // Cache neu validieren
@@ -298,7 +295,21 @@ export async function iptalSiparisAction(formData: FormData): Promise<ActionResu
 
         // TODO Optional: Lagerbestand wieder erhöhen? (Besser DB-Funktion/Trigger)
 
-        // 7. Cache neu validieren und Erfolg melden
+        // 7. Adminlere bildirim gönder
+        try {
+            const mesaj = `Bir sipariş (#${siparisId.substring(0,8)}) müşteri tarafından iptal edildi.`;
+            const link = `/admin/operasyon/siparisler/${siparisId}`;
+            await sendNotification({
+                aliciRol: ['Yönetici', 'Ekip Üyesi'],
+                icerik: mesaj,
+                link,
+                supabaseClient: supabase
+            });
+        } catch(e) {
+            console.warn('Admin bildirimi gönderilemedi (iptal):', e);
+        }
+
+        // 8. Cache neu validieren und Erfolg melden
         revalidatePath(`/portal/siparisler/${siparisId}`);
         revalidatePath('/portal/siparisler');
         revalidatePath(`/admin/operasyon/siparisler/${siparisId}`);

@@ -25,11 +25,11 @@ export default async function PortalLayout({
     params
 }: {
     children: React.ReactNode;
-    // Annahme: params ist hier KEIN Promise, da es ein [locale] Layout ist
-    params: { locale: Locale }
+    // Next.js 15: params as Promise and await
+    params: Promise<{ locale: Locale }>
 }) {
     noStore(); // Caching deaktivieren
-    const locale = params.locale;
+    const { locale } = await params;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen

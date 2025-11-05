@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
-import { FiGrid, FiPackage, FiBox, FiArchive, FiBarChart2, FiX, FiPaperclip } from 'react-icons/fi'; // FiPaperclip importieren
+import { FiGrid, FiPackage, FiBox, FiArchive, FiBarChart2, FiX, FiPaperclip, FiUser } from 'react-icons/fi'; // FiUser importieren
 import { Dictionary } from '@/dictionaries'; // Dictionary importieren
 import { Enums } from '@/lib/supabase/database.types';
 
@@ -30,6 +30,7 @@ export function PortalSidebar({ userRole, isOpen, setIsOpen, dictionary }: Sideb
         // ------------------
         { name: content.requests, href: '/portal/taleplerim', icon: FiArchive },
         { name: content.performance, href: '/portal/analiz', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
+        { name: 'Profil', href: '/portal/profil', icon: FiUser }, // Profil linki eklendi
     ];
 
     return (

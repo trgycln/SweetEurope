@@ -2,8 +2,10 @@ import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getDictionary } from '@/dictionaries';
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 // Korrekte Komponente importieren
 import { UrunDetayGorunumu } from '@/components/urun-detay-gorunumu';
+import { UrunReviewSection } from '@/components/UrunReviewSection';
 import { Locale } from '@/lib/utils'; // Locale aus utils holen
 import { Tables } from '@/lib/supabase/database.types';
 
@@ -15,7 +17,8 @@ type UrunWithKategorie = Tables<'urunler'> & {
 };
 
 export default async function PublicUrunDetayPage({ params }: { params: { locale: Locale; slug: string } }) {
-    const supabase = createSupabaseServerClient();
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
     const { locale, slug } = params;
 
     // Dictionary und Produkt parallel abrufen
@@ -23,7 +26,7 @@ export default async function PublicUrunDetayPage({ params }: { params: { locale
         getDictionary(locale),
         supabase
             .from('urunler')
-            // Kategorie-Daten für Anzeige mit abrufen
+            // Kategorie-Daten für Anzeige mit abrufen + Review-Daten
             .select(`*, kategoriler (id, ad)`)
             .eq('slug', slug)
             // KORREKTUR: 'aktif' = true entfernt, um alle Produkte anzuzeigen
@@ -53,10 +56,19 @@ export default async function PublicUrunDetayPage({ params }: { params: { locale
 
     // KORREKTUR: 'price'-Prop wird nicht mehr übergeben
     return (
-        <UrunDetayGorunumu
-            urun={urun}
-            ozellikSablonu={ozellikSablonu}
-            locale={locale}
-        />
+        <>
+            <UrunDetayGorunumu
+                urun={urun}
+                ozellikSablonu={ozellikSablonu}
+                locale={locale}
+            />
+            
+            {/* Review Section */}
+            <UrunReviewSection
+                urunId={urun.id}
+                ortalamaPuan={urun.ortalama_puan}
+                degerlendirmeSayisi={urun.degerlendirme_sayisi}
+            />
+        </>
     );
 }
