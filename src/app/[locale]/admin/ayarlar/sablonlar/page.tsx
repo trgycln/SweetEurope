@@ -41,7 +41,7 @@ export default async function SablonYonetimPage({ params }: SablonYonetimPagePro
     // Kategorien für das Dropdown abrufen
     const { data: kategoriler, error: kategoriError } = await supabase
         .from('kategoriler')
-        .select('id, ad')
+        .select('id, ad, ust_kategori_id')
         // Nach lokalisiertem Namen sortieren
         .order(`ad->>${locale}`, { ascending: true, nullsFirst: false })
         .order(`ad->>de`, { ascending: true, nullsFirst: false }); // Fallback-Sortierung
