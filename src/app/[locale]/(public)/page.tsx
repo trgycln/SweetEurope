@@ -7,7 +7,7 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import QualityPromiseSection from "@/components/QualityPromiseSection";
 import CtaSection from "@/components/CtaSection";
 import { getDictionary } from "@/dictionaries";
-import { createSupabaseServerClient } from "@/lib/supabase/supabase-server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
 // DEĞİŞİKLİK: Fonksiyon imzasını güncelledik.
