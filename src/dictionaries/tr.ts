@@ -594,6 +594,17 @@ export const dictionary: Partial<Dictionary> = {
     item2: { title: 'Onaylı Marka Kalitesi', description: 'Bir distribütör olarak sertifikalı üreticilerle çalışıyoruz. Sürekli seri kalitesi, tam izlenebilirlik ve güvenilir ürün spesifikasyonları sunuyoruz.', },
     item3: { title: 'Güvenilir Teslimat', description: 'Ürünlerinizin her zaman mükemmel durumda size ulaşması için zamanında ve özenli teslimatı garanti ediyoruz.', },
   },
+  certifications: {
+    title: 'Sertifikalar & Standartlar',
+    brc: {
+      label: 'BRC Sertifikalı',
+      description: 'BRC Global Standard’a uygun gıda güvenliği sertifikası.'
+    },
+    halal: {
+      label: 'Helal Sertifikalı',
+      description: 'Resmen doğrulanmış helal uygunluğa sahip ürünler.'
+    }
+  },
   datenschutzPage: {
     title: 'Veri Gizliliği Politikası',
     lastUpdated: 'Son Güncelleme: 01 Ekim 2025',

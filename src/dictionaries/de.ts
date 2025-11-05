@@ -713,6 +713,17 @@ statusOptions: {
     item2: { title: 'Geprüfte Markenqualität', description: 'Als Distributor beziehen wir ausschließlich von zertifizierten Herstellern – mit konstanter Serienqualität, lückenloser Rückverfolgbarkeit und verlässlichen Produktspezifikationen.', },
     item3: { title: 'Zuverlässige Lieferung', description: 'Wir garantieren eine pünktliche und sorgfältige Lieferung, damit Ihre Ware stets in perfektem Zustand ankommt.', },
   },
+  certifications: {
+    title: 'Zertifizierungen & Standards',
+    brc: {
+      label: 'BRC-zertifiziert',
+      description: 'Zertifizierte Lebensmittelsicherheit nach BRC Global Standard.'
+    },
+    halal: {
+      label: 'Halal-zertifiziert',
+      description: 'Produkte mit offiziell bestätigter Halal-Konformität.'
+    }
+  },
   datenschutzPage: {
     title: 'Datenschutzerklärung',
     lastUpdated: 'Stand: 01. Oktober 2025',

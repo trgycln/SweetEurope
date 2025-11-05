@@ -594,6 +594,17 @@ export const dictionary: Partial<Dictionary> = {
     item2: { title: 'Verified Brand Quality', description: 'As a distributor, we source from certified manufacturers – delivering consistent batch quality, full traceability, and reliable product specifications.', },
     item3: { title: 'Reliable Delivery', description: 'We guarantee punctual and careful delivery, so your goods always arrive in perfect condition.', },
   },
+  certifications: {
+    title: 'Certifications & Standards',
+    brc: {
+      label: 'BRC Certified',
+      description: 'Food safety certified to the BRC Global Standard.'
+    },
+    halal: {
+      label: 'Halal Certified',
+      description: 'Products with officially verified Halal compliance.'
+    }
+  },
   datenschutzPage: {
     title: 'Privacy Policy',
     lastUpdated: 'As of: October 01, 2025',

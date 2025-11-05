@@ -5,6 +5,7 @@ import PhilosophySection from "@/components/PhilosophySection";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import QualityPromiseSection from "@/components/QualityPromiseSection";
+import CertificationsStrip from "@/components/CertificationsStrip";
 import CtaSection from "@/components/CtaSection";
 import { getDictionary } from "@/dictionaries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -66,6 +67,7 @@ export default async function Home({
             />
             <TestimonialsSection dictionary={dictionary} />
             <QualityPromiseSection dictionary={dictionary} />
+            <CertificationsStrip dictionary={dictionary} />
             <CtaSection dictionary={dictionary} />
         </>
     );
