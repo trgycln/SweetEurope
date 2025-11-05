@@ -139,12 +139,35 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
 
                     {/* Sprachwechsler */}
                     <div className="relative">
-                        <button onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} onBlur={() => setTimeout(() => setIsLangMenuOpen(false), 200)} className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition-colors ${isAdminHeader ? 'border-bg-subtle bg-secondary text-text-main hover:bg-bg-subtle' : 'border-white/20 bg-white/10 text-white hover:bg-white/20'}`}>
+                        <button 
+                            onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
+                            className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition-colors ${isAdminHeader ? 'border-bg-subtle bg-secondary text-text-main hover:bg-bg-subtle' : 'border-white/20 bg-white/10 text-white hover:bg-white/20'}`}
+                        >
                             <FiGlobe size={16} />
                             <span className="hidden md:inline">{currentLangName}</span>
                             <FiChevronDown size={16} className={`transition-transform ${isLangMenuOpen ? 'rotate-180' : ''}`} />
                         </button>
-                        {isLangMenuOpen && ( <div className="absolute right-0 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-50"><div className="py-1">{diller.map((dil) => (<button key={dil.kod} onClick={() => handleLanguageChange(dil.kod)} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{dil.ad}</button>))}</div></div> )}
+                        {isLangMenuOpen && (
+                            <>
+                                <div 
+                                    className="fixed inset-0 z-40" 
+                                    onClick={() => setIsLangMenuOpen(false)}
+                                />
+                                <div className="absolute right-0 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                                    <div className="py-1">
+                                        {diller.map((dil) => (
+                                            <button 
+                                                key={dil.kod} 
+                                                onClick={() => handleLanguageChange(dil.kod)} 
+                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                {dil.ad}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Partner Portal / Logout Button */}

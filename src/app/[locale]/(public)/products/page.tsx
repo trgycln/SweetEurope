@@ -5,7 +5,8 @@ import { getDictionary } from '@/dictionaries';
 import { KategoriFiltreMenusu } from './kategori-filtre-menusu';
 import Link from 'next/link';
 import Image from 'next/image'; 
-import { type Kategori, type Urun } from './types'; 
+import { type Kategori, type Urun } from './types';
+import { cookies } from 'next/headers';
 
 // HATA ÇÖZÜMÜ: Bu satır, Next.js'e sayfanın her zaman dinamik olarak
 // render edilmesi gerektiğini söyleyerek tüm "should be awaited" hatalarını çözer.
@@ -18,7 +19,8 @@ export default async function PublicUrunlerPage({
     params: { locale: string };
     searchParams: { kategori?: string };
 }) {
-    const supabase = createSupabaseServerClient();
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
     const locale = params.locale;
     
     let seciliKategoriSlug: string | undefined;

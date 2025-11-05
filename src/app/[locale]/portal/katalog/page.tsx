@@ -1,31 +1,45 @@
-// src/app/[locale]/portal/katalog/page.tsx (Angepasst für Hierarchie)
+// src/app/[locale]/portal/katalog/page.tsx
+// KORRIGIERTE VERSION (await cookies + await createClient)
 
 import React from 'react';
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { KatalogClient } from "@/components/portal/katalog/KatalogClient";
 import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/dictionaries";
-import { Locale } from "@/i18n-config"; // Annahme, dass Locale hier ist, sonst aus utils
+import { Locale } from "@/i18n-config";
 import { Database, Tables, Enums } from "@/lib/supabase/database.types";
+import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
+import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
+export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
+
+// Typen
 export type ProduktMitPreis = Tables<'urunler'> & { partnerPreis: number | null };
-// KORREKTUR: Kategorie-Typ erweitern
 export type Kategorie = Pick<Tables<'kategoriler'>, 'id' | 'ad' | 'ust_kategori_id'>;
+
+// Props-Typ für die Seite
+interface KatalogPageProps { // Props-Typ hinzugefügt
+    params: { locale: Locale };
+    searchParams: { [key: string]: string | string[] | undefined };
+}
 
 export default async function KatalogPage({
     params,
     searchParams
-}: {
-    params: { locale: Locale };
-    searchParams: { [key: string]: string | string[] | undefined };
-}) {
+}: KatalogPageProps) { // Props-Typ verwenden
+    noStore(); // Caching deaktivieren
     const locale = params.locale;
-    const supabase = createSupabaseServerClient();
+
+    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+    const cookieStore = await cookies(); // await hinzufügen
+    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
+    // --- ENDE KORREKTUR ---
+
     const dictionary = await getDictionary(locale);
     const pageContent = (dictionary as any).portal?.catalogPage || { title: "Produktkatalog" };
 
     // 1. Benutzer und Profil
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase
@@ -34,34 +48,49 @@ export default async function KatalogPage({
         .eq('id', user.id)
         .single();
 
-    if (!profile || !profile.rol) { notFound(); }
+    if (!profile || !profile.rol) {
+        console.error(`Profil nicht gefunden für Benutzer ${user.id} im Katalog.`);
+        notFound();
+    }
     const userRole = profile.rol;
 
     // 2. Filter-Parameter
     const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : '';
     const categoryFilter = typeof searchParams.kategorie === 'string' ? searchParams.kategorie : '';
+    const favoritenFilter = searchParams.favoriten === 'true'; // Favoriten-Filter lesen
 
     // 3. Daten abrufen
     let produkteQuery = supabase
         .from('urunler')
         .select('*, kategoriler(ad)')
-        .eq('aktif', true)
-        .ilike( `ad->>${locale}`, `%${searchQuery}%`);
+        .eq('aktif', true); // Nur aktive Produkte
 
+    // Suchfilter (JSONB-Suche in allen Sprachen + stok_kodu)
+    if (searchQuery) {
+         const searchQueryLike = `%${searchQuery}%`;
+         query = query.or(
+            `ad->>de.ilike.${searchQueryLike},ad->>en.ilike.${searchQueryLike},ad->>tr.ilike.${searchQueryLike},ad->>ar.ilike.${searchQueryLike},stok_kodu.ilike.${searchQueryLike}`
+         );
+    }
+    
+    // Kategoriefilter
     if (categoryFilter) {
         produkteQuery = produkteQuery.eq('kategori_id', categoryFilter);
     }
-    
-    produkteQuery = produkteQuery.order(`ad->>${locale}`);
 
+    // Sortierung
+    produkteQuery = produkteQuery.order(`ad->>${locale}`, { ascending: true, nullsFirst: false });
+
+    // Parallele Abfragen
     const [produkteRes, kategorienRes, favoritenRes] = await Promise.all([
         produkteQuery,
-        // KORREKTUR: 'ust_kategori_id' abrufen und korrekt sortieren
+        // Kategorien für Hierarchie
         supabase
             .from('kategoriler')
-            .select('id, ad, ust_kategori_id') // ust_kategori_id hinzugefügt
-            .order('ust_kategori_id', { ascending: true, nullsFirst: true }) // Hauptkategorien zuerst
-            .order(`ad->>${locale}`), // Dann alphabetisch
+            .select('id, ad, ust_kategori_id')
+            .order('ust_kategori_id', { ascending: true, nullsFirst: true })
+            .order(`ad->>${locale}`),
+        // Favoriten für diesen Benutzer
         supabase.from('favori_urunler').select('urun_id').eq('kullanici_id', user.id)
     ]);
 
@@ -69,31 +98,45 @@ export default async function KatalogPage({
     let produkte: Tables<'urunler'>[] = [];
     if (produkteRes.error) {
         console.error("Fehler beim Laden der Produkte:", produkteRes.error);
+        // Bei Fehler leeres Array anzeigen
     } else {
         produkte = produkteRes.data || [];
     }
-    
-    // KORREKTUR: 'kategorien' wird jetzt als volle Liste mit 'ust_kategori_id' übergeben
+
     const kategorien: Kategorie[] = kategorienRes.data || [];
     const favoritenIds = new Set((favoritenRes.data || []).map(f => f.urun_id));
 
-    const personalisierteProdukte: ProduktMitPreis[] = produkte.map(produkt => {
-        let partnerPreis: number | null = null;
-        if (userRole === 'Alt Bayi') partnerPreis = produkt.satis_fiyati_alt_bayi;
-        else if (userRole === 'Müşteri') partnerPreis = produkt.satis_fiyati_musteri;
-        return { ...produkt, partnerPreis };
-    });
+    // Produkte filtern (Favoriten) und Preise zuweisen
+    const personalisierteProdukte: ProduktMitPreis[] = produkte
+        .filter(produkt => {
+            // Wenn Favoriten-Filter aktiv ist, nur Favoriten anzeigen
+            if (favoritenFilter) {
+                return favoritenIds.has(produkt.id);
+            }
+            return true; // Sonst alle anzeigen
+        })
+        .map(produkt => {
+            // Preis basierend auf Rolle zuweisen
+            let partnerPreis: number | null = null;
+            if (userRole === 'Alt Bayi') partnerPreis = produkt.satis_fiyati_alt_bayi;
+            else if (userRole === 'Müşteri') partnerPreis = produkt.satis_fiyati_musteri;
+            // Admins/Teammitglieder sehen vielleicht Kundenpreis? (Anpassbar)
+            else partnerPreis = produkt.satis_fiyati_musteri;
+            
+            return { ...produkt, partnerPreis };
+        });
 
     // 5. An Client übergeben
     return (
         <KatalogClient
             initialProdukte={personalisierteProdukte}
-            kategorien={kategorien} // Übergibt die volle, sortierte Liste
+            kategorien={kategorien}
             favoritenIds={favoritenIds}
             locale={locale}
             dictionary={dictionary}
             initialSearchQuery={searchQuery}
             initialCategoryFilter={categoryFilter}
+            initialFavoritenFilter={favoritenFilter} // Favoriten-Status übergeben
         />
     );
 }

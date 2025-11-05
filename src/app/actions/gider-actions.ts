@@ -1,5 +1,5 @@
 // src/app/actions/gider-actions.ts
-// KORRIGIERTE VERSION (await hinzugefügt + Logging)
+// YENİ: copyGiderlerFromPreviousMonth eklendi
 
 'use server';
 
@@ -7,7 +7,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { TablesInsert, TablesUpdate, Constants, Database } from '@/lib/supabase/database.types';
 import { z, ZodError } from 'zod';
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importiert
+import { cookies } from 'next/headers';
 
 export type GiderFormState = {
     success: boolean;
@@ -33,10 +33,8 @@ export async function createGiderAction(
 
     console.log("--- createGiderAction gestartet ---");
 
-    // --- KORREKTUR: await für cookies() und createSupabaseServerClient ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
     // Logging für Cookies
     try {
@@ -67,7 +65,6 @@ export async function createGiderAction(
         return { success: false, message: '', error: "Nicht authentifiziert." };
     }
 
-    // --- Rest der Funktion ---
     const rawData = {
         gider_kalemi_id: formData.get('gider_kalemi_id'),
         aciklama: formData.get('aciklama'),
@@ -93,9 +90,7 @@ export async function createGiderAction(
         islem_yapan_kullanici_id: user.id,
     };
 
-    // Logging der Insert-Daten
     console.log("Daten für Insert:", insertData);
-
     console.log("-> Versuche Gider zu speichern für Benutzer:", user.id);
     const { error } = await supabase.from('giderler').insert(insertData);
 
@@ -121,12 +116,9 @@ export async function updateGiderAction(
 
     console.log(`--- updateGiderAction gestartet für ID: ${giderId} ---`);
 
-    // --- KORREKTUR: await für cookies() und createSupabaseServerClient ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
-    // Logging für Cookies
     try {
         const allCookies = cookieStore.getAll();
         console.log("Empfangene Cookies in Action:", allCookies);
@@ -136,7 +128,6 @@ export async function updateGiderAction(
         console.error("Fehler beim Lesen der Cookies:", e);
     }
 
-    // Benutzer abrufen
     let user = null;
     try {
         const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -160,7 +151,6 @@ export async function updateGiderAction(
         return { success: false, message: '', error: "Ausgaben-ID fehlt." };
     }
 
-    // --- Rest der Funktion ---
     const rawData = {
         gider_kalemi_id: formData.get('gider_kalemi_id'),
         aciklama: formData.get('aciklama'),
@@ -185,9 +175,7 @@ export async function updateGiderAction(
         belge_url: validatedFields.data.belge_url,
     };
 
-    // Logging der Update-Daten
     console.log("Daten für Update:", updateData);
-
     console.log(`-> Versuche Gider zu aktualisieren (ID: ${giderId}) für Benutzer: ${user.id}`);
     const { error } = await supabase
         .from('giderler')
@@ -212,12 +200,9 @@ export async function deleteGiderAction(giderId: string): Promise<{ success: boo
 
     console.log(`--- deleteGiderAction gestartet für ID: ${giderId} ---`);
 
-    // --- KORREKTUR: await für cookies() und createSupabaseServerClient ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
-    // Logging für Cookies
     try {
         const allCookies = cookieStore.getAll();
         console.log("Empfangene Cookies in Action:", allCookies);
@@ -227,7 +212,6 @@ export async function deleteGiderAction(giderId: string): Promise<{ success: boo
         console.error("Fehler beim Lesen der Cookies:", e);
     }
 
-    // Benutzer abrufen
     let user = null;
     try {
         const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -268,4 +252,123 @@ export async function deleteGiderAction(giderId: string): Promise<{ success: boo
     revalidatePath('/admin/dashboard');
 
     return { success: true, message: 'Ausgabe erfolgreich gelöscht.' };
+}
+
+// ✅ YENİ: GEÇEN AYDAN KOPYALA
+export async function copyGiderlerFromPreviousMonth(
+    targetMonth: string, // Format: "2024-11"
+    selectedGiderIds?: string[] // Opsiyonel: Belirli giderleri seç
+): Promise<{ success: boolean; message: string; error?: string; count?: number }> {
+
+    console.log(`--- copyGiderlerFromPreviousMonth gestartet für Monat: ${targetMonth} ---`);
+
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
+    let user = null;
+    try {
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError) {
+            console.error("supabase.auth.getUser Fehler:", userError);
+        }
+        user = userData.user;
+        console.log("Ergebnis von getUser():", user ? `Benutzer ID: ${user.id}` : 'Kein Benutzer gefunden');
+    } catch (e) {
+        console.error("Kritischer Fehler bei supabase.auth.getUser:", e);
+        return { success: false, message: '', error: "Fehler bei Benutzerabfrage." };
+    }
+
+    if (!user) {
+        console.log("-> Aktion wird abgebrochen: Nicht authentifiziert.");
+        return { success: false, message: '', error: "Nicht authentifiziert." };
+    }
+
+    // Geçen ayın tarih aralığını hesapla
+    const [year, month] = targetMonth.split('-').map(Number);
+    const previousMonth = month === 1 ? 12 : month - 1;
+    const previousYear = month === 1 ? year - 1 : year;
+
+    const startOfPreviousMonth = new Date(previousYear, previousMonth - 1, 1);
+    const endOfPreviousMonth = new Date(previousYear, previousMonth, 0);
+
+    const formatDate = (d: Date) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    };
+
+    const startDate = formatDate(startOfPreviousMonth);
+    const endDate = formatDate(endOfPreviousMonth);
+
+    console.log(`Geçen ay: ${startDate} bis ${endDate}`);
+
+    // Geçen ayın giderlerini getir
+    let query = supabase
+        .from('giderler')
+        .select('*')
+        .gte('tarih', startDate)
+        .lte('tarih', endDate)
+        .order('tarih', { ascending: true });
+
+    // Eğer belirli ID'ler seçilmişse, sadece onları al
+    if (selectedGiderIds && selectedGiderIds.length > 0) {
+        query = query.in('id', selectedGiderIds);
+    }
+
+    const { data: previousGiderler, error: fetchError } = await query;
+
+    if (fetchError) {
+        console.error("Fehler beim Abrufen der Ausgaben:", fetchError);
+        return { success: false, message: '', error: `Fehler: ${fetchError.message}` };
+    }
+
+    if (!previousGiderler || previousGiderler.length === 0) {
+        console.log("Keine Ausgaben im vorherigen Monat gefunden.");
+        return { success: false, message: 'Keine Ausgaben im vorherigen Monat gefunden.', count: 0 };
+    }
+
+    console.log(`${previousGiderler.length} Ausgaben gefunden zum Kopieren.`);
+
+    // Yeni tarihi hesapla (aynı gün, ama hedef ay)
+    const calculateNewDate = (oldDate: string): string => {
+        const old = new Date(oldDate);
+        const day = old.getDate();
+        const newDate = new Date(year, month - 1, day);
+        return formatDate(newDate);
+    };
+
+    // Giderleri kopyala
+    const newGiderler: TablesInsert<'giderler'>[] = previousGiderler.map(gider => ({
+        gider_kalemi_id: gider.gider_kalemi_id,
+        aciklama: gider.aciklama,
+        tutar: gider.tutar,
+        tarih: calculateNewDate(gider.tarih),
+        odeme_sikligi: gider.odeme_sikligi,
+        belge_url: gider.belge_url,
+        islem_yapan_kullanici_id: user.id,
+    }));
+
+    console.log("Kopierte Daten:", newGiderler);
+
+    const { error: insertError } = await supabase
+        .from('giderler')
+        .insert(newGiderler);
+
+    if (insertError) {
+        console.error("Fehler beim Einfügen der kopierten Ausgaben:", insertError);
+        return { success: false, message: '', error: `Fehler: ${insertError.message}` };
+    }
+
+    console.log(`${newGiderler.length} Ausgaben erfolgreich kopiert.`);
+
+    revalidatePath('/admin/idari/finans/giderler');
+    revalidatePath('/admin/idari/finans/raporlama');
+    revalidatePath('/admin/dashboard');
+
+    return { 
+        success: true, 
+        message: `${newGiderler.length} Ausgaben erfolgreich kopiert.`,
+        count: newGiderler.length 
+    };
 }

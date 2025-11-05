@@ -1075,7 +1075,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      favori_urunler_istatistik: {
+        Row: {
+          urun_id: string
+          fav_count: number
+        }
+        Relationships: []
+      }
+      kullanici_segment_bilgileri: {
+        Row: {
+          id: string
+          rol: string
+        }
+        Relationships: []
+      }
     }
     Functions: {
       count_profiles_by_status: {
