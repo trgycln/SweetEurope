@@ -155,7 +155,7 @@ export default async function FirmalarListPage({
                                         <p className="text-sm text-gray-500">{firma.kategori || '-'}</p>
                                     </div>
                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>
-                                        {firma.status || (content.unknown || 'Unbekannt')}
+                                        {firma.status ? (content.statusOptions?.[firma.status as keyof typeof content.statusOptions] || firma.status) : (content.unknown || 'Unbekannt')}
                                     </span>
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
@@ -202,7 +202,9 @@ export default async function FirmalarListPage({
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.telefon || '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.sorumlu_personel?.tam_ad || (content.notAssigned || 'Nicht zugewiesen')}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>{firma.status || (content.unknown || 'Unbekannt')}</span>
+                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>
+                                                {firma.status ? (content.statusOptions?.[firma.status as keyof typeof content.statusOptions] || firma.status) : (content.unknown || 'Unbekannt')}
+                                            </span>
                                         </td>
                                     </tr>
                                 ))}

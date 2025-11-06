@@ -376,6 +376,14 @@ export const dictionary = {
       notAssigned: 'Nicht zugewiesen',
       unknown: 'Unbekannt',
       responsiblePerson: 'Verantwortlich: ',
+      statusOptions: {
+        'Potansiyel': 'Potenzial',
+        'İlk Temas': 'Erstkontakt',
+        'Numune Sunuldu': 'Muster eingereicht',
+        'Teklif Verildi': 'Angebot abgegeben',
+        'Anlaşma Sağlandı': 'Vereinbarung erreicht',
+        'Pasif': 'Inaktiv',
+      },
     },
     partnersPage: {
       title: 'Partnerverwaltung',
@@ -473,6 +481,13 @@ statusOptions: {
       linkMyTasks: "Meine Aufgaben",
       errorLoadingTeamDashboard: "Dein persönliches Panel konnte nicht geladen werden.",
     },
+    // KPI und operationelle Texte
+    kpiRevenueMtd: 'Umsatz MTD (Netto)',
+    kpiGrossMargin: 'Bruttomarge',
+    kpiAov: 'Durchschnittlicher Bestellwert',
+    kpiOrdersToday: 'Bestellungen heute',
+    kpiOverdueInvoices: 'Überfällige Rechnungen',
+    orderBreakdownTitle: 'Bestellstatus Verteilung (30 Tage)',
   },
   search: {
     placeholder: 'Suchen Sie nach Produkten, Rezepten und mehr...',
