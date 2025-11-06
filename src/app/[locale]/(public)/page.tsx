@@ -41,19 +41,26 @@ export default async function Home({
         console.error('Homepage - Supabase error:', JSON.stringify(error, null, 2));
     }
 
-    // Her kategori için ürün sayısını çek (ana kategori + alt kategoriler)
-    const { data: productCounts } = await supabase
+    // Tüm kategorileri çek (ana + alt) - parent bilgisi için
+    const { data: tumKategoriler } = await supabase
+        .from('kategoriler')
+        .select('id, ust_kategori_id');
+
+    // Tüm ürünleri çek
+    const { data: urunler } = await supabase
         .from('urunler')
-        .select('kategori_id, kategoriler!inner(id, ust_kategori_id)')
-        .neq('stok_sayisi', 0); // Sadece stokta olan ürünler
+        .select('kategori_id');
 
     // Kategori ID'lerine göre ürün sayısını hesapla (ana kategori + alt kategorilerindeki ürünler)
     const categoryProductCounts: Record<string, number> = {};
+    const kategoriMap = new Map(tumKategoriler?.map(k => [k.id, k.ust_kategori_id]) || []);
     
-    if (productCounts) {
-        productCounts.forEach((product: any) => {
-            const categoryId = product.kategori_id;
-            const parentId = product.kategoriler.ust_kategori_id;
+    if (urunler) {
+        urunler.forEach((urun: any) => {
+            const categoryId = urun.kategori_id;
+            if (!categoryId) return;
+            
+            const parentId = kategoriMap.get(categoryId);
             
             // Alt kategoriyse, hem kendisine hem ana kategoriye say
             if (parentId) {
@@ -65,6 +72,7 @@ export default async function Home({
     }
     
     console.log('Homepage - Product counts per category:', categoryProductCounts);
+    console.log('Homepage - Total products found:', urunler?.length);
     // Public klasöründe gerçek dosyayı kontrol ederek image_url oluştur
     const kategorilerWithImages = (kategoriler || []).map((k: any) => {
         const base = k.slug as string;

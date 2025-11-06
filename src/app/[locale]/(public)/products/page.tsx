@@ -46,19 +46,21 @@ export default async function PublicUrunlerPage({
         kategoriAdlariMap.set(k.id, ad);
     });
 
-    // Her kategori için ürün sayısını çek
-    const { data: productCounts } = await supabase
+    // Tüm ürünleri çek (sayım için)
+    const { data: tumUrunler } = await supabase
         .from('urunler')
-        .select('kategori_id, kategoriler!inner(id, ust_kategori_id)')
-        .neq('stok_sayisi', 0); // Sadece stokta olan ürünler
+        .select('kategori_id');
 
     // Kategori ID'lerine göre ürün sayısını hesapla (ana kategori + alt kategorilerindeki ürünler)
     const categoryProductCounts: Record<string, number> = {};
+    const kategoriMap = new Map(kategoriler.map(k => [k.id, k.ust_kategori_id]));
     
-    if (productCounts) {
-        productCounts.forEach((product: any) => {
-            const categoryId = product.kategori_id;
-            const parentId = product.kategoriler.ust_kategori_id;
+    if (tumUrunler) {
+        tumUrunler.forEach((urun: any) => {
+            const categoryId = urun.kategori_id;
+            if (!categoryId) return;
+            
+            const parentId = kategoriMap.get(categoryId);
             
             // Alt kategoriyse, hem kendisine hem ana kategoriye say
             if (parentId) {
@@ -202,7 +204,7 @@ export default async function PublicUrunlerPage({
                                         varsayilanAcikKategoriId={seciliAnaKategoriId}
                                         dictionary={pageContent}
                                         categoryProductCounts={categoryProductCounts}
-                                        totalProductCount={productCounts?.length || 0}
+                                        totalProductCount={tumUrunler?.length || 0}
                                     />
                                 </div>
                             </div>
