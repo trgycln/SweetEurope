@@ -19,10 +19,22 @@ if (!url || !serviceRoleKey) {
   process.exit(1);
 }
 
+// Arg helpers
+function getArg(name) {
+  const idx = process.argv.indexOf(name);
+  if (idx >= 0 && process.argv[idx + 1]) return process.argv[idx + 1];
+  return null;
+}
+
 const DRY_RUN = process.argv.includes('--dry');
 const supabase = createClient(url, serviceRoleKey);
 
-const CSV_PATH = path.resolve(process.cwd(), 'market.csv');
+// CLI: --file path, --categoryTr "..." --categoryDe "..." --categoryEn "..."
+const inputFile = getArg('--file') || 'market.csv';
+const CSV_PATH = path.resolve(process.cwd(), inputFile);
+const categoryTrArg = getArg('--categoryTr');
+const categoryDeArg = getArg('--categoryDe');
+const categoryEnArg = getArg('--categoryEn');
 
 function normalizeKey(key) {
   return String(key || '')
@@ -75,11 +87,11 @@ async function findCategoryIdForGroup(groupTitle) {
   return null; // We'll ask user if null
 }
 
-async function ensureDefaultCategory() {
+async function ensureDefaultCategory({ tr, de, en }) {
   const variants = [
-    { col: 'tr', txt: 'Pastalar & Kekler' },
-    { col: 'de', txt: 'Torten & Kuchen' },
-    { col: 'en', txt: 'Cakes & Tarts' },
+    { col: 'tr', txt: tr },
+    { col: 'de', txt: de },
+    { col: 'en', txt: en },
   ];
   // Try find by any variant
   for (const v of variants) {
@@ -92,7 +104,7 @@ async function ensureDefaultCategory() {
     if (data && data.length) return data[0].id;
   }
   // Create if not found
-  const ad = { tr: 'Pastalar & Kekler', de: 'Torten & Kuchen', en: 'Cakes & Tarts' };
+  const ad = { tr, de, en };
   const { data: ins, error } = await supabase
     .from('kategoriler')
     .insert({ ad })
@@ -170,23 +182,35 @@ async function main() {
   const idxAd = keyIdx[normalizeKey('Ürün Adı')];
   const idxKutuGramaj = keyIdx[normalizeKey('Kutu Gramaj')];
   const idxDilimGramaj = keyIdx[normalizeKey('Dilim Gramaj')];
-  const idxListeKutu = keyIdx[normalizeKey('Liste Fiyatı(Kutu)')];
+  const idxListeKutu = keyIdx[normalizeKey('Liste Fiyatı(Kutu)')] ?? keyIdx[normalizeKey('Liste Fiyatı')];
   const idxListeDilim = keyIdx[normalizeKey('Liste Fiyatı(Dilim)')];
   const idxDistrDilim = keyIdx[normalizeKey('Distribütör Fiyatı (Dilim)')];
   const idxDistrKutu = keyIdx[normalizeKey('Distribütör Fiyatı   (Kutu)')]
     ?? keyIdx[normalizeKey('Distribütör Fiyatı (Kutu)')];
+  const idxDistrAlis = keyIdx[normalizeKey('Distribütör Alış Fiyatı')];
   const idxIskonto = keyIdx[normalizeKey('İskonto')];
-  const idxKutuIci = keyIdx[normalizeKey('Kutu İçi')];
-  const idxKoliIci = keyIdx[normalizeKey('Koli İçi')];
-  const idxPaletIci = keyIdx[normalizeKey('Palet İçi Adet')];
+  const idxKutuIci = keyIdx[normalizeKey('Kutu İçi')] ?? keyIdx[normalizeKey('Kutu İçi Adet')];
+  const idxKoliIci = keyIdx[normalizeKey('Koli İçi')] ?? keyIdx[normalizeKey('Koli İçi Adet')];
+  const idxPaletIci = keyIdx[normalizeKey('Palet İçi Adet')] ?? keyIdx[normalizeKey('Palet içi Adet')];
+
+  // Kahve-specific optional columns
+  const idxAmbalaj = keyIdx[normalizeKey('Ambalaj')];
+  const idxMiktar = keyIdx[normalizeKey('Miktar')];
+  const idxKoliFiyati = keyIdx[normalizeKey('Koli Fiyatı')];
 
   const unitId = await findUnitIdByName(['Kutu', 'Box']);
 
   let currentGroup = null;
   let inserted = 0, updated = 0, skipped = 0;
 
-  // Resolve a default category up-front (Pastalar & Kekler)
-  let defaultKategoriId = await ensureDefaultCategory();
+  // Resolve a default category up-front
+  const lowerFile = inputFile.toLowerCase();
+  const defaultNames = categoryTrArg && categoryDeArg && categoryEnArg
+    ? { tr: categoryTrArg, de: categoryDeArg, en: categoryEnArg }
+    : lowerFile.includes('kahve')
+      ? { tr: 'Kahve & İçecekler', de: 'Kaffee & Getränke', en: 'Coffee & Drinks' }
+      : { tr: 'Pastalar & Kekler', de: 'Torten & Kuchen', en: 'Cakes & Tarts' };
+  let defaultKategoriId = await ensureDefaultCategory(defaultNames);
 
   for (let i = headerIdx + 1; i < parsed.length; i++) {
     const row = parsed[i];
@@ -203,8 +227,9 @@ async function main() {
     const adTr = row[idxAd] ? String(row[idxAd]).trim() : '';
     if (!kod || !adTr) { skipped++; continue; }
 
-    const fiyatListeKutu = turkishMoneyToNumber(row[idxListeKutu]);
-    const fiyatDistrKutu = turkishMoneyToNumber(row[idxDistrKutu]);
+  const fiyatListeKutu = idxListeKutu != null ? turkishMoneyToNumber(row[idxListeKutu]) : null;
+  const fiyatDistrKutu = idxDistrKutu != null ? turkishMoneyToNumber(row[idxDistrKutu]) : null;
+  const fiyatDistrAlis = idxDistrAlis != null ? turkishMoneyToNumber(row[idxDistrAlis]) : null;
 
     // Derive category id from group or fallback
     let kategoriId = defaultKategoriId;
@@ -218,7 +243,10 @@ async function main() {
       kategoriId = defaultKategoriId;
     }
 
-    const teknik = buildTeknik(row[idxKutuGramaj], row[idxDilimGramaj], row[idxKutuIci], row[idxKoliIci], row[idxPaletIci]);
+  const teknik = buildTeknik(row[idxKutuGramaj], row[idxDilimGramaj], row[idxKutuIci], row[idxKoliIci], row[idxPaletIci]);
+  if (idxAmbalaj != null && row[idxAmbalaj]) teknik.ambalaj = String(row[idxAmbalaj]).trim();
+  if (idxMiktar != null && row[idxMiktar]) teknik.miktar = String(row[idxMiktar]).trim();
+  if (idxKoliFiyati != null && row[idxKoliFiyati] != null) teknik.koli_fiyati = turkishMoneyToNumber(row[idxKoliFiyati]);
 
     const payload = {
       stok_kodu: kod,
@@ -226,6 +254,7 @@ async function main() {
       kategori_id: kategoriId,
       satis_fiyati_musteri: fiyatListeKutu ?? undefined,
       satis_fiyati_alt_bayi: fiyatDistrKutu ?? undefined,
+      distributor_alis_fiyati: fiyatDistrAlis ?? undefined,
       ana_satis_birimi_id: unitId ?? undefined,
       stok_miktari: 0,
       stok_esigi: 5,
