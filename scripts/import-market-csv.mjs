@@ -146,9 +146,163 @@ async function getExistingByStockCode(stokKodu) {
   return data || null;
 }
 
+// Tedarikçi ID'sini bul veya oluştur
+async function ensureSupplier() {
+  const supplierName = 'Sweet Heaven';
+  const { data, error } = await supabase
+    .from('tedarikciler')
+    .select('id')
+    .ilike('unvan', supplierName)
+    .limit(1);
+  
+  if (error) {
+    console.warn('⚠️ Tedarikçi arama hatası:', error.message);
+    return null;
+  }
+  
+  if (data && data.length > 0) return data[0].id;
+  
+  // Oluştur
+  const { data: ins, error: insErr } = await supabase
+    .from('tedarikciler')
+    .insert({ unvan: supplierName })
+    .select('id')
+    .single();
+  
+  if (insErr) {
+    console.error('❌ Tedarikçi oluşturulamadı:', insErr.message);
+    return null;
+  }
+  
+  return ins?.id || null;
+}
+
+// Kategori tahmini (ürün adına göre)
+function detectCategoryKeywords(productName) {
+  const lower = productName.toLowerCase();
+  
+  // Kahve & İçecekler
+  if (lower.match(/kahve|coffee|espresso|filtre|türk kahvesi|frappe|çay|tea|latte|cappuccino|salep|sıcak çikolata|şurup|syrup|meyve püresi|limonata|portakal suyu/)) {
+    return { tr: 'Kahve & İçecekler', de: 'Kaffee & Getränke', en: 'Coffee & Drinks' };
+  }
+  
+  // Pastalar & Kekler
+  if (lower.match(/pasta|cake|kek|browni|brownie|cheesecake|tiramisu|mozaik|profiterol|red velvet|latte|kubbe|bardak|kup|cup|muffin|cookie|kurabiye|sufle/)) {
+    return { tr: 'Pastalar & Kekler', de: 'Torten & Kuchen', en: 'Cakes & Tarts' };
+  }
+  
+  // Pizza & Fast Food
+  if (lower.match(/pizza|margarita|vejeteryan/)) {
+    return { tr: 'Pizza & Fast Food', de: 'Pizza & Fast Food', en: 'Pizza & Fast Food' };
+  }
+  
+  // Soslar & Malzemeler
+  if (lower.match(/sos|sauce|waffle sos|lokum/)) {
+    return { tr: 'Soslar & Malzemeler', de: 'Saucen & Zutaten', en: 'Sauces & Ingredients' };
+  }
+  
+  // Aksesuarlar
+  if (lower.match(/fanus|menü|pompa|servis|altolas/)) {
+    return { tr: 'Aksesuarlar', de: 'Zubehör', en: 'Accessories' };
+  }
+  
+  // Varsayılan
+  return { tr: 'Pastalar & Kekler', de: 'Torten & Kuchen', en: 'Cakes & Tarts' };
+}
+
+// URL slug oluştur
+function generateSlug(text, stockCode) {
+  const turkishMap = {
+    'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u',
+    'Ç': 'c', 'Ğ': 'g', 'İ': 'i', 'Ö': 'o', 'Ş': 's', 'Ü': 'u'
+  };
+  
+  let slug = text
+    .split('')
+    .map(char => turkishMap[char] || char)
+    .join('')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 60);
+  
+  // Stok koduyla benzersiz yap
+  if (stockCode) {
+    slug = `${slug}-${stockCode.toLowerCase()}`;
+  }
+  
+  return slug;
+}
+
+// Basit çeviri (ürün adı için)
+function translateProductName(nameTr) {
+  const lower = nameTr.toLowerCase();
+  let de = nameTr;
+  let en = nameTr;
+  let ar = nameTr;
+  
+  // Temel kelime çevirileri
+  const translations = {
+    'pasta': { de: 'Torte', en: 'Cake', ar: 'كعكة' },
+    'kek': { de: 'Kuchen', en: 'Cake', ar: 'كعكة' },
+    'çikolatalı': { de: 'Schokolade', en: 'Chocolate', ar: 'شوكولاتة' },
+    'frambuazlı': { de: 'Himbeer', en: 'Raspberry', ar: 'توت العليق' },
+    'çilekli': { de: 'Erdbeer', en: 'Strawberry', ar: 'فراولة' },
+    'vişneli': { de: 'Kirsch', en: 'Cherry', ar: 'كرز' },
+    'limonlu': { de: 'Zitronen', en: 'Lemon', ar: 'ليمون' },
+    'kahve': { de: 'Kaffee', en: 'Coffee', ar: 'قهوة' },
+    'çay': { de: 'Tee', en: 'Tea', ar: 'شاي' },
+    'tiramisu': { de: 'Tiramisu', en: 'Tiramisu', ar: 'تيراميسو' },
+    'browni': { de: 'Brownie', en: 'Brownie', ar: 'براوني' },
+    'cheesecake': { de: 'Käsekuchen', en: 'Cheesecake', ar: 'تشيز كيك' },
+    'kurabiye': { de: 'Kekse', en: 'Cookie', ar: 'بسكويت' },
+    'muffin': { de: 'Muffin', en: 'Muffin', ar: 'مافن' },
+    'glutensiz': { de: 'Glutenfrei', en: 'Gluten-free', ar: 'خالي من الغلوتين' },
+    'dilim': { de: 'Stück', en: 'Slice', ar: 'قطعة' },
+    'adet': { de: 'Stück', en: 'Pieces', ar: 'قطع' },
+    'orman meyveli': { de: 'Waldbeeren', en: 'Forest Fruits', ar: 'فواكه الغابة' },
+    'havuçlu': { de: 'Karotten', en: 'Carrot', ar: 'جزر' },
+    'fındıklı': { de: 'Haselnuss', en: 'Hazelnut', ar: 'بندق' },
+    'karamelli': { de: 'Karamell', en: 'Caramel', ar: 'كراميل' },
+    'vanilya': { de: 'Vanille', en: 'Vanilla', ar: 'فانيليا' },
+    'muz': { de: 'Banane', en: 'Banana', ar: 'موز' },
+    'elma': { de: 'Apfel', en: 'Apple', ar: 'تفاح' },
+    'şeftali': { de: 'Pfirsich', en: 'Peach', ar: 'خوخ' },
+    'mango': { de: 'Mango', en: 'Mango', ar: 'مانجو' },
+    'nar': { de: 'Granatapfel', en: 'Pomegranate', ar: 'رمان' },
+    'türk kahvesi': { de: 'Türkischer Kaffee', en: 'Turkish Coffee', ar: 'قهوة تركية' },
+    'filtre kahve': { de: 'Filterkaffee', en: 'Filter Coffee', ar: 'قهوة مفلترة' },
+    'sıcak çikolata': { de: 'Heiße Schokolade', en: 'Hot Chocolate', ar: 'شوكولاتة ساخنة' },
+    'salep': { de: 'Salep', en: 'Salep', ar: 'سحلب' },
+    'şurup': { de: 'Sirup', en: 'Syrup', ar: 'شراب' },
+    'çekirdek': { de: 'Bohnen', en: 'Beans', ar: 'حبوب' },
+    'pizza': { de: 'Pizza', en: 'Pizza', ar: 'بيتزا' },
+    'poşet': { de: 'Beutel', en: 'Pouch', ar: 'كيس' },
+    'kavanoz': { de: 'Glas', en: 'Jar', ar: 'جرة' },
+  };
+  
+  // Basit kelime değiştirme (tam eşleşme ve kelime bazlı)
+  let deTemp = nameTr;
+  let enTemp = nameTr;
+  let arTemp = nameTr;
+  
+  Object.keys(translations).forEach(tr => {
+    const regex = new RegExp(`\\b${tr}\\b`, 'gi');
+    deTemp = deTemp.replace(regex, translations[tr].de);
+    enTemp = enTemp.replace(regex, translations[tr].en);
+    arTemp = arTemp.replace(regex, translations[tr].ar);
+  });
+  
+  return {
+    tr: nameTr.trim(),
+    de: deTemp.trim(),
+    en: enTemp.trim(),
+    ar: arTemp.trim()
+  };
+}
+
 function buildAdJson(nameTr) {
-  const nm = String(nameTr || '').trim();
-  return { tr: nm, de: nm, en: nm };
+  return translateProductName(nameTr);
 }
 
 function buildTeknik(gramajKutu, gramajDilim, adetKutuIci, adetKoliIci, adetPaletIci) {
@@ -199,6 +353,7 @@ async function main() {
   const idxKoliFiyati = keyIdx[normalizeKey('Koli Fiyatı')];
 
   const unitId = await findUnitIdByName(['Kutu', 'Box']);
+  const supplierId = await ensureSupplier();
 
   let currentGroup = null;
   let inserted = 0, updated = 0, skipped = 0;
@@ -227,44 +382,54 @@ async function main() {
     const adTr = row[idxAd] ? String(row[idxAd]).trim() : '';
     if (!kod || !adTr) { skipped++; continue; }
 
-  const fiyatListeKutu = idxListeKutu != null ? turkishMoneyToNumber(row[idxListeKutu]) : null;
-  const fiyatDistrKutu = idxDistrKutu != null ? turkishMoneyToNumber(row[idxDistrKutu]) : null;
-  const fiyatDistrAlis = idxDistrAlis != null ? turkishMoneyToNumber(row[idxDistrAlis]) : null;
+    const fiyatListeKutu = idxListeKutu != null ? turkishMoneyToNumber(row[idxListeKutu]) : null;
+    const fiyatDistrKutu = idxDistrKutu != null ? turkishMoneyToNumber(row[idxDistrKutu]) : null;
+    const fiyatDistrAlis = idxDistrAlis != null ? turkishMoneyToNumber(row[idxDistrAlis]) : null;
 
-    // Derive category id from group or fallback
-    let kategoriId = defaultKategoriId;
+    // Kategori tahmini
+    const detectedCategory = detectCategoryKeywords(adTr);
+    let kategoriId = await ensureDefaultCategory(detectedCategory);
+    
+    // Grup bazlı kategori varsa öncelik ver
     if (currentGroup) {
       const maybe = await findCategoryIdForGroup(currentGroup);
       if (maybe) kategoriId = maybe;
     }
 
     if (!kategoriId) {
-      // Fallback strictly to default
       kategoriId = defaultKategoriId;
     }
 
-  const teknik = buildTeknik(row[idxKutuGramaj], row[idxDilimGramaj], row[idxKutuIci], row[idxKoliIci], row[idxPaletIci]);
-  if (idxAmbalaj != null && row[idxAmbalaj]) teknik.ambalaj = String(row[idxAmbalaj]).trim();
-  if (idxMiktar != null && row[idxMiktar]) teknik.miktar = String(row[idxMiktar]).trim();
-  if (idxKoliFiyati != null && row[idxKoliFiyati] != null) teknik.koli_fiyati = turkishMoneyToNumber(row[idxKoliFiyati]);
+    const teknik = buildTeknik(row[idxKutuGramaj], row[idxDilimGramaj], row[idxKutuIci], row[idxKoliIci], row[idxPaletIci]);
+    if (idxAmbalaj != null && row[idxAmbalaj]) teknik.ambalaj = String(row[idxAmbalaj]).trim();
+    if (idxMiktar != null && row[idxMiktar]) teknik.miktar = String(row[idxMiktar]).trim();
+    if (idxKoliFiyati != null && row[idxKoliFiyati] != null) teknik.koli_fiyati = turkishMoneyToNumber(row[idxKoliFiyati]);
+
+    // 4 dilde ürün adı
+    const productNames = buildAdJson(adTr);
+    
+    // Slug oluştur
+    const slug = generateSlug(adTr, kod);
 
     const payload = {
       stok_kodu: kod,
-      ad: buildAdJson(adTr),
+      ad: productNames,
+      slug: slug,
       kategori_id: kategoriId,
+      tedarikci_id: supplierId ?? undefined,
       satis_fiyati_musteri: fiyatListeKutu ?? undefined,
       satis_fiyati_alt_bayi: fiyatDistrKutu ?? undefined,
       distributor_alis_fiyati: fiyatDistrAlis ?? undefined,
       ana_satis_birimi_id: unitId ?? undefined,
       stok_miktari: 0,
-      stok_esigi: 5,
+      stok_esigi: 10,
       aktif: true,
       teknik_ozellikler: Object.keys(teknik).length ? teknik : null,
     };
 
     const exists = await getExistingByStockCode(kod);
     if (DRY_RUN) {
-      console.log(exists ? '🟡 Update' : '🟢 Insert', kod, '-', adTr);
+      console.log(exists ? '🟡 Update' : '🟢 Insert', kod, '-', adTr, `[${detectedCategory.tr}]`);
       continue;
     }
 
