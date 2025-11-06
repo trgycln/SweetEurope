@@ -44,13 +44,13 @@ const StokDurumGostergesi = ({ miktar, esik }: { miktar: number | null; esik: nu
 
 // Props-Typ für die Seite
 interface UrunlerListPageProps { // Props-Typ hinzugefügt
-    params: { locale: Locale };
-    searchParams?: { filter?: string; q?: string; };
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ filter?: string; q?: string; }>;
 }
 
 // Hauptseitenkomponente
 export default async function UrunlerListPage({
-    params: { locale }, // locale aus params holen
+    params,
     searchParams
 }: UrunlerListPageProps) { // Props-Typ verwenden
     noStore(); // Caching deaktivieren
@@ -60,6 +60,7 @@ export default async function UrunlerListPage({
     const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
     // --- ENDE KORREKTUR ---
 
+    const { locale } = await params; // Next.js 15: params should be awaited
     const dictionary = await getDictionary(locale);
     const content = (dictionary as any).adminDashboard?.productsPage || {};
 
@@ -73,8 +74,9 @@ export default async function UrunlerListPage({
      // if (profile?.rol !== 'Yönetici') { return redirect(`/${locale}/dashboard`); } // Nur Admins?
 
     // Filter aus searchParams lesen
-    const filterParam = searchParams?.filter;
-    const queryParam = searchParams?.q;
+    const sp = searchParams ? await searchParams : undefined; // await searchParams if provided
+    const filterParam = sp?.filter;
+    const queryParam = sp?.q;
 
     // Supabase-Abfrage erstellen
     let query = supabase

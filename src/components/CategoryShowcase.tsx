@@ -12,6 +12,7 @@ interface Category {
     ar?: string;
   };
   image_url?: string;
+  productCount?: number;
 }
 
 interface CategoryShowcaseProps {
@@ -69,6 +70,16 @@ const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ dictionary, locale,
             const categoryName = category.ad?.[locale as keyof typeof category.ad] || category.ad?.de || '';
             // Sunucuda belirlenmiş image_url ya da placeholder
             const imageUrl = category.image_url || '/placeholder-category.jpg';
+            const productCount = category.productCount || 0;
+            
+            // Dil bazında ürün sayısı metni
+            const productCountText = locale === 'de' 
+              ? `${productCount} ${productCount === 1 ? 'Produkt' : 'Produkte'}`
+              : locale === 'en'
+              ? `${productCount} ${productCount === 1 ? 'Product' : 'Products'}`
+              : locale === 'tr'
+              ? `${productCount} Ürün`
+              : `${productCount} منتج`;
             
             return (
               <Link 
@@ -86,11 +97,14 @@ const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({ dictionary, locale,
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-all duration-500"></div>
                   
-                  {/* Category Name */}
-                  <div className="absolute inset-0 flex items-end justify-center p-8">
+                  {/* Category Name and Product Count */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-end p-8 space-y-2">
                     <h3 className="text-white text-2xl md:text-3xl font-serif font-bold text-center drop-shadow-lg transform group-hover:scale-105 transition-transform duration-300">
                       {categoryName}
                     </h3>
+                    <p className="text-white/90 text-sm md:text-base font-medium drop-shadow-md">
+                      {productCountText}
+                    </p>
                   </div>
 
                   {/* Hover Arrow */}

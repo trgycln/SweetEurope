@@ -17,18 +17,19 @@ export default async function PublicUrunlerPage({
     params, 
     searchParams 
 }: { 
-    params: { locale: string };
-    searchParams: { kategori?: string; page?: string; limit?: string };
+    params: Promise<{ locale: string }>;
+    searchParams: Promise<{ kategori?: string; page?: string; limit?: string }>;
 }) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    const locale = params.locale;
+    const { locale } = await params;
     
+    const sp = await searchParams;
     let seciliKategoriSlug: string | undefined;
-    const page = Math.max(1, Number.parseInt(searchParams.page || '1') || 1);
-    const perPage = Math.min(48, Math.max(12, Number.parseInt(searchParams.limit || '24') || 24));
-    if (searchParams.kategori && searchParams.kategori.toLowerCase() !== 'null') {
-        seciliKategoriSlug = searchParams.kategori;
+    const page = Math.max(1, Number.parseInt(sp.page || '1') || 1);
+    const perPage = Math.min(48, Math.max(12, Number.parseInt(sp.limit || '24') || 24));
+    if (sp.kategori && sp.kategori.toLowerCase() !== 'null') {
+        seciliKategoriSlug = sp.kategori;
     }
 
     const [dictionary, kategorilerRes] = await Promise.all([
@@ -44,6 +45,29 @@ export default async function PublicUrunlerPage({
         const ad = k.ad?.[locale] || k.ad?.['de'] || 'Kategori Yok';
         kategoriAdlariMap.set(k.id, ad);
     });
+
+    // Her kategori için ürün sayısını çek
+    const { data: productCounts } = await supabase
+        .from('urunler')
+        .select('kategori_id, kategoriler!inner(id, ust_kategori_id)')
+        .neq('stok_sayisi', 0); // Sadece stokta olan ürünler
+
+    // Kategori ID'lerine göre ürün sayısını hesapla (ana kategori + alt kategorilerindeki ürünler)
+    const categoryProductCounts: Record<string, number> = {};
+    
+    if (productCounts) {
+        productCounts.forEach((product: any) => {
+            const categoryId = product.kategori_id;
+            const parentId = product.kategoriler.ust_kategori_id;
+            
+            // Alt kategoriyse, hem kendisine hem ana kategoriye say
+            if (parentId) {
+                categoryProductCounts[parentId] = (categoryProductCounts[parentId] || 0) + 1;
+            }
+            // Her ürünü kendi kategorisine say
+            categoryProductCounts[categoryId] = (categoryProductCounts[categoryId] || 0) + 1;
+        });
+    }
 
     let filtrelenecekKategoriIdleri: string[] = []; 
     let seciliAnaKategoriId: string | undefined; 
@@ -177,6 +201,8 @@ export default async function PublicUrunlerPage({
                                         seciliSlug={seciliKategoriSlug}
                                         varsayilanAcikKategoriId={seciliAnaKategoriId}
                                         dictionary={pageContent}
+                                        categoryProductCounts={categoryProductCounts}
+                                        totalProductCount={productCounts?.length || 0}
                                     />
                                 </div>
                             </div>

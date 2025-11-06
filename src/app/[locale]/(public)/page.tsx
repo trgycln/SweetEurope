@@ -17,10 +17,10 @@ import path from "node:path";
 export default async function Home({ 
   params 
 }: { 
-  params: { locale: string } 
+  params: Promise<{ locale: string }> 
 }) {
     // DEĞİŞİKLİK: 'locale'i fonksiyonun gövdesi içinde alıyoruz.
-    const { locale } = params;
+    const { locale } = await params;
     const dictionary = await getDictionary(locale as any);
     
     // Kategorileri database'den çek
@@ -40,6 +40,31 @@ export default async function Home({
     if (error) {
         console.error('Homepage - Supabase error:', JSON.stringify(error, null, 2));
     }
+
+    // Her kategori için ürün sayısını çek (ana kategori + alt kategoriler)
+    const { data: productCounts } = await supabase
+        .from('urunler')
+        .select('kategori_id, kategoriler!inner(id, ust_kategori_id)')
+        .neq('stok_sayisi', 0); // Sadece stokta olan ürünler
+
+    // Kategori ID'lerine göre ürün sayısını hesapla (ana kategori + alt kategorilerindeki ürünler)
+    const categoryProductCounts: Record<string, number> = {};
+    
+    if (productCounts) {
+        productCounts.forEach((product: any) => {
+            const categoryId = product.kategori_id;
+            const parentId = product.kategoriler.ust_kategori_id;
+            
+            // Alt kategoriyse, hem kendisine hem ana kategoriye say
+            if (parentId) {
+                categoryProductCounts[parentId] = (categoryProductCounts[parentId] || 0) + 1;
+            }
+            // Her ürünü kendi kategorisine say
+            categoryProductCounts[categoryId] = (categoryProductCounts[categoryId] || 0) + 1;
+        });
+    }
+    
+    console.log('Homepage - Product counts per category:', categoryProductCounts);
     // Public klasöründe gerçek dosyayı kontrol ederek image_url oluştur
     const kategorilerWithImages = (kategoriler || []).map((k: any) => {
         const base = k.slug as string;
@@ -53,7 +78,11 @@ export default async function Home({
             image_url = `/categories/${base}.jpg`;
         }
 
-        return { ...k, image_url };
+        return { 
+            ...k, 
+            image_url,
+            productCount: categoryProductCounts[k.id] || 0 
+        };
     });
 
     return (

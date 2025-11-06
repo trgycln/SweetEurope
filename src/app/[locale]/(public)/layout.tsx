@@ -11,10 +11,10 @@ export default async function LocaleLayout({
   params,
 }: {
   children: ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  // DEĞİŞİKLİK: 'locale'i fonksiyonun gövdesi içinde alıyoruz.
-  const { locale } = params;
+  // Next.js 15: params should be awaited
+  const { locale } = await params;
   const dictionary = await getDictionary(locale as any);
 
   return (
