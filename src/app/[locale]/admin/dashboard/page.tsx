@@ -18,6 +18,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 
 // --- YENİ: Chart bileşenini ayrı dosyadan import et ---
 import { FinanzChartClient } from './FinanzChartClient';
+import KPIBar from './KPIBar';
 // --- BİTTİ ---
 
 export const dynamic = 'force-dynamic';
@@ -93,8 +94,24 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
 
     const now = new Date();
     const todayISO = now.toISOString();
-    const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+    const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfTodayISO = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const startOfTomorrowISO = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString();
+    // Ay başlangıcı (MTD başlangıcı)
+    const mtdStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const mtdStartStr = mtdStart.toISOString().split('T')[0];
+    // Grafik için tam ay (mevcut chart bu aralığı kullanıyor)
+    const fullMonthStartStr = mtdStartStr;
+    const fullMonthEndStr = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+    // MTD bitiş bugünün tarihi
+    const mtdEndStr = todayISO.split('T')[0];
+    // Geçen ay aynı dönem: geçen ayın ilk günü -> geçen ayın bugüne denk gelen günü
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthStartStr = lastMonth.toISOString().split('T')[0];
+    const lastMonthEndSameDay = new Date(now.getFullYear(), now.getMonth(), 0); // geçen ayın son günü
+    const targetDay = now.getDate();
+    const lastMonthEnd = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), Math.min(targetDay, lastMonthEndSameDay.getDate()));
+    const lastMonthEndStr = lastMonthEnd.toISOString().split('T')[0];
 
     // Statusdefinitionen
     const OFFENE_BESTELL_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
@@ -110,7 +127,19 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         applicationsRes,
         sampleRequestsRes,
         productRequestsRes,
-        plReportRes
+        plReportRes,
+        // Faz 1 KPI ek sorgular
+        plMtdRes,
+        plPrevMtdRes,
+        ordersTodayRes,
+        ordersMtdRes,
+        overdueInvoicesRes,
+        // Sipariş durum dağılımı: son 30 gün için seçili statusler
+        odBeklemede,
+        odHazirlaniyor,
+        odYolda,
+        odTeslim,
+        odIptal
     ] = await Promise.all([
         supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_BESTELL_STATUS),
         supabase.rpc('get_kritik_stok_count'),
@@ -119,7 +148,23 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         supabase.from('firmalar').select('id', { count: 'exact' }).not('status', 'in', `(${ABGESCHLOSSENE_ANTRAG_STATUS.map(s => `'${s}'`).join(',')})`),
         supabase.from('numune_talepleri').select('id', { count: 'exact' }).eq('durum', NEUE_MUSTER_STATUS),
         supabase.from('yeni_urun_talepleri').select('id', { count: 'exact' }).eq('status', NEUE_PRODUKTANFRAGE_STATUS).then(res => res, err => ({ data: null, count: null, error: err })),
-        supabase.rpc('get_pl_report', { start_date: startDate, end_date: endDate }).returns<ReportData>().single()
+        // Grafik için tam ay P&L
+        supabase.rpc('get_pl_report', { start_date: fullMonthStartStr, end_date: fullMonthEndStr }).returns<ReportData>().single(),
+        // KPI'lar için MTD ve geçen ay aynı dönem
+        supabase.rpc('get_pl_report', { start_date: mtdStartStr, end_date: mtdEndStr }).returns<ReportData>().single(),
+        supabase.rpc('get_pl_report', { start_date: lastMonthStartStr, end_date: lastMonthEndStr }).returns<ReportData>().single(),
+        // Bugünkü sipariş adedi
+        supabase.from('siparisler').select('id', { count: 'exact' }).gte('created_at', startOfTodayISO).lt('created_at', startOfTomorrowISO),
+        // MTD sipariş sayısı (AOV için)
+        supabase.from('siparisler').select('id', { count: 'exact' }).gte('created_at', new Date(mtdStartStr).toISOString()).lt('created_at', new Date(new Date(mtdEndStr).getTime()+24*60*60*1000).toISOString()),
+        // Overdue faturalar: durum 'overdue' olanların tutarlarını çek
+        supabase.from('faturalar').select('tutar').eq('odeme_durumu', 'overdue'),
+        // Sipariş dağılımı (son 30 gün)
+        supabase.from('siparisler').select('id', { count: 'exact' }).eq('siparis_durumu', 'Beklemede').gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
+        supabase.from('siparisler').select('id', { count: 'exact' }).eq('siparis_durumu', 'Hazırlanıyor').gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
+        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', ['Yola Çıktı','shipped']).gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
+        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', ['Teslim Edildi','delivered']).gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
+        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', ['İptal Edildi','cancelled']).gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
     ]);
 
     // Hata loglama
@@ -146,6 +191,27 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     }
     
     const plReport = plReportRes.data;
+    const mtd: ReportData | null = ((plMtdRes as any)?.data ?? null);
+    const prevMtd: ReportData | null = ((plPrevMtdRes as any)?.data ?? null);
+    // Almanya KDV (gıda) %7: Gösterimde nete çevirelim
+    const VAT_RATE = 0.07;
+    const revenueMtdGross = mtd?.totalRevenue ?? 0;
+    const revenuePrevGross = prevMtd?.totalRevenue ?? 0;
+    const revenueMtdNet = revenueMtdGross / (1 + VAT_RATE);
+    const revenuePrevNet = revenuePrevGross / (1 + VAT_RATE);
+    const grossMarginPct = mtd && (mtd.totalRevenue ?? 0) > 0 ? Math.round(((mtd.grossProfit || 0) / (mtd.totalRevenue || 1)) * 100) : null;
+    const ordersToday = ordersTodayRes.count ?? 0;
+    const ordersMtd = ordersMtdRes.count ?? 0;
+    const aov = ordersMtd > 0 ? revenueMtdNet / ordersMtd : null;
+    const overdueCount = overdueInvoicesRes?.data ? overdueInvoicesRes.data.length : 0;
+    const overdueAmount = overdueInvoicesRes?.data ? overdueInvoicesRes.data.reduce((sum: number, r: any) => sum + (r.tutar || 0), 0) : 0;
+    const orderBreakdown = [
+        { key: 'Beklemede', count: odBeklemede.count ?? 0, color: 'text-yellow-600' },
+        { key: 'Hazırlanıyor', count: odHazirlaniyor.count ?? 0, color: 'text-blue-600' },
+        { key: 'Yolda', count: odYolda.count ?? 0, color: 'text-indigo-600' },
+        { key: 'Teslim', count: odTeslim.count ?? 0, color: 'text-green-600' },
+        { key: 'İptal', count: odIptal.count ?? 0, color: 'text-red-600' },
+    ];
     const overdueTasks: OverdueTask[] = tasksRes.data || [];
 
     return (
@@ -158,7 +224,20 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                 {/* BÖLÜM 1: FİNANSAL GRAFİK */}
                 <FinanzChartClient plReport={plReport} dictionary={dictionary} />
                 
-                {/* BÖLÜM 2: OPERASYONEL GÖSTERGELER (4 Kart) */}
+                {/* BÖLÜM 2: ÜST KPI ŞERİDİ (Sade KPI Bar) */}
+                {(() => {
+                    const deltaPct = revenuePrevNet > 0 ? Math.round(((revenueMtdNet - revenuePrevNet)/revenuePrevNet)*100) : null;
+                    const items = [
+                        { label: (operationalContent as any).kpiRevenueMtd || 'Bu Ay Ciro (Net)', value: formatCurrency(revenueMtdNet), hint: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% vs geçen ay` : undefined, href: `/${locale}/admin/operasyon/siparisler?date_from=${mtdStartStr}&date_to=${mtdEndStr}`, tone: 'accent' as 'accent' },
+                        { label: (operationalContent as any).kpiGrossMargin || 'Brüt Marj', value: grossMarginPct !== null ? `${grossMarginPct}%` : 'N/A', tone: 'positive' as 'positive' },
+                        { label: (operationalContent as any).kpiAov || 'AOV', value: aov !== null ? formatCurrency(aov) : 'N/A', href: `/${locale}/admin/operasyon/siparisler?date_from=${mtdStartStr}&date_to=${mtdEndStr}` },
+                        { label: (operationalContent as any).kpiOrdersToday || 'Bugün Sipariş', value: String(ordersToday), href: `/${locale}/admin/operasyon/siparisler?date_from=${mtdStartStr}&date_to=${mtdEndStr}` },
+                        { label: (operationalContent as any).kpiOverdueInvoices || 'Overdue Fatura', value: `${overdueCount} • ${formatCurrency(overdueAmount)}`, href: `/${locale}/admin/idari/finans/raporlama?tab=invoices&filter=overdue`, tone: (overdueCount>0 ? 'negative' : 'default') as 'negative' | 'default' },
+                    ];
+                    return <KPIBar items={items} />;
+                })()}
+
+                {/* BÖLÜM 3: OPERASYONEL GÖSTERGELER (mevcut 4 Kart) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <StatCard
                           title={operationalContent.cardNewApplications || "Neue Anträge"}
@@ -191,8 +270,30 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                             />
                       )}
                 </div>
-                
-                {/* BÖLÜM 3: AJANDA (GÖREV LİNKİ DÜZELTİLDİ) */}
+
+                {/* BÖLÜM 4: SİPARİŞ DURUMU DAĞILIMI (son 30 gün) */}
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                    <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).orderBreakdownTitle || 'Sipariş Durumu Dağılımı (30 gün)'}</h2>
+                    <div className="flex flex-col md:flex-row md:items-center gap-6">
+                        {/* Basit legend ve yüzdeler */}
+                        <div className="flex-1">
+                            <div className="space-y-2">
+                                {orderBreakdown.map((b) => (
+                                    <div key={b.key} className="flex items-center gap-3">
+                                        <span className={`inline-block w-3 h-3 rounded-full ${b.color.replace('text','bg')}`}></span>
+                                        <span className="text-sm font-medium text-text-main/80 w-32">{b.key}</span>
+                                        <div className="flex-1 h-2 bg-gray-100 rounded">
+                                            <div className={`${b.color.replace('text','bg')} h-2 rounded`} style={{ width: `${(b.count || 0) / Math.max(1, orderBreakdown.reduce((s,c)=>s+c.count,0)) * 100}%` }} />
+                                        </div>
+                                        <span className="text-sm font-semibold text-primary w-12 text-right">{b.count}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* BÖLÜM 5: AJANDA (GÖREV LİNKİ DÜZELTİLDİ) */}
                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
                       <div className="flex justify-between items-center mb-4">
                           <h2 className="font-serif text-2xl font-bold text-primary">{pageContent.agendaTitle || "Agenda & Dringende Aufgaben"}</h2>

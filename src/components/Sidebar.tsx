@@ -8,7 +8,7 @@ import {
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX,
     FiGift, FiLayers, FiSettings, FiChevronDown,
     FiRss, FiPaperclip, FiHardDrive, 
-    FiDollarSign, FiBarChart2, FiUser, FiStar // Yeni eklenen ikonlar
+    FiDollarSign, FiBarChart2, FiUser, FiStar, FiTag, FiUserCheck // Yeni eklenen ikonlar
 } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
@@ -38,7 +38,10 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
         reviews?: string; // YENİ LİNK - Değerlendirmeler
     };
 
-    const menuSections = [
+    type LinkItem = { name: any; href: string; icon: any; roles?: UserRole[] };
+    type MenuSection = { title: string; links: LinkItem[] };
+
+    const menuSections: MenuSection[] = [
         {
             title: sidebarContent.mainMenu,
             links: [
@@ -46,10 +49,11 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             ],
         },
         {
-            title: sidebarContent.crm,
+            title: sidebarContent.crm || 'CRM & Müşteri Yönetimi',
             links: [
-                { name: sidebarContent.customers, href: '/admin/crm/firmalar', icon: FiUsers },
-                // { name: sidebarContent.applications, href: '/admin/crm/basvurular', icon: FiGift, roles: ['Yönetici'] as UserRole[] }, // <-- İSTEK ÜZERİNE KALDIRILDI
+                { name: sidebarContent.customers || 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
+                { name: 'Müşteri Profilleri', href: '/admin/crm/musteri-profilleri', icon: FiTag, roles: ['Yönetici'] as UserRole[] },
+                { name: 'Profil Atamaları', href: '/admin/crm/profil-atamalari', icon: FiUserCheck, roles: ['Yönetici'] as UserRole[] },
             ],
         },
         {
@@ -66,7 +70,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             ]
         },
         {
-            title: sidebarContent.management,
+            title: 'Ürün Yönetimi',
             links: [
                 { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici'] as UserRole[] },
                 { 
@@ -82,6 +86,21 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                     icon: FiStar,
                     roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
                 },
+            ],
+        },
+        {
+            title: 'Fiyatlandırma',
+            links: [
+                { name: 'Fiyat Hesaplama', href: '/admin/urun-yonetimi/fiyat-hesaplama', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
+                { name: 'Fiyat Talepleri', href: '/admin/urun-yonetimi/fiyat-talepleri', icon: FiClipboard, roles: ['Yönetici'] as UserRole[] },
+                { name: 'Fiyat İstisnaları', href: '/admin/urun-yonetimi/fiyat-istisnalari', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
+                { name: 'Fiyat Kuralları', href: '/admin/urun-yonetimi/fiyat-kurallari', icon: FiBarChart2, roles: ['Yönetici'] as UserRole[] },
+            ],
+        },
+
+        {
+            title: 'Pazarlama',
+            links: [
                 {
                     name: sidebarContent.announcements || 'Ankündigungen',
                     href: '/admin/pazarlama/duyurular',
@@ -96,8 +115,6 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                 },
             ],
         },
-        // --- YENİ FİNANS BÖLÜMÜ ---
-        // 'idari/finans' yoluna uygun olarak 'Management' ve 'Settings' arasına eklendi.
         {
             title: sidebarContent.finances || 'Finanzen',
             links: [
@@ -105,22 +122,20 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                     name: sidebarContent.expenses || 'Giderler', 
                     href: '/admin/idari/finans/giderler', 
                     icon: FiDollarSign, 
-                    // Giderler sayfasındaki role göre ayarlandı
                     roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
                 },
                 { 
                     name: sidebarContent.reporting || 'Raporlama', 
                     href: '/admin/idari/finans/raporlama', 
                     icon: FiBarChart2, 
-                    // Raporlama sayfasındaki role göre ayarlandı
                     roles: ['Yönetici'] as UserRole[] 
                 },
             ]
         },
-        // -------------------------
         {
             title: sidebarContent.settings,
             links: [
+                { name: 'Sistem Ayarları', href: '/admin/ayarlar/sistem-ayarlari', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
                 { name: sidebarContent.templates, href: '/admin/ayarlar/sablonlar', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
                 { name: 'Profil', href: '/admin/profil', icon: FiUser },
             ]
@@ -155,8 +170,8 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                 </div>
                 
                 <nav className="flex-1 p-4">
-                    {menuSections.map((section) => {
-                        const hasAccessToSection = section.links.some(item =>
+                    {menuSections.map((section: MenuSection) => {
+                        const hasAccessToSection = section.links.some((item: LinkItem) =>
                             !item.roles || (userRole && item.roles.includes(userRole))
                         );
                         if (!hasAccessToSection) return null;
@@ -174,8 +189,8 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isSectionOpen ? 'max-h-96' : 'max-h-0'}`}>
                                     <div className="space-y-1 pt-2 pl-4 border-l-2 border-white/10 ml-4">
                                         {section.links
-                                            .filter(item => !item.roles || (userRole && item.roles.includes(userRole)))
-                                            .map((item) => {
+                                            .filter((item: LinkItem) => !item.roles || (userRole && item.roles.includes(userRole)))
+                                            .map((item: LinkItem) => {
                                                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                                                 return (
                                                     <Link

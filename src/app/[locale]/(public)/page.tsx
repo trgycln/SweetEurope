@@ -58,7 +58,7 @@ export default async function Home({
 
     return (
         <>
-            <HeroSection dictionary={dictionary} />
+            <HeroSection dictionary={dictionary} locale={locale} />
             <PhilosophySection dictionary={dictionary} />
             <CategoryShowcase 
                 dictionary={dictionary} 
@@ -68,7 +68,7 @@ export default async function Home({
             <TestimonialsSection dictionary={dictionary} />
             <QualityPromiseSection dictionary={dictionary} />
             <CertificationsStrip dictionary={dictionary} />
-            <CtaSection dictionary={dictionary} />
+            <CtaSection dictionary={dictionary} locale={locale} />
         </>
     );
 }

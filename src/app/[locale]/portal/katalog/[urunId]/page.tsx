@@ -9,6 +9,7 @@ import { NumuneButtonClient } from "@/components/portal/numune-button-client";
 import { Locale } from "@/i18n-config";
 import { getDictionary } from "@/dictionaries";
 import { Database, Tables, Enums } from "@/lib/supabase/database.types"; // Enums hinzugefügt
+import { resolvePartnerPreis } from '@/lib/pricing';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
@@ -20,6 +21,8 @@ export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamis
 // Typ für Produkt mit Kategorie (angepasst)
 type UrunWithKategori = Tables<'urunler'> & {
     kategoriler: Pick<Tables<'kategoriler'>, 'ad'> | null;
+    ortalama_puan?: number | null;
+    degerlendirme_sayisi?: number | null;
 };
 
 // Props-Typ für die Seite
@@ -78,17 +81,14 @@ export default async function PartnerUrunDetayPage({
     // Typ-Zuweisung für das Produkt
     const urunData = urun as UrunWithKategori;
 
-    // 3. Korrekten Partnerpreis bestimmen
-    let partnerPreis: number | null = null;
-    if (userRole === 'Alt Bayi') {
-        partnerPreis = urunData.satis_fiyati_alt_bayi;
-    } else if (userRole === 'Müşteri') {
-        partnerPreis = urunData.satis_fiyati_musteri;
-    }
-    // Admins/Teammitglieder im Portal? Fallback auf Kundenpreis.
-    else {
-         partnerPreis = urunData.satis_fiyati_musteri;
-    }
+    // 3. Partnerpreis: Önce müşteri istisnası, sonra kural, yoksa baz fiyat
+    const partnerPreis = await resolvePartnerPreis({
+        supabase,
+        urun: urunData as Tables<'urunler'>,
+        userRole,
+        firmaId,
+        qty: 1,
+    });
 
     // 4. Lagerbestand holen
     const stokMiktari = urunData.stok_miktari;
@@ -142,8 +142,8 @@ export default async function PartnerUrunDetayPage({
             {/* Review Section (Portal) */}
             <UrunReviewSection
                 urunId={urunData.id}
-                ortalamaPuan={urunData.ortalama_puan as any}
-                degerlendirmeSayisi={urunData.degerlendirme_sayisi as any}
+                ortalamaPuan={(urunData as any).ortalama_puan}
+                degerlendirmeSayisi={(urunData as any).degerlendirme_sayisi}
             />
         </div>
     );

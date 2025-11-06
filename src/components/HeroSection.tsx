@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link'; // Link bileşenini import ediyoruz
 
-const HeroSection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
+const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary, locale }) => {
   const [videoHasError, setVideoHasError] = useState(false);
 
   return (
@@ -38,7 +38,7 @@ const HeroSection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
           {dictionary.hero.subtitle}
         </p>
         {/* Buton artık bir Link bileşeni */}
-        <Link href="/register" className="bg-accent text-primary font-bold py-3 px-8 rounded-md transition-opacity duration-300 hover:opacity-90 shadow-lg inline-block">
+        <Link href={`/${locale}/register`} className="bg-accent text-primary font-bold py-3 px-8 rounded-md transition-opacity duration-300 hover:opacity-90 shadow-lg inline-block">
           {dictionary.hero.button}
         </Link>
       </div>

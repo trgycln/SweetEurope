@@ -7,7 +7,7 @@ const DecorativeSeparator = () => (
     </div>
 );
 
-const CtaSection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
+const CtaSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary, locale }) => {
   return (
     <section className="bg-primary text-secondary py-20 px-6">
       <div className="container mx-auto text-center max-w-3xl">
@@ -23,7 +23,7 @@ const CtaSection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
 
         {/* Buton artık bir Link bileşeni */}
         <Link 
-          href="/register" 
+          href={`/${locale}/register`} 
           className="bg-accent text-primary font-bold py-3 px-10 rounded-md text-lg hover:opacity-90 transition-opacity inline-block shadow-lg"
         >
           {dictionary.cta.button}

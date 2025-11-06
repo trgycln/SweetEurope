@@ -33,22 +33,26 @@ const STATUS_RENKLERI: Record<string, string> = { // String als Schlüssel verwe
     "Pasif": "bg-red-100 text-red-800"
 };
 
-// Props-Typ für die Seite (Promises entfernt, da searchParams direkt verfügbar)
+// Props-Typ für die Seite (Promises für Next.js 15)
 interface FirmalarListPageProps {
-    params: { locale: Locale };
-    searchParams?: {
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{
         q?: string;
         status?: string;
         status_not_in?: string;
-    };
+    }>;
 }
 
 
 export default async function FirmalarListPage({
-    params: { locale }, // locale direkt aus params
+    params,
     searchParams,
-}: FirmalarListPageProps) { // Korrekten Typ verwenden
+}: FirmalarListPageProps) {
     noStore(); // Caching deaktivieren
+
+    // Await params and searchParams for Next.js 15
+    const { locale } = await params;
+    const searchParamsResolved = searchParams ? await searchParams : {};
 
     // --- Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies();
@@ -58,13 +62,12 @@ export default async function FirmalarListPage({
     // Optional: Benutzerprüfung
     // const { data: { user } } = await supabase.auth.getUser();
     // if (!user) { return redirect(`/${locale}/login`); }
-    // ... Rollenprüfung ...
-
+    // ... Rollenprüfung ---
 
     // Filterwerte extrahieren
-    const searchQuery = searchParams?.q || '';
-    const statusFilter = searchParams?.status || '';
-    const statusNotInFilter = searchParams?.status_not_in?.split(',') || [];
+    const searchQuery = searchParamsResolved.q || '';
+    const statusFilter = searchParamsResolved.status || '';
+    const statusNotInFilter = searchParamsResolved.status_not_in?.split(',') || [];
 
     // Basisabfrage
     let query = supabase
