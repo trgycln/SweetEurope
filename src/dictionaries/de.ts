@@ -46,6 +46,8 @@ export const dictionary = {
     emailLabel: "E-Mail-Adresse",
     passwordLabel: "Passwort",
     errorTitle: "Anmeldung fehlgeschlagen",
+    errorMessage: "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Angaben.",
+    invalidCredentialsError: "E-Mail oder Passwort falsch. Bitte versuchen Sie es erneut.",
     submitButton: "Anmelden",
     submittingButton: "Anmeldung läuft...",
     forgotPasswordLink: "Passwort vergessen?",

@@ -40,8 +40,17 @@ export default function LoginForm({ dictionary }: { dictionary: Dictionary }) {
         });
 
         if (error) {
-            setError(content.errorMessage);
-            console.error("Giriş Hatası:", error.message);
+            // Kullanıcı dostu hata mesajı
+            if (error.message.includes('Invalid login credentials')) {
+                setError(content.invalidCredentialsError || 'E-posta veya şifre hatalı. Lütfen tekrar deneyin.');
+            } else {
+                setError(content.errorMessage);
+            }
+            
+            // Development ortamında detaylı log
+            if (process.env.NODE_ENV === 'development') {
+                console.error("Giriş Hatası:", error.message);
+            }
             setIsSubmitting(false);
         } else {
             // DEĞİŞİKLİK: 'reload()' kullanarak daha güvenilir bir yönlendirme sağlıyoruz.

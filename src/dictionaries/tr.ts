@@ -30,6 +30,8 @@ export const dictionary: Partial<Dictionary> = {
     emailLabel: "E-posta Adresi",
     passwordLabel: "Parola",
     errorTitle: "Giriş Başarısız",
+    errorMessage: "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.",
+    invalidCredentialsError: "E-posta veya şifre hatalı. Lütfen tekrar deneyin.",
     submitButton: "Giriş Yap",
     submittingButton: "Giriş Yapılıyor...",
     forgotPasswordLink: "Parolanızı mı unuttunuz?",

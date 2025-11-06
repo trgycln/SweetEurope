@@ -30,6 +30,8 @@ export const dictionary: Partial<Dictionary> = {
     emailLabel: "Email Address",
     passwordLabel: "Password",
     errorTitle: "Login Failed",
+    errorMessage: "Login failed. Please check your credentials.",
+    invalidCredentialsError: "Email or password is incorrect. Please try again.",
     submitButton: "Login",
     submittingButton: "Logging in...",
     forgotPasswordLink: "Forgot password?",

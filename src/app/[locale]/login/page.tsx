@@ -9,9 +9,9 @@ import LoginForm from '@/components/LoginForm'; // Client-Komponente
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
-export default async function LoginPage({ params }: { params: { locale: Locale } }) {
+export default async function LoginPage({ params }: { params: Promise<{ locale: Locale }> }) {
     noStore(); // Caching deaktivieren, um Session-Status immer neu zu prüfen
-    const locale = params.locale; // Locale holen
+    const { locale } = await params; // Locale holen
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen
@@ -37,5 +37,5 @@ export default async function LoginPage({ params }: { params: { locale: Locale }
     }
     
     // Benutzer ist nicht eingeloggt, Login-Formular anzeigen
-    return <LoginForm dictionary={dictionary} locale={locale} />; // Locale an LoginForm übergeben
+    return <LoginForm dictionary={dictionary} />;
 }
