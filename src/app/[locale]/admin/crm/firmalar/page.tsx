@@ -4,13 +4,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Database, Tables, Enums } from '@/lib/supabase/database.types'; // Enums hinzugefügt
+import { Database, Tables, Enums } from '@/lib/supabase/database.types';
 import { FiPlus, FiUsers, FiPhone } from 'react-icons/fi';
-import FirmaFiltreleri from './FirmaFiltreleri'; // Client Komponente für Filter
-import { cookies } from 'next/headers'; // WICHTIG: Importiert
-import { Locale } from '@/i18n-config'; // Locale importieren
-import { redirect } from 'next/navigation'; // redirect importieren
-import { unstable_noStore as noStore } from 'next/cache'; // noStore für dynamische Daten
+import FirmaFiltreleri from './FirmaFiltreleri';
+import { cookies } from 'next/headers';
+import { Locale } from '@/i18n-config';
+import { getDictionary } from '@/dictionaries';
+import { redirect } from 'next/navigation';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
@@ -48,11 +49,15 @@ export default async function FirmalarListPage({
     params,
     searchParams,
 }: FirmalarListPageProps) {
-    noStore(); // Caching deaktivieren
+    noStore();
 
     // Await params and searchParams for Next.js 15
     const { locale } = await params;
     const searchParamsResolved = searchParams ? await searchParams : {};
+
+    // Get dictionary for i18n
+    const dictionary = await getDictionary(locale);
+    const content = dictionary.adminDashboard?.crmPage || {};
 
     // --- Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies();
@@ -107,13 +112,13 @@ export default async function FirmalarListPage({
             {/* Header */}
             <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="font-serif text-4xl font-bold text-primary">Kundenverwaltung (CRM)</h1>
-                    <p className="text-text-main/80 mt-1">{firmaSayisi} Firmen gefunden.</p>
+                    <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Kundenverwaltung (CRM)'}</h1>
+                    <p className="text-text-main/80 mt-1">{firmaSayisi} {content.companiesFound || 'Firmen gefunden.'}</p>
                 </div>
                 <Link href={`/${locale}/admin/crm/firmalar/yeni`} passHref>
                     <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
                         <FiPlus size={18} />
-                        Neue Firma
+                        {content.newCompany || 'Neue Firma'}
                     </button>
                 </Link>
             </header>
@@ -126,10 +131,16 @@ export default async function FirmalarListPage({
                 <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                     <FiUsers className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                        {searchQuery || statusFilter || statusNotInFilter.length > 0 ? 'Keine Firmen für Filter gefunden' : 'Noch keine Firmen erfasst'}
+                        {searchQuery || statusFilter || statusNotInFilter.length > 0 
+                            ? (content.noCompaniesFilterTitle || 'Keine Firmen für Filter gefunden')
+                            : (content.noCompaniesTitle || 'Noch keine Firmen erfasst')
+                        }
                     </h2>
                     <p className="mt-2 text-gray-600">
-                        {searchQuery || statusFilter || statusNotInFilter.length > 0 ? 'Versuchen Sie, Ihre Suchkriterien zu ändern.' : 'Fügen Sie eine neue Firma hinzu, um zu beginnen.'}
+                        {searchQuery || statusFilter || statusNotInFilter.length > 0 
+                            ? (content.noCompaniesFilterDesc || 'Versuchen Sie, Ihre Suchkriterien zu ändern.')
+                            : (content.noCompaniesDesc || 'Fügen Sie eine neue Firma hinzu, um zu beginnen.')
+                        }
                     </p>
                 </div>
             ) : (
@@ -144,17 +155,17 @@ export default async function FirmalarListPage({
                                         <p className="text-sm text-gray-500">{firma.kategori || '-'}</p>
                                     </div>
                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>
-                                        {firma.status || 'Unbekannt'}
+                                        {firma.status || (content.unknown || 'Unbekannt')}
                                     </span>
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <FiPhone size={14} className="text-gray-400"/>
-                                        <span>{firma.telefon || 'Kein Telefon'}</span>
+                                        <span>{firma.telefon || (content.noPhone || 'Kein Telefon')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <FiUsers size={14} className="text-gray-400"/>
-                                        <span>Verantwortlich: {firma.sorumlu_personel?.tam_ad || 'Nicht zugewiesen'}</span>
+                                        <span>{content.responsiblePerson || 'Verantwortlich: '}{firma.sorumlu_personel?.tam_ad || (content.notAssigned || 'Nicht zugewiesen')}</span>
                                     </div>
                                 </div>
                             </Link>
@@ -166,7 +177,13 @@ export default async function FirmalarListPage({
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    {['Firma', 'Kategorie', 'Telefon', 'Verantwortlich', 'Status'].map(header => (
+                                    {[
+                                        content.companyName || 'Firma', 
+                                        content.category || 'Kategorie', 
+                                        content.phone || 'Telefon', 
+                                        content.responsible || 'Verantwortlich', 
+                                        content.status || 'Status'
+                                    ].map(header => (
                                         <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                             {header}
                                         </th>
@@ -183,9 +200,9 @@ export default async function FirmalarListPage({
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.kategori || '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.telefon || '-'}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.sorumlu_personel?.tam_ad || 'Nicht zugewiesen'}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.sorumlu_personel?.tam_ad || (content.notAssigned || 'Nicht zugewiesen')}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>{firma.status || 'Unbekannt'}</span>
+                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>{firma.status || (content.unknown || 'Unbekannt')}</span>
                                         </td>
                                     </tr>
                                 ))}
