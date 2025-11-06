@@ -20,11 +20,11 @@ const supabase = createClient(url, serviceRoleKey);
 
 // Define canonical categories (the ones we want to keep)
 const CANONICAL_CATEGORIES = [
-  { name: { tr: 'Pastalar & Kekler', de: 'Torten & Kuchen', en: 'Cakes & Tarts' }, slug: 'cakes-and-tarts' },
-  { name: { tr: 'Kahve & İçecekler', de: 'Kaffee & Getränke', en: 'Coffee & Drinks' }, slug: 'coffee-and-drinks' },
-  { name: { tr: 'Pizza & Fast Food', de: 'Pizza & Fast Food', en: 'Pizza & Fast Food' }, slug: 'pizza-and-fast-food' },
-  { name: { tr: 'Soslar & Malzemeler', de: 'Saucen & Zutaten', en: 'Sauces & Ingredients' }, slug: 'sauces-and-ingredients' },
-  { name: { tr: 'Aksesuarlar', de: 'Zubehör', en: 'Accessories' }, slug: 'accessories' },
+  { name: { tr: 'Pastalar & Kekler', de: 'Torten & Kuchen', en: 'Cakes & Tarts' }, slug: 'cakes-and-tarts', patterns: ['cake', 'tart', 'cheesecake', 'vegan'] },
+  { name: { tr: 'Kahve & İçecekler', de: 'Kaffee & Getränke', en: 'Coffee & Drinks' }, slug: 'coffee-and-drinks', patterns: ['coffee', 'drink', 'beverage'] },
+  { name: { tr: 'Pizza & Fast Food', de: 'Pizza & Fast Food', en: 'Pizza & Fast Food' }, slug: 'pizza-and-fast-food', patterns: ['pizza', 'fast food'] },
+  { name: { tr: 'Soslar & Malzemeler', de: 'Saucen & Zutaten', en: 'Sauces & Ingredients' }, slug: 'sauces-and-ingredients', patterns: ['sauce', 'ingredient'] },
+  { name: { tr: 'Aksesuarlar', de: 'Zubehör', en: 'Accessories' }, slug: 'accessories', patterns: ['accessor'] },
 ];
 
 async function main() {
@@ -45,6 +45,22 @@ async function main() {
     groups[enName].push(cat);
   });
   
+  // Also group by pattern matching for edge cases
+  const patternGroups = new Map();
+  for (const canonical of CANONICAL_CATEGORIES) {
+    patternGroups.set(canonical.slug, []);
+    for (const cat of allCats) {
+      const enName = (cat.ad?.en || cat.ad?.de || cat.ad?.tr || '').toLowerCase();
+      const slug = (cat.slug || '').toLowerCase();
+      for (const pattern of canonical.patterns) {
+        if (enName.includes(pattern) || slug.includes(pattern)) {
+          patternGroups.get(canonical.slug).push(cat);
+          break;
+        }
+      }
+    }
+  }
+  
   // Show duplicates
   console.log('📋 Categories with duplicates:');
   Object.entries(groups)
@@ -59,9 +75,13 @@ async function main() {
   // For each canonical category, find or create the master, then merge duplicates
   for (const canonical of CANONICAL_CATEGORIES) {
     const enName = canonical.name.en.toLowerCase();
-    const matchingCats = groups[enName] || [];
+    const exactMatches = groups[enName] || [];
+    const patternMatches = patternGroups.get(canonical.slug) || [];
     
-    if (matchingCats.length === 0) {
+    // Combine exact and pattern matches, deduplicate
+    const allMatches = [...new Map([...exactMatches, ...patternMatches].map(c => [c.id, c])).values()];
+    
+    if (allMatches.length === 0) {
       console.log(`⚠️  No categories found for "${canonical.name.en}", will create one`);
       if (!DRY) {
         const { data: newCat, error: createErr } = await supabase
@@ -78,16 +98,28 @@ async function main() {
       continue;
     }
     
-    // Find the best master (prefer one with products, or first with correct slug)
+    // Find the best master (prefer one with correct slug, or most products)
     let masterId = null;
-    const withSlug = matchingCats.find(c => c.slug === canonical.slug);
+    const withSlug = allMatches.find(c => c.slug === canonical.slug);
     
     if (withSlug) {
       masterId = withSlug.id;
     } else {
-      // Pick first one, update its slug
-      masterId = matchingCats[0].id;
+      // Pick one with most products or first
+      const counts = await Promise.all(
+        allMatches.map(async c => {
+          const { count } = await supabase
+            .from('urunler')
+            .select('id', { count: 'exact', head: true })
+            .eq('kategori_id', c.id);
+          return { id: c.id, count: count || 0 };
+        })
+      );
+      counts.sort((a, b) => b.count - a.count);
+      masterId = counts[0].id;
+      
       if (!DRY) {
+        // Update master with correct slug and name
         await supabase
           .from('kategoriler')
           .update({ slug: canonical.slug, ad: canonical.name })
@@ -95,7 +127,7 @@ async function main() {
       }
     }
     
-    const duplicateIds = matchingCats.filter(c => c.id !== masterId).map(c => c.id);
+    const duplicateIds = allMatches.filter(c => c.id !== masterId).map(c => c.id);
     
     if (duplicateIds.length === 0) {
       console.log(`✓ "${canonical.name.en}": already clean (1 category)`);
@@ -145,7 +177,9 @@ async function main() {
   for (const canonical of CANONICAL_CATEGORIES) {
     const enName = canonical.name.en.toLowerCase();
     const matches = groups[enName] || [];
-    if (matches.length > 0) canonicalIds.add(matches[0].id);
+    const patternMatches = patternGroups.get(canonical.slug) || [];
+    const allMatches = [...new Map([...matches, ...patternMatches].map(c => [c.id, c])).values()];
+    if (allMatches.length > 0) canonicalIds.add(allMatches[0].id);
   }
   
   const orphans = allCats.filter(c => !canonicalIds.has(c.id));
@@ -157,11 +191,37 @@ async function main() {
         .select('id', { count: 'exact', head: true })
         .eq('kategori_id', orphan.id);
       
+      const name = orphan.ad?.en || orphan.ad?.de || orphan.ad?.tr || orphan.id;
       if (count === 0) {
-        const name = orphan.ad?.en || orphan.ad?.de || orphan.ad?.tr || orphan.id;
         console.log(`   🗑️  Deleting empty orphan: "${name}"`);
         if (!DRY) {
           await supabase.from('kategoriler').delete().eq('id', orphan.id);
+        }
+      } else {
+        // Move products from non-empty orphans to best-fit canonical category
+        console.log(`   📦 Orphan "${name}" has ${count} products - moving to best-fit canonical category`);
+        const catName = name.toLowerCase();
+        let bestFit = CANONICAL_CATEGORIES[0]; // Default to Cakes
+        for (const canonical of CANONICAL_CATEGORIES) {
+          for (const pattern of canonical.patterns) {
+            if (catName.includes(pattern)) {
+              bestFit = canonical;
+              break;
+            }
+          }
+        }
+        
+        // Find the master ID for best-fit
+        const enName = bestFit.name.en.toLowerCase();
+        const matches = groups[enName] || [];
+        const patternMatches = patternGroups.get(bestFit.slug) || [];
+        const allMatches = [...new Map([...matches, ...patternMatches].map(c => [c.id, c])).values()];
+        const masterId = allMatches.find(c => c.slug === bestFit.slug)?.id || allMatches[0]?.id;
+        
+        if (masterId && !DRY) {
+          await supabase.from('urunler').update({ kategori_id: masterId }).eq('kategori_id', orphan.id);
+          await supabase.from('kategoriler').delete().eq('id', orphan.id);
+          console.log(`   ✅ Moved to "${bestFit.name.en}" and deleted orphan`);
         }
       }
     }
