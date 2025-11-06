@@ -279,9 +279,13 @@ export const dictionary = {
   adminSidebar: {
     title: "Admin-Panel",
     mainMenu: "Hauptmenü",
-    crm: "CRM",
+    crm: "CRM & Kundenverwaltung",
     management: "Verwaltung",
     operations: "Betrieb",
+    productManagement: "Produktverwaltung",
+    pricing: "Preisgestaltung",
+    marketing: "Marketing",
+    finances: "Finanzen",
     settings: "Einstellungen",
     dashboard: "Dashboard",
     customers: "Kunden",
@@ -292,10 +296,22 @@ export const dictionary = {
     orders: "Bestellungen",
     templates: "Vorlagen",
     announcements: "Ankündigungen",
-    // KORREKTUR: adminHeader war hier fälschlicherweise drin
-    marketingMaterials: "Marketingmaterial", // Hinzugefügt
-    sampleRequests: "Musteranfragen",     // Hinzugefügt
-    productRequests: "Produktanfragen",  // Hinzugefügt
+    marketingMaterials: "Marketingmaterial",
+    sampleRequests: "Musteranfragen",
+    productRequests: "Produktanfragen",
+    reviews: "Bewertungen",
+    expenses: "Ausgaben",
+    reporting: "Berichterstattung",
+    // Preisgestaltung Untermenüs
+    priceCalculation: "Preisberechnung",
+    priceRequests: "Preisanfragen",
+    priceExceptions: "Preisausnahmen",
+    priceRules: "Preisregeln",
+    // Einstellungen Untermenüs
+    systemSettings: "Systemeinstellungen",
+    profile: "Profil",
+    customerProfiles: "Kundenprofile",
+    profileAssignments: "Profilzuweisungen",
   },
 
   // KORREKTUR: adminHeader auf die oberste Ebene verschoben

@@ -26,16 +26,27 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
     const pathname = usePathname();
     const content = dictionary.adminSidebar;
 
-    // Type assertion için yeni finans anahtarları eklendi
+    // Type assertion for additional sidebar properties
     const sidebarContent = content as typeof content & {
         announcements?: string;
         marketingMaterials?: string;
         sampleRequests?: string;
         productRequests?: string;
-        finances?: string; // YENİ BÖLÜM BAŞLIĞI
-        expenses?: string; // YENİ LİNK
-        reporting?: string; // YENİ LİNK
-        reviews?: string; // YENİ LİNK - Değerlendirmeler
+        productManagement?: string;
+        pricing?: string;
+        marketing?: string;
+        finances?: string;
+        expenses?: string;
+        reporting?: string;
+        reviews?: string;
+        priceCalculation?: string;
+        priceRequests?: string;
+        priceExceptions?: string;
+        priceRules?: string;
+        systemSettings?: string;
+        profile?: string;
+        customerProfiles?: string;
+        profileAssignments?: string;
     };
 
     type LinkItem = { name: any; href: string; icon: any; roles?: UserRole[] };
@@ -52,8 +63,8 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             title: sidebarContent.crm || 'CRM & Müşteri Yönetimi',
             links: [
                 { name: sidebarContent.customers || 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
-                { name: 'Müşteri Profilleri', href: '/admin/crm/musteri-profilleri', icon: FiTag, roles: ['Yönetici'] as UserRole[] },
-                { name: 'Profil Atamaları', href: '/admin/crm/profil-atamalari', icon: FiUserCheck, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.customerProfiles || 'Müşteri Profilleri', href: '/admin/crm/musteri-profilleri', icon: FiTag, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.profileAssignments || 'Profil Atamaları', href: '/admin/crm/profil-atamalari', icon: FiUserCheck, roles: ['Yönetici'] as UserRole[] },
             ],
         },
         {
@@ -70,7 +81,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             ]
         },
         {
-            title: 'Ürün Yönetimi',
+            title: sidebarContent.productManagement || 'Ürün Yönetimi',
             links: [
                 { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici'] as UserRole[] },
                 { 
@@ -89,17 +100,17 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             ],
         },
         {
-            title: 'Fiyatlandırma',
+            title: sidebarContent.pricing || 'Fiyatlandırma',
             links: [
-                { name: 'Fiyat Hesaplama', href: '/admin/urun-yonetimi/fiyat-hesaplama', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
-                { name: 'Fiyat Talepleri', href: '/admin/urun-yonetimi/fiyat-talepleri', icon: FiClipboard, roles: ['Yönetici'] as UserRole[] },
-                { name: 'Fiyat İstisnaları', href: '/admin/urun-yonetimi/fiyat-istisnalari', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
-                { name: 'Fiyat Kuralları', href: '/admin/urun-yonetimi/fiyat-kurallari', icon: FiBarChart2, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.priceCalculation || 'Fiyat Hesaplama', href: '/admin/urun-yonetimi/fiyat-hesaplama', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.priceRequests || 'Fiyat Talepleri', href: '/admin/urun-yonetimi/fiyat-talepleri', icon: FiClipboard, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.priceExceptions || 'Fiyat İstisnaları', href: '/admin/urun-yonetimi/fiyat-istisnalari', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.priceRules || 'Fiyat Kuralları', href: '/admin/urun-yonetimi/fiyat-kurallari', icon: FiBarChart2, roles: ['Yönetici'] as UserRole[] },
             ],
         },
 
         {
-            title: 'Pazarlama',
+            title: sidebarContent.marketing || 'Pazarlama',
             links: [
                 {
                     name: sidebarContent.announcements || 'Ankündigungen',
@@ -135,9 +146,9 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
         {
             title: sidebarContent.settings,
             links: [
-                { name: 'Sistem Ayarları', href: '/admin/ayarlar/sistem-ayarlari', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.systemSettings || 'Sistem Ayarları', href: '/admin/ayarlar/sistem-ayarlari', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
                 { name: sidebarContent.templates, href: '/admin/ayarlar/sablonlar', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
-                { name: 'Profil', href: '/admin/profil', icon: FiUser },
+                { name: sidebarContent.profile || 'Profil', href: '/admin/profil', icon: FiUser },
             ]
         }
     ];
