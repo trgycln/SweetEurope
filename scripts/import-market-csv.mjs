@@ -87,34 +87,67 @@ async function findCategoryIdForGroup(groupTitle) {
   return null; // We'll ask user if null
 }
 
+function slugifyCategory(text) {
+  const map = { 'ç':'c','ğ':'g','ı':'i','ö':'o','ş':'s','ü':'u','Ç':'c','Ğ':'g','İ':'i','Ö':'o','Ş':'s','Ü':'u' };
+  return String(text || '')
+    .split('')
+    .map((ch) => map[ch] || ch)
+    .join('')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 60);
+}
+
+// Cache for category lookups to avoid repeated DB queries
+const categoryCache = new Map();
+
 async function ensureDefaultCategory({ tr, de, en }) {
+  // Check cache first
+  const cacheKey = `${en}|${de}|${tr}`;
+  if (categoryCache.has(cacheKey)) {
+    return categoryCache.get(cacheKey);
+  }
+
+  // Search by exact match first (case-insensitive but not fuzzy)
   const variants = [
-    { col: 'tr', txt: tr },
-    { col: 'de', txt: de },
     { col: 'en', txt: en },
+    { col: 'de', txt: de },
+    { col: 'tr', txt: tr },
   ];
-  // Try find by any variant
+  
   for (const v of variants) {
-    const expr = `ad->>'${v.col}'`;
+    if (!v.txt) continue;
+    // Use eq with case normalization instead of ilike to avoid partial matches
     const { data } = await supabase
       .from('kategoriler')
       .select('id')
-      .ilike(expr, v.txt)
+      .ilike(`ad->>'${v.col}'`, v.txt)
       .limit(1);
-    if (data && data.length) return data[0].id;
+    if (data && data.length) {
+      categoryCache.set(cacheKey, data[0].id);
+      return data[0].id;
+    }
   }
-  // Create if not found
+  
+  // If not found, create new category
   const ad = { tr, de, en };
+  const slug = slugifyCategory(en || de || tr);
   const { data: ins, error } = await supabase
     .from('kategoriler')
-    .insert({ ad })
+    .insert({ ad, slug })
     .select('id')
     .single();
   if (error) {
     console.error('❌ Varsayılan kategori oluşturulamadı:', error.message);
     return null;
   }
-  return ins?.id || null;
+  const newId = ins?.id || null;
+  if (newId) {
+    categoryCache.set(cacheKey, newId);
+  }
+  return newId;
 }
 
 async function findUnitIdByName(names = ['Kutu', 'Box']) {
