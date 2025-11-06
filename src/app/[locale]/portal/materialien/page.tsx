@@ -1,19 +1,15 @@
 // src/app/[locale]/portal/materialien/page.tsx
-// KORRIGIERTE VERSION (await cookies + await createClient)
-
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
-import { Tables, Enums } from '@/lib/supabase/database.types';
+import { Tables } from '@/lib/supabase/database.types';
 import { FiDownload, FiPaperclip, FiTag, FiUsers } from 'react-icons/fi';
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { cookies } from 'next/headers';
+import { unstable_noStore as noStore } from 'next/cache';
 
-// Typ für die Material-Daten
 type Material = Tables<'pazarlama_materyalleri'>;
 
-// Hilfsfunktion zur Formatierung der Dateigröße
 const formatBytes = (bytes: number | null, decimals = 1) => {
     if (!bytes || bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -81,22 +77,22 @@ export default async function MaterialienPortalPage({
             </header>
 
             {materialListe.length === 0 ? (
-                <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm"> {/* Styling angepasst */}
+                <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                     <FiPaperclip className="mx-auto text-5xl text-gray-300 mb-4" />
-                    <p className="mt-2 text-gray-500">{content.noMaterials}</p> {/* Styling angepasst */}
+                    <p className="mt-2 text-gray-500">{content.noMaterials}</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200"> {/* Styling angepasst */}
-                    <ul className="divide-y divide-gray-200"> {/* Styling angepasst */}
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                    <ul className="divide-y divide-gray-200">
                         {materialListe.map((material) => (
-                            <li key={material.id} className="p-4 sm:p-6 hover:bg-gray-50/50 transition-colors"> {/* Styling angepasst */}
+                            <li key={material.id} className="p-4 sm:p-6 hover:bg-gray-50/50 transition-colors">
                                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                                     <div className="flex-grow">
-                                        <h3 className="font-semibold text-primary text-lg">{material.baslik}</h3> {/* Styling angepasst */}
+                                        <h3 className="font-semibold text-primary text-lg">{material.baslik}</h3>
                                         {material.aciklama && (
-                                            <p className="text-sm text-gray-600 mt-1">{material.aciklama}</p> {/* Styling angepasst */}
+                                            <p className="text-sm text-gray-600 mt-1">{material.aciklama}</p>
                                         )}
-                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mt-2"> {/* Styling angepasst */}
+                                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mt-2">
                                             <span className="inline-flex items-center gap-1">
                                                 <FiTag size={12} /> {material.kategori}
                                             </span>
