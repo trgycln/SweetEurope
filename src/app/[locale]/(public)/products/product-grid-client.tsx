@@ -23,7 +23,8 @@ const colorGradients = [
 
 // Star Rating Component - Will show real ratings from database
 const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: number }) => {
-    if (!rating || rating === 0) return null;
+    // Değerlendirme yoksa hiçbir şey gösterme
+    if (!rating || rating === 0 || !reviewCount || reviewCount === 0) return null;
     
     return (
         <div className="flex items-center gap-1">
@@ -40,9 +41,7 @@ const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: numb
                 />
             ))}
             <span className="text-sm font-semibold text-gray-700 ml-1">{rating.toFixed(1)}</span>
-            {reviewCount > 0 && (
-                <span className="text-xs text-gray-500 ml-1">({reviewCount})</span>
-            )}
+            <span className="text-xs text-gray-500 ml-1">({reviewCount})</span>
         </div>
     );
 };
