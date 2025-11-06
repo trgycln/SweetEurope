@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useParams } from 'next/navigation';
+import { usePathname, useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FiGlobe, FiChevronDown, FiUser, FiSearch } from 'react-icons/fi';
 import { Dictionary } from '@/dictionaries';
@@ -21,6 +21,7 @@ const diller = [
 export function PublicHeader({ dictionary }: PublicHeaderProps) {
   const pathname = usePathname();
   const params = useParams();
+  const router = useRouter();
   const currentLocale = params.locale as string;
 
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -39,6 +40,13 @@ export function PublicHeader({ dictionary }: PublicHeaderProps) {
   const currentLangName = diller.find(d => d.kod === currentLocale)?.ad || 'Dil';
   
   const nav = dictionary.navigation;
+
+  const handleLanguageChange = (newLocale: string) => {
+    setIsLangMenuOpen(false);
+    const newPath = `/${newLocale}${pathWithoutLocale}`;
+    router.push(newPath);
+    router.refresh();
+  };
 
   return (
     // Tasarım: Eski admin header'ınızdaki 'fixed', 'z-20', 'h-16', 'border-b' gibi sınıfları temel aldık.
@@ -91,15 +99,13 @@ export function PublicHeader({ dictionary }: PublicHeaderProps) {
             <div className="absolute right-0 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
               <div className="py-1">
                 {diller.map((dil) => (
-                  <Link
+                  <button
                     key={dil.kod}
-                    href={pathWithoutLocale}
-                    locale={dil.kod}
-                    onClick={() => setIsLangMenuOpen(false)}
+                    onClick={() => handleLanguageChange(dil.kod)}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     {dil.ad}
-                  </Link>
+                  </button>
                 ))}
               </div>
             </div>

@@ -16,10 +16,10 @@ type UrunWithKategorie = Tables<'urunler'> & {
     kategoriler?: Pick<Tables<'kategoriler'>, 'id' | 'ad'> | null;
 };
 
-export default async function PublicUrunDetayPage({ params }: { params: { locale: Locale; slug: string } }) {
+export default async function PublicUrunDetayPage({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    const { locale, slug } = params;
+    const { locale, slug } = await params;
 
     // Dictionary und Produkt parallel abrufen
     const [dictionary, { data: urunData }] = await Promise.all([
