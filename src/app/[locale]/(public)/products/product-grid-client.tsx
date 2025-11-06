@@ -10,6 +10,7 @@ interface ProductGridClientProps {
     urunler: Urun[];
     locale: string;
     kategoriAdlariMap: Map<string, string>;
+    pagination?: { page: number; perPage: number; total: number; kategori?: string };
 }
 
 const colorGradients = [
@@ -46,7 +47,7 @@ const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: numb
     );
 };
 
-export function ProductGridClient({ urunler, locale, kategoriAdlariMap }: ProductGridClientProps) {
+export function ProductGridClient({ urunler, locale, kategoriAdlariMap, pagination }: ProductGridClientProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -59,6 +60,78 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap }: Produc
 
         return filtered;
     }, [urunler, searchTerm, locale]);
+
+    const Pagination = () => {
+        if (!pagination) return null;
+        const { page, perPage, total, kategori } = pagination;
+        const totalPages = Math.max(1, Math.ceil(total / perPage));
+        if (totalPages <= 1) return null;
+
+        const makeHref = (p: number) => {
+            const params = new URLSearchParams();
+            params.set('page', String(p));
+            params.set('limit', String(perPage));
+            if (kategori) params.set('kategori', kategori);
+            return `/${locale}/products?${params.toString()}`;
+        };
+
+        const pages: number[] = [];
+        const start = Math.max(1, page - 2);
+        const end = Math.min(totalPages, page + 2);
+        for (let p = start; p <= end; p++) pages.push(p);
+
+        const showFirst = start > 1;
+        const showLast = end < totalPages;
+
+        return (
+            <nav className="mt-8 flex items-center justify-center gap-2 select-none">
+                {/* Prev */}
+                <Link
+                    href={page > 1 ? makeHref(page - 1) : '#'}
+                    aria-disabled={page === 1}
+                    className={`px-3 py-2 rounded-lg border text-sm ${page === 1 ? 'text-gray-300 border-gray-200 cursor-not-allowed' : 'text-gray-700 border-gray-200 hover:border-accent hover:text-accent'}`}
+                >
+                    Zurück
+                </Link>
+
+                {/* First */}
+                {showFirst && (
+                    <>
+                        <Link href={makeHref(1)} className="px-3 py-2 rounded-lg border text-sm text-gray-700 border-gray-200 hover:border-accent hover:text-accent">1</Link>
+                        {start > 2 && <span className="px-2 text-gray-400">…</span>}
+                    </>
+                )}
+
+                {/* Middle pages */}
+                {pages.map((p) => (
+                    <Link
+                        key={p}
+                        href={makeHref(p)}
+                        className={`px-3 py-2 rounded-lg border text-sm ${p === page ? 'bg-gradient-to-r from-primary to-accent text-white border-transparent' : 'text-gray-700 border-gray-200 hover:border-accent hover:text-accent'}`}
+                    >
+                        {p}
+                    </Link>
+                ))}
+
+                {/* Last */}
+                {showLast && (
+                    <>
+                        {end < totalPages - 1 && <span className="px-2 text-gray-400">…</span>}
+                        <Link href={makeHref(totalPages)} className="px-3 py-2 rounded-lg border text-sm text-gray-700 border-gray-200 hover:border-accent hover:text-accent">{totalPages}</Link>
+                    </>
+                )}
+
+                {/* Next */}
+                <Link
+                    href={page < totalPages ? makeHref(page + 1) : '#'}
+                    aria-disabled={page === totalPages}
+                    className={`px-3 py-2 rounded-lg border text-sm ${page === totalPages ? 'text-gray-300 border-gray-200 cursor-not-allowed' : 'text-gray-700 border-gray-200 hover:border-accent hover:text-accent'}`}
+                >
+                    Weiter
+                </Link>
+            </nav>
+        );
+    };
 
     return (
         <div className="space-y-6">
@@ -121,6 +194,7 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap }: Produc
                     <p className="text-gray-400 mt-2">Versuchen Sie einen anderen Suchbegriff</p>
                 </div>
             ) : viewMode === 'grid' ? (
+                <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredUrunler.map((urun, index) => {
                         const originalIndex = urunler.indexOf(urun);
@@ -226,7 +300,10 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap }: Produc
                         );
                     })}
                 </div>
+                <Pagination />
+                </>
             ) : (
+                <>
                 <div className="space-y-4">
                     {filteredUrunler.map((urun, index) => {
                         const originalIndex = urunler.indexOf(urun);
@@ -289,6 +366,8 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap }: Produc
                         );
                     })}
                 </div>
+                <Pagination />
+                </>
             )}
         </div>
     );

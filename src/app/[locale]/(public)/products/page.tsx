@@ -18,13 +18,15 @@ export default async function PublicUrunlerPage({
     searchParams 
 }: { 
     params: { locale: string };
-    searchParams: { kategori?: string };
+    searchParams: { kategori?: string; page?: string; limit?: string };
 }) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
     const locale = params.locale;
     
     let seciliKategoriSlug: string | undefined;
+    const page = Math.max(1, Number.parseInt(searchParams.page || '1') || 1);
+    const perPage = Math.min(48, Math.max(12, Number.parseInt(searchParams.limit || '24') || 24));
     if (searchParams.kategori && searchParams.kategori.toLowerCase() !== 'null') {
         seciliKategoriSlug = searchParams.kategori;
     }
@@ -67,14 +69,21 @@ export default async function PublicUrunlerPage({
     
     let urunlerQuery = supabase
         .from('urunler')
-        .select(`id, ad, slug, ana_resim_url, kategori_id, ortalama_puan, degerlendirme_sayisi`);
+        .select(`id, ad, slug, ana_resim_url, kategori_id, ortalama_puan, degerlendirme_sayisi`, { count: 'exact' });
 
     if (filtrelenecekKategoriIdleri.length > 0) {
         urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri); 
     } 
     
-    const urunlerRes = await urunlerQuery.order(`ad->>${locale}`, { ascending: true });
+    const from = (page - 1) * perPage;
+    const to = from + perPage - 1;
+    const urunlerRes = await urunlerQuery
+        .order(`ad->>${locale}`, { ascending: true })
+        .range(from, to);
     const urunler: Urun[] = (urunlerRes.data ?? []) as unknown as Urun[];
+    const totalCount = urunlerRes.count ?? 0;
+    const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
+    const clampedPage = Math.min(page, totalPages);
     
     if (kategorilerRes.error || urunlerRes.error) {
         console.error("Hata Detayı:", kategorilerRes.error || urunlerRes.error); 
@@ -111,7 +120,7 @@ export default async function PublicUrunlerPage({
                         <div className="hidden md:flex items-center gap-4 text-sm">
                             <div className="flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-accent"></div>
-                                <span className="text-secondary/80 font-medium">{urunler.length} Produkte</span>
+                                <span className="text-secondary/80 font-medium">{totalCount} Produkte</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-accent"></div>
@@ -226,6 +235,7 @@ export default async function PublicUrunlerPage({
                                 urunler={urunler}
                                 locale={locale}
                                 kategoriAdlariMap={kategoriAdlariMap}
+                                pagination={{ page: clampedPage, perPage, total: totalCount, kategori: seciliKategoriSlug }}
                             />
                         )}
                     </main>
