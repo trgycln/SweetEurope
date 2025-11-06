@@ -134,13 +134,58 @@ export async function middleware(req: NextRequest) {
 
     // Wenn Locale fehlt, hinzufügen und neu schreiben
     if (!pathnameHasLocale) {
-        // Die Locale-Ermittlung ist hier sehr einfach (immer 'de').
-        // Sie könnten hier die 'getLocale'-Funktion verwenden, wenn sie komplexer wäre.
-        const localeToAdd = defaultLocale;
-        console.log(`-> Middleware: Locale fehlt für ${pathname}. Füge '${localeToAdd}' hinzu.`);
-        return NextResponse.rewrite(
+        let localeToAdd = defaultLocale;
+        
+        // Für eingeloggte Benutzer: Bevorzugte Sprache aus Profil holen
+        if (user) {
+            try {
+                const { data: profile } = await supabase
+                    .from('profiller')
+                    .select('tercih_edilen_dil')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+                    localeToAdd = profile.tercih_edilen_dil;
+                    console.log(`-> Middleware: Benutzer bevorzugte Sprache: ${localeToAdd}`);
+                }
+            } catch (error) {
+                console.error("Fehler beim Abrufen der bevorzugten Sprache:", error);
+            }
+        }
+        
+        console.log(`-> Middleware: Locale fehlt für ${pathname}. Redirect zu '${localeToAdd}' hinzu.`);
+        return NextResponse.redirect(
             new URL(`/${localeToAdd}${pathname.startsWith('/') ? '' : '/'}${pathname}`, req.url)
         );
+    }
+
+    // Für eingeloggte Benutzer: Prüfen, ob aktuelle Locale mit bevorzugter Sprache übereinstimmt
+    if (user && pathnameHasLocale) {
+        const currentLocale = pathname.split('/')[1];
+        console.log(`-> Middleware: Locale check - current: ${currentLocale}`);
+        try {
+            const { data: profile } = await supabase
+                .from('profiller')
+                .select('tercih_edilen_dil')
+                .eq('id', user.id)
+                .single();
+            
+            console.log(`-> Middleware: User preferred language from DB: ${profile?.tercih_edilen_dil}`);
+            
+            if (profile?.tercih_edilen_dil && 
+                locales.includes(profile.tercih_edilen_dil) && 
+                currentLocale !== profile.tercih_edilen_dil) {
+                
+                const newPathname = pathname.replace(`/${currentLocale}`, `/${profile.tercih_edilen_dil}`);
+                console.log(`-> Middleware: ✅ Language mismatch detected! Redirecting from ${pathname} to ${newPathname}`);
+                return NextResponse.redirect(new URL(newPathname, req.url));
+            } else {
+                console.log(`-> Middleware: ℹ️ No redirect needed (current=${currentLocale}, preferred=${profile?.tercih_edilen_dil})`);
+            }
+        } catch (error) {
+            console.error("-> Middleware: ❌ Fehler beim Prüfen der bevorzugten Sprache:", error);
+        }
     }
 
     console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);

@@ -95,7 +95,7 @@ export function FinanzChartClient({ plReport, dictionary }: FinanzChartClientPro
             },
             title: {
                 display: true,
-                text: 'Finanzübersicht (Dieser Monat)', // Başlık
+                text: pageContent.financialOverview || 'Finansal Genel Bakış (Bu Ay)', // Başlık
                 font: {
                     size: 18,
                     family: "'Playfair Display', serif", // Tailwind config'deki 'serif' fontunuz
@@ -145,7 +145,7 @@ export function FinanzChartClient({ plReport, dictionary }: FinanzChartClientPro
                 // Rapor yüklenirken veya null ise göster
                 <div className="flex items-center justify-center h-full text-gray-500">
                     <FiLoader className="animate-spin mr-2" />
-                    Finanzdaten werden geladen...
+                    {pageContent.loadingFinancialData || 'Finansal veriler yükleniyor...'}
                 </div>
             )}
         </div>

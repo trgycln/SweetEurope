@@ -117,14 +117,33 @@ export default function ProfilClient({ profile, locale }: Props) {
   }[locale];
 
   const handleLanguageUpdate = () => {
+    console.log('🔵 [CLIENT] Dil değiştirme başlatılıyor:', selectedLanguage);
+    
     startTransition(async () => {
-      const result = await updateUserLanguage(selectedLanguage as 'de' | 'tr' | 'en' | 'ar');
-      if (result.success) {
-        toast.success(t.languageUpdated);
-        // Sayfayı seçilen dilde yeniden yükle
-        window.location.href = `/${selectedLanguage}/admin/profil`;
-      } else {
-        toast.error(result.error);
+      try {
+        console.log('🔄 [CLIENT] updateUserLanguage çağrılıyor...', selectedLanguage);
+        const result = await updateUserLanguage(selectedLanguage as 'de' | 'tr' | 'en' | 'ar');
+        console.log('📦 [CLIENT] Server action sonucu:', result);
+        
+        if (result.success) {
+          console.log('✅ [CLIENT] Güncelleme başarılı, toast gösteriliyor');
+          toast.success(t.languageUpdated);
+          
+          // Database'e yazma işleminin tamamlandığından emin olmak için biraz bekle
+          console.log('⏳ [CLIENT] 500ms bekleniyor...');
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Middleware otomatik olarak yeni dile yönlendirecek
+          const newUrl = `/${selectedLanguage}/admin/profil`;
+          console.log('🔄 [CLIENT] Yönlendirme yapılıyor:', newUrl);
+          window.location.href = newUrl;
+        } else {
+          console.error('❌ [CLIENT] Güncelleme hatası:', result.error);
+          toast.error(result.error || 'Bilinmeyen hata');
+        }
+      } catch (error) {
+        console.error('💥 [CLIENT] Exception:', error);
+        toast.error('Beklenmeyen bir hata oluştu');
       }
     });
   };

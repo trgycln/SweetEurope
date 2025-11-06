@@ -1,19 +1,27 @@
-// src/app/admin/crm/firmalar/[firmaId]/FirmaTabs.tsx (DÜZELTİLMİŞ)
+// src/app/[locale]/admin/crm/firmalar/[firmaId]/FirmaTabs.tsx (Locale-aware, i18n labels)
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { Locale } from '@/i18n-config';
 
-export default function FirmaTabs({ firmaId }: { firmaId: string }) {
+export default function FirmaTabs({ 
+    firmaId, 
+    locale, 
+    labels,
+}: { 
+    firmaId: string; 
+    locale: Locale; 
+    labels: { generalInfo: string; activities: string; contacts: string; orders: string; tasks: string; } 
+}) {
     const pathname = usePathname();
 
     const tabs = [
-        { name: 'Genel Bilgiler', href: `/admin/crm/firmalar/${firmaId}` },
-        { name: 'Etkinlik Akışı', href: `/admin/crm/firmalar/${firmaId}/etkinlikler` },
-        { name: 'İlgili Kişiler', href: `/admin/crm/firmalar/${firmaId}/kisiler` },
-        { name: 'Siparişler', href: `/admin/crm/firmalar/${firmaId}/siparisler` },
-        // DÜZELTME: 'gorever' -> 'gorevler' olarak düzeltildi.
-        { name: 'Görevler', href: `/admin/crm/firmalar/${firmaId}/gorevler` },
+        { name: labels.generalInfo, href: `/${locale}/admin/crm/firmalar/${firmaId}` },
+        { name: labels.activities, href: `/${locale}/admin/crm/firmalar/${firmaId}/etkinlikler` },
+        { name: labels.contacts, href: `/${locale}/admin/crm/firmalar/${firmaId}/kisiler` },
+        { name: labels.orders, href: `/${locale}/admin/crm/firmalar/${firmaId}/siparisler` },
+        { name: labels.tasks, href: `/${locale}/admin/crm/firmalar/${firmaId}/gorevler` },
     ];
 
     const baseClasses = "px-4 py-3 text-sm font-bold transition-colors duration-200 whitespace-nowrap";
@@ -25,7 +33,6 @@ export default function FirmaTabs({ firmaId }: { firmaId: string }) {
         <div className="w-full overflow-x-auto bg-white rounded-t-2xl shadow-lg">
             <nav className="flex border-b border-bg-subtle">
                 {tabs.map((tab) => {
-                    // DÜZELTME: 'startsWith' yerine tam eşleşme ('===') kontrolü yapılıyor.
                     const isActive = pathname === tab.href;
                     
                     return (

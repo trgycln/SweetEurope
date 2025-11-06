@@ -7,6 +7,7 @@ import React from 'react';
 import FirmaTabs from './FirmaTabs';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Importiere Locale, falls benötigt
+import { getDictionary } from '@/dictionaries';
 
 // Layout-Komponente
 export default async function FirmaDetailLayout({
@@ -39,19 +40,34 @@ export default async function FirmaDetailLayout({
         notFound(); // Zeigt die 404-Seite an
     }
 
+    // Dictionary laden
+    const dict = await getDictionary(locale);
+    const crmDict = dict.adminDashboard?.crmPage || {};
+    const tabsLabels = crmDict.tabs || {};
+
     return (
         <div className="space-y-8">
             {/* Header mit Firmennamen */}
             <header>
                 <h1 className="font-serif text-4xl font-bold text-primary">{firma.unvan}</h1>
                 {/* Optional: Untertitel anpassen */}
-                <p className="text-text-main/80 mt-1">Firmendetails & Verwaltung</p>
+                <p className="text-text-main/80 mt-1">{crmDict.detailSubtitle || 'Firmaya Ait Detaylar & Yönetim'}</p>
             </header>
 
             {/* Hauptinhalt mit Tabs und Kind-Seite */}
             <main>
                 {/* Tabs benötigen firmaId und locale für Links */}
-                <FirmaTabs firmaId={firmaId} locale={locale} />
+                <FirmaTabs 
+                    firmaId={firmaId} 
+                    locale={locale} 
+                    labels={{
+                        generalInfo: tabsLabels.generalInfo || 'Genel Bilgiler',
+                        activities: tabsLabels.activities || 'Etkinlik Akışı',
+                        contacts: tabsLabels.contacts || 'İlgili Kişiler',
+                        orders: tabsLabels.orders || 'Siparişler',
+                        tasks: tabsLabels.tasks || 'Görevler',
+                    }}
+                />
 
                 {/* Container für den Inhalt der Kind-Seite (page.tsx) */}
                 <div className="mt-6 bg-white p-6 sm:p-8 rounded-b-lg shadow-lg border border-gray-200"> {/* Styling leicht angepasst */}

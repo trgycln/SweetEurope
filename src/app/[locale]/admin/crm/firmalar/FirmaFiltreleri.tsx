@@ -1,4 +1,4 @@
-// src/app/admin/crm/firmalar/FirmaFiltreleri.tsx
+// src/app/[locale]/admin/crm/firmalar/FirmaFiltreleri.tsx
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -7,9 +7,11 @@ import { FiSearch } from 'react-icons/fi';
 
 interface FirmaFiltreleriProps {
     statusOptions: string[];
+    searchPlaceholder: string;
+    allStatusesLabel: string;
 }
 
-export default function FirmaFiltreleri({ statusOptions }: FirmaFiltreleriProps) {
+export default function FirmaFiltreleri({ statusOptions, searchPlaceholder, allStatusesLabel }: FirmaFiltreleriProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -45,7 +47,7 @@ export default function FirmaFiltreleri({ statusOptions }: FirmaFiltreleriProps)
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                     type="text"
-                    placeholder="Firma unvanına göre ara..."
+                    placeholder={searchPlaceholder}
                     className="w-full pl-10 pr-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition"
                     onChange={(e) => handleSearch(e.target.value)}
                     defaultValue={searchParams.get('q')?.toString()}
@@ -57,7 +59,7 @@ export default function FirmaFiltreleri({ statusOptions }: FirmaFiltreleriProps)
                     onChange={(e) => handleStatusChange(e.target.value)}
                     value={searchParams.get('status')?.toString() || ''}
                 >
-                    <option value="">Tüm Statüler</option>
+                    <option value="">{allStatusesLabel}</option>
                     {statusOptions.map(status => (
                         <option key={status} value={status}>{status}</option>
                     ))}

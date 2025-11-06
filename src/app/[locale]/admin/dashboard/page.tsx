@@ -251,7 +251,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                           value={ordersRes.count ?? 0}
                           icon={<FiPackage size={28} className="text-yellow-500"/>}
                           link={`/${locale}/admin/operasyon/siparisler?filter=offen`}
-                          linkText={"Offene Bestellungen ansehen"}
+                          linkText={operationalContent.viewActiveOrders || "Aktif Siparişleri Görüntüle"}
                       />
                       <StatCard
                           title={operationalContent.cardOpenSampleRequests || "Neue Musteranfragen"}
@@ -297,7 +297,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
                       <div className="flex justify-between items-center mb-4">
                           <h2 className="font-serif text-2xl font-bold text-primary">{pageContent.agendaTitle || "Agenda & Dringende Aufgaben"}</h2>
-                          <Link href={`/${locale}/admin/gorevler`} className="text-accent text-sm font-semibold hover:underline flex-shrink-0">{operationalContent.viewAllTasks || "Alle Aufgaben anzeigen"} &rarr;</Link>
+                          <Link href={`/${locale}/admin/gorevler`} className="text-accent text-sm font-semibold hover:underline flex-shrink-0">{operationalContent.viewAllTasks || "Tüm Görevleri Görüntüle"} &rarr;</Link>
                       </div>
                       {overdueTasks.length > 0 ? (
                           <div className="space-y-3 divide-y divide-gray-100">
@@ -309,14 +309,14 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                                           <p className="font-semibold text-primary group-hover:text-accent transition-colors truncate">{task.baslik}</p>
                                           <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
                                               <FiClock size={12}/>
-                                              {operationalContent.dueDate || "Fällig am:"} {formatDate(task.son_tarih, locale)}
+                                              {operationalContent.dueDate || "Termin:"} {formatDate(task.son_tarih, locale)}
                                           </p>
                                       </Link>
                                   </div>
                               ))}
                           </div>
                       ) : (
-                          <p className="text-center text-gray-500 py-6">{operationalContent.noOverdueTasks || "Aktuell keine überfälligen Aufgaben."}</p>
+                          <p className="text-center text-gray-500 py-6">{operationalContent.noOverdueTasks || "Şu anda gecikmiş görev yok."}</p>
                       )}
                     </div>
             </div>
@@ -326,13 +326,13 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                 
                 {/* BÖLÜM 1: HIZLI EYLEMLER */}
                 <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                         <h2 className="font-serif text-2xl font-bold text-primary mb-4">{pageContent.quickActionsTitle || "Schnellaktionen"}</h2>
+                         <h2 className="font-serif text-2xl font-bold text-primary mb-4">{pageContent.quickActionsTitle || "Hızlı İşlemler"}</h2>
                          <div className="grid grid-cols-3 gap-3">
-                             <QuickActionButton label={pageContent.actionNewCompany || "Neue Firma"} icon={<FiUsers size={20}/>} href={`/${locale}/admin/crm/firmalar/yeni`} />
-                             <QuickActionButton label={operationalContent.actionNewProduct || "Neues Produkt"} icon={<FiArchive size={20}/>} href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} />
-                             <QuickActionButton label={pageContent.actionNewOrder || "Neue Bestellung"} icon={<FiPackage size={20}/>} href={`/${locale}/admin/operasyon/siparisler/yeni`} />
-                             <QuickActionButton label={"Neue Aufgabe"} icon={<FiClipboard size={20}/>} href={`/${locale}/admin/gorevler/ekle`} />
-                             <QuickActionButton label={pageContent.actionNewExpense || "Neue Ausgabe"} icon={<FiBriefcase size={20}/>} href={`/${locale}/admin/idari/finans/giderler`} />
+                             <QuickActionButton label={pageContent.actionNewCompany || "Yeni Firma"} icon={<FiUsers size={20}/>} href={`/${locale}/admin/crm/firmalar/yeni`} />
+                             <QuickActionButton label={operationalContent.actionNewProduct || "Yeni Ürün"} icon={<FiArchive size={20}/>} href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} />
+                             <QuickActionButton label={pageContent.actionNewOrder || "Yeni Sipariş"} icon={<FiPackage size={20}/>} href={`/${locale}/admin/operasyon/siparisler/yeni`} />
+                             <QuickActionButton label={operationalContent.actionNewTask || "Yeni Görev"} icon={<FiClipboard size={20}/>} href={`/${locale}/admin/gorevler/ekle`} />
+                             <QuickActionButton label={pageContent.actionNewExpense || "Yeni Gider"} icon={<FiBriefcase size={20}/>} href={`/${locale}/admin/idari/finans/giderler`} />
                          </div>
                    </div>
 
@@ -342,7 +342,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                       value={stockRes.data ?? 0}
                       icon={<FiAlertTriangle size={28} className="text-red-500"/>}
                       link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
-                      linkText={"Kritische Artikel ansehen"}
+                      linkText={operationalContent.viewCriticalStockLink || "Kritik Stokları Görüntüle"}
                    />
             </div>
             
@@ -383,7 +383,7 @@ async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: 
                       value={isNaN(safeNewOrdersCount) ? 0 : safeNewOrdersCount}
                       icon={<FiPackage size={28} className="text-green-500"/>}
                       link={`/${locale}/admin/operasyon/siparisler`}
-                      linkText={"Bestellungen anzeigen"}
+                      linkText={content.viewOrdersText || "Siparişleri Görüntüle"}
                   />
             </div>
              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
@@ -405,7 +405,7 @@ export default async function AdminDashboardPage({
     params: { locale: Locale } 
 }) {
     noStore(); // Caching deaktivieren
-    const locale = params.locale;
+    const { locale } = await params;
     const dictionary = await getDictionary(locale);
     const pageContent = (dictionary.adminDashboard && dictionary.adminDashboard.dashboardPage) ? dictionary.adminDashboard.dashboardPage : {};
 

@@ -192,9 +192,9 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                             <div key={section.title} className="mb-2">
                                 <button
                                     onClick={() => setOpenSection(isSectionOpen ? null : section.title)}
-                                    className="w-full flex justify-between items-center px-4 py-2 text-sm font-bold uppercase text-secondary/60 tracking-wider hover:text-white transition-colors rounded-lg"
+                                    className="w-full flex justify-between items-center px-4 py-2 text-sm font-bold uppercase text-secondary/60 tracking-wider hover:text-white transition-colors rounded-lg text-left"
                                 >
-                                    <span>{section.title}</span>
+                                    <span className="text-left flex-1">{section.title}</span>
                                     <FiChevronDown className={`transform transition-transform duration-300 ${isSectionOpen ? 'rotate-180' : 'rotate-0'}`} />
                                 </button>
                                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isSectionOpen ? 'max-h-96' : 'max-h-0'}`}>
