@@ -8,6 +8,7 @@ import { Tables } from '@/lib/supabase/database.types';
 import { getLocalizedName, Locale } from '@/lib/utils';
 // KORREKTUR: Korrekte Icons importieren (Fa-Icons entfernt)
 import { FiTag, FiInfo } from 'react-icons/fi';
+import { getBadgeText, getFlavorLabel, piecesSuffix, weightLabel } from '@/lib/labels';
 
 // Typen anpassen
 type Urun = Tables<'urunler'> & {
@@ -46,6 +47,17 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGor
         .filter(Boolean) as { label: string; wert: any }[]; // 'null'-Einträge entfernen
 
     const hauptBildUrl = urun.ana_resim_url || (urun.galeri_resim_urls && urun.galeri_resim_urls.length > 0 ? urun.galeri_resim_urls[0] : '/placeholder.png');
+    const tekniks: any = (urun.teknik_ozellikler as any) || {};
+    const flavorList: string[] = Array.isArray(tekniks.geschmack) ? tekniks.geschmack : (tekniks.geschmack ? [tekniks.geschmack] : []);
+    const sliceCount = tekniks.dilim_adedi || tekniks.kutu_ici_adet;
+    const weight = tekniks.net_agirlik_gram || tekniks.net_agirlik_gr || tekniks.net_agirlik || tekniks.gramaj || tekniks.agirlik;
+    const badgeBooleans: { key: 'vegan' | 'vegetarisch' | 'glutenfrei' | 'laktosefrei' | 'bio'; active: boolean }[] = [
+        { key: 'vegan', active: tekniks.vegan === true },
+        { key: 'vegetarisch', active: tekniks.vegetarisch === true },
+        { key: 'glutenfrei', active: tekniks.glutenfrei === true },
+        { key: 'laktosefrei', active: tekniks.laktosefrei === true },
+        { key: 'bio', active: tekniks.bio === true },
+    ];
 
     return (
         <div className="bg-secondary py-12 md:py-20">
@@ -82,6 +94,32 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGor
                             {kategorieAdi && <p className="font-sans text-sm text-accent mb-1 uppercase tracking-wider flex items-center gap-2"><FiTag size={14}/> {kategorieAdi}</p>}
                             {/* Responsive Textgröße */}
                             <h1 className="text-3xl md:text-5xl font-serif text-primary mb-4">{urunAdi}</h1>
+                            {/* Badges & Flavors */}
+                            {(badgeBooleans.some(b => b.active) || flavorList.length > 0 || sliceCount || weight) && (
+                                <div className="flex flex-wrap gap-2 mb-6">
+                                    {badgeBooleans.filter(b => b.active).map(b => (
+                                        <span key={b.key} className="px-3 py-1 rounded-full text-xs font-semibold text-white shadow-sm 
+                                            bg-gradient-to-r from-primary to-accent">
+                                            {getBadgeText(b.key, locale as any)}
+                                        </span>
+                                    ))}
+                                    {flavorList.map(fl => (
+                                        <span key={fl} className="px-3 py-1 rounded-full text-xs font-medium bg-pink-600 text-white shadow-sm">
+                                            {getFlavorLabel(fl, locale as any)}
+                                        </span>
+                                    ))}
+                                    {sliceCount && (
+                                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+                                            {sliceCount} {piecesSuffix(locale as any)}
+                                        </span>
+                                    )}
+                                    {weight && (
+                                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent border border-accent/20">
+                                            {weightLabel(locale as any)}: {weight}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                             
                             {/* PREIS WURDE ENTFERNT */}
                          </div>
@@ -103,7 +141,7 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGor
                                      {gosterilecekOzellikler.map(item => (
                                          <div key={item.label} className="flex justify-between items-center py-1.5 text-sm">
                                              <span className="font-medium text-text-main/80">{item.label}</span>
-                                             <span className="font-semibold text-primary">{item.wert}</span>
+                                             <span className="font-semibold text-primary">{Array.isArray(item.wert) ? item.wert.map((v:string) => getFlavorLabel(v, locale as any)).join(', ') : item.wert}</span>
                                          </div>
                                      ))}
                                  </div>

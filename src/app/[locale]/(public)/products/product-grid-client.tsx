@@ -4,12 +4,15 @@ import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
-import { FiEye, FiSearch, FiStar, FiPackage, FiHeart } from 'react-icons/fi';
+import { FiEye, FiSearch, FiStar, FiPackage, FiHeart, FiBox } from 'react-icons/fi';
+import { getBadgeText, getFlavorLabel, piecesSuffix, weightLabel } from '@/lib/labels';
 
 interface ProductGridClientProps {
     urunler: Urun[];
     locale: string;
     kategoriAdlariMap: Map<string, string>;
+    sablonMap: Record<string, Array<{ alan_adi: string; gosterim_adi: any; sira: number }>>;
+    kategoriParentMap: Record<string, string | null>; // for inheritance fallback
     pagination?: { page: number; perPage: number; total: number; kategori?: string };
 }
 
@@ -22,10 +25,11 @@ const colorGradients = [
     'from-yellow-500 to-orange-600',
 ];
 
-// Star Rating Component - Will show real ratings from database
+// Star Rating Component - Only shows if there are reviews
 const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: number }) => {
     // Değerlendirme yoksa hiçbir şey gösterme
-    if (!rating || rating === 0 || !reviewCount || reviewCount === 0) return null;
+    if (!reviewCount || reviewCount === 0) return null;
+    if (!rating || rating === 0) return null;
     
     return (
         <div className="flex items-center gap-1">
@@ -47,7 +51,7 @@ const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: numb
     );
 };
 
-export function ProductGridClient({ urunler, locale, kategoriAdlariMap, pagination }: ProductGridClientProps) {
+export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMap, kategoriParentMap, pagination }: ProductGridClientProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -200,9 +204,6 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, paginati
                         const originalIndex = urunler.indexOf(urun);
                         const gradient = colorGradients[originalIndex % colorGradients.length];
                         const isHovered = hoveredId === urun.id;
-                        // TODO: Get real ratings from database when review system is implemented
-                        // const rating = urun.average_rating || 0;
-                        // const reviewCount = urun.review_count || 0;
                         
                         return (
                             <div
@@ -270,24 +271,72 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, paginati
                                         {urun.ad?.[locale] || urun.ad?.['de']}
                                     </h2>
                                     
-                                    {/* Rating - Now shows real data from database */}
-                                    {urun.ortalama_puan && urun.ortalama_puan > 0 && (
-                                        <div className="mb-3">
-                                            <StarRating 
-                                                rating={urun.ortalama_puan} 
-                                                reviewCount={urun.degerlendirme_sayisi || 0} 
-                                            />
-                                        </div>
-                                    )}
+                                    {/* Rating - Shows only if reviews exist */}
+                                    <StarRating 
+                                        rating={urun.ortalama_puan || 0} 
+                                        reviewCount={urun.degerlendirme_sayisi || 0} 
+                                    />
                                     
+                                    {/* Category attribute preview */}
+                                    {(() => {
+                                        if (!urun.kategori_id) return null;
+                                        // Template inheritance: if subcategory lacks template, fallback to parent
+                                        let template = sablonMap[urun.kategori_id];
+                                        if ((!template || template.length === 0) && kategoriParentMap[urun.kategori_id]) {
+                                            const parentId = kategoriParentMap[urun.kategori_id]!;
+                                            template = sablonMap[parentId];
+                                        }
+                                        const tekniks: any = (urun as any).teknik_ozellikler || {};
+                                        if (!template || template.length === 0) return null;
+                                        const visible = template
+                                            .filter(f => tekniks[f.alan_adi] !== undefined && tekniks[f.alan_adi] !== '' && tekniks[f.alan_adi] !== null)
+                                            .slice(0, 3); // show at most 3
+                                        if (visible.length === 0) return null;
+                                        return (
+                                            <ul className="mt-4 flex flex-wrap gap-2 text-xs text-gray-600">
+                                                {visible.map(f => (
+                                                    <li key={f.alan_adi} className="bg-gray-100 px-2 py-1 rounded-md">
+                                                        {(f.gosterim_adi?.[locale] || f.gosterim_adi?.['de'] || f.alan_adi)}: {String(tekniks[f.alan_adi])}
+                                                    </li>
+                                                ))}
+                                                {/* Filter badges */}
+                                                {tekniks.vegan && <li className="bg-green-600 text-white px-2 py-1 rounded-md">{getBadgeText('vegan', locale as any)}</li>}
+                                                {tekniks.vegetarisch && <li className="bg-green-800 text-white px-2 py-1 rounded-md">{getBadgeText('vegetarisch', locale as any)}</li>}
+                                                {tekniks.glutenfrei && <li className="bg-yellow-600 text-white px-2 py-1 rounded-md">{getBadgeText('glutenfrei', locale as any)}</li>}
+                                                {tekniks.laktosefrei && <li className="bg-blue-600 text-white px-2 py-1 rounded-md">{getBadgeText('laktosefrei', locale as any)}</li>}
+                                                {tekniks.bio && <li className="bg-emerald-700 text-white px-2 py-1 rounded-md">{getBadgeText('bio', locale as any)}</li>}
+                                                {Array.isArray(tekniks.geschmack) && tekniks.geschmack.slice(0,2).map((g: string) => (
+                                                    <li key={g} className="bg-pink-600 text-white px-2 py-1 rounded-md">{getFlavorLabel(g, locale as any)}</li>
+                                                ))}
+                                            </ul>
+                                        );
+                                    })()}
+                                    {/* Stück / Gewicht footer info */}
+                                    {(() => {
+                                        const tekniks: any = (urun as any).teknik_ozellikler || {};
+                                        const sliceCount = tekniks.dilim_adedi || tekniks.kutu_ici_adet; // from teknik_ozellikler only
+                                        const weightRaw = tekniks.net_agirlik_gram || tekniks.net_agirlik_gr || tekniks.net_agirlik || tekniks.gramaj || tekniks.agirlik;
+                                        const weight = weightRaw ? (typeof weightRaw === 'number' ? `${weightRaw} g` : String(weightRaw)) : undefined;
+                                        if (!sliceCount && !weight) return null;
+                                        return (
+                                            <div className="mt-5 flex flex-wrap gap-3 text-xs">
+                                                {sliceCount && (
+                                                    <span className="inline-flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-md font-medium">
+                                                        <FiBox className="w-3 h-3" /> {sliceCount} {piecesSuffix(locale as any)}
+                                                    </span>
+                                                )}
+                                                {weight && (
+                                                    <span className="inline-flex items-center gap-1 bg-accent/10 text-accent px-2 py-1 rounded-md font-medium">
+                                                        ⚖️ {weightLabel(locale as any)}: {weight}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                                     <div className="flex items-center justify-between mt-4">
-                                        <span className={`inline-flex items-center gap-2 text-sm font-semibold transition-all duration-300 ${
-                                            isHovered ? 'text-primary transform translate-x-2' : 'text-gray-500'
-                                        }`}>
+                                        <span className={`inline-flex items-center gap-2 text-sm font-semibold transition-all duration-300 ${isHovered ? 'text-primary transform translate-x-2' : 'text-gray-500'}`}>
                                             Mehr erfahren
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                                         </span>
                                     </div>
                                 </Link>
@@ -308,9 +357,6 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, paginati
                     {filteredUrunler.map((urun, index) => {
                         const originalIndex = urunler.indexOf(urun);
                         const gradient = colorGradients[originalIndex % colorGradients.length];
-                        // TODO: Get real ratings from database when review system is implemented
-                        // const rating = urun.average_rating || 0;
-                        // const reviewCount = urun.review_count || 0;
                         
                         return (
                             <Link
@@ -342,19 +388,65 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, paginati
                                         {urun.ad?.[locale] || urun.ad?.['de']}
                                     </h2>
                                     
-                                    {/* Rating - Now shows real data from database */}
-                                    {urun.ortalama_puan && urun.ortalama_puan > 0 && (
-                                        <div className="mb-2">
-                                            <StarRating 
-                                                rating={urun.ortalama_puan} 
-                                                reviewCount={urun.degerlendirme_sayisi || 0} 
-                                            />
-                                        </div>
-                                    )}
+                                    {/* Rating - Shows only if reviews exist */}
+                                    <StarRating 
+                                        rating={urun.ortalama_puan || 0} 
+                                        reviewCount={urun.degerlendirme_sayisi || 0} 
+                                    />
 
-                                    <p className="text-sm text-gray-600 mt-2">
-                                        Klicken Sie hier, um weitere Details zu diesem Produkt anzuzeigen.
-                                    </p>
+                                    {/* Attribute preview (list view) */}
+                                    {(() => {
+                                        if (!urun.kategori_id) return null;
+                                        let template = sablonMap[urun.kategori_id];
+                                        if ((!template || template.length === 0) && kategoriParentMap[urun.kategori_id]) {
+                                            const parentId = kategoriParentMap[urun.kategori_id]!;
+                                            template = sablonMap[parentId];
+                                        }
+                                        const tekniks: any = (urun as any).teknik_ozellikler || {};
+                                        if (!template || template.length === 0) return null;
+                                        const visible = template
+                                            .filter(f => tekniks[f.alan_adi] !== undefined && tekniks[f.alan_adi] !== '' && tekniks[f.alan_adi] !== null)
+                                            .slice(0, 5);
+                                        if (visible.length === 0) return null;
+                                        return (
+                                            <ul className="mt-2 flex flex-wrap gap-2 text-xs text-gray-600">
+                                                {visible.map(f => (
+                                                    <li key={f.alan_adi} className="bg-gray-100 px-2 py-1 rounded-md">
+                                                        {(f.gosterim_adi?.[locale] || f.gosterim_adi?.['de'] || f.alan_adi)}: {String(tekniks[f.alan_adi])}
+                                                    </li>
+                                                ))}
+                                                {tekniks.vegan && <li className="bg-green-600 text-white px-2 py-1 rounded-md">{getBadgeText('vegan', locale as any)}</li>}
+                                                {tekniks.vegetarisch && <li className="bg-green-800 text-white px-2 py-1 rounded-md">{getBadgeText('vegetarisch', locale as any)}</li>}
+                                                {tekniks.glutenfrei && <li className="bg-yellow-600 text-white px-2 py-1 rounded-md">{getBadgeText('glutenfrei', locale as any)}</li>}
+                                                {tekniks.laktosefrei && <li className="bg-blue-600 text-white px-2 py-1 rounded-md">{getBadgeText('laktosefrei', locale as any)}</li>}
+                                                {tekniks.bio && <li className="bg-emerald-700 text-white px-2 py-1 rounded-md">{getBadgeText('bio', locale as any)}</li>}
+                                                {Array.isArray(tekniks.geschmack) && tekniks.geschmack.slice(0,4).map((g: string) => (
+                                                    <li key={g} className="bg-pink-600 text-white px-2 py-1 rounded-md">{getFlavorLabel(g, locale as any)}</li>
+                                                ))}
+                                            </ul>
+                                        );
+                                    })()}
+                                    {(() => {
+                                        const tekniks: any = (urun as any).teknik_ozellikler || {};
+                                        const sliceCount = tekniks.dilim_adedi || tekniks.kutu_ici_adet; // from teknik_ozellikler only
+                                        const weightRaw = tekniks.net_agirlik_gram || tekniks.net_agirlik_gr || tekniks.net_agirlik || tekniks.gramaj || tekniks.agirlik;
+                                        const weight = weightRaw ? (typeof weightRaw === 'number' ? `${weightRaw} g` : String(weightRaw)) : undefined;
+                                        if (!sliceCount && !weight) return null;
+                                        return (
+                                            <div className="mt-3 flex flex-wrap gap-3 text-xs">
+                                                {sliceCount && (
+                                                    <span className="inline-flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-md font-medium">
+                                                        <FiBox className="w-3 h-3" /> {sliceCount} {piecesSuffix(locale as any)}
+                                                    </span>
+                                                )}
+                                                {weight && (
+                                                    <span className="inline-flex items-center gap-1 bg-accent/10 text-accent px-2 py-1 rounded-md font-medium">
+                                                        ⚖️ {weightLabel(locale as any)}: {weight}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                                 
                                 <div className="flex items-center">

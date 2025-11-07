@@ -31,7 +31,7 @@ async function findUniqueSlug(supabase: SupabaseClient<Database>, baseSlug: stri
 }
 
 // Wandelt FormData in ein Urun-Objekt um
-function formDataToUrunObject(formData: FormData): TablesUpdate {
+function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     const adJson: { [key: string]: string } = {};
     const aciklamalarJson: { [key: string]: string } = {};
     diller.forEach(dil => {
@@ -40,7 +40,7 @@ function formDataToUrunObject(formData: FormData): TablesUpdate {
     });
     const galeriUrls = formData.has('galeri_resim_urls[]') ? formData.getAll('galeri_resim_urls[]') as string[] : [];
 
-    const data: TablesUpdate = {
+    const data: TablesUpdate<'urunler'> = {
         ad: adJson,
         aciklamalar: aciklamalarJson,
         kategori_id: formData.get('kategori_id') as string,
@@ -59,6 +59,8 @@ function formDataToUrunObject(formData: FormData): TablesUpdate {
     };
     
     const teknikOzelliklerObj: { [key: string]: any } = {};
+    
+    // Dynamische teknik_ Felder sammeln (aus Template)
     for (const [key, value] of formData.entries()) {
         if (key.startsWith('teknik_')) {
             const asilKey = key.replace('teknik_', '');
@@ -67,11 +69,38 @@ function formDataToUrunObject(formData: FormData): TablesUpdate {
         }
     }
     
-    if (Object.keys(teknikOzelliklerObj).length > 0) {
-        data.teknik_ozellikler = teknikOzelliklerObj;
-    } else {
-        data.teknik_ozellikler = {}; // Auf leeres Objekt setzen
+    // Filter-Eigenschaften hinzufügen (Checkboxen)
+    teknikOzelliklerObj.vegan = formData.get('eigenschaft_vegan') === 'on';
+    teknikOzelliklerObj.vegetarisch = formData.get('eigenschaft_vegetarisch') === 'on';
+    teknikOzelliklerObj.glutenfrei = formData.get('eigenschaft_glutenfrei') === 'on';
+    teknikOzelliklerObj.laktosefrei = formData.get('eigenschaft_laktosefrei') === 'on';
+    teknikOzelliklerObj.bio = formData.get('eigenschaft_bio') === 'on';
+    
+    // Geschmack hinzufügen (Multiple Checkboxes + Custom)
+    const geschmackArray: string[] = [];
+    
+    // Collect all checked standard flavors
+    for (let i = 0; i < 20; i++) { // Max 20 flavors
+        const flavorValue = formData.get(`geschmack_${i}`) as string;
+        if (flavorValue) {
+            geschmackArray.push(flavorValue);
+        }
     }
+    
+    // Add custom flavors if provided
+    const customGeschmack = formData.get('geschmack_custom') as string;
+    if (customGeschmack && customGeschmack.trim()) {
+        // Split by comma and add each custom flavor
+        const customFlavors = customGeschmack.split(',').map(f => f.trim()).filter(f => f.length > 0);
+        geschmackArray.push(...customFlavors);
+    }
+    
+    // Save as array if multiple flavors, otherwise as string for backward compatibility
+    if (geschmackArray.length > 0) {
+        teknikOzelliklerObj.geschmack = geschmackArray;
+    }
+    
+    data.teknik_ozellikler = teknikOzelliklerObj;
     return data;
 }
 
@@ -94,7 +123,8 @@ export async function updateUrunAction(urunId: string, formData: FormData): Prom
     // if (!user) return { success: false, message: "Nicht authentifiziert." };
 
     const guncellenecekVeri = formDataToUrunObject(formData);
-    delete guncellenecekVeri.kategori_id; // Kategorie kann nicht geändert werden
+    // Kategorie-Änderung erlauben: Wenn kategori_id im Formular vorhanden ist, aktualisieren wir sie ebenfalls.
+    // (Falls Backend-Policy dies beschränken soll, bitte RLS/Policies entsprechend anpassen.)
 
     console.log('Zu aktualisierende Daten (vor Slug-Prüfung):', JSON.stringify(guncellenecekVeri, null, 2));
 
@@ -184,7 +214,10 @@ export async function deleteUrunAction(urunId: string): Promise<{ success: boole
     }
 
     if (orderCount !== null && orderCount > 0) {
-        return { success: false, message: 'Dieses Produkt ist mit einer oder mehreren Bestellungen verknüpft und kann nicht gelöscht werden.' };
+        return { 
+            success: false, 
+            message: `Dieses Produkt ist mit ${orderCount} Bestellung(en) verknüpft und kann nicht gelöscht werden. Sie können es stattdessen deaktivieren, um es aus dem Shop zu entfernen.` 
+        };
     }
 
     // Wenn keine Bestellungen verknüpft sind, löschen

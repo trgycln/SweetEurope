@@ -12,6 +12,8 @@ import { Locale } from '@/i18n-config';
 import { formatCurrency, getLocalizedName } from '@/lib/utils';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { UrunFiltre } from './urun-filtre';
+import { Pagination } from './pagination';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,7 +47,13 @@ const StokDurumGostergesi = ({ miktar, esik }: { miktar: number | null; esik: nu
 // Props-Typ für die Seite
 interface UrunlerListPageProps { // Props-Typ hinzugefügt
     params: Promise<{ locale: Locale }>;
-    searchParams?: Promise<{ filter?: string; q?: string; }>;
+    searchParams?: Promise<{ 
+        kategori?: string;
+        durum?: string;
+        stok?: string;
+        q?: string;
+        page?: string;
+    }>;
 }
 
 // Hauptseitenkomponente
@@ -75,10 +83,20 @@ export default async function UrunlerListPage({
 
     // Filter aus searchParams lesen
     const sp = searchParams ? await searchParams : undefined; // await searchParams if provided
-    const filterParam = sp?.filter;
+    const kategoriFilter = sp?.kategori;
+    const durumFilter = sp?.durum;
+    const stokFilter = sp?.stok;
     const queryParam = sp?.q;
+    const currentPage = Math.max(1, Number.parseInt(sp?.page || '1') || 1);
+    const itemsPerPage = 50;
 
-    // Supabase-Abfrage erstellen
+    // Get all categories for filter
+    const { data: allKategoriler } = await supabase
+        .from('kategoriler')
+        .select('id, ad, ust_kategori_id')
+        .order(`ad->>${locale}`, { ascending: true });
+
+    // Supabase-Abfrage erstellen (ohne count für Performance)
     let query = supabase
         .from('urunler')
         .select(`
@@ -89,24 +107,36 @@ export default async function UrunlerListPage({
             stok_esigi,
             satis_fiyati_musteri,
             aktif,
+            kategori_id,
             kategoriler ( ad )
-        `);
+        `, { count: 'exact' });
 
-    // Filter anwenden
-    if (filterParam === 'kritisch') {
-        // RPC-Funktion aufrufen, um kritische IDs zu holen
-        const { data: criticalIdsData, error: rpcError } = await supabase.rpc('get_critical_product_ids');
-        if (rpcError) {
-            console.error("Fehler beim Abrufen kritischer Produkt-IDs:", rpcError);
-        } else {
-            const criticalIds = criticalIdsData?.map((item: { product_id: string }) => item.product_id) || [];
-            if (criticalIds.length > 0) {
-                query = query.in('id', criticalIds);
-            } else {
-                // Wenn keine kritischen Produkte gefunden wurden, leere Liste erzwingen
-                query = query.eq('id', '00000000-0000-0000-0000-000000000000');
-            }
-        }
+    // Kategori-Filter
+    if (kategoriFilter) {
+        // Get subcategories of selected category
+        const subcatIds = allKategoriler
+            ?.filter(k => k.ust_kategori_id === kategoriFilter)
+            .map(k => k.id) || [];
+        
+        const allCategoryIds = [kategoriFilter, ...subcatIds];
+        query = query.in('kategori_id', allCategoryIds);
+    }
+
+    // Status-Filter (aktif/pasif)
+    if (durumFilter === 'aktif') {
+        query = query.eq('aktif', true);
+    } else if (durumFilter === 'pasif') {
+        query = query.eq('aktif', false);
+    }
+
+    // Stok-Filter
+    if (stokFilter === 'kritisch') {
+        // Products where stock <= threshold AND stock > 0
+        query = query.or('and(stok_miktari.lte.stok_esigi,stok_miktari.gt.0)');
+    } else if (stokFilter === 'aufgebraucht') {
+        query = query.or('stok_miktari.lte.0,stok_miktari.is.null');
+    } else if (stokFilter === 'ausreichend') {
+        query = query.gt('stok_miktari', 0);
     }
 
     // Suchfilter anwenden (Suche in Name oder SKU)
@@ -117,11 +147,20 @@ export default async function UrunlerListPage({
          query = query.or(`ad->>${locale}.ilike.${searchQuery},ad->>de.ilike.${searchQuery},stok_kodu.ilike.${searchQuery}`);
     }
 
+    // Count total for pagination
+    const { count: totalCount } = await query;
+    const totalPages = Math.ceil((totalCount || 0) / itemsPerPage);
+    const clampedPage = Math.min(currentPage, Math.max(1, totalPages));
+
+    // Apply pagination
+    const from = (clampedPage - 1) * itemsPerPage;
+    const to = from + itemsPerPage - 1;
 
     // Sortieren und Daten abrufen
     const { data: urunler, error } = await query
          .order(`ad->>${locale}`, { ascending: true, nullsFirst: false })
-         .order(`ad->>de`, { ascending: true, nullsFirst: false }); // Fallback-Sortierung
+         .order(`ad->>de`, { ascending: true, nullsFirst: false }) // Fallback-Sortierung
+         .range(from, to);
 
     if (error) {
         console.error("Fehler beim Laden der Produkte:", error);
@@ -136,7 +175,10 @@ export default async function UrunlerListPage({
             <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
                     <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Produktverwaltung'}</h1>
-                    <p className="text-text-main/80 mt-1">{urunListesi.length} {content.productsListed || 'Produkte aufgelistet.'}</p>
+                    <p className="text-text-main/80 mt-1">
+                        {totalCount || 0} {content.productsListed || 'Produkte gefunden'}
+                        {(kategoriFilter || durumFilter || stokFilter || queryParam) && ' (gefiltert)'}
+                    </p>
                 </div>
                 <Link href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} passHref>
                      <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
@@ -146,71 +188,83 @@ export default async function UrunlerListPage({
                  </Link>
             </header>
 
-            {/* TODO: Hier Filter hinzufügen (Suche, Kategorie, Status 'kritisch') */}
+            {/* Filter Component */}
+            <UrunFiltre kategoriler={allKategoriler || []} locale={locale} />
 
             {/* Liste oder "Keine Ergebnisse" */}
             {urunListesi.length === 0 ? (
                 <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                     <FiArchive className="mx-auto text-5xl text-gray-300 mb-4" />
                      <h2 className="font-serif text-2xl font-semibold text-primary">
-                         {filterParam || queryParam ? (content.noProductsFoundFilter || 'Keine Produkte für Filter gefunden') : (content.noProductsYet || 'Noch keine Produkte hinzugefügt')}
+                         {(kategoriFilter || durumFilter || stokFilter || queryParam) 
+                            ? (content.noProductsFoundFilter || 'Keine Produkte für diese Filter gefunden') 
+                            : (content.noProductsYet || 'Noch keine Produkte hinzugefügt')}
                     </h2>
-                    {!filterParam && !queryParam && (
+                    {!(kategoriFilter || durumFilter || stokFilter || queryParam) && (
                          <p className="mt-2 text-gray-600">{content.noProductsYetHint || 'Verwenden Sie die Schaltfläche "Neues Produkt hinzufügen", um zu beginnen.'}</p>
                     )}
                 </div>
             ) : (
-                <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                 {['Produktname', 'Artikelnummer', 'Kategorie', 'Lagerbestand', 'Preis (Kunde)', 'Status'].map(header => (
-                                     <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                         {header}
-                                     </th>
-                                 ))}
-                                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Bearbeiten</span></th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {urunListesi.map((urun) => (
-                                <tr key={urun.id} className="hover:bg-gray-50 transition-colors duration-150">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
-                                         <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="hover:underline hover:text-accent transition-colors">
-                                             {getLocalizedName(urun.ad, locale)} {/* utils Funktion */}
-                                         </Link>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                                        {urun.stok_kodu || '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        {getLocalizedName(urun.kategoriler?.ad, locale, 'Ohne Kategorie')} {/* utils Funktion */}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        <StokDurumGostergesi miktar={urun.stok_miktari} esik={urun.stok_esigi} />
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        {formatCurrency(urun.satis_fiyati_musteri, locale)} {/* utils Funktion */}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${
-                                             urun.aktif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                        }`}>
-                                             {urun.aktif ? (content.statusActive || 'Aktiv') : (content.statusInactive || 'Inaktiv')}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                         <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="text-accent hover:text-accent-dark">
-                                             {content.edit || 'Bearbeiten'}
-                                         </Link>
-                                    </td>
+                <>
+                    <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                     {['Produktname', 'Artikelnummer', 'Kategorie', 'Lagerbestand', 'Preis (Kunde)', 'Status'].map(header => (
+                                         <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                             {header}
+                                         </th>
+                                     ))}
+                                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Bearbeiten</span></th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {urunListesi.map((urun) => (
+                                    <tr key={urun.id} className="hover:bg-gray-50 transition-colors duration-150">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
+                                             <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="hover:underline hover:text-accent transition-colors">
+                                                 {getLocalizedName(urun.ad, locale)} {/* utils Funktion */}
+                                             </Link>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                                            {urun.stok_kodu || '-'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            {urun.kategoriler?.ad ? getLocalizedName(urun.kategoriler.ad, locale) : 'Ohne Kategorie'} 
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            <StokDurumGostergesi miktar={urun.stok_miktari} esik={urun.stok_esigi} />
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                            {formatCurrency(urun.satis_fiyati_musteri, locale)} {/* utils Funktion */}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${
+                                                 urun.aktif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                            }`}>
+                                                 {urun.aktif ? (content.statusActive || 'Aktiv') : (content.statusInactive || 'Inaktiv')}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                             <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="text-accent hover:text-accent-dark">
+                                                 {content.edit || 'Bearbeiten'}
+                                             </Link>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {/* Pagination */}
+                    <Pagination 
+                        currentPage={clampedPage}
+                        totalPages={totalPages}
+                        totalItems={totalCount || 0}
+                        itemsPerPage={itemsPerPage}
+                    />
+                </>
             )}
-            {/* Optional: Paginierung hier hinzufügen */}
         </div>
     );
 }

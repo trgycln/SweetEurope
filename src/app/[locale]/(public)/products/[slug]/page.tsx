@@ -13,7 +13,9 @@ import { Tables } from '@/lib/supabase/database.types';
 type Sablon = Pick<Tables<'kategori_ozellik_sablonlari'>, 'alan_adi' | 'gosterim_adi'>;
 // Typ für Urun mit Kategorie
 type UrunWithKategorie = Tables<'urunler'> & {
-    kategoriler?: Pick<Tables<'kategoriler'>, 'id' | 'ad'> | null;
+    kategoriler?: Pick<Tables<'kategoriler'>, 'id' | 'ad' | 'ust_kategori_id'> | null;
+    ortalama_puan?: number | null;
+    degerlendirme_sayisi?: number | null;
 };
 
 export default async function PublicUrunDetayPage({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
@@ -23,36 +25,50 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
 
     // Dictionary und Produkt parallel abrufen
     const [dictionary, { data: urunData }] = await Promise.all([
-        getDictionary(locale),
+        getDictionary(locale as any),
         supabase
             .from('urunler')
-            // Kategorie-Daten für Anzeige mit abrufen + Review-Daten
-            .select(`*, kategoriler (id, ad)`)
+            // Kategorie-Daten (ust_kategori_id dahil) + Review alanları
+            .select(`*, kategoriler (id, ad, ust_kategori_id)`) 
             .eq('slug', slug)
-            // KORREKTUR: 'aktif' = true entfernt, um alle Produkte anzuzeigen
-            // .eq('aktif', true) 
+            .eq('aktif', true) // Only show active products
             .single()
     ]);
     
-    const urun = urunData as UrunWithKategorie | null;
+    const urun = urunData as (UrunWithKategorie & { ortalama_puan?: number; degerlendirme_sayisi?: number }) | null;
 
     if (!urun) {
         return notFound();
     }
 
     const kategoriId = urun.kategoriler?.id;
+    const parentId = (urun.kategoriler as any)?.ust_kategori_id as string | undefined;
     let ozellikSablonu: Sablon[] = [];
 
     if (kategoriId) {
-        // Die Namen der technischen Eigenschaften für die Anzeige abrufen
-        const { data } = await supabase
+        // 1) Önce alt kategorinin şablonunu dene
+        const { data: directTemplate } = await supabase
             .from('kategori_ozellik_sablonlari')
-            .select('alan_adi, gosterim_adi') // Nur die benötigten Felder
+            .select('alan_adi, gosterim_adi, sira')
             .eq('kategori_id', kategoriId)
-            .eq('public_gorunur', true) // Nur öffentliche anzeigen
             .order('sira');
-        ozellikSablonu = data || [];
+
+        if (directTemplate && directTemplate.length > 0) {
+            ozellikSablonu = directTemplate as any;
+        } else if (parentId) {
+            // 2) Alt kategoride yoksa ebeveyn şablonuna düş
+            const { data: parentTemplate } = await supabase
+                .from('kategori_ozellik_sablonlari')
+                .select('alan_adi, gosterim_adi, sira')
+                .eq('kategori_id', parentId)
+                .order('sira');
+            ozellikSablonu = (parentTemplate || []) as any;
+        }
     }
+
+    // Review alanlarını güvenli tipe indir
+    const ortalamaPuan: number | null = typeof urun.ortalama_puan === 'number' ? urun.ortalama_puan : null;
+    const degerlendirmeSayisi: number | null = typeof urun.degerlendirme_sayisi === 'number' ? urun.degerlendirme_sayisi : null;
 
     // KORREKTUR: 'price'-Prop wird nicht mehr übergeben
     return (
@@ -66,8 +82,8 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
             {/* Review Section */}
             <UrunReviewSection
                 urunId={urun.id}
-                ortalamaPuan={urun.ortalama_puan}
-                degerlendirmeSayisi={urun.degerlendirme_sayisi}
+                ortalamaPuan={ortalamaPuan}
+                degerlendirmeSayisi={degerlendirmeSayisi}
             />
         </>
     );
