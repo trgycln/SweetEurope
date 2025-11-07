@@ -28,7 +28,7 @@ export default async function Home({
     const supabase = await createSupabaseServerClient(cookieStore);
     
     // Sadece mevcut kolonları çek
-    const { data: kategoriler, error } = await supabase
+  const { data: kategoriler, error } = await supabase
         .from('kategoriler')
         .select('id, slug, ad, ust_kategori_id')
         .is('ust_kategori_id', null) // Sadece ana kategoriler
@@ -73,28 +73,50 @@ export default async function Home({
     
     console.log('Homepage - Product counts per category:', categoryProductCounts);
     console.log('Homepage - Total products found:', urunler?.length);
-    // Public klasöründe gerçek dosyayı kontrol ederek image_url oluştur
-    const kategorilerWithImages = (kategoriler || []).map((k: any) => {
-        const base = k.slug as string;
-        const jpegFsPath = path.join(process.cwd(), 'public', 'categories', `${base}.JPEG`);
-        const jpgFsPath = path.join(process.cwd(), 'public', 'categories', `${base}.jpg`);
+  // Show only the curated 6 main categories (order fixed)
+  const desiredSlugs = [
+    'cakes-and-tarts',
+    'cookies-and-muffins',
+    'pizza-and-fast-food',
+    'sauces-and-ingredients',
+    'coffee',
+    'drinks',
+  ];
 
-        let image_url = '/placeholder-category.jpg';
-        if (fs.existsSync(jpegFsPath)) {
-            image_url = `/categories/${base}.JPEG`;
-        } else if (fs.existsSync(jpgFsPath)) {
-            image_url = `/categories/${base}.jpg`;
-        }
+  const filteredKategoriler = (kategoriler || [])
+    .filter(k => desiredSlugs.includes((k.slug ?? '')))
+    .sort((a, b) => desiredSlugs.indexOf(a.slug ?? '') - desiredSlugs.indexOf(b.slug ?? ''));
 
-        return { 
-            ...k, 
-            image_url,
-            productCount: categoryProductCounts[k.id] || 0 
-        };
-    });
+  // Determine image_url based on file existence (prefer webp, then jpg, then jpeg/JPEG)
+  const kategorilerWithImages = filteredKategoriler.map((kategori) => {
+    const slug = kategori.slug || '';
+    const baseFilename = slug; // Expect image file names to match slug
 
-    return (
-        <>
+    const candidates = [
+      `${baseFilename}.webp`,
+      `${baseFilename}.jpg`,
+      `${baseFilename}.jpeg`,
+      `${baseFilename}.JPEG`,
+    ];
+
+    let image_url = '/placeholder-category.jpg';
+    for (const name of candidates) {
+      const p = path.join(process.cwd(), 'public', 'categories', name);
+      if (fs.existsSync(p)) {
+        image_url = `/categories/${name}`;
+        break;
+      }
+    }
+
+    return {
+      ...kategori,
+      image_url,
+      productCount: categoryProductCounts[kategori.id] || 0,
+    };
+  });
+
+  return (
+    <>
             <HeroSection dictionary={dictionary} locale={locale} />
             <PhilosophySection dictionary={dictionary} />
             <CategoryShowcase 

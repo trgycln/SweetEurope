@@ -34,7 +34,7 @@ const PhilosophySection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
             <div className="relative aspect-square max-w-2xl mx-auto">
               <div className="absolute inset-0 bg-accent/10 rounded-full blur-3xl transform scale-90"></div>
               <Image
-                src="/philosophy-cake.png"
+                src="/philosophy-cake.JPEG"
                 alt={dictionary.philosophy.imageAlt}
                 fill
                 className="object-contain transform hover:scale-105 transition-transform duration-700 ease-in-out drop-shadow-2xl relative z-10"

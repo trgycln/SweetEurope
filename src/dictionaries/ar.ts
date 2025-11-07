@@ -517,10 +517,62 @@ export const dictionary: Partial<Dictionary> = {
       imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
     },
     mainCategories: [
-      { name: 'الحلويات', promoImage: 'https://...f1c', subCategories: [ { name: 'الكعك والتورتات', href: '/produkte/torten-kuchen', description: '125 نوع' }, { name: 'منتجات نباتية', href: '/produkte/vegan', description: '19 نوع' }, { name: 'الكوكيز والمعجنات', href: '/produkte/kurabiye', description: '17 نوع' }, ] },
-      { name: 'القهوة والمشروبات', promoImage: 'https://...d99', subCategories: [ { name: 'القهوة', href: '/produkte/kaffee', description: '35 نوع' }, { name: 'الشاي والمشروبات البودرة', href: '/produkte/tee', description: '35 نوع' }, { name: 'المشروبات الغازية', href: '/produkte/getraenke', description: '20 نوع' }, ] },
-      { name: 'المكونات والشراب', promoImage: 'https://...388', subCategories: [ { name: 'شراب القهوة', href: '/produkte/sirupe', description: '44 نوع' }, ] },
-      { name: 'الموالح', promoImage: 'https://...e65', subCategories: [ { name: 'بيتزا جورميه', href: '/produkte/pizza', description: '' }, ] },
+      {
+        name: 'الكعك والتورتات',
+        promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'تشيزكيك', href: '/produkte/cheesecakes', description: '' },
+          { name: 'براونيز', href: '/produkte/brownies', description: '' },
+          { name: 'تيراميسو', href: '/produkte/tiramisu', description: '' },
+          { name: 'كب كيك', href: '/produkte/cup-cakes', description: '' },
+          { name: 'كعك نباتي', href: '/produkte/vegan-cakes', description: '' },
+          { name: 'خالي من الجلوتين', href: '/produkte/gluten-free', description: '' },
+        ]
+      },
+      {
+        name: 'الكوكيز والمافن',
+        promoImage: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'كوكيز', href: '/produkte/cookies', description: '' },
+          { name: 'مافن', href: '/produkte/muffins', description: '' },
+        ]
+      },
+      {
+        name: 'البيتزا والوجبات السريعة',
+        promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
+        subCategories: [
+          { name: 'بيتزا', href: '/produkte/pizzas', description: '' },
+          { name: 'الوجبات السريعة', href: '/produkte/fast-food', description: '' },
+        ]
+      },
+      {
+        name: 'الصلصات والمكونات',
+        promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'صلصات الحلوى', href: '/produkte/dessert-sauces', description: '' },
+          { name: 'الطبقة العلوية', href: '/produkte/toppings', description: '' },
+          { name: 'المكونات', href: '/produkte/ingredients', description: '' },
+        ]
+      },
+      {
+        name: 'القهوة',
+        promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'قهوة تركية', href: '/produkte/turkish-coffee', description: '' },
+          { name: 'قهوة فلتر', href: '/produkte/filter-coffee', description: '' },
+          { name: 'إسبريسو', href: '/produkte/espresso', description: '' },
+        ]
+      },
+      {
+        name: 'المشروبات',
+        promoImage: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'شوكولاتة ساخنة', href: '/produkte/hot-chocolate', description: '' },
+          { name: 'شاي', href: '/produkte/tea', description: '' },
+          { name: 'شراب', href: '/produkte/syrups', description: '' },
+          { name: 'سحلب', href: '/produkte/salep', description: '' },
+        ]
+      },
     ]
   },
   philosophy: {

@@ -535,10 +535,62 @@ export const dictionary: Partial<Dictionary> = {
       imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
     },
     mainCategories: [
-      { name: 'Patisserie', promoImage: 'https://...f1c', subCategories: [ { name: 'Cakes & Tarts', href: '/products/cakes', description: '125 varieties' }, { name: 'Vegan Products', href: '/products/vegan', description: '19 varieties' }, { name: 'Cookies & Pastries', href: '/products/cookies', description: '17 varieties' }, ] },
-      { name: 'Coffee & Drinks', promoImage: 'https://...d99', subCategories: [ { name: 'Coffee', href: '/products/coffee', description: '35 varieties' }, { name: 'Tea & Powdered Drinks', href: '/products/tea', description: '35 varieties' }, { name: 'Soft Drinks', href: '/products/drinks', description: '20 varieties' }, ] },
-      { name: 'Ingredients & Syrups', promoImage: 'https://...388', subCategories: [ { name: 'Coffee Syrups', href: '/products/syrups', description: '44 varieties' }, ] },
-      { name: 'Savory', promoImage: 'https://...e65', subCategories: [ { name: 'Gourmet Pizza', href: '/products/pizza', description: '' }, ] },
+      {
+        name: 'Cakes & Tarts',
+        promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Cheesecakes', href: '/products/cheesecakes', description: '' },
+          { name: 'Brownies', href: '/products/brownies', description: '' },
+          { name: 'Tiramisu', href: '/products/tiramisu', description: '' },
+          { name: 'Cup Cakes', href: '/products/cup-cakes', description: '' },
+          { name: 'Vegan Cakes', href: '/products/vegan-cakes', description: '' },
+          { name: 'Gluten-Free', href: '/products/gluten-free', description: '' },
+        ]
+      },
+      {
+        name: 'Cookies & Muffins',
+        promoImage: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Cookies', href: '/products/cookies', description: '' },
+          { name: 'Muffins', href: '/products/muffins', description: '' },
+        ]
+      },
+      {
+        name: 'Pizza & Fast Food',
+        promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Pizzas', href: '/products/pizzas', description: '' },
+          { name: 'Fast Food', href: '/products/fast-food', description: '' },
+        ]
+      },
+      {
+        name: 'Sauces & Ingredients',
+        promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Dessert Sauces', href: '/products/dessert-sauces', description: '' },
+          { name: 'Toppings', href: '/products/toppings', description: '' },
+          { name: 'Ingredients', href: '/products/ingredients', description: '' },
+        ]
+      },
+      {
+        name: 'Coffee',
+        promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Turkish Coffee', href: '/products/turkish-coffee', description: '' },
+          { name: 'Filter Coffee', href: '/products/filter-coffee', description: '' },
+          { name: 'Espresso', href: '/products/espresso', description: '' },
+        ]
+      },
+      {
+        name: 'Drinks',
+        promoImage: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1974&auto=format&fit=crop',
+        subCategories: [
+          { name: 'Hot Chocolate', href: '/products/hot-chocolate', description: '' },
+          { name: 'Tea', href: '/products/tea', description: '' },
+          { name: 'Syrups', href: '/products/syrups', description: '' },
+          { name: 'Salep', href: '/products/salep', description: '' },
+        ]
+      },
     ]
   },
   philosophy: {

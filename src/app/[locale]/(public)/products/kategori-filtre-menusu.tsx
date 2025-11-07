@@ -39,7 +39,23 @@ export function KategoriFiltreMenusu({
         );
     };
 
-    const anaKategoriler = kategoriler.filter(k => !k.ust_kategori_id);
+    // Filter to show only the 6 curated main categories in the desired order
+    const desiredSlugs = [
+        'cakes-and-tarts',
+        'cookies-and-muffins',
+        'pizza-and-fast-food',
+        'sauces-and-ingredients',
+        'coffee',
+        'drinks',
+    ];
+
+    const anaKategoriler = kategoriler
+        .filter(k => !k.ust_kategori_id && desiredSlugs.includes(k.slug ?? ''))
+        .sort((a, b) => {
+            const indexA = desiredSlugs.indexOf(a.slug ?? '');
+            const indexB = desiredSlugs.indexOf(b.slug ?? '');
+            return indexA - indexB;
+        });
 
     return (
         <div className="space-y-1">

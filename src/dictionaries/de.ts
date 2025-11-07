@@ -627,51 +627,107 @@ statusOptions: {
       imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
     },
     mainCategories: [{
-      name: 'Patisserie',
+      name: 'Torten & Kuchen',
       promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
       subCategories: [{
-        name: 'Torten & Kuchen',
-        href: '/produkte/torten-kuchen',
-        description: '125 Sorten'
+        name: 'Cheesecakes',
+        href: '/produkte/cheesecakes',
+        description: ''
       }, {
-        name: 'Vegane Produkte',
-        href: '/produkte/vegan',
-        description: '19 Sorten'
+        name: 'Brownies',
+        href: '/produkte/brownies',
+        description: ''
       }, {
-        name: 'Kurabiye & Gebäck',
-        href: '/produkte/kurabiye',
-        description: '17 Sorten'
+        name: 'Tiramisu',
+        href: '/produkte/tiramisu',
+        description: ''
+      }, {
+        name: 'Becher-Kuchen',
+        href: '/produkte/cup-cakes',
+        description: ''
+      }, {
+        name: 'Vegane Kuchen',
+        href: '/produkte/vegan-cakes',
+        description: ''
+      }, {
+        name: 'Glutenfrei',
+        href: '/produkte/gluten-free',
+        description: ''
       }, ]
     }, {
-      name: 'Kaffee & Getränke',
-      promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
+      name: 'Kekse & Muffins',
+      promoImage: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=1974&auto=format&fit=crop',
       subCategories: [{
-        name: 'Kaffee',
-        href: '/produkte/kaffee',
-        description: '35 Sorten'
+        name: 'Kekse',
+        href: '/produkte/cookies',
+        description: ''
       }, {
-        name: 'Tee & Pulvergetränke',
-        href: '/produkte/tee',
-        description: '35 Sorten'
-      }, {
-        name: 'Erfrischungsgetränke',
-        href: '/produkte/getraenke',
-        description: '20 Sorten'
+        name: 'Muffins',
+        href: '/produkte/muffins',
+        description: ''
       }, ]
     }, {
-      name: 'Zutaten & Sirupe',
-      promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
-      subCategories: [{
-        name: 'Kaffeesirupe',
-        href: '/produkte/sirupe',
-        description: '44 Sorten'
-      }, ]
-    }, {
-      name: 'Herzhaftes',
+      name: 'Pizza & Fast Food',
       promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
       subCategories: [{
-        name: 'Gourmet Pizza',
-        href: '/produkte/pizza',
+        name: 'Pizzen',
+        href: '/produkte/pizzas',
+        description: ''
+      }, {
+        name: 'Fast Food',
+        href: '/produkte/fast-food',
+        description: ''
+      }, ]
+    }, {
+      name: 'Saucen & Zutaten',
+      promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
+      subCategories: [{
+        name: 'Dessert-Saucen',
+        href: '/produkte/dessert-sauces',
+        description: ''
+      }, {
+        name: 'Toppings',
+        href: '/produkte/toppings',
+        description: ''
+      }, {
+        name: 'Zutaten',
+        href: '/produkte/ingredients',
+        description: ''
+      }, ]
+    }, {
+      name: 'Kaffee',
+      promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
+      subCategories: [{
+        name: 'Türkischer Kaffee',
+        href: '/produkte/turkish-coffee',
+        description: ''
+      }, {
+        name: 'Filterkaffee',
+        href: '/produkte/filter-coffee',
+        description: ''
+      }, {
+        name: 'Espresso',
+        href: '/produkte/espresso',
+        description: ''
+      }, ]
+    }, {
+      name: 'Getränke',
+      promoImage: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1974&auto=format&fit=crop',
+      subCategories: [{
+        name: 'Heiße Schokolade',
+        href: '/produkte/hot-chocolate',
+        description: ''
+      }, {
+        name: 'Tee',
+        href: '/produkte/tea',
+        description: ''
+      }, {
+        name: 'Sirupe',
+        href: '/produkte/syrups',
+        description: ''
+      }, {
+        name: 'Salep',
+        href: '/produkte/salep',
         description: ''
       }, ]
     }, ]
