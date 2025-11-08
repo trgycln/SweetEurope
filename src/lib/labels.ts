@@ -32,6 +32,8 @@ const FLAVOR_MAP: Record<string, { de: string; tr: string; en: string; ar: strin
   pistazie: { de: 'Pistazie', tr: 'Antep Fıstığı', en: 'Pistachio', ar: 'فستق حلبي' },
   himbeere: { de: 'Himbeere', tr: 'Ahududu', en: 'Raspberry', ar: 'توت العليق' },
   kirsche: { de: 'Kirsche', tr: 'Vişne', en: 'Cherry', ar: 'كرز' },
+  // Alias token for Turkish input 'visne' (normalized to kirsche in actions)
+  visne: { de: 'Kirsche', tr: 'Vişne', en: 'Cherry', ar: 'كرز' },
   waldfrucht: { de: 'Waldfrucht', tr: 'Orman meyveli', en: 'Forest fruit', ar: 'فاكهة الغابة' },
   frucht: { de: 'Frucht', tr: 'Meyveli', en: 'Fruity', ar: 'فاكهة' },
   zitrone: { de: 'Zitrone', tr: 'Limon', en: 'Lemon', ar: 'ليمون' },
@@ -44,6 +46,8 @@ const FLAVOR_MAP: Record<string, { de: string; tr: string; en: string; ar: strin
   portakal: { de: 'Orange', tr: 'Portakal', en: 'Orange', ar: 'برتقال' },
   // Turkish butter token
   tereyag: { de: 'Butter', tr: 'Tereyağ', en: 'Butter', ar: 'زبدة' },
+  // Blueberry
+  yabanmersini: { de: 'Heidelbeere', tr: 'Yaban Mersini', en: 'Blueberry', ar: 'توت أزرق' },
 };
 
 export function getFlavorLabel(token: string, locale: AppLocale): string {
@@ -58,4 +62,9 @@ export function piecesSuffix(locale: AppLocale): string {
 
 export function weightLabel(locale: AppLocale): string {
   return locale === 'ar' ? 'الوزن' : locale === 'tr' ? 'Ağırlık' : locale === 'en' ? 'Weight' : 'Gewicht';
+}
+
+export function perSliceSuffix(locale: AppLocale): string {
+  // Suffix used in compact chip like "120 g/…"
+  return locale === 'ar' ? 'شريحة' : locale === 'tr' ? 'dilim' : locale === 'en' ? 'slice' : 'Stk.';
 }

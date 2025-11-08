@@ -39,6 +39,7 @@ export const dictionary: Partial<Dictionary> = {
     passwordPlaceholder: "••••••••",
     unauthorizedError: 'Bu sayfaya erişim yetkiniz yok.',
     rememberMe: 'Oturumu açık tut',
+    backToWebsite: 'Web Sitesine Dön',
   },
   portal: {
     productDetailPage: {

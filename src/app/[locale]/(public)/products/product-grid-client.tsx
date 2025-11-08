@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
 import { FiEye, FiSearch, FiStar, FiPackage, FiHeart, FiBox } from 'react-icons/fi';
-import { getBadgeText, getFlavorLabel, piecesSuffix, weightLabel } from '@/lib/labels';
+import { getBadgeText, getFlavorLabel, piecesSuffix, weightLabel, perSliceSuffix } from '@/lib/labels';
 
 interface ProductGridClientProps {
     urunler: Urun[];
@@ -204,6 +204,17 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                         const originalIndex = urunler.indexOf(urun);
                         const gradient = colorGradients[originalIndex % colorGradients.length];
                         const isHovered = hoveredId === urun.id;
+                        const tekniks: any = (urun as any).teknik_ozellikler || {};
+                        // fields to exclude from attribute preview to avoid duplication with footer chips
+                        const EXCLUDE_FIELDS = new Set([
+                            'dilim_adedi',
+                            'kutu_ici_adet',
+                            'net_agirlik_gram',
+                            'net_agirlik_gr',
+                            'net_agirlik',
+                            'gramaj',
+                            'agirlik',
+                        ]);
                         
                         return (
                             <div
@@ -216,7 +227,7 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                 <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 z-10 pointer-events-none`} />
                                 
                                 {/* Image Section */}
-                                <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                                <div className="relative h-80 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                                     {urun.ana_resim_url ? (
                                         <>
                                             <Image 
@@ -240,6 +251,26 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                                     Details ansehen
                                                 </Link>
                                             </div>
+                                            {/* Nutrition/Property Badges overlay (top-right) */}
+                                            {(tekniks.vegan || tekniks.vegetarisch || tekniks.glutenfrei || tekniks.laktosefrei || tekniks.bio) && (
+                                                <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                                                    {tekniks.vegan && (
+                                                        <span title={getBadgeText('vegan', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-xs font-bold shadow-lg">🌿</span>
+                                                    )}
+                                                    {tekniks.vegetarisch && (
+                                                        <span title={getBadgeText('vegetarisch', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-800 text-white text-[10px] font-bold shadow-lg">VEG</span>
+                                                    )}
+                                                    {tekniks.glutenfrei && (
+                                                        <span title={getBadgeText('glutenfrei', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-600 text-white text-[10px] font-bold shadow-lg">GF</span>
+                                                    )}
+                                                    {tekniks.laktosefrei && (
+                                                        <span title={getBadgeText('laktosefrei', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-lg">LF</span>
+                                                    )}
+                                                    {tekniks.bio && (
+                                                        <span title={getBadgeText('bio', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-700 text-white text-[10px] font-bold shadow-lg">BIO</span>
+                                                    )}
+                                                </div>
+                                            )}
                                         </>
                                     ) : (
                                         <div className="absolute inset-0 flex items-center justify-center">
@@ -263,9 +294,9 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                 {/* Content Section */}
                                 <Link 
                                     href={`/${locale}/products/${urun.slug}`}
-                                    className="block p-6 relative z-20"
+                                    className="block p-7 relative z-20"
                                 >
-                                    <h2 className={`text-xl font-bold font-serif mb-3 transition-colors duration-300 ${
+                                    <h2 className={`text-2xl font-bold font-serif mb-4 leading-snug transition-colors duration-300 ${
                                         isHovered ? 'text-accent' : 'text-gray-800'
                                     }`}>
                                         {urun.ad?.[locale] || urun.ad?.['de']}
@@ -277,57 +308,40 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                         reviewCount={urun.degerlendirme_sayisi || 0} 
                                     />
                                     
-                                    {/* Category attribute preview */}
-                                    {(() => {
-                                        if (!urun.kategori_id) return null;
-                                        // Template inheritance: if subcategory lacks template, fallback to parent
-                                        let template = sablonMap[urun.kategori_id];
-                                        if ((!template || template.length === 0) && kategoriParentMap[urun.kategori_id]) {
-                                            const parentId = kategoriParentMap[urun.kategori_id]!;
-                                            template = sablonMap[parentId];
-                                        }
-                                        const tekniks: any = (urun as any).teknik_ozellikler || {};
-                                        if (!template || template.length === 0) return null;
-                                        const visible = template
-                                            .filter(f => tekniks[f.alan_adi] !== undefined && tekniks[f.alan_adi] !== '' && tekniks[f.alan_adi] !== null)
-                                            .slice(0, 3); // show at most 3
-                                        if (visible.length === 0) return null;
-                                        return (
-                                            <ul className="mt-4 flex flex-wrap gap-2 text-xs text-gray-600">
-                                                {visible.map(f => (
-                                                    <li key={f.alan_adi} className="bg-gray-100 px-2 py-1 rounded-md">
-                                                        {(f.gosterim_adi?.[locale] || f.gosterim_adi?.['de'] || f.alan_adi)}: {String(tekniks[f.alan_adi])}
-                                                    </li>
-                                                ))}
-                                                {/* Filter badges */}
-                                                {tekniks.vegan && <li className="bg-green-600 text-white px-2 py-1 rounded-md">{getBadgeText('vegan', locale as any)}</li>}
-                                                {tekniks.vegetarisch && <li className="bg-green-800 text-white px-2 py-1 rounded-md">{getBadgeText('vegetarisch', locale as any)}</li>}
-                                                {tekniks.glutenfrei && <li className="bg-yellow-600 text-white px-2 py-1 rounded-md">{getBadgeText('glutenfrei', locale as any)}</li>}
-                                                {tekniks.laktosefrei && <li className="bg-blue-600 text-white px-2 py-1 rounded-md">{getBadgeText('laktosefrei', locale as any)}</li>}
-                                                {tekniks.bio && <li className="bg-emerald-700 text-white px-2 py-1 rounded-md">{getBadgeText('bio', locale as any)}</li>}
-                                                {Array.isArray(tekniks.geschmack) && tekniks.geschmack.slice(0,2).map((g: string) => (
-                                                    <li key={g} className="bg-pink-600 text-white px-2 py-1 rounded-md">{getFlavorLabel(g, locale as any)}</li>
-                                                ))}
-                                            </ul>
-                                        );
-                                    })()}
+                                    {/* Simplified: No attribute preview on cards */}
                                     {/* Stück / Gewicht footer info */}
                                     {(() => {
                                         const tekniks: any = (urun as any).teknik_ozellikler || {};
                                         const sliceCount = tekniks.dilim_adedi || tekniks.kutu_ici_adet; // from teknik_ozellikler only
                                         const weightRaw = tekniks.net_agirlik_gram || tekniks.net_agirlik_gr || tekniks.net_agirlik || tekniks.gramaj || tekniks.agirlik;
-                                        const weight = weightRaw ? (typeof weightRaw === 'number' ? `${weightRaw} g` : String(weightRaw)) : undefined;
-                                        if (!sliceCount && !weight) return null;
+                                        // slice gramaj explicit field variants
+                                        const sliceWeightRaw = tekniks.dilim_gramaj || tekniks.dilim_gr || tekniks.slice_weight || tekniks.dilim_birim_gramaj;
+                                        const numericWeight = typeof weightRaw === 'number' ? weightRaw : parseFloat(String(weightRaw || ''));
+                                        const weight = weightRaw ? (Number.isFinite(numericWeight) ? (numericWeight >= 1000 ? `${(numericWeight/1000).toFixed(1)} kg` : `${numericWeight} g`) : String(weightRaw)) : undefined;
+                                        let sliceWeight: string | undefined;
+                                        if (sliceWeightRaw) {
+                                            const n = typeof sliceWeightRaw === 'number' ? sliceWeightRaw : parseFloat(String(sliceWeightRaw));
+                                            if (Number.isFinite(n)) sliceWeight = `${n} g/${perSliceSuffix(locale as any)}`;
+                                        } else if (sliceCount && Number.isFinite(numericWeight) && numericWeight > 0) {
+                                            const per = Math.round(numericWeight / sliceCount);
+                                            if (per > 0) sliceWeight = `${per} g/${perSliceSuffix(locale as any)}`;
+                                        }
+                                        if (!sliceCount && !weight && !sliceWeight) return null;
                                         return (
-                                            <div className="mt-5 flex flex-wrap gap-3 text-xs">
+                                            <div className="mt-6 flex flex-wrap gap-3 text-xs">
                                                 {sliceCount && (
-                                                    <span className="inline-flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-md font-medium">
-                                                        <FiBox className="w-3 h-3" /> {sliceCount} {piecesSuffix(locale as any)}
+                                                    <span className="inline-flex items-center gap-1 bg-primary/10 text-primary/90 backdrop-blur px-2.5 py-1.5 rounded-full font-medium shadow-sm">
+                                                        <FiBox className="w-3.5 h-3.5" /> {sliceCount} {piecesSuffix(locale as any)}
                                                     </span>
                                                 )}
                                                 {weight && (
-                                                    <span className="inline-flex items-center gap-1 bg-accent/10 text-accent px-2 py-1 rounded-md font-medium">
-                                                        ⚖️ {weightLabel(locale as any)}: {weight}
+                                                    <span className="inline-flex items-center gap-1 bg-accent/10 text-accent/90 px-2.5 py-1.5 rounded-full font-medium shadow-sm">
+                                                        ⚖️ {weight}
+                                                    </span>
+                                                )}
+                                                {sliceWeight && (
+                                                    <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 px-2.5 py-1.5 rounded-full font-medium shadow-sm">
+                                                        {sliceWeight}
                                                     </span>
                                                 )}
                                             </div>
@@ -357,14 +371,24 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                     {filteredUrunler.map((urun, index) => {
                         const originalIndex = urunler.indexOf(urun);
                         const gradient = colorGradients[originalIndex % colorGradients.length];
+                        const tekniks: any = (urun as any).teknik_ozellikler || {};
+                        const EXCLUDE_FIELDS = new Set([
+                            'dilim_adedi',
+                            'kutu_ici_adet',
+                            'net_agirlik_gram',
+                            'net_agirlik_gr',
+                            'net_agirlik',
+                            'gramaj',
+                            'agirlik',
+                        ]);
                         
                         return (
                             <Link
                                 key={urun.id}
                                 href={`/${locale}/products/${urun.slug}`}
-                                className="group flex gap-6 bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 p-6"
+                                className="group flex gap-8 bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 p-7"
                             >
-                                <div className="relative w-40 h-40 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                                <div className="relative w-48 h-48 flex-shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                                     {urun.ana_resim_url ? (
                                         <Image 
                                             src={urun.ana_resim_url as string}
@@ -384,7 +408,7 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                     <div className={`inline-flex items-center gap-2 text-xs font-bold text-white px-3 py-1 rounded-full bg-gradient-to-r ${gradient} w-fit mb-2`}>
                                         {urun.kategori_id ? kategoriAdlariMap.get(urun.kategori_id) : 'Kategori'}
                                     </div>
-                                    <h2 className="text-2xl font-bold text-gray-800 group-hover:text-accent transition-colors mb-2">
+                                    <h2 className="text-3xl font-bold leading-tight text-gray-800 group-hover:text-accent transition-colors mb-3 font-serif">
                                         {urun.ad?.[locale] || urun.ad?.['de']}
                                     </h2>
                                     
@@ -394,54 +418,38 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                         reviewCount={urun.degerlendirme_sayisi || 0} 
                                     />
 
-                                    {/* Attribute preview (list view) */}
-                                    {(() => {
-                                        if (!urun.kategori_id) return null;
-                                        let template = sablonMap[urun.kategori_id];
-                                        if ((!template || template.length === 0) && kategoriParentMap[urun.kategori_id]) {
-                                            const parentId = kategoriParentMap[urun.kategori_id]!;
-                                            template = sablonMap[parentId];
-                                        }
-                                        const tekniks: any = (urun as any).teknik_ozellikler || {};
-                                        if (!template || template.length === 0) return null;
-                                        const visible = template
-                                            .filter(f => tekniks[f.alan_adi] !== undefined && tekniks[f.alan_adi] !== '' && tekniks[f.alan_adi] !== null)
-                                            .slice(0, 5);
-                                        if (visible.length === 0) return null;
-                                        return (
-                                            <ul className="mt-2 flex flex-wrap gap-2 text-xs text-gray-600">
-                                                {visible.map(f => (
-                                                    <li key={f.alan_adi} className="bg-gray-100 px-2 py-1 rounded-md">
-                                                        {(f.gosterim_adi?.[locale] || f.gosterim_adi?.['de'] || f.alan_adi)}: {String(tekniks[f.alan_adi])}
-                                                    </li>
-                                                ))}
-                                                {tekniks.vegan && <li className="bg-green-600 text-white px-2 py-1 rounded-md">{getBadgeText('vegan', locale as any)}</li>}
-                                                {tekniks.vegetarisch && <li className="bg-green-800 text-white px-2 py-1 rounded-md">{getBadgeText('vegetarisch', locale as any)}</li>}
-                                                {tekniks.glutenfrei && <li className="bg-yellow-600 text-white px-2 py-1 rounded-md">{getBadgeText('glutenfrei', locale as any)}</li>}
-                                                {tekniks.laktosefrei && <li className="bg-blue-600 text-white px-2 py-1 rounded-md">{getBadgeText('laktosefrei', locale as any)}</li>}
-                                                {tekniks.bio && <li className="bg-emerald-700 text-white px-2 py-1 rounded-md">{getBadgeText('bio', locale as any)}</li>}
-                                                {Array.isArray(tekniks.geschmack) && tekniks.geschmack.slice(0,4).map((g: string) => (
-                                                    <li key={g} className="bg-pink-600 text-white px-2 py-1 rounded-md">{getFlavorLabel(g, locale as any)}</li>
-                                                ))}
-                                            </ul>
-                                        );
-                                    })()}
+                                    {/* Simplified: No attribute preview on cards (list view) */}
                                     {(() => {
                                         const tekniks: any = (urun as any).teknik_ozellikler || {};
-                                        const sliceCount = tekniks.dilim_adedi || tekniks.kutu_ici_adet; // from teknik_ozellikler only
+                                        const sliceCount = tekniks.dilim_adedi || tekniks.kutu_ici_adet;
                                         const weightRaw = tekniks.net_agirlik_gram || tekniks.net_agirlik_gr || tekniks.net_agirlik || tekniks.gramaj || tekniks.agirlik;
-                                        const weight = weightRaw ? (typeof weightRaw === 'number' ? `${weightRaw} g` : String(weightRaw)) : undefined;
-                                        if (!sliceCount && !weight) return null;
+                                        const sliceWeightRaw = tekniks.dilim_gramaj || tekniks.dilim_gr || tekniks.slice_weight || tekniks.dilim_birim_gramaj;
+                                        const numericWeight = typeof weightRaw === 'number' ? weightRaw : parseFloat(String(weightRaw || ''));
+                                        const weight = weightRaw ? (Number.isFinite(numericWeight) ? (numericWeight >= 1000 ? `${(numericWeight/1000).toFixed(1)} kg` : `${numericWeight} g`) : String(weightRaw)) : undefined;
+                                        let sliceWeight: string | undefined;
+                                        if (sliceWeightRaw) {
+                                            const n = typeof sliceWeightRaw === 'number' ? sliceWeightRaw : parseFloat(String(sliceWeightRaw));
+                                            if (Number.isFinite(n)) sliceWeight = `${n} g/${perSliceSuffix(locale as any)}`;
+                                        } else if (sliceCount && Number.isFinite(numericWeight) && numericWeight > 0) {
+                                            const per = Math.round(numericWeight / sliceCount);
+                                            if (per > 0) sliceWeight = `${per} g/${perSliceSuffix(locale as any)}`;
+                                        }
+                                        if (!sliceCount && !weight && !sliceWeight) return null;
                                         return (
-                                            <div className="mt-3 flex flex-wrap gap-3 text-xs">
+                                            <div className="mt-4 flex flex-wrap gap-4 text-sm">
                                                 {sliceCount && (
-                                                    <span className="inline-flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-md font-medium">
-                                                        <FiBox className="w-3 h-3" /> {sliceCount} {piecesSuffix(locale as any)}
+                                                    <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary/90 px-3 py-1.5 rounded-full font-medium shadow-sm">
+                                                        <FiBox className="w-4 h-4" /> {sliceCount} {piecesSuffix(locale as any)}
                                                     </span>
                                                 )}
                                                 {weight && (
-                                                    <span className="inline-flex items-center gap-1 bg-accent/10 text-accent px-2 py-1 rounded-md font-medium">
-                                                        ⚖️ {weightLabel(locale as any)}: {weight}
+                                                    <span className="inline-flex items-center gap-1.5 bg-accent/10 text-accent/90 px-3 py-1.5 rounded-full font-medium shadow-sm">
+                                                        ⚖️ {weight}
+                                                    </span>
+                                                )}
+                                                {sliceWeight && (
+                                                    <span className="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full font-medium shadow-sm">
+                                                        {sliceWeight}
                                                     </span>
                                                 )}
                                             </div>

@@ -89,6 +89,7 @@ export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriS
         { value: 'himbeere', label: locale === 'de' ? 'Himbeere' : locale === 'tr' ? 'Frambuaz' : locale === 'ar' ? 'توت العليق' : 'Raspberry' },
         { value: 'pistazie', label: locale === 'de' ? 'Pistazie' : locale === 'tr' ? 'Fıstık' : locale === 'ar' ? 'فستق' : 'Pistachio' },
         { value: 'kirsche', label: locale === 'de' ? 'Kirsche' : locale === 'tr' ? 'Kiraz' : locale === 'ar' ? 'كرز' : 'Cherry' },
+        { value: 'yabanmersini', label: locale === 'de' ? 'Heidelbeere' : locale === 'tr' ? 'Yaban Mersini' : locale === 'ar' ? 'توت أزرق' : 'Blueberry' },
         { value: 'havuc', label: locale === 'de' ? 'Karotte' : locale === 'tr' ? 'Havuç' : locale === 'ar' ? 'جزر' : 'Carrot' },
         { value: 'yulaf', label: locale === 'de' ? 'Hafer' : locale === 'tr' ? 'Yulaf' : locale === 'ar' ? 'شوفان' : 'Oat' },
     ];

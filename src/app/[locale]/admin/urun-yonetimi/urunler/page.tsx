@@ -102,6 +102,7 @@ export default async function UrunlerListPage({
         .select(`
             id,
             ad,
+            ana_resim_url,
             stok_kodu,
             stok_miktari,
             stok_esigi,
@@ -210,17 +211,33 @@ export default async function UrunlerListPage({
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                     {['Produktname', 'Artikelnummer', 'Kategorie', 'Lagerbestand', 'Preis (Kunde)', 'Status'].map(header => (
-                                         <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                             {header}
-                                         </th>
-                                     ))}
+                                    {/* Thumbnail column header (empty for compactness) */}
+                                    <th scope="col" className="px-4 py-3"></th>
+                                    {['Produktname', 'Artikelnummer', 'Kategorie', 'Lagerbestand', 'Preis (Kunde)', 'Status'].map(header => (
+                                        <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                            {header}
+                                        </th>
+                                    ))}
                                     <th scope="col" className="relative px-6 py-3"><span className="sr-only">Bearbeiten</span></th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {urunListesi.map((urun) => (
                                     <tr key={urun.id} className="hover:bg-gray-50 transition-colors duration-150">
+                                        {/* Thumbnail cell - fixed small size, no row growth */}
+                                        <td className="px-4 py-3 whitespace-nowrap">
+                                            <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="block">
+                                                <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
+                                                    {urun.ana_resim_url ? (
+                                                        // Use plain img to avoid Next Image config here
+                                                        // eslint-disable-next-line @next/next/no-img-element
+                                                        <img src={urun.ana_resim_url as any} alt={getLocalizedName(urun.ad, locale)} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span className="text-[10px] text-gray-400">no img</span>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
                                              <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="hover:underline hover:text-accent transition-colors">
                                                  {getLocalizedName(urun.ad, locale)} {/* utils Funktion */}

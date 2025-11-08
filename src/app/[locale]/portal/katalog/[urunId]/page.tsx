@@ -144,6 +144,7 @@ export default async function PartnerUrunDetayPage({
                 urunId={urunData.id}
                 ortalamaPuan={(urunData as any).ortalama_puan}
                 degerlendirmeSayisi={(urunData as any).degerlendirme_sayisi}
+                mode="portal"
             />
         </div>
     );

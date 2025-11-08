@@ -39,6 +39,7 @@ export const dictionary: Partial<Dictionary> = {
     passwordPlaceholder: "••••••••",
     unauthorizedError: 'ليس لديك الصلاحية للوصول إلى هذه الصفحة.',
     rememberMe: 'تذكرني',
+    backToWebsite: 'العودة إلى الموقع',
   },
   portal: {
     productDetailPage: {

@@ -55,6 +55,7 @@ export const dictionary = {
     passwordPlaceholder: "••••••••",
     unauthorizedError: 'Sie sind nicht berechtigt, auf diese Seite zuzugreifen.',
     rememberMe: 'Angemeldet bleiben',
+    backToWebsite: 'Zurück zur Website',
   },
 
   portal: {

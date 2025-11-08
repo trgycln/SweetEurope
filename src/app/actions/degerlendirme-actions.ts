@@ -121,12 +121,18 @@ export async function createDegerlendirme(formData: {
     return { success: false, error: 'Giriş yapmalısınız' };
   }
 
-  // Kullanıcının profil bilgilerini al (firma_id için)
+  // Kullanıcının profil bilgilerini al (rol ve firma_id)
   const { data: profil } = await supabase
     .from('profiller')
-    .select('firma_id')
+    .select('firma_id, rol')
     .eq('id', user.id)
     .single();
+
+  // Yalnızca portal rollerine izin ver (Müşteri, Alt Bayi, Yönetici, Ekip Üyesi)
+  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Ekip Üyesi'];
+  if (!profil || !profil.rol || !allowedRoles.includes(profil.rol as any)) {
+    return { success: false, error: 'Yetkiniz yok' };
+  }
 
   // Sipariş ID'sini bul (doğrulanmış alış için)
   const { data: siparis } = await supabase
@@ -183,6 +189,17 @@ export async function updateDegerlendirme(
     return { success: false, error: 'Giriş yapmalısınız' };
   }
 
+  // Rol kontrolü (sadece portal roller)
+  const { data: profil } = await supabase
+    .from('profiller')
+    .select('rol')
+    .eq('id', user.id)
+    .single();
+  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Ekip Üyesi'];
+  if (!profil || !profil.rol || !allowedRoles.includes(profil.rol as any)) {
+    return { success: false, error: 'Yetkiniz yok' };
+  }
+
   const { error } = await supabase
     .from('urun_degerlendirmeleri')
     .update({
@@ -215,6 +232,17 @@ export async function voteDegerlendirme(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return { success: false, error: 'Giriş yapmalısınız' };
+  }
+
+  // Rol kontrolü (sadece portal roller)
+  const { data: profil } = await supabase
+    .from('profiller')
+    .select('rol')
+    .eq('id', user.id)
+    .single();
+  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Ekip Üyesi'];
+  if (!profil || !profil.rol || !allowedRoles.includes(profil.rol as any)) {
+    return { success: false, error: 'Yetkiniz yok' };
   }
 
   // Önce var olan oyu kontrol et

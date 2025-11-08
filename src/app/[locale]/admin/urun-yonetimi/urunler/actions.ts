@@ -83,7 +83,9 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     for (let i = 0; i < 20; i++) { // Max 20 flavors
         const flavorValue = formData.get(`geschmack_${i}`) as string;
         if (flavorValue) {
-            geschmackArray.push(flavorValue);
+            // Normalize Turkish alias 'visne' to canonical 'kirsche'
+            const normalized = flavorValue.toLowerCase() === 'visne' ? 'kirsche' : flavorValue;
+            geschmackArray.push(normalized);
         }
     }
     
@@ -91,7 +93,11 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     const customGeschmack = formData.get('geschmack_custom') as string;
     if (customGeschmack && customGeschmack.trim()) {
         // Split by comma and add each custom flavor
-        const customFlavors = customGeschmack.split(',').map(f => f.trim()).filter(f => f.length > 0);
+        const customFlavors = customGeschmack
+            .split(',')
+            .map(f => f.trim())
+            .filter(f => f.length > 0)
+            .map(f => (f.toLowerCase() === 'visne' ? 'kirsche' : f));
         geschmackArray.push(...customFlavors);
     }
     

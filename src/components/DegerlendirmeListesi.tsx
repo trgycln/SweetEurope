@@ -7,11 +7,13 @@ import { type Degerlendirme, voteDegerlendirme } from '@/app/actions/degerlendir
 interface DegerlendirmeListesiProps {
   degerlendirmeler: Degerlendirme[];
   showVoting?: boolean;
+  mode?: 'public' | 'portal';
 }
 
 export default function DegerlendirmeListesi({
   degerlendirmeler,
-  showVoting = true
+  showVoting = true,
+  mode = 'public'
 }: DegerlendirmeListesiProps) {
   const [votingStates, setVotingStates] = useState<Record<string, 'helpful' | 'not-helpful' | null>>({});
 
@@ -137,7 +139,7 @@ export default function DegerlendirmeListesi({
             )}
 
             {/* Yardımcı Oldu Mu? */}
-            {showVoting && (
+            {showVoting && mode === 'portal' && (
               <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
                 <span className="text-sm text-gray-600">Bu değerlendirme yardımcı oldu mu?</span>
                 

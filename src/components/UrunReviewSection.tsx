@@ -15,18 +15,21 @@ interface UrunReviewSectionProps {
   urunId: string;
   ortalamaPuan: number | null;
   degerlendirmeSayisi: number | null;
+  mode?: 'public' | 'portal';
 }
 
 export function UrunReviewSection({
   urunId,
   ortalamaPuan,
   degerlendirmeSayisi,
+  mode = 'public',
 }: UrunReviewSectionProps) {
   const [degerlendirmeler, setDegerlendirmeler] = useState<Degerlendirme[]>([]);
   const [kullaniciDegerlendirmesi, setKullaniciDegerlendirmesi] = useState<Degerlendirme | null>(null);
   const [urunSatinAlindi, setUrunSatinAlindi] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const portalMode = mode === 'portal';
 
   useEffect(() => {
     loadData();
@@ -37,8 +40,9 @@ export function UrunReviewSection({
     try {
       const [reviews, userReview, purchased] = await Promise.all([
         getUrunDegerlendirmeleri(urunId),
-        getKullaniciDegerlendirmesi(urunId),
-        checkUrunSatinAlindi(urunId),
+        // Kullanıcı ve satın alma bilgileri sadece portal modunda anlamlı
+        portalMode ? getKullaniciDegerlendirmesi(urunId) : Promise.resolve(null),
+        portalMode ? checkUrunSatinAlindi(urunId) : Promise.resolve(false),
       ]);
 
       setDegerlendirmeler(reviews);
@@ -107,7 +111,7 @@ export function UrunReviewSection({
           </div>
 
           {/* Write Review Button */}
-          {urunSatinAlindi && !kullaniciDegerlendirmesi && (
+          {portalMode && urunSatinAlindi && !kullaniciDegerlendirmesi && (
             <button
               onClick={() => setShowForm(!showForm)}
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
@@ -118,7 +122,7 @@ export function UrunReviewSection({
           )}
 
           {/* Edit Review Button */}
-          {kullaniciDegerlendirmesi && (
+          {portalMode && kullaniciDegerlendirmesi && (
             <button
               onClick={() => setShowForm(!showForm)}
               className="flex items-center gap-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all shadow-lg hover:shadow-xl"
@@ -130,7 +134,7 @@ export function UrunReviewSection({
         </div>
 
         {/* Purchase Required Message */}
-        {!urunSatinAlindi && !kullaniciDegerlendirmesi && (
+        {portalMode && !urunSatinAlindi && !kullaniciDegerlendirmesi && (
           <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm">
             <p className="font-medium mb-1">ℹ️ Hinweis</p>
             <p>
@@ -140,7 +144,7 @@ export function UrunReviewSection({
         )}
 
         {/* Review Form */}
-        {showForm && (
+        {portalMode && showForm && (
           <div className="mb-8">
             <DegerlendirmeForm
               urunId={urunId}
@@ -152,7 +156,7 @@ export function UrunReviewSection({
         )}
 
         {/* User's Own Review (if pending/rejected) */}
-        {kullaniciDegerlendirmesi && 
+        {portalMode && kullaniciDegerlendirmesi && 
          kullaniciDegerlendirmesi.onay_durumu !== 'onaylandi' && (
           <div className="mb-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">
@@ -161,6 +165,7 @@ export function UrunReviewSection({
             <DegerlendirmeListesi
               degerlendirmeler={[kullaniciDegerlendirmesi]}
               showVoting={false}
+              mode={mode}
             />
           </div>
         )}
@@ -175,7 +180,8 @@ export function UrunReviewSection({
           ) : (
             <DegerlendirmeListesi
               degerlendirmeler={degerlendirmeler}
-              showVoting={true}
+              showVoting={portalMode}
+              mode={mode}
             />
           )}
         </div>
