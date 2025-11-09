@@ -11,9 +11,11 @@ type Durum = { anahtar: string; deger: string };
 interface SiparisFiltreleriProps {
     firmalar: Firma[];
     durumlar: Durum[];
+    locale: string;
+    dictionary: any;
 }
 
-export default function SiparisFiltreleri({ firmalar, durumlar }: SiparisFiltreleriProps) {
+export default function SiparisFiltreleri({ firmalar, durumlar, locale, dictionary }: SiparisFiltreleriProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();

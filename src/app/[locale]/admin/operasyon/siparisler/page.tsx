@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 
 // Typ für die erweiterten Siparis-Daten mit Firma
 type SiparisWithFirma = Tables<'siparisler'> & {
-    firma: Pick<Tables<'firmalar'>, 'unvan'> | null; // Firma-Objekt oder null
+    firmalar: Pick<Tables<'firmalar'>, 'unvan'> | null; // Firma-Objekt oder null (Name geändert zu 'firmalar')
 };
 
 // Mögliche Statuswerte aus der DB (inklusive Ihrer spezifischen Werte)
@@ -77,9 +77,13 @@ export default async function AlleSiparislerPage({
     // Abfrage erstellen
     let query = supabase
         .from('siparisler')
-        // Korrekter Join-Syntax für Supabase JS v2 (oder höher): `tabelle(spalten)` oder `alias:tabelle(spalten)`
-        // Annahme: Es gibt eine direkte Beziehung 'firma_id' -> 'firmalar.id'
-        .select(`*, firma:firmalar (unvan)`); // Alias 'firma' verwenden, 'firmalar' ist der Tabellenname
+        // Korrekter Join-Syntax für Supabase JS v2: Verwenden Sie die Spalte, nicht den Alias
+        .select(`
+            *,
+            firmalar!firma_id (
+                unvan
+            )
+        `);
 
     // Filter anwenden
     const statusParam = searchParams?.status as Enums<'siparis_durumu'> | undefined;
@@ -191,7 +195,7 @@ export default async function AlleSiparislerPage({
                         <tbody className="bg-white divide-y divide-gray-200">
                             {siparisler.map((siparis) => {
                                 // Sicherer Zugriff auf Firma, da LEFT JOIN verwendet wird
-                                const firmaUnvan = siparis.firma?.unvan || 'Unbekannt';
+                                const firmaUnvan = siparis.firmalar?.unvan || 'Unbekannt';
                                 const dbStatus = siparis.siparis_durumu;
                                 // Sicherer Zugriff auf Übersetzungen
                                 const translatedText = (orderStatusTranslations as Record<string, string>)[dbStatus] || dbStatus;
@@ -241,7 +245,6 @@ export default async function AlleSiparislerPage({
                                                      label={content.markShipped || "Als versandt markieren"}
                                                      icon={<FiTruck size={12}/>}
                                                      className="bg-purple-100 text-purple-700 hover:bg-purple-200" // Farbe angepasst
-                                                     locale={locale} // Locale übergeben
                                                  />
                                              )}
                                              {/* "Als zugestellt markieren" */}
@@ -252,7 +255,6 @@ export default async function AlleSiparislerPage({
                                                       label={content.markDelivered || "Als zugestellt markieren"}
                                                       icon={<FiCheckCircle size={12}/>}
                                                       className="bg-green-100 text-green-700 hover:bg-green-200"
-                                                      locale={locale} // Locale übergeben
                                                   />
                                              )}
                                               {/* Optional: Stornieren Button */}

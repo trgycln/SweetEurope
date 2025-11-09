@@ -19,15 +19,15 @@ type Sablon = Tables<'kategori_ozellik_sablonlari'>;
 
 // Props-Typ für die Seite
 interface UrunBearbeitenSeiteProps {
-    params: {
+    params: Promise<{
         urunId: string;
         locale: Locale; // Korrekten Typ verwenden
-    };
+    }>;
 }
 
 export default async function UrunBearbeitenSeite({ params }: UrunBearbeitenSeiteProps) { // Typ verwenden
     noStore(); // Caching deaktivieren
-    const { urunId, locale } = params; // urunId und locale aus params extrahieren
+    const { urunId, locale } = await params; // urunId und locale aus params extrahieren
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen
