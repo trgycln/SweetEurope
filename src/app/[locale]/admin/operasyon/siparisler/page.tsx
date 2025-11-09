@@ -44,19 +44,22 @@ const STATUS_COLORS: Record<string, string> = {
 
 
 // Props-Typ für die Seite
-interface AlleSiparislerPageProps { // Props-Typ hinzugefügt
-    params: { locale: Locale };
-    searchParams?: { status?: string; firmaId?: string; q?: string; filter?: string; };
+interface AlleSiparislerPageProps {
+    params: Promise<{ locale: Locale }>; // Promise in Next.js 15
+    searchParams?: Promise<{ status?: string; firmaId?: string; q?: string; filter?: string; }>; // Promise in Next.js 15
 }
 
 export default async function AlleSiparislerPage({
-    params: { locale }, // locale aus params holen
+    params,
     searchParams
-}: AlleSiparislerPageProps) { // Props-Typ verwenden
+}: AlleSiparislerPageProps) {
+    // Await params und searchParams (Next.js 15 Anforderung)
+    const { locale } = await params;
+    const searchParamsResolved = await searchParams;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
     // --- ENDE KORREKTUR ---
 
     const dictionary = await getDictionary(locale);
@@ -86,10 +89,10 @@ export default async function AlleSiparislerPage({
         `);
 
     // Filter anwenden
-    const statusParam = searchParams?.status as Enums<'siparis_durumu'> | undefined;
-    const firmaIdParam = searchParams?.firmaId;
-    const queryParam = searchParams?.q;
-    const filterParam = searchParams?.filter;
+    const statusParam = searchParamsResolved?.status as Enums<'siparis_durumu'> | undefined;
+    const firmaIdParam = searchParamsResolved?.firmaId;
+    const queryParam = searchParamsResolved?.q;
+    const filterParam = searchParamsResolved?.filter;
 
     // Filterlogik (Priorität beachten)
     let appliedStatusFilter: Enums<'siparis_durumu'>[] | null = null; // Für die Filterkomponente merken
@@ -109,24 +112,63 @@ export default async function AlleSiparislerPage({
     // Suche implementieren
     if (queryParam) {
         const searchQuery = `%${queryParam}%`;
-        // Suche in Firmennamen über den Join oder in der Bestell-ID
-        // WICHTIG: Die .or() Syntax muss auf Spalten der Haupttabelle ('siparisler')
-        // oder korrekt referenzierten Join-Tabellen angewendet werden.
-        // Die Suche nach Firmennamen über den Join erfordert spezielle Syntax oder eine Subquery.
-
-        // Einfachere Variante: Nur in Bestell-ID suchen
-         query = query.ilike('id::text', searchQuery); // Suche in ID (als Text konvertiert)
-
-        // Komplexere Variante (Suche in Firma ODER ID):
-        /*
-        const { data: matchingFirmaIds, error: firmaSearchError } = await supabase
-             .from('firmalar')
-             .select('id')
-             .ilike('unvan', searchQuery);
-        if (firmaSearchError) console.error("Fehler bei Firmensuche:", firmaSearchError);
-        const firmaIds = matchingFirmaIds?.map(f => f.id) || [];
-        query = query.or(`id::text.ilike.${searchQuery},firma_id.in.(${firmaIds.length > 0 ? firmaIds.map(id => `"${id}"`).join(',') : '"00000000-0000-0000-0000-000000000000"'})`);
-        */
+        
+        // Strategie: Suche in Firmennamen ODER Bestellnummer
+        
+        // 1. Versuche, passende Firmen zu finden
+        const { data: matchingFirmen, error: firmaSearchError } = await supabase
+            .from('firmalar')
+            .select('id')
+            .ilike('unvan', searchQuery);
+        
+        if (firmaSearchError) {
+            console.error("⚠️  Fehler bei Firmensuche:", firmaSearchError);
+        }
+        
+        const matchingFirmaIds = matchingFirmen?.map(f => f.id) || [];
+        
+        // 2. Prüfe, ob der Suchbegriff wie eine UUID aussieht (hexadezimal, mindestens 6 Zeichen)
+        const isUuidLike = /^[0-9a-f-]{6,}$/i.test(queryParam);
+        
+        // 3. Baue die Query basierend auf den Ergebnissen
+        if (matchingFirmaIds.length > 0 && isUuidLike) {
+            // Beides möglich: Firmenname ODER Bestellnummer
+            // Verwende OR-Filter: firma_id in (...) OR id startet mit queryParam
+            const queryLower = queryParam.toLowerCase();
+            
+            // Hole alle Bestellungen und filtere client-seitig (oder nutze RPC)
+            // Einfachere Alternative: Zwei Queries machen und mergen
+            const { data: byFirma } = await supabase
+                .from('siparisler')
+                .select(`*, firmalar (unvan)`)
+                .in('firma_id', matchingFirmaIds);
+            
+            const { data: byId } = await supabase
+                .from('siparisler')
+                .select(`*, firmalar (unvan)`)
+                .ilike('id::text', `${queryLower}%`);
+            
+            // Merge und dedupliziere
+            const allResults = [...(byFirma || []), ...(byId || [])];
+            const uniqueResults = Array.from(
+                new Map(allResults.map(item => [item.id, item])).values()
+            );
+            
+            // Umgehe die normale Query, indem wir die Daten direkt setzen
+            // Dies ist ein Workaround - wir müssen die Logik nach der Query anpassen
+            query = query.in('id', uniqueResults.map(r => r.id));
+        } else if (matchingFirmaIds.length > 0) {
+            // Nur Firmen gefunden
+            query = query.in('firma_id', matchingFirmaIds);
+        } else if (isUuidLike) {
+            // Nur UUID-ähnlicher Suchbegriff - Suche nach ID
+            const queryLower = queryParam.toLowerCase();
+            // Verwende ilike mit cast für UUID-Suche
+            query = query.ilike('id::text', `${queryLower}%`);
+        } else {
+            // Nichts gefunden - leeres Result-Set
+            query = query.eq('id', '00000000-0000-0000-0000-000000000000');
+        }
     }
 
 
@@ -193,13 +235,13 @@ export default async function AlleSiparislerPage({
 
 
             {siparisler.length === 0 ? (
-                <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm"> {/* Styling angepasst */}
+                <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                     <FiPackage className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                         {Object.keys(searchParams || {}).length > 0 ? (content.noOrdersFoundFilter || 'Keine Bestellungen für Filter gefunden') : (content.noOrdersYet || 'Keine Bestellungen vorhanden')}
+                         {Object.keys(searchParamsResolved || {}).length > 0 ? (content.noOrdersFoundFilter || 'Keine Bestellungen für Filter gefunden') : (content.noOrdersYet || 'Keine Bestellungen vorhanden')}
                     </h2>
                      <p className="text-gray-500 mt-1">
-                         {Object.keys(searchParams || {}).length > 0 ? 'Versuchen Sie, Ihre Filterkriterien zu ändern.' : ''}
+                         {Object.keys(searchParamsResolved || {}).length > 0 ? 'Versuchen Sie, Ihre Filterkriterien zu ändern.' : ''}
                      </p>
                 </div>
             ) : (
