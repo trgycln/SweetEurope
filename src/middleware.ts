@@ -161,7 +161,8 @@ export async function middleware(req: NextRequest) {
     }
 
     // Für eingeloggte Benutzer: Prüfen, ob aktuelle Locale mit bevorzugter Sprache übereinstimmt
-    if (user && pathnameHasLocale) {
+    // NEU: Nur auf geschützten Routen (/admin, /portal) erzwingen. Öffentliche Seiten dürfen Header-Auswahl behalten.
+    if (user && pathnameHasLocale && isProtectedRoute) {
         const currentLocale = pathname.split('/')[1];
         console.log(`-> Middleware: Locale check - current: ${currentLocale}`);
         try {
@@ -174,8 +175,8 @@ export async function middleware(req: NextRequest) {
             console.log(`-> Middleware: User preferred language from DB: ${profile?.tercih_edilen_dil}`);
             
             if (profile?.tercih_edilen_dil && 
-                locales.includes(profile.tercih_edilen_dil) && 
-                currentLocale !== profile.tercih_edilen_dil) {
+                locales.includes(profile?.tercih_edilen_dil) && 
+                currentLocale !== profile?.tercih_edilen_dil) {
                 
                 const newPathname = pathname.replace(`/${currentLocale}`, `/${profile.tercih_edilen_dil}`);
                 console.log(`-> Middleware: ✅ Language mismatch detected! Redirecting from ${pathname} to ${newPathname}`);
@@ -187,6 +188,8 @@ export async function middleware(req: NextRequest) {
             console.error("-> Middleware: ❌ Fehler beim Prüfen der bevorzugten Sprache:", error);
         }
     }
+    // Öffentliche Routen (nicht protected): Keine erzwungene Umschaltung auf Profil-Locale.
+    // Header-Auswahl (manueller Wechsel) bleibt wirksam, weil wir hier keine Redirects mehr auslösen.
 
     console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
     // Wichtig: Immer 'res' (die Response von updateSession) zurückgeben, wenn keine andere Aktion erfolgt
