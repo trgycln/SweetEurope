@@ -77,10 +77,10 @@ export default async function AlleSiparislerPage({
     // Abfrage erstellen
     let query = supabase
         .from('siparisler')
-        // Korrekter Join-Syntax für Supabase JS v2: Verwenden Sie die Spalte, nicht den Alias
+        // Einfachere Join-Syntax: Ohne expliziten Foreign Key
         .select(`
             *,
-            firmalar!firma_id (
+            firmalar (
                 unvan
             )
         `);
@@ -133,12 +133,33 @@ export default async function AlleSiparislerPage({
     // Sortieren und Daten abrufen
     const { data: siparislerData, error: siparislerError } = await query.order('siparis_tarihi', { ascending: false });
 
+    // Detailliertes Error-Logging für Bestellungen
+    if (siparislerError) {
+        console.error("❌ Fehler beim Laden der Bestellungen:");
+        console.error("Error Object:", JSON.stringify(siparislerError, null, 2));
+        console.error("Message:", siparislerError.message);
+        console.error("Details:", siparislerError.details);
+        console.error("Hint:", siparislerError.hint);
+        console.error("Code:", siparislerError.code);
+    }
+
     // Firmen separat laden (für Filter-Dropdown)
     const { data: firmalar, error: firmalarError } = await supabase.from('firmalar').select('id, unvan').order('unvan');
 
+    // Detailliertes Error-Logging für Firmen
+    if (firmalarError) {
+        console.error("❌ Fehler beim Laden der Firmen:");
+        console.error("Error Object:", JSON.stringify(firmalarError, null, 2));
+        console.error("Message:", firmalarError.message);
+    }
+
     if (siparislerError || firmalarError) {
-        console.error("Fehler beim Laden von Bestellungen oder Firmen:", siparislerError || firmalarError);
-        return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Fehler beim Laden der Daten. Details in den Server-Logs.</div>;
+        const errorMsg = siparislerError?.message || firmalarError?.message || "Unbekannter Fehler";
+        return <div className="p-6 text-red-500 bg-red-50 rounded-lg">
+            <h2 className="font-bold mb-2">Fehler beim Laden der Daten</h2>
+            <p className="text-sm">{errorMsg}</p>
+            <p className="text-xs mt-2 text-gray-600">Details in den Server-Logs.</p>
+        </div>;
     }
 
     // Typ-Anpassung
