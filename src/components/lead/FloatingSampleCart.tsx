@@ -41,16 +41,16 @@ export default function FloatingSampleCart() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-40">
+    <div className="fixed bottom-4 right-2 sm:right-4 z-40">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative px-4 py-3 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-xl"
+        className="relative px-3 sm:px-4 py-2 sm:py-3 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-xl text-sm sm:text-base whitespace-nowrap"
       >
-        {t.sampleList[locale as keyof typeof t.sampleList] || t.sampleList.de} ({count} {t.products[locale as keyof typeof t.products] || t.products.de})
+        {t.sampleList[locale as keyof typeof t.sampleList] || t.sampleList.de} ({count})
       </button>
 
       {open && (
-        <div className="mt-3 w-[360px] rounded-2xl bg-white shadow-2xl border flex flex-col" style={{maxHeight: '75vh'}}>
+        <div className="mt-3 w-[calc(100vw-1rem)] sm:w-[360px] max-w-[360px] rounded-2xl bg-white shadow-2xl border flex flex-col" style={{maxHeight: '75vh'}}>
           <div className="px-4 py-3 border-b flex items-center justify-between flex-shrink-0">
             <h4 className="font-semibold">{t.sampleList[locale as keyof typeof t.sampleList] || t.sampleList.de}</h4>
             <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>

@@ -128,7 +128,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                 </div>
 
                 {/* --- Rechte Seite --- */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                     
                     {/* KORREKTUR: Alte Suchleiste entfernt */}
                     {/* Stattdessen: Such-Icon-Button (nur öffentlich) */}
@@ -146,7 +146,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                     <div className="relative">
                         <button 
                             onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
-                            className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition-colors ${isAdminHeader ? 'border-bg-subtle bg-secondary text-text-main hover:bg-bg-subtle' : 'border-white/20 bg-white/10 text-white hover:bg-white/20'}`}
+                            className={`flex items-center gap-1 sm:gap-2 rounded-md border px-2 sm:px-3 py-2 text-sm font-semibold transition-colors ${isAdminHeader ? 'border-bg-subtle bg-secondary text-text-main hover:bg-bg-subtle' : 'border-white/20 bg-white/10 text-white hover:bg-white/20'}`}
                         >
                             <FiGlobe size={16} />
                             <span className="hidden md:inline">{currentLangName}</span>
@@ -189,7 +189,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                         </div>
                     ) : (
                         <Link href={`/${currentLocale}/login`} passHref>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-accent text-primary rounded-lg shadow-sm hover:bg-opacity-90 transition-all font-bold text-sm">
+                            <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 bg-accent text-primary rounded-lg shadow-sm hover:bg-opacity-90 transition-all font-bold text-sm whitespace-nowrap">
                                 <FiUser size={16} />
                                 <span className="hidden sm:inline">{nav.partnerPortal}</span>
                             </button>
