@@ -10,9 +10,11 @@ import { updateNumuneStatusAction } from '@/app/actions/numune-actions'; // Korr
 interface NumuneStatusUpdateButtonProps {
     anfrageId: string;
     neuerStatus: Enums<'numune_talep_durumu'>;
-    label: string;
+    label: string; // Already localized label passed from parent
     icon: React.ReactNode;
-    className?: string; // Für Styling (z.B. Farbe)
+    className?: string;
+    successMessage?: string; // Optional localized toast success
+    errorMessage?: string;   // Optional localized toast error prefix
 }
 
 export default function NumuneStatusUpdateButton({
@@ -20,7 +22,9 @@ export default function NumuneStatusUpdateButton({
     neuerStatus,
     label,
     icon,
-    className
+    className,
+    successMessage,
+    errorMessage
 }: NumuneStatusUpdateButtonProps) {
     const [isPending, startTransition] = useTransition();
 
@@ -28,9 +32,9 @@ export default function NumuneStatusUpdateButton({
         startTransition(async () => {
             const result = await updateNumuneStatusAction(anfrageId, neuerStatus);
             if (result.success) {
-                toast.success(result.message);
+                toast.success(successMessage || result.message);
             } else {
-                toast.error(result.error);
+                toast.error(errorMessage ? `${errorMessage} ${result.error}` : result.error);
             }
         });
     };

@@ -9,6 +9,7 @@ import { Tables, Database } from '@/lib/supabase/database.types'; // Database im
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Locale importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { getDictionary } from '@/dictionaries';
 
 // Typdefinitionen
 type Kategori = Tables<'kategoriler'>;
@@ -35,6 +36,14 @@ export default async function YeniUrunSayfasi({ params }: YeniUrunSayfasiProps) 
         return redirect(`/${locale}/login`);
     }
 
+    // Rollenprüfung: Nur Yönetici kann yeni ürün ekleyebilir
+    const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+    const isAdmin = profile?.rol === 'Yönetici';
+    // Ekip Üyesi yeni ürün ekleyemez
+    if (!isAdmin) {
+        return redirect(`/${locale}/admin/urun-yonetimi/urunler`);
+    }
+
     // Daten parallel abrufen
     const [kategorilerRes, tedarikcilerRes, birimlerRes] = await Promise.all([
         supabase.from('kategoriler').select('*').order(`ad->>${locale}`, { ascending: true }).order(`ad->>de`),
@@ -53,6 +62,9 @@ export default async function YeniUrunSayfasi({ params }: YeniUrunSayfasiProps) 
     const tedarikciler = tedarikcilerRes.data || [];
     const birimler = birimlerRes.data || [];
 
+    const dict = await getDictionary(locale);
+    const labels = dict.productsForm;
+
     return (
         <div className="max-w-5xl mx-auto">
             {/* locale als Prop an das Formular übergeben */}
@@ -62,6 +74,8 @@ export default async function YeniUrunSayfasi({ params }: YeniUrunSayfasiProps) 
                 kategoriler={kategorien}
                 tedarikciler={tedarikciler}
                 birimler={birimler}
+                labels={labels}
+                isAdmin={isAdmin}
             />
         </div>
     );

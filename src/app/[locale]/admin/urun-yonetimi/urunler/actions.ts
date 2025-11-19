@@ -245,3 +245,46 @@ export async function deleteUrunAction(urunId: string): Promise<{ success: boole
     // redirect('/admin/urun-yonetimi/urunler'); // Nicht hier, sondern im Client
     return { success: true, message: 'Produkt erfolgreich gelöscht!' };
 }
+
+// Hafif güncelleme action'ı - sadece belirli alanları günceller
+export async function quickUpdateUrunAction(
+    urunId: string, 
+    updates: {
+        distributor_alis_fiyati?: number;
+        stok_miktari?: number;
+        aktif?: boolean;
+    }
+): Promise<FormState> {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
+    // Kullanıcı kontrolü
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, message: "Nicht authentifiziert." };
+
+    // Sadece gönderilen alanları güncelle
+    const updateData: any = {};
+    if (updates.distributor_alis_fiyati !== undefined) {
+        updateData.distributor_alis_fiyati = updates.distributor_alis_fiyati;
+    }
+    if (updates.stok_miktari !== undefined) {
+        updateData.stok_miktari = updates.stok_miktari;
+    }
+    if (updates.aktif !== undefined) {
+        updateData.aktif = updates.aktif;
+    }
+
+    const { data, error } = await supabase
+        .from('urunler')
+        .update(updateData)
+        .eq('id', urunId)
+        .select('id');
+
+    if (error) {
+        console.error("Fehler beim Aktualisieren:", error);
+        return { success: false, message: 'Aktualisierung fehlgeschlagen: ' + error.message };
+    }
+
+    revalidatePath('/admin/urun-yonetimi/urunler');
+    return { success: true, message: 'Erfolgreich aktualisiert!' };
+}

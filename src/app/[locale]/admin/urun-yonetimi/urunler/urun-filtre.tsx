@@ -7,9 +7,29 @@ import { FiSearch, FiFilter, FiX } from 'react-icons/fi';
 interface UrunFiltreProps {
   kategoriler: Array<{ id: string; ad: any; ust_kategori_id?: string | null }>;
   locale: string;
+  labels: {
+    searchPlaceholder: string;
+    searchButton: string;
+    filterLabel: string;
+    allCategories: string;
+    allStatuses: string;
+    allStocks: string;
+    statusActiveLabel: string;
+    statusInactiveLabel: string;
+    stockCriticalLabel: string;
+    stockOutLabel: string;
+    stockSufficientLabel: string;
+    clearFilters: string;
+    active: {
+      searchPrefix: string;
+      categoryFiltered: string;
+      statusPrefix: string;
+      stockPrefix: string;
+    };
+  };
 }
 
-export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
+export function UrunFiltre({ kategoriler, locale, labels }: UrunFiltreProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -61,7 +81,7 @@ export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Produktname oder Artikelnummer suchen..."
+            placeholder={labels.searchPlaceholder}
             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all"
           />
         </div>
@@ -70,7 +90,7 @@ export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
           disabled={isPending}
           className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium disabled:opacity-50"
         >
-          Suchen
+          {labels.searchButton}
         </button>
       </form>
 
@@ -78,7 +98,7 @@ export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 text-gray-700 font-medium">
           <FiFilter className="w-4 h-4" />
-          <span className="text-sm">Filter:</span>
+          <span className="text-sm">{labels.filterLabel}</span>
         </div>
 
         {/* Category Filter */}
@@ -88,7 +108,7 @@ export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm"
           disabled={isPending}
         >
-          <option value="">Alle Kategorien</option>
+          <option value="">{labels.allCategories}</option>
           {kategoriler
             .filter(k => !k.ust_kategori_id)
             .map(k => (
@@ -105,9 +125,9 @@ export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm"
           disabled={isPending}
         >
-          <option value="">Alle Status</option>
-          <option value="aktif">Aktiv</option>
-          <option value="pasif">Inaktiv</option>
+          <option value="">{labels.allStatuses}</option>
+          <option value="aktif">{labels.statusActiveLabel}</option>
+          <option value="pasif">{labels.statusInactiveLabel}</option>
         </select>
 
         {/* Stock Filter */}
@@ -117,10 +137,10 @@ export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm"
           disabled={isPending}
         >
-          <option value="">Alle Lagerbestände</option>
-          <option value="kritisch">Kritischer Bestand</option>
-          <option value="aufgebraucht">Aufgebraucht</option>
-          <option value="ausreichend">Ausreichend</option>
+          <option value="">{labels.allStocks}</option>
+          <option value="kritisch">{labels.stockCriticalLabel}</option>
+          <option value="aufgebraucht">{labels.stockOutLabel}</option>
+          <option value="ausreichend">{labels.stockSufficientLabel}</option>
         </select>
 
         {/* Clear Filters */}
@@ -131,7 +151,7 @@ export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
             disabled={isPending}
           >
             <FiX className="w-4 h-4" />
-            Filter zurücksetzen
+            {labels.clearFilters}
           </button>
         )}
       </div>
@@ -141,22 +161,22 @@ export function UrunFiltre({ kategoriler, locale }: UrunFiltreProps) {
         <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
           {searchQuery && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent rounded-full text-sm">
-              Suche: "{searchQuery}"
+              {labels.active.searchPrefix} "{searchQuery}"
             </span>
           )}
           {selectedCategory && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
-              Kategorie gefiltert
+              {labels.active.categoryFiltered}
             </span>
           )}
           {selectedStatus && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
-              Status: {selectedStatus === 'aktif' ? 'Aktiv' : 'Inaktiv'}
+              {labels.active.statusPrefix} {selectedStatus === 'aktif' ? labels.statusActiveLabel : labels.statusInactiveLabel}
             </span>
           )}
           {selectedStok && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm">
-              Lager: {selectedStok === 'kritisch' ? 'Kritisch' : selectedStok === 'aufgebraucht' ? 'Aufgebraucht' : 'Ausreichend'}
+              {labels.active.stockPrefix} {selectedStok === 'kritisch' ? labels.stockCriticalLabel : selectedStok === 'aufgebraucht' ? labels.stockOutLabel : labels.stockSufficientLabel}
             </span>
           )}
         </div>

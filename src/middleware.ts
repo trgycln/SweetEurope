@@ -101,8 +101,12 @@ export async function middleware(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     console.log("Middleware getUser nach updateSession:", user ? `User ID: ${user.id}` : "Kein User");
 
-    // Schutz für Admin/Portal Routen
-    const isProtectedRoute = pathname.startsWith('/admin') || pathname.startsWith('/portal');
+    // Geschützte Routen erkennen (auch mit Locale-Präfix)
+    const pathSegments = pathname.split('/').filter(Boolean); // ['', 'de', 'admin', 'dashboard'] -> ['de','admin','dashboard']
+    const possibleLocale = pathSegments[0];
+    const hasLocalePrefix = locales.includes(possibleLocale);
+    const effectivePath = hasLocalePrefix ? `/${pathSegments.slice(1).join('/')}` : pathname; // '/admin/dashboard'
+    const isProtectedRoute = effectivePath.startsWith('/admin') || effectivePath.startsWith('/portal');
     if (!user && isProtectedRoute) {
         const requestedLocale = pathname.split('/')[1] || defaultLocale; // Locale aus Pfad holen oder Default
         console.log(`-> Middleware: Nicht eingeloggter Zugriff auf ${pathname}. Redirect zu /${requestedLocale}/login`);
@@ -134,26 +138,33 @@ export async function middleware(req: NextRequest) {
 
     // Wenn Locale fehlt, hinzufügen und neu schreiben
     if (!pathnameHasLocale) {
+        // Regel:
+        // - Geschützte Routen (/admin, /portal): Profil tercih edilen dil kullanılmaya çalışılır, yoksa defaultLocale
+        // - Public Routen: Her zaman defaultLocale (de)
         let localeToAdd = defaultLocale;
-        
-        // Für eingeloggte Benutzer: Bevorzugte Sprache aus Profil holen
-        if (user) {
+
+        if (isProtectedRoute && user) {
             try {
                 const { data: profile } = await supabase
                     .from('profiller')
                     .select('tercih_edilen_dil')
                     .eq('id', user.id)
                     .single();
-                
+
                 if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
                     localeToAdd = profile.tercih_edilen_dil;
-                    console.log(`-> Middleware: Benutzer bevorzugte Sprache: ${localeToAdd}`);
+                    console.log(`-> Middleware: (Protected) Benutzer bevorzugte Sprache: ${localeToAdd}`);
+                } else {
+                    console.log(`-> Middleware: (Protected) Bevorzugte Sprache nicht gesetzt, defaultLocale verwendet: ${localeToAdd}`);
                 }
             } catch (error) {
-                console.error("Fehler beim Abrufen der bevorzugten Sprache:", error);
+                console.error("Fehler beim Abrufen der bevorzugten Sprache (Protected Pfad):", error);
             }
+        } else {
+            // Public: immer defaultLocale
+            console.log(`-> Middleware: (Public) Locale fehlt, defaultLocale verwendet: ${defaultLocale}`);
         }
-        
+
         console.log(`-> Middleware: Locale fehlt für ${pathname}. Redirect zu '${localeToAdd}' hinzu.`);
         return NextResponse.redirect(
             new URL(`/${localeToAdd}${pathname.startsWith('/') ? '' : '/'}${pathname}`, req.url)
@@ -174,11 +185,13 @@ export async function middleware(req: NextRequest) {
             
             console.log(`-> Middleware: User preferred language from DB: ${profile?.tercih_edilen_dil}`);
             
-            if (profile?.tercih_edilen_dil && 
-                locales.includes(profile?.tercih_edilen_dil) && 
-                currentLocale !== profile?.tercih_edilen_dil) {
+            if (profile?.tercih_edilen_dil &&
+                locales.includes(profile.tercih_edilen_dil) &&
+                currentLocale !== profile.tercih_edilen_dil) {
                 
-                const newPathname = pathname.replace(`/${currentLocale}`, `/${profile.tercih_edilen_dil}`);
+                // Nur den Locale-Segment austauschen, Rest identisch lassen
+                const remaining = pathSegments.slice(1).join('/'); // 'admin/dashboard' etc.
+                const newPathname = `/${profile.tercih_edilen_dil}/${remaining}`;
                 console.log(`-> Middleware: ✅ Language mismatch detected! Redirecting from ${pathname} to ${newPathname}`);
                 return NextResponse.redirect(new URL(newPathname, req.url));
             } else {

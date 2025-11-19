@@ -2,14 +2,14 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
-import { GiderSablonlariClient } from '@/components/admin/finans/GiderSablonlariClient';
+import { GiderSablonlariClientNew } from '@/components/admin/finans/GiderSablonlariClientNew';
 import { Tables } from '@/lib/supabase/database.types';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export type GiderSablonWithDetails = Tables<'gider_sablonlari'> & {
+export type GiderSablonKalemi = Tables<'gider_sablon_kalemleri'> & {
     gider_kalemleri: {
         id: string;
         ad: string | null;
@@ -18,6 +18,10 @@ export type GiderSablonWithDetails = Tables<'gider_sablonlari'> & {
             ad: string | null;
         } | null;
     } | null;
+};
+
+export type GiderSablonWithDetails = Tables<'gider_sablonlari'> & {
+    gider_sablon_kalemleri: GiderSablonKalemi[];
 };
 
 export type HauptKategorie = Tables<'gider_ana_kategoriler'>;
@@ -50,16 +54,19 @@ export default async function GiderSablonlariPage({
         return redirect(`/${locale}/dashboard`);
     }
 
-    // Şablonları getir
+    // Şablonları ve kalemlerini getir
     const { data: sablonlar } = await supabase
         .from('gider_sablonlari')
         .select(`
             *,
-            gider_kalemleri(
-                id,
-                ad,
-                ana_kategori_id,
-                gider_ana_kategoriler(ad)
+            gider_sablon_kalemleri(
+                *,
+                gider_kalemleri(
+                    id,
+                    ad,
+                    ana_kategori_id,
+                    gider_ana_kategoriler(ad)
+                )
             )
         `)
         .order('created_at', { ascending: false });
@@ -71,7 +78,7 @@ export default async function GiderSablonlariPage({
     ]);
 
     return (
-        <GiderSablonlariClient
+        <GiderSablonlariClientNew
             initialSablonlar={sablonlar as GiderSablonWithDetails[] || []}
             hauptKategorien={hauptKategorienRes.data as HauptKategorie[] || []}
             giderKalemleri={giderKalemleriRes.data as GiderKalemi[] || []}

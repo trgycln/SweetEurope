@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Tables, Database, Enums } from '@/lib/supabase/database.types'; // Database und Enums importieren
+import { getDictionary } from '@/dictionaries';
 import { FiPlus, FiClipboard, FiCalendar, FiUser, FiCheckCircle, FiCircle, FiFlag, FiBriefcase } from 'react-icons/fi';
 import GorevTamamlaButton from './GorevTamamlaButton';
 import GorevGeriAlButton from './GorevGeriAlButton';
@@ -18,8 +19,8 @@ export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamis
 
 // Typ für die erweiterte Aufgabe mit Verknüpfungen
 type GorevRow = Tables<'gorevler'> & {
-    ilgili_firma: Pick<Tables<'firmalar'>, 'unvan'> | null; // Nur 'unvan'
-    atanan_kisi: Pick<Tables<'profiller'>, 'tam_ad'> | null; // Nur 'tam_ad'
+    ilgili_firma: { unvan: string } | null;
+    atanan_kisi: { tam_ad: string | null } | null;
 };
 
 // Typ für Priorität
@@ -104,12 +105,14 @@ export default async function GorevlerListPage({
     // 4. Daten im Code zusammenführen
     const gorevListe: GorevRow[] = (gorevlerData || []).map(gorev => ({
         ...gorev,
-        // Verknüpfte Daten aus Maps holen
-        ilgili_firma: gorev.ilgili_firma_id ? { unvan: firmaMap.get(gorev.ilgili_firma_id) || null } : null,
+        ilgili_firma: gorev.ilgili_firma_id && firmaMap.get(gorev.ilgili_firma_id) ? { unvan: firmaMap.get(gorev.ilgili_firma_id)! } : null,
         atanan_kisi: gorev.atanan_kisi_id ? { tam_ad: profilMap.get(gorev.atanan_kisi_id) || null } : null,
     }));
 
     const anzahlAufgaben = gorevListe.length;
+    // Dictionary
+    // Fetch dictionary
+    const dictionary = await getDictionary(locale);
     // Enum-Werte für Filter-Dropdown
     const oncelikOptions: GorevOncelik[] = ['Düşük', 'Orta', 'Yüksek'];
 
@@ -123,18 +126,41 @@ export default async function GorevlerListPage({
         }
     };
 
+    // Extract dictionary (pattern copied from other pages)
+    // NOTE: For consistency with other pages we could call getDictionary(locale) here if not already handled at layout level.
+    // For now we attempt to use existing approach without additional fetch to avoid double calls.
+    const tRoot: any = dictionary;
+    const t = (tRoot.adminDashboard?.tasksPage) || tRoot.tasksPage || {};
+    const F = {
+        title: t.title || 'Task Management',
+        tasksListed: t.tasksListed || 'tasks listed.',
+        newTask: t.newTask || 'New Task',
+        noTasksFilterTitle: t.noTasksFilterTitle || 'No tasks match filters',
+        noTasksTitle: t.noTasksTitle || 'No tasks yet',
+        noTasksFilterDesc: t.noTasksFilterDesc || 'Try adjusting your filter criteria.',
+        noTasksDesc: t.noTasksDesc || 'Add a new task to get started.',
+        columnTask: t.columnTask || 'Task',
+        columnAssignee: t.columnAssignee || 'Assigned To',
+        columnPriority: t.columnPriority || 'Priority',
+        columnDue: t.columnDue || 'Due Date',
+        columnStatus: t.columnStatus || 'Status',
+        columnAction: t.columnAction || 'Action',
+        statusOpen: t.statusOpen || 'Open',
+        statusCompleted: t.statusCompleted || 'Completed'
+    };
+
     return (
         <main className="space-y-8"> {/* Container entfernt, da Layout dies evtl. schon hat */}
             {/* Header */}
             <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="font-serif text-4xl font-bold text-primary">Aufgabenverwaltung</h1>
-                    <p className="text-text-main/80 mt-1">{anzahlAufgaben} Aufgaben gelistet.</p>
+                    <h1 className="font-serif text-4xl font-bold text-primary">{F.title}</h1>
+                    <p className="text-text-main/80 mt-1">{anzahlAufgaben} {F.tasksListed}</p>
                 </div>
                 {/* Link zur Erstellseite (Pfad ggf. anpassen) */}
                 <Link href={`/${locale}/admin/gorevler/ekle`} passHref>
                     <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
-                        <FiPlus size={18} /> Neue Aufgabe
+                        <FiPlus size={18} /> {F.newTask}
                     </button>
                 </Link>
             </header>
@@ -143,7 +169,7 @@ export default async function GorevlerListPage({
             <GorevFiltreleri
                 profiller={profiller || []}
                 oncelikler={oncelikOptions}
-                locale={locale} // Locale übergeben
+                dictionary={{ tasksPage: t }}
             />
 
             {/* Liste oder "Keine Ergebnisse" */}
@@ -151,10 +177,10 @@ export default async function GorevlerListPage({
                 <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                     <FiClipboard className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                        {Object.keys(searchParams || {}).length > 0 ? 'Keine passenden Aufgaben gefunden' : 'Noch keine Aufgaben vorhanden'}
+                        {Object.keys(searchParams || {}).length > 0 ? F.noTasksFilterTitle : F.noTasksTitle}
                     </h2>
                     <p className="mt-2 text-gray-600">
-                        {Object.keys(searchParams || {}).length > 0 ? 'Ändern Sie Ihre Filterkriterien.' : 'Fügen Sie eine neue Aufgabe hinzu, um zu beginnen.'}
+                        {Object.keys(searchParams || {}).length > 0 ? F.noTasksFilterDesc : F.noTasksDesc}
                     </p>
                 </div>
             ) : (
@@ -195,12 +221,12 @@ export default async function GorevlerListPage({
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-2/5">Aufgabe</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Zugewiesen an</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Priorität</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Fällig am</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktion</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-2/5">{F.columnTask}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{F.columnAssignee}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{F.columnPriority}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{F.columnDue}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{F.columnStatus}</th>
+                                    <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">{F.columnAction}</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -224,7 +250,7 @@ export default async function GorevlerListPage({
                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_FARBEN[gorev.tamamlandi.toString()]}`}>
                                                     {gorev.tamamlandi ? <FiCheckCircle /> : <FiCircle />}
-                                                    {gorev.tamamlandi ? 'Abgeschlossen' : 'Offen'}
+                                                    {gorev.tamamlandi ? F.statusCompleted : F.statusOpen}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

@@ -14,6 +14,7 @@ import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 import { UrunFiltre } from './urun-filtre';
 import { Pagination } from './pagination';
+import EditableUrunRowClient from "./EditableUrunRowClient";
 
 export const dynamic = 'force-dynamic';
 
@@ -24,15 +25,15 @@ type UrunWithKategori = Tables<'urunler'> & {
     } | null;
 };
 
-// Stok Durum Göstergesi Komponente (unverändert)
-const StokDurumGostergesi = ({ miktar, esik }: { miktar: number | null; esik: number | null }) => {
+// Stok Durum Göstergesi Komponente (localized)
+const StokDurumGostergesi = ({ miktar, esik, labels }: { miktar: number | null; esik: number | null; labels: { sufficient: string; low: string; out: string } }) => {
      const mevcutMiktar = miktar ?? 0;
      const uyariEsigi = esik ?? 0;
-     let durum = { text: 'Yeterli', color: 'bg-green-100 text-green-800', icon: <FiCheckCircle size={12}/> };
+     let durum = { text: labels.sufficient, color: 'bg-green-100 text-green-800', icon: <FiCheckCircle size={12}/> };
      if (mevcutMiktar <= 0) {
-         durum = { text: 'Tükendi', color: 'bg-red-100 text-red-800', icon: <FiXCircle size={12}/> };
+         durum = { text: labels.out, color: 'bg-red-100 text-red-800', icon: <FiXCircle size={12}/> };
      } else if (mevcutMiktar <= uyariEsigi) {
-         durum = { text: 'Azaldı', color: 'bg-yellow-100 text-yellow-800', icon: <FiAlertTriangle size={12}/> };
+         durum = { text: labels.low, color: 'bg-yellow-100 text-yellow-800', icon: <FiAlertTriangle size={12}/> };
      }
      return (
          <div className="flex items-center gap-2">
@@ -77,9 +78,10 @@ export default async function UrunlerListPage({
     if (!user) {
         return redirect(`/${locale}/login`);
     }
-     // Optional: Rollenprüfung
-     // const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-     // if (profile?.rol !== 'Yönetici') { return redirect(`/${locale}/dashboard`); } // Nur Admins?
+     // Rollenprüfung
+     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+     const isAdmin = profile?.rol === 'Yönetici';
+     // Ekip Üyesi sadece okuma yapabilir, düzenleme yetkisi yok
 
     // Filter aus searchParams lesen
     const sp = searchParams ? await searchParams : undefined; // await searchParams if provided
@@ -99,7 +101,7 @@ export default async function UrunlerListPage({
     // Supabase-Abfrage erstellen (ohne count für Performance)
     let query = supabase
         .from('urunler')
-        .select(`
+                .select(`
             id,
             ad,
             ana_resim_url,
@@ -107,8 +109,10 @@ export default async function UrunlerListPage({
             stok_miktari,
             stok_esigi,
             satis_fiyati_musteri,
+            satis_fiyati_alt_bayi,
             aktif,
             kategori_id,
+            distributor_alis_fiyati,
             kategoriler ( ad )
         `, { count: 'exact' });
 
@@ -178,19 +182,44 @@ export default async function UrunlerListPage({
                     <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Produktverwaltung'}</h1>
                     <p className="text-text-main/80 mt-1">
                         {totalCount || 0} {content.productsListed || 'Produkte gefunden'}
-                        {(kategoriFilter || durumFilter || stokFilter || queryParam) && ' (gefiltert)'}
+                        {(kategoriFilter || durumFilter || stokFilter || queryParam) && (content.filteredSuffix || ' (gefiltert)')}
                     </p>
                 </div>
-                <Link href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} passHref>
-                     <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
-                         <FiPlus size={18} />
-                         {content.addProduct || 'Neues Produkt hinzufügen'}
-                     </button>
-                 </Link>
+                {isAdmin && (
+                    <Link href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} passHref>
+                        <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
+                            <FiPlus size={18} />
+                            {content.addProduct || 'Neues Produkt hinzufügen'}
+                        </button>
+                    </Link>
+                )}
             </header>
 
             {/* Filter Component */}
-            <UrunFiltre kategoriler={allKategoriler || []} locale={locale} />
+                        <UrunFiltre 
+                            kategoriler={allKategoriler || []} 
+                            locale={locale}
+                            labels={{
+                                searchPlaceholder: content.filter?.searchPlaceholder || 'Search by product name or SKU...',
+                                searchButton: content.filter?.searchButton || 'Search',
+                                filterLabel: content.filter?.filterLabel || 'Filters:',
+                                allCategories: content.filter?.allCategories || 'All Categories',
+                                allStatuses: content.filter?.allStatuses || 'All Statuses',
+                                allStocks: content.filter?.allStocks || 'All Stock Levels',
+                                statusActiveLabel: content.filter?.statusActiveLabel || 'Active',
+                                statusInactiveLabel: content.filter?.statusInactiveLabel || 'Inactive',
+                                stockCriticalLabel: content.filter?.stockCriticalLabel || 'Critical',
+                                stockOutLabel: content.filter?.stockOutLabel || 'Out of Stock',
+                                stockSufficientLabel: content.filter?.stockSufficientLabel || 'Sufficient',
+                                clearFilters: content.filter?.clearFilters || 'Reset filters',
+                                active: {
+                                    searchPrefix: content.filter?.active?.searchPrefix || 'Search:',
+                                    categoryFiltered: content.filter?.active?.categoryFiltered || 'Category filtered',
+                                    statusPrefix: content.filter?.active?.statusPrefix || 'Status:',
+                                    stockPrefix: content.filter?.active?.stockPrefix || 'Stock:',
+                                }
+                            }}
+                        />
 
             {/* Liste oder "Keine Ergebnisse" */}
             {urunListesi.length === 0 ? (
@@ -209,65 +238,23 @@ export default async function UrunlerListPage({
                 <>
                     <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-gray-50 sticky top-0 z-10">
                                 <tr>
-                                    {/* Thumbnail column header (empty for compactness) */}
-                                    <th scope="col" className="px-4 py-3"></th>
-                                    {['Produktname', 'Artikelnummer', 'Kategorie', 'Lagerbestand', 'Preis (Kunde)', 'Status'].map(header => (
-                                        <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                            {header}
-                                        </th>
-                                    ))}
-                                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Bearbeiten</span></th>
+                                    <th className="px-4 py-3"></th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ürün Adı</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ürün Kodu</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kategori</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stok Durumu</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Aktif/Pasif</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Alış Fiyatı</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Müşteri Satış Fiyatı</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Alt Bayi Satış Fiyatı</th>
+                                    <th className="relative px-6 py-3"><span className="sr-only">Kaydet</span></th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {urunListesi.map((urun) => (
-                                    <tr key={urun.id} className="hover:bg-gray-50 transition-colors duration-150">
-                                        {/* Thumbnail cell - fixed small size, no row growth */}
-                                        <td className="px-4 py-3 whitespace-nowrap">
-                                            <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="block">
-                                                <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                                    {urun.ana_resim_url ? (
-                                                        // Use plain img to avoid Next Image config here
-                                                        // eslint-disable-next-line @next/next/no-img-element
-                                                        <img src={urun.ana_resim_url as any} alt={getLocalizedName(urun.ad, locale)} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <span className="text-[10px] text-gray-400">no img</span>
-                                                    )}
-                                                </div>
-                                            </Link>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
-                                             <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="hover:underline hover:text-accent transition-colors">
-                                                 {getLocalizedName(urun.ad, locale)} {/* utils Funktion */}
-                                             </Link>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                                            {urun.stok_kodu || '-'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            {urun.kategoriler?.ad ? getLocalizedName(urun.kategoriler.ad, locale) : 'Ohne Kategorie'} 
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            <StokDurumGostergesi miktar={urun.stok_miktari} esik={urun.stok_esigi} />
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                            {formatCurrency(urun.satis_fiyati_musteri, locale)} {/* utils Funktion */}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${
-                                                 urun.aktif ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                            }`}>
-                                                 {urun.aktif ? (content.statusActive || 'Aktiv') : (content.statusInactive || 'Inaktiv')}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                             <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="text-accent hover:text-accent-dark">
-                                                 {content.edit || 'Bearbeiten'}
-                                             </Link>
-                                        </td>
-                                    </tr>
+                                    {urunListesi.map((urun) => (
+                                        <EditableUrunRowClient key={urun.id} urun={urun} locale={locale} content={content} isAdmin={isAdmin} />
                                 ))}
                             </tbody>
                         </table>
@@ -279,6 +266,14 @@ export default async function UrunlerListPage({
                         totalPages={totalPages}
                         totalItems={totalCount || 0}
                         itemsPerPage={itemsPerPage}
+                        labels={{
+                          prev: content.pagination?.prev || 'Zurück',
+                          next: content.pagination?.next || 'Weiter',
+                          showing: content.pagination?.showing || 'Zeige',
+                          to: content.pagination?.to || 'bis',
+                          of: content.pagination?.of || 'von',
+                          products: content.pagination?.products || 'Produkten'
+                        }}
                     />
                 </>
             )}

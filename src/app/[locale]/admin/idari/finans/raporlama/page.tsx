@@ -15,7 +15,10 @@ import {
     FiSlash, 
     FiPieChart,
     FiActivity,
-    FiArrowRight
+    FiArrowRight,
+    FiShoppingCart,
+    FiCreditCard,
+    FiAlertCircle
 } from 'react-icons/fi';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils';
@@ -45,7 +48,11 @@ const KPICard = ({
     icon: Icon, 
     trend, 
     trendValue,
-    bgColor = 'bg-white'
+    bgColor = 'bg-white',
+    iconBgColor = 'bg-primary/10',
+    iconColor = 'text-primary',
+    textColor = 'text-primary',
+    borderColor = 'border-gray-200'
 }: { 
     title: string; 
     value: string; 
@@ -53,21 +60,25 @@ const KPICard = ({
     trend?: 'up' | 'down';
     trendValue?: string;
     bgColor?: string;
+    iconBgColor?: string;
+    iconColor?: string;
+    textColor?: string;
+    borderColor?: string;
 }) => (
-    <div className={`${bgColor} p-6 rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow`}>
+    <div className={`${bgColor} p-6 rounded-2xl shadow-lg border-2 ${borderColor} hover:shadow-xl transition-all`}>
         <div className="flex items-start justify-between">
             <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-                <p className="text-3xl font-bold text-primary">{value}</p>
+                <p className={`text-3xl font-bold ${textColor}`}>{value}</p>
                 {trend && trendValue && (
-                    <div className={`flex items-center gap-1 mt-2 text-sm ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`flex items-center gap-1 mt-2 text-sm font-medium ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
                         {trend === 'up' ? <FiTrendingUp size={16} /> : <FiTrendingDown size={16} />}
                         <span>{trendValue}</span>
                     </div>
                 )}
             </div>
-            <div className="p-3 bg-primary/10 rounded-lg">
-                <Icon className="text-primary" size={24} />
+            <div className={`p-3 ${iconBgColor} rounded-xl`}>
+                <Icon className={iconColor} size={24} />
             </div>
         </div>
     </div>
@@ -163,24 +174,43 @@ export default async function FinancialReportsDashboard({
                     <KPICard 
                         title="Brüt Ciro"
                         value={formatCurrency(stats?.totalGrossRevenue || 0)}
-                        icon={FiDollarSign}
+                        icon={FiShoppingCart}
+                        bgColor="bg-blue-50"
+                        iconBgColor="bg-blue-100"
+                        iconColor="text-blue-600"
+                        textColor="text-blue-700"
+                        borderColor="border-blue-200"
                     />
                     <KPICard 
                         title="Net Gelir"
                         value={formatCurrency(stats?.totalRevenue || 0)}
-                        icon={FiTrendingUp}
+                        icon={FiCreditCard}
+                        bgColor="bg-indigo-50"
+                        iconBgColor="bg-indigo-100"
+                        iconColor="text-indigo-600"
+                        textColor="text-indigo-700"
+                        borderColor="border-indigo-200"
                     />
                     <KPICard 
                         title="Toplam Gider"
                         value={formatCurrency(stats?.totalExpenses || 0)}
-                        icon={FiTrendingDown}
+                        icon={FiAlertCircle}
+                        bgColor="bg-orange-50"
+                        iconBgColor="bg-orange-100"
+                        iconColor="text-orange-600"
+                        textColor="text-orange-700"
+                        borderColor="border-orange-200"
                     />
                     <KPICard 
                         title="Net Kar"
                         value={formatCurrency(stats?.netProfit || 0)}
-                        icon={FiBarChart2}
+                        icon={stats && stats.netProfit >= 0 ? FiTrendingUp : FiTrendingDown}
                         trend={stats && stats.netProfit >= 0 ? 'up' : 'down'}
                         bgColor={stats && stats.netProfit >= 0 ? 'bg-green-50' : 'bg-red-50'}
+                        iconBgColor={stats && stats.netProfit >= 0 ? 'bg-green-100' : 'bg-red-100'}
+                        iconColor={stats && stats.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}
+                        textColor={stats && stats.netProfit >= 0 ? 'text-green-700' : 'text-red-700'}
+                        borderColor={stats && stats.netProfit >= 0 ? 'border-green-200' : 'border-red-200'}
                     />
                 </div>
             </section>
@@ -233,15 +263,34 @@ export default async function FinancialReportsDashboard({
                     <h2 className="font-serif text-2xl font-bold text-primary mb-4">Bu Ay Top Giderler</h2>
                     <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
                         <div className="space-y-3">
-                            {stats.expenseBreakdown.slice(0, 5).map((exp, idx) => (
-                                <div key={idx} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-accent"></div>
-                                        <span className="font-medium text-text-main">{exp.kategori}</span>
+                            {stats.expenseBreakdown.slice(0, 5).map((exp, idx) => {
+                                const percentage = stats.totalExpenses > 0 
+                                    ? ((exp.toplam / stats.totalExpenses) * 100).toFixed(1) 
+                                    : '0';
+                                return (
+                                    <div key={idx} className="flex justify-between items-center py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                                        <div className="flex items-center gap-3 flex-1">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm
+                                                ${idx === 0 ? 'bg-red-500' : idx === 1 ? 'bg-orange-500' : idx === 2 ? 'bg-amber-500' : idx === 3 ? 'bg-yellow-500' : 'bg-gray-400'}`}>
+                                                {idx + 1}
+                                            </div>
+                                            <div className="flex-1">
+                                                <span className="font-semibold text-text-main block">{exp.kategori}</span>
+                                                <span className="text-xs text-gray-500">{percentage}% toplam giderlerin</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="font-bold text-red-600 block">{formatCurrency(exp.toplam)}</span>
+                                            <div className="w-24 bg-gray-200 rounded-full h-1.5 mt-1">
+                                                <div 
+                                                    className={`h-1.5 rounded-full ${idx === 0 ? 'bg-red-500' : idx === 1 ? 'bg-orange-500' : idx === 2 ? 'bg-amber-500' : idx === 3 ? 'bg-yellow-500' : 'bg-gray-400'}`}
+                                                    style={{ width: `${Math.min(parseFloat(percentage), 100)}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="font-bold text-primary">{formatCurrency(exp.toplam)}</span>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </section>

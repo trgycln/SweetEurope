@@ -9,10 +9,12 @@ export default function FirmaTabs({
     firmaId, 
     locale, 
     labels,
+    extraTabs = [],
 }: { 
     firmaId: string; 
     locale: Locale; 
-    labels: { generalInfo: string; activities: string; contacts: string; orders: string; tasks: string; } 
+    labels: { generalInfo: string; activities: string; contacts: string; orders: string; tasks: string; };
+    extraTabs?: Array<{ name: string; href: string }>
 }) {
     const pathname = usePathname();
 
@@ -22,6 +24,7 @@ export default function FirmaTabs({
         { name: labels.contacts, href: `/${locale}/admin/crm/firmalar/${firmaId}/kisiler` },
         { name: labels.orders, href: `/${locale}/admin/crm/firmalar/${firmaId}/siparisler` },
         { name: labels.tasks, href: `/${locale}/admin/crm/firmalar/${firmaId}/gorevler` },
+        ...extraTabs,
     ];
 
     const baseClasses = "px-4 py-3 text-sm font-bold transition-colors duration-200 whitespace-nowrap";

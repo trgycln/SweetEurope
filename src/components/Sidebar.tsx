@@ -102,10 +102,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
         {
             title: sidebarContent.pricing || 'Fiyatlandırma',
             links: [
-                { name: sidebarContent.priceCalculation || 'Fiyat Hesaplama', href: '/admin/urun-yonetimi/fiyat-hesaplama', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
-                { name: sidebarContent.priceRequests || 'Fiyat Talepleri', href: '/admin/urun-yonetimi/fiyat-talepleri', icon: FiClipboard, roles: ['Yönetici'] as UserRole[] },
-                { name: sidebarContent.priceExceptions || 'Fiyat İstisnaları', href: '/admin/urun-yonetimi/fiyat-istisnalari', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
-                { name: sidebarContent.priceRules || 'Fiyat Kuralları', href: '/admin/urun-yonetimi/fiyat-kurallari', icon: FiBarChart2, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.pricingHub || '🏷️ Fiyatlandırma Hub', href: '/admin/urun-yonetimi/fiyatlandirma-hub', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
             ],
         },
 

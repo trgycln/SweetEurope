@@ -15,9 +15,12 @@ type StatusOption = {
 interface NumuneFiltreleriProps {
     firmalar: Firma[];
     durumlar: StatusOption[];
+    searchPlaceholder: string;
+    allCompaniesText: string;
+    allStatusesText: string;
 }
 
-export default function NumuneFiltreleri({ firmalar, durumlar }: NumuneFiltreleriProps) {
+export default function NumuneFiltreleri({ firmalar, durumlar, searchPlaceholder, allCompaniesText, allStatusesText }: NumuneFiltreleriProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -47,7 +50,7 @@ export default function NumuneFiltreleri({ firmalar, durumlar }: NumuneFiltreler
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                     type="text"
-                    placeholder="Firma oder Produkt suchen..." // TODO: Dictionary
+                    placeholder={searchPlaceholder}
                     className="w-full pl-10 pr-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition"
                     onChange={(e) => handleSearch(e.target.value)}
                     defaultValue={searchParams.get('q')?.toString()}
@@ -60,7 +63,7 @@ export default function NumuneFiltreleri({ firmalar, durumlar }: NumuneFiltreler
                 defaultValue={searchParams.get('firmaId')?.toString() || ''}
                 className="w-full sm:w-56 px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
             >
-                <option value="">Alle Firmen</option>
+                <option value="">{allCompaniesText}</option>
                 {firmalar.map(firma => (
                     <option key={firma.id} value={firma.id}>{firma.unvan}</option>
                 ))}
@@ -72,7 +75,7 @@ export default function NumuneFiltreleri({ firmalar, durumlar }: NumuneFiltreler
                 defaultValue={searchParams.get('status')?.toString() || ''}
                 className="w-full sm:w-48 px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
             >
-                <option value="">Alle Status</option>
+                <option value="">{allStatusesText}</option>
                 {durumlar.map(durum => (
                     <option key={durum.anahtar} value={durum.anahtar}>{durum.deger}</option>
                 ))}

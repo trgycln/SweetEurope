@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useTransition, useEffect, ChangeEvent, FormEvent } from 'react';
-import { Tables, Enums } from '@/lib/supabase/database.types';
+import { Tables } from '@/lib/supabase/database.types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FiArrowLeft, FiSave, FiX, FiInfo, FiClipboard, FiDollarSign, FiLoader, FiTrash2, FiImage, FiUploadCloud } from 'react-icons/fi';
@@ -12,8 +12,7 @@ import { useRouter } from 'next/navigation';
 import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { slugify } from '@/lib/utils';
-// Nur useFormStatus importieren
-import { useFormStatus } from 'react-dom';
+import type { Locale } from '@/i18n-config';
 
 // Tipler
 type Urun = Tables<'urunler'>;
@@ -22,43 +21,152 @@ type Tedarikci = Pick<Tables<'tedarikciler'>, 'id' | 'unvan'>;
 type Birim = Tables<'birimler'>;
 type Sablon = Tables<'kategori_ozellik_sablonlari'>;
 
+interface UrunFormuLabels {
+    backButtonAria: string;
+    createTitle: string;
+    editTitle: string;
+    createSubtitle: string;
+    editSubtitle: string;
+    imageSection: {
+        title: string;
+        mainImage: string;
+        change: string;
+        upload: string;
+        formatsHint: string;
+        galleryImages: string;
+        addImages: string;
+    };
+    basicsSection: {
+        title: string;
+        mainCategory: string;
+        subCategory: string;
+        pleaseSelect: string;
+        selectMainFirst: string;
+        noSubcategories: string;
+        unnamedCategory: string;
+        changeCategoryWarning: string;
+    };
+    supplierSection: {
+        supplier: string;
+        none: string;
+    };
+    i18nSection: {
+        title: string;
+        productName: string;
+        description: string;
+        languageNames: { de: string; en: string; tr: string; ar: string };
+    };
+    operationsSection: {
+        title: string;
+        sku: string;
+        slug: string;
+        unit: string;
+        pleaseSelect: string;
+        activeQuestion: string;
+    };
+    pricingStockSection: {
+        title: string;
+        stockQty: string;
+        stockThreshold: string;
+        customerPrice: string;
+        resellerPrice: string;
+        distributorCost: string;
+    };
+    attributesSection: {
+        title: string;
+        info: string;
+        features: string;
+        vegan: string;
+        vegetarian: string;
+        glutenFree: string;
+        lactoseFree: string;
+        organic: string;
+    };
+    flavorsSection: {
+        label: string;
+        extraLabel: string;
+        extraPlaceholder: string;
+    };
+    flavors: {
+        schokolade: string;
+        kakao: string;
+        erdbeere: string;
+        vanille: string;
+        karamell: string;
+        nuss: string;
+        walnuss: string;
+        badem: string;
+        hindistancevizi: string;
+        honig: string;
+        tereyag: string;
+        zitrone: string;
+        portakal: string;
+        zeytin: string;
+        frucht: string;
+        waldfrucht: string;
+        kaffee: string;
+        himbeere: string;
+        brombeere: string;
+        pistazie: string;
+        kirsche: string;
+        havuc: string;
+        yulaf: string;
+        yabanmersini: string;
+    };
+    technicalSection: {
+        title: string;
+    };
+    buttons: {
+        cancel: string;
+        saveCreate: string;
+        saveEdit: string;
+        saving: string;
+        delete: string;
+    };
+    deleteConfirm: string; // use %{name} placeholder
+}
+
 interface UrunFormuProps {
-    locale: string;
+    locale: Locale;
     kategoriler: Kategori[];
     tedarikciler: Tedarikci[];
     birimler: Birim[];
     mevcutUrun?: Urun;
+    labels?: UrunFormuLabels;
+    isAdmin?: boolean;
 }
 
 const diller = [
-    { kod: 'de', ad: 'Almanca' }, { kod: 'en', ad: 'Englisch' },
-    { kod: 'tr', ad: 'Türkisch' }, { kod: 'ar', ad: 'Arabisch' },
+    { kod: 'de' as const }, { kod: 'en' as const },
+    { kod: 'tr' as const }, { kod: 'ar' as const },
 ];
 
 // Submit Button (benötigt isPending Prop)
-function SubmitButton({ mode, isPending }: { mode: 'create' | 'edit', isPending: boolean }) {
+function SubmitButton({ mode, isPending, labels }: { mode: 'create' | 'edit', isPending: boolean, labels: UrunFormuLabels['buttons'] }) {
     const pending = isPending;
     return (
         <button type="submit" disabled={pending} className="flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm disabled:bg-accent/50 disabled:cursor-wait">
             {pending ? <FiLoader className="animate-spin" /> : <FiSave />}
-            {pending ? 'Speichern...' : (mode === 'create' ? 'Produkt erstellen' : 'Änderungen speichern')}
+            {pending ? labels.saving : (mode === 'create' ? labels.saveCreate : labels.saveEdit)}
         </button>
     );
 }
 
 // Separate Delete Button Komponente
-function DeleteButtonWrapper({ urun, locale }: { urun: Urun, locale: string }) {
+function DeleteButtonWrapper({ urun, locale, labels }: { urun: Urun, locale: Locale, labels: UrunFormuLabels }) {
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
 
     const handleDelete = () => {
-        if (confirm(`Sind Sie sicher, dass Sie "${urun.ad?.[locale] || urun.ad?.['tr'] || 'Produkt'}" löschen möchten?`)) {
+        const name = urun.ad?.[locale] || urun.ad?.['tr'] || 'Produkt';
+        const message = labels.deleteConfirm.replace('%{name}', String(name));
+        if (confirm(message)) {
             startTransition(async () => {
                 const result = await deleteUrunAction(urun.id);
                 if (result?.success) {
                     toast.success(result.message);
                     // Weiterleitung nach Erfolg
-         
+                    router.push(`/${locale}/admin/urun-yonetimi/urunler`);
                 } else if (result) {
                     toast.error(result.message);
                 }
@@ -68,20 +176,136 @@ function DeleteButtonWrapper({ urun, locale }: { urun: Urun, locale: string }) {
 
     return (
         <button type="button" onClick={handleDelete} disabled={isPending} className="flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-red-500 text-red-500 rounded-lg font-bold text-sm hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50">
-             {isPending ? <FiLoader className="animate-spin" /> : <FiTrash2 />} Sil
+             {isPending ? <FiLoader className="animate-spin" /> : <FiTrash2 />} {labels.buttons.delete}
         </button>
     );
 }
 
 // Hauptformular-Komponente
-export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutUrun }: UrunFormuProps) {
+export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutUrun, labels, isAdmin = true }: UrunFormuProps) {
+    // Default labels fallback until dictionaries supply a productsForm section
+    const buildDefaultLabels = (loc: Locale): UrunFormuLabels => {
+        const languageNames = { de: 'Deutsch', en: 'English', tr: 'Türkçe', ar: 'العربية' } as const;
+        return {
+            backButtonAria: 'Back to list',
+            createTitle: 'Create Product',
+            editTitle: 'Edit Product',
+            createSubtitle: 'Fill in details to add a new product.',
+            editSubtitle: 'Update product information and save your changes.',
+            imageSection: {
+                title: 'Images',
+                mainImage: 'Main image',
+                change: 'Change',
+                upload: 'Upload',
+                formatsHint: 'PNG, JPG or WEBP up to 2MB.',
+                galleryImages: 'Gallery images',
+                addImages: 'Add images',
+            },
+            basicsSection: {
+                title: 'Basic information',
+                mainCategory: 'Main category',
+                subCategory: 'Subcategory',
+                pleaseSelect: 'Please select…',
+                selectMainFirst: 'Select a main category first',
+                noSubcategories: 'No subcategories',
+                unnamedCategory: 'Unnamed category',
+                changeCategoryWarning: 'Changing the category may alter technical fields and attributes.',
+            },
+            supplierSection: {
+                supplier: 'Supplier',
+                none: 'None',
+            },
+            i18nSection: {
+                title: 'Multilingual content',
+                productName: 'Product name',
+                description: 'Description',
+                languageNames: { de: 'Deutsch', en: 'English', tr: 'Türkçe', ar: 'العربية' },
+            },
+            operationsSection: {
+                title: 'Operations',
+                sku: 'SKU / Stock code',
+                slug: 'Slug',
+                unit: 'Sales unit',
+                pleaseSelect: 'Please select…',
+                activeQuestion: 'Active and visible?',
+            },
+            pricingStockSection: {
+                title: 'Pricing & Stock',
+                stockQty: 'Stock quantity',
+                stockThreshold: 'Low stock threshold',
+                customerPrice: 'Customer price',
+                resellerPrice: 'Reseller price',
+                distributorCost: 'Distributor cost',
+            },
+            attributesSection: {
+                title: 'Attributes',
+                info: 'Choose applicable attributes and flavors for filtering and display.',
+                features: 'Features',
+                vegan: 'Vegan',
+                vegetarian: 'Vegetarian',
+                glutenFree: 'Gluten-free',
+                lactoseFree: 'Lactose-free',
+                organic: 'Organic',
+            },
+            flavorsSection: {
+                label: 'Flavors',
+                extraLabel: 'Extra flavors (comma-separated)',
+                extraPlaceholder: 'e.g. banana, caramelized fig',
+            },
+            flavors: {
+                schokolade: 'Chocolate',
+                kakao: 'Cocoa',
+                erdbeere: 'Strawberry',
+                vanille: 'Vanilla',
+                karamell: 'Caramel',
+                nuss: 'Hazelnut',
+                walnuss: 'Walnut',
+                badem: 'Almond',
+                hindistancevizi: 'Coconut',
+                honig: 'Honey',
+                tereyag: 'Butter',
+                zitrone: 'Lemon',
+                portakal: 'Orange',
+                zeytin: 'Olive',
+                frucht: 'Fruit',
+                waldfrucht: 'Forest Fruit',
+                kaffee: 'Coffee',
+                himbeere: 'Raspberry',
+                brombeere: 'Blackberry',
+                pistazie: 'Pistachio',
+                kirsche: 'Cherry',
+                havuc: 'Carrot',
+                yulaf: 'Oat',
+                yabanmersini: 'Blueberry'
+            },
+            technicalSection: {
+                title: 'Technical details',
+            },
+            buttons: {
+                cancel: 'Cancel',
+                saveCreate: 'Create product',
+                saveEdit: 'Save changes',
+                saving: 'Saving…',
+                delete: 'Delete',
+            },
+            deleteConfirm: 'Delete "%{name}"? This cannot be undone.',
+        };
+    };
+    const L: UrunFormuLabels = labels ?? buildDefaultLabels(locale);
+    // Helper: flavor label fallback (handles missing or empty dictionary entries)
+    const defaultFlavorLabels = buildDefaultLabels(locale).flavors;
+    const flavorLabel = (key: keyof typeof defaultFlavorLabels): string => {
+        const val = L.flavors[key];
+        if (val && val.trim() !== '') return val;
+        return defaultFlavorLabels[key] || key;
+    };
     const router = useRouter();
     const supabase = createDynamicSupabaseClient(true);
     const [isPending, startTransition] = useTransition(); // Für den Submit
     const [formResult, setFormResult] = useState<FormState>(null);
 
     // Andere States
-    const [aktifDil, setAktifDil] = useState(locale);
+    const [aktifDil, setAktifDil] = useState<Locale>(locale);
     
     // Kategori states - hierarchical selection
     const anaKategoriler = kategoriler.filter(k => !k.ust_kategori_id);
@@ -124,7 +348,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
     const isEditMode = !!mevcutUrun;
     
     // Geschmack states - now supports multiple flavors
-    const standardGeschmackWerte = ['schokolade', 'kakao', 'erdbeere', 'vanille', 'karamell', 'nuss', 'walnuss', 'badem', 'hindistancevizi', 'honig', 'tereyag', 'zitrone', 'portakal', 'zeytin', 'frucht', 'kaffee', 'himbeere', 'kirsche', 'waldfrucht', 'pistazie', 'havuc', 'yulaf', 'yabanmersini'];
+    const standardGeschmackWerte = ['schokolade', 'kakao', 'erdbeere', 'vanille', 'karamell', 'nuss', 'walnuss', 'badem', 'hindistancevizi', 'honig', 'tereyag', 'zitrone', 'portakal', 'zeytin', 'frucht', 'kaffee', 'himbeere', 'brombeere', 'kirsche', 'waldfrucht', 'pistazie', 'havuc', 'yulaf', 'yabanmersini'];
     const mevcutGeschmack = (mevcutUrun?.teknik_ozellikler as any)?.geschmack || [];
     const mevcutGeschmackArray = Array.isArray(mevcutGeschmack) ? mevcutGeschmack : (mevcutGeschmack ? [mevcutGeschmack] : []);
     const customFlavors = mevcutGeschmackArray.filter((g: string) => !standardGeschmackWerte.includes(g));
@@ -289,7 +513,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
         setFormResult(null);
 
         startTransition(async () => {
-            toast.info("Bilder werden verarbeitet...", { id: 'upload-toast' });
+            toast.info((labels ?? L).buttons.saving, { id: 'upload-toast' });
             let anaResimUrl = mevcutUrun?.ana_resim_url || null;
             let finalGaleriUrls = [...(mevcutUrun?.galeri_resim_urls || [])];
 
@@ -300,7 +524,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                      markierteGeloeschteUrls.forEach(url => { try { const u=new URL(url);const p=u.pathname.split('/');if(p.length>2)pathsToRemove.push(p.slice(2).join('/'));}catch(e){} });
                      if (pathsToRemove.length > 0) {
                          const { error: deleteError } = await supabase.storage.from('urun-gorselleri').remove(pathsToRemove);
-                         if (deleteError) toast.warning("Alte Bilder konnten nicht gelöscht werden.");
+                         if (deleteError) toast.warning('Failed to delete old images.');
                          else finalGaleriUrls = finalGaleriUrls.filter(url => !markierteGeloeschteUrls.includes(url));
                      }
                 }
@@ -326,8 +550,8 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
 
             } catch (error: any) {
                 toast.dismiss('upload-toast');
-                toast.error("Fehler beim Bild-Upload: " + error.message);
-                setFormResult({ success: false, message: "Fehler beim Bild-Upload." });
+                toast.error('Image upload error: ' + error.message);
+                setFormResult({ success: false, message: 'Image upload error.' });
             }
         });
     };
@@ -336,6 +560,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
     const labelClasses = "block text-sm font-bold text-gray-600 mb-1";
     return (
         <form onSubmit={handleFormSubmit} className="space-y-8">
+            <fieldset disabled={!isAdmin}>
             <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div className="flex items-center gap-4">
                     <Link href={`/${locale}/admin/urun-yonetimi/urunler`} className="p-2 text-gray-500 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
@@ -343,30 +568,62 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                     </Link>
                     <div>
                         <h1 className="font-serif text-4xl font-bold text-primary">
-                            {isEditMode ? (mevcutUrun.ad?.[locale] || 'Produkt bearbeiten') : 'Neues Produkt erstellen'}
+                            {isEditMode ? L.editTitle : L.createTitle}
                         </h1>
                         <p className="text-text-main/80 mt-1">
-                            {isEditMode ? 'Produktdetails aktualisieren' : 'Neues Produkt zum System hinzufügen'}
+                            {isEditMode ? L.editSubtitle : L.createSubtitle}
                         </p>
                     </div>
                 </div>
-                {isEditMode && (<DeleteButtonWrapper urun={mevcutUrun} locale={locale}/>)}
+                {isEditMode && isAdmin && (<DeleteButtonWrapper urun={mevcutUrun} locale={locale} labels={L} />)}
             </header>
 
             {/* Bild Upload Abschnitt */}
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                 <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiImage />Produktbilder</h2>
-                 <div className='space-y-8'><div><label className="block text-sm font-bold text-gray-600 mb-2">Hauptbild</label><div className="flex items-center gap-6"><div className="w-32 h-32 rounded-lg border-2 border-dashed flex items-center justify-center bg-gray-50 overflow-hidden">{anaResimOnizleme ? (<Image src={anaResimOnizleme} alt="Produkt Vorschau" width={128} height={128} className="object-cover w-full h-full" />) : ( <FiImage className="text-gray-300 text-4xl" /> )}</div><div><input type="file" id="ana-resim-input" className="hidden" onChange={handleAnaResimChange} accept="image/png, image/jpeg, image/webp" /><label htmlFor="ana-resim-input" className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-accent text-white text-sm font-bold rounded-lg hover:bg-opacity-90 transition-all shadow-sm"><FiUploadCloud /> {anaResimOnizleme ? 'Ändern' : 'Hochladen'}</label><p className="text-xs text-gray-500 mt-2">PNG, JPG, WEBP. Max. 2MB.</p></div></div></div><div><label className="block text-sm font-bold text-gray-600 mb-2">Galeriebilder</label><div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">{galeriOnizlemeler.map((bild, index) => (<div key={bild.id} className="relative aspect-square group"><Image src={bild.url} alt={`Galerie Vorschau ${index+1}`} fill sizes="150px" className="object-cover rounded-lg border" /><button type="button" onClick={() => handleGaleriResimLoeschen(bild.id)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"><FiX size={12} strokeWidth={3} /></button></div>))}<div><input type="file" id="galeri-resim-input" className="hidden" onChange={handleGaleriResimleriChange} accept="image/png, image/jpeg, image/webp" multiple /><label htmlFor="galeri-resim-input" className="cursor-pointer aspect-square w-full rounded-lg border-2 border-dashed flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 hover:border-accent transition-colors"><FiUploadCloud className="text-gray-400 text-3xl" /><span className="text-xs text-center text-gray-500 mt-2">Bilder hinzufügen</span></label></div></div></div></div>
+                 <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiImage />{L.imageSection.title}</h2>
+                 <div className='space-y-8'>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-600 mb-2">{L.imageSection.mainImage}</label>
+                        <div className="flex items-center gap-6">
+                            <div className="w-32 h-32 rounded-lg border-2 border-dashed flex items-center justify-center bg-gray-50 overflow-hidden">
+                                {anaResimOnizleme ? (
+                                    <Image src={anaResimOnizleme} alt="Preview" width={128} height={128} className="object-cover w-full h-full" />
+                                ) : ( <FiImage className="text-gray-300 text-4xl" />)}
+                            </div>
+                            <div>
+                                <input type="file" id="ana-resim-input" className="hidden" onChange={handleAnaResimChange} accept="image/png, image/jpeg, image/webp" />
+                                <label htmlFor="ana-resim-input" className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-accent text-white text-sm font-bold rounded-lg hover:bg-opacity-90 transition-all shadow-sm"><FiUploadCloud /> {anaResimOnizleme ? L.imageSection.change : L.imageSection.upload}</label>
+                                <p className="text-xs text-gray-500 mt-2">{L.imageSection.formatsHint}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-600 mb-2">{L.imageSection.galleryImages}</label>
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                            {galeriOnizlemeler.map((bild, index) => (
+                                <div key={bild.id} className="relative aspect-square group">
+                                    <Image src={bild.url} alt={`Gallery ${index+1}`} fill sizes="150px" className="object-cover rounded-lg border" />
+                                    <button type="button" onClick={() => handleGaleriResimLoeschen(bild.id)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"><FiX size={12} strokeWidth={3} /></button>
+                                </div>
+                            ))}
+                            <div>
+                                <input type="file" id="galeri-resim-input" className="hidden" onChange={handleGaleriResimleriChange} accept="image/png, image/jpeg, image/webp" multiple />
+                                <label htmlFor="galeri-resim-input" className="cursor-pointer aspect-square w-full rounded-lg border-2 border-dashed flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 hover:border-accent transition-colors"><FiUploadCloud className="text-gray-400 text-3xl" /><span className="text-xs text-center text-gray-500 mt-2">{L.imageSection.addImages}</span></label>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
              </div>
+            
 
             {/* Grundlegende Definitionen */}
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                 <h2 className="font-serif text-2xl font-bold text-primary mb-6">Grundlegende Definitionen</h2>
+                 <h2 className="font-serif text-2xl font-bold text-primary mb-6">{L.basicsSection.title}</h2>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      {/* Ana Kategori */}
                      <div>
                          <label htmlFor="ana_kategori_id" className={labelClasses}>
-                             Hauptkategorie <span className="text-red-500">*</span>
+                             {L.basicsSection.mainCategory} <span className="text-red-500">*</span>
                          </label>
                          <select 
                              id="ana_kategori_id" 
@@ -378,10 +635,10 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                              className="w-full p-2 border rounded-md bg-gray-50" 
                              required
                          >
-                             <option value="" disabled>Bitte wählen...</option>
+                             <option value="" disabled>{L.basicsSection.pleaseSelect}</option>
                              {anaKategoriler.map(k => (
                                  <option key={k.id} value={k.id}>
-                                     {k.ad?.[locale] || Object.values(k.ad ?? {})[0] || 'Unbenannte Kategorie'}
+                                     {k.ad?.[locale] || Object.values(k.ad ?? {})[0] || L.basicsSection.unnamedCategory}
                                  </option>
                              ))}
                          </select>
@@ -390,7 +647,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                      {/* Alt Kategori - nur sichtbar wenn Ana Kategori gewählt */}
                      <div>
                          <label htmlFor="alt_kategori_id" className={labelClasses}>
-                             Unterkategorie {altKategoriler.length > 0 && <span className="text-red-500">*</span>}
+                             {L.basicsSection.subCategory} {altKategoriler.length > 0 && <span className="text-red-500">*</span>}
                          </label>
                          <select 
                              id="alt_kategori_id"
@@ -402,23 +659,23 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                              required={gorunenAltKategoriler.length > 0}
                          >
                              <option value="">
-                                 {!anaKategoriId ? 'Zuerst Hauptkategorie wählen' : 
-                                  gorunenAltKategoriler.length === 0 ? 'Keine Unterkategorien' : 
-                                  'Bitte wählen...'}
+                                 {!anaKategoriId ? L.basicsSection.selectMainFirst : 
+                                  gorunenAltKategoriler.length === 0 ? L.basicsSection.noSubcategories : 
+                                  L.basicsSection.pleaseSelect}
                              </option>
                              {gorunenAltKategoriler.map(k => (
                                  <option key={k.id} value={k.id}>
-                                     {k.ad?.[locale] || Object.values(k.ad ?? {})[0] || 'Unbenannte Kategorie'}
+                                     {k.ad?.[locale] || Object.values(k.ad ?? {})[0] || L.basicsSection.unnamedCategory}
                                  </option>
                              ))}
                              {/* If selected subcategory is not present in options, inject it */}
                              {altKategoriId && selectedAltKategori && !gorunenAltKategoriler.some(k => k.id === altKategoriId) && (
                                  <option key={selectedAltKategori.id} value={selectedAltKategori.id}>
-                                     {selectedAltKategori.ad?.[locale] || Object.values(selectedAltKategori.ad ?? {})[0] || 'Unbenannte Kategorie'}
+                                     {selectedAltKategori.ad?.[locale] || Object.values(selectedAltKategori.ad ?? {})[0] || L.basicsSection.unnamedCategory}
                                  </option>
                              )}
                          </select>
-                         {isEditMode && <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1"><span>⚠️</span> Bei Kategorieänderung werden technische Eigenschaften neu geladen.</p>}
+                         {isEditMode && <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1"><span>⚠️</span> {L.basicsSection.changeCategoryWarning}</p>}
                      </div>
 
                      {/* Hidden input for form submission when no subcategories */}
@@ -427,9 +684,9 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                      )}
 
                      <div>
-                         <label htmlFor="tedarikci_id" className={labelClasses}>Lieferant</label>
+                         <label htmlFor="tedarikci_id" className={labelClasses}>{L.supplierSection.supplier}</label>
                          <select id="tedarikci_id" name="tedarikci_id" defaultValue={mevcutUrun?.tedarikci_id || ""} className="w-full p-2 border rounded-md bg-gray-50">
-                             <option value="">Kein Lieferant</option>
+                             <option value="">{L.supplierSection.none}</option>
                              {tedarikciler.map(t => <option key={t.id} value={t.id}>{t.unvan}</option>)}
                          </select>
                      </div>
@@ -438,31 +695,101 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
 
             {/* Produktinformationen (Mehrsprachig) */}
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                 <h2 className="font-serif text-2xl font-bold text-primary mb-2 flex items-center gap-3"><FiInfo />Produktinformationen (Mehrsprachig)</h2>
-                 <div className="border-b border-gray-200 mb-6"><nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">{diller.map((dil) => (<button key={dil.kod} type="button" onClick={() => setAktifDil(dil.kod)} className={`${ aktifDil === dil.kod ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>{dil.ad}</button>))}</nav></div><div className="space-y-6">{diller.map((dil) => (<div key={dil.kod} className={aktifDil === dil.kod ? 'space-y-4' : 'hidden'}><div><label htmlFor={`ad_${dil.kod}`} className={labelClasses}>Produktname ({dil.kod.toUpperCase()})</label><input type="text" name={`ad_${dil.kod}`} id={`ad_${dil.kod}`} defaultValue={mevcutUrun?.ad?.[dil.kod] || ''} className="w-full p-2 border rounded-md bg-gray-50" onChange={(e) => handleAdChange(e, dil.kod)} /></div><div><label htmlFor={`aciklamalar_${dil.kod}`} className={labelClasses}>Beschreibung ({dil.kod.toUpperCase()})</label><textarea name={`aciklamalar_${dil.kod}`} id={`aciklamalar_${dil.kod}`} rows={4} defaultValue={mevcutUrun?.aciklamalar?.[dil.kod] || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div></div>))}</div>
+                 <h2 className="font-serif text-2xl font-bold text-primary mb-2 flex items-center gap-3"><FiInfo />{L.i18nSection.title}</h2>
+                 <div className="border-b border-gray-200 mb-6">
+                    <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
+                        {diller.map((dil) => (
+                            <button
+                                key={dil.kod}
+                                type="button"
+                                onClick={() => setAktifDil(dil.kod)}
+                                className={`${ aktifDil === dil.kod ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                            >
+                                {L.i18nSection.languageNames[dil.kod]}
+                            </button>
+                        ))}
+                    </nav>
+                </div>
+                <div className="space-y-6">
+                    {diller.map((dil) => (
+                        <div key={dil.kod} className={aktifDil === dil.kod ? 'space-y-4' : 'hidden'}>
+                            <div>
+                                <label htmlFor={`ad_${dil.kod}`} className={labelClasses}>{L.i18nSection.productName} ({dil.kod.toUpperCase()})</label>
+                                <input type="text" name={`ad_${dil.kod}`} id={`ad_${dil.kod}`} defaultValue={mevcutUrun?.ad?.[dil.kod] || ''} className="w-full p-2 border rounded-md bg-gray-50" onChange={(e) => handleAdChange(e, dil.kod)} />
+                            </div>
+                            <div>
+                                <label htmlFor={`aciklamalar_${dil.kod}`} className={labelClasses}>{L.i18nSection.description} ({dil.kod.toUpperCase()})</label>
+                                <textarea name={`aciklamalar_${dil.kod}`} id={`aciklamalar_${dil.kod}`} rows={4} defaultValue={mevcutUrun?.aciklamalar?.[dil.kod] || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
              </div>
 
             {/* Operative Informationen */}
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                 <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiClipboard />Operative Informationen</h2>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div><label htmlFor="stok_kodu" className={labelClasses}>Artikelnummer (SKU)</label><input type="text" name="stok_kodu" id="stok_kodu" defaultValue={mevcutUrun?.stok_kodu || ''} className="w-full p-2 border rounded-md bg-gray-50 font-mono" /></div><div><label htmlFor="slug" className={labelClasses}>URL (Slug) <span className="text-red-500">*</span></label><input type="text" name="slug" id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} className="w-full p-2 border rounded-md bg-gray-50 font-mono" required /></div><div><label htmlFor="ana_satis_birimi_id" className={labelClasses}>Verkaufseinheit <span className="text-red-500">*</span></label><select id="ana_satis_birimi_id" name="ana_satis_birimi_id" defaultValue={mevcutUrun?.ana_satis_birimi_id || ""} className="w-full p-2 border rounded-md bg-gray-50" required><option value="" disabled>Bitte wählen...</option>{birimler.map(b => (<option key={b.id} value={b.id}>{b.ad?.[locale] || Object.values(b.ad ?? {})[0] || 'Unbenannte Einheit'}</option>))}</select></div><div className="flex items-center pt-5 md:pt-8"><input type="checkbox" id="aktif" name="aktif" defaultChecked={mevcutUrun?.aktif ?? true} className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" /><label htmlFor="aktif" className="ml-3 block text-sm font-bold text-gray-600">Produkt aktiv?</label></div></div>
+                 <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiClipboard />{L.operationsSection.title}</h2>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                        <label htmlFor="stok_kodu" className={labelClasses}>{L.operationsSection.sku}</label>
+                        <input type="text" name="stok_kodu" id="stok_kodu" defaultValue={mevcutUrun?.stok_kodu || ''} className="w-full p-2 border rounded-md bg-gray-50 font-mono" />
+                    </div>
+                    <div>
+                        <label htmlFor="slug" className={labelClasses}>{L.operationsSection.slug} <span className="text-red-500">*</span></label>
+                        <input type="text" name="slug" id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} className="w-full p-2 border rounded-md bg-gray-50 font-mono" required />
+                    </div>
+                    <div>
+                        <label htmlFor="ana_satis_birimi_id" className={labelClasses}>{L.operationsSection.unit} <span className="text-red-500">*</span></label>
+                        <select id="ana_satis_birimi_id" name="ana_satis_birimi_id" defaultValue={mevcutUrun?.ana_satis_birimi_id || ""} className="w-full p-2 border rounded-md bg-gray-50" required>
+                            <option value="" disabled>{L.operationsSection.pleaseSelect}</option>
+                            {birimler.map(b => (
+                                <option key={b.id} value={b.id}>{b.ad?.[locale] || Object.values(b.ad ?? {})[0] || 'Unnamed Unit'}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="flex items-center pt-5 md:pt-8">
+                        <input type="checkbox" id="aktif" name="aktif" defaultChecked={mevcutUrun?.aktif ?? true} className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" />
+                        <label htmlFor="aktif" className="ml-3 block text-sm font-bold text-gray-600">{L.operationsSection.activeQuestion}</label>
+                    </div>
+                 </div>
              </div>
 
             {/* Preis & Lager */}
              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiDollarSign />Preis & Lager (EUR)</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6"><div><label htmlFor="stok_miktari" className={labelClasses}>Lagerbestand</label><input type="number" name="stok_miktari" id="stok_miktari" defaultValue={mevcutUrun?.stok_miktari ?? 0} className="w-full p-2 border rounded-md bg-gray-50" /></div><div><label htmlFor="stok_esigi" className={labelClasses}>Bestandswarnung bei</label><input type="number" name="stok_esigi" id="stok_esigi" defaultValue={mevcutUrun?.stok_esigi ?? 0} className="w-full p-2 border rounded-md bg-gray-50" /></div><div><label htmlFor="satis_fiyati_musteri" className={labelClasses}>Preis Kunde (Netto)</label><input type="number" step="0.01" name="satis_fiyati_musteri" id="satis_fiyati_musteri" defaultValue={mevcutUrun?.satis_fiyati_musteri ?? 0} className="w-full p-2 border rounded-md bg-gray-50" /></div><div><label htmlFor="satis_fiyati_alt_bayi" className={labelClasses}>Preis Händler (Netto)</label><input type="number" step="0.01" name="satis_fiyati_alt_bayi" id="satis_fiyati_alt_bayi" defaultValue={mevcutUrun?.satis_fiyati_alt_bayi ?? 0} className="w-full p-2 border rounded-md bg-gray-50" /></div><div><label htmlFor="distributor_alis_fiyati" className={labelClasses}>Einkaufspreis (Netto)</label><input type="number" step="0.01" name="distributor_alis_fiyati" id="distributor_alis_fiyati" defaultValue={mevcutUrun?.distributor_alis_fiyati ?? 0} className="w-full p-2 border rounded-md bg-gray-50" /></div></div>
+                <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiDollarSign />{L.pricingStockSection.title}</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label htmlFor="stok_miktari" className={labelClasses}>{L.pricingStockSection.stockQty}</label>
+                        <input type="number" name="stok_miktari" id="stok_miktari" defaultValue={mevcutUrun?.stok_miktari ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
+                    </div>
+                    <div>
+                        <label htmlFor="stok_esigi" className={labelClasses}>{L.pricingStockSection.stockThreshold}</label>
+                        <input type="number" name="stok_esigi" id="stok_esigi" defaultValue={mevcutUrun?.stok_esigi ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
+                    </div>
+                    <div>
+                        <label htmlFor="satis_fiyati_musteri" className={labelClasses}>{L.pricingStockSection.customerPrice}</label>
+                        <input type="number" step="0.01" name="satis_fiyati_musteri" id="satis_fiyati_musteri" defaultValue={mevcutUrun?.satis_fiyati_musteri ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
+                    </div>
+                    <div>
+                        <label htmlFor="satis_fiyati_alt_bayi" className={labelClasses}>{L.pricingStockSection.resellerPrice}</label>
+                        <input type="number" step="0.01" name="satis_fiyati_alt_bayi" id="satis_fiyati_alt_bayi" defaultValue={mevcutUrun?.satis_fiyati_alt_bayi ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
+                    </div>
+                    <div>
+                        <label htmlFor="distributor_alis_fiyati" className={labelClasses}>{L.pricingStockSection.distributorCost}</label>
+                        <input type="number" step="0.01" name="distributor_alis_fiyati" id="distributor_alis_fiyati" defaultValue={mevcutUrun?.distributor_alis_fiyati ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
+                    </div>
+                </div>
              </div>
 
             {/* Produkteigenschaften (Filter) */}
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-2">Produkteigenschaften (Filter)</h2>
-                <p className="text-sm text-gray-500 mb-6">Diese Eigenschaften werden für die Produktfilter auf der öffentlichen Seite verwendet.</p>
+                <h2 className="font-serif text-2xl font-bold text-primary mb-2">{L.attributesSection.title}</h2>
+                <p className="text-sm text-gray-500 mb-6">{L.attributesSection.info}</p>
                 
                 <div className="space-y-6">
                     {/* Eigenschaften - Checkboxen */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-3">Eigenschaften</label>
+                        <label className="block text-sm font-bold text-gray-600 mb-3">{L.attributesSection.features}</label>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input 
@@ -471,7 +798,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.vegan === true}
                                     className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
                                 />
-                                <span className="text-sm text-gray-700">Vegan</span>
+                                <span className="text-sm text-gray-700">{L.attributesSection.vegan}</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input 
@@ -480,7 +807,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.vegetarisch === true}
                                     className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
                                 />
-                                <span className="text-sm text-gray-700">{locale === 'de' ? 'Vegetarisch' : locale === 'tr' ? 'Vejetaryen' : locale === 'ar' ? 'نباتي' : 'Vegetarian'}</span>
+                                <span className="text-sm text-gray-700">{L.attributesSection.vegetarian}</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input 
@@ -489,7 +816,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.glutenfrei === true}
                                     className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
                                 />
-                                <span className="text-sm text-gray-700">Glutenfrei</span>
+                                <span className="text-sm text-gray-700">{L.attributesSection.glutenFree}</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input 
@@ -498,7 +825,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.laktosefrei === true}
                                     className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
                                 />
-                                <span className="text-sm text-gray-700">Laktosefrei</span>
+                                <span className="text-sm text-gray-700">{L.attributesSection.lactoseFree}</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input 
@@ -507,16 +834,14 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.bio === true}
                                     className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
                                 />
-                                <span className="text-sm text-gray-700">Bio</span>
+                                <span className="text-sm text-gray-700">{L.attributesSection.organic}</span>
                             </label>
                         </div>
                     </div>
 
                     {/* Geschmack - Multiple Checkboxes + Custom Input */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-2">
-                            {locale === 'de' ? 'Geschmack (Mehrfachauswahl möglich)' : locale === 'tr' ? 'Tat (Çoklu seçim mümkün)' : locale === 'ar' ? 'النكهة (يمكن الاختيار المتعدد)' : 'Flavor (Multiple selection possible)'}
-                        </label>
+                        <label className="block text-sm font-bold text-gray-600 mb-2">{L.flavorsSection.label}</label>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             {/* Schokolade */}
                             <label className="flex items-center space-x-2 cursor-pointer">
@@ -532,7 +857,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Schokolade' : locale === 'tr' ? 'Çikolata' : locale === 'ar' ? 'شوكولاتة' : 'Chocolate'}</span>
+                                <span className="text-sm">{flavorLabel('schokolade')}</span>
                             </label>
 
                             {/* Kakao */}
@@ -549,7 +874,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Kakao' : locale === 'tr' ? 'Kakao' : locale === 'ar' ? 'كاكاو' : 'Cocoa'}</span>
+                                <span className="text-sm">{flavorLabel('kakao')}</span>
                             </label>
                             
                             {/* Erdbeere */}
@@ -566,7 +891,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Erdbeere' : locale === 'tr' ? 'Çilek' : locale === 'ar' ? 'فراولة' : 'Strawberry'}</span>
+                                <span className="text-sm">{flavorLabel('erdbeere')}</span>
                             </label>
 
                             {/* Vanille */}
@@ -583,7 +908,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Vanille' : locale === 'tr' ? 'Vanilya' : locale === 'ar' ? 'فانيليا' : 'Vanilla'}</span>
+                                <span className="text-sm">{flavorLabel('vanille')}</span>
                             </label>
 
                             {/* Karamell */}
@@ -600,7 +925,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Karamell' : locale === 'tr' ? 'Karamel' : locale === 'ar' ? 'كراميل' : 'Caramel'}</span>
+                                <span className="text-sm">{flavorLabel('karamell')}</span>
                             </label>
 
                             {/* Nuss */}
@@ -617,7 +942,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Nuss' : locale === 'tr' ? 'Fındık' : locale === 'ar' ? 'بندق' : 'Hazelnut'}</span>
+                                <span className="text-sm">{flavorLabel('nuss')}</span>
                             </label>
 
                             {/* Walnuss */}
@@ -634,7 +959,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Walnuss' : locale === 'tr' ? 'Ceviz' : locale === 'ar' ? 'جوز' : 'Walnut'}</span>
+                                <span className="text-sm">{flavorLabel('walnuss')}</span>
                             </label>
 
                             {/* Badem */}
@@ -651,7 +976,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Mandel' : locale === 'tr' ? 'Badem' : locale === 'ar' ? 'لوز' : 'Almond'}</span>
+                                <span className="text-sm">{flavorLabel('badem')}</span>
                             </label>
 
                             {/* Hindistan Cevizi */}
@@ -668,7 +993,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Kokosnuss' : locale === 'tr' ? 'Hindistan Cevizi' : locale === 'ar' ? 'جوز الهند' : 'Coconut'}</span>
+                                <span className="text-sm">{flavorLabel('hindistancevizi')}</span>
                             </label>
 
                             {/* Honig */}
@@ -685,7 +1010,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Honig' : locale === 'tr' ? 'Bal' : locale === 'ar' ? 'عسل' : 'Honey'}</span>
+                                <span className="text-sm">{flavorLabel('honig')}</span>
                             </label>
 
                             {/* Tereyag */}
@@ -702,7 +1027,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Butter' : locale === 'tr' ? 'Tereyağ' : locale === 'ar' ? 'زبدة' : 'Butter'}</span>
+                                <span className="text-sm">{flavorLabel('tereyag')}</span>
                             </label>
 
                             {/* Zitrone */}
@@ -719,7 +1044,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Zitrone' : locale === 'tr' ? 'Limon' : locale === 'ar' ? 'ليمون' : 'Lemon'}</span>
+                                <span className="text-sm">{flavorLabel('zitrone')}</span>
                             </label>
 
                             {/* Portakal / Orange */}
@@ -736,7 +1061,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Orange' : locale === 'tr' ? 'Portakal' : locale === 'ar' ? 'برتقال' : 'Orange'}</span>
+                                <span className="text-sm">{flavorLabel('portakal')}</span>
                             </label>
 
                             {/* Zeytin */}
@@ -753,7 +1078,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Olive' : locale === 'tr' ? 'Zeytin' : locale === 'ar' ? 'زيتون' : 'Olive'}</span>
+                                <span className="text-sm">{flavorLabel('zeytin')}</span>
                             </label>
 
                             {/* Frucht */}
@@ -770,7 +1095,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Frucht' : locale === 'tr' ? 'Meyve' : locale === 'ar' ? 'فاكهة' : 'Fruit'}</span>
+                                <span className="text-sm">{flavorLabel('frucht')}</span>
                             </label>
 
                             {/* Waldfrucht */}
@@ -787,7 +1112,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Waldfrucht' : locale === 'tr' ? 'Orman Meyveli' : locale === 'ar' ? 'فاكهة الغابة' : 'Forest Fruit'}</span>
+                                <span className="text-sm">{flavorLabel('waldfrucht')}</span>
                             </label>
 
                             {/* Kaffee */}
@@ -804,7 +1129,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Kaffee' : locale === 'tr' ? 'Kahve' : locale === 'ar' ? 'قهوة' : 'Coffee'}</span>
+                                <span className="text-sm">{flavorLabel('kaffee')}</span>
                             </label>
 
                             {/* Himbeere */}
@@ -821,7 +1146,24 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Himbeere' : locale === 'tr' ? 'Frambuaz' : locale === 'ar' ? 'توت العليق' : 'Raspberry'}</span>
+                                <span className="text-sm">{flavorLabel('himbeere')}</span>
+                            </label>
+
+                            {/* Brombeere (Ahududu) */}
+                            <label className="flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedGeschmack.includes('brombeere')}
+                                    onChange={(e) => {
+                                        if (e.target.checked) {
+                                            setSelectedGeschmack([...selectedGeschmack, 'brombeere']);
+                                        } else {
+                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'brombeere'));
+                                        }
+                                    }}
+                                    className="w-4 h-4 text-primary rounded"
+                                />
+                                <span className="text-sm">{flavorLabel('brombeere')}</span>
                             </label>
 
                             {/* Pistazie */}
@@ -838,7 +1180,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Pistazie' : locale === 'tr' ? 'Fıstık' : locale === 'ar' ? 'فستق' : 'Pistachio'}</span>
+                                <span className="text-sm">{flavorLabel('pistazie')}</span>
                             </label>
 
                             {/* Kirsche */}
@@ -855,7 +1197,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Kirsche' : locale === 'tr' ? 'Kiraz' : locale === 'ar' ? 'كرز' : 'Cherry'}</span>
+                                <span className="text-sm">{flavorLabel('kirsche')}</span>
                             </label>
 
                             {/* Havuc */}
@@ -872,7 +1214,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Karotte' : locale === 'tr' ? 'Havuç' : locale === 'ar' ? 'جزر' : 'Carrot'}</span>
+                                <span className="text-sm">{flavorLabel('havuc')}</span>
                             </label>
 
                             {/* Yulaf */}
@@ -889,18 +1231,16 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     }}
                                     className="w-4 h-4 text-primary rounded"
                                 />
-                                <span className="text-sm">{locale === 'de' ? 'Hafer' : locale === 'tr' ? 'Yulaf' : locale === 'ar' ? 'شوفان' : 'Oat'}</span>
+                                <span className="text-sm">{flavorLabel('yulaf')}</span>
                             </label>
                         </div>
 
                         {/* Custom Input for additional flavors */}
                         <div className="mt-3">
-                            <label className="block text-xs text-gray-600 mb-1">
-                                {locale === 'de' ? '🔸 Zusätzliche Geschmacksrichtungen (kommagetrennt)' : locale === 'tr' ? '🔸 Ek tatlar (virgülle ayırın)' : locale === 'ar' ? '🔸 نكهات إضافية (مفصولة بفواصل)' : '🔸 Additional flavors (comma-separated)'}
-                            </label>
+                            <label className="block text-xs text-gray-600 mb-1">{L.flavorsSection.extraLabel}</label>
                             <input
                                 type="text"
-                                placeholder={locale === 'de' ? 'Z.B. Lebkuchen, Spekulatius...' : locale === 'tr' ? 'Örn. Zencefilli kurabiye...' : locale === 'ar' ? 'مثال: توابل...' : 'E.g. Gingerbread...'}
+                                placeholder={L.flavorsSection.extraPlaceholder}
                                 value={customGeschmack}
                                 onChange={(e) => setCustomGeschmack(e.target.value)}
                                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
@@ -919,17 +1259,19 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
             </div>
 
             {/* Technische Details */}
-             {isLoadingSablon ? ( <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 text-center"><FiLoader className="animate-spin inline-block text-gray-400 text-2xl" /></div> ) : aktifSablon.length > 0 && ( <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200"><h2 className="font-serif text-2xl font-bold text-primary mb-6">Technische Details</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{aktifSablon.map(alan => (<div key={alan.id}><label htmlFor={`teknik_${alan.alan_adi}`} className={labelClasses}>{alan.gosterim_adi?.[locale] || alan.gosterim_adi?.['tr']}</label><input type={alan.alan_tipi === 'sayı' ? 'number' : 'text'} name={`teknik_${alan.alan_adi}`} id={`teknik_${alan.alan_adi}`} /* @ts-ignore */ defaultValue={mevcutUrun?.teknik_ozellikler?.[alan.alan_adi] || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>))}</div></div> )}
+             {isLoadingSablon ? ( <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 text-center"><FiLoader className="animate-spin inline-block text-gray-400 text-2xl" /></div> ) : aktifSablon.length > 0 && ( <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200"><h2 className="font-serif text-2xl font-bold text-primary mb-6">{L.technicalSection.title}</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{aktifSablon.map(alan => (<div key={alan.id}><label htmlFor={`teknik_${alan.alan_adi}`} className={labelClasses}>{alan.gosterim_adi?.[locale] || alan.gosterim_adi?.['tr']}</label><input type={alan.alan_tipi === 'sayı' ? 'number' : 'text'} name={`teknik_${alan.alan_adi}`} id={`teknik_${alan.alan_adi}`} /* @ts-ignore */ defaultValue={mevcutUrun?.teknik_ozellikler?.[alan.alan_adi] || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>))}</div></div> )}
 
 
             {/* Buttons am Ende */}
             <div className="flex justify-end gap-4 pt-6 border-t mt-8">
                 <Link href={`/${locale}/admin/urun-yonetimi/urunler`} passHref>
-                    <button type="button" className="px-6 py-3 bg-secondary hover:bg-bg-subtle text-text-main rounded-lg font-bold text-sm">Abbrechen</button>
+                    <button type="button" className="px-6 py-3 bg-secondary hover:bg-bg-subtle text-text-main rounded-lg font-bold text-sm">{L.buttons.cancel}</button>
                 </Link>
                 {/* Pending Status übergeben */}
-                <SubmitButton mode={isEditMode ? 'edit' : 'create'} isPending={isPending} />
+                {isAdmin && <SubmitButton mode={isEditMode ? 'edit' : 'create'} isPending={isPending} labels={L.buttons} />}
+                {isAdmin && isEditMode && mevcutUrun && <DeleteButtonWrapper urun={mevcutUrun} locale={locale} labels={L} />}
             </div>
+            </fieldset>
         </form>
     );
 }

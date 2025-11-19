@@ -1,9 +1,10 @@
-'use client';
+ 'use client';
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
+import { useLeadGate } from '@/contexts/LeadGateContext';
 import { FiEye, FiSearch, FiStar, FiPackage, FiHeart, FiBox } from 'react-icons/fi';
 import { getBadgeText, getFlavorLabel, piecesSuffix, weightLabel, perSliceSuffix } from '@/lib/labels';
 
@@ -52,6 +53,7 @@ const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: numb
 };
 
 export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMap, kategoriParentMap, pagination }: ProductGridClientProps) {
+        const { unlocked, openLeadModal, addToCart } = useLeadGate();
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -352,6 +354,14 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                             Mehr erfahren
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                                         </span>
+                                        <button
+                                          type="button"
+                                          onClick={(e)=>{ e.preventDefault(); if (!unlocked) { openLeadModal(); return; } addToCart({ product_id: urun.id, name: (urun.ad?.[locale] || urun.ad?.['de'] || 'Ürün'), slug: urun.slug, image_url: urun.ana_resim_url as any }); }}
+                                          className={`px-3 py-2 rounded-lg text-sm font-medium ${unlocked ? 'bg-accent text-white hover:opacity-90' : 'bg-gray-200 text-gray-600'}`}
+                                          title={unlocked ? 'Numune listesine ekle' : 'Numune için iletişim bilgisi gerekli'}
+                                        >
+                                          Numune Ekle
+                                        </button>
                                     </div>
                                 </Link>
                                 
@@ -457,7 +467,15 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                     })()}
                                 </div>
                                 
-                                <div className="flex items-center">
+                                <div className="flex items-center gap-3">
+                                    <button
+                                      type="button"
+                                      onClick={(e)=>{ e.preventDefault(); if (!unlocked) { openLeadModal(); return; } addToCart({ product_id: urun.id, name: (urun.ad?.[locale] || urun.ad?.['de'] || 'Ürün'), slug: urun.slug, image_url: urun.ana_resim_url as any }); }}
+                                      className={`px-4 py-2 rounded-lg text-sm font-semibold ${unlocked ? 'bg-accent text-white hover:opacity-90' : 'bg-gray-200 text-gray-600'}`}
+                                      title={unlocked ? 'Numune listesine ekle' : 'Numune için iletişim bilgisi gerekli'}
+                                    >
+                                      Numune Ekle
+                                    </button>
                                     <div className="p-4 bg-gradient-to-r from-primary to-accent text-white rounded-full group-hover:scale-110 transition-transform duration-300">
                                         <FiEye className="w-6 h-6" />
                                     </div>

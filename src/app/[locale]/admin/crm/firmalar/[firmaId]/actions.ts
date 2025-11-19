@@ -147,3 +147,31 @@ export async function updateFirmaAction(
         return { success: false, error: "Update fehlgeschlagen: " + error.message }; // Allgemeine Fehlermeldung
     }
 }
+
+// Firma silme (admin veya sahibi) server action
+export async function deleteFirmaAction(
+    firmaId: string,
+    locale: string
+): Promise<{ success: boolean; error?: string }> {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'Nicht authentifiziert.' };
+
+    // Silme işlemi (RLS: sahibi olan kullanıcı silebilir; admin için ayrı politika gereklidir)
+    const { error } = await supabase
+        .from('firmalar')
+        .delete()
+        .eq('id', firmaId);
+
+    if (error) {
+        console.error('Firma silme hatası:', error);
+        return { success: false, error: error.message };
+    }
+
+    // Listeyi yenile ve listeye dön
+    revalidatePath(`/${locale}/admin/crm/firmalar`);
+    // Not: Client tarafta redirect yerine router push kullanacağız; burada sadece revalidate yeterli
+    return { success: true };
+}

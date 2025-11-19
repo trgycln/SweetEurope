@@ -9,9 +9,9 @@ import { useState, useEffect, useTransition } from 'react';
 import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { useParams, useRouter } from 'next/navigation';
 import { Tables, Enums } from '@/lib/supabase/database.types';
-import { FiEdit, FiSave, FiX, FiLoader } from 'react-icons/fi';
-// Annahme: actions.ts liegt im selben Verzeichnis
-import { updateFirmaAction } from './actions';
+import { FiEdit, FiSave, FiX, FiLoader, FiTrash2 } from 'react-icons/fi';
+// Server Actions
+import { updateFirmaAction, deleteFirmaAction } from './actions';
 import { toast } from 'sonner';
 import { Locale } from '@/i18n-config'; // Locale importieren
 
@@ -106,13 +106,35 @@ export default function FirmaGenelBilgilerPage() {
             <div className="flex justify-between items-center pb-4 border-b"> {/* Leichte Anpassung */}
                 <h2 className="font-serif text-2xl font-bold text-primary">Allgemeine Informationen & Einstellungen</h2>
                 {!editMode && (
-                    <button
-                        type="button"
-                        onClick={() => setEditMode(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg font-bold text-sm hover:bg-opacity-90 transition"
-                    >
-                        <FiEdit size={16}/> Bearbeiten
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setEditMode(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg font-bold text-sm hover:bg-opacity-90 transition"
+                        >
+                            <FiEdit size={16}/> Bearbeiten
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (!firma) return;
+                                const ok = window.confirm('Bu firmayı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');
+                                if (!ok) return;
+                                startTransition(async () => {
+                                    const res = await deleteFirmaAction(firma.id, locale);
+                                    if (!res.success) {
+                                        toast.error(`Silme başarısız: ${res.error || 'Bilinmeyen hata'}`);
+                                    } else {
+                                        toast.success('Firma başarıyla silindi.');
+                                        router.push(`/${locale}/admin/crm/firmalar`);
+                                    }
+                                });
+                            }}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-sm hover:bg-red-700 transition"
+                        >
+                            <FiTrash2 size={16}/> Sil
+                        </button>
+                    </div>
                 )}
             </div>
 

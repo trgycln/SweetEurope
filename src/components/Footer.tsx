@@ -6,19 +6,21 @@ const Footer: React.FC<{ dictionary: any }> = ({ dictionary }) => {
   return (
     <footer className="bg-primary text-secondary border-t-2 border-accent">
       <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-center md:text-left">
           {/* Column 1: Brand & Legal */}
           <div className="flex flex-col items-center md:items-start">
-            <h3 className="text-2xl font-serif font-bold">ElysonSweets</h3>
             <nav className="flex flex-col space-y-2 mt-4 text-sm">
               <Link href="/impressum" className="hover:text-accent transition-colors">{dictionary.footer.impressum}</Link>
               <Link href="/datenschutz" className="hover:text-accent transition-colors">{dictionary.footer.datenschutz}</Link>
             </nav>
           </div>
 
-          {/* Column 2: Empty Spacer for Balance */}
-          <div className="hidden md:block">
-            {/* Bu sütun masaüstünde denge için boş kalacak */}
+          {/* Column 2: Logo + ElysonSweets tam ortada */}
+          <div className="flex flex-col items-center justify-center py-4">
+            <div className="rounded-full shadow-lg border-8 border-white bg-white mb-4 mx-auto overflow-hidden flex items-center justify-center" style={{width: '170px', height: '170px', maxWidth: '220px'}}>
+              <img src="/Logo.jpg" alt="Logo" width={170} height={170} style={{objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%'}} />
+            </div>
+            <h3 className="text-4xl font-serif font-bold text-white tracking-wide drop-shadow-lg">ElysonSweets</h3>
           </div>
 
           {/* Column 3: Contact & Social Media */}

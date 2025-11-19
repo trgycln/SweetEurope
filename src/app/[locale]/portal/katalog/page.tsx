@@ -8,6 +8,7 @@ import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/dictionaries";
 import { Locale } from "@/i18n-config";
 import { Database, Tables, Enums } from "@/lib/supabase/database.types";
+import { resolvePartnerPreis } from "@/lib/pricing";
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
@@ -66,9 +67,9 @@ export default async function KatalogPage({
         .eq('aktif', true); // Nur aktive Produkte
 
     // Suchfilter (JSONB-Suche in allen Sprachen + stok_kodu)
-    if (searchQuery) {
+        if (searchQuery) {
          const searchQueryLike = `%${searchQuery}%`;
-         query = query.or(
+         produkteQuery = produkteQuery.or(
             `ad->>de.ilike.${searchQueryLike},ad->>en.ilike.${searchQueryLike},ad->>tr.ilike.${searchQueryLike},ad->>ar.ilike.${searchQueryLike},stok_kodu.ilike.${searchQueryLike}`
          );
     }
@@ -103,28 +104,27 @@ export default async function KatalogPage({
         produkte = produkteRes.data || [];
     }
 
-    const kategorien: Kategorie[] = kategorienRes.data || [];
+        const kategorien: Kategorie[] = kategorienRes.data || [];
     const favoritenIds = new Set((favoritenRes.data || []).map(f => f.urun_id));
 
-    // Produkte filtern (Favoriten) und Preise zuweisen
-    const personalisierteProdukte: ProduktMitPreis[] = produkte
-        .filter(produkt => {
-            // Wenn Favoriten-Filter aktiv ist, nur Favoriten anzeigen
-            if (favoritenFilter) {
-                return favoritenIds.has(produkt.id);
-            }
-            return true; // Sonst alle anzeigen
-        })
-        .map(produkt => {
-            // Preis basierend auf Rolle zuweisen
-            let partnerPreis: number | null = null;
-            if (userRole === 'Alt Bayi') partnerPreis = produkt.satis_fiyati_alt_bayi;
-            else if (userRole === 'Müşteri') partnerPreis = produkt.satis_fiyati_musteri;
-            // Admins/Teammitglieder sehen vielleicht Kundenpreis? (Anpassbar)
-            else partnerPreis = produkt.satis_fiyati_musteri;
-            
-            return { ...produkt, partnerPreis };
-        });
+    // Favorit filtresi uygula ve kullanıcı-özel fiyatı (kural/istisna dahil) hesapla
+    const filteredProdukte = produkte.filter(p => !favoritenFilter || favoritenIds.has(p.id));
+    const personalisierteProdukte: ProduktMitPreis[] = await Promise.all(
+      filteredProdukte.map(async (produkt) => {
+        try {
+          const partnerPreis = await resolvePartnerPreis({
+            supabase,
+            urun: produkt as Tables<'urunler'>,
+            userRole: profile.rol as Enums['user_role'],
+            firmaId: (profile.firma_id as string) || '',
+            qty: 1,
+          });
+          return { ...produkt, partnerPreis };
+        } catch {
+          return { ...produkt, partnerPreis: null };
+        }
+      })
+    );
 
     // 5. An Client übergeben
     return (
@@ -136,7 +136,6 @@ export default async function KatalogPage({
             dictionary={dictionary}
             initialSearchQuery={searchQuery}
             initialCategoryFilter={categoryFilter}
-            initialFavoritenFilter={favoritenFilter} // Favoriten-Status übergeben
         />
     );
 }

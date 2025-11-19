@@ -31,7 +31,7 @@ const formatCurrency = (value: number | null | undefined) => {
 
 // StatCard Komponente
 const StatCard = ({ title, value, icon, link, linkText, isNegative }: { title: string, value: string | number, icon: React.ReactNode, link?: string, linkText?: string, isNegative?: boolean }) => {
-    const valueColorClass = isNegative ? 'text-red-600' : 'text-primary'; // Renk koşulu
+    const valueColorClass = isNegative ? 'text-red-600' : 'text-primary';
     const content = (
         <>
             <div className="flex-shrink-0">{icon}</div>
@@ -190,162 +190,136 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         console.error("Product Requests Error:", productRequestsRes.error);
     }
     
+    // Variablen-Definitionen direkt vor return
     const plReport = plReportRes.data;
     const mtd: ReportData | null = ((plMtdRes as any)?.data ?? null);
     const prevMtd: ReportData | null = ((plPrevMtdRes as any)?.data ?? null);
-    // Almanya KDV (gıda) %7: Gösterimde nete çevirelim
     const VAT_RATE = 0.07;
-    const revenueMtdGross = mtd?.totalRevenue ?? 0;
-    const revenuePrevGross = prevMtd?.totalRevenue ?? 0;
-    const revenueMtdNet = revenueMtdGross / (1 + VAT_RATE);
-    const revenuePrevNet = revenuePrevGross / (1 + VAT_RATE);
-    const grossMarginPct = mtd && (mtd.totalRevenue ?? 0) > 0 ? Math.round(((mtd.grossProfit || 0) / (mtd.totalRevenue || 1)) * 100) : null;
-    const ordersToday = ordersTodayRes.count ?? 0;
-    const ordersMtd = ordersMtdRes.count ?? 0;
-    const aov = ordersMtd > 0 ? revenueMtdNet / ordersMtd : null;
-    const overdueCount = overdueInvoicesRes?.data ? overdueInvoicesRes.data.length : 0;
-    const overdueAmount = overdueInvoicesRes?.data ? overdueInvoicesRes.data.reduce((sum: number, r: any) => sum + (r.tutar || 0), 0) : 0;
-    const orderBreakdown = [
-        { key: 'Beklemede', count: odBeklemede.count ?? 0, color: 'text-yellow-600' },
-        { key: 'Hazırlanıyor', count: odHazirlaniyor.count ?? 0, color: 'text-blue-600' },
-        { key: 'Yolda', count: odYolda.count ?? 0, color: 'text-indigo-600' },
-        { key: 'Teslim', count: odTeslim.count ?? 0, color: 'text-green-600' },
-        { key: 'İptal', count: odIptal.count ?? 0, color: 'text-red-600' },
-    ];
-    const overdueTasks: OverdueTask[] = tasksRes.data || [];
-
+    const revenueMtdNet = mtd?.totalRevenue ?? 0;
+    const prevRevenueMtdNet = prevMtd?.totalRevenue ?? 0;
+    const deltaPct = prevRevenueMtdNet !== 0 ? Math.round(((revenueMtdNet - prevRevenueMtdNet) / prevRevenueMtdNet) * 100) : null;
+    const ordersMtd = ordersMtdRes?.count ?? 0;
+    const overdueTasks = Array.isArray(tasksRes.data) ? tasksRes.data.filter((t: any) => t.son_tarih && new Date(t.son_tarih) < new Date() && !t.tamamlandi) : [];
     return (
-        // 3 Sütunlu Düzen
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* Sol ve Orta Sütun (Ana İçerik) */}
-            <div className="lg:col-span-2 space-y-6">
-                
-                {/* BÖLÜM 1: FİNANSAL GRAFİK */}
+        <div className="space-y-8">
+            {/* EN ÜSTTE: Ciro, Kar, Zarar Tablosu und Grafik */}
+            <div className="flex flex-col gap-6">
+                <KPIBar items={[ 
+                    { label: (operationalContent as any).kpiRevenueMtd || 'Net Ciro (Bu Ay)', value: formatCurrency(revenueMtdNet), hint: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% zum Vormonat` : undefined, tone: 'accent' },
+                    { label: 'Toplam Gider', value: formatCurrency(mtd?.totalExpenses ?? 0), tone: 'default' },
+                    { label: 'Net Kâr', value: formatCurrency(mtd?.netProfit ?? 0), tone: (mtd?.netProfit ?? 0) >= 0 ? 'positive' : 'negative' },
+                    { label: 'Sipariş Adedi', value: String(ordersMtd), tone: 'default' },
+                ]} />
                 <FinanzChartClient plReport={plReport} dictionary={dictionary} />
-                
-                {/* BÖLÜM 2: ÜST KPI ŞERİDİ (Sade KPI Bar) */}
-                {(() => {
-                    const deltaPct = revenuePrevNet > 0 ? Math.round(((revenueMtdNet - revenuePrevNet)/revenuePrevNet)*100) : null;
-                    const items = [
-                        { label: (operationalContent as any).kpiRevenueMtd || 'Bu Ay Ciro (Net)', value: formatCurrency(revenueMtdNet), hint: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% vs geçen ay` : undefined, href: `/${locale}/admin/operasyon/siparisler?date_from=${mtdStartStr}&date_to=${mtdEndStr}`, tone: 'accent' as 'accent' },
-                        { label: (operationalContent as any).kpiGrossMargin || 'Brüt Marj', value: grossMarginPct !== null ? `${grossMarginPct}%` : 'N/A', tone: 'positive' as 'positive' },
-                        { label: (operationalContent as any).kpiAov || 'AOV', value: aov !== null ? formatCurrency(aov) : 'N/A', href: `/${locale}/admin/operasyon/siparisler?date_from=${mtdStartStr}&date_to=${mtdEndStr}` },
-                        { label: (operationalContent as any).kpiOrdersToday || 'Bugün Sipariş', value: String(ordersToday), href: `/${locale}/admin/operasyon/siparisler?date_from=${mtdStartStr}&date_to=${mtdEndStr}` },
-                        { label: (operationalContent as any).kpiOverdueInvoices || 'Overdue Fatura', value: `${overdueCount} • ${formatCurrency(overdueAmount)}`, href: `/${locale}/admin/idari/finans/raporlama?tab=invoices&filter=overdue`, tone: (overdueCount>0 ? 'negative' : 'default') as 'negative' | 'default' },
-                    ];
-                    return <KPIBar items={items} />;
-                })()}
-
-                {/* BÖLÜM 3: OPERASYONEL GÖSTERGELER (mevcut 4 Kart) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <StatCard
-                          title={operationalContent.cardNewApplications || "Neue Anträge"}
-                          value={applicationsRes.count ?? 0}
-                          icon={<FiUserPlus size={28} className="text-indigo-500"/>}
-                          link={`/${locale}/admin/crm/firmalar?status_not_in=${encodeURIComponent(ABGESCHLOSSENE_ANTRAG_STATUS.join(','))}`}
-                          linkText={operationalContent.viewApplications || "Anträge prüfen"}
-                      />
-                      <StatCard
-                          title={operationalContent.cardActiveOrders || "Aktive Bestellungen"}
-                          value={ordersRes.count ?? 0}
-                          icon={<FiPackage size={28} className="text-yellow-500"/>}
-                          link={`/${locale}/admin/operasyon/siparisler?filter=offen`}
-                          linkText={operationalContent.viewActiveOrders || "Aktif Siparişleri Görüntüle"}
-                      />
-                      <StatCard
-                          title={operationalContent.cardOpenSampleRequests || "Neue Musteranfragen"}
-                          value={sampleRequestsRes.count ?? 0}
-                          icon={<FiGift size={28} className="text-purple-500"/>}
-                          link={`/${locale}/admin/operasyon/numune-talepleri?durum=${encodeURIComponent(NEUE_MUSTER_STATUS)}`}
-                          linkText={operationalContent.viewSampleRequests || "Neue Muster prüfen"}
-                      />
-                      {productRequestsRes && !productRequestsRes.error?.message?.includes('relation "public.yeni_urun_talepleri" does not exist') && (
-                           <StatCard
-                                title={operationalContent.cardNewProductRequests || "Neue Produktanfragen"}
+            </div>
+            {/* ALTTA: Operasyonel göstergeler, sipariş durumu, ajanda, schnelle Aktionen, kritischer Lagerbestand */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Linke Spalte: operationelle Indikatoren, Auftragsstatus, Agenda */}
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <StatCard
+                            title={operationalContent.cardNewApplications || "New Applications"}
+                            value={applicationsRes.count ?? 0}
+                            icon={<FiUserPlus size={28} className="text-indigo-500"/>}
+                            link={`/${locale}/admin/crm/firmalar?status_not_in=${encodeURIComponent(ABGESCHLOSSENE_ANTRAG_STATUS.join(','))}`}
+                            linkText={operationalContent.viewApplications || "Review applications"}
+                        />
+                        <StatCard
+                            title={operationalContent.cardActiveOrders || "Active Orders"}
+                            value={ordersRes.count ?? 0}
+                            icon={<FiPackage size={28} className="text-yellow-500"/>}
+                            link={`/${locale}/admin/operasyon/siparisler?filter=offen`}
+                            linkText={operationalContent.viewActiveOrders || "View active orders"}
+                        />
+                        <StatCard
+                            title={operationalContent.cardOpenSampleRequests || "Open Sample Requests"}
+                            value={sampleRequestsRes.count ?? 0}
+                            icon={<FiGift size={28} className="text-purple-500"/>}
+                            link={`/${locale}/admin/operasyon/numune-talepleri?durum=${encodeURIComponent(NEUE_MUSTER_STATUS)}`}
+                            linkText={operationalContent.viewSampleRequests || "Review requests"}
+                        />
+                        {productRequestsRes && !productRequestsRes.error?.message?.includes('relation "public.yeni_urun_talepleri" does not exist') && (
+                            <StatCard
+                                title={operationalContent.cardNewProductRequests || "New Product Requests"}
                                 value={productRequestsRes.count ?? 0}
                                 icon={<FiBox size={28} className="text-teal-500"/>}
-                                 link={`/${locale}/admin/urun-yonetimi/urun-talepleri?status=${encodeURIComponent(NEUE_PRODUKTANFRAGE_STATUS)}`}
-                                linkText={operationalContent.viewProductRequests || "Neue Anfragen prüfen"}
+                                link={`/${locale}/admin/urun-yonetimi/urun-talepleri?status=${encodeURIComponent(NEUE_PRODUKTANFRAGE_STATUS)}`}
+                                linkText={operationalContent.viewProductRequests || "Review requests"}
                             />
-                      )}
-                </div>
-
-                {/* BÖLÜM 4: SİPARİŞ DURUMU DAĞILIMI (son 30 gün) */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                    <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).orderBreakdownTitle || 'Sipariş Durumu Dağılımı (30 gün)'}</h2>
-                    <div className="flex flex-col md:flex-row md:items-center gap-6">
-                        {/* Basit legend ve yüzdeler */}
-                        <div className="flex-1">
-                            <div className="space-y-2">
-                                {orderBreakdown.map((b) => (
-                                    <div key={b.key} className="flex items-center gap-3">
-                                        <span className={`inline-block w-3 h-3 rounded-full ${b.color.replace('text','bg')}`}></span>
-                                        <span className="text-sm font-medium text-text-main/80 w-32">{b.key}</span>
-                                        <div className="flex-1 h-2 bg-gray-100 rounded">
-                                            <div className={`${b.color.replace('text','bg')} h-2 rounded`} style={{ width: `${(b.count || 0) / Math.max(1, orderBreakdown.reduce((s,c)=>s+c.count,0)) * 100}%` }} />
-                                        </div>
-                                        <span className="text-sm font-semibold text-primary w-12 text-right">{b.count}</span>
-                                    </div>
-                                ))}
+                        )}
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                        <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).orderBreakdownTitle || 'Sipariş Durumu Dağılımı (30 gün)'}</h2>
+                        <div className="flex flex-col gap-6">
+                            {/* Status Breakdown */}
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+                                <div>
+                                    <p className="text-xs text-gray-500">Beklemede</p>
+                                    <p className="text-lg font-bold text-primary">{odBeklemede?.count ?? 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500">Hazırlanıyor</p>
+                                    <p className="text-lg font-bold text-primary">{odHazirlaniyor?.count ?? 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500">Yolda</p>
+                                    <p className="text-lg font-bold text-primary">{odYolda?.count ?? 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500">Teslim</p>
+                                    <p className="text-lg font-bold text-primary">{odTeslim?.count ?? 0}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500">İptal</p>
+                                    <p className="text-lg font-bold text-primary">{odIptal?.count ?? 0}</p>
+                                </div>
                             </div>
+                            {/* Hinweis falls keine Daten */}
+                            {(odBeklemede?.count ?? 0) + (odHazirlaniyor?.count ?? 0) + (odYolda?.count ?? 0) + (odTeslim?.count ?? 0) + (odIptal?.count ?? 0) === 0 && (
+                                <p className="text-center text-gray-400 text-sm">Son 30 gün için sipariş verisi yok.</p>
+                            )}
+                            {/* Quick Actions modernisiert */}
+                            <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
+                                <h2 className="font-serif text-xl font-bold text-primary mb-3">{pageContent.quickActionsTitle || "Hızlı İşlemler"}</h2>
+                                <div className="flex flex-wrap gap-3 justify-start">
+                                    <QuickActionButton label={pageContent.actionNewCompany || "Yeni Firma"} icon={<FiUsers size={20}/>} href={`/${locale}/admin/crm/firmalar/yeni`} />
+                                    <QuickActionButton label={operationalContent.actionNewProduct || "Yeni Ürün"} icon={<FiArchive size={20}/>} href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} />
+                                    <QuickActionButton label={pageContent.actionNewOrder || "Yeni Sipariş"} icon={<FiPackage size={20}/>} href={`/${locale}/admin/operasyon/siparisler/yeni`} />
+                                    <QuickActionButton label={operationalContent.actionNewTask || "Yeni Görev"} icon={<FiClipboard size={20}/>} href={`/${locale}/admin/gorevler/ekle`} />
+                                    <QuickActionButton label={pageContent.actionNewExpense || "Yeni Gider"} icon={<FiBriefcase size={20}/>} href={`/${locale}/admin/idari/finans/giderler`} />
+                                </div>
+                            </div>
+                                <div>
+                                    <StatCard
+                                        title={operationalContent.cardCriticalStock || "Critical Stock"}
+                                        value={stockRes.data ?? 0}
+                                        icon={<FiAlertTriangle size={28} className="text-red-500"/>}
+                                        link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
+                                        linkText={operationalContent.viewCriticalStockLink || "View critical stock"}
+                                    />
+                                </div>
+                            </div>
+                            {overdueTasks.length > 0 ? (
+                                <div className="space-y-3 divide-y divide-gray-100">
+                                    {overdueTasks.map((task: any) => (
+                                        <div key={task.id} className="pt-3 first:pt-0">
+                                            <Link href={`/${locale}/admin/gorevler`} className="block group">
+                                                <p className="font-semibold text-primary group-hover:text-accent transition-colors truncate">{task.baslik}</p>
+                                                <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
+                                                    <FiClock size={12}/>
+                                                    {operationalContent.dueDate || "Due:"} {formatDate(task.son_tarih, locale)}
+                                                </p>
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-center text-gray-500 py-6">{operationalContent.noOverdueTasks || "No overdue tasks at the moment."}</p>
+                            )}
                         </div>
                     </div>
                 </div>
-
-                {/* BÖLÜM 5: AJANDA (GÖREV LİNKİ DÜZELTİLDİ) */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                      <div className="flex justify-between items-center mb-4">
-                          <h2 className="font-serif text-2xl font-bold text-primary">{pageContent.agendaTitle || "Agenda & Dringende Aufgaben"}</h2>
-                          <Link href={`/${locale}/admin/gorevler`} className="text-accent text-sm font-semibold hover:underline flex-shrink-0">{operationalContent.viewAllTasks || "Tüm Görevleri Görüntüle"} &rarr;</Link>
-                      </div>
-                      {overdueTasks.length > 0 ? (
-                          <div className="space-y-3 divide-y divide-gray-100">
-                              {overdueTasks.map(task => (
-                                  <div key={task.id} className="pt-3 first:pt-0">
-                                      {/* --- DEĞİŞİKLİK BURADA --- */}
-                                      {/* Link artık task.id'ye değil, ana görevler sayfasına yönleniyor */}
-                                      <Link href={`/${locale}/admin/gorevler`} className="block group">
-                                          <p className="font-semibold text-primary group-hover:text-accent transition-colors truncate">{task.baslik}</p>
-                                          <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
-                                              <FiClock size={12}/>
-                                              {operationalContent.dueDate || "Termin:"} {formatDate(task.son_tarih, locale)}
-                                          </p>
-                                      </Link>
-                                  </div>
-                              ))}
-                          </div>
-                      ) : (
-                          <p className="text-center text-gray-500 py-6">{operationalContent.noOverdueTasks || "Şu anda gecikmiş görev yok."}</p>
-                      )}
-                    </div>
-            </div>
-            
-            {/* Sağ Sütun (Hızlı Eylemler ve Uyarılar) */}
-            <div className="lg:col-span-1 space-y-6">
-                
-                {/* BÖLÜM 1: HIZLI EYLEMLER */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                         <h2 className="font-serif text-2xl font-bold text-primary mb-4">{pageContent.quickActionsTitle || "Hızlı İşlemler"}</h2>
-                         <div className="grid grid-cols-3 gap-3">
-                             <QuickActionButton label={pageContent.actionNewCompany || "Yeni Firma"} icon={<FiUsers size={20}/>} href={`/${locale}/admin/crm/firmalar/yeni`} />
-                             <QuickActionButton label={operationalContent.actionNewProduct || "Yeni Ürün"} icon={<FiArchive size={20}/>} href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} />
-                             <QuickActionButton label={pageContent.actionNewOrder || "Yeni Sipariş"} icon={<FiPackage size={20}/>} href={`/${locale}/admin/operasyon/siparisler/yeni`} />
-                             <QuickActionButton label={operationalContent.actionNewTask || "Yeni Görev"} icon={<FiClipboard size={20}/>} href={`/${locale}/admin/gorevler/ekle`} />
-                             <QuickActionButton label={pageContent.actionNewExpense || "Yeni Gider"} icon={<FiBriefcase size={20}/>} href={`/${locale}/admin/idari/finans/giderler`} />
-                         </div>
-                   </div>
-
-                {/* BÖLÜM 2: UYARILAR (Kritik Stok) */}
-                <StatCard
-                      title={operationalContent.cardCriticalStock || "Kritischer Lagerbestand"}
-                      value={stockRes.data ?? 0}
-                      icon={<FiAlertTriangle size={28} className="text-red-500"/>}
-                      link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
-                      linkText={operationalContent.viewCriticalStockLink || "Kritik Stokları Görüntüle"}
-                   />
-            </div>
-            
+                {/* Rechte Spalte: entfernt doppelte Boxen */}
         </div>
     );
 }
@@ -359,7 +333,7 @@ async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: 
 
     if (error) {
         console.error("Team member dashboard error:", error);
-        return <div>{content.errorLoadingTeamDashboard || "Fehler beim Laden."}</div>
+    return <div>{content.errorLoadingTeamDashboard || "Failed to load."}</div>
     }
 
     const formatValue = (value: number | null | undefined) => value ?? 0;
@@ -372,25 +346,25 @@ async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: 
         <div className="space-y-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <StatCard
-                      title={content.cardOpenTasks || "Offene Aufgaben"}
+                      title={content.cardOpenTasks || "Open Tasks"}
                       value={isNaN(safeOpenTasksCount) ? 0 : safeOpenTasksCount}
                       icon={<FiClipboard size={28} className="text-blue-500"/>}
                       link={`/${locale}/admin/gorevler`}
-                      linkText={content.linkMyTasks || "Meine Aufgaben"}
+                      linkText={content.linkMyTasks || "My Tasks"}
                   />
                   <StatCard
-                      title={content.cardNewOrdersFromClients || "Neue Bestellungen (Kunden)"}
+                      title={content.cardNewOrdersFromClients || "New Orders (Clients)"}
                       value={isNaN(safeNewOrdersCount) ? 0 : safeNewOrdersCount}
                       icon={<FiPackage size={28} className="text-green-500"/>}
                       link={`/${locale}/admin/operasyon/siparisler`}
-                      linkText={content.viewOrdersText || "Siparişleri Görüntüle"}
+                      linkText={content.viewOrdersText || "View Orders"}
                   />
             </div>
              <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                  <h2 className="font-serif text-2xl font-bold text-primary mb-4">{content.quickAccessTitle || "Schnellzugriff"}</h2>
+                  <h2 className="font-serif text-2xl font-bold text-primary mb-4">{content.quickAccessTitle || "Quick Access"}</h2>
                   <div className="flex gap-4">
-                      <Link href={`/${locale}/admin/crm/firmalar`} className="font-bold text-accent hover:underline">{content.linkMyClients || "Meine Kunden"}</Link>
-                      <Link href={`/${locale}/admin/gorevler`} className="font-bold text-accent hover:underline">{content.linkMyTasks || "Meine Aufgaben"}</Link>
+                      <Link href={`/${locale}/admin/crm/firmalar`} className="font-bold text-accent hover:underline">{content.linkMyClients || "My Clients"}</Link>
+                      <Link href={`/${locale}/admin/gorevler`} className="font-bold text-accent hover:underline">{content.linkMyTasks || "My Tasks"}</Link>
                   </div>
              </div>
         </div>
@@ -416,19 +390,19 @@ export default async function AdminDashboardPage({
     const { data: userData } = await supabase.auth.getUser();
     const user = userData?.user || null;
     if (!user) {
-        return <div>Kullanıcı bulunamadı. Lütfen tekrar giriş yapın.</div>;
+    return <div>User not found. Please log in again.</div>;
     }
 
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
     if (!profile) {
-        console.error("Profil nicht gefunden für Benutzer:", user.id);
-        return <div>Kullanıcı profili bulunamadı. Lütfen tekrar giriş yapın.</div>;
+    console.error("Profile not found for user:", user.id);
+    return <div>User profile not found. Please log in again.</div>;
     }
     const userRole = profile.rol;
 
     if (userRole !== 'Yönetici' && userRole !== 'Ekip Üyesi') {
-         console.warn(`Unberechtigter Zugriff auf Admin Dashboard durch Rolle: ${userRole}`);
-         return <div>Yetkisiz erişim. Lütfen ana sayfaya dönün.</div>;
+         console.warn(`Unauthorized access to Admin Dashboard by role: ${userRole}`);
+         return <div>Unauthorized access. Please return to the homepage.</div>;
     }
 
     return (

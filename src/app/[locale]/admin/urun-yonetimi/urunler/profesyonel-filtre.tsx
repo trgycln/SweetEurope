@@ -1,7 +1,9 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { getLocalizedName } from '@/lib/utils';
+import { Locale } from '@/i18n-config';
 
 interface Kategori {
     id: string;
@@ -11,10 +13,34 @@ interface Kategori {
 
 interface ProfesyonelFiltreProps {
     kategoriler: Kategori[];
-    locale: string;
+    locale: Locale;
+    labels: {
+        searchPlaceholder: string;
+        categoryLabel: string;
+        allCategories: string;
+        portionLabel: string;
+        allPortions: string;
+        featureLabel: string;
+        allFeatures: string;
+        tasteLabel: string;
+        allTastes: string;
+        applyFilters: string;
+        clearFilters: string;
+    activeFiltersBadgeSingular: string; // placeholder with %{count}
+    activeFiltersBadgePlural: string; // placeholder with %{count}
+        featureOptions?: {
+            vegan?: string;
+            vegetarian?: string;
+            glutenFree?: string;
+            lactoseFree?: string;
+            organic?: string;
+            sugarFree?: string;
+        };
+        tasteOptions?: Record<string, string>;
+    };
 }
 
-export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFiltreProps) {
+export default function ProfesyonelFiltre({ kategoriler, locale, labels }: ProfesyonelFiltreProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     
@@ -26,38 +52,31 @@ export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFi
 
     // Porsiyon seçenekleri (dilim sayıları)
     const porsiyonSecenekleri = [
-        { value: '4', label: '4 Portionen' },
-        { value: '6', label: '6 Portionen' },
-        { value: '8', label: '8 Portionen' },
-        { value: '10', label: '10 Portionen' },
-        { value: '12', label: '12 Portionen' },
-        { value: '14', label: '14 Portionen' },
-        { value: '16', label: '16 Portionen' },
+        { value: '4', label: '4' },
+        { value: '6', label: '6' },
+        { value: '8', label: '8' },
+        { value: '10', label: '10' },
+        { value: '12', label: '12' },
+        { value: '14', label: '14' },
+        { value: '16', label: '16' },
     ];
 
     // Özellik seçenekleri
     const ozellikSecenekleri = [
-        { value: 'vegan', label: 'Vegan' },
-        { value: 'vegetarisch', label: 'Vegetarisch' },
-        { value: 'glutenfrei', label: 'Glutenfrei' },
-        { value: 'laktosefrei', label: 'Laktosefrei' },
-        { value: 'bio', label: 'Bio' },
-        { value: 'ohne_zucker', label: 'Ohne Zucker' },
+        { value: 'vegan', label: labels.featureOptions?.vegan || 'Vegan' },
+        { value: 'vegetarian', label: labels.featureOptions?.vegetarian || (locale === 'en' ? 'Vegetarian' : locale === 'tr' ? 'Vejetaryen' : locale === 'ar' ? 'نباتي' : 'Vegetarisch') },
+        { value: 'glutenfrei', label: labels.featureOptions?.glutenFree || (locale === 'en' ? 'Gluten-Free' : locale === 'tr' ? 'Glutensiz' : locale === 'ar' ? 'خالٍ من الغلوتين' : 'Glutenfrei') },
+        { value: 'laktosefrei', label: labels.featureOptions?.lactoseFree || (locale === 'en' ? 'Lactose-Free' : locale === 'tr' ? 'Laktozsuz' : locale === 'ar' ? 'خالٍ من اللاكتوز' : 'Laktosefrei') },
+        { value: 'bio', label: labels.featureOptions?.organic || (locale === 'en' ? 'Organic' : locale === 'tr' ? 'Organik' : locale === 'ar' ? 'عضوي' : 'Bio') },
+        { value: 'ohne_zucker', label: labels.featureOptions?.sugarFree || (locale === 'en' ? 'Sugar-Free' : locale === 'tr' ? 'Şekersiz' : locale === 'ar' ? 'بدون سكر' : 'Ohne Zucker') },
     ];
 
-    // Tat seçenekleri
-    const tatSecenekleri = [
-        { value: 'schokolade', label: 'Schokolade' },
-        { value: 'vanille', label: 'Vanille' },
-        { value: 'erdbeere', label: 'Erdbeere' },
-        { value: 'himbeere', label: 'Himbeere' },
-        { value: 'zitrone', label: 'Zitrone' },
-        { value: 'portakal', label: 'Orange' },
-        { value: 'karamell', label: 'Karamell' },
-        { value: 'nuss', label: 'Nuss' },
-        { value: 'frucht', label: 'Frucht' },
-        { value: 'kaffee', label: 'Kaffee' },
-    ];
+    // Tat seçenekleri - use dictionary tasteOptions if provided
+    const baseTastes = ['schokolade', 'vanille', 'erdbeere', 'himbeere', 'brombeere', 'zitrone', 'portakal', 'karamell', 'nuss', 'frucht', 'kaffee'];
+    const tatSecenekleri = baseTastes.map(value => ({
+        value,
+        label: labels.tasteOptions?.[value] || (value.charAt(0).toUpperCase() + value.slice(1))
+    }));
 
     const applyFilter = () => {
         const params = new URLSearchParams();
@@ -90,7 +109,7 @@ export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFi
                     value={arama}
                     onChange={(e) => setArama(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && applyFilter()}
-                    placeholder="Produktname oder SKU suchen..."
+                    placeholder={labels.searchPlaceholder}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
             </div>
@@ -100,19 +119,19 @@ export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFi
                 {/* Kategorie */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Kategorie
+                        {labels.categoryLabel}
                     </label>
                     <select
                         value={kategori}
                         onChange={(e) => setKategori(e.target.value)}
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                     >
-                        <option value="">Alle Kategorien</option>
+                        <option value="">{labels.allCategories}</option>
                         {kategoriler
                             .filter(k => !k.ust_kategori_id)
                             .map(k => (
                                 <option key={k.id} value={k.id}>
-                                    {k.ad?.de || k.ad?.tr || 'Unnamed'}
+                                    {getLocalizedName(k.ad, locale as Locale) || 'Unnamed'}
                                 </option>
                             ))}
                     </select>
@@ -121,14 +140,14 @@ export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFi
                 {/* Portionen */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Portionen
+                        {labels.portionLabel}
                     </label>
                     <select
                         value={porsiyon}
                         onChange={(e) => setPorsiyon(e.target.value)}
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                     >
-                        <option value="">Alle Portionen</option>
+                        <option value="">{labels.allPortions}</option>
                         {porsiyonSecenekleri.map(p => (
                             <option key={p.value} value={p.value}>
                                 {p.label}
@@ -140,14 +159,14 @@ export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFi
                 {/* Zusatzeigenschaften */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Zusatzeigenschaften
+                        {labels.featureLabel}
                     </label>
                     <select
                         value={ozellik}
                         onChange={(e) => setOzellik(e.target.value)}
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                     >
-                        <option value="">Alle Eigenschaften</option>
+                        <option value="">{labels.allFeatures}</option>
                         {ozellikSecenekleri.map(o => (
                             <option key={o.value} value={o.value}>
                                 {o.label}
@@ -159,14 +178,14 @@ export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFi
                 {/* Geschmack */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Geschmack
+                        {labels.tasteLabel}
                     </label>
                     <select
                         value={tat}
                         onChange={(e) => setTat(e.target.value)}
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                     >
-                        <option value="">Alle Geschmäcker</option>
+                        <option value="">{labels.allTastes}</option>
                         {tatSecenekleri.map(t => (
                             <option key={t.value} value={t.value}>
                                 {t.label}
@@ -183,7 +202,7 @@ export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFi
                         onClick={applyFilter}
                         className="px-6 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
                     >
-                        Filter anwenden
+                        {labels.applyFilters}
                     </button>
                     
                     {activeFilterCount > 0 && (
@@ -191,16 +210,16 @@ export default function ProfesyonelFiltre({ kategoriler, locale }: ProfesyonelFi
                             onClick={clearFilters}
                             className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
                         >
-                            Zurücksetzen
+                            {labels.clearFilters}
                         </button>
                     )}
                 </div>
 
-                {/* Aktif Filtre Badge */}
+                {/* Aktif Filtre Badge (Singular/Plural) */}
                 {activeFilterCount > 0 && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-medium">
-                            {activeFilterCount} {activeFilterCount === 1 ? 'Filter aktiv' : 'Filter aktiv'}
+                            {(activeFilterCount === 1 ? labels.activeFiltersBadgeSingular : labels.activeFiltersBadgePlural).replace('%{count}', String(activeFilterCount))}
                         </span>
                     </div>
                 )}

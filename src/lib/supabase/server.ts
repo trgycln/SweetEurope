@@ -15,8 +15,8 @@ export const createSupabaseServerClient = async (cookieStoreInput?: ReadonlyRequ
       throw new Error("cookieStore fehlt in createSupabaseServerClient");
   }
 
-  // KEIN await hier, da headers() synchron sein sollte in diesem Kontext
-  const hdrs = headers();
+  // headers() artık async olabilir, await ile çağıralım
+  const hdrs = await headers();
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

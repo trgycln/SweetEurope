@@ -9,9 +9,17 @@ interface PaginationProps {
   totalPages: number;
   totalItems: number;
   itemsPerPage: number;
+  labels?: {
+    prev: string;
+    next: string;
+    showing: string;
+    to: string;
+    of: string;
+    products: string;
+  };
 }
 
-export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage }: PaginationProps) {
+export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage, labels }: PaginationProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -71,23 +79,23 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage }
           disabled={currentPage === 1 || isPending}
           className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Zurück
+          {labels?.prev || 'Zurück'}
         </button>
         <button
           onClick={() => goToPage(currentPage + 1)}
           disabled={currentPage === totalPages || isPending}
           className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Weiter
+          {labels?.next || 'Weiter'}
         </button>
       </div>
       
       <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-gray-700">
-            Zeige <span className="font-medium">{startItem}</span> bis{' '}
-            <span className="font-medium">{endItem}</span> von{' '}
-            <span className="font-medium">{totalItems}</span> Produkten
+            {labels?.showing || 'Zeige'} <span className="font-medium">{startItem}</span> {labels?.to || 'bis'}{' '}
+            <span className="font-medium">{endItem}</span> {labels?.of || 'von'}{' '}
+            <span className="font-medium">{totalItems}</span> {labels?.products || 'Produkten'}
           </p>
         </div>
         
@@ -98,7 +106,7 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage }
               disabled={currentPage === 1 || isPending}
               className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="sr-only">Zurück</span>
+              <span className="sr-only">{labels?.prev || 'Zurück'}</span>
               <FiChevronLeft className="h-5 w-5" />
             </button>
             
@@ -138,7 +146,7 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage }
               disabled={currentPage === totalPages || isPending}
               className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="sr-only">Weiter</span>
+              <span className="sr-only">{labels?.next || 'Weiter'}</span>
               <FiChevronRight className="h-5 w-5" />
             </button>
           </nav>

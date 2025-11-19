@@ -109,71 +109,89 @@ export default async function AlleSiparislerPage({
         query = query.eq('firma_id', firmaIdParam);
     }
 
-    // Suche implementieren
+    // ------------------------------
+    // Suche implementieren (Firma + Bestellnummer Prefix)
+    // Problem: PostgREST erlaubt kein ilike direkt auf uuid Spalten (id::text Casting nicht in Column-Namen möglich)
+    // Lösung: Für ID-Prefix-Suche RPC nutzen (separate Funktion), für Firmennamen normale Query.
+    // ------------------------------
+    let siparislerData: any[] | null = null;
+    let siparislerError: any = null;
+
+    const cleanQuery = queryParam?.replace(/^#/,'').trim();
+    const isIdPrefix = !!cleanQuery && /^[0-9a-fA-F-]{3,36}$/.test(cleanQuery); // hex/uuid Fragmente
+
     if (queryParam) {
-        const searchQuery = `%${queryParam}%`;
-        
-        // Strategie: Suche in Firmennamen ODER Bestellnummer
-        
-        // 1. Versuche, passende Firmen zu finden
+        // 1) Firmennamen Kandidaten holen
+        const searchPattern = `%${queryParam}%`;
         const { data: matchingFirmen, error: firmaSearchError } = await supabase
             .from('firmalar')
             .select('id')
-            .ilike('unvan', searchQuery);
-        
-        if (firmaSearchError) {
-            console.error("⚠️  Fehler bei Firmensuche:", firmaSearchError);
-        }
-        
+            .ilike('unvan', searchPattern);
+        if (firmaSearchError) console.error('⚠️  Fehler bei Firmensuche:', firmaSearchError);
         const matchingFirmaIds = matchingFirmen?.map(f => f.id) || [];
-        
-        // 2. Prüfe, ob der Suchbegriff wie eine UUID aussieht (hexadezimal, mindestens 6 Zeichen)
-        const isUuidLike = /^[0-9a-f-]{6,}$/i.test(queryParam);
-        
-        // 3. Baue die Query basierend auf den Ergebnissen
-        if (matchingFirmaIds.length > 0 && isUuidLike) {
-            // Beides möglich: Firmenname ODER Bestellnummer
-            // Verwende OR-Filter: firma_id in (...) OR id startet mit queryParam
-            const queryLower = queryParam.toLowerCase();
-            
-            // Hole alle Bestellungen und filtere client-seitig (oder nutze RPC)
-            // Einfachere Alternative: Zwei Queries machen und mergen
-            const { data: byFirma } = await supabase
-                .from('siparisler')
-                .select(`*, firmalar (unvan)`)
-                .in('firma_id', matchingFirmaIds);
-            
-            const { data: byId } = await supabase
-                .from('siparisler')
-                .select(`*, firmalar (unvan)`)
-                .ilike('id::text', `${queryLower}%`);
-            
-            // Merge und dedupliziere
-            const allResults = [...(byFirma || []), ...(byId || [])];
-            const uniqueResults = Array.from(
-                new Map(allResults.map(item => [item.id, item])).values()
-            );
-            
-            // Umgehe die normale Query, indem wir die Daten direkt setzen
-            // Dies ist ein Workaround - wir müssen die Logik nach der Query anpassen
-            query = query.in('id', uniqueResults.map(r => r.id));
-        } else if (matchingFirmaIds.length > 0) {
-            // Nur Firmen gefunden
-            query = query.in('firma_id', matchingFirmaIds);
-        } else if (isUuidLike) {
-            // Nur UUID-ähnlicher Suchbegriff - Suche nach ID
-            const queryLower = queryParam.toLowerCase();
-            // Verwende ilike mit cast für UUID-Suche
-            query = query.ilike('id::text', `${queryLower}%`);
-        } else {
-            // Nichts gefunden - leeres Result-Set
-            query = query.eq('id', '00000000-0000-0000-0000-000000000000');
+
+        // 2) Falls ID-Prefix → RPC verwenden (wir legen separat eine Funktion an)
+        let idPrefixRows: any[] = [];
+        // RPC Funktion existiert noch nicht im Typesystem -> fallback: später Addon bereitstellen.
+        // Vorläufige Lösung: gesamte Tabelle laden (bereits durch vorherige Filter eingeschränkt) und clientseitig filtern.
+        if (isIdPrefix) {
+            const lowered = cleanQuery!.toLowerCase();
+            try {
+                // Minimaler Select für ID + firma_id + siparis_durumu + siparis_tarihi (Performance)
+                const { data: allForPrefix, error: allErr } = await supabase
+                    .from('siparisler')
+                    .select('id, firma_id, siparis_durumu, siparis_tarihi, toplam_tutar_brut')
+                    .limit(500);
+                if (allErr) {
+                    console.error('⚠️  Fallback-ID Prefix Ladefehler:', allErr);
+                } else {
+                    idPrefixRows = (allForPrefix || []).filter(r => typeof r.id === 'string' && r.id.toLowerCase().startsWith(lowered));
+                }
+            } catch (e) {
+                console.error('❌ Unerwarteter Fallback-Fehler bei ID Prefix Filterung:', e);
+            }
         }
+
+        // 3) Falls Firmen-Treffer → Grund-Query einschränken
+        if (matchingFirmaIds.length > 0) {
+            query = query.in('firma_id', matchingFirmaIds);
+        }
+
+        // 4) Wenn nur ID-Prefix & keine Firmen-Treffer → wir umgehen die Hauptquery komplett
+    const useOnlyIdPrefix = isIdPrefix && matchingFirmaIds.length === 0;
+
+        if (useOnlyIdPrefix) {
+            // Filter (Status/Firma) nachträglich anwenden
+            let filtered = idPrefixRows as any[];
+            if (statusParam) filtered = filtered.filter(r => r.siparis_durumu === statusParam);
+            if (firmaIdParam) filtered = filtered.filter(r => r.firma_id === firmaIdParam);
+            // Später brauchen wir firmalar.unvan: separate Lookup
+            const uniqueFirmaIds = Array.from(new Set(filtered.map(r => r.firma_id).filter(Boolean)));
+            if (uniqueFirmaIds.length > 0) {
+                const { data: firmaRows } = await supabase.from('firmalar').select('id, unvan').in('id', uniqueFirmaIds as string[]);
+                const firmaMap = new Map((firmaRows||[]).map(f => [f.id, f.unvan]));
+                filtered = filtered.map(r => ({ ...r, firmalar: { unvan: firmaMap.get(r.firma_id) || null } }));
+            }
+            siparislerData = filtered;
+        } else {
+            // Normale Query (ggf. durch Firma eingeschränkt). ID-Prefix zusätzlich clientseitig filtern falls angegeben.
+            const { data, error } = await query.order('siparis_tarihi', { ascending: false });
+            siparislerError = error;
+            if (!error) {
+                let rows = data || [];
+                if (isIdPrefix) {
+                    const lowered = cleanQuery!.toLowerCase();
+                    rows = rows.filter(r => r.id.toLowerCase().startsWith(lowered));
+                }
+                siparislerData = rows;
+            }
+        }
+    } else {
+        // Kein Suchbegriff → normale Query
+        const { data, error } = await query.order('siparis_tarihi', { ascending: false });
+        siparislerError = error;
+        siparislerData = data || [];
     }
-
-
-    // Sortieren und Daten abrufen
-    const { data: siparislerData, error: siparislerError } = await query.order('siparis_tarihi', { ascending: false });
 
     // Detailliertes Error-Logging für Bestellungen
     if (siparislerError) {
@@ -219,7 +237,7 @@ export default async function AlleSiparislerPage({
             <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
                      <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Bestellverwaltung'}</h1>
-                     <p className="text-text-main/80 mt-1">{siparisler.length} {content.ordersListed || 'Bestellungen gefunden.'}</p> {/* Angepasst */}
+                     <p className="text-text-main/80 mt-1">{siparisler.length} {content.ordersListed || 'orders found.'}</p>
                 </div>
                  {/* Optional: Button für "Neue Bestellung" (ohne spezifische Firma) */}
                  {/* <Link href={`/${locale}/admin/operasyon/siparisler/yeni`} ... >Neue Bestellung</Link> */}
@@ -238,10 +256,10 @@ export default async function AlleSiparislerPage({
                 <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                     <FiPackage className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                         {Object.keys(searchParamsResolved || {}).length > 0 ? (content.noOrdersFoundFilter || 'Keine Bestellungen für Filter gefunden') : (content.noOrdersYet || 'Keine Bestellungen vorhanden')}
+                         {Object.keys(searchParamsResolved || {}).length > 0 ? (content.noOrdersFoundFilter || 'No orders found for filters') : (content.noOrdersYet || 'No orders yet')}
                     </h2>
                      <p className="text-gray-500 mt-1">
-                         {Object.keys(searchParamsResolved || {}).length > 0 ? 'Versuchen Sie, Ihre Filterkriterien zu ändern.' : ''}
+                         {Object.keys(searchParamsResolved || {}).length > 0 ? (content.tryChangingFilters || 'Try adjusting your filter criteria.') : ''}
                      </p>
                 </div>
             ) : (
@@ -250,15 +268,18 @@ export default async function AlleSiparislerPage({
                         <thead className="bg-gray-50">
                             <tr>
                                  {/* Spaltenüberschriften */}
-                                 {['Bestell-Nr.', 'Firma', 'Datum', 'Gesamt (Brutto)', 'Status', 'Aktionen'].map(header => (
-                                     <th key={header} className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{header}</th>
-                                 ))}
+                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.orderId || 'Order No.'}</th>
+                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.company || 'Company'}</th>
+                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.date || 'Date'}</th>
+                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.total || 'Total (Gross)'}</th>
+                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.status || 'Status'}</th>
+                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.actions || 'Actions'}</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {siparisler.map((siparis) => {
                                 // Sicherer Zugriff auf Firma, da LEFT JOIN verwendet wird
-                                const firmaUnvan = siparis.firmalar?.unvan || 'Unbekannt';
+                                const firmaUnvan = siparis.firmalar?.unvan || content.unknownCompany || 'Unknown';
                                 const dbStatus = siparis.siparis_durumu;
                                 // Sicherer Zugriff auf Übersetzungen
                                 const translatedText = (orderStatusTranslations as Record<string, string>)[dbStatus] || dbStatus;

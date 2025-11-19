@@ -30,7 +30,7 @@ const FLAVOR_MAP: Record<string, { de: string; tr: string; en: string; ar: strin
   walnuss: { de: 'Walnuss', tr: 'Ceviz', en: 'Walnut', ar: 'جوز' },
   badem: { de: 'Mandel', tr: 'Badem', en: 'Almond', ar: 'لوز' },
   pistazie: { de: 'Pistazie', tr: 'Antep Fıstığı', en: 'Pistachio', ar: 'فستق حلبي' },
-  himbeere: { de: 'Himbeere', tr: 'Ahududu', en: 'Raspberry', ar: 'توت العليق' },
+  himbeere: { de: 'Himbeere', tr: 'Frambuaz (Ahududu)', en: 'Raspberry', ar: 'توت العليق' },
   kirsche: { de: 'Kirsche', tr: 'Vişne', en: 'Cherry', ar: 'كرز' },
   // Alias token for Turkish input 'visne' (normalized to kirsche in actions)
   visne: { de: 'Kirsche', tr: 'Vişne', en: 'Cherry', ar: 'كرز' },
@@ -48,6 +48,8 @@ const FLAVOR_MAP: Record<string, { de: string; tr: string; en: string; ar: strin
   tereyag: { de: 'Butter', tr: 'Tereyağ', en: 'Butter', ar: 'زبدة' },
   // Blueberry
   yabanmersini: { de: 'Heidelbeere', tr: 'Yaban Mersini', en: 'Blueberry', ar: 'توت أزرق' },
+  // Blackberry
+  brombeere: { de: 'Brombeere', tr: 'Böğürtlen', en: 'Blackberry', ar: 'العُلَّيق' },
 };
 
 export function getFlavorLabel(token: string, locale: AppLocale): string {

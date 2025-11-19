@@ -26,8 +26,12 @@ export type GiderWithDetails = Tables<'giderler'> & {
         } | null;
     } | null;
 };
-export type HauptKategorie = Tables<'gider_ana_kategoriler'>;
-export type GiderKalemi = Tables<'gider_kalemleri'>;
+export type HauptKategorie = Tables<'gider_ana_kategoriler'> & {
+    ad_translations?: Record<string, string>;
+};
+export type GiderKalemi = Tables<'gider_kalemleri'> & {
+    ad_translations?: Record<string, string>;
+};
 // --- Ende Typen ---
 
 
@@ -185,21 +189,51 @@ export default async function GiderlerPage({
     // --- GÜNCELLEME SONU ---
 
 
-    // --- Daten parallel abrufen ---
-    const [giderlerRes, hauptKategorienRes, giderKalemleriRes] = await Promise.all([
-        query, // Die Hauptabfrage
-        supabase.from('gider_ana_kategoriler').select('*').order('ad'),
-        supabase.from('gider_kalemleri').select('*').order('ad')
-    ]);
+    // --- Daten parallel abrufen ---
+    // Çok dilli kategoriler için RPC fonksiyonlarını kullan (fallback ile)
+    let hauptKategorien: HauptKategorie[] = [];
+    let giderKalemleri: GiderKalemi[] = [];
+    
+    // Önce RPC fonksiyonlarını dene
+    const kategorienResult = await (supabase as any).rpc('get_expense_categories_localized', { p_locale: locale });
+    const kalemleriResult = await (supabase as any).rpc('get_expense_items_localized', { p_locale: locale, p_category_id: null });
 
-    const { data: giderler, error } = giderlerRes;
-    const { data: hauptKategorien, error: hauptKategorienError } = hauptKategorienRes;
-    const { data: giderKalemleri, error: giderKalemleriError } = giderKalemleriRes;
+    if (kategorienResult.error) {
+        // RPC yoksa normal sorgu kullan
+        console.log('⚠️ Localized categories RPC bulunamadı, fallback kullanılıyor');
+        const fallback = await supabase.from('gider_ana_kategoriler').select('*').order('ad');
+        hauptKategorien = (fallback.data as HauptKategorie[]) || [];
+    } else {
+        // Localized data'yı normal format'a dönüştür
+        hauptKategorien = (kategorienResult.data as any[])?.map((cat: any) => ({
+            id: cat.id,
+            ad: cat.ad_localized || cat.ad,
+            created_at: cat.created_at
+        })) || [];
+    }
 
-    // Fehler loggen
-    if (error) console.error('❌ Supabase Giderler Hatası:', error);
-    if (hauptKategorienError) console.error('❌ Supabase HauptKategorien Hatası:', hauptKategorienError);
-    if (giderKalemleriError) console.error('❌ Supabase GiderKalemleri Hatası:', giderKalemleriError);
+    if (kalemleriResult.error) {
+        // RPC yoksa normal sorgu kullan
+        console.log('⚠️ Localized items RPC bulunamadı, fallback kullanılıyor');
+        const fallback = await supabase.from('gider_kalemleri').select('*').order('ad');
+        giderKalemleri = (fallback.data as GiderKalemi[]) || [];
+    } else {
+        // Localized data'yı normal format'a dönüştür
+        giderKalemleri = (kalemleriResult.data as any[])?.map((item: any) => ({
+            id: item.id,
+            ad: item.ad_localized || item.ad,
+            ana_kategori_id: item.ana_kategori_id,
+            created_at: item.created_at
+        })) || [];
+    }
+
+    // Giderler sorgusunu çalıştır
+    const { data: giderler, error } = await query;
+
+    // Fehler loggen
+    if (error) console.error('❌ Supabase Giderler Hatası:', error);
+    if (hauptKategorien.length === 0) console.log('⚠️ Keine Hauptkategorien gefunden');
+    if (giderKalemleri.length === 0) console.log('⚠️ Keine Gider Kalemleri gefunden');
 
     // --- LOGGING START ---
     console.log('Fetched Gider Count:', giderler?.length ?? 0);

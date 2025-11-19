@@ -20,6 +20,9 @@ export default function SiparisFiltreleri({ firmalar, durumlar, locale, dictiona
     const pathname = usePathname();
     const { replace } = useRouter();
 
+    // Dictionary content extraction
+    const content = (dictionary as any)?.adminDashboard?.ordersPage || {};
+
     const handleFilterChange = (key: string, value: string) => {
         const params = new URLSearchParams(searchParams);
         if (value) {
@@ -38,15 +41,17 @@ export default function SiparisFiltreleri({ firmalar, durumlar, locale, dictiona
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border border-bg-subtle">
-            {/* Arama Çubuğu (Değişiklik yok) */}
+            {/* Arama Çubuğu */}
             <div className="md:col-span-1">
-                <label htmlFor="search" className="block text-xs font-bold text-text-main/80 mb-1">Ara (Sipariş No / Firma)</label>
+                <label htmlFor="search" className="block text-xs font-bold text-text-main/80 mb-1">
+                    {content.searchLabel || 'Ara (Sipariş No / Firma)'}
+                </label>
                 <div className="relative">
                     <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         id="search"
                         type="text"
-                        placeholder="Sipariş no veya firma adı..."
+                        placeholder={content.searchPlaceholder || 'Sipariş no veya firma adı...'}
                         className="w-full pl-10 pr-4 py-2 border border-bg-subtle rounded-md"
                         onChange={(e) => handleSearch(e.target.value)}
                         defaultValue={searchParams.get('q')?.toString()}
@@ -56,35 +61,34 @@ export default function SiparisFiltreleri({ firmalar, durumlar, locale, dictiona
 
             {/* Duruma Göre Filtrele */}
             <div>
-                <label htmlFor="status" className="block text-xs font-bold text-text-main/80 mb-1">Durum</label>
+                <label htmlFor="status" className="block text-xs font-bold text-text-main/80 mb-1">
+                    {content.statusLabel || 'Durum'}
+                </label>
                 <select
                     id="status"
                     className={baseClasses}
                     onChange={(e) => handleFilterChange('status', e.target.value)}
                     defaultValue={searchParams.get('status')?.toString() || ''}
                 >
-                    <option value="">Tüm Durumlar</option>
-                    {/* ############################################################# */}
-                    {/* ###                   ANA DÜZELTME BURADA                   ### */}
-                    {/* ### Kod artık 'durum' nesnesinin 'anahtar' ve 'deger'     ### */}
-                    {/* ###        alanlarını doğru bir şekilde kullanıyor.         ### */}
-                    {/* ############################################################# */}
+                    <option value="">{content.statusAllOption || 'Tüm Durumlar'}</option>
                     {durumlar.map(durum => (
                         <option key={durum.anahtar} value={durum.anahtar}>{durum.deger}</option>
                     ))}
                 </select>
             </div>
 
-            {/* Firmaya Göre Filtrele (Değişiklik yok) */}
+            {/* Firmaya Göre Filtrele */}
             <div>
-                <label htmlFor="firma" className="block text-xs font-bold text-text-main/80 mb-1">Firma</label>
+                <label htmlFor="firma" className="block text-xs font-bold text-text-main/80 mb-1">
+                    {content.companyLabel || 'Firma'}
+                </label>
                 <select
                     id="firma"
                     className={baseClasses}
                     onChange={(e) => handleFilterChange('firmaId', e.target.value)}
                     defaultValue={searchParams.get('firmaId')?.toString() || ''}
                 >
-                    <option value="">Tüm Firmalar</option>
+                    <option value="">{content.companyAllOption || 'Tüm Firmalar'}</option>
                     {firmalar.map(f => (
                         <option key={f.id} value={f.id}>{f.unvan}</option>
                     ))}

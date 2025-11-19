@@ -90,9 +90,9 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
 
     return (
         <>
-            <header className={`sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b px-4 sm:px-6 ${isAdminHeader ? 'bg-white border-bg-subtle text-text-main shadow-sm' : 'border-white/10 bg-primary text-white'}`}>
+            <header className={`sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b px-4 sm:px-6 ${isAdminHeader ? 'bg-white border-bg-subtle text-text-main shadow-sm' : 'border-white/10 bg-primary text-white'}`}> 
 
-                {/* --- Linke Seite --- */}
+                {/* --- Sol taraf --- */}
                 <div className="flex items-center gap-4">
                     {/* Admin Hamburger Button */}
                     {isAdminHeader && setIsSidebarOpen && (
@@ -100,17 +100,22 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                             <FiMenu size={24} />
                         </button>
                     )}
-                    {/* Öffentlicher Hamburger Button */}
+                    {/* Public Hamburger Button */}
                     {!isAdminHeader && (
                         <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden text-white/80 hover:text-white focus:outline-none" aria-label="Menü öffnen">
                             <FiMenu size={24} />
                         </button>
                     )}
-                    {/* Logo / Titel */}
-                    <Link href={`/${currentLocale}${isAdminHeader ? '/admin/dashboard' : ''}`} className={`text-2xl font-serif font-bold ${isAdminHeader ? 'text-primary' : 'text-white'}`}>
-                        ElysonSweets {isAdminHeader && <span className="text-sm font-sans font-normal text-gray-500 ml-1">Admin</span>}
+                    {/* Logo + ElysonSweets */}
+                    <Link href={`/${currentLocale}${isAdminHeader ? '/admin/dashboard' : ''}`} className="flex items-center gap-2">
+                        {!isAdminHeader && (
+                                <div className="rounded-full shadow-lg border-4 border-white bg-white mx-auto overflow-hidden flex items-center justify-center" style={{width: '48px', height: '48px', maxWidth: '60px', marginRight: '0.5rem'}}>
+                                  <img src="/Logo.jpg" alt="Logo" width={48} height={48} style={{objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%'}} />
+                                </div>
+                        )}
+                        <span className={`text-2xl font-serif font-bold ${isAdminHeader ? 'text-primary' : 'text-white'}`}>ElysonSweets {isAdminHeader && <span className="text-sm font-sans font-normal text-gray-500 ml-1">Admin</span>}</span>
                     </Link>
-                    {/* Öffentliche Desktop-Navigation */}
+                    {/* Public Desktop Navigation */}
                     {!isAdminHeader && (
                         <nav className="hidden lg:flex items-center gap-6 ml-8">
                             {publicNavLinks.map(link => (

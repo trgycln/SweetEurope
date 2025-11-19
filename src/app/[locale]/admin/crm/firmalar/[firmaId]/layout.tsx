@@ -30,7 +30,7 @@ export default async function FirmaDetailLayout({
     // Firma abrufen
     const { data: firma, error: firmaError } = await supabase
         .from('firmalar')
-        .select('unvan') // Nur den Titel für das Layout holen
+        .select('unvan, kategori') // kategori eklendi
         .eq('id', firmaId)
         .single();
 
@@ -67,6 +67,11 @@ export default async function FirmaDetailLayout({
                         orders: tabsLabels.orders || 'Siparişler',
                         tasks: tabsLabels.tasks || 'Görevler',
                     }}
+                    extraTabs={
+                        (firma.kategori === 'Alt Bayi') 
+                          ? [{ name: tabsLabels.subDealerCustomers || 'Müşterileri', href: `/${locale}/admin/crm/firmalar/${firmaId}/musteriler` }]
+                          : []
+                    }
                 />
 
                 {/* Container für den Inhalt der Kind-Seite (page.tsx) */}

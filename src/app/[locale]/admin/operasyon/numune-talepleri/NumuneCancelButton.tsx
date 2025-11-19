@@ -8,14 +8,17 @@ import { cancelNumuneTalepAction } from '@/app/actions/numune-actions'; // Neue 
 
 interface NumuneCancelButtonProps {
     anfrageId: string;
+    label: string;
+    promptText: string;
+    emptyReasonError: string;
 }
 
-export default function NumuneCancelButton({ anfrageId }: NumuneCancelButtonProps) {
+export default function NumuneCancelButton({ anfrageId, label, promptText, emptyReasonError }: NumuneCancelButtonProps) {
     const [isPending, startTransition] = useTransition();
 
     const handleClick = () => {
         // Zeige einen Browser-Prompt, um die Begründung abzufragen
-        const begruendung = prompt("Bitte geben Sie einen Grund für die Ablehnung ein (z.B. 'Produkt nicht auf Lager'):");
+    const begruendung = prompt(promptText);
 
         // Wenn der Benutzer auf "Abbrechen" klickt (prompt gibt null zurück)
         if (begruendung === null) {
@@ -24,7 +27,7 @@ export default function NumuneCancelButton({ anfrageId }: NumuneCancelButtonProp
 
         // Wenn der Benutzer "OK" klickt, aber nichts eingibt
         if (begruendung.trim() === '') {
-            toast.error("Begründung darf nicht leer sein.");
+            toast.error(emptyReasonError);
             return;
         }
 
@@ -46,7 +49,7 @@ export default function NumuneCancelButton({ anfrageId }: NumuneCancelButtonProp
             className="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded-md transition-colors bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50"
         >
             {isPending ? <FiLoader className="animate-spin" /> : <FiXCircle size={12} />}
-            Ablehnen
+            {label}
         </button>
     );
 }

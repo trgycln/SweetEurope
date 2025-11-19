@@ -9,6 +9,7 @@ import { Tables, Database } from '@/lib/supabase/database.types'; // Database im
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Locale importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { getDictionary } from '@/dictionaries';
 
 // Typdefinitionen
 type Urun = Tables<'urunler'>;
@@ -39,6 +40,10 @@ export default async function UrunBearbeitenSeite({ params }: UrunBearbeitenSeit
     if (!user) {
         return redirect(`/${locale}/login`);
     }
+
+    // Rollenprüfung: Nur Yönetici kann düzenlemeler yapabilir
+    const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+    const isAdmin = profile?.rol === 'Yönetici';
 
     // Daten parallel abrufen: Produkt, Kategorien, Lieferanten, Einheiten
     const [urunRes, kategorilerRes, tedarikcilerRes, birimlerRes] = await Promise.all([
@@ -86,6 +91,9 @@ export default async function UrunBearbeitenSeite({ params }: UrunBearbeitenSeit
     const tedarikciler = tedarikcilerRes.data || [];
     const birimler = birimlerRes.data || [];
 
+    const dict = await getDictionary(locale);
+    const labels = dict.productsForm;
+
     // UrunFormu aufrufen und alle Daten übergeben
     return (
         <div className="max-w-5xl mx-auto">
@@ -99,6 +107,8 @@ export default async function UrunBearbeitenSeite({ params }: UrunBearbeitenSeit
                 kategoriler={kategorien}
                 tedarikciler={tedarikciler}
                 birimler={birimler}
+                labels={labels}
+                isAdmin={isAdmin}
                 // serverSablon={sablon} // Übergeben, falls UrunFormu dies erwartet
             />
         </div>

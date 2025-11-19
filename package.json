@@ -12,6 +12,7 @@
     "import:pasta": "node scripts/import-market-csv.mjs --file pasta.csv",
     "import:kahve": "node scripts/import-market-csv.mjs --file kahve.csv --categoryTr=\"Kahve & İçecekler\" --categoryDe=\"Kaffee & Getränke\" --categoryEn=\"Coffee & Drinks\"",
     "import:otel": "node scripts/import-market-csv.mjs --file otel.csv"
+    ,"update:dist-prices": "node scripts/update-distributor-prices-from-csv.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

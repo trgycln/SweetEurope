@@ -8,7 +8,7 @@ import { Dictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 import { Tables, Enums, Database } from '@/lib/supabase/database.types';
 import { formatDate, formatCurrency } from '@/lib/utils';
-import { deleteGiderAction, copyGiderlerFromPreviousMonth, createGiderlerFromTemplates, approveGiderler } from '@/app/actions/gider-actions';
+import { deleteGiderAction, approveGiderler } from '@/app/actions/gider-actions';
 import { toast } from 'sonner';
 import { GiderFormModal } from './GiderFormModal';
 
@@ -49,6 +49,36 @@ export function GiderlerClient({
 }: GiderlerClientProps) {
     const router = useRouter();
 
+    // ✅ Helper: Kategori/Kalem adını locale'e göre getir
+    const getLocalizedName = (item: any) => {
+        if (!item) return '';
+        
+        // Eğer ad_translations varsa locale'e göre dön
+        if (item.ad_translations && typeof item.ad_translations === 'object') {
+            return item.ad_translations[locale] || item.ad_translations['de'] || item.ad || '';
+        }
+        
+        // Yoksa direkt ad'ı kullan
+        return item.ad || '';
+    };
+
+    // ✅ Helper: Gider'in kategori ve kalem adını localize et
+    const getCategoryName = (gider: GiderWithDetails) => {
+        const kalemId = gider.gider_kalemi_id;
+        const kalem = giderKalemleri.find(k => k.id === kalemId);
+        if (!kalem) return gider.gider_kalemleri?.gider_ana_kategoriler?.ad || '-';
+        
+        const kategoriId = kalem.ana_kategori_id;
+        const kategori = hauptKategorien.find(k => k.id === kategoriId);
+        return getLocalizedName(kategori) || '-';
+    };
+
+    const getItemName = (gider: GiderWithDetails) => {
+        const kalemId = gider.gider_kalemi_id;
+        const kalem = giderKalemleri.find(k => k.id === kalemId);
+        return getLocalizedName(kalem) || gider.gider_kalemleri?.ad || '-';
+    };
+
     // ✅ EINFACHE STATE-VERWALTUNG - Filtern im CLIENT, nicht Server!
     const [selectedHauptCategory, setSelectedHauptCategory] = useState('');
     const [selectedGiderKalemi, setSelectedGiderKalemi] = useState('');
@@ -61,8 +91,6 @@ export function GiderlerClient({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingGider, setEditingGider] = useState<GiderWithDetails | null>(null);
     const [modalKey, setModalKey] = useState(Date.now().toString());
-    const [isCopying, setIsCopying] = useState(false);
-    const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
     const content = (dictionary as any).admin?.finans?.giderlerPage || {
         title: "Ausgabenverwaltung",
@@ -204,83 +232,14 @@ export function GiderlerClient({
         setSelectedGiderIds([]);
     };
 
-    // ✅ YENİ: GEÇEN AYDAN KOPYALA
-    const handleCopyFromPreviousMonth = async () => {
-        if (isCopying) return;
-
-        const confirmed = window.confirm(
-            '⚠️ Geçen ayın TÜM giderlerini bu aya kopyalamak istiyor musunuz?\n\n' +
-            'Bu işlem geri alınamaz!'
-        );
-
-        if (!confirmed) return;
-
-        setIsCopying(true);
-
-        try {
-            // Hedef ay: Şu anki seçili tarih aralığından al
-            const now = new Date();
-            const targetMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-            console.log('🔄 Kopyalama başlatılıyor, hedef ay:', targetMonth);
-
-            const result = await copyGiderlerFromPreviousMonth(targetMonth);
-
-            if (result.success) {
-                toast.success(`✅ ${result.count} adet gider başarıyla kopyalandı!`);
-                router.refresh(); // Listeyi yenile
-            } else {
-                toast.error(result.error || 'Kopyalama başarısız oldu.');
-            }
-        } catch (error) {
-            console.error('Kopyalama hatası:', error);
-            toast.error('Bir hata oluştu!');
-        } finally {
-            setIsCopying(false);
-        }
-    };
-
-    const handleCreateFromTemplates = async () => {
-        const confirmed = window.confirm(
-            '✅ Şablonlardan taslak giderler oluşturmak istiyor musunuz?\n\n' +
-            'Bu işlem aktif tüm şablonları kullanarak taslak giderler oluşturacak.\n' +
-            'Oluşturulan giderleri onaylamanız gerekecek.'
-        );
-
-        if (!confirmed) return;
-
-        setIsTemplateModalOpen(false);
-
-        try {
-            // Hedef ay: Şu anki tarih
-            const now = new Date();
-            const targetMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-            console.log('📋 Şablonlardan oluşturma başlatılıyor, hedef ay:', targetMonth);
-
-            const result = await createGiderlerFromTemplates(targetMonth);
-
-            if (result.success) {
-                toast.success(`✅ ${result.count} adet taslak gider oluşturuldu!`);
-                router.refresh(); // Listeyi yenile
-            } else {
-                toast.error(result.error || result.message || 'Oluşturma başarısız oldu.');
-            }
-        } catch (error) {
-            console.error('Şablon oluşturma hatası:', error);
-            toast.error('Bir hata oluştu!');
-        }
-    };
-
     const handleApproveSelected = async () => {
         if (selectedGiderIds.length === 0) {
-            toast.error('Lütfen onaylanacak giderleri seçin.');
+            toast.error(content.selectError);
             return;
         }
 
         const confirmed = window.confirm(
-            `✅ ${selectedGiderIds.length} adet taslak gideri onaylamak istiyor musunuz?\n\n` +
-            'Onaylanan giderler raporlara yansıyacaktır.'
+            content.confirmApprove.replace('%{count}', selectedGiderIds.length.toString())
         );
 
         if (!confirmed) return;
@@ -289,15 +248,15 @@ export function GiderlerClient({
             const result = await approveGiderler(selectedGiderIds);
 
             if (result.success) {
-                toast.success(`✅ ${result.count} adet gider onaylandı!`);
+                toast.success(content.approveSuccess.replace('%{count}', result.count?.toString() || '0'));
                 setSelectedGiderIds([]);
                 router.refresh();
             } else {
-                toast.error(result.error || 'Onaylama başarısız oldu.');
+                toast.error(result.error || content.approveError);
             }
         } catch (error) {
             console.error('Onaylama hatası:', error);
-            toast.error('Bir hata oluştu!');
+            toast.error(content.approveError);
         }
     };
 
@@ -329,23 +288,8 @@ export function GiderlerClient({
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-500 text-white rounded-lg shadow-md hover:bg-purple-600 transition-all duration-200 font-bold text-sm"
                     >
                         <FiEdit size={18} />
-                        Şablon Yönet
+                        {content.templateManage}
                     </Link>
-                    <button
-                        onClick={handleCopyFromPreviousMonth}
-                        disabled={isCopying}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-all duration-200 font-bold text-sm disabled:opacity-50"
-                    >
-                        <FiCopy size={18} />
-                        {isCopying ? 'Kopyalanıyor...' : 'Geçen Aydan Kopyala'}
-                    </button>
-                    <button
-                        onClick={handleCreateFromTemplates}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition-all duration-200 font-bold text-sm"
-                    >
-                        <FiPlus size={18} />
-                        Şablonlardan Oluştur
-                    </button>
                     <button
                         onClick={handleNewExpense}
                         className="flex items-center justify-center gap-2 px-4 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm"
@@ -361,19 +305,19 @@ export function GiderlerClient({
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <FiFilter className="text-gray-500" />
-                        <span className="text-sm font-bold text-primary">Filter</span>
+                        <span className="text-sm font-bold text-primary">{content.filters}</span>
                     </div>
                     <button
                         onClick={handleResetFilters}
                         className="text-sm text-gray-500 hover:text-gray-700 underline"
                     >
-                        Zurücksetzen
+                        {content.resetFilters}
                     </button>
                 </div>
 
                 {/* Zeitraum Filter */}
                 <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-2">Zeitraum:</label>
+                    <label className="text-sm font-medium text-gray-700 block mb-2">{content.period}</label>
                     <div className="flex flex-wrap gap-2">
                         {datePeriods.map(p => (
                             <button
@@ -395,7 +339,7 @@ export function GiderlerClient({
                 {selectedPeriod === 'custom' && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="dateFrom" className="text-sm font-medium text-gray-700 block mb-1">Von:</label>
+                            <label htmlFor="dateFrom" className="text-sm font-medium text-gray-700 block mb-1">{content.dateFrom}</label>
                             <input
                                 type="date"
                                 id="dateFrom"
@@ -405,7 +349,7 @@ export function GiderlerClient({
                             />
                         </div>
                         <div>
-                            <label htmlFor="dateTo" className="text-sm font-medium text-gray-700 block mb-1">Bis:</label>
+                            <label htmlFor="dateTo" className="text-sm font-medium text-gray-700 block mb-1">{content.dateTo}</label>
                             <input
                                 type="date"
                                 id="dateTo"
@@ -459,7 +403,7 @@ export function GiderlerClient({
 
                     <div>
                         <label htmlFor="durumFilter" className="text-sm font-medium text-gray-700 block mb-1">
-                            Durum:
+                            {content.statusFilter}
                         </label>
                         <select
                             id="durumFilter"
@@ -467,9 +411,9 @@ export function GiderlerClient({
                             onChange={(e) => setSelectedDurum(e.target.value as 'all' | 'Taslak' | 'Onaylandı')}
                             className="w-full border border-gray-300 rounded-md py-2 px-3 bg-white shadow-sm focus:ring-accent focus:border-accent"
                         >
-                            <option value="all">Tümü</option>
-                            <option value="Taslak">Taslak</option>
-                            <option value="Onaylandı">Onaylandı</option>
+                            <option value="all">{content.statusAll}</option>
+                            <option value="Taslak">{content.statusDraft}</option>
+                            <option value="Onaylandı">{content.statusApproved}</option>
                         </select>
                     </div>
                 </div>
@@ -477,7 +421,9 @@ export function GiderlerClient({
                 {/* Ergebnis-Anzeige ve Onay Butonu */}
                 <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
                     <p className="text-sm text-gray-600">
-                        <span className="font-bold text-accent">{filteredGiderler.length}</span> von <span className="font-bold">{initialGiderler.length}</span> Ausgaben werden angezeigt
+                        {content.showingExpenses
+                            ?.replace('%{filtered}', filteredGiderler.length.toString())
+                            .replace('%{total}', initialGiderler.length.toString())}
                     </p>
                     {selectedDurum === 'Taslak' && filteredGiderler.filter(g => g.durum === 'Taslak').length > 0 && (
                         <div className="flex gap-2">
@@ -485,14 +431,14 @@ export function GiderlerClient({
                                 onClick={handleSelectAllTaslak}
                                 className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md"
                             >
-                                Tümünü Seç ({filteredGiderler.filter(g => g.durum === 'Taslak').length})
+                                {content.selectAllDrafts} ({filteredGiderler.filter(g => g.durum === 'Taslak').length})
                             </button>
                             {selectedGiderIds.length > 0 && (
                                 <button
                                     onClick={handleApproveSelected}
                                     className="px-4 py-1 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md font-bold"
                                 >
-                                    ✅ Onayla ({selectedGiderIds.length})
+                                    {content.approveSelected} ({selectedGiderIds.length})
                                 </button>
                             )}
                         </div>
@@ -515,7 +461,7 @@ export function GiderlerClient({
                                     />
                                 </th>
                             )}
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Durum</th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.status}</th>
                             <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.date}</th>
                             <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.hauptCategory}</th>
                             <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.category}</th>
@@ -552,8 +498,8 @@ export function GiderlerClient({
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatDate(gider.tarih, locale)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{gider.gider_kalemleri?.gider_ana_kategoriler?.ad || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{gider.gider_kalemleri?.ad || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{getCategoryName(gider)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{getItemName(gider)}</td>
                                     <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={gider.aciklama || ''}>{gider.aciklama}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold text-right">{formatCurrency(gider.tutar, locale)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{gider.odeme_sikligi || '-'}</td>

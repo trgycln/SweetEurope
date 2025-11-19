@@ -1,11 +1,13 @@
-// app/[locale]/(public)/layout.tsx (DÜZELTİLMİŞ)
+// app/[locale]/(public)/layout.tsx
 
 import { ReactNode } from 'react';
-import { Header } from '@/components/Header';
 import { getDictionary } from '@/dictionaries';
-import Footer from '@/components/Footer'; 
+import { LeadGateProvider } from '@/contexts/LeadGateContext';
+import LeadGateModal from '@/components/lead/LeadGateModal';
+import FloatingSampleCart from '@/components/lead/FloatingSampleCart';
+import { Header } from '@/components/Header';
+import Footer from '@/components/Footer';
 
-// DEĞİŞİKLİK: Fonksiyon imzasını güncelledik.
 export default async function LocaleLayout({
   children,
   params,
@@ -13,17 +15,17 @@ export default async function LocaleLayout({
   children: ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  // Next.js 15: params should be awaited
   const { locale } = await params;
   const dictionary = await getDictionary(locale as any);
 
   return (
-    <div>
+    <LeadGateProvider>
       <Header dictionary={dictionary} />
-      <main className="bg-gray-50">
-        {children}
-      </main>
-      <Footer dictionary={dictionary} />
-    </div>
+      <main>{children}</main>
+      <Footer dictionary={dictionary} locale={locale} />
+      {/* Lead kapısı modali ve sabit numune sepeti */}
+      <LeadGateModal />
+      <FloatingSampleCart />
+    </LeadGateProvider>
   );
 }

@@ -22,15 +22,20 @@ export function PortalSidebar({ userRole, isOpen, setIsOpen, dictionary }: Sideb
     const content = dictionary.portal.sidebar;
 
     const menuItems = [
-        { name: content.dashboard, href: '/portal/dashboard', icon: FiGrid },
-        { name: content.orders, href: '/portal/siparisler', icon: FiPackage },
-        { name: content.products, href: '/portal/katalog', icon: FiBox },
-        // --- NEUER LINK ---
-        { name: content.materials || "Materialien", href: '/portal/materialien', icon: FiPaperclip },
-        // ------------------
-        { name: content.requests, href: '/portal/taleplerim', icon: FiArchive },
-        { name: content.performance, href: '/portal/analiz', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
-        { name: 'Profil', href: '/portal/profil', icon: FiUser }, // Profil linki eklendi
+      // Üstte: Genel
+      { name: content.dashboard, href: '/portal/dashboard', icon: FiGrid },
+      // Alt Bayi temel akış
+      { name: content.customers || "Müşterilerim", href: '/portal/musterilerim', icon: FiUser, roles: ['Alt Bayi'] as UserRole[] },
+      { name: content.orders, href: '/portal/siparisler', icon: FiPackage },
+      { name: content.stock || "Stoklarım", href: '/portal/stoklarim', icon: FiBox, roles: ['Alt Bayi'] as UserRole[] },
+      { name: content.finance || "Finanslarım", href: '/portal/finanslarim', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
+      // Diğerleri aşağıda
+      { name: content.products, href: '/portal/katalog', icon: FiBox },
+      { name: content.requests, href: '/portal/taleplerim', icon: FiArchive },
+      { name: content.materials || "Materialien", href: '/portal/materialien', icon: FiPaperclip },
+      { name: content.performance, href: '/portal/analiz', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
+      // Profil en altta
+      { name: 'Profil', href: '/portal/profil', icon: FiUser },
     ];
 
     return (

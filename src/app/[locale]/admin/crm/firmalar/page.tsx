@@ -58,6 +58,28 @@ export default async function FirmalarListPage({
     // Get dictionary for i18n
     const dictionary = await getDictionary(locale);
     const content = dictionary.adminDashboard?.crmPage || {};
+    // Provide neutral English fallbacks for missing keys
+    const F = {
+        title: content.title || 'Customer Management (CRM)',
+        companiesFound: content.companiesFound || 'companies found.',
+        newCompany: content.newCompany || 'New Company',
+        searchPlaceholder: content.searchPlaceholder || 'Search by company name…',
+        allStatusesLabel: content.allStatusesLabel || 'All Statuses',
+        noCompaniesFilterTitle: content.noCompaniesFilterTitle || 'No companies match filters',
+        noCompaniesTitle: content.noCompaniesTitle || 'No companies added yet',
+        noCompaniesFilterDesc: content.noCompaniesFilterDesc || 'Try adjusting your filter criteria.',
+        noCompaniesDesc: content.noCompaniesDesc || 'Add a new company to get started.',
+        statusOptions: content.statusOptions || {},
+        unknown: content.unknown || 'Unknown',
+        noPhone: content.noPhone || 'No Phone',
+        responsiblePerson: content.responsiblePerson || 'Responsible: ',
+        notAssigned: content.notAssigned || 'Unassigned',
+        companyName: content.companyName || 'Company',
+        category: content.category || 'Category',
+        phone: content.phone || 'Phone',
+        responsible: content.responsible || 'Responsible',
+        status: content.status || 'Status'
+    };
 
     // --- Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies();
@@ -112,13 +134,13 @@ export default async function FirmalarListPage({
             {/* Header */}
             <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Müşteri Yönetimi (CRM)'}</h1>
-                    <p className="text-text-main/80 mt-1">{firmaSayisi} {content.companiesFound || 'firma bulundu.'}</p>
+                    <h1 className="font-serif text-4xl font-bold text-primary">{F.title}</h1>
+                    <p className="text-text-main/80 mt-1">{firmaSayisi} {F.companiesFound}</p>
                 </div>
                 <Link href={`/${locale}/admin/crm/firmalar/yeni`} passHref>
                     <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
                         <FiPlus size={18} />
-                        {content.newCompany || 'Yeni Firma'}
+                        {F.newCompany}
                     </button>
                 </Link>
             </header>
@@ -126,8 +148,8 @@ export default async function FirmalarListPage({
             {/* Filter Komponente */}
             <FirmaFiltreleri 
                 statusOptions={statusOptions}
-                searchPlaceholder={content.searchPlaceholder || 'Firma unvanına göre ara...'}
-                allStatusesLabel={content.allStatusesLabel || 'Tüm Statüler'}
+                searchPlaceholder={F.searchPlaceholder}
+                allStatusesLabel={F.allStatusesLabel}
             />
 
             {/* Firmenliste oder "Keine Ergebnisse" */}
@@ -136,14 +158,14 @@ export default async function FirmalarListPage({
                     <FiUsers className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
                         {searchQuery || statusFilter || statusNotInFilter.length > 0 
-                            ? (content.noCompaniesFilterTitle || 'Keine Firmen für Filter gefunden')
-                                : (content.noCompaniesTitle || 'Henüz firma kaydedilmedi')
+                            ? F.noCompaniesFilterTitle
+                                : F.noCompaniesTitle
                         }
                     </h2>
                     <p className="mt-2 text-gray-600">
                         {searchQuery || statusFilter || statusNotInFilter.length > 0 
-                            ? (content.noCompaniesFilterDesc || 'Arama kriterlerinizi değiştirmeyi deneyin.')
-                            : (content.noCompaniesDesc || 'Başlamak için yeni bir firma ekleyin.')
+                            ? F.noCompaniesFilterDesc
+                            : F.noCompaniesDesc
                         }
                     </p>
                 </div>
@@ -159,17 +181,17 @@ export default async function FirmalarListPage({
                                         <p className="text-sm text-gray-500">{firma.kategori || '-'}</p>
                                     </div>
                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>
-                                        {firma.status ? (content.statusOptions?.[firma.status as keyof typeof content.statusOptions] || firma.status) : (content.unknown || 'Bilinmiyor')}
+                                        {firma.status ? (F.statusOptions?.[firma.status as keyof typeof F.statusOptions] || firma.status) : F.unknown}
                                     </span>
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <FiPhone size={14} className="text-gray-400"/>
-                                        <span>{firma.telefon || (content.noPhone || 'Telefon Yok')}</span>
+                                        <span>{firma.telefon || F.noPhone}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-700">
                                         <FiUsers size={14} className="text-gray-400"/>
-                                        <span>{content.responsiblePerson || 'Sorumlu: '}{firma.sorumlu_personel?.tam_ad || (content.notAssigned || 'Atanmamış')}</span>
+                                        <span>{F.responsiblePerson}{firma.sorumlu_personel?.tam_ad || F.notAssigned}</span>
                                     </div>
                                 </div>
                             </Link>
@@ -182,11 +204,11 @@ export default async function FirmalarListPage({
                             <thead className="bg-gray-50">
                                 <tr>
                                     {[
-                                        content.companyName || 'Firma', 
-                                        content.category || 'Kategorie', 
-                                        content.phone || 'Telefon', 
-                                        content.responsible || 'Verantwortlich', 
-                                        content.status || 'Status'
+                                        F.companyName, 
+                                        F.category, 
+                                        F.phone, 
+                                        F.responsible, 
+                                        F.status
                                     ].map(header => (
                                         <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
                                             {header}
@@ -204,10 +226,10 @@ export default async function FirmalarListPage({
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.kategori || '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.telefon || '-'}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.sorumlu_personel?.tam_ad || (content.notAssigned || 'Atanmamış')}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.sorumlu_personel?.tam_ad || F.notAssigned}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                                             <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>
-                                                {firma.status ? (content.statusOptions?.[firma.status as keyof typeof content.statusOptions] || firma.status) : (content.unknown || 'Bilinmiyor')}
+                                                {firma.status ? (F.statusOptions?.[firma.status as keyof typeof F.statusOptions] || firma.status) : F.unknown}
                                             </span>
                                         </td>
                                     </tr>
