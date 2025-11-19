@@ -42,7 +42,9 @@ export default function LeadGateModal() {
     closingIn: { de: 'Schließt automatisch…', tr: 'Otomatik kapanacak…', en: 'Closing automatically…', ar: 'سيُغلق تلقائياً قريباً…' }
   };
 
-  if (!isLeadModalOpen) return null;
+  useEffect(()=>{
+    return () => { if (autoCloseTimer) clearTimeout(autoCloseTimer); };
+  }, [autoCloseTimer]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -66,9 +68,8 @@ export default function LeadGateModal() {
     }
   }
 
-  useEffect(()=>{
-    return () => { if (autoCloseTimer) clearTimeout(autoCloseTimer); };
-  }, [autoCloseTimer]);
+  // Move conditional check AFTER all hooks
+  if (!isLeadModalOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
