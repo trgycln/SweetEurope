@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import LeadGateModal from '@/components/lead/LeadGateModal';
+import FloatingSampleCart from '@/components/lead/FloatingSampleCart';
 
 export type SampleCartItem = {
   product_id: string;
@@ -139,7 +141,11 @@ export function LeadGateProvider({ children }: { children: React.ReactNode }) {
   }), [mounted, unlocked, waitlistId, isLeadModalOpen, setUnlocked, cart, addToCart, removeFromCart, updateQty, clearCart, openLeadModal, closeLeadModal]);
 
   return (
-    <LeadGateContext.Provider value={value}>{children}</LeadGateContext.Provider>
+    <LeadGateContext.Provider value={value}>
+      {children}
+      <LeadGateModal />
+      <FloatingSampleCart />
+    </LeadGateContext.Provider>
   );
 }
 

@@ -3,8 +3,6 @@
 import { ReactNode } from 'react';
 import { getDictionary } from '@/dictionaries';
 import { LeadGateProvider } from '@/contexts/LeadGateContext';
-import LeadGateModal from '@/components/lead/LeadGateModal';
-import FloatingSampleCart from '@/components/lead/FloatingSampleCart';
 import { Header } from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -23,9 +21,7 @@ export default async function LocaleLayout({
       <Header dictionary={dictionary} />
       <main>{children}</main>
       <Footer dictionary={dictionary} locale={locale} />
-      {/* Lead kapısı modali ve sabit numune sepeti */}
-      <LeadGateModal />
-      <FloatingSampleCart />
+      {/* Lead kapısı modali ve sabit numune sepeti are rendered by LeadGateProvider */}
     </LeadGateProvider>
   );
 }

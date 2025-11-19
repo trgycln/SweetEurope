@@ -35,10 +35,10 @@ export default function FloatingSampleCart() {
     products: { de: 'Produkte', tr: 'Ürün', en: 'Products', ar: 'منتجات' }
   };
 
+  const count = cart.length; // Each product is 1 piece
+
   // Don't render until mounted to avoid hydration mismatch
   if (!mounted) return null;
-
-  const count = cart.length; // Each product is 1 piece
 
   return (
     <div className="fixed bottom-4 right-4 z-40">
