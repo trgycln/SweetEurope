@@ -6,7 +6,7 @@ import { submitSampleRequest } from '@/app/actions/sample-requests';
 import { useParams } from 'next/navigation';
 
 export default function FloatingSampleCart() {
-  const { cart, removeFromCart, clearCart, unlocked, waitlistId, openLeadModal } = useLeadGate();
+  const { mounted, cart, removeFromCart, clearCart, unlocked, waitlistId, openLeadModal } = useLeadGate();
   const params = useParams();
   const locale = (params?.locale as string) || 'de';
   const [open, setOpen] = useState(false);
@@ -34,6 +34,9 @@ export default function FloatingSampleCart() {
     errorMsg: { de: 'Konnte nicht gesendet werden', tr: 'Gönderilemedi', en: 'Could not send', ar: 'لا يمكن الإرسال' },
     products: { de: 'Produkte', tr: 'Ürün', en: 'Products', ar: 'منتجات' }
   };
+
+  // Don't render until mounted to avoid hydration mismatch
+  if (!mounted) return null;
 
   const count = cart.length; // Each product is 1 piece
 

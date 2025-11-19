@@ -21,10 +21,10 @@ export default function ProductCard({ urun, lang, linkHref }: ProductCardProps) 
         ? urun.fotograf_url_listesi[0] 
         : '/placeholder.jpg';
 
-    const { unlocked, openLeadModal, addToCart, cart } = useLeadGate();
+    const { mounted, unlocked, openLeadModal, addToCart, cart } = useLeadGate();
 
-    // Check if already in cart
-    const isInCart = cart.some(item => item.product_id === urun.id);
+    // Check if already in cart (only after mounted to avoid hydration mismatch)
+    const isInCart = mounted && cart.some(item => item.product_id === urun.id);
 
     const handleAddToSample = (e: React.MouseEvent) => {
         e.preventDefault();

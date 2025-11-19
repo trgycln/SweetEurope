@@ -11,6 +11,7 @@ export type SampleCartItem = {
 };
 
 type LeadGateContextType = {
+  mounted: boolean;
   unlocked: boolean;
   waitlistId: string | null;
   openLeadModal: () => void;
@@ -35,13 +36,16 @@ const STORAGE_KEYS = {
 };
 
 export function LeadGateProvider({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
   const [unlocked, setUnlockedState] = useState(false);
   const [waitlistId, setWaitlistId] = useState<string | null>(null);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [cart, setCart] = useState<SampleCartItem[]>([]);
 
-  // Load from localStorage
+  // Load from localStorage only on client
   useEffect(() => {
+    setMounted(true);
+    if (typeof window === 'undefined') return;
     try {
       const u = localStorage.getItem(STORAGE_KEYS.unlocked);
       const wid = localStorage.getItem(STORAGE_KEYS.waitlistId);
@@ -54,13 +58,15 @@ export function LeadGateProvider({ children }: { children: React.ReactNode }) {
 
   // Persist cart
   useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
     try {
       localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(cart));
     } catch {}
-  }, [cart]);
+  }, [cart, mounted]);
 
   const setUnlocked = useCallback((u: boolean, id?: string | null) => {
     setUnlockedState(u);
+    if (typeof window === 'undefined') return;
     try {
       localStorage.setItem(STORAGE_KEYS.unlocked, u ? '1' : '0');
       if (typeof id !== 'undefined') {
@@ -73,24 +79,29 @@ export function LeadGateProvider({ children }: { children: React.ReactNode }) {
 
   const openLeadModal = useCallback(() => {
     setIsLeadModalOpen(true);
-    try { localStorage.removeItem(STORAGE_KEYS.dismissed); } catch {}
+    if (typeof window !== 'undefined') {
+      try { localStorage.removeItem(STORAGE_KEYS.dismissed); } catch {}
+    }
   }, []);
   const closeLeadModal = useCallback(() => {
     setIsLeadModalOpen(false);
-    try { localStorage.setItem(STORAGE_KEYS.dismissed, '1'); } catch {}
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem(STORAGE_KEYS.dismissed, '1'); } catch {}
+    }
   }, []);
 
   // Soft gate: show once if not dismissed and not unlocked
   useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return;
     try {
       const dismissed = localStorage.getItem(STORAGE_KEYS.dismissed) === '1';
       if (!unlocked && !dismissed) {
-        setTimeout(() => setIsLeadModalOpen(true), 600); // slight delay after page load
+        setTimeout(() => setIsLeadModalOpen(true), 600);
       }
     } catch {}
     // only on first mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [mounted]);
 
   const addToCart = useCallback((item: Omit<SampleCartItem, 'quantity'>, qty = 1) => {
     setCart(prev => {
@@ -113,6 +124,7 @@ export function LeadGateProvider({ children }: { children: React.ReactNode }) {
   const clearCart = useCallback(() => setCart([]), []);
 
   const value = useMemo<LeadGateContextType>(() => ({
+    mounted,
     unlocked,
     waitlistId,
     openLeadModal,
@@ -124,7 +136,7 @@ export function LeadGateProvider({ children }: { children: React.ReactNode }) {
     removeFromCart,
     updateQty,
     clearCart,
-  }), [unlocked, waitlistId, isLeadModalOpen, setUnlocked, cart, addToCart, removeFromCart, updateQty, clearCart]);
+  }), [mounted, unlocked, waitlistId, isLeadModalOpen, setUnlocked, cart, addToCart, removeFromCart, updateQty, clearCart, openLeadModal, closeLeadModal]);
 
   return (
     <LeadGateContext.Provider value={value}>{children}</LeadGateContext.Provider>
