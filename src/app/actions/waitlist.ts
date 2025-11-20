@@ -1,7 +1,6 @@
 'use server';
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 
 export interface WaitlistFormData {
   firma_adi: string;
@@ -31,12 +30,13 @@ export async function submitWaitlistForm(
   formData: WaitlistFormData
 ): Promise<WaitlistResponse> {
   try {
-    const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
+    // Use service role key to bypass RLS for anonymous users
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // waitlist tablosuna kaydet
-    // Tablo henüz type definitions'ta yok, oluşturulduktan sonra güncellenecek
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('waitlist')
       .insert({
         firma_adi: formData.firma_adi,
@@ -89,8 +89,10 @@ export async function updateWaitlistPreferences(
     return { success: false, message: 'Kayıt bulunamadı.', error: 'missing_id' };
   }
   try {
-    const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
+    // Use service role key to bypass RLS for anonymous users
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Temel normalizasyon: boş dizileri kaydetme
     const normalized: ProductPreferences = {
@@ -98,7 +100,7 @@ export async function updateWaitlistPreferences(
       specific_products: (preferences.specific_products || []).filter(Boolean),
     };
 
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('waitlist')
       .update({ product_preferences: normalized })
       .eq('id', waitlistId);

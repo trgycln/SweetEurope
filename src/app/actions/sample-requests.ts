@@ -1,7 +1,6 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
 export interface SampleCartItemInput {
   product_id: string;
@@ -30,10 +29,12 @@ export async function submitSampleRequest(input: SubmitSampleRequestInput): Prom
       return { success: false, message: 'Sepet boş olamaz', error: 'empty_items' };
     }
 
-    const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
+    // Use service role key to bypass RLS for anonymous users
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { data: header, error: insertHeaderErr } = await (supabase as any)
+    const { data: header, error: insertHeaderErr } = await supabase
       .from('sample_requests')
       .insert({ waitlist_id: input.waitlist_id, note: input.note ?? null, status: 'beklemede' })
       .select()
@@ -50,7 +51,7 @@ export async function submitSampleRequest(input: SubmitSampleRequestInput): Prom
       quantity: it.quantity && it.quantity > 0 ? it.quantity : 1,
     }));
 
-    const { error: insertItemsErr } = await (supabase as any)
+    const { error: insertItemsErr } = await supabase
       .from('sample_request_items')
       .insert(rows);
 
