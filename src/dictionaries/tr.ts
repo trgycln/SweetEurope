@@ -2,6 +2,42 @@
 import type { Dictionary } from './index';
 
 export const dictionary: Partial<Dictionary> = {
+  // SEO Metadata
+  seo: {
+    home: {
+      title: "Elysion Sweets: Gastronomi için Premium Dondurulmuş Pasta & Tatlılar | B2B Toptan",
+      description: "Köln, NRW'de premium dondurulmuş pastalar, cheesecake'ler ve tatlılar için profesyonel B2B tedarikçi. Helal & BRC sertifikalı. HoReCa, kafeler ve restoranlar için hızlı teslimat."
+    },
+    products: {
+      title: "Gastronomi için Premium Dondurulmuş Kek & Pastalar | Elysion Sweets B2B",
+      description: "100+ premium tatlı keşfedin: San Sebastian Cheesecake, Belçika Çikolatalı Pastalar, vegan ve glutensiz seçenekler. Kafeler, restoranlar ve catering için mükemmel."
+    },
+    productsCategory: {
+      titleTemplate: "%{category} - Premium B2B Toptan | Elysion Sweets",
+      descriptionTemplate: "Gastronomi için premium %{category}. Dondurulmuş, hazırlaması kolay, pişirme gerektirmez. Helal sertifikalı. NRW'de teslimat."
+    },
+    productDetail: {
+      titleTemplate: "%{product} - B2B Gastronomi | Elysion Sweets",
+      descriptionTemplate: "Premium kalitede %{product}. %{description}"
+    },
+    about: {
+      title: "Elysion Sweets Hakkında - Premium Tatlılar İçin Güvenilir Partneriniz | B2B",
+      description: "Elysion Sweets hakkında daha fazla bilgi: Gastronomi için kalite, inovasyon ve hizmet. BRC & Helal sertifikalı. Yıllardır güvenilir tatlı tedarikçiniz."
+    },
+    contact: {
+      title: "İletişim - Elysion Sweets B2B Tatlı Tedarikçisi | Köln, NRW",
+      description: "Premium dondurulmuş tatlılar için Elysion Sweets ile iletişime geçin. Konum: Köln. E-posta: info@elysonsweets.de. NRW genelinde restoranlar, kafeler, otellere tedarik."
+    },
+    impressum: {
+      title: "Künye - Elysion Sweets GmbH",
+      description: "Elysion Sweets GmbH'nin yasal bilgileri ve künyesi."
+    },
+    datenschutz: {
+      title: "Gizlilik Politikası - Elysion Sweets GmbH",
+      description: "Elysion Sweets'te verilerinizi nasıl kullandığımıza dair gizlilik politikası ve bilgiler."
+    }
+  },
+  
   navigation: {
     home: 'Anasayfa',
     products: 'Ürünler',

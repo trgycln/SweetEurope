@@ -2,6 +2,42 @@
 import type { Dictionary } from './index';
 
 export const dictionary: Partial<Dictionary> = {
+  // SEO Metadata
+  seo: {
+    home: {
+      title: "Elysion Sweets: Premium Frozen Cakes & Desserts for Gastronomy | B2B Wholesale",
+      description: "Professional B2B supplier of premium frozen cakes, cheesecakes & desserts in Cologne, NRW. Halal & BRC certified. Fast delivery for HoReCa, cafés & restaurants."
+    },
+    products: {
+      title: "Premium Frozen Cakes & Tarts for Gastronomy | Elysion Sweets B2B",
+      description: "Discover 100+ premium desserts: San Sebastian Cheesecake, Belgian Chocolate Cakes, vegan & gluten-free options. Perfect for cafés, restaurants & catering."
+    },
+    productsCategory: {
+      titleTemplate: "%{category} - Premium B2B Wholesale | Elysion Sweets",
+      descriptionTemplate: "Premium %{category} for gastronomy. Frozen, easy to prepare, no baking required. Halal certified. Delivery in NRW."
+    },
+    productDetail: {
+      titleTemplate: "%{product} - B2B Gastronomy | Elysion Sweets",
+      descriptionTemplate: "%{product} in premium quality. %{description}"
+    },
+    about: {
+      title: "About Elysion Sweets - Your Reliable Partner for Premium Desserts | B2B",
+      description: "Learn more about Elysion Sweets: Quality, innovation and service for gastronomy. BRC & Halal certified. Your trusted dessert supplier for years."
+    },
+    contact: {
+      title: "Contact - Elysion Sweets B2B Dessert Supplier | Cologne, NRW",
+      description: "Contact Elysion Sweets for premium frozen desserts. Location: Cologne. Email: info@elysonsweets.de. We supply restaurants, cafés, hotels throughout NRW."
+    },
+    impressum: {
+      title: "Imprint - Elysion Sweets GmbH",
+      description: "Legal information and imprint of Elysion Sweets GmbH."
+    },
+    datenschutz: {
+      title: "Privacy Policy - Elysion Sweets GmbH",
+      description: "Privacy policy and information on how we handle your data at Elysion Sweets."
+    }
+  },
+  
   navigation: {
     home: 'Home',
     products: 'Products',

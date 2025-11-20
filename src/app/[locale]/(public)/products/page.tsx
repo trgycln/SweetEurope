@@ -9,10 +9,31 @@ import Link from 'next/link';
 import { type Kategori, type Urun } from './types';
 import { cookies } from 'next/headers';
 import { FiGrid, FiPackage } from 'react-icons/fi';
+import type { Metadata } from 'next';
 
 // HATA ÇÖZÜMÜ: Bu satır, Next.js'e sayfanın her zaman dinamik olarak
 // render edilmesi gerektiğini söyleyerek tüm "should be awaited" hatalarını çözer.
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ 
+    params 
+}: { 
+    params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+    const { locale } = await params;
+    const dictionary = await getDictionary(locale as any);
+    
+    return {
+        title: dictionary.seo?.products?.title || 'Products | Elysion Sweets',
+        description: dictionary.seo?.products?.description || '',
+        openGraph: {
+            title: dictionary.seo?.products?.title || 'Products | Elysion Sweets',
+            description: dictionary.seo?.products?.description || '',
+            locale: locale,
+            type: 'website',
+        },
+    };
+}
 
 export default async function PublicUrunlerPage({ 
     params, 

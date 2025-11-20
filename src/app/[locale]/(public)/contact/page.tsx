@@ -6,6 +6,22 @@ import React from 'react';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils'; // Annahme: Locale ist in utils.ts
 import { FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: { locale: Locale } }): Promise<Metadata> {
+  const dictionary = await getDictionary(params.locale);
+  
+  return {
+    title: dictionary.seo?.contact?.title || 'Contact | Elysion Sweets',
+    description: dictionary.seo?.contact?.description || '',
+    openGraph: {
+      title: dictionary.seo?.contact?.title || 'Contact | Elysion Sweets',
+      description: dictionary.seo?.contact?.description || '',
+      locale: params.locale,
+      type: 'website',
+    },
+  };
+}
 
 // KORREKTUR: Die Seite muss 'async' sein und 'params' empfangen
 export default async function KontaktPage({ params }: { params: { locale: Locale } }) {

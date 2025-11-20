@@ -1292,4 +1292,40 @@ statusOptions: {
       }
     }
   },
+  
+  // SEO Metadata
+  seo: {
+    home: {
+      title: "Elysion Sweets: Premium Tiefkühltorten & Desserts für Gastronomie | B2B Großhandel",
+      description: "Professioneller B2B-Lieferant für hochwertige Tiefkühltorten, Cheesecakes & Desserts in Köln, NRW. Halal & BRC-zertifiziert. Schnelle Lieferung für HoReCa, Cafés & Restaurants."
+    },
+    products: {
+      title: "Premium Tiefkühlkuchen & Torten für Gastronomie | Elysion Sweets B2B",
+      description: "Entdecken Sie über 100 Premium-Desserts: San Sebastian Cheesecake, Belgische Schokoladentorten, vegane & glutenfreie Optionen. Perfekt für Cafés, Restaurants & Catering."
+    },
+    productsCategory: {
+      titleTemplate: "%{category} - Premium B2B Großhandel | Elysion Sweets",
+      descriptionTemplate: "Hochwertige %{category} für die Gastronomie. Tiefgekühlt, einfach zuzubereiten, kein Backen erforderlich. Halal-zertifiziert. Lieferung in NRW."
+    },
+    productDetail: {
+      titleTemplate: "%{product} - B2B Gastronomie | Elysion Sweets",
+      descriptionTemplate: "%{product} in Premium-Qualität. %{description}"
+    },
+    about: {
+      title: "Über Elysion Sweets - Ihr zuverlässiger Partner für Premium-Desserts | B2B",
+      description: "Erfahren Sie mehr über Elysion Sweets: Qualität, Innovation und Service für die Gastronomie. BRC & Halal-zertifiziert. Ihr vertrauenswürdiger Dessert-Lieferant seit Jahren."
+    },
+    contact: {
+      title: "Kontakt - Elysion Sweets B2B Dessert-Lieferant | Köln, NRW",
+      description: "Kontaktieren Sie Elysion Sweets für Premium-Tiefkühldesserts. Standort: Köln. E-Mail: info@elysonsweets.de. Wir beliefern Restaurants, Cafés, Hotels in ganz NRW."
+    },
+    impressum: {
+      title: "Impressum - Elysion Sweets GmbH",
+      description: "Rechtliche Informationen und Impressum von Elysion Sweets GmbH."
+    },
+    datenschutz: {
+      title: "Datenschutzerklärung - Elysion Sweets GmbH",
+      description: "Datenschutzerklärung und Informationen zum Umgang mit Ihren Daten bei Elysion Sweets."
+    }
+  }
 }; // <-- DIESE KLAMMER IST DIE LETZTE.

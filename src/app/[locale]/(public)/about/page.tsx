@@ -4,6 +4,7 @@ import Image from 'next/image';
 // KORREKTUR: Dynamischen Dictionary-Loader importieren
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils'; // Annahme: Locale ist in utils.ts
+import type { Metadata } from 'next';
 
 // Diese Komponente bleibt unverändert
 const DecorativeSeparator = () => (
@@ -11,6 +12,21 @@ const DecorativeSeparator = () => (
     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-secondary rotate-45 border border-accent"></div>
   </div>
 );
+
+export async function generateMetadata({ params }: { params: { locale: Locale } }): Promise<Metadata> {
+  const dictionary = await getDictionary(params.locale);
+  
+  return {
+    title: dictionary.seo?.about?.title || 'About Us | Elysion Sweets',
+    description: dictionary.seo?.about?.description || '',
+    openGraph: {
+      title: dictionary.seo?.about?.title || 'About Us | Elysion Sweets',
+      description: dictionary.seo?.about?.description || '',
+      locale: params.locale,
+      type: 'website',
+    },
+  };
+}
 
 // KORREKTUR: Die Seite muss 'async' sein und 'params' empfangen
 export default async function AboutPage({ params }: { params: { locale: Locale } }) {

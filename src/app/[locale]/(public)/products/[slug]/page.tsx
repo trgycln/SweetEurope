@@ -8,6 +8,7 @@ import { UrunDetayGorunumu } from '@/components/urun-detay-gorunumu';
 import { UrunReviewSection } from '@/components/UrunReviewSection';
 import { Locale } from '@/lib/utils'; // Locale aus utils holen
 import { Tables } from '@/lib/supabase/database.types';
+import type { Metadata } from 'next';
 
 // Typ für die Sablon-Daten
 type Sablon = Pick<Tables<'kategori_ozellik_sablonlari'>, 'alan_adi' | 'gosterim_adi'>;
@@ -17,6 +18,43 @@ type UrunWithKategorie = Tables<'urunler'> & {
     ortalama_puan?: number | null;
     degerlendirme_sayisi?: number | null;
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; slug: string }> }): Promise<Metadata> {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    const { locale, slug } = await params;
+    const dictionary = await getDictionary(locale as any);
+
+    const { data: urun } = await supabase
+        .from('urunler')
+        .select('ad, aciklama, resim_url')
+        .eq('slug', slug)
+        .eq('aktif', true)
+        .single();
+
+    if (!urun) {
+        return {
+            title: 'Product Not Found | Elysion Sweets',
+        };
+    }
+
+    const title = dictionary.seo?.productDetail?.titleTemplate?.replace('%{product}', urun.ad) || `${urun.ad} | Elysion Sweets`;
+    const description = dictionary.seo?.productDetail?.descriptionTemplate
+        ?.replace('%{product}', urun.ad)
+        ?.replace('%{description}', urun.aciklama || '') || urun.aciklama || '';
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: urun.resim_url ? [urun.resim_url] : [],
+            locale: locale,
+            type: 'website',
+        },
+    };
+}
 
 export default async function PublicUrunDetayPage({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
     const cookieStore = await cookies();

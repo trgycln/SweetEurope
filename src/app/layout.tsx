@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import type { Metadata } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -31,6 +32,9 @@ export default function RootLayout({
   return (
     // DİKKAT: Burada 'lang' attribute'ü YOKTUR. Dil, [locale]/layout.tsx içinde eklenecek.
     <html className={`${playfair.variable} ${lato.variable}`} suppressHydrationWarning>
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body>{children}</body>
     </html>
   );

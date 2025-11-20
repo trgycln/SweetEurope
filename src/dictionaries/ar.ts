@@ -2,6 +2,42 @@
 import type { Dictionary } from './index';
 
 export const dictionary: Partial<Dictionary> = {
+  // SEO Metadata
+  seo: {
+    home: {
+      title: "Elysion Sweets: كعك وحلويات مجمدة فاخرة للمطاعم | بيع بالجملة B2B",
+      description: "مورد محترف B2B للكعك المجمد الفاخر والتشيز كيك والحلويات في كولونيا، NRW. معتمد حلال و BRC. توصيل سريع للمطاعم والمقاهي والفنادق."
+    },
+    products: {
+      title: "كعك وتورتات مجمدة فاخرة للمطاعم | Elysion Sweets B2B",
+      description: "اكتشف أكثر من 100 حلوى فاخرة: سان سيباستيان تشيز كيك، تورتات الشوكولاتة البلجيكية، خيارات نباتية وخالية من الغلوتين. مثالية للمقاهي والمطاعم والكيتيرينج."
+    },
+    productsCategory: {
+      titleTemplate: "%{category} - بيع بالجملة B2B فاخر | Elysion Sweets",
+      descriptionTemplate: "%{category} فاخرة للمطاعم. مجمدة، سهلة التحضير، لا تحتاج إلى خبز. معتمدة حلال. التوصيل في NRW."
+    },
+    productDetail: {
+      titleTemplate: "%{product} - B2B للمطاعم | Elysion Sweets",
+      descriptionTemplate: "%{product} بجودة فاخرة. %{description}"
+    },
+    about: {
+      title: "عن Elysion Sweets - شريكك الموثوق للحلويات الفاخرة | B2B",
+      description: "تعرف على المزيد عن Elysion Sweets: الجودة والابتكار والخدمة للمطاعم. معتمد BRC وحلال. مورد الحلويات الموثوق لسنوات."
+    },
+    contact: {
+      title: "اتصل بنا - Elysion Sweets مورد حلويات B2B | كولونيا، NRW",
+      description: "اتصل بـ Elysion Sweets للحصول على حلويات مجمدة فاخرة. الموقع: كولونيا. البريد الإلكتروني: info@elysonsweets.de. نوفر للمطاعم والمقاهي والفنادق في جميع أنحاء NRW."
+    },
+    impressum: {
+      title: "بيانات الناشر - Elysion Sweets GmbH",
+      description: "المعلومات القانونية وبيانات الناشر لشركة Elysion Sweets GmbH."
+    },
+    datenschutz: {
+      title: "سياسة الخصوصية - Elysion Sweets GmbH",
+      description: "سياسة الخصوصية ومعلومات حول كيفية تعاملنا مع بياناتك في Elysion Sweets."
+    }
+  },
+  
   navigation: {
     home: 'الرئيسية',
     products: 'المنتجات',

@@ -12,6 +12,27 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import fs from "node:fs";
 import path from "node:path";
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ locale: string }> 
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const dictionary = await getDictionary(locale as any);
+  
+  return {
+    title: dictionary.seo?.home?.title || 'Elysion Sweets',
+    description: dictionary.seo?.home?.description || '',
+    openGraph: {
+      title: dictionary.seo?.home?.title || 'Elysion Sweets',
+      description: dictionary.seo?.home?.description || '',
+      locale: locale,
+      type: 'website',
+    },
+  };
+}
 
 export default async function Home({ 
   params 

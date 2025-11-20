@@ -1,6 +1,23 @@
 import React from 'react';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const dictionary = await getDictionary(locale as Locale);
+  
+  return {
+    title: dictionary.seo?.datenschutz?.title || 'Datenschutz | Elysion Sweets',
+    description: dictionary.seo?.datenschutz?.description || '',
+    openGraph: {
+      title: dictionary.seo?.datenschutz?.title || 'Datenschutz | Elysion Sweets',
+      description: dictionary.seo?.datenschutz?.description || '',
+      locale: locale,
+      type: 'website',
+    },
+  };
+}
 
 export default async function DatenschutzPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
