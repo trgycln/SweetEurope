@@ -37,10 +37,11 @@ export default async function Home({
         .from('kategoriler')
         .select('id, ust_kategori_id');
 
-    // Tüm ürünleri çek
+    // Sadece aktif ürünleri çek
     const { data: urunler } = await supabase
         .from('urunler')
-        .select('kategori_id');
+        .select('kategori_id')
+        .eq('aktif', true); // Sadece aktif ürünleri say
 
     // Kategori ID'lerine göre ürün sayısını hesapla (ana kategori + alt kategorilerindeki ürünler)
     const categoryProductCounts: Record<string, number> = {};
