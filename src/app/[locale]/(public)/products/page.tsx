@@ -157,10 +157,9 @@ export default async function PublicUrunlerPage({
     const from = (page - 1) * perPage;
     const to = from + perPage - 1;
     
-    // Order by string yerine JSONB yolu kullan
+    // Fetch all matching products first (no range, no order yet)
     let urunlerRes = await urunlerQuery
-        .order('ad', { ascending: true, foreignTable: undefined })
-        .range(from, to);
+        .order('ad', { ascending: true, foreignTable: undefined });
     
     // Özellik ve Tat filtresi - client-side (yapılandırılmış alanları kontrol et)
     if (urunlerRes.data && (ozellikFilter || tatFilter)) {
@@ -193,8 +192,43 @@ export default async function PublicUrunlerPage({
         urunlerRes = { ...urunlerRes, data: filteredData, count: filteredData.length };
     }
     
-    const urunler: Urun[] = (urunlerRes.data ?? []) as unknown as Urun[];
-    const totalCount = urunlerRes.count ?? 0;
+    // Custom sorting: Eğer kategori filtresi yoksa (Alle), önce Torten&Kuchen, sonra yıldız
+    let sortedData = urunlerRes.data || [];
+    if (!seciliKategoriSlug && sortedData.length > 0) {
+        // Find Torten&Kuchen category ID
+        const tortenKuchenKat = kategoriler.find(k => k.slug === 'cakes-and-tarts');
+        const tortenKuchenId = tortenKuchenKat?.id;
+        const tortenKuchenAltIds = kategoriler
+            .filter(k => k.ust_kategori_id === tortenKuchenId)
+            .map(k => k.id);
+        
+        sortedData = sortedData.sort((a: any, b: any) => {
+            const aIsTortenKuchen = a.kategori_id === tortenKuchenId || tortenKuchenAltIds.includes(a.kategori_id);
+            const bIsTortenKuchen = b.kategori_id === tortenKuchenId || tortenKuchenAltIds.includes(b.kategori_id);
+            
+            // Torten&Kuchen önce
+            if (aIsTortenKuchen && !bIsTortenKuchen) return -1;
+            if (!aIsTortenKuchen && bIsTortenKuchen) return 1;
+            
+            // Aynı kategori grubunda ise yıldıza göre sırala (yüksek önce)
+            if (aIsTortenKuchen && bIsTortenKuchen) {
+                const aPuan = a.ortalama_puan || 0;
+                const bPuan = b.ortalama_puan || 0;
+                return bPuan - aPuan; // Descending
+            }
+            
+            // Diğerleri alfabetik
+            const aAd = a.ad?.de || a.ad?.tr || '';
+            const bAd = b.ad?.de || b.ad?.tr || '';
+            return aAd.localeCompare(bAd);
+        });
+    }
+    
+    // Apply pagination after sorting
+    const paginatedData = sortedData.slice(from, from + perPage);
+    const totalCount = sortedData.length;
+    
+    const urunler: Urun[] = paginatedData as unknown as Urun[];
     const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
     const clampedPage = Math.min(page, totalPages);
     

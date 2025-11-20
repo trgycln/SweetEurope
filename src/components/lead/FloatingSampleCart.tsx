@@ -9,6 +9,7 @@ export default function FloatingSampleCart() {
   const { mounted, cart, removeFromCart, clearCart, unlocked, waitlistId, openLeadModal } = useLeadGate();
   const params = useParams();
   const locale = (params?.locale as string) || 'de';
+  // On very small screens switch to a bottom-sheet pattern
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,16 +42,16 @@ export default function FloatingSampleCart() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-4 right-2 sm:right-4 z-40">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="relative px-3 sm:px-4 py-2 sm:py-3 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-xl text-sm sm:text-base whitespace-nowrap"
-      >
-        {t.sampleList[locale as keyof typeof t.sampleList] || t.sampleList.de} ({count})
-      </button>
-
-      {open && (
-        <div className="mt-3 w-[calc(100vw-1rem)] sm:w-[360px] max-w-[360px] rounded-2xl bg-white shadow-2xl border flex flex-col" style={{maxHeight: '75vh'}}>
+    <div className="fixed bottom-3 right-2 left-2 sm:left-auto sm:bottom-4 sm:right-4 z-40 flex justify-end sm:justify-end">
+      <div className="flex flex-col items-end w-full sm:w-auto">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="relative px-3 sm:px-4 py-2 sm:py-3 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-xl text-sm sm:text-base whitespace-nowrap max-w-full"
+        >
+          {t.sampleList[locale as keyof typeof t.sampleList] || t.sampleList.de} ({count})
+        </button>
+        {open && (
+          <div className="mt-3 w-full sm:w-[360px] max-w-full sm:max-w-[360px] rounded-2xl bg-white shadow-2xl border flex flex-col overflow-hidden" style={{maxHeight: '70vh'}}>
           <div className="px-4 py-3 border-b flex items-center justify-between flex-shrink-0">
             <h4 className="font-semibold">{t.sampleList[locale as keyof typeof t.sampleList] || t.sampleList.de}</h4>
             <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
@@ -166,6 +167,7 @@ export default function FloatingSampleCart() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

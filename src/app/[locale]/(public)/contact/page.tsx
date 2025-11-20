@@ -5,7 +5,7 @@ import React from 'react';
 // KORREKTUR: Dynamischen Loader importieren
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils'; // Annahme: Locale ist in utils.ts
-import { FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 
 // KORREKTUR: Die Seite muss 'async' sein und 'params' empfangen
 export default async function KontaktPage({ params }: { params: { locale: Locale } }) {
@@ -38,10 +38,11 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <FaPhone className="text-accent text-2xl mt-1" />
+                  <FaMapMarkerAlt className="text-accent text-2xl mt-1" />
                   <div>
-                    <h3 className="font-bold font-sans text-primary">Telefon</h3>
-                    <a href={`tel:${content.phone.replace(/\s/g, '')}`} className="font-sans hover:text-accent transition-colors">{content.phone}</a>
+                    <h3 className="font-bold font-sans text-primary">Konum</h3>
+                    <p className="font-sans">Köln / Deutschland</p>
+                    <p className="font-sans text-xs text-gray-500 mt-1">Çok yakında yeni depomuz ve tam adresimizle hizmetinizde olacağız.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -88,7 +89,7 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
             <h2 className="text-4xl font-serif text-primary mb-8 text-center">Unser Standort</h2>
             <div className="rounded-lg overflow-hidden shadow-xl border-4 border-white">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.106772428285!2d13.37542277717462!3d52.51627497206105!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851e0610be079%3A0x1033723378253112!2sReichstag%20Building!5e0!3m2!1sen!2sde!4v1727463075591!5m2!1sen!2sde"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d25074.962627416494!2d6.9284984!3d50.9412786!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47bf25a6e0c8932f%3A0x8c85f9a7723118b0!2sCologne!5e0!3m2!1sen!2sde!4v1732032000000!5m2!1sen!2sde"
                 width="100%"
                 height="450"
                 style={{ border: 0 }}

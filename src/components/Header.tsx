@@ -109,11 +109,11 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                     {/* Logo + ElysonSweets */}
                     <Link href={`/${currentLocale}${isAdminHeader ? '/admin/dashboard' : ''}`} className="flex items-center gap-2">
                         {!isAdminHeader && (
-                                <div className="rounded-full shadow-lg border-4 border-white bg-white mx-auto overflow-hidden flex items-center justify-center" style={{width: '48px', height: '48px', maxWidth: '60px', marginRight: '0.5rem'}}>
+                                <div className="hidden sm:flex rounded-full shadow-lg border-4 border-white bg-white mx-auto overflow-hidden items-center justify-center" style={{width: '48px', height: '48px', maxWidth: '60px', marginRight: '0.5rem'}}>
                                   <img src="/Logo.jpg" alt="Logo" width={48} height={48} style={{objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%'}} />
                                 </div>
                         )}
-                        <span className={`text-2xl font-serif font-bold ${isAdminHeader ? 'text-primary' : 'text-white'}`}>ElysonSweets {isAdminHeader && <span className="text-sm font-sans font-normal text-gray-500 ml-1">Admin</span>}</span>
+                        <span className={`text-xl sm:text-2xl font-serif font-bold ${isAdminHeader ? 'text-primary' : 'text-white'}`}>ElysonSweets {isAdminHeader && <span className="text-sm font-sans font-normal text-gray-500 ml-1">Admin</span>}</span>
                     </Link>
                     {/* Public Desktop Navigation */}
                     {!isAdminHeader && (
@@ -135,7 +135,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                     {!isAdminHeader && (
                         <button
                             onClick={() => setIsSearchOpen(true)}
-                            className={`p-2 rounded-md transition-colors ${isAdminHeader ? 'text-text-main/70 hover:text-accent' : 'text-white/80 hover:text-white'}`}
+                            className={`hidden sm:block p-2 rounded-md transition-colors ${isAdminHeader ? 'text-text-main/70 hover:text-accent' : 'text-white/80 hover:text-white'}`}
                             aria-label={nav.search}
                         >
                             <FiSearch size={20} />
@@ -189,9 +189,9 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                         </div>
                     ) : (
                         <Link href={`/${currentLocale}/login`} passHref>
-                            <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 bg-accent text-primary rounded-lg shadow-sm hover:bg-opacity-90 transition-all font-bold text-sm whitespace-nowrap">
-                                <FiUser size={16} />
-                                <span className="hidden sm:inline">{nav.partnerPortal}</span>
+                            <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 bg-accent text-primary rounded-lg shadow-sm hover:bg-opacity-90 transition-all font-bold text-sm" title={nav.partnerPortal}>
+                                <FiUser size={18} />
+                                <span className="hidden md:inline text-xs sm:text-sm whitespace-nowrap">{nav.partnerPortal}</span>
                             </button>
                         </Link>
                     )}

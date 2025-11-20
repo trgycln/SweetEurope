@@ -27,8 +27,8 @@ const Footer: React.FC<{ dictionary: any }> = ({ dictionary }) => {
           <div className="flex flex-col items-center md:items-end">
              <h4 className="font-bold font-sans tracking-wider uppercase mb-4">{dictionary.navigation.contact}</h4>
              <div className="flex flex-col items-center md:items-end space-y-2 text-sm mb-6">
-               <a href="mailto:info@ElysonSweets.de" className="hover:text-accent transition-colors">info@ElysonSweets.de</a>
-               <a href="tel:+49123456789" className="hover:text-accent transition-colors">+49 (0) 123 456 789</a>
+               <a href="mailto:info@elysonsweets.de" className="hover:text-accent transition-colors">info@elysonsweets.de</a>
+               <p className="text-secondary/80 text-xs max-w-xs md:text-right">Köln merkezliyiz – çok yakında yeni depomuz ve tam adresimizle hizmetinizde olacağız.</p>
              </div>
              <div className="flex items-center justify-center md:justify-end space-x-4 flex-wrap gap-y-2">
                 <a href="#" aria-label={dictionary.socials.instagram} title={dictionary.socials.instagram} className="hover:text-accent transition-colors"><FaInstagram size={22} /></a>
