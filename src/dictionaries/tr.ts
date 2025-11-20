@@ -737,6 +737,15 @@ export const dictionary: Partial<Dictionary> = {
     valueProposition: 'Hemen ücretsiz deneme paketinizi talep edin ve kalitemizi kendiniz görün.',
     ctaButton: 'Ürünleri Keşfedin',
   },
+  productReviews: {
+    noReviews: 'Henüz değerlendirme yok',
+    beFirst: 'Bu ürün için ilk değerlendirmeyi siz yapın!',
+    verifiedBuyer: '✓ Doğrulanmış Alıcı',
+    wasHelpful: 'Bu değerlendirme yardımcı oldu mu?',
+    awaitingApproval: '⏳ Değerlendirmeniz yönetici onayı bekliyor',
+    rejected: '❌ Değerlendirmeniz reddedildi',
+    reason: 'Sebep',
+  },
   footer: {
     legal: 'Yasal',
     impressum: 'Künye',

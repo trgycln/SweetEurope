@@ -85,6 +85,8 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                 ortalamaPuan={ortalamaPuan}
                 degerlendirmeSayisi={degerlendirmeSayisi}
                 mode="public"
+                dictionary={dictionary}
+                locale={locale}
             />
         </>
     );

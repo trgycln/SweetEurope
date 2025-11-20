@@ -903,6 +903,15 @@ statusOptions: {
     valueProposition: 'Fordern Sie jetzt Ihr kostenloses Probierpaket an und überzeugen Sie sich von unserer Qualität.',
     ctaButton: 'Produkte entdecken',
   },
+  productReviews: {
+    noReviews: 'Noch keine Bewertungen',
+    beFirst: 'Seien Sie der Erste, der dieses Produkt bewertet!',
+    verifiedBuyer: '✓ Verifizierter Käufer',
+    wasHelpful: 'War diese Bewertung hilfreich?',
+    awaitingApproval: '⏳ Ihre Bewertung wartet auf Bestätigung',
+    rejected: '❌ Ihre Bewertung wurde abgelehnt',
+    reason: 'Grund',
+  },
   footer: {
     legal: 'Rechtliches',
     impressum: 'Impressum',

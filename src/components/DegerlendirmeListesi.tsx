@@ -8,12 +8,16 @@ interface DegerlendirmeListesiProps {
   degerlendirmeler: Degerlendirme[];
   showVoting?: boolean;
   mode?: 'public' | 'portal';
+  dictionary?: any;
+  locale?: string;
 }
 
 export default function DegerlendirmeListesi({
   degerlendirmeler,
   showVoting = true,
-  mode = 'public'
+  mode = 'public',
+  dictionary,
+  locale = 'de'
 }: DegerlendirmeListesiProps) {
   const [votingStates, setVotingStates] = useState<Record<string, 'helpful' | 'not-helpful' | null>>({});
 
@@ -38,12 +42,22 @@ export default function DegerlendirmeListesi({
     }
   };
 
+  const t = dictionary?.productReviews || {
+    noReviews: 'Henüz değerlendirme yok',
+    beFirst: 'Bu ürün için ilk değerlendirmeyi siz yapın!',
+    verifiedBuyer: '✓ Doğrulanmış Alıcı',
+    wasHelpful: 'Bu değerlendirme yardımcı oldu mu?',
+    awaitingApproval: '⏳ Değerlendirmeniz yönetici onayı bekliyor',
+    rejected: '❌ Değerlendirmeniz reddedildi',
+    reason: 'Sebep'
+  };
+
   if (degerlendirmeler.length === 0) {
     return (
       <div className="text-center py-12 bg-gray-50 rounded-xl">
         <FiStar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500">Henüz değerlendirme yok</p>
-        <p className="text-sm text-gray-400 mt-2">Bu ürün için ilk değerlendirmeyi siz yapın!</p>
+        <p className="text-gray-500">{t.noReviews}</p>
+        <p className="text-sm text-gray-400 mt-2">{t.beFirst}</p>
       </div>
     );
   }
@@ -93,7 +107,7 @@ export default function DegerlendirmeListesi({
                     <>
                       <span className="text-gray-400">•</span>
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        ✓ Doğrulanmış Alıcı
+                        {t.verifiedBuyer}
                       </span>
                     </>
                   )}
@@ -102,7 +116,7 @@ export default function DegerlendirmeListesi({
 
               {/* Tarih */}
               <span className="text-xs text-gray-400">
-                {new Date(degerlendirme.created_at).toLocaleDateString('tr-TR', {
+                {new Date(degerlendirme.created_at).toLocaleDateString(locale === 'de' ? 'de-DE' : locale === 'en' ? 'en-US' : locale === 'ar' ? 'ar-SA' : 'tr-TR', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -141,7 +155,7 @@ export default function DegerlendirmeListesi({
             {/* Yardımcı Oldu Mu? */}
             {showVoting && mode === 'portal' && (
               <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
-                <span className="text-sm text-gray-600">Bu değerlendirme yardımcı oldu mu?</span>
+                <span className="text-sm text-gray-600">{t.wasHelpful}</span>
                 
                 <div className="flex items-center gap-2">
                   <button
@@ -178,14 +192,14 @@ export default function DegerlendirmeListesi({
             {/* Onay Durumu (Sadece kullanıcının kendi değerlendirmesinde görünsün) */}
             {degerlendirme.onay_durumu === 'beklemede' && (
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-                ⏳ Değerlendirmeniz yönetici onayı bekliyor
+                {t.awaitingApproval}
               </div>
             )}
             {degerlendirme.onay_durumu === 'reddedildi' && (
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
-                ❌ Değerlendirmeniz reddedildi
+                {t.rejected}
                 {degerlendirme.red_nedeni && (
-                  <p className="mt-1 text-xs">Sebep: {degerlendirme.red_nedeni}</p>
+                  <p className="mt-1 text-xs">{t.reason}: {degerlendirme.red_nedeni}</p>
                 )}
               </div>
             )}

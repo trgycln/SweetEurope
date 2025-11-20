@@ -719,6 +719,15 @@ export const dictionary: Partial<Dictionary> = {
     valueProposition: 'اطلب الآن حزمة عيناتك المجانية وشاهد جودتنا بنفسك.',
     ctaButton: 'اكتشف المنتجات',
   },
+  productReviews: {
+    noReviews: 'لا توجد تقييمات بعد',
+    beFirst: 'كن أول من يقيم هذا المنتج!',
+    verifiedBuyer: '✓ مشترٍ موثق',
+    wasHelpful: 'هل كان هذا التقييم مفيدا؟',
+    awaitingApproval: '⏳ تقييمك في انتظار الموافقة',
+    rejected: '❌ تم رفض تقييمك',
+    reason: 'السبب',
+  },
   footer: {
     legal: 'قانوني',
     impressum: 'بيانات النشر',

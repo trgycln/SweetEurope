@@ -16,6 +16,8 @@ interface UrunReviewSectionProps {
   ortalamaPuan: number | null;
   degerlendirmeSayisi: number | null;
   mode?: 'public' | 'portal';
+  dictionary?: any;
+  locale?: string;
 }
 
 export function UrunReviewSection({
@@ -23,6 +25,8 @@ export function UrunReviewSection({
   ortalamaPuan,
   degerlendirmeSayisi,
   mode = 'public',
+  dictionary,
+  locale = 'de',
 }: UrunReviewSectionProps) {
   const [degerlendirmeler, setDegerlendirmeler] = useState<Degerlendirme[]>([]);
   const [kullaniciDegerlendirmesi, setKullaniciDegerlendirmesi] = useState<Degerlendirme | null>(null);
@@ -166,6 +170,8 @@ export function UrunReviewSection({
               degerlendirmeler={[kullaniciDegerlendirmesi]}
               showVoting={false}
               mode={mode}
+              dictionary={dictionary}
+              locale={locale}
             />
           </div>
         )}
@@ -182,6 +188,8 @@ export function UrunReviewSection({
               degerlendirmeler={degerlendirmeler}
               showVoting={portalMode}
               mode={mode}
+              dictionary={dictionary}
+              locale={locale}
             />
           )}
         </div>

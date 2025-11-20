@@ -737,6 +737,15 @@ export const dictionary: Partial<Dictionary> = {
     valueProposition: 'Request your free sample package now and see our quality for yourself.',
     ctaButton: 'Discover Products',
   },
+  productReviews: {
+    noReviews: 'No reviews yet',
+    beFirst: 'Be the first to review this product!',
+    verifiedBuyer: '✓ Verified Buyer',
+    wasHelpful: 'Was this review helpful?',
+    awaitingApproval: '⏳ Your review is awaiting approval',
+    rejected: '❌ Your review was rejected',
+    reason: 'Reason',
+  },
   footer: {
     legal: 'Legal',
     impressum: 'Imprint',
