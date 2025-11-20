@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { FiEdit, FiSave, FiX, FiSearch, FiTrash2 } from 'react-icons/fi';
 import { updateUrunOperasyonel, deleteUrun, guncelleUrunGorunurluk } from '@/app/actions/urun-actions';
 import { getLocalizedName, formatCurrency } from '@/lib/utils';
