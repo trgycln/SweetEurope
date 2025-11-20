@@ -723,11 +723,7 @@ export const dictionary: Partial<Dictionary> = {
   socials: {
     instagram: 'Follow us on Instagram',
     facebook: 'Find us on Facebook',
-    pinterest: 'Discover us on Pinterest',
-    twitter: 'Follow us on Twitter',
-    tiktok: 'Follow us on TikTok',
     linkedin: 'Connect with us on LinkedIn',
-    youtube: 'Subscribe to our YouTube channel',
     followUs: 'Follow Us',
   },
   hero: {
@@ -741,6 +737,7 @@ export const dictionary: Partial<Dictionary> = {
     impressum: 'Imprint',
     datenschutz: 'Privacy Policy',
     copyright: '© 2025 ElysonSweets Germany. All rights reserved.',
+    locationNote: 'Location: Cologne – Complete address information coming soon',
   },
   logoAlt: 'ElysonSweets Logo',
   productDetailPage: {

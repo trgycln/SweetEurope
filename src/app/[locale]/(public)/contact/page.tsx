@@ -33,16 +33,9 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
                 <div className="flex items-start gap-4">
                   <FaMapMarkerAlt className="text-accent text-2xl mt-1" />
                   <div>
-                    <h3 className="font-bold font-sans text-primary">Adresse</h3>
-                    <p className="font-sans">{content.address}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <FaMapMarkerAlt className="text-accent text-2xl mt-1" />
-                  <div>
-                    <h3 className="font-bold font-sans text-primary">Konum</h3>
-                    <p className="font-sans">Köln / Deutschland</p>
-                    <p className="font-sans text-xs text-gray-500 mt-1">Çok yakında yeni depomuz ve tam adresimizle hizmetinizde olacağız.</p>
+                    <h3 className="font-bold font-sans text-primary">Standort</h3>
+                    <p className="font-sans">Köln, Deutschland</p>
+                    <p className="font-sans text-xs text-gray-500 mt-1">Vollständige Lageradresse wird in Kürze bekannt gegeben</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">

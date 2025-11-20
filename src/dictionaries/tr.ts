@@ -723,11 +723,7 @@ export const dictionary: Partial<Dictionary> = {
   socials: {
     instagram: 'Bizi Instagram\'da takip edin',
     facebook: 'Bizi Facebook\'ta bulun',
-    pinterest: 'Bizi Pinterest\'te keşfedin',
-    twitter: 'Bizi Twitter\'da takip edin',
-    tiktok: 'Bizi TikTok\'ta takip edin',
     linkedin: 'LinkedIn\'de bizimle bağlantı kurun',
-    youtube: 'YouTube kanalımıza abone olun',
     followUs: 'Bizi Takip Edin',
   },
   hero: {
@@ -741,6 +737,7 @@ export const dictionary: Partial<Dictionary> = {
     impressum: 'Künye',
     datenschutz: 'Veri Gizliliği',
     copyright: '© 2025 ElysonSweets Germany. Tüm hakları saklıdır.',
+    locationNote: 'Konum: Köln – Tam adres bilgileri yakında paylaşılacak',
   },
   logoAlt: 'ElysonSweets Logosu',
   productDetailPage: {

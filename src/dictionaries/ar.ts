@@ -705,11 +705,7 @@ export const dictionary: Partial<Dictionary> = {
   socials: {
     instagram: 'تابعنا على انستجرام',
     facebook: 'تجدنا على فيسبوك',
-    pinterest: 'اكتشفنا على بنترست',
-    twitter: 'تابعنا على تويتر',
-    tiktok: 'تابعنا على تيك توك',
     linkedin: 'تواصل معنا على لينكد إن',
-    youtube: 'اشترك في قناتنا على يوتيوب',
     followUs: 'تابعنا',
   },
   hero: {
@@ -723,6 +719,7 @@ export const dictionary: Partial<Dictionary> = {
     impressum: 'بيانات النشر',
     datenschutz: 'سياسة الخصوصية',
     copyright: '© 2025 ElysonSweets Germany. جميع الحقوق محفوظة.',
+    locationNote: 'الموقع: كولونيا – معلومات العنوان الكاملة قريباً',
   },
   logoAlt: 'شعار ElysonSweets',
   productDetailPage: {

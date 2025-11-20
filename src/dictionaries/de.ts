@@ -889,11 +889,7 @@ statusOptions: {
   socials: {
     instagram: 'Folgen Sie uns auf Instagram',
     facebook: 'Finden Sie uns auf Facebook',
-    pinterest: 'Entdecken Sie uns auf Pinterest',
-    twitter: 'Folgen Sie uns auf Twitter',
-    tiktok: 'Folgen Sie uns auf TikTok',
     linkedin: 'Vernetzen Sie sich mit uns auf LinkedIn',
-    youtube: 'Abonnieren Sie unseren YouTube-Kanal',
     followUs: 'Folgen Sie uns',
   },
   hero: {
@@ -907,6 +903,7 @@ statusOptions: {
     impressum: 'Impressum',
     datenschutz: 'Datenschutz',
     copyright: '© 2025 ElysonSweets Germany. Alle Rechte vorbehalten.',
+    locationNote: 'Standort: Köln – Vollständige Adressinformationen folgen in Kürze',
   },
   logoAlt: 'ElysonSweets Logo',
   productDetailPage: {

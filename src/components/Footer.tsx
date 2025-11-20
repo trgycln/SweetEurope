@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { FaFacebook, FaInstagram, FaTwitter, FaTiktok, FaLinkedin, FaYoutube, FaPinterest } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
 
 const Footer: React.FC<{ dictionary: any }> = ({ dictionary }) => {
   return (
@@ -28,16 +28,12 @@ const Footer: React.FC<{ dictionary: any }> = ({ dictionary }) => {
              <h4 className="font-bold font-sans tracking-wider uppercase mb-4">{dictionary.navigation.contact}</h4>
              <div className="flex flex-col items-center md:items-end space-y-2 text-sm mb-6">
                <a href="mailto:info@elysonsweets.de" className="hover:text-accent transition-colors">info@elysonsweets.de</a>
-               <p className="text-secondary/80 text-xs max-w-xs md:text-right">Köln merkezliyiz – çok yakında yeni depomuz ve tam adresimizle hizmetinizde olacağız.</p>
+               <p className="text-secondary/80 text-xs max-w-xs md:text-right">{dictionary.footer.locationNote}</p>
              </div>
-             <div className="flex items-center justify-center md:justify-end space-x-4 flex-wrap gap-y-2">
-                <a href="#" aria-label={dictionary.socials.instagram} title={dictionary.socials.instagram} className="hover:text-accent transition-colors"><FaInstagram size={22} /></a>
-                <a href="#" aria-label={dictionary.socials.facebook} title={dictionary.socials.facebook} className="hover:text-accent transition-colors"><FaFacebook size={22} /></a>
-                <a href="#" aria-label={dictionary.socials.twitter} title={dictionary.socials.twitter} className="hover:text-accent transition-colors"><FaTwitter size={22} /></a>
-                <a href="#" aria-label={dictionary.socials.tiktok} title={dictionary.socials.tiktok} className="hover:text-accent transition-colors"><FaTiktok size={22} /></a>
-                <a href="#" aria-label={dictionary.socials.linkedin} title={dictionary.socials.linkedin} className="hover:text-accent transition-colors"><FaLinkedin size={22} /></a>
-                <a href="#" aria-label={dictionary.socials.youtube} title={dictionary.socials.youtube} className="hover:text-accent transition-colors"><FaYoutube size={22} /></a>
-                <a href="#" aria-label={dictionary.socials.pinterest} title={dictionary.socials.pinterest} className="hover:text-accent transition-colors"><FaPinterest size={22} /></a>
+             <div className="flex items-center justify-center md:justify-end space-x-4">
+                <a href="https://instagram.com/elysonsweets.de" target="_blank" rel="noopener noreferrer" aria-label="Instagram: @elysonsweets.de" title="Instagram: @elysonsweets.de" className="hover:text-accent transition-colors"><FaInstagram size={24} /></a>
+                <a href="https://facebook.com/elysonsweets.de" target="_blank" rel="noopener noreferrer" aria-label="Facebook: @elysonsweets.de" title="Facebook: @elysonsweets.de" className="hover:text-accent transition-colors"><FaFacebook size={24} /></a>
+                <a href="https://linkedin.com/company/elysonsweets" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn: ElysonSweets" title="LinkedIn: ElysonSweets" className="hover:text-accent transition-colors"><FaLinkedin size={24} /></a>
              </div>
           </div>
         </div>
