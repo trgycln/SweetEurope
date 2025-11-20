@@ -1,7 +1,10 @@
 import React from 'react';
-import { dictionary } from '@/dictionaries/de';
+import { getDictionary } from '@/dictionaries';
+import { Locale } from '@/lib/utils';
 
-export default function ImpressumPage() {
+export default async function ImpressumPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const dictionary = await getDictionary(locale as Locale);
   const content = dictionary.impressumPage;
 
   return (
@@ -30,21 +33,17 @@ export default function ImpressumPage() {
 
             <div>
               <h2 className="text-2xl font-bold font-serif text-primary mb-2">{content.section3Title}</h2>
-              <p>{content.phone}</p>
               <p>{content.email}</p>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold font-serif text-primary mb-2">{content.section4Title}</h2>
-              <p>Eintragung im Handelsregister.</p>
-              <p>Registergericht: {content.registerCourt}</p>
-              <p>Registernummer: {content.registerNumber}</p>
+              <p className="text-sm text-gray-600 italic">{content.registerNote}</p>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold font-serif text-primary mb-2">{content.section5Title}</h2>
-              <p>Umsatzsteuer-Identifikationsnummer gemäß §27 a Umsatzsteuergesetz:</p>
-              <p>{content.vatId}</p>
+              <p className="text-sm text-gray-600 italic">{content.vatNote}</p>
             </div>
             
             <div>

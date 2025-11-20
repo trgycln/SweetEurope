@@ -1,7 +1,10 @@
 import React from 'react';
-import { dictionary } from '@/dictionaries/de';
+import { getDictionary } from '@/dictionaries';
+import { Locale } from '@/lib/utils';
 
-export default function DatenschutzPage() {
+export default async function DatenschutzPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const dictionary = await getDictionary(locale as Locale);
   const content = dictionary.datenschutzPage;
 
   return (
