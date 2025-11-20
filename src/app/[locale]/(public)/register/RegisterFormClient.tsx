@@ -24,7 +24,7 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
         toast.success(
           content.toastSuccess || 'Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.',
           {
-            duration: 5000,
+            duration: 8000, // 8 saniye göster (mobilde daha uzun)
           }
         );
         
@@ -34,13 +34,13 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
         // Optional: redirect after delay
         setTimeout(() => {
           router.push(`/${locale}/`);
-        }, 2000);
+        }, 4000); // 4 saniye sonra yönlendir (toast'ı görmek için yeterli süre)
       } else {
         // Error toast
         toast.error(
           content.toastError || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
           {
-            duration: 4000,
+            duration: 6000, // 6 saniye göster
           }
         );
       }

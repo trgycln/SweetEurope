@@ -19,7 +19,20 @@ export default async function LocaleLayout({
 
   return (
     <LeadGateProvider>
-      <Toaster position="top-center" richColors />
+      <Toaster 
+        position="top-center" 
+        richColors 
+        expand={true}
+        closeButton
+        toastOptions={{
+          style: {
+            padding: '16px',
+            fontSize: '16px',
+            minHeight: '60px',
+          },
+          duration: 5000,
+        }}
+      />
       <Header dictionary={dictionary} />
       <main>{children}</main>
       <Footer dictionary={dictionary} locale={locale} />
