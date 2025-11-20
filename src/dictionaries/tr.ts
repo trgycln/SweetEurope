@@ -695,7 +695,7 @@ export const dictionary: Partial<Dictionary> = {
   },
   categories: {
     title: 'Ürün Kategorilerimiz',
-    subtitle: 'El yapımı nefis lezzetlerimizin seçkin koleksiyonunu keşfedin',
+    subtitle: 'Premium kalitedeki seçkin koleksiyonumuzu keşfedin',
     cakes: 'Pastalar & Kekler',
     desserts: 'Pralinler & Makaronlar',
     pastries: 'İnce Hamur İşleri',
@@ -731,6 +731,11 @@ export const dictionary: Partial<Dictionary> = {
     highlight: 'büyüleyen zanaat.',
     subtitle: 'Lüksü yeniden tanımlayan seçkin pastacılık kreasyonları – işletmeniz için erişilebilir.',
     button: 'Partner Olun',
+    b2bNote: 'Sadece işletmelere satış / B2B Only',
+    mainHeadline: 'Köln’ün yeni premium tatlı ortağı',
+    subHeadline: 'Mükemmel ElysonSweets kalitesini kafenize taşıyoruz.',
+    valueProposition: 'Hemen ücretsiz deneme paketinizi talep edin ve kalitemizi kendiniz görün.',
+    ctaButton: 'Ürünleri Keşfedin',
   },
   footer: {
     legal: 'Yasal',

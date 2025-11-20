@@ -861,7 +861,7 @@ statusOptions: {
   },
   categories: {
     title: 'Unsere Produktkategorien',
-    subtitle: 'Entdecken Sie unsere exquisite Auswahl an handgefertigten Köstlichkeiten',
+    subtitle: 'Entdecken Sie unsere exquisite Auswahl an Premium-Qualität',
     cakes: 'Torten & Kuchen',
     desserts: 'Pralinen & Macarons',
     pastries: 'Feingebäck',
@@ -897,6 +897,11 @@ statusOptions: {
     highlight: 'Ihre Gäste verzaubert.',
     subtitle: 'Erlesene Patisserie-Kreationen, die Luxus neu definieren – zugänglich für Ihr Unternehmen.',
     button: 'Partner Werden',
+    b2bNote: 'Verkauf nur an Gewerbetreibende / B2B Only',
+    mainHeadline: 'Köln’s neuer Partner für Premium-Desserts',
+    subHeadline: 'Wir bringen exklusive ElysonSweets Qualität in Ihr Café.',
+    valueProposition: 'Fordern Sie jetzt Ihr kostenloses Probierpaket an und überzeugen Sie sich von unserer Qualität.',
+    ctaButton: 'Produkte entdecken',
   },
   footer: {
     legal: 'Rechtliches',

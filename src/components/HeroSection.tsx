@@ -46,25 +46,33 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
 
         {/* Main Headline */}
         <h2 className="text-3xl md:text-5xl font-bold text-accent mb-6 drop-shadow-lg">
-          Köln's neuer Partner für Premium-Desserts
+          {dictionary.hero.mainHeadline}
         </h2>
 
         {/* Subheadline */}
         <p className="text-xl md:text-2xl text-white mb-10 max-w-4xl mx-auto drop-shadow-md leading-relaxed">
-          Wir bringen exklusive <span className="font-bold" style={{color: '#FFD700'}}>ElysonSweets Qualität</span> in Ihr Café. 
+          {dictionary.hero.subHeadline}
         </p>
 
         {/* Value Proposition */}
         <div className="bg-white/15 backdrop-blur-md border-2 border-accent/60 rounded-2xl p-6 md:p-10 max-w-3xl mx-auto shadow-2xl mb-10">
           <p className="text-lg md:text-2xl text-white font-semibold leading-relaxed">
-            Fordern Sie jetzt Ihr <span className="text-accent font-bold text-xl md:text-3xl">kostenloses Probierpaket</span> an und überzeugen Sie sich von unserer Qualität.
+            {dictionary.hero.valueProposition}
           </p>
         </div>
 
         {/* CTA Button */}
         <Link href={`/${locale}/products`} className="bg-accent text-primary font-bold py-5 px-10 rounded-xl transition-all duration-300 hover:scale-110 shadow-2xl inline-block text-xl pointer-events-auto">
-          Produkte entdecken
+          {dictionary.hero.ctaButton}
         </Link>
+        
+        {/* B2B Only Note */}
+        <div className="mt-6 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-accent/40 rounded-lg px-4 py-2">
+          <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span className="text-sm font-semibold text-white/90">{dictionary.hero.b2bNote}</span>
+        </div>
       </div>
     </div>
   );

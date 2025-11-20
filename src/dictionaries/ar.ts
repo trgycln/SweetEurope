@@ -677,7 +677,7 @@ export const dictionary: Partial<Dictionary> = {
   },
   categories: {
     title: 'فئات منتجاتنا',
-    subtitle: 'اكتشف مجموعتنا الرائعة من الحلويات المصنوعة يدويًا',
+    subtitle: 'اكتشف مجموعتنا الرائعة من الجودة العالية',
     cakes: 'الكعك والتورتات',
     desserts: 'الشوكولاتة والماكارون',
     pastries: 'المعجنات الفاخرة',
@@ -713,6 +713,11 @@ export const dictionary: Partial<Dictionary> = {
     highlight: 'تبهر ضيوفك.',
     subtitle: 'إبداعات حلويات راقية تعيد تعريف الفخامة - متاحة لعملك.',
     button: 'كن شريكاً',
+    b2bNote: 'البيع للشركات فقط / B2B Only',
+    mainHeadline: 'شريك كولونيا الجديد للحلويات الفاخرة',
+    subHeadline: 'نحضر جودة ElysonSweets الحصرية إلى مقهاك.',
+    valueProposition: 'اطلب الآن حزمة عيناتك المجانية وشاهد جودتنا بنفسك.',
+    ctaButton: 'اكتشف المنتجات',
   },
   footer: {
     legal: 'قانوني',

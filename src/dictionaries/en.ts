@@ -695,7 +695,7 @@ export const dictionary: Partial<Dictionary> = {
   },
   categories: {
     title: 'Our Product Categories',
-    subtitle: 'Discover our exquisite selection of handcrafted delicacies',
+    subtitle: 'Discover our exquisite selection of premium quality',
     cakes: 'Cakes & Tarts',
     desserts: 'Chocolates & Macarons',
     pastries: 'Fine Pastries',
@@ -731,6 +731,11 @@ export const dictionary: Partial<Dictionary> = {
     highlight: 'enchants your guests.',
     subtitle: 'Exquisite patisserie creations that redefine luxury – accessible for your business.',
     button: 'Become a Partner',
+    b2bNote: 'Sales to businesses only / B2B Only',
+    mainHeadline: 'Cologne’s new partner for premium desserts',
+    subHeadline: 'We bring exclusive ElysonSweets quality to your café.',
+    valueProposition: 'Request your free sample package now and see our quality for yourself.',
+    ctaButton: 'Discover Products',
   },
   footer: {
     legal: 'Legal',
