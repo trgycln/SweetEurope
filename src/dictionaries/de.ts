@@ -56,6 +56,8 @@ export const dictionary = {
     unauthorizedError: 'Sie sind nicht berechtigt, auf diese Seite zuzugreifen.',
     rememberMe: 'Angemeldet bleiben',
     backToWebsite: 'Zurück zur Website',
+    noAccountYet: 'Noch kein Partner?',
+    becomePartner: 'Jetzt Partner werden',
   },
 
   portal: {
@@ -722,6 +724,10 @@ statusOptions: {
     submitting: 'Wird gesendet...',
     successTitle: 'Vielen Dank!',
     successMessage: 'Ihr Antrag wurde erfolgreich übermittelt. Wir werden ihn prüfen und uns in Kürze bei Ihnen melden.',
+    errorTitle: 'Fehler',
+    errorMessage: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.',
+    toastSuccess: 'Vielen Dank für Ihre Anfrage! Wir werden uns in Kürze bei Ihnen melden.',
+    toastError: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.',
     backToLogin: 'Zurück zum Login',
   },
   newOrderPage: {

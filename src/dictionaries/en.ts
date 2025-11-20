@@ -76,6 +76,8 @@ export const dictionary: Partial<Dictionary> = {
     unauthorizedError: 'You are not authorized to access this page.',
     rememberMe: 'Stay logged in',
     backToWebsite: 'Back to Website',
+    noAccountYet: 'Not a partner yet?',
+    becomePartner: 'Become a Partner Now',
   },
   portal: {
     productDetailPage: {
@@ -639,6 +641,10 @@ export const dictionary: Partial<Dictionary> = {
     submitting: 'Sending...',
     successTitle: 'Thank You!',
     successMessage: 'Your application has been submitted successfully. We will review it and get back to you shortly.',
+    errorTitle: 'Error',
+    errorMessage: 'An error occurred. Please try again later.',
+    toastSuccess: 'Thank you for your application! We will contact you shortly.',
+    toastError: 'An error occurred. Please try again later.',
     backToLogin: 'Back to Login',
   },
   newOrderPage: {

@@ -76,6 +76,8 @@ export const dictionary: Partial<Dictionary> = {
     unauthorizedError: 'ليس لديك الصلاحية للوصول إلى هذه الصفحة.',
     rememberMe: 'تذكرني',
     backToWebsite: 'العودة إلى الموقع',
+    noAccountYet: 'لست شريكًا بعد؟',
+    becomePartner: 'كن شريكًا الآن',
   },
   portal: {
     productDetailPage: {
@@ -621,6 +623,10 @@ export const dictionary: Partial<Dictionary> = {
     submitting: 'جاري الإرسال...',
     successTitle: 'شكرًا لك!',
     successMessage: 'تم إرسال طلبك بنجاح. سنقوم بمراجعته والرد عليك قريبًا.',
+    errorTitle: 'خطأ',
+    errorMessage: 'حدث خطأ. يرجى المحاولة مرة أخرى لاحقًا.',
+    toastSuccess: 'شكرًا لطلبك! سنتواصل معك قريبًا.',
+    toastError: 'حدث خطأ. يرجى المحاولة مرة أخرى لاحقًا.',
     backToLogin: 'العودة لتسجيل الدخول',
   },
   newOrderPage: {

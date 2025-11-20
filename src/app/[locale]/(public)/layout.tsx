@@ -5,6 +5,7 @@ import { getDictionary } from '@/dictionaries';
 import { LeadGateProvider } from '@/contexts/LeadGateContext';
 import { Header } from '@/components/Header';
 import Footer from '@/components/Footer';
+import { Toaster } from 'sonner';
 
 export default async function LocaleLayout({
   children,
@@ -18,6 +19,7 @@ export default async function LocaleLayout({
 
   return (
     <LeadGateProvider>
+      <Toaster position="top-center" richColors />
       <Header dictionary={dictionary} />
       <main>{children}</main>
       <Footer dictionary={dictionary} locale={locale} />

@@ -76,6 +76,8 @@ export const dictionary: Partial<Dictionary> = {
     unauthorizedError: 'Bu sayfaya erişim yetkiniz yok.',
     rememberMe: 'Oturumu açık tut',
     backToWebsite: 'Web Sitesine Dön',
+    noAccountYet: 'Henüz ortağımız değil misiniz?',
+    becomePartner: 'Şimdi Ortak Olun',
   },
   portal: {
     productDetailPage: {
@@ -691,6 +693,10 @@ export const dictionary: Partial<Dictionary> = {
     submitting: 'Gönderiliyor...',
     successTitle: 'Teşekkür ederiz!',
     successMessage: 'Başvurunuz başarıyla iletildi. İnceleyip kısa süre içinde size geri dönüş yapacağız.',
+    errorTitle: 'Hata',
+    errorMessage: 'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
+    toastSuccess: 'Başvurunuz için teşekkürler! En kısa sürede sizinle iletişime geçeceğiz.',
+    toastError: 'Bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
     backToLogin: 'Giriş Ekranına Dön',
   },
   newOrderPage: {

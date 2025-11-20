@@ -99,6 +99,22 @@ export default function LoginForm({ dictionary }: { dictionary: Dictionary }) {
                     </div>
                 </form>
                 
+                {/* Partner werden link */}
+                <div className="text-center">
+                    <p className="text-sm text-text-main/70 mb-2">
+                        {content.noAccountYet || 'Noch kein Partner?'}
+                    </p>
+                    <Link 
+                        href="/de/register" 
+                        className="inline-flex items-center gap-2 text-accent font-semibold hover:underline transition-colors"
+                    >
+                        {content.becomePartner || 'Jetzt Partner werden'}
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </Link>
+                </div>
+                
                 {/* Link to public site */}
                 <div className="text-center">
                     <Link 

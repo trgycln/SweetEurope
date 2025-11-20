@@ -11,8 +11,8 @@
     "import:market": "node scripts/import-market-csv.mjs",
     "import:pasta": "node scripts/import-market-csv.mjs --file pasta.csv",
     "import:kahve": "node scripts/import-market-csv.mjs --file kahve.csv --categoryTr=\"Kahve & İçecekler\" --categoryDe=\"Kaffee & Getränke\" --categoryEn=\"Coffee & Drinks\"",
-    "import:otel": "node scripts/import-market-csv.mjs --file otel.csv"
-    ,"update:dist-prices": "node scripts/update-distributor-prices-from-csv.mjs"
+    "import:otel": "node scripts/import-market-csv.mjs --file otel.csv",
+    "update:dist-prices": "node scripts/update-distributor-prices-from-csv.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -33,7 +33,6 @@
     "react": "19.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "19.1.0",
-    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "recharts": "^3.3.0",
     "sonner": "^2.0.7",

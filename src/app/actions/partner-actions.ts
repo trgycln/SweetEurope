@@ -1,14 +1,12 @@
 'use server';
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { Enums, TablesInsert } from '@/lib/supabase/database.types';
 import { revalidatePath } from 'next/cache';
-import { sendNotification } from '@/lib/notificationUtils';
-import { cookies } from 'next/headers';
 
 export type PartnerApplicationPayload = {
   unvan: string;
-  contact_person?: string | null; // şu an saklamıyoruz; notlara ekleyeceğiz
+  contact_person?: string | null;
   email: string;
   telefon?: string | null;
   adres?: string | null;
@@ -19,8 +17,12 @@ export type PartnerApplicationPayload = {
 
 export async function submitPartnerApplication(formData: FormData): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
-    const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
+    // Use service role to bypass RLS for public form submissions
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    );
 
     const unvan = (formData.get('unvan') || '').toString().trim();
     const contact_person = (formData.get('contact_person') || '').toString().trim();
@@ -52,31 +54,7 @@ export async function submitPartnerApplication(formData: FormData): Promise<{ su
 
     if (error || !firma) {
       console.error('Partner başvurusu ekleme hatası:', error);
-      return { success: false, error: 'Başvurunuz kaydedilemedi.' };
-    }
-
-    // Başvuruya dair notu etkinliklere kaydetmeye çalış (opsiyonel; RLS engellerse sessiz geç)
-    try {
-      if (message || contact_person) {
-        const aciklama = `Yeni partner başvurusu alındı.\nİlgili kişi: ${contact_person || '-'}\nNot: ${message || '-'}`;
-        // Not: etkinlikler tablosu olusturan_personel_id ister; anon başvurularda yok.
-        // Bu yüzden burada özel bir sistem kullanıcısı yoksa atlamayı tercih ediyoruz.
-      }
-    } catch (e) {
-      console.warn('Etkinlik oluşturulamadı (opsiyonel):', e);
-    }
-
-    // Yönetime bildirim gönder (opsiyonel hataları yut)
-    try {
-      const mesaj = `${unvan} adlı firmadan yeni bir partner başvurusu alındı.`;
-      await sendNotification({
-        aliciRol: ['Yönetici', 'Ekip Üyesi'],
-        icerik: mesaj,
-        link: `/admin/crm/firmalar?status_not_in=${encodeURIComponent('Anlaşma Sağlandı,Pasif')}`,
-        supabaseClient: supabase,
-      });
-    } catch (e) {
-      console.warn('Bildirim gönderilemedi (opsiyonel):', e);
+      return { success: false, error: error?.message || 'Başvurunuz kaydedilemedi.' };
     }
 
     // Admin sayfalarını yenile (varsa)
@@ -108,9 +86,11 @@ export async function registerSubmit(formData: FormData): Promise<void> {
   const res = await submitPartnerApplication(formData);
   const locale = (formData.get('locale') || '').toString() || 'de';
   const { redirect } = await import('next/navigation');
+  
   if (res.success) {
     redirect(`/${locale}/register?success=1`);
   } else {
-    // Hata durumunda aynı sayfada kal; ileride client-side toast eklenebilir
+    // Hata durumunda da redirect yap ama error parametresiyle
+    redirect(`/${locale}/register?error=${encodeURIComponent(res.error || 'unknown')}`);
   }
 }
