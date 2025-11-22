@@ -3,17 +3,17 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { DashboardKpiCard } from '@/components/portal/dashboard/DashboardKpiCard';
-import { RecentOrders } from '@/components/portal/dashboard/RecentOrders';
+import { ActiveOrdersList } from '@/components/portal/dashboard/ActiveOrdersList';
 import { Announcements } from '@/components/portal/dashboard/Announcements';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 import { HizliSiparisClient } from '@/components/portal/dashboard/HizliSiparisClient';
 import { MarketingMaterialsWidget } from '@/components/portal/dashboard/MarketingMaterialsWidget';
 import { QuickActionsCard } from '@/components/portal/dashboard/QuickActionsCard';
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
-import { Database, Tables, Enums } from '@/lib/supabase/database.types'; // Import für Typisierung
+import { MiniStatsBar } from '@/components/portal/dashboard/MiniStatsBar';
+import { cookies } from 'next/headers';
+import { unstable_noStore as noStore } from 'next/cache';
+import { Database, Tables, Enums } from '@/lib/supabase/database.types';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,16 +31,23 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
     // --- ENDE KORREKTUR ---
 
     const dictionary = await getDictionary(locale);
-    // Sicherer Zugriff auf das Dictionary mit Fallbacks
-    const content = (dictionary as any).portal?.dashboard || {
-        welcome: "Willkommen",
-        subtitle: "Übersicht Ihrer Aktivitäten.",
-        openOrders: "Offene Bestellungen",
-        myFavorites: "Meine Favoriten",
-        openSampleRequests: "Offene Musteranfragen",
-        viewFavorites: "Favoriten ansehen",
-        viewRequests: "Anfragen ansehen",
-        viewOpenOrders: "Offene Bestellungen anzeigen",
+    const content = (dictionary as any).portal?.dashboard || {};
+    const orderStatusTranslations = (dictionary as any).orderStatuses || {};
+    
+    // Labels for components
+    const miniStatsLabels = {
+        activeOrders: content.miniStats?.activeOrders || 'Active Orders',
+        sampleRequests: content.miniStats?.sampleRequests || 'Sample Requests',
+        favorites: content.miniStats?.favorites || 'Favorites',
+    };
+    
+    const activeOrdersLabels = {
+        title: content.activeOrdersList?.title || 'My Active Orders',
+        orderId: content.activeOrdersList?.orderId || 'Order',
+        viewDetails: content.activeOrdersList?.viewDetails || 'Details',
+        reorder: content.activeOrdersList?.reorder || 'Reorder',
+        noActiveOrders: content.activeOrdersList?.noActiveOrders || 'No active orders.',
+        viewAll: content.activeOrdersList?.viewAll || 'View All',
     };
 
     const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
@@ -114,60 +121,52 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
     });
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <header>
-                <h1 className="font-serif text-4xl font-bold text-primary">{content.welcome}</h1>
-                <p className="text-text-main/80 mt-1">{content.subtitle}</p>
+                <h1 className="font-serif text-4xl font-bold text-primary">
+                    {content.welcome || "Willkommen"}
+                </h1>
+                <p className="text-text-main/80 mt-1">
+                    {content.subtitle || "Übersicht Ihrer Aktivitäten."}
+                </p>
             </header>
 
-            {/* --- KPI Karten --- */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* 1. Offene Bestellungen */}
-                <DashboardKpiCard
-                    title={content.openOrders}
-                    value={openOrderCount}
-                    icon="truck"
-                    color="orange"
-                    href={`/${locale}/portal/siparisler?filter=offen`}
-                    linkText={content.viewOpenOrders}
-                />
-                {/* 2. Meine Favoriten */}
-                <DashboardKpiCard
-                    title={content.myFavorites}
-                    value={favoritesCount}
-                    icon="heart"
-                    color="red"
-                    href={`/${locale}/portal/katalog?favoriten=true`}
-                    linkText={content.viewFavorites}
-                />
-                {/* 3. Offene Musteranfragen */}
-                <DashboardKpiCard
-                    title={content.openSampleRequests}
-                    value={openRequestsCount}
-                    icon="beaker" // (Faustregel: FiBeaker)
-                    color="blue"
-                    href={`/${locale}/portal/taleplerim`}
-                    linkText={content.viewRequests}
-                />
-            </div>
-            {/* --- Ende KPI Karten --- */}
+            {/* Mini Stats Bar - Compact overview at top */}
+            <MiniStatsBar
+                activeOrdersCount={openOrderCount}
+                sampleRequestsCount={openRequestsCount}
+                favoritesCount={favoritesCount}
+                locale={locale}
+                labels={miniStatsLabels}
+            />
 
-            {/* Hauptinhalt Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-8">
-                    {/* Schnellbestellung (Client Komponente) */}
-                    <HizliSiparisClient urunler={hizliSiparisUrunler} locale={locale} dictionary={dictionary} />
-                    {/* Letzte Bestellungen (Client Komponente) */}
-                    <RecentOrders firmaId={firmaId} locale={locale} />
+            {/* Main Content Grid: Active Orders (left) + Quick Actions (right) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left: Active Orders List (Priority Focus) - Takes 2 columns */}
+                <div className="lg:col-span-2">
+                    <ActiveOrdersList
+                        firmaId={firmaId}
+                        locale={locale}
+                        labels={activeOrdersLabels}
+                        orderStatusTranslations={orderStatusTranslations}
+                    />
                 </div>
-                <div className="space-y-8">
-                    {/* Schnellaktionen (Client Komponente) */}
+
+                {/* Right: Quick Actions + Announcements + Materials */}
+                <div className="space-y-6">
                     <QuickActionsCard locale={locale} dictionary={dictionary} />
-                    {/* Ankündigungen (Client Komponente) */}
                     <Announcements locale={locale} />
-                    {/* Marketingmaterial (Client Komponente) */}
                     <MarketingMaterialsWidget locale={locale} />
                 </div>
+            </div>
+
+            {/* Bottom Section: Fast Order (Frequently Ordered Items) */}
+            <div className="mt-8">
+                <HizliSiparisClient 
+                    urunler={hizliSiparisUrunler} 
+                    locale={locale} 
+                    dictionary={dictionary} 
+                />
             </div>
         </div>
     );

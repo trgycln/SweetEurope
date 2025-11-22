@@ -17,6 +17,7 @@ export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamis
 
 // Typ für die Firma inklusive verknüpfter Daten
 type FirmaRow = Tables<'firmalar'> & {
+    kaynak?: string | null;
     sorumlu_personel: {
         tam_ad: string | null;
     } | null;
@@ -116,7 +117,8 @@ export default async function FirmalarListPage({
     }
 
     // Daten abrufen
-    const { data: firmalar, error } = await query.order('unvan', { ascending: true });
+    // Order newest first so fresh leads are visible
+    const { data: firmalar, error } = await query.order('created_at', { ascending: false });
 
     // Fehlerbehandlung
     if (error) {
@@ -124,7 +126,7 @@ export default async function FirmalarListPage({
         return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Fehler beim Laden der Firmenliste. Details: {error.message}</div>;
     }
 
-    const firmaListesi: FirmaRow[] = firmalar || [];
+    const firmaListesi = (firmalar || []) as any[];
     const firmaSayisi = firmaListesi.length;
     // Status-Optionen dynamisch aus Enum oder Konstanten holen
     const statusOptions = Object.keys(STATUS_RENKLERI) as FirmaStatus[]; // Oder aus Constants.public.Enums.firma_status
@@ -159,20 +161,18 @@ export default async function FirmalarListPage({
                     <h2 className="font-serif text-2xl font-semibold text-primary">
                         {searchQuery || statusFilter || statusNotInFilter.length > 0 
                             ? F.noCompaniesFilterTitle
-                                : F.noCompaniesTitle
-                        }
+                            : F.noCompaniesTitle}
                     </h2>
                     <p className="mt-2 text-gray-600">
                         {searchQuery || statusFilter || statusNotInFilter.length > 0 
                             ? F.noCompaniesFilterDesc
-                            : F.noCompaniesDesc
-                        }
+                            : F.noCompaniesDesc}
                     </p>
                 </div>
             ) : (
-                <div>
-                    {/* Mobile Ansicht (Karten) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-6">
+                <>
+                    {/* Mobile Kartenansicht */}
+                    <div className="lg:hidden space-y-4">
                         {firmaListesi.map((firma) => (
                             <Link key={firma.id} href={`/${locale}/admin/crm/firmalar/${firma.id}`} className="block bg-white rounded-lg shadow-lg p-5 border-l-4 border-accent hover:shadow-xl hover:-translate-y-1 transition-all">
                                 <div className="flex justify-between items-start">
@@ -186,11 +186,11 @@ export default async function FirmalarListPage({
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
                                     <div className="flex items-center gap-2 text-gray-700">
-                                        <FiPhone size={14} className="text-gray-400"/>
+                                        <FiPhone size={14} className="text-gray-400" />
                                         <span>{firma.telefon || F.noPhone}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-700">
-                                        <FiUsers size={14} className="text-gray-400"/>
+                                        <FiUsers size={14} className="text-gray-400" />
                                         <span>{F.responsiblePerson}{firma.sorumlu_personel?.tam_ad || F.notAssigned}</span>
                                     </div>
                                 </div>
@@ -198,16 +198,18 @@ export default async function FirmalarListPage({
                         ))}
                     </div>
 
-                    {/* Desktop Ansicht (Tabelle - KORRIGIERT ohne Whitespace/Kommentare) */}
+                    {/* Desktop Tabelle */}
                     <div className="hidden lg:block overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
                                     {[
-                                        F.companyName, 
-                                        F.category, 
-                                        F.phone, 
-                                        F.responsible, 
+                                        F.companyName,
+                                        'Kaynak',
+                                        'Kayıt Tarihi',
+                                        F.category,
+                                        F.phone,
+                                        F.responsible,
                                         F.status
                                     ].map(header => (
                                         <th key={header} scope="col" className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -220,9 +222,21 @@ export default async function FirmalarListPage({
                                 {firmaListesi.map((firma) => (
                                     <tr key={firma.id} className="hover:bg-gray-50/50 transition-colors duration-150">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
-                                            <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`} className="hover:underline text-accent">
+                                            <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`} className="hover:underline text-accent flex items-center gap-2">
                                                 {firma.unvan}
+                                                {firma.created_at && (Date.now() - new Date(firma.created_at).getTime() < 1000 * 60 * 60 * 48) && (
+                                                    <span className="animate-pulse bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">YENİ</span>
+                                                )}
                                             </Link>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-xs text-text-main">
+                                            {(firma as any).kaynak === 'web' && (
+                                                <span className="bg-blue-600/10 text-blue-700 border border-blue-600/30 rounded-full px-2 py-0.5 font-semibold text-[10px]">WEB</span>
+                                            )}
+                                            {!(firma as any).kaynak && <span className="text-gray-400 text-[10px]">-</span>}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-xs text-text-main">
+                                            {firma.created_at ? new Date(firma.created_at).toLocaleDateString(locale === 'de' ? 'de-DE' : 'tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.kategori || '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.telefon || '-'}</td>
@@ -237,7 +251,7 @@ export default async function FirmalarListPage({
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </>
             )}
         </div>
     );

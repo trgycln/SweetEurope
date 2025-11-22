@@ -36,8 +36,8 @@ export default async function FirmaDetailLayout({
 
     // Fehlerbehandlung für Firma-Abruf
     if (firmaError || !firma) {
-        console.error(`Firma nicht gefunden oder Fehler bei Abruf für ID ${firmaId}:`, firmaError);
-        notFound(); // Zeigt die 404-Seite an
+        // Firma wurde gelöscht oder existiert nicht - zur 404 weiterleiten
+        notFound();
     }
 
     // Dictionary laden

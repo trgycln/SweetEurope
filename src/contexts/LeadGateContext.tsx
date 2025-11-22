@@ -31,10 +31,10 @@ type LeadGateContextType = {
 const LeadGateContext = createContext<LeadGateContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  unlocked: 'lead_unlocked_v1',
-  waitlistId: 'lead_waitlist_id_v1',
-  cart: 'sample_cart_v1',
-  dismissed: 'lead_modal_dismissed_v1',
+  unlocked: 'lead_unlocked_v2',
+  waitlistId: 'lead_waitlist_id_v2',
+  cart: 'sample_cart_v2',
+  dismissed: 'lead_modal_dismissed_v2',
 };
 
 export function LeadGateProvider({ children }: { children: React.ReactNode }) {
@@ -97,10 +97,25 @@ export function LeadGateProvider({ children }: { children: React.ReactNode }) {
     if (!mounted || typeof window === 'undefined') return;
     try {
       const dismissed = localStorage.getItem(STORAGE_KEYS.dismissed) === '1';
+      const unlockedValue = localStorage.getItem(STORAGE_KEYS.unlocked);
+      
+      console.log('🔍 Lead Gate Check:', {
+        mounted,
+        unlocked,
+        unlockedValue,
+        dismissed,
+        willShow: !unlocked && !dismissed
+      });
+      
       if (!unlocked && !dismissed) {
+        console.log('✅ Opening lead modal in 600ms...');
         setTimeout(() => setIsLeadModalOpen(true), 600);
+      } else {
+        console.log('❌ Lead modal will NOT open:', { unlocked, dismissed });
       }
-    } catch {}
+    } catch (err) {
+      console.error('Lead gate error:', err);
+    }
     // only on first mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted]);

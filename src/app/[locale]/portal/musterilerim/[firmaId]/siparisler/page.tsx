@@ -41,30 +41,46 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return <div className="p-6 text-red-500">Oturum bulunamadı.</div>;
 
+    // Kullanıcının bayi firma kimliği
+    const { data: profil } = await supabase
+        .from('profiller')
+        .select('firma_id')
+        .eq('id', user.id)
+        .single();
+
     const dictionary = await getDictionary(locale);
     const orderStatusTranslations = dictionary.orderStatuses || {};
 
-    // Siparişler ve Satışları paralel olarak getir
+    // Siparişler ve Alt Bayi Satışlarını (Ön Fatura) paralel getir
     const [siparislerRes, satislarRes] = await Promise.all([
         supabase
             .from('siparisler')
             .select('*')
             .eq('firma_id', firmaId)
             .order('siparis_tarihi', { ascending: false }),
-        supabase
-            .from('alt_bayi_satislar')
-            .select('*')
-            .eq('firma_id', firmaId)
-            .eq('sahip_id', user.id)
-            .order('satis_tarihi', { ascending: false })
+        profil?.firma_id
+            ? supabase
+                .from('alt_bayi_satislar')
+                .select('*')
+                .eq('bayi_firma_id', profil.firma_id)
+                .eq('musteri_id', firmaId)
+                .order('created_at', { ascending: false })
+            : { data: null, error: null }
     ]);
 
     const { data: siparislerData, error: siparislerError } = siparislerRes;
     const { data: satislarData, error: satislarError } = satislarRes;
 
+    const extractErrorMessage = (err: any) => {
+        if (!err) return '';
+        return err.message || err.details || err.hint || err.code || (typeof err === 'string' ? err : JSON.stringify(err));
+    };
+
     if (siparislerError || satislarError) {
-        console.error("Siparişler/Satışlar yüklenirken hata:", siparislerError || satislarError);
-        return <div className="p-4 bg-red-100 text-red-700 rounded border border-red-300">Veriler yüklenemedi. Hata: {(siparislerError || satislarError)?.message}</div>;
+        const err = siparislerError || satislarError;
+        console.error("Siparişler/Satışlar yüklenirken hata (raw):", err);
+        console.error("Siparişler/Satışlar yüklenirken hata (parsed):", extractErrorMessage(err));
+        return <div className="p-4 bg-red-100 text-red-700 rounded border border-red-300">Veriler yüklenemedi. Hata: {extractErrorMessage(err) || 'Bilinmeyen hata'}</div>;
     }
 
     const siparisler: Siparis[] = siparislerData || [];
@@ -98,7 +114,7 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
                 </Link>
             </div>
 
-            {/* Satışlar Tablosu (Alt Bayi Satışları) */}
+            {/* Alt Bayi Satışları (Ön Fatura) */}
             {satislar.length > 0 && (
                 <div>
                     <h3 className="text-lg font-bold text-gray-800 mb-4">Satışlar (Ön Fatura)</h3>
@@ -107,9 +123,10 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
                             <thead className="bg-green-50">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tarih</th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Açıklama</th>
-                                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Tutar</th>
-                                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Tip</th>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Durum</th>
+                                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Net</th>
+                                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">KDV</th>
+                                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Brüt</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -117,18 +134,19 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
                                     <tr key={satis.id} className="hover:bg-gray-50/50 transition-colors">
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                                             <FiCalendar className="inline mr-1.5 -mt-0.5 text-gray-400" />
-                                            {formatDate(satis.satis_tarihi)}
+                                            {formatDate(satis.created_at)}
                                         </td>
-                                        <td className="px-4 py-4 text-sm text-gray-600">
-                                            {satis.aciklama || '-'}
+                                        <td className="px-4 py-4 whitespace-nowrap text-xs">
+                                            <span className="inline-flex px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-semibold">{satis.durum}</span>
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold text-right">
-                                            {formatCurrency(satis.toplam_tutar)}
+                                            {formatCurrency(satis.toplam_net)}
                                         </td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-center">
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-                                                Satış
-                                            </span>
+                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold text-right">
+                                            {formatCurrency(satis.toplam_kdv)}
+                                        </td>
+                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold text-right">
+                                            {formatCurrency(satis.toplam_brut)}
                                         </td>
                                     </tr>
                                 ))}

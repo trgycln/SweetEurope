@@ -33,7 +33,7 @@ export function PortalSidebar({ userRole, isOpen, setIsOpen, dictionary }: Sideb
       { name: content.products, href: '/portal/katalog', icon: FiBox },
       { name: content.requests, href: '/portal/taleplerim', icon: FiArchive },
       { name: content.materials || "Materialien", href: '/portal/materialien', icon: FiPaperclip },
-      { name: content.performance, href: '/portal/analiz', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
+      { name: content.reports || "Raporlar", href: '/portal/raporlar', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
       // Profil en altta
       { name: 'Profil', href: '/portal/profil', icon: FiUser },
     ];

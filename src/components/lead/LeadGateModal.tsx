@@ -51,7 +51,12 @@ export default function LeadGateModal() {
     setLoading(true);
     setError(null);
     try {
-      const res = await submitWaitlistForm({ firma_adi, yetkili_kisi, email });
+      const res = await submitWaitlistForm({ 
+        firma_adi, 
+        yetkili_kisi, 
+        email,
+        telefon: telefon || undefined 
+      });
       if (!res.success || !res.id) {
         setError(res.message || 'Fehler');
         setLoading(false);

@@ -6,6 +6,7 @@ export interface WaitlistFormData {
   firma_adi: string;
   yetkili_kisi: string;
   email: string;
+  telefon?: string;
 }
 
 export interface WaitlistResponse {
@@ -35,23 +36,25 @@ export async function submitWaitlistForm(
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // waitlist tablosuna kaydet
-    const { data, error } = await supabase
-      .from('waitlist')
+    // 1. İlk önce firmalar tablosuna "Potansiyel" olarak kaydet
+    const { data: firma, error: firmaError } = await supabase
+      .from('firmalar')
       .insert({
-        firma_adi: formData.firma_adi,
-        yetkili_kisi: formData.yetkili_kisi,
+        unvan: formData.firma_adi,
         email: formData.email,
-        durum: 'beklemede',
+        telefon: formData.telefon || null,
+        status: 'Potansiyel', // Yeni web potansiyel kaydı
+        kaynak: 'web', // Kaynak izleme
+        // Not: contact_person yetkili kişi bilgisi waitlist tablosunda tutuluyor
       })
       .select()
       .single();
 
-    if (error) {
-      console.error('Waitlist kayıt hatası:', error);
+    if (firmaError) {
+      console.error('Firma kayıt hatası:', firmaError);
       
       // Email zaten kayıtlıysa özel mesaj
-      if (error.code === '23505') { // unique constraint violation
+      if (firmaError.code === '23505') { // unique constraint violation
         return {
           success: false,
           message: 'Diese E-Mail-Adresse ist bereits registriert.',
@@ -59,6 +62,28 @@ export async function submitWaitlistForm(
         };
       }
       
+      return {
+        success: false,
+        message: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.',
+        error: firmaError.message,
+      };
+    }
+
+    // 2. Sonra waitlist tablosuna kaydet
+    const { data, error } = await supabase
+      .from('waitlist')
+      .insert({
+        firma_adi: formData.firma_adi,
+        yetkili_kisi: formData.yetkili_kisi,
+        email: formData.email,
+        durum: 'beklemede',
+        firma_id: firma?.id, // Firma ID'sini bağla
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Waitlist kayıt hatası:', error);
       return {
         success: false,
         message: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.',
