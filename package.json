@@ -12,7 +12,8 @@
     "import:pasta": "node scripts/import-market-csv.mjs --file pasta.csv",
     "import:kahve": "node scripts/import-market-csv.mjs --file kahve.csv --categoryTr=\"Kahve & İçecekler\" --categoryDe=\"Kaffee & Getränke\" --categoryEn=\"Coffee & Drinks\"",
     "import:otel": "node scripts/import-market-csv.mjs --file otel.csv",
-    "update:dist-prices": "node scripts/update-distributor-prices-from-csv.mjs"
+    "update:dist-prices": "node scripts/update-distributor-prices-from-csv.mjs",
+    "update-types": "npx supabase gen types typescript --project-id atydffkpyvxcmzxyibhj --schema public > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -51,6 +52,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "postcss": "^8.4.38",
+    "supabase": "^2.58.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

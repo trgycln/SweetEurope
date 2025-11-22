@@ -28,6 +28,49 @@ export async function addGiderAction(formData: FormData, locale: string) {
   return { success: true };
 }
 
+export async function updateGiderAction(giderId: string, formData: FormData, locale: string) {
+  const cookieStore = cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Oturum bulunamadı.' };
+
+  const tarih = formData.get('gider_tarih')?.toString() || '';
+  const kategori = formData.get('gider_kategori')?.toString() || null;
+  const aciklama = formData.get('gider_aciklama')?.toString() || null;
+  const tutar = Number(formData.get('gider_tutar') || 0);
+
+  if (!tarih || !tutar) return { success: false, error: 'Tarih ve tutar zorunludur.' };
+
+  const { error } = await supabase
+    .from('alt_bayi_giderleri')
+    .update({ tarih, kategori, aciklama, tutar })
+    .eq('id', giderId)
+    .eq('sahip_id', user.id);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath(`/${locale}/portal/finanslarim`);
+  return { success: true };
+}
+
+export async function deleteGiderAction(giderId: string, locale: string) {
+  const cookieStore = cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Oturum bulunamadı.' };
+
+  const { error } = await supabase
+    .from('alt_bayi_giderleri')
+    .delete()
+    .eq('id', giderId)
+    .eq('sahip_id', user.id);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath(`/${locale}/portal/finanslarim`);
+  return { success: true };
+}
+
 type AddSatisPayload = {
   bayiFirmaId: string;
   musteriId: string;

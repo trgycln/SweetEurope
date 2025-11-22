@@ -5,7 +5,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Locale } from '@/i18n-config';
 import { addGiderAction, addSatisAction } from './actions';
 import Link from 'next/link';
-import { FiPlus, FiTrendingUp, FiTrendingDown, FiDollarSign, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiTrendingUp, FiTrendingDown, FiDollarSign, FiEdit } from 'react-icons/fi';
+import GiderlerTable from './GiderlerTable';
 
 export const dynamic = 'force-dynamic';
 
@@ -275,51 +276,11 @@ export default async function FinanslarimPage({ params }: { params: { locale: Lo
 
         {/* Giderler Tablosu */}
         <div className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
-          {(giderler || []).length > 0 ? (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tarih</th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kategori</th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Açıklama</th>
-                  <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Tutar</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {giderler.map((gider: any) => (
-                  <tr key={gider.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {formatDate(gider.tarih)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {gider.kategori || '-'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {gider.aciklama || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold text-gray-900">
-                      {formatCurrency(Number(gider.tutar || 0))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-gray-50">
-                <tr>
-                  <td colSpan={3} className="px-6 py-4 text-right text-sm font-bold text-gray-700">
-                    Toplam Gider:
-                  </td>
-                  <td className="px-6 py-4 text-right text-lg font-bold text-red-700">
-                    {formatCurrency(giderToplam)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          ) : (
-            <div className="p-12 text-center">
-              <FiTrendingDown className="mx-auto text-5xl text-gray-300 mb-4" />
-              <p className="text-gray-500">Henüz gider kaydı bulunmuyor</p>
-            </div>
-          )}
+          <GiderlerTable 
+            giderler={giderler || []}
+            locale={locale}
+            giderToplam={giderToplam}
+          />
         </div>
       </div>
     </div>
