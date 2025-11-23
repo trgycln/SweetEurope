@@ -101,13 +101,34 @@ export default async function PublicUrunlerPage({
         }
     }
 
-    // Tüm ürünleri çek (sayım için)
+    // Tüm ürünleri çek (sayım ve porsiyon seçenekleri için)
     const { data: tumUrunler } = await supabase
         .from('urunler')
-        .select('kategori_id')
+        .select('kategori_id, teknik_ozellikler')
         .eq('aktif', true); // Only count active products
 
     const totalAllProducts = tumUrunler?.length || 0; // Toplam tüm ürün sayısı (filtresiz)
+    
+    // Benzersiz porsiyon seçeneklerini çıkar
+    const uniquePorsiyonlar = new Set<number>();
+    tumUrunler?.forEach((urun: any) => {
+        const teknikOzellikler = urun.teknik_ozellikler || {};
+        
+        // Check dilim_adedi
+        if (teknikOzellikler.dilim_adedi) {
+            const dilim = parseInt(String(teknikOzellikler.dilim_adedi));
+            if (!isNaN(dilim)) uniquePorsiyonlar.add(dilim);
+        }
+        
+        // Check kutu_ici_adet
+        if (teknikOzellikler.kutu_ici_adet) {
+            const kutu = parseInt(String(teknikOzellikler.kutu_ici_adet));
+            if (!isNaN(kutu)) uniquePorsiyonlar.add(kutu);
+        }
+    });
+    
+    // Sıralı bir liste oluştur
+    const availablePorsiyonlar = Array.from(uniquePorsiyonlar).sort((a, b) => a - b);
 
     // Kategori ID'lerine göre ürün sayısını hesapla (ana kategori + alt kategorilerindeki ürünler)
     const categoryProductCounts: Record<string, number> = {};
@@ -160,7 +181,7 @@ export default async function PublicUrunlerPage({
     
     let urunlerQuery = supabase
         .from('urunler')
-        .select(`id, ad, slug, ana_resim_url, kategori_id, ortalama_puan, degerlendirme_sayisi, teknik_ozellikler, aciklamalar`, { count: 'exact' })
+        .select(`id, ad, slug, ana_resim_url, galeri_resim_urls, kategori_id, ortalama_puan, degerlendirme_sayisi, teknik_ozellikler, aciklamalar`, { count: 'exact' })
         .eq('aktif', true); // Only show active products
 
     if (filtrelenecekKategoriIdleri.length > 0) {
@@ -315,6 +336,7 @@ export default async function PublicUrunlerPage({
                     seciliKategoriSlug={seciliKategoriSlug}
                     totalCount={totalCount}
                     labels={dictionary.productsProfessionalFilter}
+                    availablePorsiyonlar={availablePorsiyonlar}
                 />
 
                 {/* Ürünler Grid - Full Width */}

@@ -57,6 +57,7 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [hoveredId, setHoveredId] = useState<string | null>(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState<Record<string, number>>({});
 
     const filteredUrunler = useMemo(() => {
         let filtered = urunler.filter(urun => {
@@ -232,15 +233,96 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                 <div className="relative h-80 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
                                     {urun.ana_resim_url ? (
                                         <>
-                                            <Image 
-                                                src={urun.ana_resim_url as string}
-                                                alt={urun.ad?.[locale] || "Produkt"}
-                                                fill 
-                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                className={`object-cover transition-all duration-700 ${
-                                                    isHovered ? 'scale-110 rotate-2' : 'scale-100 rotate-0'
-                                                }`}
-                                            />
+                                            {(() => {
+                                                // Get all available images (main + gallery)
+                                                const allImages = [
+                                                    urun.ana_resim_url,
+                                                    ...((urun as any).galeri_resim_urls || [])
+                                                ].filter(Boolean) as string[];
+                                                
+                                                const currentIndex = currentImageIndex[urun.id] || 0;
+                                                const hasMultipleImages = allImages.length > 1;
+                                                
+                                                const handlePrevImage = (e: React.MouseEvent) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setCurrentImageIndex(prev => ({
+                                                        ...prev,
+                                                        [urun.id]: currentIndex > 0 ? currentIndex - 1 : allImages.length - 1
+                                                    }));
+                                                };
+                                                
+                                                const handleNextImage = (e: React.MouseEvent) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setCurrentImageIndex(prev => ({
+                                                        ...prev,
+                                                        [urun.id]: (currentIndex + 1) % allImages.length
+                                                    }));
+                                                };
+                                                
+                                                return (
+                                                    <>
+                                                        <Image 
+                                                            src={allImages[currentIndex]}
+                                                            alt={urun.ad?.[locale] || "Produkt"}
+                                                            fill 
+                                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                            className={`object-cover transition-all duration-700 ${
+                                                                isHovered ? 'scale-110 rotate-2' : 'scale-100 rotate-0'
+                                                            }`}
+                                                        />
+                                                        
+                                                        {/* Image Navigation Arrows - Only show if multiple images */}
+                                                        {hasMultipleImages && (
+                                                            <>
+                                                                <button
+                                                                    onClick={handlePrevImage}
+                                                                    className="absolute left-2 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                                                    aria-label="Previous image"
+                                                                >
+                                                                    <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                                    </svg>
+                                                                </button>
+                                                                <button
+                                                                    onClick={handleNextImage}
+                                                                    className="absolute right-2 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100"
+                                                                    aria-label="Next image"
+                                                                >
+                                                                    <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                                    </svg>
+                                                                </button>
+                                                                
+                                                                {/* Image Indicator Dots */}
+                                                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                                    {allImages.map((_, index) => (
+                                                                        <button
+                                                                            key={index}
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                e.stopPropagation();
+                                                                                setCurrentImageIndex(prev => ({
+                                                                                    ...prev,
+                                                                                    [urun.id]: index
+                                                                                }));
+                                                                            }}
+                                                                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                                                                index === currentIndex
+                                                                                    ? 'bg-white w-6'
+                                                                                    : 'bg-white/50 hover:bg-white/75'
+                                                                            }`}
+                                                                            aria-label={`Go to image ${index + 1}`}
+                                                                        />
+                                                                    ))}
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()}
+                                            
                                             {/* Hover Overlay */}
                                             <div className={`absolute inset-0 bg-black/40 flex items-center justify-center transition-opacity duration-300 ${
                                                 isHovered ? 'opacity-100' : 'opacity-0'
@@ -356,7 +438,7 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                         </span>
                                         <button
                                           type="button"
-                                          onClick={(e)=>{ e.preventDefault(); if (!unlocked) { openLeadModal(); return; } addToCart({ product_id: urun.id, name: (urun.ad?.[locale] || urun.ad?.['de'] || 'Ürün'), slug: urun.slug, image_url: urun.ana_resim_url as any }); }}
+                                          onClick={(e)=>{ e.preventDefault(); if (!unlocked) { openLeadModal(); return; } addToCart({ product_id: urun.id, name: (urun.ad?.[locale] || urun.ad?.['de'] || 'Ürün'), slug: urun.slug || '', image_url: (urun.ana_resim_url || undefined) as any }); }}
                                           className={`px-3 py-2 rounded-lg text-sm font-medium ${unlocked ? 'bg-accent text-white hover:opacity-90' : 'bg-gray-200 text-gray-600'}`}
                                           title={unlocked ? 'Numune listesine ekle' : 'Numune için iletişim bilgisi gerekli'}
                                         >
@@ -468,10 +550,10 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                 </div>
                                 
                                 <div className="flex items-center gap-3">
-                                    <button
+                                      <button
                                       type="button"
-                                      onClick={(e)=>{ e.preventDefault(); if (!unlocked) { openLeadModal(); return; } addToCart({ product_id: urun.id, name: (urun.ad?.[locale] || urun.ad?.['de'] || 'Ürün'), slug: urun.slug, image_url: urun.ana_resim_url as any }); }}
-                                      className={`px-4 py-2 rounded-lg text-sm font-semibold ${unlocked ? 'bg-accent text-white hover:opacity-90' : 'bg-gray-200 text-gray-600'}`}
+                                      onClick={(e)=>{ e.preventDefault(); if (!unlocked) { openLeadModal(); return; } addToCart({ product_id: urun.id, name: (urun.ad?.[locale] || urun.ad?.['de'] || 'Ürün'), slug: urun.slug || '', image_url: (urun.ana_resim_url || undefined) as any }); }}
+                                      className={`w-full py-3 rounded-xl text-sm font-semibold ${unlocked ? 'bg-gradient-to-r from-primary to-accent text-white hover:shadow-lg' : 'bg-gray-200 text-gray-600'}`}
                                       title={unlocked ? 'Numune listesine ekle' : 'Numune için iletişim bilgisi gerekli'}
                                     >
                                       Numune Ekle

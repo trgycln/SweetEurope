@@ -15,6 +15,7 @@ interface ProfesyonelFiltreProps {
     locale: string;
     seciliKategoriSlug?: string;
     totalCount?: number;
+    availablePorsiyonlar?: number[]; // Dynamic portion options from database
     labels: {
         searchPlaceholder?: string;
         categoryLabel?: string;
@@ -41,7 +42,7 @@ interface ProfesyonelFiltreProps {
     };
 }
 
-export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriSlug, totalCount, labels }: ProfesyonelFiltreProps) {
+export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriSlug, totalCount, labels, availablePorsiyonlar = [] }: ProfesyonelFiltreProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     
@@ -69,18 +70,13 @@ export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriS
         ? kategoriler.filter(k => k.ust_kategori_id === seciliAnaKategori.id)
         : [];
 
-    // Porsiyon seçenekleri (dilim sayıları)
-    const porsiyonSecenekleri = [
-        { value: '4', label: '4 Portionen' },
-        { value: '6', label: '6 Portionen' },
-        { value: '8', label: '8 Portionen' },
-        { value: '10', label: '10 Portionen' },
-        { value: '12', label: '12 Portionen' },
-        { value: '14', label: '14 Portionen' },
-        { value: '16', label: '16 Portionen' },
-        { value: '18', label: '18 Portionen' },
-        { value: '20', label: '20 Portionen' },
-    ];
+    // Porsiyon seçenekleri (dilim sayıları) - dinamik olarak database'den alınan değerler
+    const porsiyonSecenekleri = availablePorsiyonlar.map(value => ({
+        value: String(value),
+        label: value === 1 
+            ? (locale === 'de' ? '1 Portion' : locale === 'tr' ? '1 Porsiyon' : locale === 'ar' ? '١ حصة' : '1 Portion')
+            : (locale === 'de' ? `${value} Portionen` : locale === 'tr' ? `${value} Porsiyon` : locale === 'ar' ? `${value} حصص` : `${value} Portions`)
+    }));
 
     // Özellik seçenekleri - use dictionary labels with fallbacks
     const ozellikSecenekleri = [
