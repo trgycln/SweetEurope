@@ -61,7 +61,7 @@ async function yeniFirmaEkleAction(
     adres: adres || null,
     telefon: telefon || null,
     email: email || null,
-    status: 'Potansiyel', // Standard-Status
+    status: 'Aday', // Yeni CRM status - varsayılan aday
     // --- YENİ ALAN ---
     google_maps_url: google_maps_url || null, // Yeni alanı ekle
     // --- BİTTİ ---
