@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -763,61 +763,76 @@ export type Database = {
           adres: string | null
           created_at: string
           email: string | null
+          facebook_url: string | null
           google_maps_url: string | null
           iban: string | null
           id: string
+          instagram_url: string | null
           iskonto_orani: number
           kategori: string | null
           kaynak: string | null
           musteri_profil_id: string | null
+          oncelik: string | null
           referans_olarak_goster: boolean
           sahip_id: string | null
+          son_etkilesim_tarihi: string | null
           sorumlu_personel_id: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["firma_status"] | null
           telefon: string | null
           unvan: string
           vergi_dairesi: string | null
           vergi_no: string | null
+          web_url: string | null
         }
         Insert: {
           adres?: string | null
           created_at?: string
           email?: string | null
+          facebook_url?: string | null
           google_maps_url?: string | null
           iban?: string | null
           id?: string
+          instagram_url?: string | null
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
           musteri_profil_id?: string | null
+          oncelik?: string | null
           referans_olarak_goster?: boolean
           sahip_id?: string | null
+          son_etkilesim_tarihi?: string | null
           sorumlu_personel_id?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["firma_status"] | null
           telefon?: string | null
           unvan: string
           vergi_dairesi?: string | null
           vergi_no?: string | null
+          web_url?: string | null
         }
         Update: {
           adres?: string | null
           created_at?: string
           email?: string | null
+          facebook_url?: string | null
           google_maps_url?: string | null
           iban?: string | null
           id?: string
+          instagram_url?: string | null
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
           musteri_profil_id?: string | null
+          oncelik?: string | null
           referans_olarak_goster?: boolean
           sahip_id?: string | null
+          son_etkilesim_tarihi?: string | null
           sorumlu_personel_id?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["firma_status"] | null
           telefon?: string | null
           unvan?: string
           vergi_dairesi?: string | null
           vergi_no?: string | null
+          web_url?: string | null
         }
         Relationships: [
           {
@@ -2261,6 +2276,10 @@ export type Database = {
         | "Toplantı"
         | "E-posta"
         | "Teklif"
+        | "Instagram DM"
+        | "Instagram Yorum"
+        | "E-Mail Gönderimi"
+        | "Yüz Yüze Ziyaret"
       etkinlik_turu:
         | "Telefon Görüşmesi"
         | "Müşteri Ziyareti"
@@ -2275,11 +2294,11 @@ export type Database = {
         | "Alt Bayi"
         | "Zincir Market"
       firma_status:
-        | "Potansiyel"
-        | "İlk Temas"
-        | "Numune Sunuldu"
-        | "Teklif Verildi"
-        | "Anlaşma Sağlandı"
+        | "Aday"
+        | "Takipte"
+        | "Temas Kuruldu"
+        | "İletişimde"
+        | "Müşteri"
         | "Pasif"
       gider_durumu: "Taslak" | "Onaylandı"
       gorev_durumu: "Yapılacak" | "Devam Ediyor" | "Tamamlandı"
@@ -2455,68 +2474,72 @@ export const Constants = {
     Enums: {
       etkinlik_tipi: [
         "Not",
-        "Telefon Görüşmesi",
-        "Toplantı",
+        "Telefon G├Âr├╝┼ƒmesi",
+        "Toplant─▒",
         "E-posta",
         "Teklif",
+        "Instagram DM",
+        "Instagram Yorum",
+        "E-Mail G├Ânderimi",
+        "Y├╝z Y├╝ze Ziyaret",
       ],
       etkinlik_turu: [
-        "Telefon Görüşmesi",
-        "Müşteri Ziyareti",
+        "Telefon G├Âr├╝┼ƒmesi",
+        "M├╝┼ƒteri Ziyareti",
         "E-posta",
-        "Durum Değişikliği",
-        "Diğer",
+        "Durum De─ƒi┼ƒikli─ƒi",
+        "Di─ƒer",
       ],
       fatura_durumu: ["pending", "paid", "overdue", "cancelled"],
       firma_kategori: ["Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market"],
       firma_status: [
-        "Potansiyel",
-        "İlk Temas",
-        "Numune Sunuldu",
-        "Teklif Verildi",
-        "Anlaşma Sağlandı",
+        "Aday",
+        "Takipte",
+        "Temas Kuruldu",
+        "─░leti┼ƒimde",
+        "M├╝┼ƒteri",
         "Pasif",
       ],
-      gider_durumu: ["Taslak", "Onaylandı"],
-      gorev_durumu: ["Yapılacak", "Devam Ediyor", "Tamamlandı"],
-      gorev_oncelik: ["Düşük", "Orta", "Yüksek"],
-      hedef_rol: ["Tüm Partnerler", "Sadece Alt Bayiler"],
+      gider_durumu: ["Taslak", "Onayland─▒"],
+      gorev_durumu: ["Yap─▒lacak", "Devam Ediyor", "Tamamland─▒"],
+      gorev_oncelik: ["D├╝┼ƒ├╝k", "Orta", "Y├╝ksek"],
+      hedef_rol: ["T├╝m Partnerler", "Sadece Alt Bayiler"],
       materyal_kategori: [
-        "Broşürler",
-        "Ürün Fotoğrafları",
+        "Bro┼ƒ├╝rler",
+        "├£r├╝n Foto─ƒraflar─▒",
         "Sosyal Medya Kitleri",
         "Fiyat Listeleri",
-        "Diğer",
+        "Di─ƒer",
       ],
       numune_talep_durumu: [
         "Yeni Talep",
-        "Onaylandı",
-        "Hazırlanıyor",
-        "Gönderildi",
-        "İptal Edildi",
+        "Onayland─▒",
+        "Haz─▒rlan─▒yor",
+        "G├Ânderildi",
+        "─░ptal Edildi",
       ],
       siparis_durumu: [
         "Beklemede",
-        "Hazırlanıyor",
-        "Yola Çıktı",
+        "Haz─▒rlan─▒yor",
+        "Yola ├ç─▒kt─▒",
         "Teslim Edildi",
-        "İptal Edildi",
+        "─░ptal Edildi",
         "processing",
         "shipped",
         "delivered",
         "cancelled",
       ],
-      siparis_kaynagi: ["Admin Paneli", "Müşteri Portalı"],
-      urun_gorunurluk: ["Dahili", "Portal", "Herkese Açık"],
+      siparis_kaynagi: ["Admin Paneli", "M├╝┼ƒteri Portal─▒"],
+      urun_gorunurluk: ["Dahili", "Portal", "Herkese A├º─▒k"],
       urun_talep_durumu: [
         "Yeni",
-        "Değerlendiriliyor",
-        "Onaylandı",
+        "De─ƒerlendiriliyor",
+        "Onayland─▒",
         "Reddedildi",
       ],
-      user_role: ["Yönetici", "Ekip Üyesi", "Müşteri", "Alt Bayi"],
-      yazi_durumu: ["Taslak", "Yayınlandı"],
-      zahlungshaeufigkeit: ["Monatlich", "Jährlich", "Einmalig", "Bedarf"],
+      user_role: ["Y├Ânetici", "Ekip ├£yesi", "M├╝┼ƒteri", "Alt Bayi"],
+      yazi_durumu: ["Taslak", "Yay─▒nland─▒"],
+      zahlungshaeufigkeit: ["Monatlich", "J├ñhrlich", "Einmalig", "Bedarf"],
     },
   },
 } as const

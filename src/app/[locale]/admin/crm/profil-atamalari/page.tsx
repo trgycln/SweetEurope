@@ -120,10 +120,12 @@ export default async function CustomerProfileAssignmentPage({ params }: { params
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    firma.status === 'Anlaşma Sağlandı'
+                    firma.status === 'Müşteri'
                       ? 'bg-green-100 text-green-800' 
-                      : firma.status === 'Potansiyel'
-                      ? 'bg-yellow-100 text-yellow-800'
+                      : firma.status === 'Aday'
+                      ? 'bg-gray-100 text-gray-800'
+                      : firma.status === 'Takipte'
+                      ? 'bg-blue-100 text-blue-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
                     {firma.status}
@@ -163,9 +165,9 @@ export default async function CustomerProfileAssignmentPage({ params }: { params
           </div>
           <div className="bg-green-50 rounded-lg p-4">
             <div className="text-2xl font-bold text-green-600">
-              {((firmalar ?? []) as any[]).filter((f: any) => f.status === 'Anlaşma Sağlandı').length}
+              {((firmalar ?? []) as any[]).filter((f: any) => f.status === 'Müşteri').length}
             </div>
-            <div className="text-sm text-green-700">Anlaşmalı Firmalar</div>
+            <div className="text-sm text-green-700">Müşteri Firmalar</div>
           </div>
         </div>
       )}

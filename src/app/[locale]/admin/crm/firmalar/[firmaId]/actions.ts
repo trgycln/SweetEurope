@@ -42,6 +42,11 @@ export async function updateFirmaAction(
     const adres = formData.get('adres') as string | null;
     const telefon = formData.get('telefon') as string | null;
     const email = formData.get('email') as string | null;
+    const oncelik = formData.get('oncelik') as string | null;
+    const instagram_url = formData.get('instagram_url') as string | null;
+    const facebook_url = formData.get('facebook_url') as string | null;
+    const web_url = formData.get('web_url') as string | null;
+    const google_maps_url = formData.get('google_maps_url') as string | null;
     // Checkbox-Wert korrekt auslesen
     const referans_olarak_goster = formData.get('referans_olarak_goster') === 'on';
 
@@ -50,7 +55,7 @@ export async function updateFirmaAction(
         return { success: false, error: "Firmenname darf nicht leer sein." };
     }
     // Stellen Sie sicher, dass der Status gültig ist, falls er übergeben wurde
-    const validStatusOptions: ReadonlyArray<FirmaStatus> = ["Potenzial", "İlk Temas", "Numune Sunuldu", "Teklif Verildi", "Anlaşma Sağlandı", "Pasif"];
+    const validStatusOptions: ReadonlyArray<FirmaStatus> = ["Aday", "Takipte", "Temas Kuruldu", "İletişimde", "Müşteri", "Pasif"];
     if (yeniStatus && !validStatusOptions.includes(yeniStatus)) {
          return { success: false, error: `Ungültiger Status: ${yeniStatus}` };
     }
@@ -63,6 +68,11 @@ export async function updateFirmaAction(
     if (adres) updatedData.adres = adres; else updatedData.adres = null;
     if (telefon) updatedData.telefon = telefon; else updatedData.telefon = null;
     if (email) updatedData.email = email; else updatedData.email = null;
+    if (oncelik) (updatedData as any).oncelik = oncelik; else (updatedData as any).oncelik = null;
+    if (instagram_url) (updatedData as any).instagram_url = instagram_url; else (updatedData as any).instagram_url = null;
+    if (facebook_url) (updatedData as any).facebook_url = facebook_url; else (updatedData as any).facebook_url = null;
+    if (web_url) (updatedData as any).web_url = web_url; else (updatedData as any).web_url = null;
+    if (google_maps_url) (updatedData as any).google_maps_url = google_maps_url; else (updatedData as any).google_maps_url = null;
     // Checkbox-Wert immer setzen (true oder false)
     updatedData.referans_olarak_goster = referans_olarak_goster;
 

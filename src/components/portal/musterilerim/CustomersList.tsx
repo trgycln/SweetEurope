@@ -36,11 +36,11 @@ interface CustomersListProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-    'Potansiyel': 'bg-blue-100 text-blue-800 border-blue-300',
-    'İlk Temas': 'bg-gray-100 text-gray-800 border-gray-300',
-    'Numune Sunuldu': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    'Teklif Verildi': 'bg-purple-100 text-purple-800 border-purple-300',
-    'Anlaşma Sağlandı': 'bg-green-100 text-green-800 border-green-300',
+    'Aday': 'bg-gray-100 text-gray-800 border-gray-300',
+    'Takipte': 'bg-blue-100 text-blue-800 border-blue-300',
+    'Temas Kuruldu': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    'İletişimde': 'bg-purple-100 text-purple-800 border-purple-300',
+    'Müşteri': 'bg-green-100 text-green-800 border-green-300',
     'Pasif': 'bg-red-100 text-red-800 border-red-300',
 };
 

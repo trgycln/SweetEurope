@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Database, Tables, Enums } from '@/lib/supabase/database.types';
 import { FiPlus, FiUsers, FiPhone } from 'react-icons/fi';
+import { FaInstagram } from 'react-icons/fa';
 import FirmaFiltreleri from './FirmaFiltreleri';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
@@ -27,11 +28,11 @@ type FirmaStatus = Enums<'firma_status'>; // Korrekten Enum-Typ verwenden
 
 // Styling für verschiedene Status
 const STATUS_RENKLERI: Record<string, string> = { // String als Schlüssel verwenden für Flexibilität
-    "Potansiyel": "bg-blue-100 text-blue-800",
-    "İlk Temas": "bg-gray-100 text-gray-800",
-    "Numune Sunuldu": "bg-yellow-100 text-yellow-800",
-    "Teklif Verildi": "bg-purple-100 text-purple-800",
-    "Anlaşma Sağlandı": "bg-green-100 text-green-800",
+    "Aday": "bg-gray-100 text-gray-800",
+    "Takipte": "bg-blue-100 text-blue-800",
+    "Temas Kuruldu": "bg-yellow-100 text-yellow-800",
+    "İletişimde": "bg-purple-100 text-purple-800",
+    "Müşteri": "bg-green-100 text-green-800",
     "Pasif": "bg-red-100 text-red-800"
 };
 
@@ -110,7 +111,7 @@ export default async function FirmalarListPage({
         query = query.ilike('unvan', `%${searchQuery}%`);
     }
     if (statusFilter) {
-        query = query.eq('status', statusFilter);
+        query = query.eq('status', statusFilter as FirmaStatus);
     }
     if (statusNotInFilter.length > 0) {
         query = query.not('status', 'in', `(${statusNotInFilter.map(s => `'${s}'`).join(',')})`);
@@ -205,10 +206,13 @@ export default async function FirmalarListPage({
                                 <tr>
                                     {[
                                         F.companyName,
+                                        'Priorität',
                                         'Kaynak',
                                         'Kayıt Tarihi',
                                         F.category,
                                         F.phone,
+                                        'Instagram',
+                                        'Letzte Interaktion',
                                         F.responsible,
                                         F.status
                                     ].map(header => (
@@ -229,6 +233,17 @@ export default async function FirmalarListPage({
                                                 )}
                                             </Link>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            {(firma as any).oncelik ? (
+                                                <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-sm ${
+                                                    (firma as any).oncelik === 'A' ? 'bg-red-100 text-red-800 ring-2 ring-red-400' :
+                                                    (firma as any).oncelik === 'B' ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                    {(firma as any).oncelik}
+                                                </span>
+                                            ) : <span className="text-gray-400 text-xs">-</span>}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-xs text-text-main">
                                             {(firma as any).kaynak === 'web' && (
                                                 <span className="bg-blue-600/10 text-blue-700 border border-blue-600/30 rounded-full px-2 py-0.5 font-semibold text-[10px]">WEB</span>
@@ -240,6 +255,20 @@ export default async function FirmalarListPage({
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.kategori || '-'}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.telefon || '-'}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            {(firma as any).instagram_url ? (
+                                                <a href={(firma as any).instagram_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white hover:shadow-lg transition-all">
+                                                    <FaInstagram size={16} />
+                                                </a>
+                                            ) : <span className="text-gray-400 text-xs">-</span>}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-xs text-text-main">
+                                            {(firma as any).son_etkilesim_tarihi ? (
+                                                <span className="text-gray-700">
+                                                    {new Date((firma as any).son_etkilesim_tarihi).toLocaleDateString(locale === 'de' ? 'de-DE' : 'tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                                </span>
+                                            ) : <span className="text-gray-400">-</span>}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{firma.sorumlu_personel?.tam_ad || F.notAssigned}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                                             <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${STATUS_RENKLERI[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>

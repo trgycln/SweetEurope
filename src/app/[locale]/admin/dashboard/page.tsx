@@ -117,7 +117,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     const OFFENE_BESTELL_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
     const NEUE_MUSTER_STATUS: Enums<'numune_talep_durumu'> = 'Yeni Talep';
     const NEUE_PRODUKTANFRAGE_STATUS: Enums<'urun_talep_durumu'> = 'Yeni';
-    const ABGESCHLOSSENE_ANTRAG_STATUS: Enums<'firma_status'>[] = ['Anlaşma Sağlandı', 'Pasif'];
+    const ABGESCHLOSSENE_ANTRAG_STATUS: Enums<'firma_status'>[] = ['Müşteri', 'Pasif'];
 
     // Parallele Datenabfragen
     const [
@@ -144,8 +144,8 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_BESTELL_STATUS),
         supabase.rpc('get_kritik_stok_count'),
         supabase.from('gorevler').select('id, baslik, son_tarih').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(5),
-        // KORREKTUR: 'Anlaşma Sağlandı' ve 'Pasif' hariç say
-        supabase.from('firmalar').select('id', { count: 'exact' }).not('status', 'in', `(${ABGESCHLOSSENE_ANTRAG_STATUS.map(s => `'${s}'`).join(',')})`),
+        // Müşteri ve Pasif olmayan firmaları say
+        supabase.from('firmalar').select('id', { count: 'exact' }).not('status', 'in', `(${ABGESCHLOSSENE_ANTRAG_STATUS.join(',')})`),
         supabase.from('numune_talepleri').select('id', { count: 'exact' }).eq('durum', NEUE_MUSTER_STATUS),
         supabase.from('yeni_urun_talepleri').select('id', { count: 'exact' }).eq('status', NEUE_PRODUKTANFRAGE_STATUS).then(res => res, err => ({ data: null, count: null, error: err })),
         // Grafik için tam ay P&L

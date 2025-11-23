@@ -10,6 +10,7 @@ import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { useParams, useRouter } from 'next/navigation';
 import { Tables, Enums } from '@/lib/supabase/database.types';
 import { FiEdit, FiSave, FiX, FiLoader, FiTrash2 } from 'react-icons/fi';
+import { FaInstagram, FaFacebook, FaGlobe, FaMapMarkedAlt } from 'react-icons/fa';
 // Server Actions
 import { updateFirmaAction, deleteFirmaAction } from './actions';
 import { toast } from 'sonner';
@@ -21,7 +22,8 @@ type FirmaStatus = Enums<'firma_status'>;
 
 // Diese Konstanten sollten idealerweise aus database.types kommen oder zentral definiert sein
 const kategoriOptions: FirmaKategori[] = ["Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market"];
-const statusOptions: FirmaStatus[] = ["Potansiyel", "İlk Temas", "Numune Sunuldu", "Teklif Verildi", "Anlaşma Sağlandı", "Pasif"];
+const statusOptions: FirmaStatus[] = ["Aday", "Takipte", "Temas Kuruldu", "İletişimde", "Müşteri", "Pasif"];
+const priorityOptions = ["A", "B", "C"];
 
 export default function FirmaGenelBilgilerPage() {
     // Client-seitigen Supabase Client initialisieren
@@ -138,6 +140,57 @@ export default function FirmaGenelBilgilerPage() {
                 )}
             </div>
 
+            {/* Quick Access Card */}
+            {((firma as any).instagram_url || (firma as any).facebook_url || (firma as any).web_url || (firma as any).google_maps_url) && (
+                <div className="bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 rounded-xl p-5">
+                    <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                        <span className="text-accent">🔗</span> Schnellzugriff
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                        {(firma as any).instagram_url && (
+                            <a 
+                                href={(firma as any).instagram_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm"
+                            >
+                                <FaInstagram size={18} /> Instagram
+                            </a>
+                        )}
+                        {(firma as any).facebook_url && (
+                            <a 
+                                href={(firma as any).facebook_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm"
+                            >
+                                <FaFacebook size={18} /> Facebook
+                            </a>
+                        )}
+                        {(firma as any).web_url && (
+                            <a 
+                                href={(firma as any).web_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm"
+                            >
+                                <FaGlobe size={18} /> Webseite
+                            </a>
+                        )}
+                        {(firma as any).google_maps_url && (
+                            <a 
+                                href={(firma as any).google_maps_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm"
+                            >
+                                <FaMapMarkedAlt size={18} /> Google Maps
+                            </a>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 {/* Firmenname */}
                 <div className="md:col-span-2">
@@ -176,6 +229,49 @@ export default function FirmaGenelBilgilerPage() {
                 <div className="md:col-span-2">
                     <label htmlFor="adres" className="block text-sm font-bold text-gray-700 mb-2">Adresse</label>
                     <textarea id="adres" name="adres" rows={3} defaultValue={firma.adres || ''} disabled={!editMode} className={inputBaseClasses} />
+                </div>
+
+                {/* Öncelik (Priority) */}
+                <div>
+                    <label htmlFor="oncelik" className="block text-sm font-bold text-gray-700 mb-2">Priorität</label>
+                    <select id="oncelik" name="oncelik" defaultValue={(firma as any).oncelik || 'B'} disabled={!editMode} className={`${inputBaseClasses} font-bold`}>
+                        {priorityOptions.map(p => <option key={p} value={p}>{p === 'A' ? 'A (Hoch)' : p === 'B' ? 'B (Mittel)' : 'C (Niedrig)'}</option>)}
+                    </select>
+                </div>
+
+                {/* Son Etkileşim Tarihi (Read-only) */}
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Letzte Interaktion</label>
+                    <input 
+                        type="text" 
+                        value={(firma as any).son_etkilesim_tarihi ? new Date((firma as any).son_etkilesim_tarihi).toLocaleDateString('de-DE') : 'Noch keine'} 
+                        disabled 
+                        className={`${inputBaseClasses} bg-gray-100`} 
+                    />
+                </div>
+
+                {/* Instagram URL */}
+                <div>
+                    <label htmlFor="instagram_url" className="block text-sm font-bold text-gray-700 mb-2">Instagram</label>
+                    <input type="url" id="instagram_url" name="instagram_url" placeholder="https://instagram.com/..." defaultValue={(firma as any).instagram_url || ''} disabled={!editMode} className={inputBaseClasses} />
+                </div>
+
+                {/* Facebook URL */}
+                <div>
+                    <label htmlFor="facebook_url" className="block text-sm font-bold text-gray-700 mb-2">Facebook</label>
+                    <input type="url" id="facebook_url" name="facebook_url" placeholder="https://facebook.com/..." defaultValue={(firma as any).facebook_url || ''} disabled={!editMode} className={inputBaseClasses} />
+                </div>
+
+                {/* Web URL */}
+                <div>
+                    <label htmlFor="web_url" className="block text-sm font-bold text-gray-700 mb-2">Webseite</label>
+                    <input type="url" id="web_url" name="web_url" placeholder="https://..." defaultValue={(firma as any).web_url || ''} disabled={!editMode} className={inputBaseClasses} />
+                </div>
+
+                {/* Google Maps URL */}
+                <div>
+                    <label htmlFor="google_maps_url" className="block text-sm font-bold text-gray-700 mb-2">Google Maps</label>
+                    <input type="url" id="google_maps_url" name="google_maps_url" placeholder="https://maps.google.com/..." defaultValue={(firma as any).google_maps_url || ''} disabled={!editMode} className={inputBaseClasses} />
                 </div>
 
                 {/* Als Referenz anzeigen */}

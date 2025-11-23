@@ -42,7 +42,7 @@ export default async function MusterilerimPage({ params }: { params: Promise<{ l
     return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Error loading customers.</div>;
   }
 
-  const statusOptions = Constants.public.Enums.firma_status;
+  const statusOptions = [...Constants.public.Enums.firma_status];
   const categoryOptions = ['Kafe', 'Restoran', 'Otel', 'Market'];
 
   async function handleSubmit(formData: FormData) {
