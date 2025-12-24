@@ -37,7 +37,7 @@ export async function createCustomerOverrideAction(p: CreateOverridePayload) {
     console.error('Override eklenemedi:', { message: e?.message, details: e?.details, hint: e?.hint, code: e?.code });
     return { error: 'Veritabanı hatası' };
   }
-  revalidatePath(`/${p.locale ?? ''}/admin/urun-yonetimi/fiyat-istisnalari`);
+  revalidatePath(`/${p.locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
   return { success: true };
 }
 
@@ -53,7 +53,7 @@ export async function deleteCustomerOverrideAction(id: string, locale?: string) 
     console.error('Override silinemedi:', { message: e?.message, details: e?.details, hint: e?.hint, code: e?.code });
     return { error: 'Veritabanı hatası' };
   }
-  revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyat-istisnalari`);
+  revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
   return { success: true };
 }
 
@@ -100,7 +100,7 @@ export async function createPricingRuleAction(p: CreateRulePayload) {
     console.error('Kural eklenemedi:', { message: e?.message, details: e?.details, hint: e?.hint, code: e?.code });
     return { error: 'Veritabanı hatası' };
   }
-  revalidatePath(`/${p.locale ?? ''}/admin/urun-yonetimi/fiyat-kurallari`);
+  revalidatePath(`/${p.locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
   return { success: true };
 }
 
@@ -116,6 +116,6 @@ export async function deletePricingRuleAction(id: string, locale?: string) {
     console.error('Kural silinemedi:', { message: e?.message, details: e?.details, hint: e?.hint, code: e?.code });
     return { error: 'Veritabanı hatası' };
   }
-  revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyat-kurallari`);
+  revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
   return { success: true };
 }

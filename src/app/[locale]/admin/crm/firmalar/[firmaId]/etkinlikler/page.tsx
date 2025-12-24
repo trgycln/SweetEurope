@@ -7,9 +7,11 @@ import { FiSend } from 'react-icons/fi';
 // Annahme: actions.ts liegt im selben Verzeichnis
 import { yeniEtkinlikEkleAction } from './actions';
 import EtkinlikKarti from './EtkinlikKarti'; // Client Komponente für die Darstellung
+import EtkinlikEkleForm from './EtkinlikEkleForm'; // Import EtkinlikEkleForm
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Importiere Locale, falls benötigt
 import { redirect } from 'next/navigation'; // Import für Redirect
+import { getDictionary } from '@/dictionaries';
 
 type EtkinlikTipi = Enums<'etkinlik_tipi'>;
 
@@ -21,7 +23,7 @@ type EtkinlikWithProfile = Tables<'etkinlikler'> & {
 };
 
 // Zeitdifferenz-Formatierungsfunktion (unverändert)
-function zamanFarkiFormatla(tarihStr: string | null): string {
+function zamanFarkiFormatla(tarihStr: string | null, timeDict: any): string {
     if (!tarihStr) return ''; // Fallback für null Datum
     const tarih = new Date(tarihStr);
     const simdi = new Date();
@@ -30,17 +32,17 @@ function zamanFarkiFormatla(tarihStr: string | null): string {
 
     const farkSaniye = Math.floor((simdi.getTime() - tarih.getTime()) / 1000);
 
-    if (farkSaniye < 60) return "az önce";
+    if (farkSaniye < 60) return timeDict.justNow;
     let aralik = Math.floor(farkSaniye / 60);
-    if (aralik < 60) return aralik + " dakika önce";
+    if (aralik < 60) return aralik + " " + timeDict.minutesAgo;
     aralik = Math.floor(farkSaniye / 3600);
-    if (aralik < 24) return aralik + " saat önce";
+    if (aralik < 24) return aralik + " " + timeDict.hoursAgo;
     aralik = Math.floor(farkSaniye / 86400);
-    if (aralik < 30) return aralik + " gün önce"; // Annahme Monat ~ 30 Tage
+    if (aralik < 30) return aralik + " " + timeDict.daysAgo; // Annahme Monat ~ 30 Tage
     aralik = Math.floor(farkSaniye / 2592000); // 30 Tage
-    if (aralik < 12) return aralik + " ay önce";
+    if (aralik < 12) return aralik + " " + timeDict.monthsAgo;
     aralik = Math.floor(farkSaniye / 31536000); // 365 Tage
-    return aralik + " yıl önce";
+    return aralik + " " + timeDict.yearsAgo;
 }
 
 // Props-Typ für die Seite
@@ -54,6 +56,8 @@ interface EtkinliklerPageProps {
 
 export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) {
     const { firmaId, locale } = params; // Locale extrahieren
+    const dict = await getDictionary(locale);
+    const t = dict.adminDashboard.crmPage.activities;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen
@@ -84,7 +88,7 @@ export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) 
     if (etkinliklerError) {
         console.error("Fehler beim Laden der Aktivitäten:", etkinliklerError);
         // Bessere Fehlermeldung anzeigen
-        return <div className="p-4 bg-red-100 text-red-700 rounded border border-red-300">Fehler beim Laden der Aktivitäten. Details: {etkinliklerError.message}</div>;
+        return <div className="p-4 bg-red-100 text-red-700 rounded border border-red-300">{t.errorLoading} Details: {etkinliklerError.message}</div>;
     }
 
     // Typ-Zuweisung für bessere Typsicherheit
@@ -97,7 +101,7 @@ export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) 
     const etkinlikTipleri: EtkinlikTipi[] = ['Not', 'Telefon Görüşmesi', 'Toplantı', 'E-posta', 'Teklif'];
 
     // Server Action mit der firmaId vorbereiten
-    const formActionWithId = yeniEtkinlikEkleAction.bind(null, firmaId);
+    // const formActionWithId = yeniEtkinlikEkleAction.bind(null, firmaId, locale);
 
     return (
         // Layout mit zwei Spalten
@@ -105,56 +109,23 @@ export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) 
 
             {/* Linke Spalte: Formular zum Hinzufügen */}
             <div className="lg:col-span-1">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-4">Neue Aktivität hinzufügen</h2>
-                <form action={formActionWithId} className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200"> {/* Styling angepasst */}
-                    {/* Aktivitätstyp Dropdown */}
-                    <div>
-                        <label htmlFor="etkinlik_tipi" className="block text-sm font-bold text-gray-700 mb-1">Aktivitätstyp</label>
-                        <select
-                            id="etkinlik_tipi"
-                            name="etkinlik_tipi" // Name muss mit formData in der Action übereinstimmen
-                            required
-                            className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent focus:border-transparent" // Styling angepasst
-                        >
-                            {/* Optional: Placeholder */}
-                            {/* <option value="" disabled selected>Bitte wählen...</option> */}
-                            {etkinlikTipleri.map(tip => <option key={tip} value={tip}>{tip}</option>)}
-                        </select>
-                    </div>
-                    {/* Beschreibung Textarea */}
-                    <div>
-                        <label htmlFor="aciklama" className="block text-sm font-bold text-gray-700 mb-1">Beschreibung / Notiz</label>
-                        <textarea
-                            id="aciklama"
-                            name="aciklama" // Name muss mit formData in der Action übereinstimmen
-                            rows={5}
-                            required
-                            placeholder="Details zum Gespräch oder Ihre Notiz hier eingeben..."
-                            className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent focus:border-transparent" // Styling angepasst
-                        />
-                    </div>
-                    {/* Senden Button */}
-                    <div className="flex justify-end pt-2">
-                        <button
-                            type="submit"
-                            // Optional: Pending-Status von useFormStatus verwenden, wenn nötig
-                            // disabled={pending} // Muss importiert werden: import { useFormStatus } from 'react-dom'; const { pending } = useFormStatus();
-                            className="flex items-center justify-center gap-2 px-6 py-2 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 font-bold text-sm transition disabled:opacity-50"
-                        >
-                            <FiSend size={16} /> Hinzufügen
-                        </button>
-                    </div>
-                </form>
+                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{t.addActivityTitle}</h2>
+                <EtkinlikEkleForm 
+                    firmaId={firmaId} 
+                    locale={locale} 
+                    etkinlikTipleri={etkinlikTipleri}
+                    dict={t.form}
+                />
             </div>
 
             {/* Rechte Spalte: Aktivitätenliste */}
             <div className="lg:col-span-2">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-4">Aktivitätsverlauf</h2>
+                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{t.activityHistoryTitle}</h2>
                 <div className="space-y-6">
                     {/* Prüfen, ob Aktivitäten vorhanden sind */}
                     {etkinlikListesi.length > 0 ? (
                         etkinlikListesi.map(etkinlik => {
-                            const zamanFarki = zamanFarkiFormatla(etkinlik.created_at);
+                            const zamanFarki = zamanFarkiFormatla(etkinlik.created_at, t.time);
 
                             return (
                                 // EtkinlikKarti Komponente verwenden
@@ -164,15 +135,16 @@ export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) 
                                     etkinlik={etkinlik as EtkinlikWithProfile}
                                     zamanFarki={zamanFarki}
                                     // ikonAdi wird wahrscheinlich in EtkinlikKarti basierend auf etkinlik.etkinlik_tipi gesetzt
-                                    // ikonAdi={etkinlik.etkinlik_tipi} // Vermutlich nicht hier benötigt
+                                    ikonAdi={etkinlik.etkinlik_tipi} // Vermutlich nicht hier benötigt
                                     currentUser={user} // Aktuellen Benutzer übergeben (für Bearbeiten/Löschen-Rechte?)
+                                    dict={t.card}
                                 />
                             );
                         })
                     ) : (
                         // Nachricht, wenn keine Aktivitäten vorhanden sind
                         <div className="text-center p-8 border-2 border-dashed border-gray-200 rounded-lg bg-white">
-                            <p className="text-gray-500">Für diese Firma wurden noch keine Aktivitäten erfasst.</p>
+                            <p className="text-gray-500">{t.noActivities}</p>
                         </div>
                     )}
                 </div>

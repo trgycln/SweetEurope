@@ -36,14 +36,14 @@ export default async function FiyatlandirmaHubPage({ params }: { params: Promise
 
   const { data: systemSettingsRaw } = await (supabase as any)
     .from('system_settings')
-    .select('key, value');
+    .select('setting_key, setting_value');
   
   const systemSettings: Record<string, any> = {};
   (systemSettingsRaw || []).forEach((s: any) => {
     try {
-      systemSettings[s.key] = JSON.parse(s.value);
+      systemSettings[s.setting_key] = JSON.parse(s.setting_value);
     } catch {
-      systemSettings[s.key] = s.value;
+      systemSettings[s.setting_key] = s.setting_value;
     }
   });
 
@@ -109,7 +109,14 @@ export default async function FiyatlandirmaHubPage({ params }: { params: Promise
   // Firmalar (needed for istisna and kural forms)
   const { data: firmalar } = await (supabase as any)
     .from('firmalar')
-    .select('id, unvan, musteri_profil_id')
+    .select(`
+      id, 
+      unvan, 
+      kategori,
+      status,
+      musteri_profil_id,
+      musteri_profilleri:musteri_profil_id(ad, genel_indirim_yuzdesi)
+    `)
     .order('unvan', { ascending: true })
     .limit(500);
 

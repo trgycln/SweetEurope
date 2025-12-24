@@ -6,11 +6,12 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Database, Tables, Enums, TablesInsert } from '@/lib/supabase/database.types';
-import { FiArrowLeft, FiSave, FiMapPin } from 'react-icons/fi'; // FiMapPin eklendi
+import { FiArrowLeft, FiSave, FiMapPin, FiInstagram, FiFacebook, FiGlobe } from 'react-icons/fi'; // FiMapPin eklendi
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Importiere Locale
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import AddressAutofill from '@/components/AddressAutofill'; // Import AddressAutofill
 
 // Tip Tanımları
 type ProfilOption = Pick<Tables<'profiller'>, 'id' | 'tam_ad'>;
@@ -31,8 +32,19 @@ async function yeniFirmaEkleAction(
   const telefon = formData.get('telefon') as string;
   const email = formData.get('email') as string;
   const sorumlu_personel_id = formData.get('sorumlu_personel_id') as string;
-  // --- YENİ ALAN ---
-  const google_maps_url = formData.get('google_maps_url') as string; // Yeni alanı al
+  // --- YENİ ALANLAR ---
+  const google_maps_url = formData.get('google_maps_url') as string;
+  const sehir = formData.get('sehir') as string;
+  const ilce = formData.get('ilce') as string;
+  const mahalle = formData.get('mahalle') as string; // New field
+  const posta_kodu = formData.get('posta_kodu') as string;
+  const yetkili_kisi = formData.get('yetkili_kisi') as string;
+  const etiketler = formData.getAll('etiketler') as string[]; // Multi-select
+  const kaynak = formData.get('kaynak') as string; // Yeni Kaynak Alanı
+  const is_rejected = formData.get('is_rejected') === 'on';
+  const instagram_url = formData.get('instagram_url') as string;
+  const facebook_url = formData.get('facebook_url') as string;
+  const web_url = formData.get('web_url') as string;
   // --- BİTTİ ---
 
   // 2. Gerekli doğrulamaları yap
@@ -54,6 +66,25 @@ async function yeniFirmaEkleAction(
   const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
   const userRole = profile?.rol;
 
+  // --- DUPLICATE CHECK ---
+  // Check if a company with the same name or Google Maps URL already exists
+  const conditions = [`unvan.ilike."${unvan.replace(/"/g, '')}"`]; // Simple sanitization
+  if (google_maps_url) {
+      conditions.push(`google_maps_url.eq."${google_maps_url}"`);
+  }
+  
+  const { data: existingFirma } = await supabase
+      .from('firmalar')
+      .select('id, unvan')
+      .or(conditions.join(','))
+      .maybeSingle();
+
+  if (existingFirma) {
+      // Redirect back with error
+      return redirect(`/${locale}/admin/crm/firmalar/yeni?error=duplicate&duplicate_id=${existingFirma.id}&duplicate_name=${encodeURIComponent(existingFirma.unvan)}`);
+  }
+  // --- END DUPLICATE CHECK ---
+
   // 4. Veritabanına eklenecek veriyi hazırla
   const insertData: TablesInsert<'firmalar'> = {
     unvan,
@@ -61,11 +92,57 @@ async function yeniFirmaEkleAction(
     adres: adres || null,
     telefon: telefon || null,
     email: email || null,
-    status: 'Aday', // Yeni CRM status - varsayılan aday
-    // --- YENİ ALAN ---
-    google_maps_url: google_maps_url || null, // Yeni alanı ekle
-    // --- BİTTİ ---
+    status: is_rejected ? 'REDDEDİLDİ' : 'ADAY',
+    google_maps_url: google_maps_url || null,
+    sehir: sehir || null,
+    ilce: ilce || null,
+    mahalle: mahalle || null, // New field
+    posta_kodu: posta_kodu || null,
+    yetkili_kisi: yetkili_kisi || null,
+    etiketler: etiketler.length > 0 ? etiketler : null,
+    kaynak: kaynak || null, // Kaynak eklendi
+    instagram_url: instagram_url || null,
+    facebook_url: facebook_url || null,
+    web_url: web_url || null,
   };
+
+  // --- SCORING LOGIC ---
+  let score = 0;
+  
+  // Category Score
+  const catScores: Record<string, number> = {
+      'Shisha & Lounge': 100,
+      'Coffee Shop & Eiscafé': 90,
+      'Hotel & Event': 80,
+      'Casual Dining': 70,
+      'Restoran': 70, // Added Restoran
+      'Alt Bayi': 60, // Corrected key
+      'Rakip/Üretici': 0
+  };
+  score += catScores[kategori] || 50; // Default 50
+
+  // Tag Score
+  if (etiketler && etiketler.length > 0) {
+      // Pozitif Etkenler
+      if (etiketler.includes('#Vitrin_Boş')) score += 40;
+      if (etiketler.includes('#Mutfak_Yok')) score += 30;
+      if (etiketler.includes('#Yeni_Açılış')) score += 25;
+      if (etiketler.includes('#Türk_Sahibi')) score += 20;
+      if (etiketler.includes('#Düğün_Mekanı')) score += 20;
+      if (etiketler.includes('#Kahve_Odaklı')) score += 15;
+      if (etiketler.includes('#Yüksek_Sirkülasyon')) score += 15;
+      if (etiketler.includes('#Lüks_Mekan')) score += 10;
+      if (etiketler.includes('#Teraslı')) score += 10;
+      if (etiketler.includes('#Self_Service')) score += 10;
+
+      // Negatif Etkenler
+      if (etiketler.includes('#Zincir_Marka')) score -= 20;
+      if (etiketler.includes('#Kendi_Üretimi')) score -= 30;
+      if (etiketler.includes('#Rakip_Sözleşmeli')) score -= 30;
+  }
+  
+  insertData.oncelik_puani = score;
+  // --- END SCORING ---
 
   // 5. Akıllı Atama Kuralı'nı uygula
   if (userRole === 'Ekip Üyesi') {
@@ -94,7 +171,7 @@ interface YeniFirmaEklePageProps {
 }
 
 // YENİ FİRMA EKLEME SAYFASI BİLEŞENİ
-export default async function YeniFirmaEklePage({ params: { locale } }: YeniFirmaEklePageProps) {
+export default async function YeniFirmaEklePage({ params: { locale }, searchParams }: YeniFirmaEklePageProps) {
   noStore(); // Caching deaktivieren
 
   // --- KORREKTUR (PAGE): Supabase Client korrekt initialisieren ---
@@ -116,7 +193,36 @@ export default async function YeniFirmaEklePage({ params: { locale } }: YeniFirm
   }
   
   // Diğer dataları çek (Firmalar burada gerekli değil, sadece profiller)
-  const kategoriOptions: FirmaKategori[] = ["Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market"];
+  const kategoriOptions: FirmaKategori[] = [
+      "Shisha & Lounge", 
+      "Coffee Shop & Eiscafé", 
+      "Casual Dining", 
+      "Restoran", // Added
+      "Hotel & Event", 
+      "Alt Bayi", // Corrected from "Alt Bayi / Toptancı"
+      "Rakip/Üretici"
+  ];
+
+  const kategoriLabels: Record<string, string> = {
+      "Shisha & Lounge": "Nargile & Lounge (Shisha & Lounge)",
+      "Coffee Shop & Eiscafé": "Kafe & Dondurmacı (Coffee Shop & Eiscafé)",
+      "Casual Dining": "Gündelik Yemek (Casual Dining)",
+      "Restoran": "Restoran (Restoran)",
+      "Hotel & Event": "Otel & Etkinlik (Hotel & Event)",
+      "Alt Bayi": "Alt Bayi / Toptancı (Alt Bayi)",
+      "Rakip/Üretici": "Rakip / Üretici (Rakip/Üretici)"
+  };
+  
+  const tagOptions = [
+      "#Vitrin_Boş", "#Mutfak_Yok", "#Yeni_Açılış", "#Türk_Sahibi", 
+      "#Düğün_Mekanı", "#Kahve_Odaklı", "#Yüksek_Sirkülasyon", 
+      "#Lüks_Mekan", "#Teraslı", "#Self_Service",
+      "#Zincir_Marka", "#Kendi_Üretimi", "#Rakip_Sözleşmeli"
+  ];
+
+  const kaynakOptions = [
+      "Google Maps", "Instagram", "Saha Ziyareti", "Referans", "Web", "Diğer"
+  ];
   
   // Stil tanımlamaları
   const inputBaseClasses = "w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-sm text-gray-700 focus:ring-2 focus:ring-accent focus:border-transparent transition-colors duration-200 placeholder:text-gray-400";
@@ -136,6 +242,31 @@ export default async function YeniFirmaEklePage({ params: { locale } }: YeniFirm
         <p className="text-text-main/80 mt-1">Einen neuen potenziellen Kunden registrieren.</p>
       </header>
 
+      {/* Duplicate Warning */}
+      {searchParams?.error === 'duplicate' && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 animate-pulse">
+              <div className="text-red-500 mt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                      <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+                  </svg>
+              </div>
+              <div>
+                  <h3 className="text-sm font-bold text-red-800">Bu firma zaten kayıtlı!</h3>
+                  <p className="text-sm text-red-700 mt-1">
+                      <strong>{searchParams.duplicate_name}</strong> isimli firma sistemde mevcut.
+                  </p>
+                  <div className="mt-2">
+                      <Link 
+                          href={`/${locale}/admin/crm/firmalar/${searchParams.duplicate_id}`}
+                          className="text-sm font-medium text-red-800 underline hover:text-red-900"
+                      >
+                          Mevcut firmayı görüntüle &rarr;
+                      </Link>
+                  </div>
+              </div>
+          </div>
+      )}
+
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg border border-gray-200">
         <form action={yeniFirmaEkleActionWithLocale}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -149,8 +280,48 @@ export default async function YeniFirmaEklePage({ params: { locale } }: YeniFirm
               <label htmlFor="kategori" className={labelBaseClasses}>Kategorie <span className="text-red-500">*</span></label>
               <select id="kategori" name="kategori" required className={inputBaseClasses}>
                 <option value="">-- Kategorie wählen --</option>
-                {kategoriOptions.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                {kategoriOptions.map(cat => (
+                    <option key={cat} value={cat}>
+                        {kategoriLabels[cat] || cat}
+                    </option>
+                ))}
               </select>
+
+              {/* Rejected Checkbox */}
+              <div className="mt-3 p-3 bg-red-50 rounded-md border border-red-100">
+                  <label className="inline-flex items-center gap-2 cursor-pointer w-full">
+                      <input type="checkbox" name="is_rejected" className="rounded text-red-600 focus:ring-red-500 w-4 h-4" />
+                      <span className="text-sm font-bold text-red-800">Bu işletme ile ilgilenilmeyecek (Reddedildi)</span>
+                  </label>
+                  <p className="text-xs text-red-600 mt-1 ml-6">
+                      İşaretlenirse, bu kayıt listelerde en sona atılır ve işlem yapılmaz.
+                  </p>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="kaynak" className={labelBaseClasses}>Quelle (Source)</label>
+              <select id="kaynak" name="kaynak" className={inputBaseClasses}>
+                <option value="">-- Wie gefunden? --</option>
+                {kaynakOptions.map(k => <option key={k} value={k}>{k}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="yetkili_kisi" className={labelBaseClasses}>Entscheider (Decision Maker)</label>
+              <input type="text" id="yetkili_kisi" name="yetkili_kisi" className={inputBaseClasses} placeholder="z.B. Max Mustermann"/>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className={labelBaseClasses}>Tags (Mehrfachauswahl)</label>
+              <div className="flex flex-wrap gap-3">
+                  {tagOptions.map(tag => (
+                      <label key={tag} className="inline-flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-full cursor-pointer hover:bg-gray-200 transition">
+                          <input type="checkbox" name="etiketler" value={tag} className="rounded text-accent focus:ring-accent" />
+                          <span className="text-sm font-medium text-gray-700">{tag}</span>
+                      </label>
+                  ))}
+              </div>
             </div>
 
             {userRole === 'Yönetici' ? (
@@ -180,9 +351,13 @@ export default async function YeniFirmaEklePage({ params: { locale } }: YeniFirm
               <input type="tel" id="telefon" name="telefon" className={inputBaseClasses} placeholder="+49 ..."/>
             </div>
 
+            {/* --- YENİ ALANLAR: Adres Detayları (Auto-fill) --- */}
+            <AddressAutofill />
+            {/* --- BİTTİ --- */}
+
             <div className="md:col-span-2">
-              <label htmlFor="adres" className={labelBaseClasses}>Adresse</label>
-              <textarea id="adres" name="adres" rows={3} className={inputBaseClasses} placeholder="Firmenadresse..."/>
+              <label htmlFor="adres" className={labelBaseClasses}>Adresse (Straße & Nr.)</label>
+              <textarea id="adres" name="adres" rows={3} className={inputBaseClasses} placeholder="Musterstraße 123..."/>
             </div>
 
             {/* --- YENİ ALAN: Google Maps --- */}
@@ -197,6 +372,53 @@ export default async function YeniFirmaEklePage({ params: { locale } }: YeniFirm
                 className={inputBaseClasses} 
                 placeholder="https://maps.app.goo.gl/..."
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Wenn Sie eine Google Maps URL eingeben, werden Stadt und Bezirk automatisch ausgefüllt (falls leer).
+              </p>
+            </div>
+            {/* --- BİTTİ --- */}
+
+            {/* --- YENİ ALANLAR: Sosyal Medya & Web --- */}
+            <div className="md:col-span-2">
+              <h3 className="text-sm font-bold text-gray-900 mb-3 border-b pb-1">Dijital Varlıklar (Sosyal Medya & Web)</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="instagram_url" className={`${labelBaseClasses} inline-flex items-center gap-2`}>
+                    <FiInstagram size={14} /> Instagram
+                  </label>
+                  <input 
+                    type="url" 
+                    id="instagram_url" 
+                    name="instagram_url" 
+                    className={inputBaseClasses} 
+                    placeholder="https://instagram.com/..."
+                  />
+                </div>
+                <div>
+                  <label htmlFor="facebook_url" className={`${labelBaseClasses} inline-flex items-center gap-2`}>
+                    <FiFacebook size={14} /> Facebook
+                  </label>
+                  <input 
+                    type="url" 
+                    id="facebook_url" 
+                    name="facebook_url" 
+                    className={inputBaseClasses} 
+                    placeholder="https://facebook.com/..."
+                  />
+                </div>
+                <div>
+                  <label htmlFor="web_url" className={`${labelBaseClasses} inline-flex items-center gap-2`}>
+                    <FiGlobe size={14} /> Website
+                  </label>
+                  <input 
+                    type="url" 
+                    id="web_url" 
+                    name="web_url" 
+                    className={inputBaseClasses} 
+                    placeholder="https://www.firma.de"
+                  />
+                </div>
+              </div>
             </div>
             {/* --- BİTTİ --- */}
 

@@ -449,6 +449,46 @@ export const dictionary: Partial<Dictionary> = {
       noCompaniesDesc: 'أضف شركة جديدة للبدء.',
       noCompaniesFilterTitle: 'لم يتم العثور على شركات للمرشحات',
       noCompaniesFilterDesc: 'حاول تغيير معايير البحث الخاصة بك.',
+      tabs: {
+        generalInfo: 'معلومات عامة',
+        activities: 'الأنشطة',
+        contacts: 'جهات الاتصال',
+        orders: 'الطلبات',
+        tasks: 'المهام',
+      },
+      activities: {
+        addActivityTitle: 'إضافة نشاط جديد',
+        activityHistoryTitle: 'سجل الأنشطة',
+        noActivities: 'لم يتم تسجيل أي أنشطة لهذه الشركة بعد.',
+        errorLoading: 'خطأ في تحميل الأنشطة.',
+        form: {
+          typeLabel: 'نوع النشاط',
+          descriptionLabel: 'الوصف / ملاحظة',
+          placeholder: 'أدخل تفاصيل المحادثة أو ملاحظتك هنا...',
+          submitButton: 'إضافة',
+          submitting: 'جاري الحفظ...',
+          successMessage: 'تمت إضافة النشاط بنجاح.',
+          errorMessage: 'خطأ في إضافة النشاط.',
+          requiredError: 'الوصف ونوع النشاط مطلوبان.'
+        },
+        time: {
+          justNow: 'الآن',
+          minutesAgo: 'دقائق مضت',
+          hoursAgo: 'ساعات مضت',
+          daysAgo: 'أيام مضت',
+          monthsAgo: 'أشهر مضت',
+          yearsAgo: 'سنوات مضت'
+        },
+        card: {
+          unknownUser: 'مستخدم غير معروف',
+          updateSuccess: 'تم تحديث الملاحظة.',
+          updateError: 'فشل التحديث.',
+          editTitle: 'تعديل',
+          createdBy: 'أنشأها',
+          cancel: 'إلغاء',
+          save: 'حفظ'
+        }
+      },
       companyName: 'الشركة',
       category: 'الفئة',
       phone: 'الهاتف',

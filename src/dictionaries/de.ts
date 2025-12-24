@@ -503,6 +503,39 @@ export const dictionary = {
         orders: 'Bestellungen',
         tasks: 'Aufgaben',
       },
+      activities: {
+        addActivityTitle: 'Neue Aktivität hinzufügen',
+        activityHistoryTitle: 'Aktivitätsverlauf',
+        noActivities: 'Für diese Firma wurden noch keine Aktivitäten erfasst.',
+        errorLoading: 'Fehler beim Laden der Aktivitäten.',
+        form: {
+          typeLabel: 'Aktivitätstyp',
+          descriptionLabel: 'Beschreibung / Notiz',
+          placeholder: 'Details zum Gespräch oder Ihre Notiz hier eingeben...',
+          submitButton: 'Hinzufügen',
+          submitting: 'Wird gespeichert...',
+          successMessage: 'Aktivität erfolgreich hinzugefügt.',
+          errorMessage: 'Fehler beim Hinzufügen der Aktivität.',
+          requiredError: 'Beschreibung und Aktivitätstyp sind erforderlich.'
+        },
+        time: {
+          justNow: 'gerade eben',
+          minutesAgo: 'Minuten her',
+          hoursAgo: 'Stunden her',
+          daysAgo: 'Tage her',
+          monthsAgo: 'Monate her',
+          yearsAgo: 'Jahre her'
+        },
+        card: {
+          unknownUser: 'Unbekannter Benutzer',
+          updateSuccess: 'Notiz aktualisiert.',
+          updateError: 'Aktualisierung fehlgeschlagen.',
+          editTitle: 'Bearbeiten',
+          createdBy: 'erstellt von',
+          cancel: 'Abbrechen',
+          save: 'Speichern'
+        }
+      },
       companyName: 'Firma',
       category: 'Kategorie',
       phone: 'Telefon',
@@ -519,6 +552,14 @@ export const dictionary = {
         'İletişimde': 'In Kommunikation',
         'Müşteri': 'Kunde',
         'Pasif': 'Inaktiv',
+        // New Statuses
+        'ADAY': 'Kandidat',
+        'ISITILIYOR': 'Aufwärmen',
+        'TEMAS EDİLDİ': 'Kontaktiert',
+        'İLETİŞİMDE': 'In Kommunikation',
+        'POTANSİYEL': 'Potenzial',
+        'MÜŞTERİ': 'Kunde',
+        'PASİF': 'Inaktiv'
       },
     },
     partnersPage: {

@@ -36,16 +36,16 @@ export async function submitWaitlistForm(
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // 1. İlk önce firmalar tablosuna "Potansiyel" olarak kaydet
+    // 1. İlk önce firmalar tablosuna "ADAY" olarak kaydet
     const { data: firma, error: firmaError } = await supabase
       .from('firmalar')
       .insert({
         unvan: formData.firma_adi,
         email: formData.email,
         telefon: formData.telefon || null,
-        status: 'Potansiyel', // Yeni web potansiyel kaydı
-        kaynak: 'web', // Kaynak izleme
-        // Not: contact_person yetkili kişi bilgisi waitlist tablosunda tutuluyor
+        status: 'ADAY', // Yeni web kaydı (Enum: ADAY)
+        kaynak: 'Web', // Kaynak izleme (Capitalized)
+        yetkili_kisi: formData.yetkili_kisi, // Yetkili kişi eklendi
       })
       .select()
       .single();

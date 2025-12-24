@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { Tables } from '@/lib/supabase/database.types';
 import TopluGuncellemeTab from './TopluGuncellemeTab';
 import BasitMaliyetHesaplayiciTab from './BasitMaliyetHesaplayiciTab';
+import MusteriProfilleriTab from './MusteriProfilleriTab';
+import ProfilAtamalariTab from './ProfilAtamalariTab';
+import FiyatKurallariTab from './FiyatKurallariTab';
+import FiyatIstisnalariTab from './FiyatIstisnalariTab';
 
 type ProductLite = Pick<Tables<'urunler'>, 'id' | 'ad' | 'kategori_id' | 'distributor_alis_fiyati' | 'satis_fiyati_alt_bayi' | 'satis_fiyati_musteri' | 'aktif'>;
 
@@ -23,7 +27,7 @@ interface Props {
   userId: string;
 }
 
-type TabId = 'toplu' | 'hesap' | 'kurallar' | 'istisnalar' | 'talepler' | 'profiller';
+type TabId = 'toplu' | 'hesap' | 'kurallar' | 'istisnalar' | 'profiller' | 'atamalar';
 
 export default function FiyatlandirmaHubClient({
   locale,
@@ -43,12 +47,12 @@ export default function FiyatlandirmaHubClient({
   const [activeTab, setActiveTab] = useState<TabId>('toplu');
 
   const tabs = [
-    { id: 'toplu' as TabId, label: '📊 Toplu Güncelleme', icon: '📊' },
-    { id: 'hesap' as TabId, label: '🧮 Basit Hesaplayıcı', icon: '🧮' },
-    { id: 'kurallar' as TabId, label: '📜 Fiyat Kuralları', icon: '📜' },
-    { id: 'istisnalar' as TabId, label: '🏷️ Fiyat İstisnaları', icon: '🏷️' },
-    { id: 'talepler' as TabId, label: '📥 Fiyat Talepleri', icon: '📥' },
-    { id: 'profiller' as TabId, label: '👥 Müşteri Profilleri', icon: '👥' },
+    { id: 'toplu' as TabId, label: '📊 Toplu Güncelleme', description: 'Fiyatları listeden hızlıca düzenle' },
+    { id: 'hesap' as TabId, label: '🧮 Basit Hesaplayıcı', description: 'Maliyet ve kâr analizi yap' },
+    { id: 'kurallar' as TabId, label: '📜 Fiyat Kuralları', description: 'Otomatik indirim/kampanya tanımla' },
+    { id: 'istisnalar' as TabId, label: '🏷️ Fiyat İstisnaları', description: 'Firmaya özel sabit fiyat ver' },
+    { id: 'profiller' as TabId, label: '👥 Müşteri Profilleri', description: 'Müşteri grupları oluştur (VIP vb.)' },
+    { id: 'atamalar' as TabId, label: '👤 Profil Atamaları', description: 'Firmaları gruplara yerleştir' },
   ];
 
   return (
@@ -59,13 +63,14 @@ export default function FiyatlandirmaHubClient({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-t-lg font-medium transition-colors ${
+            className={`px-4 py-2 rounded-t-lg font-medium transition-colors flex flex-col items-center justify-center gap-0.5 min-w-[140px] ${
               activeTab === tab.id
                 ? 'bg-primary text-secondary border-b-2 border-primary'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            {tab.label}
+            <span className="text-sm font-semibold">{tab.label}</span>
+            <span className="text-[10px] opacity-80 font-normal">{tab.description}</span>
           </button>
         ))}
       </div>
@@ -92,7 +97,7 @@ export default function FiyatlandirmaHubClient({
         )}
 
         {activeTab === 'kurallar' && (
-          <KurallarTab
+          <FiyatKurallariTab
             locale={locale}
             kurallar={kurallar}
             kategoriler={kategoriler}
@@ -102,7 +107,7 @@ export default function FiyatlandirmaHubClient({
         )}
 
         {activeTab === 'istisnalar' && (
-          <IstisnalarTab
+          <FiyatIstisnalariTab
             locale={locale}
             istisnalar={istisnalar}
             products={products}
@@ -110,88 +115,26 @@ export default function FiyatlandirmaHubClient({
           />
         )}
 
-        {activeTab === 'talepler' && (
-          <TaleplerTab
-            locale={locale}
-            talepler={talepler}
-            profillerById={profillerById}
-            isAdmin={isAdmin}
-          />
-        )}
-
         {activeTab === 'profiller' && (
-          <ProfillerTab
+          <MusteriProfilleriTab
             locale={locale}
             musteriProfilleri={musteriProfilleri}
             profilKullanimSayisi={profilKullanimSayisi}
           />
         )}
+
+        {activeTab === 'atamalar' && (
+          <ProfilAtamalariTab
+            locale={locale}
+            firmalar={firmalar}
+            musteriProfilleri={musteriProfilleri}
+          />
+        )}
       </div>
     </div>
   );
 }
 
-// Placeholder tab components (will be fully implemented next)
-function KurallarTab({ locale, kurallar, kategoriler, products, firmalar }: any) {
-  return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Fiyat Kuralları</h2>
-      <p className="text-sm text-gray-600 mb-4">
-        {kurallar.length} kural tanımlı. Kurallar yönetimi entegre edilecek.
-      </p>
-      <div className="bg-blue-50 border border-blue-200 rounded p-4">
-        <p className="text-sm text-blue-800">
-          🚧 Mevcut fiyat-kurallari sayfasının içeriği buraya taşınacak.
-        </p>
-      </div>
-    </div>
-  );
-}
 
-function IstisnalarTab({ locale, istisnalar, products, firmalar }: any) {
-  return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Fiyat İstisnaları</h2>
-      <p className="text-sm text-gray-600 mb-4">
-        {istisnalar.length} istisna tanımlı. İstisnalar yönetimi entegre edilecek.
-      </p>
-      <div className="bg-blue-50 border border-blue-200 rounded p-4">
-        <p className="text-sm text-blue-800">
-          🚧 Mevcut fiyat-istisnalari sayfasının içeriği buraya taşınacak.
-        </p>
-      </div>
-    </div>
-  );
-}
 
-function TaleplerTab({ locale, talepler, profillerById, isAdmin }: any) {
-  return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Fiyat Değişim Talepleri</h2>
-      <p className="text-sm text-gray-600 mb-4">
-        {talepler.length} talep mevcut. Talepler yönetimi entegre edilecek.
-      </p>
-      <div className="bg-blue-50 border border-blue-200 rounded p-4">
-        <p className="text-sm text-blue-800">
-          🚧 Mevcut fiyat-talepleri sayfasının içeriği buraya taşınacak.
-        </p>
-      </div>
-    </div>
-  );
-}
 
-function ProfillerTab({ locale, musteriProfilleri, profilKullanimSayisi }: any) {
-  return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Müşteri Profilleri</h2>
-      <p className="text-sm text-gray-600 mb-4">
-        {musteriProfilleri.length} profil tanımlı. Profil yönetimi entegre edilecek.
-      </p>
-      <div className="bg-blue-50 border border-blue-200 rounded p-4">
-        <p className="text-sm text-blue-800">
-          🚧 CRM'deki musteri-profilleri sayfasının içeriği buraya taşınacak.
-        </p>
-      </div>
-    </div>
-  );
-}

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { Tables } from '@/lib/supabase/database.types';
 
-// Basit hesaplayıcı: Kullanıcı dostu, tek ürün odaklı maliyet ve hedef fiyat hesaplama
-// Not: Operasyonel (depolama/dağıtım/pazarlama) giderler hariç tutulmuştur.
+// Basit hesaplayıcı mantığı ile çalışan CalculatorClient
+// Kullanıcı dostu, tek ürün odaklı maliyet ve hedef fiyat hesaplama
 
 type ProductLite = Pick<
   Tables<'urunler'>,
@@ -26,7 +26,7 @@ function formatEuro(n: number | undefined) {
   return `${(n as number).toFixed(2)} €`;
 }
 
-export default function BasitMaliyetHesaplayiciTab({ locale, products, systemSettings }: Props) {
+export default function CalculatorClient({ locale, products, systemSettings }: Props) {
   // Form state
   const [selectedId, setSelectedId] = useState<string>('manual');
   const [baseCostInput, setBaseCostInput] = useState<number>(0); // kutu bazında (EUR)
@@ -45,7 +45,7 @@ export default function BasitMaliyetHesaplayiciTab({ locale, products, systemSet
   const selectedProduct = useMemo(() => products.find(p => p.id === selectedId), [products, selectedId]);
 
   // Ürün seçimi değiştiğinde alanları doldur
-    function inferSliceCount(tek?: any): number {
+  function inferSliceCount(tek?: any): number {
     if (!tek || typeof tek !== 'object') return 1;
     const candidates = ['dilim', 'dilim_sayisi', 'dilimSayisi', 'porsiyon', 'porsiyon_sayisi', 'portion', 'portions', 'slice', 'slices', 'slice_count'];
     for (const key of Object.keys(tek)) {

@@ -485,6 +485,39 @@ export const dictionary: Partial<Dictionary> = {
         orders: 'Siparişler',
         tasks: 'Görevler',
       },
+      activities: {
+        addActivityTitle: 'Yeni Aktivite Ekle',
+        activityHistoryTitle: 'Aktivite Geçmişi',
+        noActivities: 'Bu firma için henüz aktivite kaydedilmedi.',
+        errorLoading: 'Aktiviteler yüklenirken hata oluştu.',
+        form: {
+          typeLabel: 'Aktivite Tipi',
+          descriptionLabel: 'Açıklama / Not',
+          placeholder: 'Görüşme detaylarını veya notunuzu buraya girin...',
+          submitButton: 'Ekle',
+          submitting: 'Kaydediliyor...',
+          successMessage: 'Aktivite başarıyla eklendi.',
+          errorMessage: 'Aktivite eklenirken hata oluştu.',
+          requiredError: 'Açıklama ve aktivite tipi zorunludur.'
+        },
+        time: {
+          justNow: 'az önce',
+          minutesAgo: 'dakika önce',
+          hoursAgo: 'saat önce',
+          daysAgo: 'gün önce',
+          monthsAgo: 'ay önce',
+          yearsAgo: 'yıl önce'
+        },
+        card: {
+          unknownUser: 'Bilinmeyen Kullanıcı',
+          updateSuccess: 'Not güncellendi.',
+          updateError: 'Güncelleme başarısız.',
+          editTitle: 'Düzenle',
+          createdBy: 'tarafından oluşturuldu.',
+          cancel: 'İptal',
+          save: 'Kaydet'
+        }
+      },
       companyName: 'Firma',
       category: 'Kategori',
       phone: 'Telefon',
@@ -501,6 +534,14 @@ export const dictionary: Partial<Dictionary> = {
         'İletişimde': 'İletişimde',
         'Müşteri': 'Müşteri',
         'Pasif': 'Pasif',
+        // New Statuses
+        'ADAY': 'Aday',
+        'ISITILIYOR': 'Isıtılıyor',
+        'TEMAS EDİLDİ': 'Temas Edildi',
+        'İLETİŞİMDE': 'İletişimde',
+        'POTANSİYEL': 'Potansiyel',
+        'MÜŞTERİ': 'Müşteri',
+        'PASİF': 'Pasif'
       },
     },
     applicationsPage: {

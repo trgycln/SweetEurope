@@ -761,6 +761,13 @@ export type Database = {
       firmalar: {
         Row: {
           adres: string | null
+          sehir: string | null
+          ilce: string | null
+          mahalle: string | null
+          posta_kodu: string | null
+          yetkili_kisi: string | null
+          etiketler: string[] | null
+          oncelik_puani: number | null
           created_at: string
           email: string | null
           facebook_url: string | null
@@ -786,6 +793,13 @@ export type Database = {
         }
         Insert: {
           adres?: string | null
+          sehir?: string | null
+          ilce?: string | null
+          mahalle?: string | null
+          posta_kodu?: string | null
+          yetkili_kisi?: string | null
+          etiketler?: string[] | null
+          oncelik_puani?: number | null
           created_at?: string
           email?: string | null
           facebook_url?: string | null
@@ -811,6 +825,13 @@ export type Database = {
         }
         Update: {
           adres?: string | null
+          sehir?: string | null
+          ilce?: string | null
+          mahalle?: string | null
+          posta_kodu?: string | null
+          yetkili_kisi?: string | null
+          etiketler?: string[] | null
+          oncelik_puani?: number | null
           created_at?: string
           email?: string | null
           facebook_url?: string | null
@@ -2280,6 +2301,9 @@ export type Database = {
         | "Instagram Yorum"
         | "E-Mail Gönderimi"
         | "Yüz Yüze Ziyaret"
+        | "Instagram Etkileşimi"
+        | "DM Gönderildi"
+        | "Numune İsteği"
       etkinlik_turu:
         | "Telefon Görüşmesi"
         | "Müşteri Ziyareti"
@@ -2293,6 +2317,11 @@ export type Database = {
         | "Otel"
         | "Alt Bayi"
         | "Zincir Market"
+        | "Shisha & Lounge"
+        | "Coffee Shop & Eiscafé"
+        | "Casual Dining"
+        | "Hotel & Event"
+        | "Rakip/Üretici"
       firma_status:
         | "Aday"
         | "Takipte"
@@ -2300,6 +2329,13 @@ export type Database = {
         | "İletişimde"
         | "Müşteri"
         | "Pasif"
+        | "ADAY"
+        | "ISITILIYOR"
+        | "TEMAS EDİLDİ"
+        | "İLETİŞİMDE"
+        | "POTANSİYEL"
+        | "MÜŞTERİ"
+        | "PASİF"
       gider_durumu: "Taslak" | "Onaylandı"
       gorev_durumu: "Yapılacak" | "Devam Ediyor" | "Tamamlandı"
       gorev_oncelik: "Düşük" | "Orta" | "Yüksek"
@@ -2491,7 +2527,10 @@ export const Constants = {
         "Di─ƒer",
       ],
       fatura_durumu: ["pending", "paid", "overdue", "cancelled"],
-      firma_kategori: ["Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market"],
+      firma_kategori: [
+        "Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market",
+        "Shisha & Lounge", "Coffee Shop & Eiscafé", "Casual Dining", "Hotel & Event", "Rakip/Üretici"
+      ],
       firma_status: [
         "Aday",
         "Takipte",
@@ -2499,6 +2538,13 @@ export const Constants = {
         "─░leti┼ƒimde",
         "M├╝┼ƒteri",
         "Pasif",
+        "ADAY",
+        "ISITILIYOR",
+        "TEMAS EDİLDİ",
+        "POTANSİYEL",
+        "MÜŞTERİ",
+        "PASİF",
+        "REDDEDİLDİ"
       ],
       gider_durumu: ["Taslak", "Onayland─▒"],
       gorev_durumu: ["Yap─▒lacak", "Devam Ediyor", "Tamamland─▒"],

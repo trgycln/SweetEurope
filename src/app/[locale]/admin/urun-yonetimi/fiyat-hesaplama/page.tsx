@@ -4,7 +4,7 @@ import { Tables } from '@/lib/supabase/database.types';
 import { getSystemSettings } from '@/app/actions/system-settings-actions';
 import CalculatorClient from './CalculatorClient';
 
-type ProductLite = Pick<Tables<'urunler'>, 'id' | 'ad' | 'distributor_alis_fiyati' | 'satis_fiyati_alt_bayi' | 'satis_fiyati_musteri'>;
+type ProductLite = Pick<Tables<'urunler'>, 'id' | 'ad' | 'distributor_alis_fiyati' | 'satis_fiyati_alt_bayi' | 'satis_fiyati_musteri' | 'aktif'> & { stok_kodu?: string | null; teknik_ozellikler?: any | null };
 
 export default async function FiyatHesaplamaPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -13,7 +13,7 @@ export default async function FiyatHesaplamaPage({ params }: { params: Promise<{
 
   const { data: urunler, error } = await supabase
     .from('urunler')
-    .select('id, ad, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_musteri')
+    .select('id, ad, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_musteri, aktif, stok_kodu, teknik_ozellikler')
     .order(`ad->>${locale}`, { ascending: true })
     .limit(500);
 

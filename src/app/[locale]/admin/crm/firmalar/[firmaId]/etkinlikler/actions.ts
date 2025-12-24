@@ -25,8 +25,12 @@ type ActionResult = {
 // Fügt eine neue Aktivität hinzu
 export async function yeniEtkinlikEkleAction(
     firmaId: string,
+    locale: string,
+    prevState: ActionResult | null,
     formData: FormData
 ): Promise<ActionResult> { // Rückgabetyp verwenden
+
+    console.log("yeniEtkinlikEkleAction gestartet:", { firmaId, locale });
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies();
@@ -49,9 +53,13 @@ export async function yeniEtkinlikEkleAction(
     const etkinlik_tipi = etkinlik_tipi_raw as EtkinlikTipi | null; // Typumwandlung versuchen
 
     // Überprüfen, ob der Typ gültig ist (falls Sie Enum-Werte verwenden)
-    const validEtkinlikTipleri: ReadonlyArray<EtkinlikTipi> = ['Not', 'Telefon Görüşmesi', 'Toplantı', 'E-posta', 'Teklif']; // Oder aus Constants
-    if (!aciklama || !etkinlik_tipi || !validEtkinlikTipleri.includes(etkinlik_tipi)) {
-        return { success: false, error: 'Beschreibung und gültiger Aktivitätstyp sind erforderlich.' }; // Fehlermeldung angepasst
+    // const validEtkinlikTipleri: ReadonlyArray<EtkinlikTipi> = ['Not', 'Telefon Görüşmesi', 'Toplantı', 'E-posta', 'Teklif']; // Oder aus Constants
+    // if (!aciklama || !etkinlik_tipi || !validEtkinlikTipleri.includes(etkinlik_tipi)) {
+    //     return { success: false, error: 'Beschreibung und gültiger Aktivitätstyp sind erforderlich.' }; // Fehlermeldung angepasst
+    // }
+    
+    if (!aciklama || !etkinlik_tipi) {
+        return { success: false, error: 'Beschreibung und Aktivitätstyp sind erforderlich.' };
     }
 
     // 3. Aktivität in die Datenbank einfügen
@@ -66,18 +74,14 @@ export async function yeniEtkinlikEkleAction(
 
     if (insertError) {
         console.error('Fehler beim Hinzufügen der Aktivität:', insertError);
-        return { success: false, error: 'Datenbankfehler beim Hinzufügen der Aktivität.' }; // Fehlermeldung angepasst
+        return { 
+            success: false, 
+            error: `Datenbankfehler: ${insertError.message} (${insertError.details || insertError.hint || ''})` 
+        };
     }
 
     // 4. Cache für die betroffene Seite neu validieren
-    // Locale muss hier bekannt sein, um den Pfad korrekt zu bauen.
-    // Sie muss entweder übergeben werden oder aus einer anderen Quelle kommen.
-    // Annahme: Wir haben Zugriff auf die Locale (z.B. aus params der aufrufenden Seite)
-    // Wenn nicht, müssen Sie den Pfad generischer gestalten oder locale übergeben.
-    // const locale = 'de'; // Beispiel - ersetzen Sie dies dynamisch!
-    // revalidatePath(`/${locale}/admin/crm/firmalar/${firmaId}/etkinlikler`);
-    // Generischer Pfad (funktioniert meistens, aber spezifischer ist besser)
-    revalidatePath(`/admin/crm/firmalar/[firmaId]/etkinlikler`, 'page'); // Typ 'page' hinzugefügt
+    revalidatePath(`/${locale}/admin/crm/firmalar/${firmaId}/etkinlikler`);
 
     console.log(`Neue Aktivität für Firma ${firmaId} erfolgreich hinzugefügt.`);
     return { success: true, message: 'Aktivität erfolgreich hinzugefügt.' }; // Meldung angepasst

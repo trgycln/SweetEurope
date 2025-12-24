@@ -27,17 +27,17 @@ export default function TopluGuncellemeTab({
   istisnalar,
 }: Props) {
   // Pricing parameters (from system settings as defaults)
-  const [shippingPerBox, setShippingPerBox] = useState<number>(systemSettings.pricing_shipping_per_box ?? 0.56);
-  const [customsPct, setCustomsPct] = useState<number>(systemSettings.pricing_customs_percent ?? 7);
-  const [storageCost, setStorageCost] = useState<number>(systemSettings.pricing_storage_per_box ?? 0.08);
-    // Operasyonel giderler: yüzde olarak uygulanır (ör. %10)
+  // Basit hesaplayıcı varsayılanları: 350€ palet / 384 kutu ≈ 0.91€
+  const [shippingPerBox, setShippingPerBox] = useState<number>(350 / 384);
+  const [customsPct, setCustomsPct] = useState<number>(systemSettings.pricing_customs_percent ?? 15);
+  // Operasyonel giderler: yüzde olarak uygulanır (ör. %10)
   // Operasyon tutarı kutu alış fiyatı (unitBoxCost) üzerinden hesaplanır.
-  const [operationalPct, setOperationalPct] = useState<number>(systemSettings.pricing_operational_percent ?? 10);
+  const [operationalPct, setOperationalPct] = useState<number>(10);
   // Alt bayi marjı varsayılanı %5
   const [dealerMarginPct, setDealerMarginPct] = useState<number>(systemSettings.pricing_dealer_margin_default ?? 5);
   // Müşteri marjı varsayılanı %30
   const [distributorMarginPct, setDistributorMarginPct] = useState<number>(systemSettings.pricing_distributor_margin ?? 30);
-  const [roundStep, setRoundStep] = useState<number>(systemSettings.pricing_round_step ?? 0.1);
+  const [roundStep, setRoundStep] = useState<number>(0); // Varsayılan yuvarlama yok
   const [vatRatePct, setVatRatePct] = useState<number>(systemSettings.pricing_vat_rate ?? 7);
   
     // Ürün başına dinamik dilim/birim sayısı: teknik_ozellikler içinden okunur (yoksa 1)
@@ -128,14 +128,16 @@ export default function TopluGuncellemeTab({
       const slices = inferSliceCount((product as any).teknik_ozellikler);
       const shippingSlice = slices > 1 ? shippingBox / slices : shippingBox;
       
-      // Gümrük (kutu bazında hesapla)
-      const customsBox = (unitBoxCost + shippingBox) * (customsPct / 100);
+      // Gümrük (kutu bazında hesapla): (Alış + Nakliye) * %Gümrük
+      const costBeforeCustomsBox = unitBoxCost + shippingBox;
+      const customsBox = costBeforeCustomsBox * (customsPct / 100);
+      const costAfterCustomsBox = costBeforeCustomsBox + customsBox;
       
-            // Operasyonel gider (kutu) = Alış fiyatı x %Operasyon
-      const operationalBox = unitBoxCost * (operationalPct / 100);
+      // Operasyonel gider (kutu) = Gümrüklü Maliyet x %Operasyon
+      const operationalBox = costAfterCustomsBox * (operationalPct / 100);
       
-      // Nihai maliyet (Landed Cost) = Alış + Nakliye + Gümrük + Operasyonel
-            const landedCostBox = unitBoxCost + shippingBox + customsBox + operationalBox;
+      // Nihai maliyet (Landed Cost) = Gümrüklü Maliyet + Operasyonel
+      const landedCostBox = costAfterCustomsBox + operationalBox;
       const landedCostSlice = slices > 1 ? landedCostBox / slices : landedCostBox;
       
       // Müşteri satış fiyatı (net: maliyet + marj)
@@ -149,8 +151,12 @@ export default function TopluGuncellemeTab({
   const altBayiNetSlice = slices > 1 ? altBayiNetBox / slices : altBayiNetBox;
       
       // KDV tutarı (müşteri satış üzerinden)
-            const kdvBox = musteriNetBox * (vatRatePct / 100);
+      const kdvBox = musteriNetBox * (vatRatePct / 100);
       const kdvSlice = slices > 1 ? kdvBox / slices : kdvBox;
+
+      const finalMusteriNetBox = override?.musteri ?? musteriNetBox;
+      const finalMusteriNetSlice = slices > 0 ? finalMusteriNetBox / slices : 0;
+      const musteriGrossSlice = finalMusteriNetSlice * (1 + vatRatePct / 100);
 
       return {
         product,
@@ -160,8 +166,9 @@ export default function TopluGuncellemeTab({
         customsBox,
         operationalBox,
         landedCostBox,
-        musteriNetBox: override?.musteri ?? musteriNetBox,
-        musteriNetSlice: slices > 0 ? (override?.musteri ?? musteriNetBox) / slices : 0,
+        musteriNetBox: finalMusteriNetBox,
+        musteriNetSlice: finalMusteriNetSlice,
+        musteriGrossSlice,
         altBayiNetBox,
         altBayiNetSlice,
         kdvBox,
@@ -369,83 +376,136 @@ export default function TopluGuncellemeTab({
         </div>
       </div>
 
-      {/* Grid - Sadeleştirilmiş Sütunlar */}
-      <div className="bg-white rounded-lg border overflow-x-auto" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-        <table className="min-w-full text-sm">
-          <thead className="sticky top-0 z-10 bg-white shadow">
-            <tr>
-              <th className="px-3 py-2 text-left">
-                <input type="checkbox" checked={selectedIds.size === displayedProducts.length && displayedProducts.length > 0} onChange={toggleSelectAll} className="h-4 w-4" />
-              </th>
-              <th className="px-3 py-2 text-left">Ürün</th>
-              <th className="px-3 py-2 text-right">Ürün Alış<br/>(Kutu)</th>
-              <th className="px-3 py-2 text-right">Müşteri Satış<br/>(Kutu)</th>
-              <th className="px-3 py-2 text-right">Müşteri Satış<br/>(Dilim)</th>
-              <th className="px-3 py-2 text-right">Alt Bayi Satış<br/>(Kutu)</th>
-              <th className="px-3 py-2 text-right">Alt Bayi Satış<br/>(Dilim)</th>
-              <th className="px-3 py-2 text-right">Nakliye<br/>(Kutu)</th>
-              <th className="px-3 py-2 text-right">Nakliye<br/>(Dilim)</th>
-              <th className="px-3 py-2 text-right">KDV<br/>(Kutu)</th>
-              <th className="px-3 py-2 text-right">Gümrük<br/>(Kutu)</th>
-              <th className="px-3 py-2 text-right">Operasyonel<br/>(Kutu)</th>
-              <th className="px-3 py-2 text-center">İşlem</th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayedProducts.length === 0 && (
-              <tr>
-                <td colSpan={13} className="px-3 py-8 text-center text-gray-500">
-                  Gösterilecek ürün yok. Filtreleri değiştirin.
-                </td>
+      {/* Grid - Gelişmiş Tablo Tasarımı */}
+      <div className="bg-white rounded-lg border shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: '700px' }}>
+        <div className="overflow-x-auto flex-1">
+          <table className="min-w-full text-xs border-collapse">
+            <thead className="sticky top-0 z-20 bg-white shadow-sm">
+              {/* Üst Başlıklar (Gruplama) */}
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th rowSpan={2} className="px-3 py-2 text-left w-10 bg-gray-50 border-r">
+                  <input type="checkbox" checked={selectedIds.size === displayedProducts.length && displayedProducts.length > 0} onChange={toggleSelectAll} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                </th>
+                <th rowSpan={2} className="px-4 py-2 text-left min-w-[250px] bg-gray-50 border-r font-bold text-gray-700">Ürün Bilgisi</th>
+                
+                <th colSpan={5} className="px-2 py-1 text-center border-r bg-red-50/50 text-red-900 font-semibold border-b border-red-100">
+                  Maliyet Analizi (Kutu Bazlı)
+                </th>
+                
+                <th colSpan={3} className="px-2 py-1 text-center border-r bg-blue-50/50 text-blue-900 font-semibold border-b border-blue-100">
+                  Müşteri Satış
+                </th>
+                
+                <th colSpan={2} className="px-2 py-1 text-center border-r bg-green-50/50 text-green-900 font-semibold border-b border-green-100">
+                  Alt Bayi Satış (Net)
+                </th>
+                
+                <th rowSpan={2} className="px-2 py-2 text-center min-w-[80px] bg-gray-50 font-semibold text-gray-600">İşlem</th>
               </tr>
-            )}
-            {displayedProducts.map(({ product, unitBoxCost, shippingBox, shippingSlice, customsBox, operationalBox, musteriNetBox, musteriNetSlice, altBayiNetBox, altBayiNetSlice, kdvBox, hasOverride, isExcluded, isSelected }) => (
-              <tr key={product.id} className={`border-t ${!product.aktif ? 'bg-gray-100 opacity-70' : isExcluded ? 'bg-gray-100 opacity-50' : isSelected ? 'bg-blue-50' : ''}`}>
-                <td className="px-3 py-2">
-                  <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(product.id)} className="h-4 w-4" />
-                </td>
-                <td className="px-3 py-2">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1">
-                      {displayName(product)}
-                      {!product.aktif && <span className="text-xs bg-gray-300 text-gray-700 px-1 rounded" title="Pasif ürün">PASİF</span>}
-                      {hasOverride && <span className="text-xs bg-purple-100 text-purple-700 px-1 rounded" title="Manuel override">✏️</span>}
-                      {isExcluded && <span className="text-xs bg-red-100 text-red-700 px-1 rounded" title="Hariç tutuldu">🚫</span>}
+
+              {/* Alt Başlıklar (Detay) */}
+              <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-500">
+                {/* Maliyet Sütunları */}
+                <th className="px-2 py-1.5 text-right font-medium border-r border-gray-100" title="Distribütör Alış Fiyatı">Alış</th>
+                <th className="px-2 py-1.5 text-right font-medium border-r border-gray-100" title="Kutu Başı Nakliye">Nakliye</th>
+                <th className="px-2 py-1.5 text-right font-medium border-r border-gray-100" title="Gümrük Vergisi">Gümrük</th>
+                <th className="px-2 py-1.5 text-right font-medium border-r border-gray-100" title="Operasyonel Giderler">Ops.</th>
+                <th className="px-2 py-1.5 text-right font-bold text-gray-800 bg-gray-100/50 border-r border-gray-200" title="Toplam Maliyet (Landed Cost)">TOPLAM</th>
+
+                {/* Müşteri Sütunları */}
+                <th className="px-2 py-1.5 text-right font-medium border-r border-gray-100 text-blue-800">Kutu (Net)</th>
+                <th className="px-2 py-1.5 text-right font-medium border-r border-gray-100 text-blue-800">Dilim (Net)</th>
+                <th className="px-2 py-1.5 text-right font-bold border-r border-gray-200 text-blue-900 bg-blue-100/30">Dilim (KDV'li)</th>
+
+                {/* Alt Bayi Sütunları */}
+                <th className="px-2 py-1.5 text-right font-medium border-r border-gray-100 text-green-800">Kutu</th>
+                <th className="px-2 py-1.5 text-right font-medium border-r border-gray-200 text-green-800">Dilim</th>
+              </tr>
+            </thead>
+            
+            <tbody className="divide-y divide-gray-100">
+              {displayedProducts.length === 0 && (
+                <tr>
+                  <td colSpan={12} className="px-3 py-12 text-center text-gray-500">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <span className="text-2xl">🔍</span>
+                      <span>Gösterilecek ürün bulunamadı. Filtreleri kontrol edin.</span>
                     </div>
-                    {product.stok_kodu && (
-                      <div className="text-[10px] mt-1 tracking-wide text-gray-500 flex items-center gap-1">
-                        <code className="px-1 py-0.5 bg-gray-100 rounded border border-gray-200 font-mono">{product.stok_kodu}</code>
-                        <button
-                          type="button"
-                          onClick={() => navigator.clipboard.writeText(product.stok_kodu!)}
-                          className="text-gray-400 hover:text-gray-600"
-                          title="Kodu kopyala"
-                        >
-                          ⧉
-                        </button>
+                  </td>
+                </tr>
+              )}
+              {displayedProducts.map(({ product, unitBoxCost, shippingBox, customsBox, operationalBox, landedCostBox, musteriNetBox, musteriNetSlice, musteriGrossSlice, altBayiNetBox, altBayiNetSlice, hasOverride, isExcluded, isSelected }) => {
+                const slices = inferSliceCount((product as any).teknik_ozellikler);
+                return (
+                  <tr 
+                    key={product.id}  
+                    className={`group transition-colors hover:bg-gray-50 
+                      ${!product.aktif ? 'bg-gray-100/50 opacity-60 grayscale' : ''} 
+                      ${isExcluded ? 'bg-red-50/30' : ''} 
+                      ${isSelected ? 'bg-blue-50/40' : ''}
+                    `}
+                  >
+                    <td className="px-3 py-2 border-r border-gray-100">
+                      <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(product.id)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                    </td>
+                    <td className="px-4 py-2 border-r border-gray-100">
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-medium text-gray-900 line-clamp-2" title={displayName(product)}>{displayName(product)}</span>
+                        </div>
+                        
+                        <div className="flex items-center flex-wrap gap-1.5 mt-1">
+                          {product.stok_kodu && (
+                            <code className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-mono border border-gray-200">
+                              {product.stok_kodu}
+                            </code>
+                          )}
+                          <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-medium border border-blue-100">
+                            {slices} Dilim
+                          </span>
+                          {!product.aktif && <span className="px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded text-[10px] font-bold">PASİF</span>}
+                          {hasOverride && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-bold" title="Özel Fiyat Tanımlı">ÖZEL</span>}
+                          {isExcluded && <span className="px-1.5 py-0.5 bg-red-100 text-red-700 rounded text-[10px] font-bold">HARİÇ</span>}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </td>
-                <td className="px-3 py-2 text-right">{formatPrice(unitBoxCost)} €</td>
-                <td className="px-3 py-2 text-right font-semibold text-blue-600">{formatPrice(musteriNetBox)} €</td>
-                <td className="px-3 py-2 text-right font-semibold text-blue-600">{formatPrice(musteriNetSlice)} €</td>
-                <td className="px-3 py-2 text-right font-semibold text-green-600">{formatPrice(altBayiNetBox)} €</td>
-                <td className="px-3 py-2 text-right font-semibold text-green-600">{formatPrice(altBayiNetSlice)} €</td>
-                <td className="px-3 py-2 text-right">{formatPrice(shippingBox)} €</td>
-                <td className="px-3 py-2 text-right">{formatPrice(shippingSlice)} €</td>
-                <td className="px-3 py-2 text-right">{formatPrice(kdvBox)} €</td>
-                <td className="px-3 py-2 text-right">{formatPrice(customsBox)} €</td>
-                <td className="px-3 py-2 text-right">{formatPrice(operationalBox)} €</td>
-                <td className="px-3 py-2 text-center">
-                  <button onClick={() => toggleExclude(product.id)} className="text-xs px-2 py-1 rounded hover:bg-gray-200" title={isExcluded ? "İstisnadan çıkar" : "İstisnaya al"}>
-                    {isExcluded ? '✓' : '🚫'}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    </td>
+
+                    {/* Maliyet Değerleri */}
+                    <td className="px-2 py-2 text-right text-gray-600 font-mono border-r border-gray-100 bg-red-50/10">{formatPrice(unitBoxCost)}</td>
+                    <td className="px-2 py-2 text-right text-gray-500 font-mono border-r border-gray-100 bg-red-50/10">{formatPrice(shippingBox)}</td>
+                    <td className="px-2 py-2 text-right text-gray-500 font-mono border-r border-gray-100 bg-red-50/10">{formatPrice(customsBox)}</td>
+                    <td className="px-2 py-2 text-right text-gray-500 font-mono border-r border-gray-100 bg-red-50/10">{formatPrice(operationalBox)}</td>
+                    <td className="px-2 py-2 text-right font-bold text-gray-800 font-mono border-r border-gray-200 bg-gray-50">{formatPrice(landedCostBox)}</td>
+
+                    {/* Müşteri Fiyatları */}
+                    <td className="px-2 py-2 text-right font-semibold text-blue-700 font-mono border-r border-gray-100 bg-blue-50/10">{formatPrice(musteriNetBox)}</td>
+                    <td className="px-2 py-2 text-right font-medium text-blue-700 font-mono border-r border-gray-100 bg-blue-50/10">{formatPrice(musteriNetSlice)}</td>
+                    <td className="px-2 py-2 text-right font-bold text-blue-900 font-mono border-r border-gray-200 bg-blue-100/30">{formatPrice(musteriGrossSlice)}</td>
+
+                    {/* Alt Bayi Fiyatları */}
+                    <td className="px-2 py-2 text-right font-semibold text-green-700 font-mono border-r border-gray-100 bg-green-50/10">{formatPrice(altBayiNetBox)}</td>
+                    <td className="px-2 py-2 text-right font-bold text-green-700 font-mono border-r border-gray-200 bg-green-50/20">{formatPrice(altBayiNetSlice)}</td>
+
+                    {/* İşlemler */}
+                    <td className="px-2 py-2 text-center">
+                      <button 
+                        onClick={() => toggleExclude(product.id)} 
+                        className={`p-1.5 rounded transition-colors ${isExcluded ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'}`}
+                        title={isExcluded ? "Hesaplamaya Dahil Et" : "Hesaplamadan Hariç Tut"}
+                      >
+                        {isExcluded ? (
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                        ) : (
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Bottom Actions */}

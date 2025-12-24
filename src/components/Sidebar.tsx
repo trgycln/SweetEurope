@@ -63,8 +63,6 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             title: sidebarContent.crm || 'CRM & Müşteri Yönetimi',
             links: [
                 { name: sidebarContent.customers || 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
-                { name: sidebarContent.customerProfiles || 'Müşteri Profilleri', href: '/admin/crm/musteri-profilleri', icon: FiTag, roles: ['Yönetici'] as UserRole[] },
-                { name: sidebarContent.profileAssignments || 'Profil Atamaları', href: '/admin/crm/profil-atamalari', icon: FiUserCheck, roles: ['Yönetici'] as UserRole[] },
             ],
         },
         {

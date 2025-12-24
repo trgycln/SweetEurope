@@ -42,11 +42,18 @@ export async function updateFirmaAction(
     const adres = formData.get('adres') as string | null;
     const telefon = formData.get('telefon') as string | null;
     const email = formData.get('email') as string | null;
-    const oncelik = formData.get('oncelik') as string | null;
+    // const oncelik = formData.get('oncelik') as string | null; // Removed manual priority
     const instagram_url = formData.get('instagram_url') as string | null;
     const facebook_url = formData.get('facebook_url') as string | null;
     const web_url = formData.get('web_url') as string | null;
     const google_maps_url = formData.get('google_maps_url') as string | null;
+    const sehir = formData.get('sehir') as string | null;
+    const ilce = formData.get('ilce') as string | null;
+    const mahalle = formData.get('mahalle') as string | null; // New field
+    const posta_kodu = formData.get('posta_kodu') as string | null;
+    const yetkili_kisi = formData.get('yetkili_kisi') as string | null;
+    const etiketler = formData.getAll('etiketler') as string[];
+    const kaynak = formData.get('kaynak') as string | null;
     // Checkbox-Wert korrekt auslesen
     const referans_olarak_goster = formData.get('referans_olarak_goster') === 'on';
 
@@ -55,7 +62,10 @@ export async function updateFirmaAction(
         return { success: false, error: "Firmenname darf nicht leer sein." };
     }
     // Stellen Sie sicher, dass der Status gültig ist, falls er übergeben wurde
-    const validStatusOptions: ReadonlyArray<FirmaStatus> = ["Aday", "Takipte", "Temas Kuruldu", "İletişimde", "Müşteri", "Pasif"];
+    const validStatusOptions: ReadonlyArray<FirmaStatus> = [
+        "ADAY", "ISITILIYOR", "TEMAS EDİLDİ", "İLETİŞİMDE", "POTANSİYEL", "MÜŞTERİ", "PASİF", "REDDEDİLDİ",
+        "Aday", "Takipte", "Temas Kuruldu", "İletişimde", "Müşteri", "Pasif"
+    ];
     if (yeniStatus && !validStatusOptions.includes(yeniStatus)) {
          return { success: false, error: `Ungültiger Status: ${yeniStatus}` };
     }
@@ -68,11 +78,55 @@ export async function updateFirmaAction(
     if (adres) updatedData.adres = adres; else updatedData.adres = null;
     if (telefon) updatedData.telefon = telefon; else updatedData.telefon = null;
     if (email) updatedData.email = email; else updatedData.email = null;
-    if (oncelik) (updatedData as any).oncelik = oncelik; else (updatedData as any).oncelik = null;
+    // if (oncelik) (updatedData as any).oncelik = oncelik; else (updatedData as any).oncelik = null; // Removed manual priority
     if (instagram_url) (updatedData as any).instagram_url = instagram_url; else (updatedData as any).instagram_url = null;
     if (facebook_url) (updatedData as any).facebook_url = facebook_url; else (updatedData as any).facebook_url = null;
     if (web_url) (updatedData as any).web_url = web_url; else (updatedData as any).web_url = null;
     if (google_maps_url) (updatedData as any).google_maps_url = google_maps_url; else (updatedData as any).google_maps_url = null;
+    if (sehir) (updatedData as any).sehir = sehir; else (updatedData as any).sehir = null;
+    if (ilce) (updatedData as any).ilce = ilce; else (updatedData as any).ilce = null;
+    if (mahalle) (updatedData as any).mahalle = mahalle; else (updatedData as any).mahalle = null; // New field
+    if (posta_kodu) (updatedData as any).posta_kodu = posta_kodu; else (updatedData as any).posta_kodu = null;
+    if (yetkili_kisi) (updatedData as any).yetkili_kisi = yetkili_kisi; else (updatedData as any).yetkili_kisi = null;
+    if (etiketler && etiketler.length > 0) (updatedData as any).etiketler = etiketler; else (updatedData as any).etiketler = null;
+    if (kaynak) (updatedData as any).kaynak = kaynak; else (updatedData as any).kaynak = null;
+    
+    // --- SCORING LOGIC ---
+    let score = 0;
+    // Category Score
+    const catScores: Record<string, number> = {
+        'Shisha & Lounge': 100,
+        'Coffee Shop & Eiscafé': 90,
+        'Hotel & Event': 80,
+        'Casual Dining': 70,
+        'Restoran': 70, // Added Restoran
+        'Alt Bayi': 60, // Corrected key
+        'Rakip/Üretici': 0
+    };
+    if (kategorie) score += catScores[kategorie] || 50;
+
+    // Tag Score
+    if (etiketler && etiketler.length > 0) {
+        // Pozitif Etkenler (Satış İhtimalini Artıranlar)
+        if (etiketler.includes('#Vitrin_Boş')) score += 40; // Acil ürün ihtiyacı
+        if (etiketler.includes('#Mutfak_Yok')) score += 30; // Üretim yapamaz, almak zorunda
+        if (etiketler.includes('#Yeni_Açılış')) score += 25; // Tedarikçi arayışında
+        if (etiketler.includes('#Türk_Sahibi')) score += 20; // Kültürel yakınlık, kolay iletişim
+        if (etiketler.includes('#Düğün_Mekanı')) score += 20; // Toplu sipariş potansiyeli
+        if (etiketler.includes('#Kahve_Odaklı')) score += 15; // Kahve yanına pasta şart
+        if (etiketler.includes('#Yüksek_Sirkülasyon')) score += 15; // Yüksek ciro potansiyeli
+        if (etiketler.includes('#Lüks_Mekan')) score += 10; // Yüksek kar marjı ürünler satabilir
+        if (etiketler.includes('#Teraslı')) score += 10; // Yazın yüksek kapasite
+        if (etiketler.includes('#Self_Service')) score += 10; // Donuk ürün operasyonuna uygun
+
+        // Negatif Etkenler (Satış İhtimalini Düşürenler)
+        if (etiketler.includes('#Zincir_Marka')) score -= 20; // Merkezi satın alma, zor giriş
+        if (etiketler.includes('#Kendi_Üretimi')) score -= 30; // Kendi pastasını yapıyor, ihtiyaç az
+        if (etiketler.includes('#Rakip_Sözleşmeli')) score -= 30; // Başka tedarikçi ile anlaşmalı
+    }
+    (updatedData as any).oncelik_puani = score;
+    // --- END SCORING ---
+
     // Checkbox-Wert immer setzen (true oder false)
     updatedData.referans_olarak_goster = referans_olarak_goster;
 

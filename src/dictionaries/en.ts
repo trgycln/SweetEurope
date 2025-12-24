@@ -459,6 +459,39 @@ export const dictionary: Partial<Dictionary> = {
         orders: 'Orders',
         tasks: 'Tasks',
       },
+      activities: {
+        addActivityTitle: 'Add New Activity',
+        activityHistoryTitle: 'Activity History',
+        noActivities: 'No activities recorded for this company yet.',
+        errorLoading: 'Error loading activities.',
+        form: {
+          typeLabel: 'Activity Type',
+          descriptionLabel: 'Description / Note',
+          placeholder: 'Enter conversation details or your note here...',
+          submitButton: 'Add',
+          submitting: 'Saving...',
+          successMessage: 'Activity added successfully.',
+          errorMessage: 'Error adding activity.',
+          requiredError: 'Description and activity type are required.'
+        },
+        time: {
+          justNow: 'just now',
+          minutesAgo: 'minutes ago',
+          hoursAgo: 'hours ago',
+          daysAgo: 'days ago',
+          monthsAgo: 'months ago',
+          yearsAgo: 'years ago'
+        },
+        card: {
+          unknownUser: 'Unknown User',
+          updateSuccess: 'Note updated.',
+          updateError: 'Update failed.',
+          editTitle: 'Edit',
+          createdBy: 'created by',
+          cancel: 'Cancel',
+          save: 'Save'
+        }
+      },
       companyName: 'Company',
       category: 'Category', 
       phone: 'Phone',
@@ -475,6 +508,14 @@ export const dictionary: Partial<Dictionary> = {
         'İletişimde': 'In Communication',
         'Müşteri': 'Customer',
         'Pasif': 'Inactive',
+        // New Statuses
+        'ADAY': 'Candidate',
+        'ISITILIYOR': 'Warming Up',
+        'TEMAS EDİLDİ': 'Contacted',
+        'İLETİŞİMDE': 'In Communication',
+        'POTANSİYEL': 'Potential',
+        'MÜŞTERİ': 'Customer',
+        'PASİF': 'Inactive'
       },
     },
     applicationsPage: {

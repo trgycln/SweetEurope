@@ -7,11 +7,33 @@ import { FiSearch } from 'react-icons/fi';
 
 interface FirmaFiltreleriProps {
     statusOptions: string[];
+    statusLabels?: Record<string, string>;
     searchPlaceholder: string;
     allStatusesLabel: string;
+    allPrioritiesLabel: string;
+    allCitiesLabel: string;
+    allDistrictsLabel: string;
+    allZipCodesLabel?: string; // Changed from Neighborhood
+    cityOptions?: string[];
+    districtOptions?: string[];
+    zipCodeOptions?: string[]; // Changed from Neighborhood
+    zipCodeLabels?: Record<string, string>; // Map of zip code to display label
 }
 
-export default function FirmaFiltreleri({ statusOptions, searchPlaceholder, allStatusesLabel }: FirmaFiltreleriProps) {
+export default function FirmaFiltreleri({ 
+    statusOptions, 
+    statusLabels = {},
+    searchPlaceholder, 
+    allStatusesLabel,
+    allPrioritiesLabel,
+    allCitiesLabel,
+    allDistrictsLabel,
+    allZipCodesLabel = "All Zip Codes",
+    cityOptions = [],
+    districtOptions = [],
+    zipCodeOptions = [],
+    zipCodeLabels = {}
+}: FirmaFiltreleriProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
@@ -28,6 +50,36 @@ export default function FirmaFiltreleri({ statusOptions, searchPlaceholder, allS
         replace(`${pathname}?${params.toString()}`);
     }, 300);
 
+    const handleCityChange = (city: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (city) {
+            params.set('city', city);
+        } else {
+            params.delete('city');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
+    const handleDistrictChange = (district: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (district) {
+            params.set('district', district);
+        } else {
+            params.delete('district');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
+    const handleZipCodeChange = (zipCode: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (zipCode) {
+            params.set('posta_kodu', zipCode);
+        } else {
+            params.delete('posta_kodu');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
     const handleStatusChange = (status: string) => {
         const params = new URLSearchParams(searchParams);
         if (status) {
@@ -37,13 +89,23 @@ export default function FirmaFiltreleri({ statusOptions, searchPlaceholder, allS
         }
         replace(`${pathname}?${params.toString()}`);
     };
+
+    const handlePriorityChange = (priority: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (priority) {
+            params.set('priority_group', priority);
+        } else {
+            params.delete('priority_group');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
     
     // NOT: use-debounce kütüphanesini eklemeniz gerekecek:
     // yarn add use-debounce
 
     return (
-        <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border border-bg-subtle">
-            <div className="relative flex-grow">
+        <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-lg shadow-sm border border-bg-subtle flex-wrap">
+            <div className="relative flex-grow min-w-[200px]">
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                     type="text"
@@ -53,6 +115,65 @@ export default function FirmaFiltreleri({ statusOptions, searchPlaceholder, allS
                     defaultValue={searchParams.get('q')?.toString()}
                 />
             </div>
+            
+            {/* Priority Filter */}
+            <div className="relative flex-grow sm:flex-grow-0 sm:w-40">
+                <select
+                    className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                    onChange={(e) => handlePriorityChange(e.target.value)}
+                    value={searchParams.get('priority_group')?.toString() || ''}
+                >
+                    <option value="">{allPrioritiesLabel}</option>
+                    <option value="A">A (High)</option>
+                    <option value="B">B (Medium)</option>
+                    <option value="C">C (Low)</option>
+                </select>
+            </div>
+
+            {/* City Filter */}
+            <div className="relative flex-grow sm:flex-grow-0 sm:w-48">
+                <select
+                    className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    value={searchParams.get('city')?.toString() || ''}
+                >
+                    <option value="">{allCitiesLabel}</option>
+                    {cityOptions.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* District Filter */}
+            <div className="relative flex-grow sm:flex-grow-0 sm:w-48">
+                <select
+                    className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                    onChange={(e) => handleDistrictChange(e.target.value)}
+                    value={searchParams.get('district')?.toString() || ''}
+                >
+                    <option value="">{allDistrictsLabel}</option>
+                    {districtOptions.map(district => (
+                        <option key={district} value={district}>{district}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Zip Code Filter */}
+            <div className="relative flex-grow sm:flex-grow-0 sm:w-48">
+                <select
+                    className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                    onChange={(e) => handleZipCodeChange(e.target.value)}
+                    value={searchParams.get('posta_kodu')?.toString() || ''}
+                >
+                    <option value="">{allZipCodesLabel}</option>
+                    {zipCodeOptions.map(zipCode => (
+                        <option key={zipCode} value={zipCode}>
+                            {zipCodeLabels[zipCode] || zipCode}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
             <div className="flex-grow sm:flex-grow-0 sm:w-64">
                 <select
                     className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
@@ -61,7 +182,7 @@ export default function FirmaFiltreleri({ statusOptions, searchPlaceholder, allS
                 >
                     <option value="">{allStatusesLabel}</option>
                     {statusOptions.map(status => (
-                        <option key={status} value={status}>{status}</option>
+                        <option key={status} value={status}>{statusLabels[status] || status}</option>
                     ))}
                 </select>
             </div>

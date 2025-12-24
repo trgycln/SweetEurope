@@ -23,9 +23,18 @@ interface EtkinlikKartiProps {
     zamanFarki: string;
     ikonAdi: string; // Sunucu bileşeninden artık ikonun adını (string) alıyoruz.
     currentUser: User | null;
+    dict: {
+        unknownUser: string;
+        updateSuccess: string;
+        updateError: string;
+        editTitle: string;
+        createdBy: string;
+        cancel: string;
+        save: string;
+    };
 }
 
-export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUser }: EtkinlikKartiProps) {
+export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUser, dict }: EtkinlikKartiProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [isPending, startTransition] = useTransition();
     const [currentAciklama, setCurrentAciklama] = useState(etkinlik.aciklama);
@@ -33,7 +42,7 @@ export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUs
     // İkonu, prop olarak gelen metin anahtarına göre burada belirliyoruz.
     const Icon = etkinlikIkonlari[ikonAdi] || FiMessageSquare;
 
-    const personelAdi = etkinlik.olusturan_personel?.tam_ad || 'Bilinmeyen Kullanıcı';
+    const personelAdi = etkinlik.olusturan_personel?.tam_ad || dict.unknownUser;
     
     // Düzenleme yetkisini kontrol et: Sadece notu oluşturan kişi ve sadece ilk 15 dakika içinde.
     const canEdit = 
@@ -46,9 +55,9 @@ export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUs
             if (result.success && result.data) {
                 setCurrentAciklama(result.data.aciklama);
                 setIsEditing(false);
-                toast.success("Not güncellendi.");
+                toast.success(dict.updateSuccess);
             } else {
-                toast.error(result.error || "Güncelleme başarısız.");
+                toast.error(result.error || dict.updateError);
             }
         });
     };
@@ -67,14 +76,14 @@ export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUs
                     <div className="flex items-center gap-2">
                         <p className="text-xs text-text-main/60">{zamanFarki}</p>
                         {canEdit && !isEditing && (
-                            <button onClick={() => setIsEditing(true)} className="opacity-0 group-hover:opacity-100 transition-opacity text-text-main/60 hover:text-accent" title="Düzenle">
+                            <button onClick={() => setIsEditing(true)} className="opacity-0 group-hover:opacity-100 transition-opacity text-text-main/60 hover:text-accent" title={dict.editTitle}>
                                 <FiEdit size={14} />
                             </button>
                         )}
                     </div>
                 </div>
                 <p className="text-sm text-text-main/80 mt-1">
-                    <span className="font-semibold">{personelAdi}</span> tarafından oluşturuldu.
+                    <span className="font-semibold">{personelAdi}</span> {dict.createdBy}
                 </p>
 
                 {isEditing ? (
@@ -87,9 +96,9 @@ export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUs
                             autoFocus
                         />
                         <div className="flex justify-end gap-2">
-                            <button type="button" onClick={() => setIsEditing(false)} className="px-3 py-1.5 text-sm">İptal</button>
+                            <button type="button" onClick={() => setIsEditing(false)} className="px-3 py-1.5 text-sm">{dict.cancel}</button>
                             <button type="submit" disabled={isPending} className="px-3 py-1.5 bg-green-600 text-white rounded-md text-sm flex items-center gap-2 disabled:bg-green-400">
-                                {isPending ? <FiLoader className="animate-spin" /> : <FiSave />} Kaydet
+                                {isPending ? <FiLoader className="animate-spin" /> : <FiSave />} {dict.save}
                             </button>
                         </div>
                     </form>

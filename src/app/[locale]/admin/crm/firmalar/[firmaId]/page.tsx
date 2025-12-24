@@ -15,15 +15,45 @@ import { FaInstagram, FaFacebook, FaGlobe, FaMapMarkedAlt } from 'react-icons/fa
 import { updateFirmaAction, deleteFirmaAction } from './actions';
 import { toast } from 'sonner';
 import { Locale } from '@/i18n-config'; // Locale importieren
+import AddressAutofill from '@/components/AddressAutofill'; // Import AddressAutofill
 
 type Firma = Tables<'firmalar'>;
 type FirmaKategori = Enums<'firma_kategori'>;
 type FirmaStatus = Enums<'firma_status'>;
 
 // Diese Konstanten sollten idealerweise aus database.types kommen oder zentral definiert sein
-const kategoriOptions: FirmaKategori[] = ["Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market"];
-const statusOptions: FirmaStatus[] = ["Aday", "Takipte", "Temas Kuruldu", "İletişimde", "Müşteri", "Pasif"];
+const kategoriOptions: FirmaKategori[] = [
+    "Shisha & Lounge", 
+    "Coffee Shop & Eiscafé", 
+    "Casual Dining", 
+    "Restoran", // Added
+    "Hotel & Event", 
+    "Alt Bayi", // Corrected
+    "Rakip/Üretici"
+];
+
+const kategoriLabels: Record<string, string> = {
+    "Shisha & Lounge": "Nargile & Lounge (Shisha & Lounge)",
+    "Coffee Shop & Eiscafé": "Kafe & Dondurmacı (Coffee Shop & Eiscafé)",
+    "Casual Dining": "Gündelik Yemek (Casual Dining)",
+    "Restoran": "Restoran (Restoran)",
+    "Hotel & Event": "Otel & Etkinlik (Hotel & Event)",
+    "Alt Bayi": "Alt Bayi / Toptancı (Alt Bayi)",
+    "Rakip/Üretici": "Rakip / Üretici (Rakip/Üretici)"
+};
+
+const statusOptions: FirmaStatus[] = [
+    "ADAY", 
+    "ISITILIYOR", 
+    "TEMAS EDİLDİ", 
+    "İLETİŞİMDE", 
+    "POTANSİYEL", 
+    "MÜŞTERİ", 
+    "PASİF",
+    "REDDEDİLDİ"
+];
 const priorityOptions = ["A", "B", "C"];
+const tagOptions = ["#Türk_Sahibi", "#Vitrin_Boş", "#Zincir_Marka", "#Lüks_Mekan", "#Teraslı"];
 
 export default function FirmaGenelBilgilerPage() {
     // Client-seitigen Supabase Client initialisieren
@@ -66,6 +96,17 @@ export default function FirmaGenelBilgilerPage() {
         // Abhängigkeiten: firmaId, supabase (falls Client neu erstellt wird), router, locale
     }, [firmaId, supabase, router, locale]);
 
+    const tagOptions = [
+        "#Vitrin_Boş", "#Mutfak_Yok", "#Yeni_Açılış", "#Türk_Sahibi", 
+        "#Düğün_Mekanı", "#Kahve_Odaklı", "#Yüksek_Sirkülasyon", 
+        "#Lüks_Mekan", "#Teraslı", "#Self_Service",
+        "#Zincir_Marka", "#Kendi_Üretimi", "#Rakip_Sözleşmeli"
+    ];
+
+    const kaynakOptions = [
+        "Google Maps", "Instagram", "Saha Ziyareti", "Referans", "Web", "Diğer"
+    ];
+
     // Handler für das Absenden des Formulars (ruft Server Action auf)
     const handleUpdate = async (formData: FormData) => {
         if (!firma) return;
@@ -82,7 +123,8 @@ export default function FirmaGenelBilgilerPage() {
                 // Lokalen State mit den Daten von der Action aktualisieren
                 setFirma(result.data as Firma);
                 toast.success("Firmendetails erfolgreich gespeichert.");
-                setEditMode(false);
+                // Redirect to list page after successful update
+                router.push(`/${locale}/admin/crm/firmalar`);
             } else {
                 // Unerwarteter Zustand
                 toast.error("Unbekannter Fehler beim Speichern.");
@@ -106,7 +148,20 @@ export default function FirmaGenelBilgilerPage() {
         // Formular ruft die Server Action auf
         <form action={handleUpdate} className="space-y-8">
             <div className="flex justify-between items-center pb-4 border-b"> {/* Leichte Anpassung */}
-                <h2 className="font-serif text-2xl font-bold text-primary">Allgemeine Informationen & Einstellungen</h2>
+                <div>
+                    <h2 className="font-serif text-2xl font-bold text-primary flex items-center gap-2">
+                        {firma.unvan}
+                        {(firma as any).oncelik_puani !== undefined && (
+                            <span className={`text-xs px-2 py-1 rounded-full text-white ${
+                                (firma as any).oncelik_puani >= 80 ? 'bg-red-500' : 
+                                (firma as any).oncelik_puani >= 50 ? 'bg-yellow-500' : 'bg-gray-400'
+                            }`}>
+                                Score: {(firma as any).oncelik_puani}
+                            </span>
+                        )}
+                    </h2>
+                    <p className="text-sm text-gray-500">Allgemeine Informationen & Einstellungen</p>
+                </div>
                 {!editMode && (
                     <div className="flex items-center gap-3">
                         <button
@@ -202,8 +257,47 @@ export default function FirmaGenelBilgilerPage() {
                     <label htmlFor="kategori" className="block text-sm font-bold text-gray-700 mb-2">Kategorie</label>
                     <select id="kategori" name="kategori" defaultValue={firma.kategori || ''} disabled={!editMode} className={inputBaseClasses}>
                          <option value="" disabled>Bitte wählen...</option>
-                        {kategoriOptions.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                        {kategoriOptions.map(cat => (
+                            <option key={cat} value={cat}>
+                                {kategoriLabels[cat] || cat}
+                            </option>
+                        ))}
                     </select>
+                </div>
+
+                {/* Quelle (Source) */}
+                <div>
+                    <label htmlFor="kaynak" className="block text-sm font-bold text-gray-700 mb-2">Quelle (Source)</label>
+                    <select id="kaynak" name="kaynak" defaultValue={(firma as any).kaynak || ''} disabled={!editMode} className={inputBaseClasses}>
+                         <option value="">-- Wie gefunden? --</option>
+                        {kaynakOptions.map(k => <option key={k} value={k}>{k}</option>)}
+                    </select>
+                </div>
+
+                {/* Entscheider */}
+                <div>
+                    <label htmlFor="yetkili_kisi" className="block text-sm font-bold text-gray-700 mb-2">Entscheider (Decision Maker)</label>
+                    <input type="text" id="yetkili_kisi" name="yetkili_kisi" defaultValue={(firma as any).yetkili_kisi || ''} disabled={!editMode} className={inputBaseClasses} placeholder="z.B. Max Mustermann"/>
+                </div>
+
+                {/* Tags */}
+                <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Tags</label>
+                    <div className="flex flex-wrap gap-3">
+                        {tagOptions.map(tag => (
+                            <label key={tag} className={`inline-flex items-center gap-2 px-3 py-2 rounded-full transition ${editMode ? 'cursor-pointer hover:bg-gray-200 bg-gray-100' : 'bg-gray-50'}`}>
+                                <input 
+                                    type="checkbox" 
+                                    name="etiketler" 
+                                    value={tag} 
+                                    defaultChecked={(firma as any).etiketler?.includes(tag)}
+                                    disabled={!editMode}
+                                    className="rounded text-accent focus:ring-accent disabled:opacity-50" 
+                                />
+                                <span className="text-sm font-medium text-gray-700">{tag}</span>
+                            </label>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Status */}
@@ -225,18 +319,21 @@ export default function FirmaGenelBilgilerPage() {
                     <label htmlFor="telefon" className="block text-sm font-bold text-gray-700 mb-2">Telefon</label>
                     <input type="tel" id="telefon" name="telefon" defaultValue={firma.telefon || ''} disabled={!editMode} className={inputBaseClasses} />
                 </div>
+
+                {/* --- YENİ ALANLAR: Adres Detayları (Auto-fill) --- */}
+                <AddressAutofill 
+                    defaultCity={(firma as any).sehir || ''}
+                    defaultDistrict={(firma as any).ilce || ''}
+                    defaultNeighborhood={(firma as any).mahalle || ''}
+                    defaultZipCode={(firma as any).posta_kodu || ''}
+                    disabled={!editMode}
+                />
+                {/* --- BİTTİ --- */}
+
                 {/* Adresse */}
                 <div className="md:col-span-2">
-                    <label htmlFor="adres" className="block text-sm font-bold text-gray-700 mb-2">Adresse</label>
+                    <label htmlFor="adres" className="block text-sm font-bold text-gray-700 mb-2">Adresse (Straße & Nr.)</label>
                     <textarea id="adres" name="adres" rows={3} defaultValue={firma.adres || ''} disabled={!editMode} className={inputBaseClasses} />
-                </div>
-
-                {/* Öncelik (Priority) */}
-                <div>
-                    <label htmlFor="oncelik" className="block text-sm font-bold text-gray-700 mb-2">Priorität</label>
-                    <select id="oncelik" name="oncelik" defaultValue={(firma as any).oncelik || 'B'} disabled={!editMode} className={`${inputBaseClasses} font-bold`}>
-                        {priorityOptions.map(p => <option key={p} value={p}>{p === 'A' ? 'A (Hoch)' : p === 'B' ? 'B (Mittel)' : 'C (Niedrig)'}</option>)}
-                    </select>
                 </div>
 
                 {/* Son Etkileşim Tarihi (Read-only) */}
