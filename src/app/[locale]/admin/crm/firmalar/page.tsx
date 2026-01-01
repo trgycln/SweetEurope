@@ -262,7 +262,7 @@ export default async function FirmalarListPage({
             </header>
 
             {/* Filter Komponente */}
-            <div className="sticky top-0 z-30 bg-gray-50 py-4 -mx-4 px-4 sm:-mx-8 sm:px-8 border-b border-gray-200 shadow-sm">
+            <div className="bg-gray-50 py-4 -mx-4 px-4 sm:-mx-8 sm:px-8 border-b border-gray-200 shadow-sm">
                 <FirmaFiltreleri 
                     statusOptions={statusOptions}
                     statusLabels={F.statusOptions as Record<string, string>}
@@ -324,7 +324,7 @@ export default async function FirmalarListPage({
                     </div>
 
                     {/* Desktop Tabelle */}
-                    <div className="hidden lg:block bg-white rounded-lg shadow-md border border-gray-200">
+                    <div className="hidden lg:block bg-white rounded-lg shadow-md border border-gray-200 -mt-8">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
@@ -339,7 +339,7 @@ export default async function FirmalarListPage({
                                         F.responsible,
                                         F.status
                                     ].map(header => (
-                                        <th key={header} scope="col" className="sticky top-[108px] z-20 bg-gray-50 px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider shadow-sm">
+                                        <th key={header} scope="col" className="sticky top-[-40px] z-20 bg-gray-50 px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider shadow-sm">
                                             {header}
                                         </th>
                                     ))}
