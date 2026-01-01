@@ -8,6 +8,8 @@ import { Tables, Enums } from '@/lib/supabase/database.types';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 import { cookies } from 'next/headers'; // Wichtig
+import { VisitPlannerProvider } from '@/contexts/VisitPlannerContext';
+import VisitPlannerPanel from '@/components/VisitPlannerPanel';
 
 // Typ für Benachrichtigungen
 type Bildirim = Tables<'bildirimler'>;
@@ -114,15 +116,18 @@ export default async function AdminLayout({
 
     // Layout rendern
     return (
-        <AdminLayoutClient
-            user={user}
-            userRole={userRole}
-            dictionary={dictionary}
-            initialNotifications={initialNotifications}
-            initialUnreadCount={unreadNotificationCount} // Verwenden Sie den (potenziell 0) Wert
-            locale={locale}
-        >
-            {children}
-        </AdminLayoutClient>
+        <VisitPlannerProvider>
+            <AdminLayoutClient
+                user={user}
+                userRole={userRole}
+                dictionary={dictionary}
+                initialNotifications={initialNotifications}
+                initialUnreadCount={unreadNotificationCount} // Verwenden Sie den (potenziell 0) Wert
+                locale={locale}
+            >
+                {children}
+            </AdminLayoutClient>
+            <VisitPlannerPanel />
+        </VisitPlannerProvider>
     );
 }
