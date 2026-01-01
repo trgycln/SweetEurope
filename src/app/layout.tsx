@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import type { Metadata } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
@@ -35,7 +36,10 @@ export default function RootLayout({
       <head>
         <GoogleAnalytics />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
