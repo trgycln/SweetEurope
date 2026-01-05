@@ -13,7 +13,7 @@ import { Locale } from '@/i18n-config';
 type Firma = Tables<'firmalar'>;
 type FirmaKategori = Enums<'firma_kategori'>;
 
-const kategoriOptions: FirmaKategori[] = ["Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market"];
+const kategoriOptions: FirmaKategori[] = ["Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market", "Catering"];
 const priorityOptions = ["A", "B", "C"];
 
 export default function MusteriGenelPage() {

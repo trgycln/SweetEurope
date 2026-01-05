@@ -166,13 +166,17 @@ async function yeniFirmaEkleAction(
 
 // Props-Typ für die Seite
 interface YeniFirmaEklePageProps {
-    params: { locale: Locale };
-    searchParams?: { [key: string]: string | string[] | undefined };
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 // YENİ FİRMA EKLEME SAYFASI BİLEŞENİ
-export default async function YeniFirmaEklePage({ params: { locale }, searchParams }: YeniFirmaEklePageProps) {
+export default async function YeniFirmaEklePage({ params, searchParams }: YeniFirmaEklePageProps) {
   noStore(); // Caching deaktivieren
+  
+  // Await params and searchParams for Next.js 15
+  const { locale } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
 
   // --- KORREKTUR (PAGE): Supabase Client korrekt initialisieren ---
   const cookieStore = await cookies();
@@ -199,6 +203,7 @@ export default async function YeniFirmaEklePage({ params: { locale }, searchPara
       "Casual Dining", 
       "Restoran", // Added
       "Hotel & Event", 
+      "Catering",
       "Alt Bayi", // Corrected from "Alt Bayi / Toptancı"
       "Rakip/Üretici"
   ];
@@ -209,6 +214,7 @@ export default async function YeniFirmaEklePage({ params: { locale }, searchPara
       "Casual Dining": "Gündelik Yemek (Casual Dining)",
       "Restoran": "Restoran (Restoran)",
       "Hotel & Event": "Otel & Etkinlik (Hotel & Event)",
+      "Catering": "Catering",
       "Alt Bayi": "Alt Bayi / Toptancı (Alt Bayi)",
       "Rakip/Üretici": "Rakip / Üretici (Rakip/Üretici)"
   };
@@ -243,7 +249,7 @@ export default async function YeniFirmaEklePage({ params: { locale }, searchPara
       </header>
 
       {/* Duplicate Warning */}
-      {searchParams?.error === 'duplicate' && (
+      {resolvedSearchParams?.error === 'duplicate' && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3 animate-pulse">
               <div className="text-red-500 mt-0.5">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">

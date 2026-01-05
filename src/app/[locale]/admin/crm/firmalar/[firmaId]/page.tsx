@@ -28,6 +28,7 @@ const kategoriOptions: FirmaKategori[] = [
     "Casual Dining", 
     "Restoran", // Added
     "Hotel & Event", 
+    "Catering",
     "Alt Bayi", // Corrected
     "Rakip/Üretici"
 ];
@@ -38,6 +39,7 @@ const kategoriLabels: Record<string, string> = {
     "Casual Dining": "Gündelik Yemek (Casual Dining)",
     "Restoran": "Restoran (Restoran)",
     "Hotel & Event": "Otel & Etkinlik (Hotel & Event)",
+    "Catering": "Catering",
     "Alt Bayi": "Alt Bayi / Toptancı (Alt Bayi)",
     "Rakip/Üretici": "Rakip / Üretici (Rakip/Üretici)"
 };

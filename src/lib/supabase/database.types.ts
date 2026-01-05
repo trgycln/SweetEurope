@@ -2529,7 +2529,7 @@ export const Constants = {
       fatura_durumu: ["pending", "paid", "overdue", "cancelled"],
       firma_kategori: [
         "Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market",
-        "Shisha & Lounge", "Coffee Shop & Eiscafé", "Casual Dining", "Hotel & Event", "Rakip/Üretici"
+        "Shisha & Lounge", "Coffee Shop & Eiscafé", "Casual Dining", "Hotel & Event", "Catering", "Rakip/Üretici"
       ],
       firma_status: [
         "Aday",
