@@ -47,6 +47,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
         profile?: string;
         customerProfiles?: string;
         profileAssignments?: string;
+        subDealers?: string;
     };
 
     type LinkItem = { name: any; href: string; icon: any; roles?: UserRole[] };
@@ -60,28 +61,51 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             ],
         },
         {
+            title: sidebarContent.systemSettings || 'Sistem',
+            links: [
+                {
+                    name: sidebarContent.profileAssignments || 'Personel Yönetimi',
+                    href: '/admin/idari/personel',
+                    icon: FiUser,
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[]
+                },
+            ],
+        },
+        {
             title: sidebarContent.crm || 'CRM & Müşteri Yönetimi',
             links: [
-                { name: sidebarContent.customers || 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
+                { name: sidebarContent.customers || 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[] },
+                { name: sidebarContent.subDealers || 'Alt Bayiler', href: '/admin/crm/alt-bayiler', icon: FiUserCheck, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
             ],
         },
         {
             title: sidebarContent.operations,
             links: [
-                { name: sidebarContent.orders, href: '/admin/operasyon/siparisler', icon: FiTruck, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
+                { name: sidebarContent.orders, href: '/admin/operasyon/siparisler', icon: FiTruck, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[] },
                 { 
                     name: sidebarContent.sampleRequests || 'Musteranfragen', 
                     href: '/admin/operasyon/numune-talepleri', 
                     icon: FiHardDrive, 
                     roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
                 },
-                { name: sidebarContent.tasks, href: '/admin/gorevler', icon: FiClipboard, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
+                { name: sidebarContent.tasks, href: '/admin/gorevler', icon: FiClipboard, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[] },
+            ]
+        },
+        {
+            title: sidebarContent.documents || 'Dokumentenverwaltung',
+            links: [
+                { 
+                    name: sidebarContent.documents || 'Dokumentenverwaltung', 
+                    href: '/admin/belgeleri-yonet', 
+                    icon: FiPaperclip, 
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
+                },
             ]
         },
         {
             title: sidebarContent.productManagement || 'Ürün Yönetimi',
             links: [
-                { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici', 'Personel'] as UserRole[] },
                 { 
                     name: sidebarContent.productRequests || 'Produktanfragen', 
                     href: '/admin/urun-yonetimi/urun-talepleri', 
@@ -101,6 +125,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
             title: sidebarContent.pricing || 'Fiyatlandırma',
             links: [
                 { name: sidebarContent.pricingHub || '🏷️ Fiyatlandırma Hub', href: '/admin/urun-yonetimi/fiyatlandirma-hub', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
+                { name: '📊 Fiyat Matrisi', href: '/admin/urun-yonetimi/fiyat-matrisi', icon: FiGrid, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
             ],
         },
 

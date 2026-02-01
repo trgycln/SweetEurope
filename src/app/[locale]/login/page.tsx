@@ -27,7 +27,9 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
         const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
         
         // --- KORREKTUR: Redirects müssen sprachspezifisch sein ---
-        if (profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi') {
+        if (profile?.rol === 'Personel') {
+            redirect(`/${locale}/admin/operasyon/siparisler`); // locale hinzugefügt
+        } else if (profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi') {
             redirect(`/${locale}/admin/dashboard`); // locale hinzugefügt
         } else {
             // Standard-Fallback für Müşteri/Alt Bayi

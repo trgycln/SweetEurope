@@ -3,6 +3,7 @@
 
 'use server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { revalidatePath } from 'next/cache';
 import { Enums } from '@/lib/supabase/database.types';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
@@ -54,4 +55,36 @@ export async function statusAendernAction(
 
     console.log(`Status für Bestellung ${siparisId} erfolgreich auf ${neuerStatus} geändert.`);
     return { success: `Status wurde auf "${neuerStatus}" geändert.` };
+}
+
+export async function assignSiparisPersonelAction(formData: FormData): Promise<ActionResult> {
+    const siparisId = formData.get('siparisId') as string | null;
+    const personelId = formData.get('personelId') as string | null;
+
+    if (!siparisId) return { error: 'Sipariş ID eksik.' };
+
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return { error: 'Yetkisiz işlem.' };
+    const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+    const isManager = profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi';
+    if (!isManager) return { error: 'Bu işlemi yapma yetkiniz yok.' };
+
+    const supabaseAdmin = createSupabaseServiceClient();
+    const { error } = await supabaseAdmin
+        .from('siparisler')
+        .update({ atanan_kisi_id: personelId || null })
+        .eq('id', siparisId);
+
+    if (error) {
+        console.error(`Sipariş atama hatası (${siparisId}):`, error);
+        return { error: `Atama yapılamadı: ${error.message}` };
+    }
+
+    revalidatePath('/admin/operasyon/siparisler');
+    revalidatePath(`/admin/operasyon/siparisler/${siparisId}`);
+
+    return { success: 'Sipariş ataması güncellendi.' };
 }

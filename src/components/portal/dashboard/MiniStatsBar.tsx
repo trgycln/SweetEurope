@@ -1,17 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { FiTruck, FiHeart, FiPackage } from 'react-icons/fi';
+import { FiTruck, FiHeart, FiPackage, FiUsers } from 'react-icons/fi';
 
 interface MiniStatsBarProps {
     activeOrdersCount: number;
     sampleRequestsCount: number;
     favoritesCount: number;
+    customersCount?: number;
     locale: string;
     labels: {
         activeOrders: string;
         sampleRequests: string;
         favorites: string;
+        customers?: string;
     };
 }
 
@@ -19,6 +21,7 @@ export function MiniStatsBar({
     activeOrdersCount,
     sampleRequestsCount,
     favoritesCount,
+    customersCount,
     locale,
     labels
 }: MiniStatsBarProps) {
@@ -43,7 +46,14 @@ export function MiniStatsBar({
             value: favoritesCount,
             href: `/${locale}/portal/katalog?favoriten=true`,
             color: 'text-red-600 bg-red-50'
-        }
+        },
+        ...(customersCount !== undefined ? [{
+            icon: FiUsers,
+            label: labels.customers || 'My Customers',
+            value: customersCount,
+            href: `/${locale}/portal/musterilerim`,
+            color: 'text-purple-600 bg-purple-50'
+        }] : [])
     ];
 
     return (

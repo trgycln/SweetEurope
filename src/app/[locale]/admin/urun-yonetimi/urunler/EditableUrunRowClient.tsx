@@ -4,7 +4,7 @@ import Link from "next/link";
 import { formatCurrency, getLocalizedName } from "@/lib/utils";
 import { quickUpdateUrunAction } from "./actions";
 
-export default function EditableUrunRowClient({ urun, locale, content, isAdmin }) {
+export default function EditableUrunRowClient({ urun, locale, content, isAdmin, canSeePurchasePrice }) {
     const [alisFiyati, setAlisFiyati] = React.useState(urun.distributor_alis_fiyati ?? 0);
     const [stokMiktari, setStokMiktari] = React.useState(urun.stok_miktari ?? 0);
     const [aktif, setAktif] = React.useState(urun.aktif ?? true);
@@ -72,13 +72,15 @@ export default function EditableUrunRowClient({ urun, locale, content, isAdmin }
                     <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${urun.aktif ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{urun.aktif ? (content.statusActive || "Aktiv") : (content.statusInactive || "Inaktiv")}</span>
                 )}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                {isAdmin ? (
-                    <input type="number" className="w-24 px-2 py-1 border rounded" value={alisFiyati} onChange={e => setAlisFiyati(Number(e.target.value))} disabled={loading} />
-                ) : (
-                    <span className="font-medium">{formatCurrency(urun.distributor_alis_fiyati, locale)}</span>
-                )}
-            </td>
+            {canSeePurchasePrice && (
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    {isAdmin ? (
+                        <input type="number" className="w-24 px-2 py-1 border rounded" value={alisFiyati} onChange={e => setAlisFiyati(Number(e.target.value))} disabled={loading} />
+                    ) : (
+                        <span className="font-medium">{formatCurrency(urun.distributor_alis_fiyati, locale)}</span>
+                    )}
+                </td>
+            )}
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatCurrency(urun.satis_fiyati_musteri, locale)}</td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatCurrency(urun.satis_fiyati_alt_bayi, locale)}</td>
             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

@@ -69,6 +69,7 @@ interface FirmalarListPageProps {
         district?: string;
         posta_kodu?: string; // Changed from mahalle
         priority_group?: string; // New filter
+        ticari_tip?: string;
     }>;
 }
 
@@ -82,15 +83,21 @@ export default async function FirmalarListPage({
     // Await params and searchParams for Next.js 15
     const { locale } = await params;
     const searchParamsResolved = searchParams ? await searchParams : {};
+    const ticariTipFilter = searchParamsResolved.ticari_tip || '';
+    const isAltBayiList = ticariTipFilter === 'alt_bayi';
 
     // Get dictionary for i18n
     const dictionary = await getDictionary(locale);
     const content = dictionary.adminDashboard?.crmPage || {};
     // Provide neutral English fallbacks for missing keys
     const F = {
-        title: content.title || 'Customer Management (CRM)',
+        title: isAltBayiList
+            ? (content.subDealersTitle || 'Alt Bayiler')
+            : (content.title || 'Customer Management (CRM)'),
         companiesFound: content.companiesFound || 'companies found.',
-        newCompany: content.newCompany || 'New Company',
+        newCompany: isAltBayiList
+            ? (content.newSubDealer || (locale === 'tr' ? 'Yeni Alt Bayi' : (locale === 'de' ? 'Neuer Händler' : 'New Sub-Dealer')))
+            : (content.newCompany || 'New Company'),
         searchPlaceholder: content.searchPlaceholder || 'Search by company name…',
         allStatusesLabel: content.allStatusesLabel || 'All Statuses',
         allPrioritiesLabel: locale === 'tr' ? 'Tüm Öncelikler' : (locale === 'de' ? 'Alle Prioritäten' : 'All Priorities'),
@@ -140,9 +147,19 @@ export default async function FirmalarListPage({
     // Fetch unique cities and districts for filter dropdowns
     // Note: This might be heavy if there are thousands of records. 
     // Ideally, create a database view or RPC for distinct values.
-    const { data: locationData } = await supabase
+    let locationQuery = supabase
         .from('firmalar')
         .select('sehir, ilce, posta_kodu');
+
+    if (ticariTipFilter) {
+        locationQuery = locationQuery.eq('ticari_tip', ticariTipFilter);
+    } else {
+        locationQuery = locationQuery
+            .or('ticari_tip.eq.musteri,ticari_tip.is.null')
+            .not('kategori', 'eq', 'Alt Bayi');
+    }
+
+    const { data: locationData } = await locationQuery;
     
     const uniqueCities = Array.from(new Set(locationData?.map(f => f.sehir?.trim()).filter(Boolean))).sort() as string[];
     const uniqueDistricts = Array.from(new Set(locationData?.map(f => f.ilce?.trim()).filter(Boolean))).sort() as string[];
@@ -200,6 +217,14 @@ export default async function FirmalarListPage({
     if (zipCodeFilter) {
         query = query.eq('posta_kodu', zipCodeFilter);
     }
+    if (ticariTipFilter) {
+        query = query.eq('ticari_tip', ticariTipFilter);
+    } else {
+        query = query
+            .or('ticari_tip.eq.musteri,ticari_tip.is.null')
+            .not('kategori', 'eq', 'Alt Bayi')
+            .is('sahip_id', null);
+    }
     if (priorityGroupFilter) {
         if (priorityGroupFilter === 'A') {
             query = query.gte('oncelik_puani', 80);
@@ -253,7 +278,7 @@ export default async function FirmalarListPage({
                     <h1 className="font-serif text-4xl font-bold text-primary">{F.title}</h1>
                     <p className="text-text-main/80 mt-1">{firmaSayisi} {F.companiesFound}</p>
                 </div>
-                <Link href={`/${locale}/admin/crm/firmalar/yeni`} passHref>
+                <Link href={`/${locale}/admin/crm/firmalar/yeni${isAltBayiList ? '?ticari_tip=alt_bayi' : ''}`} passHref>
                     <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
                         <FiPlus size={18} />
                         {F.newCompany}

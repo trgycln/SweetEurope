@@ -778,10 +778,13 @@ export type Database = {
           iskonto_orani: number
           kategori: string | null
           kaynak: string | null
+          ticari_tip: string | null
           musteri_profil_id: string | null
           oncelik: string | null
           referans_olarak_goster: boolean
           sahip_id: string | null
+          created_by: string | null
+          updated_by: string | null
           son_etkilesim_tarihi: string | null
           sorumlu_personel_id: string | null
           status: Database["public"]["Enums"]["firma_status"] | null
@@ -810,10 +813,13 @@ export type Database = {
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
+          ticari_tip?: string | null
           musteri_profil_id?: string | null
           oncelik?: string | null
           referans_olarak_goster?: boolean
           sahip_id?: string | null
+          created_by?: string | null
+          updated_by?: string | null
           son_etkilesim_tarihi?: string | null
           sorumlu_personel_id?: string | null
           status?: Database["public"]["Enums"]["firma_status"] | null
@@ -842,10 +848,13 @@ export type Database = {
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
+          ticari_tip?: string | null
           musteri_profil_id?: string | null
           oncelik?: string | null
           referans_olarak_goster?: boolean
           sahip_id?: string | null
+          created_by?: string | null
+          updated_by?: string | null
           son_etkilesim_tarihi?: string | null
           sorumlu_personel_id?: string | null
           status?: Database["public"]["Enums"]["firma_status"] | null
@@ -1680,6 +1689,7 @@ export type Database = {
           id: string
           kdv_orani: number
           olusturan_kullanici_id: string | null
+          atanan_kisi_id: string | null
           siparis_durumu: string
           siparis_kaynagi: Database["public"]["Enums"]["siparis_kaynagi"] | null
           siparis_tarihi: string
@@ -1693,6 +1703,7 @@ export type Database = {
           id?: string
           kdv_orani: number
           olusturan_kullanici_id?: string | null
+          atanan_kisi_id?: string | null
           siparis_durumu: string
           siparis_kaynagi?:
             | Database["public"]["Enums"]["siparis_kaynagi"]
@@ -1708,6 +1719,7 @@ export type Database = {
           id?: string
           kdv_orani?: number
           olusturan_kullanici_id?: string | null
+          atanan_kisi_id?: string | null
           siparis_durumu?: string
           siparis_kaynagi?:
             | Database["public"]["Enums"]["siparis_kaynagi"]
@@ -2583,7 +2595,7 @@ export const Constants = {
         "Onayland─▒",
         "Reddedildi",
       ],
-      user_role: ["Y├Ânetici", "Ekip ├£yesi", "M├╝┼ƒteri", "Alt Bayi"],
+      user_role: ["Y├Ânetici", "Ekip ├£yesi", "M├╝┼ƒteri", "Alt Bayi", "Personel"],
       yazi_durumu: ["Taslak", "Yay─▒nland─▒"],
       zahlungshaeufigkeit: ["Monatlich", "J├ñhrlich", "Einmalig", "Bedarf"],
     },

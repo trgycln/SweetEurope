@@ -54,6 +54,8 @@ export async function updateFirmaAction(
     const yetkili_kisi = formData.get('yetkili_kisi') as string | null;
     const etiketler = formData.getAll('etiketler') as string[];
     const kaynak = formData.get('kaynak') as string | null;
+    const ticari_tip_raw = formData.get('ticari_tip') as string | null;
+    const sahip_id_raw = formData.get('sahip_id') as string | null;
     // Checkbox-Wert korrekt auslesen
     const referans_olarak_goster = formData.get('referans_olarak_goster') === 'on';
 
@@ -90,6 +92,12 @@ export async function updateFirmaAction(
     if (yetkili_kisi) (updatedData as any).yetkili_kisi = yetkili_kisi; else (updatedData as any).yetkili_kisi = null;
     if (etiketler && etiketler.length > 0) (updatedData as any).etiketler = etiketler; else (updatedData as any).etiketler = null;
     if (kaynak) (updatedData as any).kaynak = kaynak; else (updatedData as any).kaynak = null;
+    if (kategorie) {
+        (updatedData as any).ticari_tip = ticari_tip_raw || (kategorie === 'Alt Bayi' ? 'alt_bayi' : 'musteri');
+    }
+    if (sahip_id_raw !== null) {
+        (updatedData as any).sahip_id = sahip_id_raw || null;
+    }
     
     // --- SCORING LOGIC ---
     let score = 0;
@@ -129,6 +137,7 @@ export async function updateFirmaAction(
 
     // Checkbox-Wert immer setzen (true oder false)
     updatedData.referans_olarak_goster = referans_olarak_goster;
+    (updatedData as any).updated_by = user.id;
 
     // --- Ab hier Logik für Update, Statusänderung und Benachrichtigung ---
     const promises = [];

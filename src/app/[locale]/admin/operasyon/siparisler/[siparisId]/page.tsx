@@ -2,10 +2,12 @@
 // KORRIGIERTE VERSION (await cookies + await createClient)
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FiArrowLeft, FiUser, FiTruck, FiHome } from 'react-icons/fi';
 import DurumGuncellePaneli from './DurumGuncellePaneli'; // Client Komponente für Status
+import { assignSiparisPersonelAction } from '../actions';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Importiere Locale
 import { Tables, Database, Enums } from '@/lib/supabase/database.types'; // Database und Enums importieren
@@ -77,6 +79,39 @@ export default async function OperasyonSiparisDetayPage({
     const cookieStore = await cookies(); // await hinzufügen
     const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
     // --- ENDE KORREKTUR ---
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return redirect(`/${locale}/login?next=/${locale}/admin/operasyon/siparisler/${siparisId}`);
+    }
+
+    const { data: myProfile } = await supabase
+        .from('profiller')
+        .select('id, rol')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    const isManager = myProfile?.rol === 'Yönetici' || myProfile?.rol === 'Ekip Üyesi';
+
+    let personelProfiles: Array<{ id: string; tam_ad: string | null }> = [];
+    if (isManager) {
+        try {
+            const supabaseAdmin = createSupabaseServiceClient();
+            const { data } = await supabaseAdmin
+                .from('profiller')
+                .select('id, tam_ad')
+                .eq('rol', 'Personel')
+                .order('tam_ad');
+            personelProfiles = (data || []) as Array<{ id: string; tam_ad: string | null }>;
+        } catch {
+            const { data } = await supabase
+                .from('profiller')
+                .select('id, tam_ad')
+                .eq('rol', 'Personel')
+                .order('tam_ad');
+            personelProfiles = (data || []) as Array<{ id: string; tam_ad: string | null }>;
+        }
+    }
 
     // Optional: Benutzerprüfung
     // const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
@@ -151,6 +186,31 @@ export default async function OperasyonSiparisDetayPage({
                     </div>
                      {/* Status wird jetzt im Panel unten angezeigt */}
                 </div>
+
+                {isManager && (
+                    <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h3 className="text-sm font-semibold text-gray-700 mb-2">Teslimat Sorumlusu</h3>
+                        <form action={assignSiparisPersonelAction} className="flex flex-col sm:flex-row gap-3">
+                            <input type="hidden" name="siparisId" value={siparis.id} />
+                            <select
+                                name="personelId"
+                                defaultValue={siparis.atanan_kisi_id || ''}
+                                className="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                            >
+                                <option value="">Atanmamış</option>
+                                {(personelProfiles || []).map((p) => (
+                                    <option key={p.id} value={p.id}>{p.tam_ad || p.id}</option>
+                                ))}
+                            </select>
+                            <button
+                                type="submit"
+                                className="px-4 py-2 bg-accent text-white rounded-lg text-sm font-semibold hover:bg-opacity-90 transition"
+                            >
+                                Kaydet
+                            </button>
+                        </form>
+                    </div>
+                )}
 
                  {/* Kunden- und Lieferinformationen */}
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

@@ -41,8 +41,8 @@ export default async function StoklarimPage({ params }: { params: { locale: Loca
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {rows.map((r) => (
-              <tr key={r.urunId} className="hover:bg-gray-50">
+            {rows.map((r, idx) => (
+              <tr key={`${r.urunId ?? 'urun'}-${idx}`} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">{r.ad}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-text-main">{r.miktar}</td>
               </tr>

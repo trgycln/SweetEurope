@@ -15,6 +15,7 @@ interface ProductGridClientProps {
     sablonMap: Record<string, Array<{ alan_adi: string; gosterim_adi: any; sira: number }>>;
     kategoriParentMap: Record<string, string | null>; // for inheritance fallback
     pagination?: { page: number; perPage: number; total: number; kategori?: string };
+    dictionary?: any;
 }
 
 const colorGradients = [
@@ -52,7 +53,7 @@ const StarRating = ({ rating, reviewCount }: { rating: number; reviewCount: numb
     );
 };
 
-export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMap, kategoriParentMap, pagination }: ProductGridClientProps) {
+export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMap, kategoriParentMap, pagination, dictionary }: ProductGridClientProps) {
         const { unlocked, openLeadModal, addToCart } = useLeadGate();
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -440,9 +441,9 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                           type="button"
                                           onClick={(e)=>{ e.preventDefault(); if (!unlocked) { openLeadModal(); return; } addToCart({ product_id: urun.id, name: (urun.ad?.[locale] || urun.ad?.['de'] || 'Ürün'), slug: urun.slug || '', image_url: (urun.ana_resim_url || undefined) as any }); }}
                                           className={`px-3 py-2 rounded-lg text-sm font-medium ${unlocked ? 'bg-accent text-white hover:opacity-90' : 'bg-gray-200 text-gray-600'}`}
-                                          title={unlocked ? 'Numune listesine ekle' : 'Numune için iletişim bilgisi gerekli'}
+                                          title={unlocked ? dictionary?.productsPage?.sampleRequestTooltip || 'Numune listesine ekle' : dictionary?.productsPage?.sampleRequiredTooltip || 'Numune için iletişim bilgisi gerekli'}
                                         >
-                                          Numune Ekle
+                                          {dictionary?.productsPage?.addSampleButton || 'Numune Ekle'}
                                         </button>
                                     </div>
                                 </Link>
@@ -554,9 +555,9 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                       type="button"
                                       onClick={(e)=>{ e.preventDefault(); if (!unlocked) { openLeadModal(); return; } addToCart({ product_id: urun.id, name: (urun.ad?.[locale] || urun.ad?.['de'] || 'Ürün'), slug: urun.slug || '', image_url: (urun.ana_resim_url || undefined) as any }); }}
                                       className={`w-full py-3 rounded-xl text-sm font-semibold ${unlocked ? 'bg-gradient-to-r from-primary to-accent text-white hover:shadow-lg' : 'bg-gray-200 text-gray-600'}`}
-                                      title={unlocked ? 'Numune listesine ekle' : 'Numune için iletişim bilgisi gerekli'}
+                                      title={unlocked ? dictionary?.productsPage?.sampleRequestTooltip || 'Numune listesine ekle' : dictionary?.productsPage?.sampleRequiredTooltip || 'Numune için iletişim bilgisi gerekli'}
                                     >
-                                      Numune Ekle
+                                      {dictionary?.productsPage?.addSampleButton || 'Numune Ekle'}
                                     </button>
                                     <div className="p-4 bg-gradient-to-r from-primary to-accent text-white rounded-full group-hover:scale-110 transition-transform duration-300">
                                         <FiEye className="w-6 h-6" />

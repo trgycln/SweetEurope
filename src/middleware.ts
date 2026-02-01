@@ -121,8 +121,11 @@ export async function middleware(req: NextRequest) {
         console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
         const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
         const userRole = profile?.rol;
-        const isInternalUser = userRole === 'Yönetici' || userRole === 'Ekip Üyesi';
-        const redirectTo = isInternalUser ? '/admin/dashboard' : '/portal/dashboard';
+        const redirectTo = userRole === 'Personel'
+            ? '/admin/operasyon/siparisler'
+            : (userRole === 'Yönetici' || userRole === 'Ekip Üyesi')
+                ? '/admin/dashboard'
+                : '/portal/dashboard';
         const currentLocale = pathname.split('/')[1] || defaultLocale;
         console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${currentLocale}${redirectTo}`);
         return NextResponse.redirect(new URL(`/${currentLocale}${redirectTo}`, req.url));

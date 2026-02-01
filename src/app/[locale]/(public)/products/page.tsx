@@ -363,6 +363,7 @@ export default async function PublicUrunlerPage({
                         kategoriParentMap={kategoriParentMap}
                         sablonMap={sablonMap}
                         pagination={{ page: clampedPage, perPage, total: totalCount, kategori: seciliKategoriSlug }}
+                        dictionary={dictionary}
                     />
                 )}
             </div>

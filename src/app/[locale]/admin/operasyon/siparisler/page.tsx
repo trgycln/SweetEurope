@@ -12,6 +12,8 @@ import { Locale } from '@/i18n-config';
 import { redirect } from 'next/navigation';
 import { formatCurrency, formatDate } from '@/lib/utils'; // utils importieren
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
+import OrderPageWrapper from './OrderPageWrapper';
+import OrderCheckbox from './OrderCheckbox';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,9 +75,8 @@ export default async function AlleSiparislerPage({
         console.log("Kein Benutzer gefunden in AlleSiparislerPage, redirect zu Login.");
         return redirect(`/${locale}/login?next=/admin/operasyon/siparisler`);
     }
-     // Optional: Rollenprüfung
-     // const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-     // if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') { return redirect(`/${locale}/dashboard`); }
+    const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+    const userRole = profile?.rol as Enums<'user_role'> | null;
 
     // Abfrage erstellen
     let query = supabase
@@ -105,8 +106,12 @@ export default async function AlleSiparislerPage({
         appliedStatusFilter = [...OFFENE_STATUS]; // Kopie übergeben
     }
 
-    if (firmaIdParam) {
+    if (firmaIdParam && userRole !== 'Personel') {
         query = query.eq('firma_id', firmaIdParam);
+    }
+
+    if (userRole === 'Personel') {
+        query = query.eq('atanan_kisi_id', user.id);
     }
 
     // ------------------------------
@@ -204,7 +209,22 @@ export default async function AlleSiparislerPage({
     }
 
     // Firmen separat laden (für Filter-Dropdown)
-    const { data: firmalar, error: firmalarError } = await supabase.from('firmalar').select('id, unvan').order('unvan');
+    let firmalar: Array<{ id: string; unvan: string | null }> | null = null;
+    let firmalarError: any = null;
+    if (userRole === 'Personel') {
+        const rows = (siparislerData as any[]) || [];
+        const unique = new Map<string, string | null>();
+        rows.forEach((r: any) => {
+            const id = r?.firma_id;
+            const unvan = r?.firmalar?.unvan ?? null;
+            if (id && !unique.has(id)) unique.set(id, unvan);
+        });
+        firmalar = Array.from(unique, ([id, unvan]) => ({ id, unvan }));
+    } else {
+        const { data, error } = await supabase.from('firmalar').select('id, unvan').order('unvan');
+        firmalar = data || [];
+        firmalarError = error;
+    }
 
     // Detailliertes Error-Logging für Firmen
     if (firmalarError) {
@@ -231,13 +251,16 @@ export default async function AlleSiparislerPage({
         deger: orderStatusTranslations[dbStatus] || dbStatus // Übersetzung oder DB-Wert
     }));
 
+    const allOrderIds = siparisler.map(s => s.id);
+
     return (
-        // Container hinzugefügt für Padding etc.
-        <main className="space-y-8">
-            <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div>
-                     <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Bestellverwaltung'}</h1>
-                     <p className="text-text-main/80 mt-1">{siparisler.length} {content.ordersListed || 'orders found.'}</p>
+        <OrderPageWrapper allOrderIds={allOrderIds} locale={locale}>
+            {/* Container hinzugefügt für Padding etc. */}
+            <main className="space-y-8">
+                <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                    <div>
+                         <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Bestellverwaltung'}</h1>
+                         <p className="text-text-main/80 mt-1">{siparisler.length} {content.ordersListed || 'orders found.'}</p>
                 </div>
                  {/* Optional: Button für "Neue Bestellung" (ohne spezifische Firma) */}
                  {/* <Link href={`/${locale}/admin/operasyon/siparisler/yeni`} ... >Neue Bestellung</Link> */}
@@ -267,6 +290,8 @@ export default async function AlleSiparislerPage({
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
+                                 {/* Checkbox sütun başlığı */}
+                                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-8"></th>
                                  {/* Spaltenüberschriften */}
                                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.orderId || 'Order No.'}</th>
                                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.company || 'Company'}</th>
@@ -288,6 +313,10 @@ export default async function AlleSiparislerPage({
 
                                 return (
                                     <tr key={siparis.id} className="hover:bg-gray-50/50 transition-colors">
+                                        {/* Checkbox für Auswahl */}
+                                        <td className="px-4 py-4 whitespace-nowrap">
+                                            <OrderCheckbox orderId={siparis.id} />
+                                        </td>
                                         {/* Bestellnummer Link */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <Link href={`/${locale}/admin/operasyon/siparisler/${siparis.id}`} className="font-bold text-accent hover:underline">
@@ -352,6 +381,7 @@ export default async function AlleSiparislerPage({
                 </div>
             )}
             {/* Optional: Paginierung hier */}
-        </main>
+            </main>
+        </OrderPageWrapper>
     );
 }

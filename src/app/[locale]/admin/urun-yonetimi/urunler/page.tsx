@@ -79,8 +79,9 @@ export default async function UrunlerListPage({
         return redirect(`/${locale}/login`);
     }
      // Rollenprüfung
-     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-     const isAdmin = profile?.rol === 'Yönetici';
+    const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+    const isAdmin = profile?.rol === 'Yönetici';
+    const canSeePurchasePrice = profile?.rol !== 'Personel';
      // Ekip Üyesi sadece okuma yapabilir, düzenleme yetkisi yok
 
     // Filter aus searchParams lesen
@@ -246,7 +247,9 @@ export default async function UrunlerListPage({
                                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kategori</th>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stok Durumu</th>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Aktif/Pasif</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Alış Fiyatı</th>
+                                    {canSeePurchasePrice && (
+                                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Alış Fiyatı</th>
+                                    )}
                                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Müşteri Satış Fiyatı</th>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Alt Bayi Satış Fiyatı</th>
                                     <th className="relative px-6 py-3"><span className="sr-only">Kaydet</span></th>
@@ -254,7 +257,7 @@ export default async function UrunlerListPage({
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                     {urunListesi.map((urun) => (
-                                        <EditableUrunRowClient key={urun.id} urun={urun} locale={locale} content={content} isAdmin={isAdmin} />
+                                        <EditableUrunRowClient key={urun.id} urun={urun} locale={locale} content={content} isAdmin={isAdmin} canSeePurchasePrice={canSeePurchasePrice} />
                                 ))}
                             </tbody>
                         </table>

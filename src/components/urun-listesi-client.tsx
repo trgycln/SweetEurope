@@ -15,7 +15,7 @@ type Urun = {
     kategoriler: { id: string, ad: any } | null;
 };
 type Kategori = { id: string; ad: any; };
-type UserRole = 'Yönetici' | 'Ekip Üyesi' | 'Müşteri' | 'Alt Bayi';
+type UserRole = 'Yönetici' | 'Ekip Üyesi' | 'Personel' | 'Müşteri' | 'Alt Bayi';
 
 interface UrunListesiClientProps {
     serverUrunler: Urun[];

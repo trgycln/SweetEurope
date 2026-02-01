@@ -61,6 +61,10 @@ export default async function PortalLayout({
     // Sicherstellen, dass nur Portal-Rollen zugreifen
     if (profile.rol !== 'Müşteri' && profile.rol !== 'Alt Bayi') {
          console.warn(`Unberechtigter Zugriff auf Portal Layout durch Rolle: ${profile.rol}`);
+         // Yönetici, Ekip Üyesi, and Personel should use admin area
+         if (profile.rol === 'Personel') {
+             return redirect(`/${locale}/admin/operasyon/siparisler`);
+         }
          if (profile.rol === 'Yönetici' || profile.rol === 'Ekip Üyesi') {
              return redirect(`/${locale}/admin/dashboard`);
          }

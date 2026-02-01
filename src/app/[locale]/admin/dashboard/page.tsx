@@ -19,6 +19,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 // --- YENİ: Chart bileşenini ayrı dosyadan import et ---
 import { FinanzChartClient } from './FinanzChartClient';
 import KPIBar from './KPIBar';
+import { DistributorsList } from '@/components/admin/dashboard/DistributorsList';
 // --- BİTTİ ---
 
 export const dynamic = 'force-dynamic';
@@ -214,7 +215,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
             </div>
             {/* ALTTA: Operasyonel göstergeler, sipariş durumu, ajanda, schnelle Aktionen, kritischer Lagerbestand */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Linke Spalte: operationelle Indikatoren, Auftragsstatus, Agenda */}
+                {/* Linke Spalte */}
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <StatCard
@@ -248,6 +249,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                             />
                         )}
                     </div>
+
                     <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
                         <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).orderBreakdownTitle || 'Sipariş Durumu Dağılımı (30 gün)'}</h2>
                         <div className="flex flex-col gap-6">
@@ -289,37 +291,48 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                                     <QuickActionButton label={pageContent.actionNewExpense || "Yeni Gider"} icon={<FiBriefcase size={20}/>} href={`/${locale}/admin/idari/finans/giderler`} />
                                 </div>
                             </div>
-                                <div>
-                                    <StatCard
-                                        title={operationalContent.cardCriticalStock || "Critical Stock"}
-                                        value={stockRes.data ?? 0}
-                                        icon={<FiAlertTriangle size={28} className="text-red-500"/>}
-                                        link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
-                                        linkText={operationalContent.viewCriticalStockLink || "View critical stock"}
-                                    />
-                                </div>
-                            </div>
-                            {overdueTasks.length > 0 ? (
-                                <div className="space-y-3 divide-y divide-gray-100">
-                                    {overdueTasks.map((task: any) => (
-                                        <div key={task.id} className="pt-3 first:pt-0">
-                                            <Link href={`/${locale}/admin/gorevler`} className="block group">
-                                                <p className="font-semibold text-primary group-hover:text-accent transition-colors truncate">{task.baslik}</p>
-                                                <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
-                                                    <FiClock size={12}/>
-                                                    {operationalContent.dueDate || "Due:"} {formatDate(task.son_tarih, locale)}
-                                                </p>
-                                            </Link>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-center text-gray-500 py-6">{operationalContent.noOverdueTasks || "No overdue tasks at the moment."}</p>
-                            )}
                         </div>
                     </div>
                 </div>
-                {/* Rechte Spalte: entfernt doppelte Boxen */}
+
+                {/* Rechte Spalte */}
+                <div className="space-y-6">
+                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                        <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).overdueTasksTitle || 'Overdue Tasks'}</h2>
+                        {overdueTasks.length > 0 ? (
+                            <div className="space-y-3 divide-y divide-gray-100">
+                                {overdueTasks.map((task: any) => (
+                                    <div key={task.id} className="pt-3 first:pt-0">
+                                        <Link href={`/${locale}/admin/gorevler`} className="block group">
+                                            <p className="font-semibold text-primary group-hover:text-accent transition-colors truncate">{task.baslik}</p>
+                                            <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
+                                                <FiClock size={12}/>
+                                                {operationalContent.dueDate || "Due:"} {formatDate(task.son_tarih, locale)}
+                                            </p>
+                                        </Link>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-500 py-6">{operationalContent.noOverdueTasks || "No overdue tasks at the moment."}</p>
+                        )}
+                    </div>
+
+                    <StatCard
+                        title={operationalContent.cardCriticalStock || "Critical Stock"}
+                        value={stockRes.data ?? 0}
+                        icon={<FiAlertTriangle size={28} className="text-red-500"/>}
+                        link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
+                        linkText={operationalContent.viewCriticalStockLink || "View critical stock"}
+                    />
+                </div>
+            </div>
+
+            {/* Distributors Section - Alt Bayiler */}
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).distributorsTitle || 'Alt Bayiler Müşteri Sayısı'}</h2>
+                <DistributorsList locale={locale} dictionary={dictionary} cookieStore={cookieStore} />
+            </div>
         </div>
     );
 }

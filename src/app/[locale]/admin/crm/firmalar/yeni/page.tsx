@@ -32,6 +32,7 @@ async function yeniFirmaEkleAction(
   const telefon = formData.get('telefon') as string;
   const email = formData.get('email') as string;
   const sorumlu_personel_id = formData.get('sorumlu_personel_id') as string;
+  const ticari_tip_raw = formData.get('ticari_tip') as string | null;
   // --- YENİ ALANLAR ---
   const google_maps_url = formData.get('google_maps_url') as string;
   const sehir = formData.get('sehir') as string;
@@ -53,6 +54,8 @@ async function yeniFirmaEkleAction(
     // TODO: Hata yönetimi (useFormState ile daha iyi olur)
     return;
   }
+
+  const ticari_tip = ticari_tip_raw || (kategori === 'Alt Bayi' ? 'alt_bayi' : 'musteri');
 
   // --- KORREKTUR (ACTION): Supabase Client korrekt initialisieren ---
   const cookieStore = await cookies();
@@ -105,6 +108,8 @@ async function yeniFirmaEkleAction(
     facebook_url: facebook_url || null,
     web_url: web_url || null,
   };
+  (insertData as any).ticari_tip = ticari_tip;
+  (insertData as any).created_by = user.id;
 
   // --- SCORING LOGIC ---
   let score = 0;
@@ -145,7 +150,7 @@ async function yeniFirmaEkleAction(
   // --- END SCORING ---
 
   // 5. Akıllı Atama Kuralı'nı uygula
-  if (userRole === 'Ekip Üyesi') {
+  if (userRole === 'Ekip Üyesi' || userRole === 'Personel') {
     insertData.sorumlu_personel_id = user.id; // Spalte heißt 'sorumlu_personel_id'
   } else if (userRole === 'Yönetici' && sorumlu_personel_id) {
     insertData.sorumlu_personel_id = sorumlu_personel_id;
@@ -160,7 +165,11 @@ async function yeniFirmaEkleAction(
     // TODO: Hata yönetimi
   } else {
     revalidatePath(`/${locale}/admin/crm/firmalar`); // Sprachspezifischer Pfad
-    redirect(`/${locale}/admin/crm/firmalar`); // Sprachspezifischer Redirect
+    revalidatePath(`/${locale}/admin/crm/alt-bayiler`); // Sprachspezifischer Pfad
+    redirect(ticari_tip === 'alt_bayi'
+      ? `/${locale}/admin/crm/alt-bayiler`
+      : `/${locale}/admin/crm/firmalar`
+    );
   }
 }
 
@@ -177,6 +186,10 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
   // Await params and searchParams for Next.js 15
   const { locale } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
+  const prefillTicariTip = Array.isArray(resolvedSearchParams.ticari_tip)
+    ? resolvedSearchParams.ticari_tip[0]
+    : resolvedSearchParams.ticari_tip;
+  const isAltBayiPrefill = prefillTicariTip === 'alt_bayi';
 
   // --- KORREKTUR (PAGE): Supabase Client korrekt initialisieren ---
   const cookieStore = await cookies();
@@ -284,7 +297,8 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
 
             <div>
               <label htmlFor="kategori" className={labelBaseClasses}>Kategorie <span className="text-red-500">*</span></label>
-              <select id="kategori" name="kategori" required className={inputBaseClasses}>
+              <input type="hidden" name="ticari_tip" value={isAltBayiPrefill ? 'alt_bayi' : ''} />
+              <select id="kategori" name="kategori" required className={inputBaseClasses} defaultValue={isAltBayiPrefill ? 'Alt Bayi' : ''}>
                 <option value="">-- Kategorie wählen --</option>
                 {kategoriOptions.map(cat => (
                     <option key={cat} value={cat}>

@@ -12,12 +12,12 @@ import { getDictionary } from '@/dictionaries';
 // Layout-Komponente
 export default async function FirmaDetailLayout({
     children,
-    // params enthält jetzt auch locale (wird vom übergeordneten Layout bereitgestellt)
-    params: { firmaId, locale },
+    params,
 }: {
     children: React.ReactNode;
-    params: { firmaId: string; locale: Locale }; // locale zum Typ hinzufügen
+    params: Promise<{ firmaId: string; locale: Locale }>;
 }) {
+    const { firmaId, locale } = await params;
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen
     const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
@@ -30,7 +30,7 @@ export default async function FirmaDetailLayout({
     // Firma abrufen
     const { data: firma, error: firmaError } = await supabase
         .from('firmalar')
-        .select('unvan, kategori') // kategori eklendi
+        .select('unvan, kategori, ticari_tip') // kategori eklendi
         .eq('id', firmaId)
         .single();
 
@@ -67,11 +67,11 @@ export default async function FirmaDetailLayout({
                         orders: tabsLabels.orders || 'Siparişler',
                         tasks: tabsLabels.tasks || 'Görevler',
                     }}
-                    extraTabs={
-                        (firma.kategori === 'Alt Bayi') 
-                          ? [{ name: tabsLabels.subDealerCustomers || 'Müşterileri', href: `/${locale}/admin/crm/firmalar/${firmaId}/musteriler` }]
-                          : []
-                    }
+                                        extraTabs={
+                                                (firma.ticari_tip === 'alt_bayi' || firma.kategori === 'Alt Bayi')
+                                                    ? [{ name: tabsLabels.subDealerCustomers || 'Müşterileri', href: `/${locale}/admin/crm/firmalar/${firmaId}/musteriler` }]
+                                                    : []
+                                        }
                 />
 
                 {/* Container für den Inhalt der Kind-Seite (page.tsx) */}

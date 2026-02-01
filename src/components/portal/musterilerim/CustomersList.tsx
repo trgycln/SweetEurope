@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import Link from 'next/link';
-import { FiPhone, FiMail, FiEdit, FiShoppingCart, FiSearch } from 'react-icons/fi';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
+import { FiSearch, FiUsers } from 'react-icons/fi';
+import CustomerRow from './CustomerRow';
 
 interface Customer {
     id: string;
@@ -12,6 +13,17 @@ interface Customer {
     kategori: string | null;
     status: string | null;
     created_at: string;
+    adres?: string | null;
+    sehir?: string | null;
+    ilce?: string | null;
+    posta_kodu?: string | null;
+    kaynak?: string | null;
+    oncelik?: string | null;
+    oncelik_puani?: number | null;
+    etiketler?: string[] | null;
+    son_etkilesim_tarihi?: string | null;
+    google_maps_url?: string | null;
+    instagram_url?: string | null;
 }
 
 interface CustomersListProps {
@@ -25,234 +37,289 @@ interface CustomersListProps {
         companyName: string;
         category: string;
         phone: string;
-        email: string;
         status: string;
         actions: string;
         createOrder: string;
         editCustomer: string;
         callNow: string;
+        priority?: string;
+        source?: string;
+        registrationDate?: string;
+        lastInteraction?: string;
+        allStatusesLabel?: string;
+        allPrioritiesLabel?: string;
+        allCitiesLabel?: string;
+        allDistrictsLabel?: string;
+        allZipCodesLabel?: string;
     };
     statusOptions: string[];
+    cityOptions?: string[];
+    districtOptions?: string[];
+    zipCodeOptions?: string[];
+    zipCodeLabels?: Record<string, string>;
 }
 
 const STATUS_COLORS: Record<string, string> = {
     'Aday': 'bg-gray-100 text-gray-800 border-gray-300',
+    'ADAY': 'bg-gray-100 text-gray-800 border-gray-300',
     'Takipte': 'bg-blue-100 text-blue-800 border-blue-300',
+    'ISITILIYOR': 'bg-blue-50 text-blue-600 border-blue-200',
     'Temas Kuruldu': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    'TEMAS EDİLDİ': 'bg-yellow-50 text-yellow-600 border-yellow-200',
     'İletişimde': 'bg-purple-100 text-purple-800 border-purple-300',
+    'İLETİŞİMDE': 'bg-purple-50 text-purple-600 border-purple-200',
     'Müşteri': 'bg-green-100 text-green-800 border-green-300',
+    'MÜŞTERİ': 'bg-green-50 text-green-600 border-green-200',
     'Pasif': 'bg-red-100 text-red-800 border-red-300',
+    'PASİF': 'bg-red-50 text-red-600 border-red-200',
+    'POTANSİYEL': 'bg-orange-50 text-orange-600 border-orange-200',
+    'REDDEDİLDİ': 'bg-red-100 text-red-800 border-red-300',
 };
 
-export function CustomersList({ customers, locale, labels, statusOptions }: CustomersListProps) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string>('');
+export function CustomersList({ 
+    customers, 
+    locale, 
+    labels, 
+    statusOptions,
+    cityOptions = [],
+    districtOptions = [],
+    zipCodeOptions = [],
+    zipCodeLabels = {}
+}: CustomersListProps) {
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const { replace } = useRouter();
 
-    // Filter and search
-    const filteredCustomers = useMemo(() => {
-        return customers.filter((customer) => {
-            const matchesSearch = 
-                customer.unvan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (customer.telefon?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-                (customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
-            
-            const matchesStatus = !statusFilter || customer.status === statusFilter;
+    const handleSearch = useDebouncedCallback((term: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (term) {
+            params.set('q', term);
+        } else {
+            params.delete('q');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    }, 300);
 
-            return matchesSearch && matchesStatus;
-        });
-    }, [customers, searchTerm, statusFilter]);
+    const handleCityChange = (city: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (city) {
+            params.set('city', city);
+        } else {
+            params.delete('city');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
+    const handleDistrictChange = (district: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (district) {
+            params.set('district', district);
+        } else {
+            params.delete('district');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
+    const handleZipCodeChange = (zipCode: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (zipCode) {
+            params.set('posta_kodu', zipCode);
+        } else {
+            params.delete('posta_kodu');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
+    const handleStatusChange = (status: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (status) {
+            params.set('status', status);
+        } else {
+            params.delete('status');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
+    const handlePriorityChange = (priority: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (priority) {
+            params.set('priority_group', priority);
+        } else {
+            params.delete('priority_group');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
 
     return (
         <div className="space-y-4">
-            {/* Filters Bar */}
-            <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 flex flex-col md:flex-row gap-3">
-                {/* Search */}
-                <div className="flex-1 relative">
-                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder={labels.searchPlaceholder}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                    />
-                </div>
+            {/* Filters Bar - Admin Panel Style */}
+            <div className="bg-gray-50 py-4 -mx-4 px-4 sm:-mx-8 sm:px-8 border-b border-gray-200 shadow-sm">
+                <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
+                    {/* Search */}
+                    <div className="relative flex-grow min-w-[200px]">
+                        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder={labels.searchPlaceholder}
+                            className="w-full pl-10 pr-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                            onChange={(e) => handleSearch(e.target.value)}
+                            defaultValue={searchParams.get('q')?.toString()}
+                        />
+                    </div>
+                    
+                    {/* Priority Filter */}
+                    <div className="relative flex-grow sm:flex-grow-0 sm:w-40">
+                        <select
+                            className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                            onChange={(e) => handlePriorityChange(e.target.value)}
+                            value={searchParams.get('priority_group')?.toString() || ''}
+                        >
+                            <option value="">{labels.allPrioritiesLabel || 'Tüm Öncelikler'}</option>
+                            <option value="A">A (High)</option>
+                            <option value="B">B (Medium)</option>
+                            <option value="C">C (Low)</option>
+                        </select>
+                    </div>
 
-                {/* Status Filter */}
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent min-w-[200px]"
-                >
-                    <option value="">{labels.filterAll}</option>
-                    {statusOptions.map(status => (
-                        <option key={status} value={status}>{status}</option>
-                    ))}
-                </select>
+                    {/* City Filter */}
+                    <div className="relative flex-grow sm:flex-grow-0 sm:w-48">
+                        <select
+                            className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                            onChange={(e) => handleCityChange(e.target.value)}
+                            value={searchParams.get('city')?.toString() || ''}
+                        >
+                            <option value="">{labels.allCitiesLabel || 'Tüm Şehirler'}</option>
+                            {cityOptions.map(city => (
+                                <option key={city} value={city}>{city}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* District Filter */}
+                    <div className="relative flex-grow sm:flex-grow-0 sm:w-48">
+                        <select
+                            className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                            onChange={(e) => handleDistrictChange(e.target.value)}
+                            value={searchParams.get('district')?.toString() || ''}
+                        >
+                            <option value="">{labels.allDistrictsLabel || 'Tüm İlçeler'}</option>
+                            {districtOptions.map(district => (
+                                <option key={district} value={district}>{district}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Zip Code Filter */}
+                    <div className="relative flex-grow sm:flex-grow-0 sm:w-48">
+                        <select
+                            className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                            onChange={(e) => handleZipCodeChange(e.target.value)}
+                            value={searchParams.get('posta_kodu')?.toString() || ''}
+                        >
+                            <option value="">{labels.allZipCodesLabel || 'Tüm PLZ Bölgeleri'}</option>
+                            {zipCodeOptions.map(zipCode => (
+                                <option key={zipCode} value={zipCode}>
+                                    {zipCodeLabels[zipCode] || zipCode}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Status Filter */}
+                    <div className="flex-grow sm:flex-grow-0 sm:w-64">
+                        <select
+                            className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                            onChange={(e) => handleStatusChange(e.target.value)}
+                            value={searchParams.get('status')?.toString() || ''}
+                        >
+                            <option value="">{labels.allStatusesLabel || labels.filterAll}</option>
+                            {statusOptions.map(status => (
+                                <option key={status} value={status}>{status}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             </div>
 
             {/* Mobile: Card View */}
             <div className="lg:hidden space-y-4">
-                {filteredCustomers.length > 0 ? (
-                    filteredCustomers.map(customer => (
-                        <div
+                {customers.length > 0 ? (
+                    customers.map(customer => (
+                        <CustomerRow
                             key={customer.id}
-                            className="bg-white p-5 rounded-lg shadow-lg border border-gray-200 hover:border-accent transition-all"
-                        >
-                            <div className="flex justify-between items-start mb-3">
-                                <div>
-                                    <Link href={`/${locale}/portal/musterilerim/${customer.id}`} className="font-bold text-lg text-primary hover:text-accent">
-                                        {customer.unvan}
-                                    </Link>
-                                    {customer.kategori && (
-                                        <p className="text-sm text-gray-600">{customer.kategori}</p>
-                                    )}
-                                </div>
-                                {customer.status && (
-                                    <span className={`text-xs font-bold px-3 py-1 rounded-full border ${STATUS_COLORS[customer.status] || 'bg-gray-100 text-gray-800 border-gray-300'}`}>
-                                        {customer.status}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="space-y-2 mb-4">
-                                {customer.telefon && (
-                                    <a
-                                        href={`tel:${customer.telefon}`}
-                                        className="flex items-center gap-2 text-sm text-gray-700 hover:text-accent"
-                                    >
-                                        <FiPhone size={14} />
-                                        {customer.telefon}
-                                    </a>
-                                )}
-                                {customer.email && (
-                                    <a
-                                        href={`mailto:${customer.email}`}
-                                        className="flex items-center gap-2 text-sm text-gray-700 hover:text-accent"
-                                    >
-                                        <FiMail size={14} />
-                                        {customer.email}
-                                    </a>
-                                )}
-                            </div>
-
-                            <div className="flex gap-2">
-                                <Link
-                                    href={`/${locale}/portal/siparisler/yeni?firmaId=${customer.id}`}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-accent text-white rounded-lg font-semibold text-sm hover:bg-opacity-90 transition-colors"
-                                >
-                                    <FiShoppingCart size={16} />
-                                    {labels.createOrder}
-                                </Link>
-                            </div>
-                        </div>
+                            customer={customer}
+                            locale={locale}
+                            statusColors={STATUS_COLORS}
+                            isDesktop={false}
+                            labels={labels}
+                        />
                     ))
                 ) : (
-                    <div className="bg-white p-12 rounded-lg shadow-md text-center">
-                        <p className="text-gray-500 text-lg">
+                    <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
+                        <FiUsers className="mx-auto text-5xl text-gray-300 mb-4" />
+                        <h2 className="font-serif text-2xl font-semibold text-primary">
                             {searchTerm || statusFilter ? labels.noCustomersFiltered : labels.noCustomers}
-                        </p>
+                        </h2>
                     </div>
                 )}
             </div>
 
             {/* Desktop: Table View */}
-            <div className="hidden lg:block bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                {labels.companyName}
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                {labels.category}
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                {labels.phone}
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                {labels.email}
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                {labels.status}
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                {labels.actions}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredCustomers.length > 0 ? (
-                            filteredCustomers.map(customer => (
-                                <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <Link
-                                            href={`/${locale}/portal/musterilerim/${customer.id}`}
-                                            className="text-sm font-bold text-primary hover:text-accent"
-                                        >
-                                            {customer.unvan}
-                                        </Link>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        {customer.kategori || '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        {customer.telefon ? (
-                                            <a
-                                                href={`tel:${customer.telefon}`}
-                                                className="text-accent hover:underline flex items-center gap-1"
-                                            >
-                                                <FiPhone size={14} />
-                                                {customer.telefon}
-                                            </a>
-                                        ) : (
-                                            '-'
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        {customer.email ? (
-                                            <a
-                                                href={`mailto:${customer.email}`}
-                                                className="text-accent hover:underline"
-                                            >
-                                                {customer.email}
-                                            </a>
-                                        ) : (
-                                            '-'
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {customer.status ? (
-                                            <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${STATUS_COLORS[customer.status] || 'bg-gray-100 text-gray-800 border-gray-300'}`}>
-                                                {customer.status}
-                                            </span>
-                                        ) : (
-                                            '-'
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div className="flex justify-end gap-2">
-                                            <Link
-                                                href={`/${locale}/portal/siparisler/yeni?firmaId=${customer.id}`}
-                                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-accent text-white rounded-lg font-semibold hover:bg-opacity-90 transition-colors text-xs"
-                                            >
-                                                <FiShoppingCart size={14} />
-                                                {labels.createOrder}
-                                            </Link>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
+            {customers.length === 0 ? (
+                <div className="hidden lg:flex mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
+                    <div className="w-full">
+                        <FiUsers className="mx-auto text-5xl text-gray-300 mb-4" />
+                        <h2 className="font-serif text-2xl font-semibold text-primary">
+                            {labels.noCustomers}
+                        </h2>
+                    </div>
+                </div>
+            ) : (
+                <div className="hidden lg:block bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden -mt-8">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center text-gray-500 text-lg">
-                                    {searchTerm || statusFilter ? labels.noCustomersFiltered : labels.noCustomers}
-                                </td>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    {labels.companyName}
+                                </th>
+                                <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    {labels.priority || 'Öncelik'}
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    {labels.source || 'Kaynak'}
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    {labels.registrationDate || 'Kayıt Tarihi'}
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    {labels.category}
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    {labels.phone}
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    {labels.lastInteraction || 'Son Etkileşim'}
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    {labels.status}
+                                </th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {customers.map(customer => (
+                                <CustomerRow
+                                    key={customer.id}
+                                    customer={customer}
+                                    locale={locale}
+                                    statusColors={STATUS_COLORS}
+                                    isDesktop={true}
+                                    labels={labels}
+                                />
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 }

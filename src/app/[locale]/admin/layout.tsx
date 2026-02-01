@@ -86,7 +86,7 @@ export default async function AdminLayout({
     const dictionary = await getDictionary(locale);
 
     // Berechtigungsprüfung für Admin-Bereich
-    if (userRole !== 'Yönetici' && userRole !== 'Ekip Üyesi') {
+    if (userRole !== 'Yönetici' && userRole !== 'Ekip Üyesi' && userRole !== 'Personel') {
         console.warn(`Unberechtigter Zugriff auf Admin Layout durch Rolle: ${userRole}`);
         // Zum entsprechenden Portal weiterleiten
         return redirect(`/${locale}/portal/dashboard`);

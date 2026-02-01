@@ -69,8 +69,10 @@ export default function FirmaGenelBilgilerPage() {
     const firmaId = params.firmaId as string;
 
     const [firma, setFirma] = useState<Firma | null>(null);
+    const [createdByProfile, setCreatedByProfile] = useState<{ id: string; tam_ad: string | null } | null>(null);
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
+    const [altBayiProfiles, setAltBayiProfiles] = useState<Array<{ id: string; tam_ad: string | null }>>([]);
     const [isPending, startTransition] = useTransition();
 
     // Daten laden beim Mounten
@@ -91,12 +93,34 @@ export default function FirmaGenelBilgilerPage() {
                 router.push(`/${locale}/admin/crm/firmalar`);
             } else {
                 setFirma(data);
+                if (data.created_by) {
+                    const { data: creator } = await supabase
+                        .from('profiller')
+                        .select('id, tam_ad')
+                        .eq('id', data.created_by)
+                        .maybeSingle();
+                    setCreatedByProfile(creator || null);
+                } else {
+                    setCreatedByProfile(null);
+                }
             }
             setLoading(false);
         };
         fetchFirma();
         // Abhängigkeiten: firmaId, supabase (falls Client neu erstellt wird), router, locale
     }, [firmaId, supabase, router, locale]);
+
+    useEffect(() => {
+        const fetchAltBayiProfiles = async () => {
+            const { data } = await supabase
+                .from('profiller')
+                .select('id, tam_ad')
+                .eq('rol', 'Alt Bayi')
+                .order('tam_ad');
+            setAltBayiProfiles(data || []);
+        };
+        fetchAltBayiProfiles();
+    }, [supabase]);
 
     const tagOptions = [
         "#Vitrin_Boş", "#Mutfak_Yok", "#Yeni_Açılış", "#Türk_Sahibi", 
@@ -163,6 +187,11 @@ export default function FirmaGenelBilgilerPage() {
                         )}
                     </h2>
                     <p className="text-sm text-gray-500">Allgemeine Informationen & Einstellungen</p>
+                    {createdByProfile && (
+                        <p className="text-xs text-gray-500 mt-1">
+                            Kaydı oluşturan: {createdByProfile.tam_ad || createdByProfile.id}
+                        </p>
+                    )}
                 </div>
                 {!editMode && (
                     <div className="flex items-center gap-3">
@@ -266,6 +295,32 @@ export default function FirmaGenelBilgilerPage() {
                         ))}
                     </select>
                 </div>
+
+                {/* Alt Bayi Kullanıcı Profili */}
+                {(firma.kategori === 'Alt Bayi' || (firma as any).ticari_tip === 'alt_bayi') && (
+                    <div>
+                        <label htmlFor="sahip_id" className="block text-sm font-bold text-gray-700 mb-2">Alt Bayi Kullanıcısı</label>
+                        {editMode ? (
+                            <select
+                                id="sahip_id"
+                                name="sahip_id"
+                                defaultValue={(firma as any).sahip_id || ''}
+                                className={inputBaseClasses}
+                            >
+                                <option value="">-- Kullanıcı Seçin --</option>
+                                {altBayiProfiles.map((p) => (
+                                    <option key={p.id} value={p.id}>
+                                        {p.tam_ad || p.id}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <div className="w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-sm text-gray-700">
+                                {altBayiProfiles.find(p => p.id === (firma as any).sahip_id)?.tam_ad || 'Bağlı kullanıcı yok'}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Quelle (Source) */}
                 <div>

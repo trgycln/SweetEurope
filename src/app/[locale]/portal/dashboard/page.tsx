@@ -39,6 +39,7 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
         activeOrders: content.miniStats?.activeOrders || 'Active Orders',
         sampleRequests: content.miniStats?.sampleRequests || 'Sample Requests',
         favorites: content.miniStats?.favorites || 'Favorites',
+        customers: content.miniStats?.customers || 'My Customers',
     };
     
     const activeOrdersLabels = {
@@ -59,13 +60,16 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
         .eq('id', user.id)
         .single();
 
-    if (!profile || !profile.firma_id) {
-         // Sicherstellen, dass Admins/Team nicht hier landen (obwohl Middleware dies tun sollte)
-         if (profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi') {
-              return redirect(`/${locale}/admin/dashboard`);
-         }
-        return redirect(`/${locale}/login?error=unauthorized`);
-    }
+        if (!profile || !profile.firma_id) {
+            // Sicherstellen, dass Admins/Team/Personel nicht hier landen (obwohl Middleware dies tun sollte)
+            if (profile?.rol === 'Personel') {
+                return redirect(`/${locale}/admin/operasyon/siparisler`);
+            }
+            if (profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi') {
+                return redirect(`/${locale}/admin/dashboard`);
+            }
+           return redirect(`/${locale}/login?error=unauthorized`);
+        }
 
     const firmaId = profile.firma_id;
     const userId = user.id; // Benutzer-ID für Favoriten
@@ -78,7 +82,8 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
         openOrderData,
         hizliSiparisData,
         favoritesData,
-        openRequestsData
+        openRequestsData,
+        customersData
     ] = await Promise.all([
         // Offene Bestellungen
         supabase.from('siparisler')
@@ -95,19 +100,27 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
         supabase.from('numune_talepleri')
             .select('*', { count: 'exact', head: true })
             .eq('firma_id', firmaId)
-            .in('durum', OFFENE_MUSTER_STATUS)
+            .in('durum', OFFENE_MUSTER_STATUS),
+        // Müşteriler zählen (nur für Alt Bayi)
+        profile?.rol === 'Alt Bayi' 
+            ? supabase.from('firmalar')
+                .select('*', { count: 'exact', head: true })
+                .eq('sahip_id', userId)
+            : Promise.resolve({ count: 0, data: null, error: null })
     ]);
 
     // Ergebnisse extrahieren
     const openOrderCount = openOrderData.count ?? 0;
     const favoritesCount = favoritesData.count ?? 0;
     const openRequestsCount = openRequestsData.count ?? 0;
+    const customersCount = customersData.count ?? 0;
 
     // Fehler loggen, falls vorhanden
     if (openOrderData.error) console.error("Fehler beim Zählen der offenen Bestellungen:", openOrderData.error);
     if (hizliSiparisData.error) console.error("Fehler beim Laden der Schnellbestellung-Produkte:", hizliSiparisData.error);
     if (favoritesData.error) console.error("Fehler beim Zählen der Favoriten:", favoritesData.error);
     if (openRequestsData.error) console.error("Fehler beim Zählen der Musteranfragen:", openRequestsData.error);
+    if (customersData.error) console.error("Fehler beim Zählen der Müşteriler:", customersData.error);
 
     // Schnellbestellung Produkte verarbeiten
     // Typ-Annahme für RPC-Ergebnis
@@ -136,6 +149,7 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
                 activeOrdersCount={openOrderCount}
                 sampleRequestsCount={openRequestsCount}
                 favoritesCount={favoritesCount}
+                customersCount={profile?.rol === 'Alt Bayi' ? customersCount : undefined}
                 locale={locale}
                 labels={miniStatsLabels}
             />
