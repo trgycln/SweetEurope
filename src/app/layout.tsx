@@ -24,8 +24,9 @@ export const metadata: Metadata = {
   title: "ElysonSweets",
   description: "Yönetim ve Partner Portalı",
   icons: {
-    icon: "/Logo.jpg",
-    apple: "/Logo.jpg",
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+    shortcut: "/favicon.png",
   },
 };
 
