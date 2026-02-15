@@ -16,6 +16,15 @@ import { updateFirmaAction, deleteFirmaAction } from './actions';
 import { toast } from 'sonner';
 import { Locale } from '@/i18n-config'; // Locale importieren
 import AddressAutofill from '@/components/AddressAutofill'; // Import AddressAutofill
+import { 
+    KATEGORI_LISTESI, 
+    KATEGORI_ISIMLERI, 
+    PUANLAMA_ARALIK, 
+    puanOnerisi,
+    tavsiyeEtKategori,
+    ALT_KATEGORILER,
+    ANA_KATEGORILER
+} from '@/lib/crm/kategoriYonetimi'; // YENİ: Import kategori yönetimi
 
 type Firma = Tables<'firmalar'>;
 type FirmaKategori = Enums<'firma_kategori'>;
@@ -23,35 +32,26 @@ type FirmaStatus = Enums<'firma_status'>;
 
 // Diese Konstanten sollten idealerweise aus database.types kommen oder zentral definiert sein
 const kategoriOptions: FirmaKategori[] = [
-    "Shisha & Lounge", 
-    "Coffee Shop & Eiscafé", 
-    "Casual Dining", 
-    "Restoran", // Added
-    "Hotel & Event", 
-    "Catering",
-    "Alt Bayi", // Corrected
-    "Rakip/Üretici"
-];
+    // YENİ KÖLN DİSTRİBÜTÖR SİSTEMİ - SADECE ANA KATEGORİLER (A, B, C, D)
+    "A",
+    "B",
+    "C",
+    "D"
+] as const;
 
 const kategoriLabels: Record<string, string> = {
-    "Shisha & Lounge": "Nargile & Lounge (Shisha & Lounge)",
-    "Coffee Shop & Eiscafé": "Kafe & Dondurmacı (Coffee Shop & Eiscafé)",
-    "Casual Dining": "Gündelik Yemek (Casual Dining)",
-    "Restoran": "Restoran (Restoran)",
-    "Hotel & Event": "Otel & Etkinlik (Hotel & Event)",
-    "Catering": "Catering",
-    "Alt Bayi": "Alt Bayi / Toptancı (Alt Bayi)",
-    "Rakip/Üretici": "Rakip / Üretici (Rakip/Üretici)"
+    // YENİ KÖLN DİSTRİBÜTÖR SİSTEMİ
+    "A": "🔥 A - HACİM KRALLARI (80-100 puan) | Düğün/Otel/Catering/Kantin",
+    "B": "💰 B - GÜNLÜK NAKİT AKIŞI (60-79 puan) | Kafeler/Pastaneler",
+    "C": "⭐ C - NİŞ PAZARLAR (40-59 puan) | Shisha/Restoran/Oyun Park",
+    "D": "📦 D - PERAKENDE & RAF ÜRÜNLERİ (1-39 puan) | Market/Kiosk"
 };
 
 const statusOptions: FirmaStatus[] = [
-    "ADAY", 
-    "ISITILIYOR", 
-    "TEMAS EDİLDİ", 
-    "İLETİŞİMDE", 
-    "POTANSİYEL", 
-    "MÜŞTERİ", 
-    "PASİF",
+    "ADAY",
+    "TEMAS EDİLDİ",
+    "NUMUNE VERİLDİ",
+    "MÜŞTERİ",
     "REDDEDİLDİ"
 ];
 const priorityOptions = ["A", "B", "C"];
@@ -294,6 +294,25 @@ export default function FirmaGenelBilgilerPage() {
                             </option>
                         ))}
                     </select>
+                    
+                    {/* Ana Kategori Detayları - YENİ */}
+                    {firma.kategori && ["A", "B", "C", "D"].includes(firma.kategori) && (
+                        <div className="mt-3 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-l-4 border-purple-500 rounded-lg">
+                            <p className="font-bold text-purple-900 text-sm">{ANA_KATEGORILER[firma.kategori as any]}</p>
+                            <p className="text-xs text-purple-700 mt-1 font-semibold">Hedef Müşteri Kitleri:</p>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {ALT_KATEGORILER[firma.kategori as any]?.map((altKat, idx) => (
+                                    <span key={idx} className="inline-block px-3 py-1 bg-white border border-purple-200 text-purple-800 rounded-full text-xs font-medium hover:bg-purple-50 transition">
+                                        • {altKat}
+                                    </span>
+                                ))}
+                            </div>
+                            <div className="mt-3 p-3 bg-white rounded border border-purple-200">
+                                <p className="text-xs font-semibold text-gray-700">📊 Puanlama Aralığı:</p>
+                                <p className="text-sm text-gray-900 font-bold mt-1">{PUANLAMA_ARALIK[firma.kategori as any]?.min} - {PUANLAMA_ARALIK[firma.kategori as any]?.max} puan (Önerilen: {PUANLAMA_ARALIK[firma.kategori as any]?.ort})</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Alt Bayi Kullanıcı Profili */}
@@ -426,6 +445,27 @@ export default function FirmaGenelBilgilerPage() {
                 <div>
                     <label htmlFor="google_maps_url" className="block text-sm font-bold text-gray-700 mb-2">Google Maps</label>
                     <input type="url" id="google_maps_url" name="google_maps_url" placeholder="https://maps.google.com/..." defaultValue={(firma as any).google_maps_url || ''} disabled={!editMode} className={inputBaseClasses} />
+                </div>
+
+                {/* Öncelik Puanı - YENİ */}
+                <div>
+                    <label htmlFor="oncelik_puani" className="block text-sm font-bold text-gray-700 mb-2">Öncelik Puanı (1-100)</label>
+                    <input 
+                        type="number" 
+                        id="oncelik_puani" 
+                        name="oncelik_puani" 
+                        min="1" 
+                        max="100"
+                        defaultValue={firma.oncelik_puani || ''} 
+                        disabled={!editMode} 
+                        className={inputBaseClasses}
+                        placeholder="1-100 arasında puan girin"
+                    />
+                    {editMode && firma.kategori && (
+                        <p className="text-xs text-gray-500 mt-2">
+                            💡 İpucu: {firma.kategori} kategorisi için önerilen puan: {PUANLAMA_ARALIK[firma.kategori as any]?.ort || 50}
+                        </p>
+                    )}
                 </div>
 
                 {/* Als Referenz anzeigen */}

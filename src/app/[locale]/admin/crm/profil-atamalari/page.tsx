@@ -120,12 +120,14 @@ export default async function CustomerProfileAssignmentPage({ params }: { params
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    firma.status === 'Müşteri'
+                    firma.status === 'MÜŞTERİ'
                       ? 'bg-green-100 text-green-800' 
-                      : firma.status === 'Aday'
-                      ? 'bg-gray-100 text-gray-800'
-                      : firma.status === 'Takipte'
+                      : firma.status === 'TEMAS EDİLDİ'
                       ? 'bg-blue-100 text-blue-800'
+                      : firma.status === 'NUMUNE VERİLDİ'
+                      ? 'bg-purple-100 text-purple-800'
+                      : firma.status === 'REDDEDİLDİ'
+                      ? 'bg-red-100 text-red-800'
                       : 'bg-gray-100 text-gray-800'
                   }`}>
                     {firma.status}

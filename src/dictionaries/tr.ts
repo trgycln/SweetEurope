@@ -593,20 +593,11 @@ export const dictionary: Partial<Dictionary> = {
       unknown: 'Bilinmiyor',
       responsiblePerson: 'Sorumlu: ',
       statusOptions: {
-        'Aday': 'Aday',
-        'Takipte': 'Takipte',
-        'Temas Kuruldu': 'Temas Kuruldu',
-        'İletişimde': 'İletişimde',
-        'Müşteri': 'Müşteri',
-        'Pasif': 'Pasif',
-        // New Statuses
         'ADAY': 'Aday',
-        'ISITILIYOR': 'Isıtılıyor',
         'TEMAS EDİLDİ': 'Temas Edildi',
-        'İLETİŞİMDE': 'İletişimde',
-        'POTANSİYEL': 'Potansiyel',
+        'NUMUNE VERİLDİ': 'Numune Verildi',
         'MÜŞTERİ': 'Müşteri',
-        'PASİF': 'Pasif'
+        'REDDEDİLDİ': 'Reddedildi'
       },
     },
     applicationsPage: {

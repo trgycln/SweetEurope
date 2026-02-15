@@ -20,7 +20,32 @@ export default async function AltBayiMusterileriPage({ params }: { params: Promi
     .eq('id', firmaId)
     .single();
 
-  console.log('Alt Bayi Müşterileri - Step 0: altBayiFirma:', altBayiFirma);
+  console.log('Alt Bayi Müşterileri - Step 0: altBayiFirma:', JSON.stringify(altBayiFirma, null, 2));
+
+  // DEBUG: Sistemdeki TÜM kullanıcıları ve rollerini görelim
+  const { data: allUsers } = await supabase
+    .from('profiller')
+    .select('id, tam_ad, rol, firma_id');
+  console.log('Alt Bayi Müşterileri - TÜM KULLANICILAR:', JSON.stringify(allUsers, null, 2));
+
+  // DEBUG: Aliaha müşterisini bulalım
+  const { data: aliahaCustomer } = await supabase
+    .from('firmalar')
+    .select('id, unvan, sahip_id, ticari_tip, kategori')
+    .ilike('unvan', '%aliaha%')
+    .limit(1)
+    .single();
+  console.log('Alt Bayi Müşterileri - ALIAHA MÜŞTERİSİ:', JSON.stringify(aliahaCustomer, null, 2));
+
+  // DEBUG: Aliaha'nın sahibi olan kullanıcı profilini bul
+  if (aliahaCustomer?.sahip_id) {
+    const { data: aliahaOwner } = await supabase
+      .from('profiller')
+      .select('id, tam_ad, rol, firma_id')
+      .eq('id', aliahaCustomer.sahip_id)
+      .single();
+    console.log('Alt Bayi Müşterileri - ALIAHA SAHİBİ KULLANICI:', JSON.stringify(aliahaOwner, null, 2));
+  }
 
   // 1) Bu firmaya bağlı alt bayi kullanıcı(lar)ını bul
   const { data: subDealerProfiles, error: profileErr } = await supabase
@@ -46,38 +71,12 @@ export default async function AltBayiMusterileriPage({ params }: { params: Promi
 
   // CRITICAL FIX: If still no owner IDs, try to auto-link with the only Alt Bayi user
   if (ownerIds.length === 0 && altBayiFirma?.ticari_tip === 'alt_bayi') {
-    // First, let's see ALL users in the system
-    const { data: allUsers } = await supabase
-      .from('profiller')
-      .select('id, tam_ad, rol, firma_id');
-
-    console.log('Alt Bayi Müşterileri - Step 3: ALL users in system:', JSON.stringify(allUsers, null, 2));
-
-    // Also check the specific customer (Aliaha) to see who owns it
-    const { data: aliaha } = await supabase
-      .from('firmalar')
-      .select('id, unvan, sahip_id, ticari_tip')
-      .ilike('unvan', '%aliaha%')
-      .limit(1)
-      .single();
-
-    console.log('Alt Bayi Müşterileri - Step 3.5: Aliaha customer record:', JSON.stringify(aliaha, null, 2));
-
     const { data: allAltBayiProfiles } = await supabase
       .from('profiller')
       .select('id, tam_ad')
       .eq('rol', 'Alt Bayi');
 
-    console.log('Alt Bayi Müşterileri - Step 4: Alt Bayi users only:', allAltBayiProfiles);
-
-    // FALLBACK: Check if there's a customer with this firma as sahip (reverse lookup)
-    const { data: customersOwnedByThisFirma } = await supabase
-      .from('firmalar')
-      .select('id, unvan, sahip_id')
-      .eq('sahip_id', firmaId)
-      .limit(5);
-
-    console.log('Alt Bayi Müşterileri - Step 5: Customers where sahip_id = this firma:', customersOwnedByThisFirma);
+    console.log('Alt Bayi Müşterileri - Auto-link attempt: Found Alt Bayi users:', allAltBayiProfiles?.length ?? 0);
 
     if ((allAltBayiProfiles || []).length === 1) {
       const altBayiUserId = allAltBayiProfiles![0].id;
@@ -95,7 +94,7 @@ export default async function AltBayiMusterileriPage({ params }: { params: Promi
         .update({ firma_id: firmaId })
         .eq('id', altBayiUserId);
 
-      console.log('Alt Bayi Müşterileri - Step 4: Auto-linked firma to user:', altBayiUserId, 'ownerIds now:', ownerIds);
+      console.log('Alt Bayi Müşterileri - Auto-linked firma to user:', altBayiUserId);
     } else {
       console.warn('Alt Bayi Müşterileri - Multiple or no Alt Bayi users found. Manual linking required.');
     }
@@ -109,34 +108,53 @@ export default async function AltBayiMusterileriPage({ params }: { params: Promi
   
   console.log('Alt Bayi Müşterileri - Before query: ownerIds:', ownerIds, 'length:', ownerIds.length);
   
-  // DEBUG: Check if there are ANY customers with sahip_id matching our IDs
-  const { data: debugCustomers } = await supabase
-    .from('firmalar')
-    .select('id, unvan, sahip_id, kategori, ticari_tip')
-    .in('sahip_id', ownerIds);
+  // CRITICAL FIX: Müşteriler hem kullanıcı ID'sine hem de firma ID'sine sahip olabilir
+  // İki query yapıp sonuçları birleştireceğiz
   
-  console.log('Alt Bayi Müşterileri - DEBUG: All customers with sahip_id in ownerIds:', debugCustomers);
+  let allCustomers: any[] = [];
   
+  // Query 1: sahip_id kullanıcı ID'lerinden birine eşit olan müşteriler
   if (ownerIds.length > 0) {
-    const { data: customers, error: customersErr } = await supabase
+    const { data: customersByUserId, error: err1 } = await supabase
       .from('firmalar')
-      .select('kategori')
+      .select('id, kategori, sahip_id')
       .in('sahip_id', ownerIds)
       .or('ticari_tip.eq.musteri,ticari_tip.is.null');
 
-    console.log('Alt Bayi Müşterileri - Query params: ownerIds:', ownerIds);
-    console.log('Alt Bayi Müşterileri - Final ownerIds:', ownerIds, 'Customers found:', customers?.length ?? 0, 'Error:', customersErr);
-
-    if (customersErr) {
-      console.error('Alt bayi müşterileri sayılırken hata:', customersErr);
-    } else {
-      (customers || []).forEach((c: any) => {
-        const category = c?.kategori || 'Diğer';
-        categoryBreakdown[category] = (categoryBreakdown[category] || 0) + 1;
-      });
-      musteriCount = customers?.length ?? 0;
+    console.log('Alt Bayi Müşterileri - Query 1 (by user IDs):', customersByUserId?.length ?? 0, 'Error:', err1);
+    
+    if (!err1 && customersByUserId) {
+      allCustomers.push(...customersByUserId);
     }
   }
+  
+  // Query 2: sahip_id firma ID'sine eşit olan müşteriler (fallback)
+  const { data: customersByFirmaId, error: err2 } = await supabase
+    .from('firmalar')
+    .select('id, kategori, sahip_id')
+    .eq('sahip_id', firmaId)
+    .or('ticari_tip.eq.musteri,ticari_tip.is.null');
+
+  console.log('Alt Bayi Müşterileri - Query 2 (by firma ID):', customersByFirmaId?.length ?? 0, 'Error:', err2);
+  
+  if (!err2 && customersByFirmaId) {
+    allCustomers.push(...customersByFirmaId);
+  }
+  
+  // Duplicate'leri temizle (aynı müşteri her iki query'de de gelebilir)
+  const uniqueCustomers = Array.from(
+    new Map(allCustomers.map(c => [c.id, c])).values()
+  );
+  
+  console.log('Alt Bayi Müşterileri - Total unique customers:', uniqueCustomers.length);
+  
+  // Kategori bazlı breakdown hesapla
+  uniqueCustomers.forEach((c: any) => {
+    const category = c?.kategori || 'Diğer';
+    categoryBreakdown[category] = (categoryBreakdown[category] || 0) + 1;
+  });
+  
+  musteriCount = uniqueCustomers.length;
 
   return (
     <div className="space-y-6">

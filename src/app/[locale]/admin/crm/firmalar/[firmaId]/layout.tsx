@@ -34,6 +34,14 @@ export default async function FirmaDetailLayout({
         .eq('id', firmaId)
         .single();
 
+    // CRITICAL: Mark application as "seen" when admin views it
+    // This prevents it from showing up in "New Applications" count
+    await supabase
+        .from('firmalar')
+        .update({ goruldu: true })
+        .eq('id', firmaId)
+        .eq('goruldu', false); // Only update if not already marked
+
     // Fehlerbehandlung für Firma-Abruf
     if (firmaError || !firma) {
         // Firma wurde gelöscht oder existiert nicht - zur 404 weiterleiten

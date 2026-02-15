@@ -84,7 +84,8 @@ export async function addMyCustomerAction(formData: FormData, locale: string) {
       sahip_id: user.id,
       status: 'ADAY',
       oncelik_puani: score,
-      ticari_tip: 'musteri'
+      ticari_tip: 'musteri',
+      goruldu: true
     });
 
   if (error) {

@@ -8,6 +8,7 @@ import { Enums, Tables } from "@/lib/supabase/database.types";
 import { revalidatePath } from "next/cache";
 import { sendNotification } from '@/lib/notificationUtils'; // Importieren
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
+import { puanOnerisi, PUANLAMA_ARALIK, ANA_KATEGORILER } from "@/lib/crm/kategoriYonetimi"; // YENİ: Import kategori yönetimi
 
 type FirmaStatus = Enums<'firma_status'>;
 type FirmaKategorie = Enums<'firma_kategori'>;
@@ -42,7 +43,7 @@ export async function updateFirmaAction(
     const adres = formData.get('adres') as string | null;
     const telefon = formData.get('telefon') as string | null;
     const email = formData.get('email') as string | null;
-    // const oncelik = formData.get('oncelik') as string | null; // Removed manual priority
+    const oncelik_puani_raw = formData.get('oncelik_puani') as string | null; // YENİ: Öncelik puanı form'dan oku
     const instagram_url = formData.get('instagram_url') as string | null;
     const facebook_url = formData.get('facebook_url') as string | null;
     const web_url = formData.get('web_url') as string | null;
@@ -65,8 +66,11 @@ export async function updateFirmaAction(
     }
     // Stellen Sie sicher, dass der Status gültig ist, falls er übergeben wurde
     const validStatusOptions: ReadonlyArray<FirmaStatus> = [
-        "ADAY", "ISITILIYOR", "TEMAS EDİLDİ", "İLETİŞİMDE", "POTANSİYEL", "MÜŞTERİ", "PASİF", "REDDEDİLDİ",
-        "Aday", "Takipte", "Temas Kuruldu", "İletişimde", "Müşteri", "Pasif"
+        "ADAY",
+        "TEMAS EDİLDİ",
+        "NUMUNE VERİLDİ",
+        "MÜŞTERİ",
+        "REDDEDİLDİ"
     ];
     if (yeniStatus && !validStatusOptions.includes(yeniStatus)) {
          return { success: false, error: `Ungültiger Status: ${yeniStatus}` };
@@ -99,41 +103,30 @@ export async function updateFirmaAction(
         (updatedData as any).sahip_id = sahip_id_raw || null;
     }
     
-    // --- SCORING LOGIC ---
-    let score = 0;
-    // Category Score
-    const catScores: Record<string, number> = {
-        'Shisha & Lounge': 100,
-        'Coffee Shop & Eiscafé': 90,
-        'Hotel & Event': 80,
-        'Casual Dining': 70,
-        'Restoran': 70, // Added Restoran
-        'Alt Bayi': 60, // Corrected key
-        'Rakip/Üretici': 0
-    };
-    if (kategorie) score += catScores[kategorie] || 50;
+    // --- YENİ PUANLAMA SİSTEMİ (KÖLN DİSTRİBÜTÖR) ---
+    let oncelik_puani: number | null = null;
 
-    // Tag Score
-    if (etiketler && etiketler.length > 0) {
-        // Pozitif Etkenler (Satış İhtimalini Artıranlar)
-        if (etiketler.includes('#Vitrin_Boş')) score += 40; // Acil ürün ihtiyacı
-        if (etiketler.includes('#Mutfak_Yok')) score += 30; // Üretim yapamaz, almak zorunda
-        if (etiketler.includes('#Yeni_Açılış')) score += 25; // Tedarikçi arayışında
-        if (etiketler.includes('#Türk_Sahibi')) score += 20; // Kültürel yakınlık, kolay iletişim
-        if (etiketler.includes('#Düğün_Mekanı')) score += 20; // Toplu sipariş potansiyeli
-        if (etiketler.includes('#Kahve_Odaklı')) score += 15; // Kahve yanına pasta şart
-        if (etiketler.includes('#Yüksek_Sirkülasyon')) score += 15; // Yüksek ciro potansiyeli
-        if (etiketler.includes('#Lüks_Mekan')) score += 10; // Yüksek kar marjı ürünler satabilir
-        if (etiketler.includes('#Teraslı')) score += 10; // Yazın yüksek kapasite
-        if (etiketler.includes('#Self_Service')) score += 10; // Donuk ürün operasyonuna uygun
-
-        // Negatif Etkenler (Satış İhtimalini Düşürenler)
-        if (etiketler.includes('#Zincir_Marka')) score -= 20; // Merkezi satın alma, zor giriş
-        if (etiketler.includes('#Kendi_Üretimi')) score -= 30; // Kendi pastasını yapıyor, ihtiyaç az
-        if (etiketler.includes('#Rakip_Sözleşmeli')) score -= 30; // Başka tedarikçi ile anlaşmalı
+    // 1. Form'dan gelen puanı kullan veya kategorie'ye göre öner
+    if (oncelik_puani_raw && /^\d+$/.test(oncelik_puani_raw)) {
+        // Form'dan geçerli bir puan geldi
+        const parsedScore = parseInt(oncelik_puani_raw, 10);
+        if (parsedScore > 0 && parsedScore <= 100) {
+            oncelik_puani = parsedScore;
+        } else {
+            // Puan aralığı dışında, kategorie'ye göre öner
+            if (kategorie && PUANLAMA_ARALIK[kategorie as any]) {
+                oncelik_puani = PUANLAMA_ARALIK[kategorie as any].ort;
+            }
+        }
+    } else if (kategorie && PUANLAMA_ARALIK[kategorie as any]) {
+        // Form'dan puan gelmedi, kategorie'ye göre öner
+        oncelik_puani = puanOnerisi(kategorie as any);
     }
-    (updatedData as any).oncelik_puani = score;
-    // --- END SCORING ---
+
+    if (oncelik_puani !== null) {
+        (updatedData as any).oncelik_puani = oncelik_puani;
+    }
+    // --- END: YENİ PUANLAMA SİSTEMİ ---
 
     // Checkbox-Wert immer setzen (true oder false)
     updatedData.referans_olarak_goster = referans_olarak_goster;

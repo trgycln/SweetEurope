@@ -2344,10 +2344,12 @@ export type Database = {
         | "ADAY"
         | "ISITILIYOR"
         | "TEMAS EDİLDİ"
+        | "NUMUNE VERİLDİ"
         | "İLETİŞİMDE"
         | "POTANSİYEL"
         | "MÜŞTERİ"
         | "PASİF"
+        | "REDDEDİLDİ"
       gider_durumu: "Taslak" | "Onaylandı"
       gorev_durumu: "Yapılacak" | "Devam Ediyor" | "Tamamlandı"
       gorev_oncelik: "Düşük" | "Orta" | "Yüksek"
@@ -2553,6 +2555,7 @@ export const Constants = {
         "ADAY",
         "ISITILIYOR",
         "TEMAS EDİLDİ",
+        "NUMUNE VERİLDİ",
         "POTANSİYEL",
         "MÜŞTERİ",
         "PASİF",

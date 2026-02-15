@@ -30,32 +30,25 @@ type FirmaStatus = Enums<'firma_status'>; // Korrekten Enum-Typ verwenden
 // Styling für verschiedene Status
 const STATUS_RENKLERI: Record<string, string> = { // String als Schlüssel verwenden für Flexibilität
     "ADAY": "bg-gray-100 text-gray-800 border border-gray-200",
-    "ISITILIYOR": "bg-blue-50 text-blue-600 border border-blue-200",
-    "TEMAS EDİLDİ": "bg-yellow-50 text-yellow-600 border border-yellow-200",
-    "İLETİŞİMDE": "bg-purple-50 text-purple-600 border border-purple-200",
-    "POTANSİYEL": "bg-orange-50 text-orange-600 border border-orange-200",
+    "TEMAS EDİLDİ": "bg-blue-50 text-blue-600 border border-blue-200",
+    "NUMUNE VERİLDİ": "bg-purple-50 text-purple-600 border border-purple-200",
     "MÜŞTERİ": "bg-green-50 text-green-600 border border-green-200",
-    "PASİF": "bg-red-50 text-red-600 border border-red-200",
+    "REDDEDİLDİ": "bg-red-50 text-red-600 border border-red-200",
     // Old statuses fallback
     "Aday": "bg-gray-100 text-gray-800",
-    "Takipte": "bg-blue-100 text-blue-800",
-    "Temas Kuruldu": "bg-yellow-100 text-yellow-800",
-    "İletişimde": "bg-purple-100 text-purple-800",
+    "Takipte": "bg-gray-100 text-gray-800",
+    "Temas Kuruldu": "bg-blue-100 text-blue-800",
+    "İletişimde": "bg-gray-100 text-gray-800",
     "Müşteri": "bg-green-100 text-green-800",
     "Pasif": "bg-red-100 text-red-800"
 };
 
 const KATEGORI_RENKLERI: Record<string, string> = {
-    "Shisha & Lounge": "bg-indigo-100 text-indigo-800",
-    "Coffee Shop & Eiscafé": "bg-amber-100 text-amber-800",
-    "Casual Dining": "bg-rose-100 text-rose-800",
-    "Hotel & Event": "bg-cyan-100 text-cyan-800",
-    "Rakip/Üretici": "bg-gray-200 text-gray-800",
-    "Kafe": "bg-emerald-100 text-emerald-800",
-    "Restoran": "bg-orange-100 text-orange-800",
-    "Otel": "bg-blue-100 text-blue-800",
-    "Alt Bayi": "bg-purple-100 text-purple-800",
-    "Zincir Market": "bg-teal-100 text-teal-800"
+    // YENİ KÖLN SİSTEMİ - ANA KATEGORİLER
+    "A": "bg-red-100 text-red-800 border-red-300",
+    "B": "bg-blue-100 text-blue-800 border-blue-300",
+    "C": "bg-purple-100 text-purple-800 border-purple-300",
+    "D": "bg-amber-100 text-amber-800 border-amber-300"
 };
 
 // Props-Typ für die Seite (Promises für Next.js 15)
@@ -143,13 +136,12 @@ export default async function FirmalarListPage({
     const districtFilter = searchParamsResolved.district || '';
     const zipCodeFilter = searchParamsResolved.posta_kodu || '';
     const priorityGroupFilter = searchParamsResolved.priority_group || '';
+    const categoryFilter = searchParamsResolved.kategori || ''; // YENİ
 
-    // Fetch unique cities and districts for filter dropdowns
-    // Note: This might be heavy if there are thousands of records. 
-    // Ideally, create a database view or RPC for distinct values.
+    // Fetch unique cities, districts, and categories for filter dropdowns
     let locationQuery = supabase
         .from('firmalar')
-        .select('sehir, ilce, posta_kodu');
+        .select('sehir, ilce, posta_kodu, kategori'); // YENİ: kategori ekle
 
     if (ticariTipFilter) {
         locationQuery = locationQuery.eq('ticari_tip', ticariTipFilter);
@@ -164,6 +156,7 @@ export default async function FirmalarListPage({
     const uniqueCities = Array.from(new Set(locationData?.map(f => f.sehir?.trim()).filter(Boolean))).sort() as string[];
     const uniqueDistricts = Array.from(new Set(locationData?.map(f => f.ilce?.trim()).filter(Boolean))).sort() as string[];
     const uniqueZipCodes = Array.from(new Set(locationData?.map(f => f.posta_kodu?.trim()).filter(Boolean))).sort() as string[];
+    const uniqueCategories = Array.from(new Set(locationData?.map(f => f.kategori?.trim()).filter(Boolean))).sort() as string[]; // YENİ
 
     // Create a map of Zip Code -> City/District for display
     const zipCodeLabels: Record<string, string> = {};
@@ -202,11 +195,45 @@ export default async function FirmalarListPage({
     if (searchQuery) {
         query = query.or(`unvan.ilike.%${searchQuery}%,adres.ilike.%${searchQuery}%`);
     }
+    const STATUS_CANONICAL_MAP: Record<string, string> = {
+        'aday': 'ADAY',
+        'isitiliyor': 'ADAY',
+        'ısıtılıyor': 'ADAY',
+        'takipte': 'ADAY',
+        'iletisimde': 'ADAY',
+        'iletişimde': 'ADAY',
+        'potansiyel': 'ADAY',
+        'temas edildi': 'TEMAS EDİLDİ',
+        'temas kuruldu': 'TEMAS EDİLDİ',
+        'numune verildi': 'NUMUNE VERİLDİ',
+        'müşteri': 'MÜŞTERİ',
+        'musteri': 'MÜŞTERİ',
+        'reddedildi': 'REDDEDİLDİ',
+        'pasif': 'REDDEDİLDİ',
+        'ADAY': 'ADAY',
+        'TEMAS EDİLDİ': 'TEMAS EDİLDİ',
+        'NUMUNE VERİLDİ': 'NUMUNE VERİLDİ',
+        'MÜŞTERİ': 'MÜŞTERİ',
+        'REDDEDİLDİ': 'REDDEDİLDİ'
+    };
+    const canonicalizeStatusFilter = (value: string) => {
+        const key = value.trim();
+        return STATUS_CANONICAL_MAP[key] || STATUS_CANONICAL_MAP[key.toLocaleLowerCase('tr-TR')] || '';
+    };
     if (statusFilter) {
-        query = query.eq('status', statusFilter as FirmaStatus);
+        const mappedStatus = canonicalizeStatusFilter(statusFilter);
+        if (mappedStatus) {
+            query = query.eq('status', mappedStatus);
+        }
     }
     if (statusNotInFilter.length > 0) {
-        query = query.not('status', 'in', `(${statusNotInFilter.join(',')})`);
+        const mappedNotIn = statusNotInFilter
+            .map(canonicalizeStatusFilter)
+            .filter(Boolean);
+        if (mappedNotIn.length > 0) {
+            const notInList = mappedNotIn.map((value) => `"${value}"`).join(',');
+            query = query.not('status', 'in', `(${notInList})`);
+        }
     }
     if (cityFilter) {
         query = query.ilike('sehir', `%${cityFilter}%`);
@@ -216,6 +243,9 @@ export default async function FirmalarListPage({
     }
     if (zipCodeFilter) {
         query = query.eq('posta_kodu', zipCodeFilter);
+    }
+    if (categoryFilter) { // YENİ
+        query = query.eq('kategori', categoryFilter);
     }
     if (ticariTipFilter) {
         query = query.eq('ticari_tip', ticariTipFilter);
@@ -261,12 +291,9 @@ export default async function FirmalarListPage({
     // Nur die neuen/relevanten Status anzeigen
     const statusOptions = [
         "ADAY",
-        "ISITILIYOR",
         "TEMAS EDİLDİ",
-        "İLETİŞİMDE",
-        "POTANSİYEL",
+        "NUMUNE VERİLDİ",
         "MÜŞTERİ",
-        "PASİF",
         "REDDEDİLDİ"
     ] as FirmaStatus[];
 
@@ -297,10 +324,12 @@ export default async function FirmalarListPage({
                     allCitiesLabel={F.allCitiesLabel}
                     allDistrictsLabel={F.allDistrictsLabel}
                     allZipCodesLabel={F.allZipCodesLabel}
+                    allCategoriesLabel={locale === 'tr' ? 'Tüm Kategoriler' : (locale === 'de' ? 'Alle Kategorien' : 'All Categories')}
                     cityOptions={uniqueCities}
                     districtOptions={uniqueDistricts}
                     zipCodeOptions={uniqueZipCodes}
                     zipCodeLabels={zipCodeLabels}
+                    categoryOptions={uniqueCategories}
                 />
             </div>
 

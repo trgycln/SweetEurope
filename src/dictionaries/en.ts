@@ -568,20 +568,11 @@ export const dictionary: Partial<Dictionary> = {
       unknown: 'Unknown',
       responsiblePerson: 'Responsible: ',
       statusOptions: {
-        'Aday': 'Candidate',
-        'Takipte': 'Following Up',
-        'Temas Kuruldu': 'Contact Made',
-        'İletişimde': 'In Communication',
-        'Müşteri': 'Customer',
-        'Pasif': 'Inactive',
-        // New Statuses
         'ADAY': 'Candidate',
-        'ISITILIYOR': 'Warming Up',
         'TEMAS EDİLDİ': 'Contacted',
-        'İLETİŞİMDE': 'In Communication',
-        'POTANSİYEL': 'Potential',
+        'NUMUNE VERİLDİ': 'Sample Provided',
         'MÜŞTERİ': 'Customer',
-        'PASİF': 'Inactive'
+        'REDDEDİLDİ': 'Rejected'
       },
     },
     applicationsPage: {

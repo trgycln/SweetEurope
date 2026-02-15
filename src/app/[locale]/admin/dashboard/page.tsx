@@ -16,11 +16,9 @@ import { Locale } from '@/lib/utils';
 import { formatDate } from '@/lib/utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
-// --- YENİ: Chart bileşenini ayrı dosyadan import et ---
-import { FinanzChartClient } from './FinanzChartClient';
 import KPIBar from './KPIBar';
 import { DistributorsList } from '@/components/admin/dashboard/DistributorsList';
-// --- BİTTİ ---
+import { CustomerOverview } from '@/components/admin/dashboard/CustomerOverview';
 
 export const dynamic = 'force-dynamic';
 
@@ -118,9 +116,31 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     const OFFENE_BESTELL_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
     const NEUE_MUSTER_STATUS: Enums<'numune_talep_durumu'> = 'Yeni Talep';
     const NEUE_PRODUKTANFRAGE_STATUS: Enums<'urun_talep_durumu'> = 'Yeni';
-    const ABGESCHLOSSENE_ANTRAG_STATUS: Enums<'firma_status'>[] = ['Müşteri', 'Pasif'];
+    const ABGESCHLOSSENE_ANTRAG_STATUS: Enums<'firma_status'>[] = ['MÜŞTERİ', 'REDDEDİLDİ'];
+    const NEW_APPLICATION_STATUS: Enums<'firma_status'>[] = ['ADAY', 'TEMAS EDİLDİ', 'NUMUNE VERİLDİ'];
 
     // Parallele Datenabfragen
+    const applicationsResPromise = (async () => {
+        let res = await supabase
+            .from('firmalar')
+            .select('id', { count: 'exact' })
+            .or('ticari_tip.eq.musteri,ticari_tip.is.null')
+            .in('status', NEW_APPLICATION_STATUS)
+            .eq('goruldu', false)
+            .ilike('kaynak', '%web%');
+
+        if (res.error && res.error.message?.includes('goruldu')) {
+            // Fallback: goruldu kolonu yoksa sadece statüye göre say
+            res = await supabase
+                .from('firmalar')
+                .select('id', { count: 'exact' })
+                .or('ticari_tip.eq.musteri,ticari_tip.is.null')
+                .in('status', NEW_APPLICATION_STATUS)
+                .ilike('kaynak', '%web%');
+        }
+        return res;
+    })();
+
     const [
         ordersRes,
         stockRes,
@@ -145,8 +165,8 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_BESTELL_STATUS),
         supabase.rpc('get_kritik_stok_count'),
         supabase.from('gorevler').select('id, baslik, son_tarih').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(5),
-        // Müşteri ve Pasif olmayan firmaları say
-        supabase.from('firmalar').select('id', { count: 'exact' }).not('status', 'in', `(${ABGESCHLOSSENE_ANTRAG_STATUS.join(',')})`),
+                // FIXED: Sadece görülmemiş başvuruları say
+                applicationsResPromise,
         supabase.from('numune_talepleri').select('id', { count: 'exact' }).eq('durum', NEUE_MUSTER_STATUS),
         supabase.from('yeni_urun_talepleri').select('id', { count: 'exact' }).eq('status', NEUE_PRODUKTANFRAGE_STATUS).then(res => res, err => ({ data: null, count: null, error: err })),
         // Grafik için tam ay P&L
@@ -203,16 +223,14 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     const overdueTasks = Array.isArray(tasksRes.data) ? tasksRes.data.filter((t: any) => t.son_tarih && new Date(t.son_tarih) < new Date() && !t.tamamlandi) : [];
     return (
         <div className="space-y-8">
-            {/* EN ÜSTTE: Ciro, Kar, Zarar Tablosu und Grafik */}
-            <div className="flex flex-col gap-6">
-                <KPIBar items={[ 
-                    { label: (operationalContent as any).kpiRevenueMtd || 'Net Ciro (Bu Ay)', value: formatCurrency(revenueMtdNet), hint: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% zum Vormonat` : undefined, tone: 'accent' },
-                    { label: 'Toplam Gider', value: formatCurrency(mtd?.totalExpenses ?? 0), tone: 'default' },
-                    { label: 'Net Kâr', value: formatCurrency(mtd?.netProfit ?? 0), tone: (mtd?.netProfit ?? 0) >= 0 ? 'positive' : 'negative' },
-                    { label: 'Sipariş Adedi', value: String(ordersMtd), tone: 'default' },
-                ]} />
-                <FinanzChartClient plReport={plReport} dictionary={dictionary} />
-            </div>
+            {/* EN ÜSTTE: Ciro, Kar, Zarar KPI Bar */}
+            <KPIBar items={[ 
+                { label: (operationalContent as any).kpiRevenueMtd || 'Net Ciro (Bu Ay)', value: formatCurrency(revenueMtdNet), hint: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% zum Vormonat` : undefined, tone: 'accent' },
+                { label: 'Toplam Gider', value: formatCurrency(mtd?.totalExpenses ?? 0), tone: 'default' },
+                { label: 'Net Kâr', value: formatCurrency(mtd?.netProfit ?? 0), tone: (mtd?.netProfit ?? 0) >= 0 ? 'positive' : 'negative' },
+                { label: 'Sipariş Adedi', value: String(ordersMtd), tone: 'default' },
+            ]} />
+
             {/* ALTTA: Operasyonel göstergeler, sipariş durumu, ajanda, schnelle Aktionen, kritischer Lagerbestand */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Linke Spalte */}
@@ -328,10 +346,16 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                 </div>
             </div>
 
-            {/* Distributors Section - Alt Bayiler */}
-            <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).distributorsTitle || 'Alt Bayiler Müşteri Sayısı'}</h2>
-                <DistributorsList locale={locale} dictionary={dictionary} cookieStore={cookieStore} />
+            {/* Customer Portfolio & Distributors - Yan Yana */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Müşteri Portföyü */}
+                <CustomerOverview />
+
+                {/* Alt Bayiler */}
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                    <h3 className="text-lg font-bold text-primary mb-4">{(operationalContent as any).distributorsTitle || 'Alt Bayiler Müşteri Sayısı'}</h3>
+                    <DistributorsList locale={locale} dictionary={dictionary} cookieStore={cookieStore} />
+                </div>
             </div>
         </div>
     );

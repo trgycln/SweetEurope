@@ -612,20 +612,11 @@ export const dictionary = {
       unknown: 'Unbekannt',
       responsiblePerson: 'Verantwortlich: ',
       statusOptions: {
-        'Aday': 'Kandidat',
-        'Takipte': 'In Nachverfolgung',
-        'Temas Kuruldu': 'Kontakt hergestellt',
-        'İletişimde': 'In Kommunikation',
-        'Müşteri': 'Kunde',
-        'Pasif': 'Inaktiv',
-        // New Statuses
         'ADAY': 'Kandidat',
-        'ISITILIYOR': 'Aufwärmen',
         'TEMAS EDİLDİ': 'Kontaktiert',
-        'İLETİŞİMDE': 'In Kommunikation',
-        'POTANSİYEL': 'Potenzial',
+        'NUMUNE VERİLDİ': 'Muster gegeben',
         'MÜŞTERİ': 'Kunde',
-        'PASİF': 'Inaktiv'
+        'REDDEDİLDİ': 'Abgelehnt'
       },
     },
     partnersPage: {

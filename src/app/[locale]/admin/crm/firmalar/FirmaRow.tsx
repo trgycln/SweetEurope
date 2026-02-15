@@ -26,6 +26,34 @@ export default function FirmaRow({
 }: FirmaRowProps) {
   const { addCompany, removeCompany, isSelected } = useVisitPlanner();
   const selected = isSelected(firma.id);
+  const rawStatus = (firma.status || '').toString().trim();
+  const normalizedStatus = rawStatus.toLocaleLowerCase('tr-TR').trim();
+  const statusMap: Record<string, string> = {
+    'aday': 'ADAY',
+    'ısıtılıyor': 'ADAY',
+    'isitiliyor': 'ADAY',
+    'takipte': 'ADAY',
+    'iletişimde': 'ADAY',
+    'iletisimde': 'ADAY',
+    'potansiyel': 'ADAY',
+    'temas edildi': 'TEMAS EDİLDİ',
+    'temas kuruldu': 'TEMAS EDİLDİ',
+    'numune verildi': 'NUMUNE VERİLDİ',
+    'müşteri': 'MÜŞTERİ',
+    'musteri': 'MÜŞTERİ',
+    'pasif': 'REDDEDİLDİ',
+    'reddedildi': 'REDDEDİLDİ'
+  };
+  const canonicalStatus = statusMap[normalizedStatus] || rawStatus || F.unknown;
+  const displayStatus = (statusOptions?.[canonicalStatus as keyof typeof statusOptions] || canonicalStatus) as string;
+  const statusColor = statusColors[canonicalStatus] || statusColors[rawStatus] || 'bg-gray-100 text-gray-800';
+  const sourceValue = (firma?.kaynak || '').toString().trim().toLocaleLowerCase('tr-TR');
+  const isPublicWebSource = sourceValue === 'web' || sourceValue.includes('web ');
+  const isNewApplication = firma?.goruldu === false && isPublicWebSource && [
+    'ADAY',
+    'TEMAS EDİLDİ',
+    'NUMUNE VERİLDİ'
+  ].includes(canonicalStatus);
 
   const handleCheckboxChange = () => {
     if (selected) {
@@ -48,7 +76,7 @@ export default function FirmaRow({
     // Mobile Card View
     return (
       <div className={`bg-white rounded-lg shadow-lg p-5 border-l-4 transition-all ${
-        selected ? 'border-green-500 ring-2 ring-green-200' : 'border-accent'
+        selected ? 'border-green-500 ring-2 ring-green-200' : isNewApplication ? 'border-amber-400 ring-2 ring-amber-100' : 'border-accent'
       } hover:shadow-xl hover:-translate-y-1`}>
         <div className="flex items-start gap-3">
           {/* Checkbox */}
@@ -66,9 +94,14 @@ export default function FirmaRow({
                 <h3 className="font-serif text-xl font-bold text-primary">{firma.unvan}</h3>
                 <p className="text-sm text-gray-500">{firma.kategori || '-'}</p>
               </div>
-              <span className={`text-xs font-bold px-2 py-1 rounded-full ${statusColors[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>
-                {firma.status ? (statusOptions?.[firma.status as keyof typeof statusOptions] || firma.status) : F.unknown}
-              </span>
+              <div className="flex items-center gap-2">
+                {isNewApplication && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">Yeni Kayıt</span>
+                )}
+                <span className={`text-xs font-bold px-2 py-1 rounded-full ${statusColor}`}>
+                  {displayStatus}
+                </span>
+              </div>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
               <div className="flex items-center gap-2 text-gray-700">
@@ -89,7 +122,7 @@ export default function FirmaRow({
   // Desktop Table Row
   return (
     <tr className={`transition-colors duration-150 ${
-      selected ? 'bg-green-50/50 hover:bg-green-50' : 'hover:bg-gray-50/50'
+      selected ? 'bg-green-50/50 hover:bg-green-50' : isNewApplication ? 'bg-amber-50/60 hover:bg-amber-50' : 'hover:bg-gray-50/50'
     }`}>
       {/* Checkbox Column */}
       <td className="px-4 py-4 whitespace-nowrap">
@@ -107,6 +140,9 @@ export default function FirmaRow({
         <div className="flex items-center gap-2">
           <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`} className="hover:underline text-accent flex items-center gap-2">
             {firma.unvan}
+            {isNewApplication && (
+              <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Yeni Kayıt</span>
+            )}
             {firma.created_at && (Date.now() - new Date(firma.created_at).getTime() < 1000 * 60 * 60 * 48) && (
               <span className="animate-pulse bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">YENİ</span>
             )}
@@ -215,8 +251,8 @@ export default function FirmaRow({
       
       {/* Status */}
       <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${statusColors[firma.status as string] || 'bg-gray-100 text-gray-800'}`}>
-          {firma.status ? (statusOptions?.[firma.status as keyof typeof statusOptions] || firma.status) : F.unknown}
+        <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${statusColor}`}>
+          {displayStatus}
         </span>
       </td>
     </tr>

@@ -60,20 +60,18 @@ interface CustomersListProps {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-    'Aday': 'bg-gray-100 text-gray-800 border-gray-300',
     'ADAY': 'bg-gray-100 text-gray-800 border-gray-300',
-    'Takipte': 'bg-blue-100 text-blue-800 border-blue-300',
-    'ISITILIYOR': 'bg-blue-50 text-blue-600 border-blue-200',
-    'Temas Kuruldu': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    'TEMAS EDİLDİ': 'bg-yellow-50 text-yellow-600 border-yellow-200',
-    'İletişimde': 'bg-purple-100 text-purple-800 border-purple-300',
-    'İLETİŞİMDE': 'bg-purple-50 text-purple-600 border-purple-200',
-    'Müşteri': 'bg-green-100 text-green-800 border-green-300',
+    'TEMAS EDİLDİ': 'bg-blue-50 text-blue-600 border-blue-200',
+    'NUMUNE VERİLDİ': 'bg-purple-50 text-purple-600 border-purple-200',
     'MÜŞTERİ': 'bg-green-50 text-green-600 border-green-200',
-    'Pasif': 'bg-red-100 text-red-800 border-red-300',
-    'PASİF': 'bg-red-50 text-red-600 border-red-200',
-    'POTANSİYEL': 'bg-orange-50 text-orange-600 border-orange-200',
     'REDDEDİLDİ': 'bg-red-100 text-red-800 border-red-300',
+    // Old statuses fallback
+    'Aday': 'bg-gray-100 text-gray-800 border-gray-300',
+    'Takipte': 'bg-gray-100 text-gray-800 border-gray-300',
+    'Temas Kuruldu': 'bg-blue-100 text-blue-800 border-blue-300',
+    'İletişimde': 'bg-gray-100 text-gray-800 border-gray-300',
+    'Müşteri': 'bg-green-100 text-green-800 border-green-300',
+    'Pasif': 'bg-red-100 text-red-800 border-red-300'
 };
 
 export function CustomersList({ 

@@ -42,7 +42,9 @@ export async function submitPartnerApplication(formData: FormData): Promise<{ su
       telefon: telefon || null,
       adres: adres || null,
       vergi_no: vatId || null,
-      status: 'Potansiyel' as Enums<'firma_status'>,
+      status: 'ADAY' as Enums<'firma_status'>,
+      kaynak: 'Web',
+      goruldu: false,
       referans_olarak_goster: false,
     } as any;
 

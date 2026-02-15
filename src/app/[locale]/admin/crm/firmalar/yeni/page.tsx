@@ -110,40 +110,51 @@ async function yeniFirmaEkleAction(
   };
   (insertData as any).ticari_tip = ticari_tip;
   (insertData as any).created_by = user.id;
+  (insertData as any).goruldu = true;
 
-  // --- SCORING LOGIC ---
-  let score = 0;
-  
-  // Category Score
-  const catScores: Record<string, number> = {
-      'Shisha & Lounge': 100,
-      'Coffee Shop & Eiscafé': 90,
-      'Hotel & Event': 80,
-      'Casual Dining': 70,
-      'Restoran': 70, // Added Restoran
-      'Alt Bayi': 60, // Corrected key
-      'Rakip/Üretici': 0
+  // --- SCORING LOGIC (YENİ SISTEM) ---
+  // Kategori base puanı
+  const KATEGORI_BASE_PUAN: Record<string, number> = {
+      'A': 85,  // HACİM KRALLARI (80-100)
+      'B': 65,  // GÜNLÜK NAKİT AKIŞI (60-79)
+      'C': 45,  // NİŞ PAZARLAR (40-59)
+      'D': 20   // PERAKENDE & RAF (1-39)
   };
-  score += catScores[kategori] || 50; // Default 50
 
-  // Tag Score
+  const KATEGORI_ARALIK: Record<string, { min: number; max: number }> = {
+      'A': { min: 80, max: 100 },
+      'B': { min: 60, max: 79 },
+      'C': { min: 40, max: 59 },
+      'D': { min: 1, max: 39 }
+  };
+
+  const ETIKET_PUANLARI: Record<string, number> = {
+      '#Yüksek_Sirkülasyon': 15,
+      '#Vitrin_Boş': 15,
+      '#Türk_Sahibi': 8,
+      '#Yeni_Açılış': 8,
+      '#Lüks_Mekan': 5,
+      '#Teraslı': 5,
+      '#Mutfak_Yok': 5,
+      '#Kendi_Üretimi': -10
+  };
+
+  let score = KATEGORI_BASE_PUAN[kategori] || 50;
+
+  // Etiketlerden puan ekle
   if (etiketler && etiketler.length > 0) {
-      // Pozitif Etkenler
-      if (etiketler.includes('#Vitrin_Boş')) score += 40;
-      if (etiketler.includes('#Mutfak_Yok')) score += 30;
-      if (etiketler.includes('#Yeni_Açılış')) score += 25;
-      if (etiketler.includes('#Türk_Sahibi')) score += 20;
-      if (etiketler.includes('#Düğün_Mekanı')) score += 20;
-      if (etiketler.includes('#Kahve_Odaklı')) score += 15;
-      if (etiketler.includes('#Yüksek_Sirkülasyon')) score += 15;
-      if (etiketler.includes('#Lüks_Mekan')) score += 10;
-      if (etiketler.includes('#Teraslı')) score += 10;
-      if (etiketler.includes('#Self_Service')) score += 10;
-
-      // Negatif Etkenler
-      if (etiketler.includes('#Zincir_Marka')) score -= 20;
-      if (etiketler.includes('#Kendi_Üretimi')) score -= 30;
-      if (etiketler.includes('#Rakip_Sözleşmeli')) score -= 30;
+      for (const etiket of etiketler) {
+          const etiketPuan = ETIKET_PUANLARI[etiket];
+          if (etiketPuan !== undefined) {
+              score += etiketPuan;
+          }
+      }
+  }
+  
+  // Kategori aralığını aşmaması gerekli
+  const aralik = KATEGORI_ARALIK[kategori];
+  if (aralik) {
+      score = Math.max(aralik.min, Math.min(aralik.max, score));
   }
   
   insertData.oncelik_puani = score;
@@ -154,6 +165,23 @@ async function yeniFirmaEkleAction(
     insertData.sorumlu_personel_id = user.id; // Spalte heißt 'sorumlu_personel_id'
   } else if (userRole === 'Yönetici' && sorumlu_personel_id) {
     insertData.sorumlu_personel_id = sorumlu_personel_id;
+  }
+
+  // CRITICAL FIX: Müşteri oluşturan kullanıcıyı sahip olarak ata
+  // Alt Bayiler için: Müşteriyi oluşturan alt bayi kullanıcısına sahiplik ata
+  if (ticari_tip === 'musteri') {
+    // Get user's profile to check their firma_id (if they're an alt bayi)
+    const { data: userProfile } = await supabase
+      .from('profiller')
+      .select('id, firma_id, rol')
+      .eq('id', user.id)
+      .single();
+
+    // If user is Alt Bayi, set sahip_id to their user ID
+    if (userProfile?.rol === 'Alt Bayi') {
+      insertData.sahip_id = user.id;
+    }
+    // For admin/team members, sahip_id remains null (owned by admin)
   }
 
   // 6. Veritabanına kaydet
@@ -211,32 +239,22 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
   
   // Diğer dataları çek (Firmalar burada gerekli değil, sadece profiller)
   const kategoriOptions: FirmaKategori[] = [
-      "Shisha & Lounge", 
-      "Coffee Shop & Eiscafé", 
-      "Casual Dining", 
-      "Restoran", // Added
-      "Hotel & Event", 
-      "Catering",
-      "Alt Bayi", // Corrected from "Alt Bayi / Toptancı"
-      "Rakip/Üretici"
+      "A",
+      "B",
+      "C",
+      "D"
   ];
 
   const kategoriLabels: Record<string, string> = {
-      "Shisha & Lounge": "Nargile & Lounge (Shisha & Lounge)",
-      "Coffee Shop & Eiscafé": "Kafe & Dondurmacı (Coffee Shop & Eiscafé)",
-      "Casual Dining": "Gündelik Yemek (Casual Dining)",
-      "Restoran": "Restoran (Restoran)",
-      "Hotel & Event": "Otel & Etkinlik (Hotel & Event)",
-      "Catering": "Catering",
-      "Alt Bayi": "Alt Bayi / Toptancı (Alt Bayi)",
-      "Rakip/Üretici": "Rakip / Üretici (Rakip/Üretici)"
+      "A": "🔥 HACİM KRALLARI (Ana Kategori A) - Düğün, Catering, Büyük Oteller",
+      "B": "💰 GÜNLÜK NAKİT AKIŞI (Ana Kategori B) - Kafeler, Pastaneler, AVM",
+      "C": "⭐ NİŞ PAZARLAR (Ana Kategori C) - Restoran, Lounge, Specialty",
+      "D": "📦 PERAKENDE & RAF (Ana Kategori D) - Marketler, Kiosks, Benzin İstasyonları"
   };
   
   const tagOptions = [
-      "#Vitrin_Boş", "#Mutfak_Yok", "#Yeni_Açılış", "#Türk_Sahibi", 
-      "#Düğün_Mekanı", "#Kahve_Odaklı", "#Yüksek_Sirkülasyon", 
-      "#Lüks_Mekan", "#Teraslı", "#Self_Service",
-      "#Zincir_Marka", "#Kendi_Üretimi", "#Rakip_Sözleşmeli"
+      "#Yüksek_Sirkülasyon", "#Vitrin_Boş", "#Yeni_Açılış", "#Türk_Sahibi", 
+      "#Lüks_Mekan", "#Teraslı", "#Mutfak_Yok", "#Kendi_Üretimi"
   ];
 
   const kaynakOptions = [

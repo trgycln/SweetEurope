@@ -561,6 +561,13 @@ export const dictionary: Partial<Dictionary> = {
       notAssigned: 'غير مخصص',
       unknown: 'غير معروف',
       responsiblePerson: 'المسؤول: ',
+      statusOptions: {
+        'ADAY': 'مرشح',
+        'TEMAS EDİLDİ': 'تم التواصل',
+        'NUMUNE VERİLDİ': 'تم تقديم عينة',
+        'MÜŞTERİ': 'عميل',
+        'REDDEDİLDİ': 'مرفوض'
+      },
     },
     applicationsPage: {
       title: 'طلبات الشراكة الجديدة',

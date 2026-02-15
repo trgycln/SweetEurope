@@ -13,11 +13,13 @@ interface FirmaFiltreleriProps {
     allPrioritiesLabel: string;
     allCitiesLabel: string;
     allDistrictsLabel: string;
-    allZipCodesLabel?: string; // Changed from Neighborhood
+    allZipCodesLabel?: string;
+    allCategoriesLabel?: string; // YENİ
     cityOptions?: string[];
     districtOptions?: string[];
-    zipCodeOptions?: string[]; // Changed from Neighborhood
-    zipCodeLabels?: Record<string, string>; // Map of zip code to display label
+    zipCodeOptions?: string[];
+    zipCodeLabels?: Record<string, string>;
+    categoryOptions?: string[]; // YENİ
 }
 
 export default function FirmaFiltreleri({ 
@@ -29,10 +31,12 @@ export default function FirmaFiltreleri({
     allCitiesLabel,
     allDistrictsLabel,
     allZipCodesLabel = "All Zip Codes",
+    allCategoriesLabel = "All Categories", // YENİ
     cityOptions = [],
     districtOptions = [],
     zipCodeOptions = [],
-    zipCodeLabels = {}
+    zipCodeLabels = {},
+    categoryOptions = [] // YENİ
 }: FirmaFiltreleriProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -99,9 +103,16 @@ export default function FirmaFiltreleri({
         }
         replace(`${pathname}?${params.toString()}`);
     };
-    
-    // NOT: use-debounce kütüphanesini eklemeniz gerekecek:
-    // yarn add use-debounce
+
+    const handleCategoryChange = (category: string) => { // YENİ
+        const params = new URLSearchParams(searchParams);
+        if (category) {
+            params.set('kategori', category);
+        } else {
+            params.delete('kategori');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
 
     return (
         <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-lg shadow-sm border border-bg-subtle flex-wrap">
@@ -170,6 +181,20 @@ export default function FirmaFiltreleri({
                         <option key={zipCode} value={zipCode}>
                             {zipCodeLabels[zipCode] || zipCode}
                         </option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Category Filter - YENİ */}
+            <div className="relative flex-grow sm:flex-grow-0 sm:w-56">
+                <select
+                    className="w-full px-4 py-2 border border-bg-subtle rounded-md focus:ring-accent focus:border-accent transition bg-white"
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    value={searchParams.get('kategori')?.toString() || ''}
+                >
+                    <option value="">{allCategoriesLabel}</option>
+                    {categoryOptions.map(category => (
+                        <option key={category} value={category}>{category}</option>
                     ))}
                 </select>
             </div>
