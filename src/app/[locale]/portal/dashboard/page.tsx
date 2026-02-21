@@ -74,15 +74,11 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
     const firmaId = profile.firma_id;
     const userId = user.id; // Benutzer-ID für Favoriten
 
-    // Status für offene Musteranfragen
-    const OFFENE_MUSTER_STATUS: Enums<'numune_talep_durumu'>[] = ['Yeni Talep', 'Onaylandı', 'Hazırlanıyor'];
-
     // Daten parallel abrufen
     const [
         openOrderData,
         hizliSiparisData,
         favoritesData,
-        openRequestsData,
         customersData
     ] = await Promise.all([
         // Offene Bestellungen
@@ -96,11 +92,6 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
         supabase.from('favori_urunler')
             .select('*', { count: 'exact', head: true })
             .eq('kullanici_id', userId),
-        // Offene Musteranfragen zählen
-        supabase.from('numune_talepleri')
-            .select('*', { count: 'exact', head: true })
-            .eq('firma_id', firmaId)
-            .in('durum', OFFENE_MUSTER_STATUS),
         // Müşteriler zählen (nur für Alt Bayi)
         profile?.rol === 'Alt Bayi' 
             ? supabase.from('firmalar')
@@ -112,14 +103,12 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
     // Ergebnisse extrahieren
     const openOrderCount = openOrderData.count ?? 0;
     const favoritesCount = favoritesData.count ?? 0;
-    const openRequestsCount = openRequestsData.count ?? 0;
     const customersCount = customersData.count ?? 0;
 
     // Fehler loggen, falls vorhanden
     if (openOrderData.error) console.error("Fehler beim Zählen der offenen Bestellungen:", openOrderData.error);
     if (hizliSiparisData.error) console.error("Fehler beim Laden der Schnellbestellung-Produkte:", hizliSiparisData.error);
     if (favoritesData.error) console.error("Fehler beim Zählen der Favoriten:", favoritesData.error);
-    if (openRequestsData.error) console.error("Fehler beim Zählen der Musteranfragen:", openRequestsData.error);
     if (customersData.error) console.error("Fehler beim Zählen der Müşteriler:", customersData.error);
 
     // Schnellbestellung Produkte verarbeiten
@@ -147,7 +136,6 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
             {/* Mini Stats Bar - Compact overview at top */}
             <MiniStatsBar
                 activeOrdersCount={openOrderCount}
-                sampleRequestsCount={openRequestsCount}
                 favoritesCount={favoritesCount}
                 customersCount={profile?.rol === 'Alt Bayi' ? customersCount : undefined}
                 locale={locale}

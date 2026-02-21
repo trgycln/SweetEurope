@@ -1,17 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { FiTruck, FiHeart, FiPackage, FiUsers } from 'react-icons/fi';
+import { FiTruck, FiHeart, FiUsers } from 'react-icons/fi';
 
 interface MiniStatsBarProps {
     activeOrdersCount: number;
-    sampleRequestsCount: number;
     favoritesCount: number;
     customersCount?: number;
     locale: string;
     labels: {
         activeOrders: string;
-        sampleRequests: string;
         favorites: string;
         customers?: string;
     };
@@ -19,7 +17,6 @@ interface MiniStatsBarProps {
 
 export function MiniStatsBar({
     activeOrdersCount,
-    sampleRequestsCount,
     favoritesCount,
     customersCount,
     locale,
@@ -32,13 +29,6 @@ export function MiniStatsBar({
             value: activeOrdersCount,
             href: `/${locale}/portal/siparisler?filter=offen`,
             color: 'text-orange-600 bg-orange-50'
-        },
-        {
-            icon: FiPackage,
-            label: labels.sampleRequests,
-            value: sampleRequestsCount,
-            href: `/${locale}/portal/taleplerim`,
-            color: 'text-blue-600 bg-blue-50'
         },
         {
             icon: FiHeart,

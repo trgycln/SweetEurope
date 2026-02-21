@@ -250,13 +250,6 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                             link={`/${locale}/admin/operasyon/siparisler?filter=offen`}
                             linkText={operationalContent.viewActiveOrders || "View active orders"}
                         />
-                        <StatCard
-                            title={operationalContent.cardOpenSampleRequests || "Open Sample Requests"}
-                            value={sampleRequestsRes.count ?? 0}
-                            icon={<FiGift size={28} className="text-purple-500"/>}
-                            link={`/${locale}/admin/operasyon/numune-talepleri?durum=${encodeURIComponent(NEUE_MUSTER_STATUS)}`}
-                            linkText={operationalContent.viewSampleRequests || "Review requests"}
-                        />
                         {productRequestsRes && !productRequestsRes.error?.message?.includes('relation "public.yeni_urun_talepleri" does not exist') && (
                             <StatCard
                                 title={operationalContent.cardNewProductRequests || "New Product Requests"}
