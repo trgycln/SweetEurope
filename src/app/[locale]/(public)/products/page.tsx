@@ -5,6 +5,18 @@ import { getDictionary } from '@/dictionaries';
 import { ProductGridClient } from './product-grid-client';
 import ProfesyonelFiltre from './profesyonel-filtre';
 import { getLocalizedName } from '@/lib/utils';
+import {
+    PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER,
+    buildHiddenPublicCategoryIds,
+    isPublicCategorySlugHidden,
+} from '@/lib/public-category-visibility';
+import {
+    PRODUCT_LINE_META,
+    PRODUCT_LINE_ORDER,
+    getProductLineLabel,
+    inferProductLineFromCategoryId,
+    isProductLineKey,
+} from '@/lib/product-lines';
 import Link from 'next/link';
 import { type Kategori, type Urun } from './types';
 import { cookies } from 'next/headers';
@@ -44,8 +56,10 @@ export default async function PublicUrunlerPage({
         kategori?: string;
         altKategori?: string;
         porsiyon?: string;
+        hacim?: string;
         ozellik?: string;
         tat?: string;
+        urunGami?: string;
         page?: string; 
         limit?: string;
     }>;
@@ -62,10 +76,16 @@ export default async function PublicUrunlerPage({
     // Filtre parametreleri
     const altKategoriFilter = sp.altKategori;
     const porsiyonFilter = sp.porsiyon;
+    const hacimFilter = sp.hacim;
     const ozellikFilter = sp.ozellik;
     const tatFilter = sp.tat;
+    const seciliUrunGami = isProductLineKey(sp.urunGami) ? sp.urunGami : undefined;
     
-    if (sp.kategori && sp.kategori.toLowerCase() !== 'null') {
+    if (
+        sp.kategori &&
+        sp.kategori.toLowerCase() !== 'null' &&
+        !isPublicCategorySlugHidden(sp.kategori)
+    ) {
         seciliKategoriSlug = sp.kategori;
     }
 
@@ -76,6 +96,18 @@ export default async function PublicUrunlerPage({
     ]);
 
     const kategoriler: Kategori[] = kategorilerRes.data || [];
+    const hiddenKategoriIds = buildHiddenPublicCategoryIds(kategoriler);
+    const visibleKategoriler = kategoriler.filter(k => !hiddenKategoriIds.has(k.id));
+    const matchesSelectedProductLine = (categoryId?: string | null) => {
+        if (!seciliUrunGami) return true;
+        return inferProductLineFromCategoryId(kategoriler, categoryId) === seciliUrunGami;
+    };
+    const lineVisibleKategoriler = visibleKategoriler.filter(k => matchesSelectedProductLine(k.id));
+    const visibleMainCategoryOrder = seciliUrunGami
+        ? PRODUCT_LINE_META[seciliUrunGami].mainCategorySlugs.filter(slug =>
+              PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.includes(slug as any)
+          )
+        : PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER;
     const pageContent = dictionary.productsPage; 
     
     const kategoriAdlariMap = new Map<string, string>();
@@ -102,33 +134,43 @@ export default async function PublicUrunlerPage({
     }
 
     // Tüm ürünleri çek (sayım ve porsiyon seçenekleri için)
-    const { data: tumUrunler } = await supabase
+    const { data: tumUrunlerData } = await supabase
         .from('urunler')
         .select('kategori_id, teknik_ozellikler')
         .eq('aktif', true); // Only count active products
 
-    const totalAllProducts = tumUrunler?.length || 0; // Toplam tüm ürün sayısı (filtresiz)
+    const tumUrunler = (tumUrunlerData || []).filter(
+        (urun: any) =>
+            !hiddenKategoriIds.has(urun.kategori_id ?? '') &&
+            matchesSelectedProductLine(urun.kategori_id)
+    );
+    const totalAllProducts = tumUrunler.length || 0; // Toplam public ürün sayısı (filtresiz)
     
-    // Benzersiz porsiyon seçeneklerini çıkar
+    // Benzersiz porsiyon / hacim seçeneklerini çıkar
     const uniquePorsiyonlar = new Set<number>();
+    const uniqueHacimler = new Set<number>();
     tumUrunler?.forEach((urun: any) => {
         const teknikOzellikler = urun.teknik_ozellikler || {};
         
-        // Check dilim_adedi
         if (teknikOzellikler.dilim_adedi) {
             const dilim = parseInt(String(teknikOzellikler.dilim_adedi));
             if (!isNaN(dilim)) uniquePorsiyonlar.add(dilim);
         }
         
-        // Check kutu_ici_adet
         if (teknikOzellikler.kutu_ici_adet) {
             const kutu = parseInt(String(teknikOzellikler.kutu_ici_adet));
             if (!isNaN(kutu)) uniquePorsiyonlar.add(kutu);
         }
+
+        const hacim = teknikOzellikler.hacim_ml || teknikOzellikler.hacim;
+        if (hacim) {
+            const parsed = parseInt(String(hacim).replace(/[^\d]/g, ''));
+            if (!isNaN(parsed)) uniqueHacimler.add(parsed);
+        }
     });
     
-    // Sıralı bir liste oluştur
     const availablePorsiyonlar = Array.from(uniquePorsiyonlar).sort((a, b) => a - b);
+    const availableHacimler = Array.from(uniqueHacimler).sort((a, b) => a - b);
 
     // Kategori ID'lerine göre ürün sayısını hesapla (ana kategori + alt kategorilerindeki ürünler)
     const categoryProductCounts: Record<string, number> = {};
@@ -154,19 +196,19 @@ export default async function PublicUrunlerPage({
     let seciliAnaKategoriId: string | undefined; 
 
     if (seciliKategoriSlug) {
-        const anaKategori = kategoriler.find(k => k.slug === seciliKategoriSlug);
+        const anaKategori = lineVisibleKategoriler.find(k => k.slug === seciliKategoriSlug);
 
         if (anaKategori) {
             // Eğer alt kategori filtresi varsa, sadece o alt kategoriyi ekle
             if (altKategoriFilter) {
-                const altKat = kategoriler.find(k => k.slug === altKategoriFilter);
+                const altKat = lineVisibleKategoriler.find(k => k.slug === altKategoriFilter);
                 if (altKat) {
                     filtrelenecekKategoriIdleri.push(altKat.id);
                 }
             } else {
                 // Alt kategori filtresi yoksa, ana kategori + tüm alt kategorileri
                 filtrelenecekKategoriIdleri.push(anaKategori.id);
-                const altKategoriler = kategoriler.filter(k => k.ust_kategori_id === anaKategori.id);
+                const altKategoriler = lineVisibleKategoriler.filter(k => k.ust_kategori_id === anaKategori.id);
                 altKategoriler.forEach(altKategori => {
                     filtrelenecekKategoriIdleri.push(altKategori.id);
                 });
@@ -193,6 +235,10 @@ export default async function PublicUrunlerPage({
         urunlerQuery = urunlerQuery.or(`teknik_ozellikler->>dilim_adedi.eq.${porsiyonFilter},teknik_ozellikler->>kutu_ici_adet.eq.${porsiyonFilter}`);
     }
 
+    if (hacimFilter) {
+        urunlerQuery = urunlerQuery.or(`teknik_ozellikler->>hacim_ml.eq.${hacimFilter},teknik_ozellikler->>hacim.eq.${hacimFilter}`);
+    }
+
     // Özellik ve Tat filtreleri için veriyi çek, sonra client-side filtrele
     // Server-side JSONB boolean/string kontrolü PostgREST'te karmaşık olduğu için client-side yapıyoruz
     
@@ -202,6 +248,15 @@ export default async function PublicUrunlerPage({
     // Fetch all matching products first (no range, no order yet)
     let urunlerRes = await urunlerQuery
         .order('ad', { ascending: true, foreignTable: undefined });
+
+    if (urunlerRes.data) {
+        const visibleData = urunlerRes.data.filter(
+            (urun: any) =>
+                !hiddenKategoriIds.has(urun.kategori_id ?? '') &&
+                matchesSelectedProductLine(urun.kategori_id)
+        );
+        urunlerRes = { ...urunlerRes, data: visibleData, count: visibleData.length };
+    }
     
     // Özellik ve Tat filtresi - client-side (yapılandırılmış alanları kontrol et)
     if (urunlerRes.data && (ozellikFilter || tatFilter)) {
@@ -209,9 +264,15 @@ export default async function PublicUrunlerPage({
             let matches = true;
             
             if (ozellikFilter) {
-                // Yapılandırılmış checkbox alanlarını kontrol et (vegan, glutenfrei, laktosefrei, bio)
                 const teknikOzellikler = urun.teknik_ozellikler || {};
-                matches = matches && (teknikOzellikler[ozellikFilter] === true);
+                const rawValue = teknikOzellikler[ozellikFilter];
+                const truthyValue = rawValue === true
+                    || rawValue === 'true'
+                    || rawValue === 'yes'
+                    || rawValue === 'evet'
+                    || (typeof rawValue === 'number' && rawValue > 0)
+                    || (typeof rawValue === 'string' && rawValue.trim().length > 0);
+                matches = matches && truthyValue;
             }
             
             if (tatFilter) {
@@ -234,35 +295,41 @@ export default async function PublicUrunlerPage({
         urunlerRes = { ...urunlerRes, data: filteredData, count: filteredData.length };
     }
     
-    // Custom sorting: Eğer kategori filtresi yoksa (Alle), önce Torten&Kuchen, sonra yıldız
+    // Custom sorting: keep curated category order within each product line and then sort by rating/name.
+    const kategoriById = new Map(kategoriler.map(k => [k.id, k]));
+    const getRootKategoriSlug = (categoryId?: string | null) => {
+        let current = categoryId ? kategoriById.get(categoryId) : null;
+        let guard = 0;
+        while (current?.ust_kategori_id && guard < 10) {
+            current = kategoriById.get(current.ust_kategori_id) || null;
+            guard += 1;
+        }
+        return current?.slug || null;
+    };
+
     let sortedData = urunlerRes.data || [];
-    if (!seciliKategoriSlug && sortedData.length > 0) {
-        // Find Torten&Kuchen category ID
-        const tortenKuchenKat = kategoriler.find(k => k.slug === 'cakes-and-tarts');
-        const tortenKuchenId = tortenKuchenKat?.id;
-        const tortenKuchenAltIds = kategoriler
-            .filter(k => k.ust_kategori_id === tortenKuchenId)
-            .map(k => k.id);
-        
+    if (sortedData.length > 0) {
         sortedData = sortedData.sort((a: any, b: any) => {
-            const aIsTortenKuchen = a.kategori_id === tortenKuchenId || tortenKuchenAltIds.includes(a.kategori_id);
-            const bIsTortenKuchen = b.kategori_id === tortenKuchenId || tortenKuchenAltIds.includes(b.kategori_id);
-            
-            // Torten&Kuchen önce
-            if (aIsTortenKuchen && !bIsTortenKuchen) return -1;
-            if (!aIsTortenKuchen && bIsTortenKuchen) return 1;
-            
-            // Aynı kategori grubunda ise yıldıza göre sırala (yüksek önce)
-            if (aIsTortenKuchen && bIsTortenKuchen) {
-                const aPuan = a.ortalama_puan || 0;
-                const bPuan = b.ortalama_puan || 0;
-                return bPuan - aPuan; // Descending
+            const aRootSlug = getRootKategoriSlug(a.kategori_id) || '';
+            const bRootSlug = getRootKategoriSlug(b.kategori_id) || '';
+            const indexA = visibleMainCategoryOrder.indexOf(aRootSlug as any);
+            const indexB = visibleMainCategoryOrder.indexOf(bRootSlug as any);
+            const safeIndexA = indexA === -1 ? 999 : indexA;
+            const safeIndexB = indexB === -1 ? 999 : indexB;
+
+            if (safeIndexA !== safeIndexB) {
+                return safeIndexA - safeIndexB;
             }
-            
-            // Diğerleri alfabetik
-            const aAd = a.ad?.de || a.ad?.tr || '';
-            const bAd = b.ad?.de || b.ad?.tr || '';
-            return aAd.localeCompare(bAd);
+
+            const aPuan = a.ortalama_puan || 0;
+            const bPuan = b.ortalama_puan || 0;
+            if (aPuan !== bPuan) {
+                return bPuan - aPuan;
+            }
+
+            const aAd = a.ad?.[locale] || a.ad?.de || a.ad?.tr || '';
+            const bAd = b.ad?.[locale] || b.ad?.de || b.ad?.tr || '';
+            return String(aAd).localeCompare(String(bAd));
         });
     }
     
@@ -288,14 +355,55 @@ export default async function PublicUrunlerPage({
         }
     }
 
+    const buildProductsHref = (params: Record<string, string | undefined>) => {
+        const query = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+            if (value) query.set(key, value);
+        });
+        const qs = query.toString();
+        return `/${locale}/products${qs ? `?${qs}` : ''}`;
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-4 sm:px-8 py-4">
-                {/* Kategori Butonları - Kompakt */}
-                <div className="mb-4">
+                {/* Ürün Gamı + Kategori Butonları */}
+                <div className="mb-4 space-y-3">
                     <div className="flex flex-wrap gap-2">
                         <Link
-                            href={`/${locale}/products`}
+                            href={buildProductsHref({})}
+                            className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
+                                !seciliUrunGami
+                                    ? 'bg-primary text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                            }`}
+                        >
+                            {locale === 'de'
+                                ? 'Alle Produktlinien'
+                                : locale === 'en'
+                                  ? 'All Product Lines'
+                                  : locale === 'ar'
+                                    ? 'كل خطوط المنتجات'
+                                    : 'Tüm Ürün Gamları'}
+                        </Link>
+                        {PRODUCT_LINE_ORDER.map(line => (
+                            <Link
+                                key={line}
+                                href={buildProductsHref({ urunGami: line })}
+                                className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
+                                    seciliUrunGami === line
+                                        ? 'bg-primary text-white'
+                                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                                }`}
+                            >
+                                {getProductLineLabel(line, locale as any)}
+                            </Link>
+                        ))}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                        <Link
+                            href={buildProductsHref({ urunGami: seciliUrunGami })}
                             className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
                                 !seciliKategoriSlug
                                     ? 'bg-accent text-white'
@@ -304,18 +412,27 @@ export default async function PublicUrunlerPage({
                         >
                             Alle ({totalAllProducts})
                         </Link>
-                        {kategoriler
-                            .filter(k => !k.ust_kategori_id)
+                        {lineVisibleKategoriler
+                            .filter(
+                                k =>
+                                    !k.ust_kategori_id &&
+                                    visibleMainCategoryOrder.includes((k.slug ?? '') as any)
+                            )
                             .sort((a, b) => {
-                                const order = ['cakes-and-tarts', 'cookies-and-muffins', 'pizza-and-fast-food', 'sauces-and-ingredients', 'coffee', 'drinks'];
-                                return order.indexOf(a.slug || '') - order.indexOf(b.slug || '');
+                                return (
+                                    visibleMainCategoryOrder.indexOf((a.slug ?? '') as any) -
+                                    visibleMainCategoryOrder.indexOf((b.slug ?? '') as any)
+                                );
                             })
                             .map(k => {
                                 const count = categoryProductCounts[k.id] || 0;
                                 return (
                                     <Link
                                         key={k.id}
-                                        href={`/${locale}/products?kategori=${k.slug}`}
+                                        href={buildProductsHref({
+                                            urunGami: seciliUrunGami,
+                                            kategori: k.slug || undefined,
+                                        })}
                                         className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
                                             seciliKategoriSlug === k.slug
                                                 ? 'bg-accent text-white'
@@ -334,9 +451,11 @@ export default async function PublicUrunlerPage({
                     kategoriler={kategoriler}
                     locale={locale}
                     seciliKategoriSlug={seciliKategoriSlug}
+                    seciliUrunGami={seciliUrunGami}
                     totalCount={totalCount}
                     labels={dictionary.productsProfessionalFilter}
                     availablePorsiyonlar={availablePorsiyonlar}
+                    availableHacimler={availableHacimler}
                 />
 
                 {/* Ürünler Grid - Full Width */}
@@ -362,7 +481,22 @@ export default async function PublicUrunlerPage({
                         kategoriAdlariMap={kategoriAdlariMap}
                         kategoriParentMap={kategoriParentMap}
                         sablonMap={sablonMap}
-                        pagination={{ page: clampedPage, perPage, total: totalCount, kategori: seciliKategoriSlug }}
+                        pagination={{ 
+                            page: clampedPage,
+                            perPage,
+                            total: totalCount,
+                            kategori: seciliKategoriSlug,
+                            query: {
+                                kategori: seciliKategoriSlug,
+                                urunGami: seciliUrunGami,
+                                altKategori: sp.altKategori,
+                                porsiyon: sp.porsiyon,
+                                hacim: sp.hacim,
+                                ozellik: sp.ozellik,
+                                tat: sp.tat,
+                            },
+                            basePath: `/${locale}/products`,
+                        }}
                         dictionary={dictionary}
                     />
                 )}

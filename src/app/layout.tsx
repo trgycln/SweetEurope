@@ -2,9 +2,10 @@
 
 import { ReactNode } from 'react';
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Playfair_Display, Lato } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import VercelAnalytics from "@/components/VercelAnalytics";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -40,10 +41,55 @@ export default function RootLayout({
     <html className={`${playfair.variable} ${lato.variable}`} suppressHydrationWarning>
       <head>
         <GoogleAnalytics />
+        <Script id="strip-extension-hydration-attrs" strategy="beforeInteractive">
+          {`
+            (() => {
+              const shouldRemove = (name) =>
+                name === 'bis_skin_checked' ||
+                name === 'bis_register' ||
+                name.startsWith('__processed_');
+
+              const cleanElement = (element) => {
+                if (!element || typeof element.getAttributeNames !== 'function') return;
+                element.getAttributeNames().forEach((name) => {
+                  if (shouldRemove(name)) {
+                    element.removeAttribute(name);
+                  }
+                });
+              };
+
+              const cleanTree = (root) => {
+                cleanElement(root);
+                if (!root || typeof root.querySelectorAll !== 'function') return;
+                root.querySelectorAll('*').forEach(cleanElement);
+              };
+
+              cleanTree(document.documentElement);
+
+              new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                  if (mutation.type === 'attributes' && mutation.attributeName && shouldRemove(mutation.attributeName)) {
+                    cleanElement(mutation.target);
+                  }
+
+                  mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1) {
+                      cleanTree(node);
+                    }
+                  });
+                });
+              }).observe(document.documentElement, {
+                subtree: true,
+                childList: true,
+                attributes: true,
+              });
+            })();
+          `}
+        </Script>
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
-        <Analytics />
+        <VercelAnalytics />
       </body>
     </html>
   );

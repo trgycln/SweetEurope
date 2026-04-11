@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { FaInstagram } from 'react-icons/fa';
+import { FaInstagram, FaLinkedin } from 'react-icons/fa';
 import { FiMapPin, FiPhone, FiUsers } from 'react-icons/fi';
 import { useVisitPlanner } from '@/contexts/VisitPlannerContext';
 
@@ -14,6 +14,9 @@ interface FirmaRowProps {
   statusColors: Record<string, string>;
   F: any;
   isDesktop?: boolean;
+  isChild?: boolean;
+  depth?: number;
+  parentName?: string;
 }
 
 export default function FirmaRow({ 
@@ -22,7 +25,10 @@ export default function FirmaRow({
   statusOptions, 
   statusColors,
   F,
-  isDesktop = false 
+  isDesktop = false,
+  isChild = false,
+  depth = 0,
+  parentName
 }: FirmaRowProps) {
   const { addCompany, removeCompany, isSelected } = useVisitPlanner();
   const selected = isSelected(firma.id);
@@ -75,9 +81,14 @@ export default function FirmaRow({
   if (!isDesktop) {
     // Mobile Card View
     return (
-      <div className={`bg-white rounded-lg shadow-lg p-5 border-l-4 transition-all ${
-        selected ? 'border-green-500 ring-2 ring-green-200' : isNewApplication ? 'border-amber-400 ring-2 ring-amber-100' : 'border-accent'
-      } hover:shadow-xl hover:-translate-y-1`}>
+      <div className={`bg-white rounded-lg shadow-lg p-5 transition-all ${
+        isChild ? 'border-l-4 border-blue-400 ml-4 bg-blue-50/30' : selected ? 'border-l-4 border-green-500 ring-2 ring-green-200' : isNewApplication ? 'border-l-4 border-amber-400 ring-2 ring-amber-100' : 'border-l-4 border-accent'
+      } hover:shadow-xl hover:-translate-y-1 relative`}>
+        {/* Hierarchical visual indicator */}
+        {isChild && (
+          <div className="absolute -left-4 top-8 w-3 h-px bg-blue-300"></div>
+        )}
+        
         <div className="flex items-start gap-3">
           {/* Checkbox */}
           <input
@@ -91,8 +102,25 @@ export default function FirmaRow({
           <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`} className="flex-1">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-serif text-xl font-bold text-primary">{firma.unvan}</h3>
-                <p className="text-sm text-gray-500">{firma.kategori || '-'}</p>
+                <div className="flex items-center gap-2">
+                  {isChild && (
+                    <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 flex-shrink-0">
+                      └ Şube
+                    </span>
+                  )}
+                  <h3 className="font-serif text-xl font-bold text-primary">{firma.unvan}</h3>
+                </div>
+                {parentName && isChild && (
+                  <p className="text-xs text-gray-500 mt-1 italic">von: {parentName}</p>
+                )}
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-sm text-gray-500">{firma.kategori || '-'}</p>
+                  {!isChild && firma.sube_sayisi > 0 && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                      🏢 {firma.sube_sayisi}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 {isNewApplication && (
@@ -121,8 +149,8 @@ export default function FirmaRow({
 
   // Desktop Table Row
   return (
-    <tr className={`transition-colors duration-150 ${
-      selected ? 'bg-green-50/50 hover:bg-green-50' : isNewApplication ? 'bg-amber-50/60 hover:bg-amber-50' : 'hover:bg-gray-50/50'
+    <tr className={`transition-colors duration-150 relative ${
+      isChild ? 'bg-blue-50/30 hover:bg-blue-50' : selected ? 'bg-green-50/50 hover:bg-green-50' : isNewApplication ? 'bg-amber-50/60 hover:bg-amber-50' : 'hover:bg-gray-50/50'
     }`}>
       {/* Checkbox Column */}
       <td className="px-4 py-4 whitespace-nowrap">
@@ -136,15 +164,32 @@ export default function FirmaRow({
       </td>
       
       {/* Company Name */}
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
+      <td className={`py-4 whitespace-nowrap text-sm font-bold text-primary ${isChild ? 'pl-12 pr-6' : 'px-6'}`}>
         <div className="flex items-center gap-2">
+          {/* Hierarchy Indicator - Left border */}
+          {isChild && (
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-300 to-transparent"></div>
+          )}
           <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`} className="hover:underline text-accent flex items-center gap-2">
-            {firma.unvan}
+            {isChild && (
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 flex-shrink-0">
+                └ Şube
+              </span>
+            )}
+            <span>{firma.unvan}</span>
+            {!isChild && firma.sube_sayisi > 0 && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                🏢 {firma.sube_sayisi}
+              </span>
+            )}
             {isNewApplication && (
               <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Yeni Kayıt</span>
             )}
             {firma.created_at && (Date.now() - new Date(firma.created_at).getTime() < 1000 * 60 * 60 * 48) && (
               <span className="animate-pulse bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">YENİ</span>
+            )}
+            {parentName && isChild && (
+              <span className="text-[9px] text-gray-500 italic ml-1">({parentName})</span>
             )}
           </Link>
           {/* Quick Access Icons */}
@@ -152,6 +197,11 @@ export default function FirmaRow({
             {firma.instagram_url && (
               <a href={firma.instagram_url} target="_blank" rel="noopener noreferrer" className="text-pink-500 hover:text-pink-700">
                 <FaInstagram size={14} />
+              </a>
+            )}
+            {firma.linkedin_url && (
+              <a href={firma.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+                <FaLinkedin size={14} />
               </a>
             )}
             {firma.google_maps_url && (

@@ -26,9 +26,16 @@ export default async function SystemSettingsPage({ params }: { params: Promise<{
 
   const settingLabels: Record<string, string> = {
     'pricing_shipping_per_box': 'Kutu başı nakliye maliyeti (€)',
+    'pricing_shipping_frozen_per_box': 'Soguk zincirli tedarikte kutu basi nakliye (€)',
+    'pricing_shipping_non_cold_per_box': 'Soguk zincir disi tedarikte kutu basi nakliye (€)',
     'pricing_customs_percent': 'Gümrük vergisi oranı (%)',
+    'pricing_customs_frozen_percent': 'Soguk zincirli tedarikte gumruk orani (%)',
+    'pricing_customs_non_cold_percent': 'Soguk zincir disi tedarikte gumruk orani (%)',
     'pricing_storage_per_box': 'Kutu başı depolama maliyeti (€)',
     'pricing_operational_percent': 'Operasyonel giderler oranı (%)',
+    'pricing_target_profit_percent': 'Varsayilan hedef kar orani (%)',
+    'pricing_reseller_discount_percent': 'Varsayilan alt bayi indirimi (%)',
+    'pricing_company_adjustment_percent': 'Varsayilan firma bazli ayar (%)',
     'pricing_distributor_margin': 'Distribütör marjı (%) - Bizim kârımız',
     'pricing_dealer_margin_default': 'Varsayılan alt bayi marjı (%)',
     'pricing_round_step': 'Fiyat yuvarlama adımı',

@@ -16,7 +16,7 @@ type ActionResult = {
     success?: boolean;
     error?: string;
     orderId?: string; // Für create Action
-    data?: any; // Für andere Actions optional
+    data?: unknown; // Für andere Actions optional
     message?: string; // Für Erfolgs-/Fehlermeldungen
 };
 
@@ -89,7 +89,15 @@ export async function siparisOlusturAction(payload: {
     .single();
 
     // ID aus dem Ergebnis extrahieren (Annahme: RPC gibt { order_id: '...' } oder nur die ID zurück)
-    const newOrderId = typeof rpcResultData === 'string' ? rpcResultData : (rpcResultData as any)?.order_id;
+    const newOrderId =
+        typeof rpcResultData === 'string'
+            ? rpcResultData
+            : rpcResultData &&
+                typeof rpcResultData === 'object' &&
+                'order_id' in rpcResultData &&
+                typeof rpcResultData.order_id === 'string'
+                ? rpcResultData.order_id
+                : null;
 
     if (rpcError || !newOrderId) {
         console.error("Fehler beim RPC-Aufruf 'create_order_...':", rpcError);
@@ -107,6 +115,7 @@ export async function siparisOlusturAction(payload: {
               aliciRol: ['Yönetici', 'Ekip Üyesi'],
               icerik: mesaj,
               link,
+              preferenceKey: 'order_updates',
               supabaseClient: supabase
            });
        } catch(notifyError) {
@@ -303,6 +312,7 @@ export async function iptalSiparisAction(formData: FormData): Promise<ActionResu
                 aliciRol: ['Yönetici', 'Ekip Üyesi'],
                 icerik: mesaj,
                 link,
+                preferenceKey: 'order_updates',
                 supabaseClient: supabase
             });
         } catch(e) {
@@ -319,7 +329,7 @@ export async function iptalSiparisAction(formData: FormData): Promise<ActionResu
         console.log(`Bestellung ${siparisId} erfolgreich storniert durch Benutzer ${user.id}`);
         return { success: true, message: 'Bestellung erfolgreich storniert.' };
 
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error(`Unerwarteter Fehler beim Stornieren der Bestellung ${siparisId}:`, e);
         return { error: 'Serverfehler beim Stornieren der Bestellung.' };
     }

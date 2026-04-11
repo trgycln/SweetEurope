@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { PRODUCT_LINE_FEATURES, type ProductLineKey } from '@/lib/product-lines';
 
 interface Kategori {
     id: string;
@@ -14,8 +15,11 @@ interface ProfesyonelFiltreProps {
     kategoriler: Kategori[];
     locale: string;
     seciliKategoriSlug?: string;
+    seciliUrunGami?: ProductLineKey;
     totalCount?: number;
-    availablePorsiyonlar?: number[]; // Dynamic portion options from database
+    availablePorsiyonlar?: number[];
+    availableHacimler?: number[];
+    basePath?: string;
     labels: {
         searchPlaceholder?: string;
         categoryLabel?: string;
@@ -28,8 +32,8 @@ interface ProfesyonelFiltreProps {
         allTastes?: string;
         applyFilters?: string;
         clearFilters?: string;
-    activeFiltersBadgeSingular?: string; // placeholder with %{count}
-    activeFiltersBadgePlural?: string;   // placeholder with %{count}
+        activeFiltersBadgeSingular?: string;
+        activeFiltersBadgePlural?: string;
         featureOptions?: {
             vegan?: string;
             vegetarian?: string;
@@ -42,19 +46,31 @@ interface ProfesyonelFiltreProps {
     };
 }
 
-export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriSlug, totalCount, labels, availablePorsiyonlar = [] }: ProfesyonelFiltreProps) {
+export default function ProfesyonelFiltre({
+    kategoriler,
+    locale,
+    seciliKategoriSlug,
+    seciliUrunGami,
+    totalCount,
+    labels,
+    availablePorsiyonlar = [],
+    availableHacimler = [],
+    basePath,
+}: ProfesyonelFiltreProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+    const targetPath = basePath || `/${locale}/products`;
+
     const [altKategori, setAltKategori] = useState(searchParams?.get('altKategori') || '');
     const [porsiyon, setPorsiyon] = useState(searchParams?.get('porsiyon') || '');
+    const [hacim, setHacim] = useState(searchParams?.get('hacim') || '');
     const [ozellik, setOzellik] = useState(searchParams?.get('ozellik') || '');
     const [tat, setTat] = useState(searchParams?.get('tat') || '');
 
-    // Çeviri objeleri
     const translations = {
         unterkategorie: { de: 'Unterkategorie', tr: 'Alt Kategori', en: 'Subcategory', ar: 'فئة فرعية' },
         portionen: { de: 'Portionen', tr: 'Porsiyon', en: 'Portions', ar: 'حصص' },
+        volumen: { de: 'Volumen', tr: 'Hacim', en: 'Volume', ar: 'الحجم' },
         eigenschaften: { de: 'Eigenschaften', tr: 'Özellikler', en: 'Properties', ar: 'خصائص' },
         geschmack: { de: 'Geschmack', tr: 'Tat', en: 'Flavor', ar: 'نكهة' },
         filterAktiv: { de: 'Filter aktiv', tr: 'Filtre aktif', en: 'Filter active', ar: 'تصفية نشطة' },
@@ -64,34 +80,48 @@ export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriS
 
     const t = (key: keyof typeof translations) => translations[key][locale as keyof typeof translations[typeof key]] || translations[key].de;
 
-    // Seçili ana kategorinin alt kategorilerini bul
     const seciliAnaKategori = kategoriler.find(k => k.slug === seciliKategoriSlug);
-    const altKategoriler = seciliAnaKategori 
+    const altKategoriler = seciliAnaKategori
         ? kategoriler.filter(k => k.ust_kategori_id === seciliAnaKategori.id)
         : [];
 
-    // Porsiyon seçenekleri (dilim sayıları) - dinamik olarak database'den alınan değerler
     const porsiyonSecenekleri = availablePorsiyonlar.map(value => ({
         value: String(value),
-        label: value === 1 
+        label: value === 1
             ? (locale === 'de' ? '1 Portion' : locale === 'tr' ? '1 Porsiyon' : locale === 'ar' ? '١ حصة' : '1 Portion')
             : (locale === 'de' ? `${value} Portionen` : locale === 'tr' ? `${value} Porsiyon` : locale === 'ar' ? `${value} حصص` : `${value} Portions`)
     }));
 
-    // Özellik seçenekleri - use dictionary labels with fallbacks
-    const ozellikSecenekleri = [
-        { value: 'vegan', label: labels.featureOptions?.vegan || (locale === 'de' ? 'Vegan' : locale === 'tr' ? 'Vegan' : locale === 'ar' ? 'نباتي' : 'Vegan') },
-        { value: 'vegetarisch', label: labels.featureOptions?.vegetarian || (locale === 'de' ? 'Vegetarisch' : locale === 'tr' ? 'Vejetaryen' : locale === 'ar' ? 'نباتي (غير صارم)' : 'Vegetarian') },
-        { value: 'glutenfrei', label: labels.featureOptions?.glutenFree || (locale === 'de' ? 'Glutenfrei' : locale === 'tr' ? 'Glutensiz' : locale === 'ar' ? 'خالي من الغلوتين' : 'Gluten-free') },
-        { value: 'laktosefrei', label: labels.featureOptions?.lactoseFree || (locale === 'de' ? 'Laktosefrei' : locale === 'tr' ? 'Laktozsuz' : locale === 'ar' ? 'خالي من اللاكتوز' : 'Lactose-free') },
-        { value: 'bio', label: labels.featureOptions?.organic || (locale === 'de' ? 'Bio' : locale === 'tr' ? 'Organik' : locale === 'ar' ? 'عضوي' : 'Organic') },
-        { value: 'ohne_zucker', label: labels.featureOptions?.sugarFree || (locale === 'de' ? 'Ohne Zucker' : locale === 'tr' ? 'Şekersiz' : locale === 'ar' ? 'بدون سكر' : 'Sugar-Free') },
-    ];
+    const hacimSecenekleri = availableHacimler.map(value => ({
+        value: String(value),
+        label: value >= 1000 && value % 1000 === 0 ? `${value / 1000} L` : `${value} ml`,
+    }));
 
-    // Tat seçenekleri - use dictionary tasteOptions if provided
-    const baseTastes = ['schokolade', 'kakao', 'erdbeere', 'vanille', 'karamell', 'nuss', 'walnuss', 'badem', 
-                       'hindistancevizi', 'honig', 'tereyag', 'zitrone', 'portakal', 'zeytin', 'frucht', 
-                       'waldfrucht', 'kaffee', 'himbeere', 'brombeere', 'pistazie', 'kirsche', 'yabanmersini', 'havuc', 'yulaf'];
+    const featureLabelMap: Record<string, string> = {
+        vegan: labels.featureOptions?.vegan || (locale === 'de' ? 'Vegan' : locale === 'tr' ? 'Vegan' : locale === 'ar' ? 'نباتي' : 'Vegan'),
+        vegetarisch: labels.featureOptions?.vegetarian || (locale === 'de' ? 'Vegetarisch' : locale === 'tr' ? 'Vejetaryen' : locale === 'ar' ? 'نباتي (غير صارم)' : 'Vegetarian'),
+        glutenfrei: labels.featureOptions?.glutenFree || (locale === 'de' ? 'Glutenfrei' : locale === 'tr' ? 'Glutensiz' : locale === 'ar' ? 'خالي من الغلوتين' : 'Gluten-free'),
+        laktosefrei: labels.featureOptions?.lactoseFree || (locale === 'de' ? 'Laktosefrei' : locale === 'tr' ? 'Laktozsuz' : locale === 'ar' ? 'خالي من اللاكتوز' : 'Lactose-free'),
+        bio: labels.featureOptions?.organic || (locale === 'de' ? 'Bio' : locale === 'tr' ? 'Organik' : locale === 'ar' ? 'عضوي' : 'Organic'),
+        ohne_zucker: labels.featureOptions?.sugarFree || (locale === 'de' ? 'Ohne Zucker' : locale === 'tr' ? 'Şekersiz' : locale === 'ar' ? 'بدون سكر' : 'Sugar-Free'),
+        dogal_icerik: locale === 'de' ? 'Natürliche Zutaten' : locale === 'tr' ? 'Doğal İçerik' : locale === 'ar' ? 'مكونات طبيعية' : 'Natural Ingredients',
+        katkisiz: locale === 'de' ? 'Ohne Zusatzstoffe' : locale === 'tr' ? 'Katkısız' : locale === 'ar' ? 'بدون إضافات' : 'No Additives',
+        koruyucusuz: locale === 'de' ? 'Ohne Konservierungsstoffe' : locale === 'tr' ? 'Koruyucusuz' : locale === 'ar' ? 'بدون مواد حافظة' : 'Preservative-Free',
+        pompa_uyumlu: locale === 'de' ? 'Pumpen-kompatibel' : locale === 'tr' ? 'Pompa Uyumlu' : locale === 'ar' ? 'متوافق مع المضخة' : 'Pump-Compatible',
+    };
+
+    const enabledFeatureKeys = seciliUrunGami
+        ? PRODUCT_LINE_FEATURES[seciliUrunGami]
+        : Array.from(new Set([...PRODUCT_LINE_FEATURES['frozen-desserts'], ...PRODUCT_LINE_FEATURES['barista-bakery-essentials']]));
+
+    const ozellikSecenekleri = enabledFeatureKeys.map(value => ({
+        value,
+        label: featureLabelMap[value] || value,
+    }));
+
+    const baseTastes = ['schokolade', 'kakao', 'erdbeere', 'vanille', 'karamell', 'nuss', 'walnuss', 'badem',
+        'hindistancevizi', 'honig', 'tereyag', 'zitrone', 'portakal', 'zeytin', 'frucht',
+        'waldfrucht', 'kaffee', 'himbeere', 'brombeere', 'pistazie', 'kirsche', 'yabanmersini', 'havuc', 'yulaf'];
     const tatSecenekleri = baseTastes.map(value => ({
         value,
         label: labels.tasteOptions?.[value] || (value.charAt(0).toUpperCase() + value.slice(1))
@@ -99,37 +129,39 @@ export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriS
 
     const applyFilter = () => {
         const params = new URLSearchParams();
+        if (seciliUrunGami) params.set('urunGami', seciliUrunGami);
         if (seciliKategoriSlug) params.set('kategori', seciliKategoriSlug);
         if (altKategori) params.set('altKategori', altKategori);
         if (porsiyon) params.set('porsiyon', porsiyon);
+        if (hacim) params.set('hacim', hacim);
         if (ozellik) params.set('ozellik', ozellik);
         if (tat) params.set('tat', tat);
-        
-        router.push(`/${locale}/products?${params.toString()}`);
+
+        router.push(`${targetPath}?${params.toString()}`);
     };
 
     const clearFilters = () => {
         setAltKategori('');
         setPorsiyon('');
+        setHacim('');
         setOzellik('');
         setTat('');
         const params = new URLSearchParams();
+        if (seciliUrunGami) params.set('urunGami', seciliUrunGami);
         if (seciliKategoriSlug) params.set('kategori', seciliKategoriSlug);
-        router.push(`/${locale}/products?${params.toString()}`);
+        router.push(`${targetPath}?${params.toString()}`);
     };
 
-    // Auto-apply when selections change
     useEffect(() => {
         applyFilter();
-    }, [altKategori, porsiyon, ozellik, tat]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [altKategori, porsiyon, hacim, ozellik, tat]);
 
-    const activeFilterCount = [altKategori, porsiyon, ozellik, tat].filter(Boolean).length;
+    const activeFilterCount = [altKategori, porsiyon, hacim, ozellik, tat].filter(Boolean).length;
 
     return (
         <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-            {/* Filtre Dropdowns - Kompakt Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                {/* Alt Kategoriler */}
+            <div className="grid grid-cols-2 xl:grid-cols-5 gap-3">
                 <select
                     value={altKategori}
                     onChange={(e) => setAltKategori(e.target.value)}
@@ -137,7 +169,7 @@ export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriS
                     disabled={altKategoriler.length === 0}
                 >
                     <option value="">
-                        {altKategoriler.length === 0 
+                        {altKategoriler.length === 0
                             ? t('unterkategorie')
                             : `${t('unterkategorie')} (${altKategoriler.length})`
                         }
@@ -149,11 +181,11 @@ export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriS
                     ))}
                 </select>
 
-                {/* Portionen */}
                 <select
                     value={porsiyon}
                     onChange={(e) => setPorsiyon(e.target.value)}
-                    className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-accent focus:border-accent bg-white"
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-accent focus:border-accent bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                    disabled={porsiyonSecenekleri.length === 0}
                 >
                     <option value="">{t('portionen')}</option>
                     {porsiyonSecenekleri.map(p => (
@@ -163,7 +195,20 @@ export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriS
                     ))}
                 </select>
 
-                {/* Eigenschaften */}
+                <select
+                    value={hacim}
+                    onChange={(e) => setHacim(e.target.value)}
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-accent focus:border-accent bg-white disabled:bg-gray-50 disabled:text-gray-400"
+                    disabled={hacimSecenekleri.length === 0}
+                >
+                    <option value="">{t('volumen')}</option>
+                    {hacimSecenekleri.map(h => (
+                        <option key={h.value} value={h.value}>
+                            {h.label}
+                        </option>
+                    ))}
+                </select>
+
                 <select
                     value={ozellik}
                     onChange={(e) => setOzellik(e.target.value)}
@@ -177,22 +222,20 @@ export default function ProfesyonelFiltre({ kategoriler, locale, seciliKategoriS
                     ))}
                 </select>
 
-                {/* Geschmack */}
                 <select
                     value={tat}
                     onChange={(e) => setTat(e.target.value)}
                     className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-accent focus:border-accent bg-white"
                 >
                     <option value="">{t('geschmack')}</option>
-                    {tatSecenekleri.map(t => (
-                        <option key={t.value} value={t.value}>
-                            {t.label}
+                    {tatSecenekleri.map(item => (
+                        <option key={item.value} value={item.value}>
+                            {item.label}
                         </option>
                     ))}
                 </select>
             </div>
 
-            {/* Aktif Filtre ve Temizle */}
             {activeFilterCount > 0 && (
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                     <span className="text-xs text-gray-600">

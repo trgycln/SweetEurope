@@ -3,6 +3,7 @@
 import HeroSection from "@/components/HeroSection";
 import PhilosophySection from "@/components/PhilosophySection";
 import CategoryShowcase from "@/components/CategoryShowcase";
+import ProductLineShowcase from "@/components/ProductLineShowcase";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import QualityPromiseSection from "@/components/QualityPromiseSection";
 import CertificationsStrip from "@/components/CertificationsStrip";
@@ -13,6 +14,7 @@ import { cookies } from "next/headers";
 import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from 'next';
+import { PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER } from "@/lib/public-category-visibility";
 
 export async function generateMetadata({ 
   params 
@@ -84,19 +86,14 @@ export default async function Home({
         });
     }
     
-    // Show only the curated 6 main categories (order fixed)
-    const desiredSlugs = [
-        'cakes-and-tarts',
-        'cookies-and-muffins',
-        'pizza-and-fast-food',
-        'sauces-and-ingredients',
-        'coffee',
-        'drinks',
-    ];
-
+    // Show only the currently public main categories in the desired order
     const filteredKategoriler = (kategoriler || [])
-        .filter(k => desiredSlugs.includes((k.slug ?? '')))
-        .sort((a, b) => desiredSlugs.indexOf(a.slug ?? '') - desiredSlugs.indexOf(b.slug ?? ''));
+        .filter(k => PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.includes((k.slug ?? '') as any))
+        .sort(
+            (a, b) =>
+                PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((a.slug ?? '') as any) -
+                PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((b.slug ?? '') as any)
+        );
 
     // Determine image_url based on file existence (prefer webp, then jpg, then jpeg/JPEG)
     const kategorilerWithImages = filteredKategoriler.map((kategori) => {
@@ -130,6 +127,7 @@ export default async function Home({
         <>
             <HeroSection dictionary={dictionary} locale={locale} />
             <PhilosophySection dictionary={dictionary} />
+            <ProductLineShowcase locale={locale} categories={kategorilerWithImages as any} />
             <CategoryShowcase 
                 dictionary={dictionary} 
                 locale={locale}

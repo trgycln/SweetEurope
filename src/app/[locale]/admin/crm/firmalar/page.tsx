@@ -191,9 +191,17 @@ export default async function FirmalarListPage({
             sorumlu_personel:profiller!firmalar_sorumlu_personel_id_fkey(tam_ad)
         `);
 
-    // Filter anwenden
+    // Filter anwenden - Mit proper escaping für PostgREST ilike
     if (searchQuery) {
-        query = query.or(`unvan.ilike.%${searchQuery}%,adres.ilike.%${searchQuery}%`);
+        // Escape special PostgREST characters in the search query
+        // PostgREST ilike uses % as wildcard, so we need to escape %, *, /, and other special chars
+        const escapedQuery = searchQuery
+            .replace(/\\/g, '\\\\') // Backslash muss zuerst escaped werden
+            .replace(/%/g, '\\%')   // % escape
+            .replace(/_/g, '\\_')   // _ escape (auch wildcard in SQL)
+            .replace(/"/g, '\\"');  // Double quotes escape
+        
+        query = query.or(`unvan.ilike.%${escapedQuery}%,adres.ilike.%${escapedQuery}%`);
     }
     const STATUS_CANONICAL_MAP: Record<string, string> = {
         'aday': 'ADAY',
@@ -285,8 +293,52 @@ export default async function FirmalarListPage({
         return 0;
     });
 
-    const firmaListesi = (firmalar || []) as any[];
-    const firmaSayisi = firmaListesi.length;
+    // Build hierarchical list: Main companies with their branches nested
+    // Also show branches as standalone if parent is filtered out
+    const buildHierarchicalList = (companies: any[]) => {
+        const result: Array<{ firma: any; isChild: boolean; depth: number; parentName?: string }> = [];
+        const processedIds = new Set<string>();
+        const companiesById = Object.fromEntries(companies.map(c => [c.id, c]));
+
+        companies.forEach(firma => {
+            // Skip if already added as a child
+            if (processedIds.has(firma.id)) return;
+
+            // Add main company (no parent)
+            if (!firma.parent_firma_id) {
+                result.push({ firma, isChild: false, depth: 0 });
+                processedIds.add(firma.id);
+
+                // Add all branches of this company
+                const branches = companies.filter(f => f.parent_firma_id === firma.id);
+                branches.forEach(branch => {
+                    result.push({ firma: branch, isChild: true, depth: 1 });
+                    processedIds.add(branch.id);
+                });
+            }
+        });
+
+        // Add orphaned branches (parent filtered out, but branch matches filter)
+        companies.forEach(firma => {
+            if (processedIds.has(firma.id)) return; // Already added
+            if (firma.parent_firma_id) {
+                // This is a branch, but parent is not in filtered list
+                const parentFirma = companiesById[firma.parent_firma_id];
+                result.push({ 
+                    firma, 
+                    isChild: true, 
+                    depth: 0, 
+                    parentName: parentFirma?.unvan || 'Unknown Parent'
+                });
+                processedIds.add(firma.id);
+            }
+        });
+
+        return result;
+    };
+
+    const hierarchicalFirmalar = buildHierarchicalList(firmalar);
+    const firmaSayisi = hierarchicalFirmalar.length;
     // Status-Optionen dynamisch aus Enum oder Konstanten holen
     // Nur die neuen/relevanten Status anzeigen
     const statusOptions = [
@@ -352,22 +404,25 @@ export default async function FirmalarListPage({
                 <>
                     {/* Mobile Kartenansicht */}
                     <div className="lg:hidden space-y-4">
-                        {firmaListesi.map((firma) => (
+                        {hierarchicalFirmalar.map((item) => (
                             <FirmaRow
-                                key={firma.id}
-                                firma={firma}
+                                key={item.firma.id}
+                                firma={item.firma}
                                 locale={locale}
                                 statusOptions={F.statusOptions as Record<string, string>}
                                 statusColors={STATUS_RENKLERI}
                                 F={F}
                                 isDesktop={false}
+                                isChild={item.isChild}
+                                depth={item.depth}
+                                parentName={item.parentName}
                             />
                         ))}
                     </div>
 
                     {/* Desktop Tabelle */}
                     <div className="hidden lg:block bg-white rounded-lg shadow-md border border-gray-200 -mt-8">
-                        <table className="min-w-full divide-y divide-gray-200">
+                        <table className="min-w-full divide-y divide-gray-200 relative">
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th scope="col" className="sticky top-[-40px] z-20 bg-gray-50 px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider shadow-sm w-12">
@@ -395,16 +450,19 @@ export default async function FirmalarListPage({
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {firmaListesi.map((firma) => (
+                            <tbody className="bg-white divide-y divide-gray-200 relative">
+                                {hierarchicalFirmalar.map((item) => (
                                     <FirmaRow
-                                        key={firma.id}
-                                        firma={firma}
+                                        key={item.firma.id}
+                                        firma={item.firma}
                                         locale={locale}
-                                        statusOptions={F.statusOptions as Record<string, string>}
+                                        statusOptions={statusOptions}
                                         statusColors={STATUS_RENKLERI}
                                         F={F}
                                         isDesktop={true}
+                                        isChild={item.isChild}
+                                        depth={item.depth}
+                                        parentName={item.parentName}
                                     />
                                 ))}
                             </tbody>

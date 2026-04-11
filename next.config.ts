@@ -4,6 +4,7 @@
 const nextConfig = {
   
   reactStrictMode: false,
+  serverExternalPackages: ['@supabase/ssr', '@supabase/supabase-js'],
   // Vercel'in build sırasında TypeScript hatalarını görmezden gelmesini sağlar
   typescript: {
     ignoreBuildErrors: true,

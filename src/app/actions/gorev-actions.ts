@@ -41,6 +41,7 @@ export async function gorevOlusturAction(data: TablesInsert<'gorevler'>) {
             aliciId: insertedGorev.atanan_kisi_id,
             icerik: mesaj,
             link: link,
+            preferenceKey: 'task_assignments',
             supabaseClient: supabase
         });
     }
@@ -93,6 +94,7 @@ export async function gorevDurumGuncelleAction(gorevId: number, yeniDurum: Enums
             aliciId: gorevData.olusturan_kisi_id,
             icerik: mesaj,
             link: link,
+            preferenceKey: 'task_assignments',
             supabaseClient: supabase
         });
     }
@@ -105,6 +107,7 @@ export async function gorevDurumGuncelleAction(gorevId: number, yeniDurum: Enums
                 aliciId: gorevData.atanan_kisi_id,
                 icerik: mesaj,
                 link: link,
+                preferenceKey: 'task_assignments',
                 supabaseClient: supabase
             });
         }

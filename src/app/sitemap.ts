@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -13,13 +14,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch active products
   const { data: products } = await supabase
     .from('urunler')
-    .select('slug, updated_at')
+    .select('slug, updated_at, kategori_id')
     .eq('aktif', true);
 
   // Fetch categories
   const { data: categories } = await supabase
     .from('kategoriler')
-    .select('slug, updated_at');
+    .select('id, slug, updated_at, ust_kategori_id');
+
+  const hiddenKategoriIds = buildHiddenPublicCategoryIds((categories || []) as any[]);
+  const visibleProducts = (products || []).filter(
+    (product) => !hiddenKategoriIds.has(product.kategori_id ?? '')
+  );
+  const visibleCategories = (categories || []).filter(
+    (category) => !hiddenKategoriIds.has(category.id)
+  );
 
   const sitemap: MetadataRoute.Sitemap = [];
 
@@ -45,9 +54,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   // Product pages for each locale
-  if (products) {
+  if (visibleProducts.length > 0) {
     locales.forEach((locale) => {
-      products.forEach((product) => {
+      visibleProducts.forEach((product) => {
         sitemap.push({
           url: `${baseUrl}/${locale}/products/${product.slug}`,
           lastModified: product.updated_at ? new Date(product.updated_at) : new Date(),
@@ -59,9 +68,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Category pages for each locale
-  if (categories) {
+  if (visibleCategories.length > 0) {
     locales.forEach((locale) => {
-      categories.forEach((category) => {
+      visibleCategories.forEach((category) => {
         if (category.slug) {
           sitemap.push({
             url: `${baseUrl}/${locale}/products?kategori=${category.slug}`,

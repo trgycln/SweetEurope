@@ -24,6 +24,7 @@ type AdminLayoutClientProps = {
     initialNotifications: Bildirim[];
     initialUnreadCount: number;
     locale: Locale;
+    allowedPanels: string[];
 };
 
 export function AdminLayoutClient({
@@ -33,7 +34,8 @@ export function AdminLayoutClient({
     dictionary,
     initialNotifications,
     initialUnreadCount,
-    locale
+    locale,
+    allowedPanels
 }: AdminLayoutClientProps) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
@@ -56,7 +58,13 @@ export function AdminLayoutClient({
 
             <Toaster position="top-right" richColors closeButton />
 
-            <Sidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} userRole={userRole} dictionary={dictionary} />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                setIsOpen={setSidebarOpen}
+                userRole={userRole}
+                dictionary={dictionary}
+                allowedPanels={allowedPanels}
+            />
 
             <div className="flex h-full flex-col lg:ml-64">
                 <header className="sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b px-4 sm:px-6 bg-white border-bg-subtle text-text-main shadow-sm">

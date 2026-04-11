@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 import { Tables, TablesInsert } from '@/lib/supabase/database.types'; // TablesInsert eklendi
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { redirect } from 'next/navigation'; // Redirect importieren
+import { slugify } from '@/lib/utils';
 
 const diller = ['de', 'en', 'tr', 'ar']; // Dill listesi
 const revalidatePage = () => revalidatePath('/admin/urun-yonetimi/kategoriler'); // Revalidate fonksiyonu
@@ -44,6 +45,9 @@ export async function createKategoriAction(formData: FormData): Promise<ActionRe
         adJson[dil] = formData.get(`ad_${dil}`) as string || '';
     });
     const ustKategoriId = (formData.get('ust_kategori_id') as string) || null;
+    const rawSlug = (formData.get('slug') as string) || '';
+    const urunGami = ((formData.get('urun_gami') as string) || '').trim() || null;
+    const finalSlug = slugify(rawSlug || adJson.en || adJson.de || adJson.tr || 'kategori') || null;
 
     // Türkçe ad zorunlu mu kontrolü
     if (!adJson.tr) { // Veya 'de' ? Hangi dil ana diliniz?
@@ -53,10 +57,17 @@ export async function createKategoriAction(formData: FormData): Promise<ActionRe
     // Veritabanına ekle
     const insertData: TablesInsert<'kategoriler'> = {
         ad: adJson,
+        slug: finalSlug,
+        urun_gami: urunGami,
         ust_kategori_id: ustKategoriId === 'root' ? null : ustKategoriId // 'root' ise null kaydet
     };
 
-    const { error } = await supabase.from('kategoriler').insert(insertData);
+    let { error } = await supabase.from('kategoriler').insert(insertData);
+
+    if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('urun_gami'))) {
+        const { urun_gami, ...fallbackData } = insertData as any;
+        ({ error } = await supabase.from('kategoriler').insert(fallbackData));
+    }
 
     if (error) {
         console.error("Kategori oluşturma hatası:", error);
@@ -89,6 +100,9 @@ export async function updateKategoriAction(kategoriId: string, formData: FormDat
         adJson[dil] = formData.get(`ad_${dil}`) as string || '';
     });
     const ustKategoriId = (formData.get('ust_kategori_id') as string) || null;
+    const rawSlug = (formData.get('slug') as string) || '';
+    const urunGami = ((formData.get('urun_gami') as string) || '').trim() || null;
+    const finalSlug = slugify(rawSlug || adJson.en || adJson.de || adJson.tr || 'kategori') || null;
     
     if (!adJson.tr) { // Ana dil kontrolü
         return { success: false, message: 'Kategori için Türkçe ad zorunludur.', error: 'Hauptsprachenname (z.B. Türkisch) ist erforderlich.' };
@@ -97,14 +111,24 @@ export async function updateKategoriAction(kategoriId: string, formData: FormDat
     // Güncelleme verisi
     const updateData: Partial<Tables<'kategoriler'>> = {
          ad: adJson,
+         slug: finalSlug,
+         urun_gami: urunGami,
          ust_kategori_id: ustKategoriId === 'root' ? null : ustKategoriId
     };
 
     // Veritabanını güncelle
-    const { error } = await supabase
+    let { error } = await supabase
         .from('kategoriler')
         .update(updateData)
         .eq('id', kategoriId);
+
+    if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('urun_gami'))) {
+        const { urun_gami, ...fallbackData } = updateData as any;
+        ({ error } = await supabase
+            .from('kategoriler')
+            .update(fallbackData)
+            .eq('id', kategoriId));
+    }
 
     if (error) {
         console.error("Kategori güncelleme hatası:", error);

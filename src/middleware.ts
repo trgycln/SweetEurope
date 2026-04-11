@@ -2,16 +2,10 @@
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { canAccessAdminPath, normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
 
 const locales = ['de', 'en', 'tr', 'ar'];
 const defaultLocale = 'de';
-
-// Diese Funktion scheint nicht verwendet zu werden, aber wir lassen sie drin.
-function getLocale(request: NextRequest): string {
-    // Hier könnten Sie Logik hinzufügen, um die Locale aus Headern (Accept-Language)
-    // oder Cookies zu lesen, falls gewünscht. Aktuell gibt sie immer 'de' zurück.
-    return defaultLocale;
-}
 
 // Update function for handling cookies within middleware
 async function updateSession(request: NextRequest) {
@@ -129,6 +123,18 @@ export async function middleware(req: NextRequest) {
         const currentLocale = pathname.split('/')[1] || defaultLocale;
         console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${currentLocale}${redirectTo}`);
         return NextResponse.redirect(new URL(`/${currentLocale}${redirectTo}`, req.url));
+    }
+
+    if (user && effectivePath.startsWith('/admin')) {
+        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();
+        const userRole = profile?.rol;
+        const allowedPanels = normalizeAllowedAdminPanels(user.user_metadata?.allowed_admin_panels);
+
+        if (!canAccessAdminPath(userRole, effectivePath, allowedPanels)) {
+            const currentLocale = pathname.split('/')[1] || defaultLocale;
+            console.log(`-> Middleware: Admin panel access denied for role '${userRole}' on '${effectivePath}'.`);
+            return NextResponse.redirect(new URL(`/${currentLocale}/admin/dashboard`, req.url));
+        }
     }
 
     // Hier könnte optional noch die Rollen-basierte Zugriffskontrolle eingefügt werden,

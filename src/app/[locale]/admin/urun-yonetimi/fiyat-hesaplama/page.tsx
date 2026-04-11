@@ -13,9 +13,14 @@ export default async function FiyatHesaplamaPage({ params }: { params: Promise<{
 
   const { data: urunler, error } = await supabase
     .from('urunler')
-    .select('id, ad, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_musteri, aktif, stok_kodu, teknik_ozellikler')
+    .select('id, ad, kategori_id, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_musteri, aktif, stok_kodu, teknik_ozellikler')
     .order(`ad->>${locale}`, { ascending: true })
     .limit(500);
+
+  const { data: kategoriler } = await supabase
+    .from('kategoriler')
+    .select('id, ad')
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Ürünler yüklenemedi:', error);
@@ -28,9 +33,9 @@ export default async function FiyatHesaplamaPage({ params }: { params: Promise<{
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-2">Fiyat Hesaplama</h1>
-      <p className="text-secondary/70 mb-6">Maliyet + gider + min %30 kâr hedefiyle önerilen satış fiyatını hesaplayın. Net (KDV hariç) ve KDV dahil değerlerini görün, dilerseniz kaydedin.</p>
-      <CalculatorClient locale={locale} products={products} systemSettings={systemSettings} />
+      <h1 className="text-2xl font-semibold mb-2">Basit Tedarik Maliyet Platformu</h1>
+      <p className="text-secondary/70 mb-6">Soguk zincirli ve soguk zincir disi tedarik senaryolari icin ayni ekranda net maliyet ve hedef satis fiyatini hesaplayin.</p>
+      <CalculatorClient locale={locale} products={products} categories={kategoriler || []} systemSettings={systemSettings} />
     </div>
   );
 }

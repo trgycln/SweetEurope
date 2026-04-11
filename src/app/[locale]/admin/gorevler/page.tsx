@@ -4,16 +4,17 @@
 import React from 'react';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Tables, Database, Enums } from '@/lib/supabase/database.types'; // Database und Enums importieren
+import { Tables, Enums } from '@/lib/supabase/database.types';
 import { getDictionary } from '@/dictionaries';
-import { FiPlus, FiClipboard, FiCalendar, FiUser, FiCheckCircle, FiCircle, FiFlag, FiBriefcase } from 'react-icons/fi';
+import { FiPlus, FiClipboard, FiCalendar, FiUser, FiCheckCircle, FiCircle, FiBriefcase, FiEdit2 } from 'react-icons/fi';
 import GorevTamamlaButton from './GorevTamamlaButton';
 import GorevGeriAlButton from './GorevGeriAlButton';
+import GorevSilButton from './GorevSilButton';
+import GorevAtamaSelect from './GorevAtamaSelect';
 import GorevFiltreleri from './GorevFiltreleri';
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-import { Locale } from '@/i18n-config'; // Importiere Locale
-import { redirect } from 'next/navigation'; // Import für Redirect
-import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { cookies } from 'next/headers';
+import { Locale } from '@/i18n-config';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
@@ -129,8 +130,11 @@ export default async function GorevlerListPage({
     // Extract dictionary (pattern copied from other pages)
     // NOTE: For consistency with other pages we could call getDictionary(locale) here if not already handled at layout level.
     // For now we attempt to use existing approach without additional fetch to avoid double calls.
-    const tRoot: any = dictionary;
-    const t = (tRoot.adminDashboard?.tasksPage) || tRoot.tasksPage || {};
+    const tRoot = dictionary as {
+        adminDashboard?: { tasksPage?: Record<string, string> };
+        tasksPage?: Record<string, string>;
+    };
+    const t = tRoot.adminDashboard?.tasksPage || tRoot.tasksPage || {};
     const F = {
         title: t.title || 'Task Management',
         tasksListed: t.tasksListed || 'tasks listed.',
@@ -200,16 +204,36 @@ export default async function GorevlerListPage({
                                                 </Link>
                                             )}
                                         </div>
-                                        <div className="flex-shrink-0 ml-2">
-                                            {gorev.tamamlandi ? <GorevGeriAlButton gorevId={gorev.id} /> : <GorevTamamlaButton gorevId={gorev.id} />}
+                                        <div className="flex-shrink-0 ml-2 flex items-center gap-1">
+                                            <Link
+                                                href={`/${locale}/admin/gorevler/${gorev.id}`}
+                                                className="p-2 rounded-full hover:bg-amber-100 text-amber-600"
+                                                title="Görevi düzenle"
+                                            >
+                                                <FiEdit2 />
+                                            </Link>
+                                            <GorevSilButton gorevId={gorev.id} locale={locale} />
+                                            {gorev.tamamlandi ? (
+                                                <GorevGeriAlButton gorevId={gorev.id} locale={locale} />
+                                            ) : (
+                                                <GorevTamamlaButton gorevId={gorev.id} locale={locale} />
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="border-t border-gray-200 pt-3 flex justify-between items-center text-xs text-gray-600"> {/* Styling angepasst */}
-                                        <div className="flex items-center gap-4">
+                                    <div className="border-t border-gray-200 pt-3 flex flex-col gap-3 text-xs text-gray-600">
+                                        <div className="flex items-center justify-between gap-4">
                                             <span className="flex items-center gap-1.5"><FiCalendar size={14}/> {formatDate(gorev.son_tarih)}</span>
-                                            <span className="flex items-center gap-1.5"><FiUser size={14}/> {gorev.atanan_kisi?.tam_ad ?? 'N/A'}</span>
+                                            <span className={`px-2 py-0.5 rounded-full font-semibold ${prio.bg} ${prio.text}`}>{gorev.oncelik}</span>
                                         </div>
-                                        <span className={`px-2 py-0.5 rounded-full font-semibold ${prio.bg} ${prio.text}`}>{gorev.oncelik}</span>
+                                        <div className="flex items-center gap-2">
+                                            <FiUser size={14} />
+                                            <GorevAtamaSelect
+                                                gorevId={gorev.id}
+                                                currentAssigneeId={gorev.atanan_kisi_id}
+                                                profiller={profiller || []}
+                                                locale={locale}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -242,7 +266,14 @@ export default async function GorevlerListPage({
                                                      </Link>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{gorev.atanan_kisi?.tam_ad ?? 'N/A'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">
+                                                <GorevAtamaSelect
+                                                    gorevId={gorev.id}
+                                                    currentAssigneeId={gorev.atanan_kisi_id}
+                                                    profiller={profiller || []}
+                                                    locale={locale}
+                                                />
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                 <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${prio.bg} ${prio.text}`}>{gorev.oncelik}</span>
                                             </td>
@@ -254,11 +285,21 @@ export default async function GorevlerListPage({
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                {gorev.tamamlandi ? (
-                                                    <GorevGeriAlButton gorevId={gorev.id} />
-                                                ) : (
-                                                    <GorevTamamlaButton gorevId={gorev.id} />
-                                                )}
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <Link
+                                                        href={`/${locale}/admin/gorevler/${gorev.id}`}
+                                                        className="p-2 rounded-full hover:bg-amber-100 text-amber-600"
+                                                        title="Görevi düzenle"
+                                                    >
+                                                        <FiEdit2 />
+                                                    </Link>
+                                                    <GorevSilButton gorevId={gorev.id} locale={locale} />
+                                                    {gorev.tamamlandi ? (
+                                                        <GorevGeriAlButton gorevId={gorev.id} locale={locale} />
+                                                    ) : (
+                                                        <GorevTamamlaButton gorevId={gorev.id} locale={locale} />
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     );

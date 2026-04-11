@@ -1001,7 +1001,7 @@ export const dictionary: Partial<Dictionary> = {
       mainImage: 'Main image',
       change: 'Change',
       upload: 'Upload',
-      formatsHint: 'PNG, JPG or WEBP up to 2MB.',
+      formatsHint: 'PNG, JPG or WEBP up to 10MB.',
       galleryImages: 'Gallery images',
       addImages: 'Add images'
     },

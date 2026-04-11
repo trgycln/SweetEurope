@@ -49,6 +49,45 @@ const StatCard = ({ title, value, icon, link, linkText, isNegative }: { title: s
     return <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 flex items-center gap-4">{content}</div>;
 };
 
+const HealthSignalCard = ({ title, value, hint, status, href }: { title: string; value: string; hint: string; status: 'green' | 'yellow' | 'red'; href?: string }) => {
+    const styles = {
+        green: {
+            wrapper: 'border-emerald-200 bg-emerald-50',
+            dot: 'bg-emerald-500',
+            badge: 'bg-emerald-100 text-emerald-700',
+            label: 'Kontrol altında'
+        },
+        yellow: {
+            wrapper: 'border-amber-200 bg-amber-50',
+            dot: 'bg-amber-500',
+            badge: 'bg-amber-100 text-amber-700',
+            label: 'Takip edilmeli'
+        },
+        red: {
+            wrapper: 'border-rose-200 bg-rose-50',
+            dot: 'bg-rose-500',
+            badge: 'bg-rose-100 text-rose-700',
+            label: 'Acil aksiyon'
+        }
+    }[status];
+
+    const content = (
+        <div className={`rounded-2xl border p-4 ${styles.wrapper}`}>
+            <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                    <span className={`h-3 w-3 rounded-full ${styles.dot}`} />
+                    <p className="text-sm font-semibold text-slate-900">{title}</p>
+                </div>
+                <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${styles.badge}`}>{styles.label}</span>
+            </div>
+            <p className="mt-3 text-2xl font-bold text-slate-900">{value}</p>
+            <p className="mt-1 text-xs text-slate-600">{hint}</p>
+        </div>
+    );
+
+    return href ? <Link href={href} className="block">{content}</Link> : content;
+};
+
 // Schnellaktions-Button
 const QuickActionButton = ({ label, icon, href }: { label: string, icon: React.ReactNode, href: string }) => (
      <Link href={href} className="bg-accent text-white p-3 rounded-lg flex flex-col items-center justify-center text-center font-bold text-xs hover:bg-opacity-85 transition-opacity aspect-square">
@@ -144,6 +183,8 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     const [
         ordersRes,
         stockRes,
+        profitabilityAlertsRes,
+        recentBatchHistoryRes,
         tasksRes,
         applicationsRes,
         sampleRequestsRes,
@@ -164,6 +205,8 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     ] = await Promise.all([
         supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_BESTELL_STATUS),
         supabase.rpc('get_kritik_stok_count'),
+        supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
+        (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
         supabase.from('gorevler').select('id, baslik, son_tarih').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(5),
                 // FIXED: Sadece görülmemiş başvuruları say
                 applicationsResPromise,
@@ -195,6 +238,12 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         if (stockRes.error && Object.keys(stockRes.error).length > 0) {
             console.error("Critical Stock Error:", stockRes.error);
         }
+        if (profitabilityAlertsRes.error && Object.keys(profitabilityAlertsRes.error).length > 0 && !(profitabilityAlertsRes.error.message || '').includes('karlilik_alarm_aktif')) {
+            console.error("Profitability Alerts Error:", profitabilityAlertsRes.error);
+        }
+        if (recentBatchHistoryRes.error && Object.keys(recentBatchHistoryRes.error).length > 0 && !(recentBatchHistoryRes.error.message || '').includes('ithalat_partileri')) {
+            console.error("Recent Batch History Error:", recentBatchHistoryRes.error);
+        }
         if (tasksRes.error && Object.keys(tasksRes.error).length > 0) {
             console.error("Overdue Tasks Error:", tasksRes.error);
         }
@@ -221,6 +270,67 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     const deltaPct = prevRevenueMtdNet !== 0 ? Math.round(((revenueMtdNet - prevRevenueMtdNet) / prevRevenueMtdNet) * 100) : null;
     const ordersMtd = ordersMtdRes?.count ?? 0;
     const overdueTasks = Array.isArray(tasksRes.data) ? tasksRes.data.filter((t: any) => t.son_tarih && new Date(t.son_tarih) < new Date() && !t.tamamlandi) : [];
+    const profitabilityAlertCount = profitabilityAlertsRes.count ?? 0;
+    const criticalStockCount = Number(stockRes.data ?? 0);
+
+    let alertProductsPreview: Array<any> = [];
+    if (!profitabilityAlertsRes.error && (profitabilityAlertsRes.count ?? 0) > 0) {
+        const alertProductsRes = await (supabase as any)
+            .from('urunler')
+            .select('id, ad, stok_kodu, son_maliyet_sapma_yuzde, standart_inis_maliyeti_net, son_gercek_inis_maliyeti_net')
+            .eq('karlilik_alarm_aktif', true)
+            .order('son_maliyet_sapma_yuzde', { ascending: false })
+            .limit(6);
+
+        if (!alertProductsRes.error) {
+            alertProductsPreview = alertProductsRes.data || [];
+        } else if (!(alertProductsRes.error.message || '').includes('karlilik_alarm_aktif')) {
+            console.error('Alert Products Preview Error:', alertProductsRes.error);
+        }
+    }
+
+    let recentBatchesWithSummary: Array<any> = Array.isArray(recentBatchHistoryRes.data) ? [...recentBatchHistoryRes.data] : [];
+    if (!recentBatchHistoryRes.error && recentBatchesWithSummary.length > 0) {
+        const batchItemRes = await (supabase as any)
+            .from('ithalat_parti_kalemleri')
+            .select('parti_id, miktar_adet, maliyet_sapma_yuzde')
+            .in('parti_id', recentBatchesWithSummary.map((batch: any) => batch.id));
+
+        if (!batchItemRes.error && batchItemRes.data) {
+            const batchSummary = (batchItemRes.data as Array<any>).reduce((acc, item) => {
+                const key = item.parti_id;
+                if (!acc[key]) acc[key] = { itemCount: 0, totalQuantity: 0, alertLineCount: 0 };
+                acc[key].itemCount += 1;
+                acc[key].totalQuantity += Number(item.miktar_adet || 0);
+                if (Math.abs(Number(item.maliyet_sapma_yuzde || 0)) >= 5) {
+                    acc[key].alertLineCount += 1;
+                }
+                return acc;
+            }, {} as Record<string, { itemCount: number; totalQuantity: number; alertLineCount: number }>);
+
+            recentBatchesWithSummary = recentBatchesWithSummary.map((batch: any) => ({
+                ...batch,
+                itemCount: batchSummary[batch.id]?.itemCount || 0,
+                totalQuantity: batchSummary[batch.id]?.totalQuantity || 0,
+                alertLineCount: batchSummary[batch.id]?.alertLineCount || 0,
+            }));
+        } else if (batchItemRes.error && !(batchItemRes.error.message || '').includes('ithalat_parti_kalemleri')) {
+            console.error('Batch Item Summary Error:', batchItemRes.error);
+        }
+    }
+
+    const recentBatchAlertLines = recentBatchesWithSummary.reduce((sum: number, batch: any) => sum + Number(batch.alertLineCount || 0), 0);
+    const latestBatch = recentBatchesWithSummary[0] || null;
+    const latestBatchDate = latestBatch?.varis_tarihi || latestBatch?.created_at || null;
+    const daysSinceLastBatch = latestBatchDate
+        ? Math.max(0, Math.floor((Date.now() - new Date(latestBatchDate).getTime()) / (1000 * 60 * 60 * 24)))
+        : null;
+
+    const alertStatus: 'green' | 'yellow' | 'red' = profitabilityAlertCount === 0 ? 'green' : profitabilityAlertCount <= 3 ? 'yellow' : 'red';
+    const batchStatus: 'green' | 'yellow' | 'red' = recentBatchAlertLines === 0 ? 'green' : recentBatchAlertLines <= 3 ? 'yellow' : 'red';
+    const freshnessStatus: 'green' | 'yellow' | 'red' = daysSinceLastBatch === null ? 'yellow' : daysSinceLastBatch <= 7 ? 'green' : daysSinceLastBatch <= 21 ? 'yellow' : 'red';
+    const stockStatus: 'green' | 'yellow' | 'red' = criticalStockCount === 0 ? 'green' : criticalStockCount <= 5 ? 'yellow' : 'red';
+
     return (
         <div className="space-y-8">
             {/* EN ÜSTTE: Ciro, Kar, Zarar KPI Bar */}
@@ -230,6 +340,50 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                 { label: 'Net Kâr', value: formatCurrency(mtd?.netProfit ?? 0), tone: (mtd?.netProfit ?? 0) >= 0 ? 'positive' : 'negative' },
                 { label: 'Sipariş Adedi', value: String(ordersMtd), tone: 'default' },
             ]} />
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <h2 className="font-serif text-2xl font-bold text-primary">{(operationalContent as any).pricingHealthTitle || 'Fiyatlandırma Sağlık Özeti'}</h2>
+                        <p className="text-sm text-text-main/70 mt-1">Kırmızı / sarı / yeşil sinyallerle kârlılık ve parti akışını yönetin.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <Link href={`/${locale}/admin/urun-yonetimi/fiyatlandirma-hub`} className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">Fiyatlandırma merkezi</Link>
+                        <Link href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`} className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Detaylı rapor</Link>
+                    </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <HealthSignalCard
+                        title="Karlılık alarm yoğunluğu"
+                        value={`${profitabilityAlertCount} ürün`}
+                        hint={profitabilityAlertCount === 0 ? 'Aktif alarm görünmüyor.' : 'Alarmdaki ürünleri öncelikli inceleyin.'}
+                        status={alertStatus}
+                        href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
+                    />
+                    <HealthSignalCard
+                        title="Parti alarm baskısı"
+                        value={`${recentBatchAlertLines} kalem`}
+                        hint={recentBatchAlertLines === 0 ? 'Son partiler sakin görünüyor.' : 'Son partilerde sapma üreten kalemler var.'}
+                        status={batchStatus}
+                        href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
+                    />
+                    <HealthSignalCard
+                        title="Son parti güncelliği"
+                        value={daysSinceLastBatch === null ? 'Kayıt yok' : `${daysSinceLastBatch} gün`}
+                        hint={latestBatch ? `${latestBatch.referans_kodu || 'Son parti'} kaydı baz alındı.` : 'Henüz parti kaydı bulunmuyor.'}
+                        status={freshnessStatus}
+                        href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
+                    />
+                    <HealthSignalCard
+                        title="Kritik stok baskısı"
+                        value={`${criticalStockCount} ürün`}
+                        hint={criticalStockCount === 0 ? 'Kritik stok görünmüyor.' : 'Stok baskısı olan ürünleri kontrol edin.'}
+                        status={stockStatus}
+                        href={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
+                    />
+                </div>
+            </div>
 
             {/* ALTTA: Operasyonel göstergeler, sipariş durumu, ajanda, schnelle Aktionen, kritischer Lagerbestand */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -336,6 +490,65 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                         link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
                         linkText={operationalContent.viewCriticalStockLink || "View critical stock"}
                     />
+
+                    <StatCard
+                        title={(operationalContent as any).cardProfitabilityAlerts || "Karlılık Alarmları"}
+                        value={profitabilityAlertsRes.count ?? 0}
+                        icon={<FiTrendingDown size={28} className="text-rose-500"/>}
+                        link={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
+                        linkText={(operationalContent as any).viewProfitabilityAlerts || "Detaylı raporu aç"}
+                        isNegative={(profitabilityAlertsRes.count ?? 0) > 0}
+                    />
+
+                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                        <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).profitabilityAlertListTitle || 'Alarmdaki Ürünler'}</h2>
+                        {alertProductsPreview.length > 0 ? (
+                            <div className="space-y-3 divide-y divide-gray-100">
+                                {alertProductsPreview.map((product: any) => {
+                                    const variance = Number(product.son_maliyet_sapma_yuzde || 0);
+                                    return (
+                                        <div key={product.id} className="pt-3 first:pt-0">
+                                            <Link href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`} className="block group">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <p className="font-semibold text-primary group-hover:text-accent transition-colors">{product.ad}</p>
+                                                        <p className="text-xs text-text-main/70 mt-0.5">
+                                                            {product.stok_kodu || 'Kod yok'}
+                                                            {product.son_gercek_inis_maliyeti_net ? ` • Reel: ${formatCurrency(product.son_gercek_inis_maliyeti_net)}` : ''}
+                                                        </p>
+                                                    </div>
+                                                    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${variance >= 15 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                        %{Math.round(variance)}
+                                                    </span>
+                                                </div>
+                                            </Link>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-500 py-4">Aktif kârlılık alarmı görünmüyor.</p>
+                        )}
+                    </div>
+
+                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                        <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).recentBatchHistoryTitle || 'Son Tır / Parti Geçmişi'}</h2>
+                        {recentBatchesWithSummary.length > 0 ? (
+                            <div className="space-y-3 divide-y divide-gray-100">
+                                {recentBatchesWithSummary.map((batch: any) => (
+                                    <div key={batch.id} className="pt-3 first:pt-0">
+                                        <Link href={`/${locale}/admin/urun-yonetimi/fiyatlandirma-hub`} className="block group">
+                                            <p className="font-semibold text-primary group-hover:text-accent transition-colors">{batch.referans_kodu}</p>
+                                            <p className="text-xs text-text-main/70 mt-0.5">{batch.varis_tarihi ? formatDate(batch.varis_tarihi, locale) : formatDate(batch.created_at, locale)} • {batch.durum || 'Taslak'}</p>
+                                            <p className="text-xs text-text-main/60 mt-1">{batch.itemCount || 0} kalem • {Number(batch.totalQuantity || 0).toLocaleString('tr-TR')} adet</p>
+                                        </Link>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-500 py-4">Henüz kayıtlı tır / parti bulunmuyor.</p>
+                        )}
+                    </div>
                 </div>
             </div>
 

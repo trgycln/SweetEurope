@@ -24,7 +24,7 @@ async function checkProblematicFirmas() {
   const { data } = await supabase
     .from('firmalar')
     .select('*')
-    .or('unvan.ilike.%Argana%,kategori.is.null');
+    .or('unvan.ilike.*Argana*,kategori.is.null');
 
   if (!data) return;
 

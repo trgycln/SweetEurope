@@ -8,10 +8,11 @@ import {
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX,
     FiGift, FiLayers, FiSettings, FiChevronDown,
     FiRss, FiPaperclip, FiHardDrive, 
-    FiDollarSign, FiBarChart2, FiUser, FiStar, FiTag, FiUserCheck // Yeni eklenen ikonlar
+    FiDollarSign, FiBarChart2, FiUser, FiStar, FiUserCheck // Yeni eklenen ikonlar
 } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
+import { AdminPanelKey, getEffectiveAdminPanels } from '@/lib/admin/panel-access';
 
 type UserRole = Enums<'user_role'> | null;
 
@@ -20,9 +21,10 @@ type SidebarProps = {
     setIsOpen: (isOpen: boolean) => void;
     userRole: UserRole;
     dictionary: Dictionary;
+    allowedPanels?: string[];
 };
 
-export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProps) {
+export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels = [] }: SidebarProps) {
     const pathname = usePathname();
     const content = dictionary.adminSidebar;
 
@@ -50,45 +52,62 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
         subDealers?: string;
     };
 
-    type LinkItem = { name: any; href: string; icon: any; roles?: UserRole[] };
+    type LinkItem = {
+        name: React.ReactNode;
+        href: string;
+        icon: React.ComponentType<{ size?: number }>;
+        roles?: UserRole[];
+        panelKey?: AdminPanelKey;
+    };
     type MenuSection = { title: string; links: LinkItem[] };
+
+    const effectiveAllowedPanels = getEffectiveAdminPanels(userRole, allowedPanels);
 
     const menuSections: MenuSection[] = [
         {
             title: sidebarContent.mainMenu,
             links: [
                 { name: sidebarContent.dashboard, href: '/admin/dashboard', icon: FiGrid },
+                {
+                    name: sidebarContent.profileAssignments || 'Personel Yönetimi',
+                    href: '/admin/idari/personel',
+                    icon: FiUser,
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'personnel'
+                },
             ],
         },
         {
-            title: sidebarContent.systemSettings || 'Sistem',
+            title: sidebarContent.systemSettings || 'İdari / Sistem',
             links: [
                 {
                     name: sidebarContent.profileAssignments || 'Personel Yönetimi',
                     href: '/admin/idari/personel',
                     icon: FiUser,
-                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[]
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'personnel'
                 },
             ],
         },
         {
             title: sidebarContent.crm || 'CRM & Müşteri Yönetimi',
             links: [
-                { name: sidebarContent.customers || 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[] },
-                { name: sidebarContent.subDealers || 'Alt Bayiler', href: '/admin/crm/alt-bayiler', icon: FiUserCheck, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
+                { name: sidebarContent.customers || 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[], panelKey: 'crm' },
+                { name: sidebarContent.subDealers || 'Alt Bayiler', href: '/admin/crm/alt-bayiler', icon: FiUserCheck, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[], panelKey: 'subdealers' },
             ],
         },
         {
             title: sidebarContent.operations,
             links: [
-                { name: sidebarContent.orders, href: '/admin/operasyon/siparisler', icon: FiTruck, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[] },
+                { name: sidebarContent.orders, href: '/admin/operasyon/siparisler', icon: FiTruck, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[], panelKey: 'orders' },
                 { 
                     name: sidebarContent.sampleRequests || 'Musteranfragen', 
                     href: '/admin/operasyon/numune-talepleri', 
                     icon: FiHardDrive, 
-                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'samples'
                 },
-                { name: sidebarContent.tasks, href: '/admin/gorevler', icon: FiClipboard, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[] },
+                { name: sidebarContent.tasks, href: '/admin/gorevler', icon: FiClipboard, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[], panelKey: 'tasks' },
             ]
         },
         {
@@ -98,34 +117,35 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                     name: sidebarContent.documents || 'Dokumentenverwaltung', 
                     href: '/admin/belgeleri-yonet', 
                     icon: FiPaperclip, 
-                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'documents' 
                 },
             ]
         },
         {
             title: sidebarContent.productManagement || 'Ürün Yönetimi',
             links: [
-                { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici', 'Personel'] as UserRole[] },
+                { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici', 'Personel'] as UserRole[], panelKey: 'products' },
                 { 
                     name: sidebarContent.productRequests || 'Produktanfragen', 
                     href: '/admin/urun-yonetimi/urun-talepleri', 
                     icon: FiGift,
                     roles: ['Yönetici'] as UserRole[] 
                 },
-                { name: sidebarContent.categories, href: '/admin/urun-yonetimi/kategoriler', icon: FiLayers, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.categories, href: '/admin/urun-yonetimi/kategoriler', icon: FiLayers, roles: ['Yönetici'] as UserRole[], panelKey: 'products' },
                 { 
                     name: sidebarContent.reviews || 'Bewertungen', 
                     href: '/admin/urun-yonetimi/degerlendirmeler', 
                     icon: FiStar,
-                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'reviews' 
                 },
             ],
         },
         {
             title: sidebarContent.pricing || 'Fiyatlandırma',
             links: [
-                { name: sidebarContent.pricingHub || '🏷️ Fiyatlandırma Hub', href: '/admin/urun-yonetimi/fiyatlandirma-hub', icon: FiDollarSign, roles: ['Yönetici'] as UserRole[] },
-                { name: '📊 Fiyat Matrisi', href: '/admin/urun-yonetimi/fiyat-matrisi', icon: FiGrid, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] },
+                { name: sidebarContent.pricingHub || '🏷️ Maliyet Platformu', href: '/admin/urun-yonetimi/fiyatlandirma-hub', icon: FiDollarSign, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[], panelKey: 'pricing' },
             ],
         },
 
@@ -136,13 +156,15 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                     name: sidebarContent.announcements || 'Ankündigungen',
                     href: '/admin/pazarlama/duyurular',
                     icon: FiRss,
-                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[]
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'marketing'
                 },
                 {
                     name: sidebarContent.marketingMaterials || 'Marketingmaterial',
                     href: '/admin/pazarlama/materialien',
                     icon: FiPaperclip,
-                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[]
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'marketing'
                 },
             ],
         },
@@ -153,21 +175,23 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                     name: sidebarContent.expenses || 'Giderler', 
                     href: '/admin/idari/finans/giderler', 
                     icon: FiDollarSign, 
-                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[] 
+                    roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'finances' 
                 },
                 { 
                     name: sidebarContent.reporting || 'Raporlama', 
                     href: '/admin/idari/finans/raporlama', 
                     icon: FiBarChart2, 
-                    roles: ['Yönetici'] as UserRole[] 
+                    roles: ['Yönetici'] as UserRole[],
+                    panelKey: 'reporting' 
                 },
             ]
         },
         {
             title: sidebarContent.settings,
             links: [
-                { name: sidebarContent.systemSettings || 'Sistem Ayarları', href: '/admin/ayarlar/sistem-ayarlari', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
-                { name: sidebarContent.templates, href: '/admin/ayarlar/sablonlar', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
+                { name: sidebarContent.systemSettings || 'Sistem Ayarları', href: '/admin/ayarlar/sistem-ayarlari', icon: FiSettings, roles: ['Yönetici'] as UserRole[], panelKey: 'settings' },
+                { name: sidebarContent.templates, href: '/admin/ayarlar/sablonlar', icon: FiSettings, roles: ['Yönetici'] as UserRole[], panelKey: 'settings' },
                 { name: sidebarContent.profile || 'Profil', href: '/admin/profil', icon: FiUser },
             ]
         }
@@ -202,9 +226,11 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                 
                 <nav className="flex-1 p-4">
                     {menuSections.map((section: MenuSection) => {
-                        const hasAccessToSection = section.links.some((item: LinkItem) =>
-                            !item.roles || (userRole && item.roles.includes(userRole))
-                        );
+                        const hasAccessToSection = section.links.some((item: LinkItem) => {
+                            const roleAllowed = !item.roles || (userRole && item.roles.includes(userRole));
+                            const panelAllowed = !item.panelKey || effectiveAllowedPanels.includes(item.panelKey);
+                            return roleAllowed && panelAllowed;
+                        });
                         if (!hasAccessToSection) return null;
 
                         const isSectionOpen = openSection === section.title;
@@ -220,7 +246,11 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary }: SidebarProp
                                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isSectionOpen ? 'max-h-96' : 'max-h-0'}`}>
                                     <div className="space-y-1 pt-2 pl-4 border-l-2 border-white/10 ml-4">
                                         {section.links
-                                            .filter((item: LinkItem) => !item.roles || (userRole && item.roles.includes(userRole)))
+                                            .filter((item: LinkItem) => {
+                                                const roleAllowed = !item.roles || (userRole && item.roles.includes(userRole));
+                                                const panelAllowed = !item.panelKey || effectiveAllowedPanels.includes(item.panelKey);
+                                                return roleAllowed && panelAllowed;
+                                            })
                                             .map((item: LinkItem) => {
                                                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                                                 return (

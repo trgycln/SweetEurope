@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Database, Tables, Enums, TablesInsert } from '@/lib/supabase/database.types';
 import { FiArrowLeft, FiSave, FiMapPin, FiInstagram, FiFacebook, FiGlobe } from 'react-icons/fi'; // FiMapPin eklendi
+import { FaLinkedin } from 'react-icons/fa';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Importiere Locale
@@ -46,6 +47,14 @@ async function yeniFirmaEkleAction(
   const instagram_url = formData.get('instagram_url') as string;
   const facebook_url = formData.get('facebook_url') as string;
   const web_url = formData.get('web_url') as string;
+  const linkedin_url = formData.get('linkedin_url') as string;
+  const parent_firma_id = formData.get('parent_firma_id') as string;
+  // Inheritance flags (for branches)
+  const inherit_web_url = formData.get('inherit_web_url') === 'on';
+  const inherit_instagram_url = formData.get('inherit_instagram_url') === 'on';
+  const inherit_linkedin_url = formData.get('inherit_linkedin_url') === 'on';
+  const inherit_facebook_url = formData.get('inherit_facebook_url') === 'on';
+  const inherit_google_maps_url = formData.get('inherit_google_maps_url') === 'on';
   // --- BİTTİ ---
 
   // 2. Gerekli doğrulamaları yap
@@ -107,6 +116,14 @@ async function yeniFirmaEkleAction(
     instagram_url: instagram_url || null,
     facebook_url: facebook_url || null,
     web_url: web_url || null,
+    linkedin_url: linkedin_url || null,
+    parent_firma_id: parent_firma_id || null,
+    sube_sayisi: 0,
+    inherit_web_url,
+    inherit_instagram_url,
+    inherit_linkedin_url,
+    inherit_facebook_url,
+    inherit_google_maps_url,
   };
   (insertData as any).ticari_tip = ticari_tip;
   (insertData as any).created_by = user.id;
@@ -149,6 +166,11 @@ async function yeniFirmaEkleAction(
               score += etiketPuan;
           }
       }
+  }
+  
+  // Şube fiyatlandırması: Şube ise puan azalt (çünkü ana firmadan daha az önemli)
+  if (parent_firma_id) {
+      score -= 5;
   }
   
   // Kategori aralığını aşmaması gerekli
@@ -237,7 +259,15 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
       profilOptions = profiller || [];
   }
   
-  // Diğer dataları çek (Firmalar burada gerekli değil, sadece profiller)
+  // Ana firmaları çek (Şube kaydı için - sadece parent_firma_id IS NULL olan firmalar)
+  const { data: anaFirmalar } = await supabase
+      .from('firmalar')
+      .select('id, unvan')
+      .is('parent_firma_id', null) // Sadece ana firmalar
+      .order('unvan')
+      .limit(1000);
+  
+  const anaFirmaOptions = anaFirmalar || [];
   const kategoriOptions: FirmaKategori[] = [
       "A",
       "B",
@@ -324,6 +354,30 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
                     </option>
                 ))}
               </select>
+
+              {/* Ana Firma Seçeneği */}
+              {anaFirmaOptions.length > 0 && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-100">
+                  <label htmlFor="parent_firma_id" className="block text-sm font-bold text-blue-900 mb-2">
+                    🏢 Şube Kaydı (Bu işletmenin ana firması var mı?)
+                  </label>
+                  <select 
+                    id="parent_firma_id" 
+                    name="parent_firma_id" 
+                    className={inputBaseClasses}
+                  >
+                    <option value="">-- Hayır, bu ana firma --</option>
+                    {anaFirmaOptions.map(firma => (
+                      <option key={firma.id} value={firma.id}>
+                        {firma.unvan}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Eğer bu işletmenin başka lokasyonları varsa, ana firmayı seçin. Şubeler ana firmaya göre daha düşük öncelik alır.
+                  </p>
+                </div>
+              )}
 
               {/* Rejected Checkbox */}
               <div className="mt-3 p-3 bg-red-50 rounded-md border border-red-100">
@@ -419,7 +473,7 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
             {/* --- YENİ ALANLAR: Sosyal Medya & Web --- */}
             <div className="md:col-span-2">
               <h3 className="text-sm font-bold text-gray-900 mb-3 border-b pb-1">Dijital Varlıklar (Sosyal Medya & Web)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="instagram_url" className={`${labelBaseClasses} inline-flex items-center gap-2`}>
                     <FiInstagram size={14} /> Instagram
@@ -431,6 +485,26 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
                     className={inputBaseClasses} 
                     placeholder="https://instagram.com/..."
                   />
+                  <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                    <input type="checkbox" name="inherit_instagram_url" className="rounded text-accent focus:ring-accent" />
+                    <span className="text-xs text-gray-600">Ana firmadan devral</span>
+                  </label>
+                </div>
+                <div>
+                  <label htmlFor="linkedin_url" className={`${labelBaseClasses} inline-flex items-center gap-2`}>
+                    <FaLinkedin size={14} /> LinkedIn
+                  </label>
+                  <input 
+                    type="url" 
+                    id="linkedin_url" 
+                    name="linkedin_url" 
+                    className={inputBaseClasses} 
+                    placeholder="https://linkedin.com/company/..."
+                  />
+                  <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                    <input type="checkbox" name="inherit_linkedin_url" className="rounded text-accent focus:ring-accent" />
+                    <span className="text-xs text-gray-600">Ana firmadan devral</span>
+                  </label>
                 </div>
                 <div>
                   <label htmlFor="facebook_url" className={`${labelBaseClasses} inline-flex items-center gap-2`}>
@@ -443,6 +517,10 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
                     className={inputBaseClasses} 
                     placeholder="https://facebook.com/..."
                   />
+                  <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                    <input type="checkbox" name="inherit_facebook_url" className="rounded text-accent focus:ring-accent" />
+                    <span className="text-xs text-gray-600">Ana firmadan devral</span>
+                  </label>
                 </div>
                 <div>
                   <label htmlFor="web_url" className={`${labelBaseClasses} inline-flex items-center gap-2`}>
@@ -455,8 +533,15 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
                     className={inputBaseClasses} 
                     placeholder="https://www.firma.de"
                   />
+                  <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                    <input type="checkbox" name="inherit_web_url" className="rounded text-accent focus:ring-accent" />
+                    <span className="text-xs text-gray-600">Ana firmadan devral</span>
+                  </label>
                 </div>
               </div>
+              <p className="text-xs text-blue-600 mt-3 p-2 bg-blue-50 rounded border border-blue-200">
+                💡 <strong>Şube Kaydı:</strong> Eğer şube kaydı yapıyorsanız, "Ana firmadan devral" seçeneğini işaretleyerek, sosyal medya ve web bilgilerini otomatik olarak ana firmadan alabilirsiniz. Gerekli olduğunda manuel olarak değiştirebilirsiniz.
+              </p>
             </div>
             {/* --- BİTTİ --- */}
 

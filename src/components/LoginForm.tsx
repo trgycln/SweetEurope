@@ -8,7 +8,7 @@ import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { FiLoader } from 'react-icons/fi';
 import { Dictionary } from '@/dictionaries';
 
-export default function LoginForm({ dictionary }: { dictionary: Dictionary }) {
+export default function LoginForm({ dictionary, locale }: { dictionary: Dictionary; locale: string }) {
     const searchParams = useSearchParams();
     const content = dictionary.loginPage;
 
@@ -82,7 +82,7 @@ export default function LoginForm({ dictionary }: { dictionary: Dictionary }) {
                             <label htmlFor="remember-me" className="ml-2 block text-sm text-text-main/80">{content.rememberMe}</label>
                         </div>
                         <div className="text-sm">
-                            <Link href="#" className="font-medium text-accent hover:underline">{content.forgotPasswordLink}</Link>
+                            <Link href={`/${locale}/auth/reset-password`} className="font-medium text-accent hover:underline">{content.forgotPasswordLink}</Link>
                         </div>
                     </div>
                     {error && (

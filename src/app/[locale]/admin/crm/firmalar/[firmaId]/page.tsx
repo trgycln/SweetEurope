@@ -10,7 +10,7 @@ import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { useParams, useRouter } from 'next/navigation';
 import { Tables, Enums } from '@/lib/supabase/database.types';
 import { FiEdit, FiSave, FiX, FiLoader, FiTrash2 } from 'react-icons/fi';
-import { FaInstagram, FaFacebook, FaGlobe, FaMapMarkedAlt } from 'react-icons/fa';
+import { FaInstagram, FaFacebook, FaGlobe, FaMapMarkedAlt, FaLinkedin } from 'react-icons/fa';
 // Server Actions
 import { updateFirmaAction, deleteFirmaAction } from './actions';
 import { toast } from 'sonner';
@@ -73,6 +73,8 @@ export default function FirmaGenelBilgilerPage() {
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [altBayiProfiles, setAltBayiProfiles] = useState<Array<{ id: string; tam_ad: string | null }>>([]);
+    const [parentFirmaOptions, setParentFirmaOptions] = useState<Array<{ id: string; unvan: string }>>([]);
+    const [branches, setBranches] = useState<Array<{ id: string; unvan: string }>>([]);
     const [isPending, startTransition] = useTransition();
 
     // Daten laden beim Mounten
@@ -121,6 +123,32 @@ export default function FirmaGenelBilgilerPage() {
         };
         fetchAltBayiProfiles();
     }, [supabase]);
+
+    // Ana firmaları ve şubeleri yükle
+    useEffect(() => {
+        const fetchFirmaNavi = async () => {
+            // Ana firmaları yükle (parent_firma_id IS NULL)
+            const { data: mainFirmas } = await supabase
+                .from('firmalar')
+                .select('id, unvan')
+                .is('parent_firma_id', null)
+                .order('unvan');
+            setParentFirmaOptions(mainFirmas || []);
+
+            // Eğer mevcut firma şubesi varsa, şubeleri yükle
+            if (firma?.id) {
+                const { data: branchList } = await supabase
+                    .from('firmalar')
+                    .select('id, unvan')
+                    .eq('parent_firma_id', firma.id)
+                    .order('unvan');
+                setBranches(branchList || []);
+            }
+        };
+        if (firma?.id) {
+            fetchFirmaNavi();
+        }
+    }, [firma?.id, supabase]);
 
     const tagOptions = [
         "#Vitrin_Boş", "#Mutfak_Yok", "#Yeni_Açılış", "#Türk_Sahibi", 
@@ -227,7 +255,7 @@ export default function FirmaGenelBilgilerPage() {
             </div>
 
             {/* Quick Access Card */}
-            {((firma as any).instagram_url || (firma as any).facebook_url || (firma as any).web_url || (firma as any).google_maps_url) && (
+            {((firma as any).instagram_url || (firma as any).linkedin_url || (firma as any).facebook_url || (firma as any).web_url || (firma as any).google_maps_url) && (
                 <div className="bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/20 rounded-xl p-5">
                     <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                         <span className="text-accent">🔗</span> Schnellzugriff
@@ -241,6 +269,16 @@ export default function FirmaGenelBilgilerPage() {
                                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm"
                             >
                                 <FaInstagram size={18} /> Instagram
+                            </a>
+                        )}
+                        {(firma as any).linkedin_url && (
+                            <a 
+                                href={(firma as any).linkedin_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm"
+                            >
+                                <FaLinkedin size={18} /> LinkedIn
                             </a>
                         )}
                         {(firma as any).facebook_url && (
@@ -315,7 +353,48 @@ export default function FirmaGenelBilgilerPage() {
                     )}
                 </div>
 
-                {/* Alt Bayi Kullanıcı Profili */}
+                {/* Parent Firma (Şube/Ana Firma Kaydı) */}
+                <div className="md:col-span-2">
+                    <label htmlFor="parent_firma_id" className="block text-sm font-bold text-gray-700 mb-2">
+                        🏢 Ana Firma (Bu işletmenin ana firması var mı?)
+                    </label>
+                    <select 
+                        id="parent_firma_id" 
+                        name="parent_firma_id" 
+                        defaultValue={(firma as any).parent_firma_id || ''} 
+                        disabled={!editMode} 
+                        className={inputBaseClasses}
+                    >
+                        <option value="">-- Hayır, bu ana firma --</option>
+                        {parentFirmaOptions.map(f => (
+                            <option key={f.id} value={f.id}>
+                                {f.unvan}
+                            </option>
+                        ))}
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Eğer bu işletmenin başka lokasyonları varsa, ana firmayı seçin.
+                    </p>
+
+                    {/* Şubeler Listesi */}
+                    {branches.length > 0 && (
+                        <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
+                            <p className="text-sm font-bold text-green-900 mb-2">
+                                ✅ Bu firmanın {branches.length} şubesi var:
+                            </p>
+                            <ul className="space-y-1">
+                                {branches.map(branch => (
+                                    <li key={branch.id} className="text-sm text-green-800">
+                                        • {branch.unvan}
+                                    </li>
+                                ))}
+                            </ul>
+                            <p className="text-xs text-green-600 mt-2">
+                                💡 Yeni şube eklemek için, şube listesinden "Yeni Firma" kısmını kullanın.
+                            </p>
+                        </div>
+                    )}
+                </div>
                 {(firma.kategori === 'Alt Bayi' || (firma as any).ticari_tip === 'alt_bayi') && (
                     <div>
                         <label htmlFor="sahip_id" className="block text-sm font-bold text-gray-700 mb-2">Alt Bayi Kullanıcısı</label>
@@ -427,18 +506,48 @@ export default function FirmaGenelBilgilerPage() {
                 <div>
                     <label htmlFor="instagram_url" className="block text-sm font-bold text-gray-700 mb-2">Instagram</label>
                     <input type="url" id="instagram_url" name="instagram_url" placeholder="https://instagram.com/..." defaultValue={(firma as any).instagram_url || ''} disabled={!editMode} className={inputBaseClasses} />
+                    {(firma as any).parent_firma_id && (
+                        <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                            <input type="checkbox" name="inherit_instagram_url" defaultChecked={(firma as any).inherit_instagram_url} disabled={!editMode} className="rounded text-accent focus:ring-accent" />
+                            <span className="text-xs text-gray-600">Ana firmadan devral</span>
+                        </label>
+                    )}
+                </div>
+
+                {/* LinkedIn URL */}
+                <div>
+                    <label htmlFor="linkedin_url" className="block text-sm font-bold text-gray-700 mb-2">LinkedIn</label>
+                    <input type="url" id="linkedin_url" name="linkedin_url" placeholder="https://linkedin.com/company/..." defaultValue={(firma as any).linkedin_url || ''} disabled={!editMode} className={inputBaseClasses} />
+                    {(firma as any).parent_firma_id && (
+                        <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                            <input type="checkbox" name="inherit_linkedin_url" defaultChecked={(firma as any).inherit_linkedin_url} disabled={!editMode} className="rounded text-accent focus:ring-accent" />
+                            <span className="text-xs text-gray-600">Ana firmadan devral</span>
+                        </label>
+                    )}
                 </div>
 
                 {/* Facebook URL */}
                 <div>
                     <label htmlFor="facebook_url" className="block text-sm font-bold text-gray-700 mb-2">Facebook</label>
                     <input type="url" id="facebook_url" name="facebook_url" placeholder="https://facebook.com/..." defaultValue={(firma as any).facebook_url || ''} disabled={!editMode} className={inputBaseClasses} />
+                    {(firma as any).parent_firma_id && (
+                        <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                            <input type="checkbox" name="inherit_facebook_url" defaultChecked={(firma as any).inherit_facebook_url} disabled={!editMode} className="rounded text-accent focus:ring-accent" />
+                            <span className="text-xs text-gray-600">Ana firmadan devral</span>
+                        </label>
+                    )}
                 </div>
 
                 {/* Web URL */}
                 <div>
                     <label htmlFor="web_url" className="block text-sm font-bold text-gray-700 mb-2">Webseite</label>
                     <input type="url" id="web_url" name="web_url" placeholder="https://..." defaultValue={(firma as any).web_url || ''} disabled={!editMode} className={inputBaseClasses} />
+                    {(firma as any).parent_firma_id && (
+                        <label className="inline-flex items-center gap-2 mt-2 cursor-pointer">
+                            <input type="checkbox" name="inherit_web_url" defaultChecked={(firma as any).inherit_web_url} disabled={!editMode} className="rounded text-accent focus:ring-accent" />
+                            <span className="text-xs text-gray-600">Ana firmadan devral</span>
+                        </label>
+                    )}
                 </div>
 
                 {/* Google Maps URL */}

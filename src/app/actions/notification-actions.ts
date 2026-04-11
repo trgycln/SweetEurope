@@ -35,7 +35,13 @@ export async function simulateAdminBroadcast() {
   const supabase = await createSupabaseServerClient(cookieStore);
   const icerik = "[TEST] Yeni test bildirimi (Admin/Ekip)";
   const link = "/admin";
-  const res = await sendNotification({ aliciRol: ["Yönetici", "Ekip Üyesi"], icerik, link, supabaseClient: supabase });
+  const res = await sendNotification({
+    aliciRol: ["Yönetici", "Ekip Üyesi"],
+    icerik,
+    link,
+    preferenceKey: 'general_announcements',
+    supabaseClient: supabase,
+  });
   return { ok: res.success };
 }
 

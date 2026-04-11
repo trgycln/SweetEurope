@@ -1,7 +1,20 @@
 // Shared label helpers for localized badges and flavor names
 export type AppLocale = 'de' | 'tr' | 'en' | 'ar';
 
-export function getBadgeText(key: 'vegan' | 'glutenfrei' | 'laktosefrei' | 'bio' | 'vegetarisch', locale: AppLocale): string {
+export function getBadgeText(
+  key:
+    | 'vegan'
+    | 'glutenfrei'
+    | 'laktosefrei'
+    | 'bio'
+    | 'vegetarisch'
+    | 'ohne_zucker'
+    | 'dogal_icerik'
+    | 'katkisiz'
+    | 'koruyucusuz'
+    | 'pompa_uyumlu',
+  locale: AppLocale
+): string {
   switch (key) {
     case 'vegan':
       return locale === 'ar' ? 'نباتي' : locale === 'tr' ? 'Vegan' : locale === 'en' ? 'Vegan' : 'Vegan';
@@ -14,6 +27,16 @@ export function getBadgeText(key: 'vegan' | 'glutenfrei' | 'laktosefrei' | 'bio'
     case 'vegetarisch':
       // Vegetarian differs from vegan; provide distinct localized term
       return locale === 'ar' ? 'نباتي (غير صارم)' : locale === 'tr' ? 'Vejetaryen' : locale === 'en' ? 'Vegetarian' : 'Vegetarisch';
+    case 'ohne_zucker':
+      return locale === 'ar' ? 'بدون سكر' : locale === 'tr' ? 'Şekersiz' : locale === 'en' ? 'Sugar-free' : 'Ohne Zucker';
+    case 'dogal_icerik':
+      return locale === 'ar' ? 'مكونات طبيعية' : locale === 'tr' ? 'Doğal İçerik' : locale === 'en' ? 'Natural Ingredients' : 'Natürliche Zutaten';
+    case 'katkisiz':
+      return locale === 'ar' ? 'بدون إضافات' : locale === 'tr' ? 'Katkısız' : locale === 'en' ? 'No Additives' : 'Ohne Zusatzstoffe';
+    case 'koruyucusuz':
+      return locale === 'ar' ? 'بدون مواد حافظة' : locale === 'tr' ? 'Koruyucusuz' : locale === 'en' ? 'Preservative-Free' : 'Ohne Konservierungsstoffe';
+    case 'pompa_uyumlu':
+      return locale === 'ar' ? 'متوافق مع المضخة' : locale === 'tr' ? 'Pompa Uyumlu' : locale === 'en' ? 'Pump Compatible' : 'Pumpengeeignet';
     default:
       return key;
   }

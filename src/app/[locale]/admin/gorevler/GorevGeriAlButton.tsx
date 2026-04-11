@@ -6,12 +6,12 @@ import { gorevDurumGuncelleAction } from './actions';
 import { toast } from 'sonner';
 import { FiRotateCcw, FiLoader } from 'react-icons/fi';
 
-export default function GorevGeriAlButton({ gorevId }: { gorevId: string }) {
+export default function GorevGeriAlButton({ gorevId, locale }: { gorevId: string; locale?: string }) {
     const [isPending, startTransition] = useTransition();
 
     const handleClick = () => {
         startTransition(async () => {
-            const result = await gorevDurumGuncelleAction(gorevId, false); // Görevi 'açık' yap
+            const result = await gorevDurumGuncelleAction(gorevId, false, locale); // Görevi 'açık' yap
             if (result.success) toast.success(result.success);
             else if (result.error) toast.error(result.error);
         });

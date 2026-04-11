@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FiChevronRight, FiCheck, FiFolder, FiFile } from 'react-icons/fi';
+import { PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER } from '@/lib/public-category-visibility';
 import { type Kategori } from './types';
 
 interface KategoriFiltreMenusuProps {
@@ -39,21 +40,15 @@ export function KategoriFiltreMenusu({
         );
     };
 
-    // Filter to show only the 6 curated main categories in the desired order
-    const desiredSlugs = [
-        'cakes-and-tarts',
-        'cookies-and-muffins',
-        'pizza-and-fast-food',
-        'sauces-and-ingredients',
-        'coffee',
-        'drinks',
-    ];
-
     const anaKategoriler = kategoriler
-        .filter(k => !k.ust_kategori_id && desiredSlugs.includes(k.slug ?? ''))
+        .filter(
+            k =>
+                !k.ust_kategori_id &&
+                PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.includes((k.slug ?? '') as any)
+        )
         .sort((a, b) => {
-            const indexA = desiredSlugs.indexOf(a.slug ?? '');
-            const indexB = desiredSlugs.indexOf(b.slug ?? '');
+            const indexA = PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((a.slug ?? '') as any);
+            const indexB = PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((b.slug ?? '') as any);
             return indexA - indexB;
         });
 

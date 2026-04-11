@@ -1131,7 +1131,7 @@ statusOptions: {
       mainImage: 'Hauptbild',
       change: 'Ändern',
       upload: 'Hochladen',
-      formatsHint: 'PNG, JPG oder WEBP bis 2MB.',
+      formatsHint: 'PNG, JPG oder WEBP bis 10MB.',
       galleryImages: 'Galeriebilder',
       addImages: 'Bilder hinzufügen'
     },

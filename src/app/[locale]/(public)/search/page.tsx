@@ -6,6 +6,7 @@ import { getDictionary } from '@/dictionaries';
 // Annahme: Locale ist in utils.ts definiert
 import { Locale, getLocalizedName } from '@/lib/utils';
 import { Tables } from '@/lib/supabase/database.types';
+import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 import Link from 'next/link';
 import { FiSearch, FiFileText, FiPackage } from 'react-icons/fi';
 import Image from 'next/image';
@@ -17,7 +18,7 @@ type SearchPageProps = {
 };
 
 // Typen für die Suchergebnisse
-type ProductResult = Pick<Tables<'urunler'>, 'id' | 'ad' | 'slug' | 'ana_resim_url' | 'aciklamalar'>;
+type ProductResult = Pick<Tables<'urunler'>, 'id' | 'ad' | 'slug' | 'ana_resim_url' | 'aciklamalar' | 'kategori_id'>;
 type BlogResult = Pick<Tables<'blog_yazilari'>, 'id' | 'baslik' | 'slug' | 'one_cikan_gorsel_url' | 'meta_aciklama'>;
 
 
@@ -42,11 +43,11 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     // 2. Nur suchen, wenn ein Suchbegriff vorhanden ist
     if (hasSearch) {
         // Parallel in Produkten und Blog-Posts suchen
-        const [productSearch, blogSearch] = await Promise.all([
+        const [productSearch, blogSearch, kategoriSearch] = await Promise.all([
             // Produkte durchsuchen (lokalisierte Namen UND Beschreibungen)
             supabase
                 .from('urunler')
-                .select('id, ad, slug, ana_resim_url, aciklamalar')
+                .select('id, ad, slug, ana_resim_url, aciklamalar, kategori_id')
                 .eq('aktif', true)
                 .or(`ad->>de.ilike.${searchTerm},ad->>en.ilike.${searchTerm},ad->>tr.ilike.${searchTerm},ad->>ar.ilike.${searchTerm},aciklamalar->>de.ilike.${searchTerm},aciklamalar->>tr.ilike.${searchTerm},aciklamalar->>en.ilike.${searchTerm},aciklamalar->>ar.ilike.${searchTerm}`)
                 .limit(20),
@@ -58,10 +59,19 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                 .eq('durum', 'Yayınlandı') // Nur veröffentlichte Posts
                 // Suche im Titel ODER in der Meta-Beschreibung
                 .or(`baslik.ilike.${searchTerm},meta_aciklama.ilike.${searchTerm}`)
-                .limit(10)
+                .limit(10),
+            supabase
+                .from('kategoriler')
+                .select('id, slug, ust_kategori_id')
         ]);
 
-        if (productSearch.data) productResults = productSearch.data as any;
+        const hiddenKategoriIds = buildHiddenPublicCategoryIds(kategoriSearch.data || []);
+
+        if (productSearch.data) {
+            productResults = (productSearch.data as any[]).filter(
+                (product) => !hiddenKategoriIds.has(product.kategori_id ?? '')
+            ) as any;
+        }
         if (blogSearch.data) blogResults = blogSearch.data as any;
     }
 

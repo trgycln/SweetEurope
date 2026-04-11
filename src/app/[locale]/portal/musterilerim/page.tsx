@@ -110,7 +110,14 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
 
   // Apply filters
   if (searchQuery) {
-    query = query.or(`unvan.ilike.%${searchQuery}%,adres.ilike.%${searchQuery}%`);
+    // Escape special PostgREST characters in the search query
+    const escapedQuery = searchQuery
+      .replace(/\\/g, '\\\\') // Backslash first
+      .replace(/%/g, '\\%')   // % escape
+      .replace(/_/g, '\\_')   // _ escape
+      .replace(/"/g, '\\"');  // Double quotes
+    
+    query = query.or(`unvan.ilike.%${escapedQuery}%,adres.ilike.%${escapedQuery}%`);
   }
   if (statusFilter) {
     query = query.eq('status', statusFilter);

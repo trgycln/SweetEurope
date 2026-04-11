@@ -1,0 +1,3 @@
+stok_kodu,urun_adi_tr,urun_adi_de,urun_adi_en,urun_adi_ar,aciklama_tr,aciklama_de,aciklama_en,aciklama_ar,kategori,alt_kategori,urun_tipi,alis_fiyat_seviyesi,alis_fiyati,kutu_ici_adet,koli_ici_kutu,palet_ici_koli
+CHEESE-001,Frambuazli Cheesecake,Himbeer-Kasekuchen,Raspberry Cheesecake,تشيزكيك بالتوت,Frambuazli premium cheesecake,Himbeer-Kasekuchen Premium,Raspberry premium cheesecake,تشيزكيك فاخر بالتوت,Pastalar,Cheesecake,Donuk,kutu,18.50,12,8,24
+COOKIE-101,Mini Cookie Box,Mini Keksbox,Mini Cookie Box,علبة كوكيز صغيرة,Citir mini cookie kutusu,Knusprige Mini-Keksbox,Crispy mini cookie box,علبة كوكيز صغيرة مقرمشة,Kurabiyeler,Mini Kurabiyeler,Donuk olmayan,koli,72.00,24,6,30

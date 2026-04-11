@@ -1,0 +1,48 @@
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
+export async function POST(request: Request) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return new NextResponse(JSON.stringify({ error: 'Yetkiniz yok' }), { status: 401 });
+  }
+
+  const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+  if (profile?.rol !== 'Yönetici') {
+    return new NextResponse(JSON.stringify({ error: 'Bu işlemi yapmaya sadece yöneticiler yetkilidir' }), { status: 403 });
+  }
+
+  let payload: { email?: string; locale?: string } = {};
+  try {
+    payload = await request.json();
+  } catch {
+    return new NextResponse(JSON.stringify({ error: 'Geçersiz istek gövdesi' }), { status: 400 });
+  }
+
+  const email = payload.email?.trim();
+  const locale = payload.locale || 'tr';
+
+  if (!email) {
+    return new NextResponse(JSON.stringify({ error: 'E-posta adresi gerekli' }), { status: 400 });
+  }
+
+  const redirectTo = new URL(`/${locale}/auth/reset-password`, request.url).toString();
+  const supabaseAdmin = createSupabaseServiceClient();
+
+  const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, { redirectTo });
+
+  if (error) {
+    console.error('Şifre sıfırlama e-postası gönderilemedi:', error);
+    return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
+  }
+
+  return NextResponse.json({ message: 'Şifre kurulum / sıfırlama bağlantısı e-posta olarak gönderildi.' });
+}

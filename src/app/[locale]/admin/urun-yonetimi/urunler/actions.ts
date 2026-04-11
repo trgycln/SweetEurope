@@ -3,6 +3,7 @@
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { revalidatePath } from 'next/cache';
 import { Tables, TablesInsert, TablesUpdate, Database } from '@/lib/supabase/database.types'; // Database importieren
 import { SupabaseClient } from '@supabase/supabase-js';
@@ -11,6 +12,9 @@ import { slugify } from '@/lib/utils';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 
 const diller = ['de', 'en', 'tr', 'ar'];
+const PRODUCT_IMAGE_BUCKET = 'urun-gorselleri';
+const PRODUCT_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
+const PRODUCT_IMAGE_ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 // --- Hilfsfunktionen (unverändert) ---
 
@@ -32,6 +36,19 @@ async function findUniqueSlug(supabase: SupabaseClient<Database>, baseSlug: stri
 
 // Wandelt FormData in ein Urun-Objekt um
 function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
+    const parseInteger = (value: FormDataEntryValue | null): number | null => {
+        if (value == null || String(value).trim() === '') return null;
+        const parsed = Number.parseInt(String(value), 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    };
+
+    const parseDecimal = (value: FormDataEntryValue | null): number | null => {
+        if (value == null || String(value).trim() === '') return null;
+        const normalized = String(value).replace(',', '.');
+        const parsed = Number.parseFloat(normalized);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+
     const adJson: { [key: string]: string } = {};
     const aciklamalarJson: { [key: string]: string } = {};
     diller.forEach(dil => {
@@ -39,6 +56,21 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
         aciklamalarJson[dil] = formData.get(`aciklamalar_${dil}`) as string || '';
     });
     const galeriUrls = formData.has('galeri_resim_urls[]') ? formData.getAll('galeri_resim_urls[]') as string[] : [];
+    const urunGami = ((formData.get('urun_gami') as string) || '').trim() || null;
+    const kutuIciAdet = parseInteger(formData.get('kutu_ici_adet'));
+    const koliIciKutuAdet = parseInteger(formData.get('koli_ici_kutu_adet'));
+    const paletIciKoliAdet = parseInteger(formData.get('palet_ici_koli_adet'));
+    const alisFiyatSeviyesi = ((formData.get('alis_fiyat_seviyesi') as string) || '').trim() || 'kutu';
+    const birimAgirlikKg = parseDecimal(formData.get('birim_agirlik_kg'));
+    const lojistikSinifi = ((formData.get('lojistik_sinifi') as string) || '').trim() || null;
+    const gumrukVergiYuzde = parseDecimal(formData.get('gumruk_vergi_orani_yuzde'));
+    const almanyaKdvOrani = parseDecimal(formData.get('almanya_kdv_orani'));
+    const gunlukDepolamaMaliyeti = parseDecimal(formData.get('gunluk_depolama_maliyeti_eur'));
+    const ortalamaStokGun = parseInteger(formData.get('ortalama_stokta_kalma_suresi'));
+    const fireZayiatYuzde = parseDecimal(formData.get('fire_zayiat_orani_yuzde'));
+    const standartInisMaliyeti = parseDecimal(formData.get('standart_inis_maliyeti_net'));
+    const sonGercekInisMaliyeti = parseDecimal(formData.get('son_gercek_inis_maliyeti_net'));
+    const satisFiyatiToptanci = parseDecimal(formData.get('satis_fiyati_toptanci'));
 
     const data: TablesUpdate<'urunler'> = {
         ad: adJson,
@@ -53,9 +85,25 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
         distributor_alis_fiyati: parseFloat(formData.get('distributor_alis_fiyati') as string || '0'),
         satis_fiyati_musteri: parseFloat(formData.get('satis_fiyati_musteri') as string || '0'),
         satis_fiyati_alt_bayi: parseFloat(formData.get('satis_fiyati_alt_bayi') as string || '0'),
+        satis_fiyati_toptanci: satisFiyatiToptanci,
         aktif: formData.get('aktif') === 'on',
         ana_resim_url: (formData.get('ana_resim_url') as string) || null,
         galeri_resim_urls: galeriUrls,
+        urun_gami: urunGami,
+        kutu_ici_adet: kutuIciAdet,
+        koli_ici_kutu_adet: koliIciKutuAdet,
+        palet_ici_koli_adet: paletIciKoliAdet,
+        alis_fiyat_seviyesi: alisFiyatSeviyesi,
+        birim_agirlik_kg: birimAgirlikKg,
+        lojistik_sinifi: lojistikSinifi,
+        gumruk_vergi_orani_yuzde: gumrukVergiYuzde,
+        almanya_kdv_orani: almanyaKdvOrani,
+        gunluk_depolama_maliyeti_eur: gunlukDepolamaMaliyeti,
+        ortalama_stokta_kalma_suresi: ortalamaStokGun,
+        fire_zayiat_orani_yuzde: fireZayiatYuzde,
+        standart_inis_maliyeti_net: standartInisMaliyeti,
+        son_gercek_inis_maliyeti_net: sonGercekInisMaliyeti,
+        karlilik_alarm_aktif: formData.get('karlilik_alarm_aktif') === 'on',
     };
     
     const teknikOzelliklerObj: { [key: string]: any } = {};
@@ -75,7 +123,31 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     teknikOzelliklerObj.glutenfrei = formData.get('eigenschaft_glutenfrei') === 'on';
     teknikOzelliklerObj.laktosefrei = formData.get('eigenschaft_laktosefrei') === 'on';
     teknikOzelliklerObj.bio = formData.get('eigenschaft_bio') === 'on';
+    teknikOzelliklerObj.ohne_zucker = formData.get('eigenschaft_ohne_zucker') === 'on';
+    teknikOzelliklerObj.dogal_icerik = formData.get('eigenschaft_dogal_icerik') === 'on';
+    teknikOzelliklerObj.katkisiz = formData.get('eigenschaft_katkisiz') === 'on';
+    teknikOzelliklerObj.koruyucusuz = formData.get('eigenschaft_koruyucusuz') === 'on';
+    teknikOzelliklerObj.pompa_uyumlu = formData.get('eigenschaft_pompa_uyumlu') === 'on';
     
+    if (kutuIciAdet !== null) teknikOzelliklerObj.kutu_ici_adet = kutuIciAdet;
+    if (koliIciKutuAdet !== null) teknikOzelliklerObj.koli_ici_kutu_adet = koliIciKutuAdet;
+    if (paletIciKoliAdet !== null) teknikOzelliklerObj.palet_ici_koli_adet = paletIciKoliAdet;
+    if (kutuIciAdet !== null && koliIciKutuAdet !== null) teknikOzelliklerObj.koli_ici_adet = kutuIciAdet * koliIciKutuAdet;
+    if (koliIciKutuAdet !== null && paletIciKoliAdet !== null) teknikOzelliklerObj.palet_ici_kutu_adet = koliIciKutuAdet * paletIciKoliAdet;
+    if (kutuIciAdet !== null && koliIciKutuAdet !== null && paletIciKoliAdet !== null) {
+        teknikOzelliklerObj.palet_ici_adet = kutuIciAdet * koliIciKutuAdet * paletIciKoliAdet;
+    }
+    teknikOzelliklerObj.alis_fiyat_seviyesi = alisFiyatSeviyesi;
+    if (birimAgirlikKg !== null) teknikOzelliklerObj.birim_agirlik_kg = birimAgirlikKg;
+    if (lojistikSinifi) teknikOzelliklerObj.lojistik_sinifi = lojistikSinifi;
+    if (gumrukVergiYuzde !== null) teknikOzelliklerObj.gumruk_vergi_orani_yuzde = gumrukVergiYuzde;
+    if (almanyaKdvOrani !== null) teknikOzelliklerObj.almanya_kdv_orani = almanyaKdvOrani;
+    if (gunlukDepolamaMaliyeti !== null) teknikOzelliklerObj.gunluk_depolama_maliyeti_eur = gunlukDepolamaMaliyeti;
+    if (ortalamaStokGun !== null) teknikOzelliklerObj.ortalama_stokta_kalma_suresi = ortalamaStokGun;
+    if (fireZayiatYuzde !== null) teknikOzelliklerObj.fire_zayiat_orani_yuzde = fireZayiatYuzde;
+    if (standartInisMaliyeti !== null) teknikOzelliklerObj.standart_inis_maliyeti_net = standartInisMaliyeti;
+    if (sonGercekInisMaliyeti !== null) teknikOzelliklerObj.son_gercek_inis_maliyeti_net = sonGercekInisMaliyeti;
+
     // Geschmack hinzufügen (Multiple Checkboxes + Custom)
     const geschmackArray: string[] = [];
     
@@ -110,8 +182,132 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     return data;
 }
 
+function stripUnsupportedUrunColumns<T extends TablesUpdate<'urunler'>>(data: T): TablesUpdate<'urunler'> {
+    const {
+        urun_gami,
+        kutu_ici_adet,
+        koli_ici_kutu_adet,
+        palet_ici_koli_adet,
+        alis_fiyat_seviyesi,
+        birim_agirlik_kg,
+        lojistik_sinifi,
+        gumruk_vergi_orani_yuzde,
+        almanya_kdv_orani,
+        gunluk_depolama_maliyeti_eur,
+        ortalama_stokta_kalma_suresi,
+        fire_zayiat_orani_yuzde,
+        standart_inis_maliyeti_net,
+        son_gercek_inis_maliyeti_net,
+        karlilik_alarm_aktif,
+        satis_fiyati_toptanci,
+        ...fallbackData
+    } = data;
+
+    return fallbackData;
+}
+
 // Typ für Rückgabewert
 export type FormState = { success: boolean; message: string; } | null;
+
+type UploadImageResult = {
+    success: boolean;
+    message?: string;
+    url?: string;
+    path?: string;
+};
+
+async function ensureUrunImageAccess() {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { error: 'Nicht authentifiziert.' };
+    }
+
+    const { data: profile } = await supabase
+        .from('profiller')
+        .select('rol')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') {
+        return { error: 'Bu islem icin yetki gerekiyor.' };
+    }
+
+    return { userId: user.id };
+}
+
+export async function uploadUrunImageAction(formData: FormData): Promise<UploadImageResult> {
+    const access = await ensureUrunImageAccess();
+    if ('error' in access) {
+        return { success: false, message: access.error };
+    }
+
+    const file = formData.get('file');
+    const folder = slugify(String(formData.get('folder') || 'products')) || 'products';
+    const upsert = String(formData.get('upsert') || '') === 'true';
+
+    if (!(file instanceof File)) {
+        return { success: false, message: 'Gecerli bir resim secin.' };
+    }
+
+    if (!PRODUCT_IMAGE_ALLOWED_TYPES.has(file.type)) {
+        return { success: false, message: 'Sadece PNG, JPG ve WEBP desteklenir.' };
+    }
+
+    if (file.size > PRODUCT_IMAGE_MAX_BYTES) {
+        return { success: false, message: 'Resim boyutu 10MB altinda olmali.' };
+    }
+
+    const safeFileName = slugify(file.name.replace(/\.[^.]+$/, '')) || 'urun-resmi';
+    const extension = file.name.includes('.') ? file.name.split('.').pop()?.toLowerCase() || 'webp' : 'webp';
+    const filePath = `${folder}/${Date.now()}-${safeFileName}.${extension}`;
+
+    const serviceSupabase = createSupabaseServiceClient();
+    const { data, error } = await serviceSupabase.storage
+        .from(PRODUCT_IMAGE_BUCKET)
+        .upload(filePath, file, {
+            contentType: file.type,
+            upsert,
+        });
+
+    if (error || !data) {
+        return { success: false, message: error?.message || 'Resim yuklenemedi.' };
+    }
+
+    const { data: publicUrlData } = serviceSupabase.storage
+        .from(PRODUCT_IMAGE_BUCKET)
+        .getPublicUrl(data.path);
+
+    return {
+        success: true,
+        url: publicUrlData.publicUrl,
+        path: data.path,
+    };
+}
+
+export async function removeUrunImagesAction(paths: string[]): Promise<{ success: boolean; message?: string }> {
+    const access = await ensureUrunImageAccess();
+    if ('error' in access) {
+        return { success: false, message: access.error };
+    }
+
+    if (!paths.length) {
+        return { success: true };
+    }
+
+    const serviceSupabase = createSupabaseServiceClient();
+    const { error } = await serviceSupabase.storage
+        .from(PRODUCT_IMAGE_BUCKET)
+        .remove(paths);
+
+    if (error) {
+        return { success: false, message: error.message };
+    }
+
+    return { success: true };
+}
 
 // --- Aktionen ---
 
@@ -147,11 +343,27 @@ export async function updateUrunAction(urunId: string, formData: FormData): Prom
 
     console.log('Finale zu aktualisierende Daten:', JSON.stringify(guncellenecekVeri, null, 2));
 
-    const { data: updatedData, error } = await supabase
+    let { data: updatedData, error } = await supabase
         .from('urunler')
         .update(guncellenecekVeri)
         .eq('id', urunId)
         .select('id');
+
+    if (error && (
+        error.code === 'PGRST204'
+        || error.code === '42703'
+        || error.message?.includes('urun_gami')
+        || error.message?.includes('kutu_ici_adet')
+        || error.message?.includes('koli_ici_kutu_adet')
+        || error.message?.includes('palet_ici_koli_adet')
+        || error.message?.includes('alis_fiyat_seviyesi')
+    )) {
+        ({ data: updatedData, error } = await supabase
+            .from('urunler')
+            .update(stripUnsupportedUrunColumns(guncellenecekVeri))
+            .eq('id', urunId)
+            .select('id'));
+    }
 
     if (error) {
         console.error("Fehler beim Aktualisieren des Produkts:", error);
@@ -184,11 +396,32 @@ export async function createUrunAction(formData: FormData): Promise<FormState> {
     if (!yeniVeri.slug) { return { success: false, message: 'Slug ist Pflichtfeld.' }; }
     yeniVeri.slug = await findUniqueSlug(supabase, yeniVeri.slug);
     
-    const { data, error } = await supabase
+    let { data, error } = await supabase
         .from('urunler')
         .insert(yeniVeri as TablesInsert<'urunler'>) // Cast, da 'kategori_id' jetzt vorhanden ist
         .select('id')
         .single();
+
+    if (error && (
+        error.code === 'PGRST204'
+        || error.code === '42703'
+        || error.message?.includes('urun_gami')
+        || error.message?.includes('kutu_ici_adet')
+        || error.message?.includes('koli_ici_kutu_adet')
+        || error.message?.includes('palet_ici_koli_adet')
+        || error.message?.includes('alis_fiyat_seviyesi')
+        || error.message?.includes('birim_agirlik_kg')
+        || error.message?.includes('lojistik_sinifi')
+        || error.message?.includes('gumruk_vergi_orani_yuzde')
+        || error.message?.includes('standart_inis_maliyeti_net')
+        || error.message?.includes('satis_fiyati_toptanci')
+    )) {
+        ({ data, error } = await supabase
+            .from('urunler')
+            .insert(stripUnsupportedUrunColumns(yeniVeri) as TablesInsert<'urunler'>)
+            .select('id')
+            .single());
+    }
         
     if (error || !data) { 
         console.error("Fehler Create:", error); 

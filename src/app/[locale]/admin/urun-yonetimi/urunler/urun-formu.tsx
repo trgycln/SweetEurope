@@ -1,17 +1,19 @@
 // src/app/[locale]/admin/urun-yonetimi/urunler/urun-formu.tsx (Vollständig, Manuelle Action)
 'use client';
 
-import React, { useState, useTransition, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useTransition, useEffect, useMemo, ChangeEvent, FormEvent } from 'react';
 import { Tables } from '@/lib/supabase/database.types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FiArrowLeft, FiSave, FiX, FiInfo, FiClipboard, FiDollarSign, FiLoader, FiTrash2, FiImage, FiUploadCloud } from 'react-icons/fi';
 // Actions importieren
-import { createUrunAction, updateUrunAction, deleteUrunAction, FormState } from './actions';
+import { createUrunAction, updateUrunAction, deleteUrunAction, uploadUrunImageAction, removeUrunImagesAction, FormState } from './actions';
 import { useRouter } from 'next/navigation';
 import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { slugify } from '@/lib/utils';
+import { getProductLineLabel, inferProductLineFromCategoryId, type ProductLineKey } from '@/lib/product-lines';
+import { dedupeSuppliers, getCanonicalSupplierLabel, normalizeSupplierGroupKey } from '@/lib/supplier-utils';
 import type { Locale } from '@/i18n-config';
 
 // Tipler
@@ -81,6 +83,11 @@ interface UrunFormuLabels {
         glutenFree: string;
         lactoseFree: string;
         organic: string;
+        sugarFree?: string;
+        naturalIngredients?: string;
+        additiveFree?: string;
+        preservativeFree?: string;
+        pumpCompatible?: string;
     };
     flavorsSection: {
         label: string;
@@ -182,6 +189,9 @@ function DeleteButtonWrapper({ urun, locale, labels }: { urun: Urun, locale: Loc
 }
 
 // Hauptformular-Komponente
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_IMAGE_SIZE_LABEL = '10MB';
+
 export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutUrun, labels, isAdmin = true }: UrunFormuProps) {
     // Default labels fallback until dictionaries supply a productsForm section
     const buildDefaultLabels = (loc: Locale): UrunFormuLabels => {
@@ -197,7 +207,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                 mainImage: 'Main image',
                 change: 'Change',
                 upload: 'Upload',
-                formatsHint: 'PNG, JPG or WEBP up to 2MB.',
+                formatsHint: `PNG, JPG or WEBP up to ${MAX_IMAGE_SIZE_LABEL}.`,
                 galleryImages: 'Gallery images',
                 addImages: 'Add images',
             },
@@ -246,6 +256,11 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                 glutenFree: 'Gluten-free',
                 lactoseFree: 'Lactose-free',
                 organic: 'Organic',
+                sugarFree: 'Sugar-free',
+                naturalIngredients: 'Natural ingredients',
+                additiveFree: 'No additives',
+                preservativeFree: 'Preservative-free',
+                pumpCompatible: 'Pump-compatible',
             },
             flavorsSection: {
                 label: 'Flavors',
@@ -329,9 +344,30 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
         ? kategoriler.filter(k => k.ust_kategori_id === anaKategoriId)
         : [];
     const gorunenAltKategoriler: Kategori[] = altKategoriler.length > 0 ? altKategoriler : dinamikAltKategoriler;
+    const supplierOptions = useMemo(() => dedupeSuppliers(tedarikciler), [tedarikciler]);
+    const normalizedSupplierValue = useMemo(() => {
+        if (!mevcutUrun?.tedarikci_id) return '';
+
+        const representativeById = Object.fromEntries(
+            tedarikciler.map((supplier) => {
+                const groupKey = normalizeSupplierGroupKey(supplier.unvan) || supplier.id;
+                const representative = supplierOptions.find((option) => (normalizeSupplierGroupKey(option.unvan) || option.id) === groupKey);
+                return [supplier.id, representative?.id || supplier.id];
+            })
+        ) as Record<string, string>;
+
+        return representativeById[mevcutUrun.tedarikci_id] || mevcutUrun.tedarikci_id;
+    }, [mevcutUrun?.tedarikci_id, tedarikciler, supplierOptions]);
     
     // Actual kategori_id for form submission
     const seciliKategoriId = altKategoriId || anaKategoriId;
+    const kategoriBazliUrunGami = inferProductLineFromCategoryId(kategoriler as any, seciliKategoriId);
+    const [manuelUrunGami, setManuelUrunGami] = useState<ProductLineKey | 'auto'>(
+        mevcutUrun?.urun_gami === 'frozen-desserts' || mevcutUrun?.urun_gami === 'barista-bakery-essentials'
+            ? mevcutUrun.urun_gami
+            : 'auto'
+    );
+    const seciliUrunGami = manuelUrunGami === 'auto' ? kategoriBazliUrunGami : manuelUrunGami;
     
     const [aktifSablon, setAktifSablon] = useState<Sablon[]>([]);
     const [isLoadingSablon, setIsLoadingSablon] = useState(false);
@@ -500,8 +536,8 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
     };
 
     // Bild-Handler
-    const handleAnaResimChange = (e: ChangeEvent<HTMLInputElement>) => { const f=e.target.files?.[0]; if(f){if(f.size>2*1024*1024){toast.error("Max 2MB.");e.target.value='';return;}setAnaResimDosyasi(f);const r=new FileReader();r.onloadend=()=>{setAnaResimOnizleme(r.result as string);};r.readAsDataURL(f);}else{setAnaResimDosyasi(null);setAnaResimOnizleme(mevcutUrun?.ana_resim_url||null);} };
-    const handleGaleriResimleriChange = (e: ChangeEvent<HTMLInputElement>) => { const fs=e.target.files;if(fs){const nf=Array.from(fs);let err=false;nf.forEach(f=>{if(f.size>2*1024*1024){toast.error(`${f.name} > 2MB.`);err=true;}});if(err){e.target.value='';return;}nf.forEach((f,i)=>{const r=new FileReader();r.onloadend=()=>{setGaleriOnizlemeler(p=>[...p,{id:`${i}-${Date.now()}`,url:r.result as string,file:f}]);};r.readAsDataURL(f);});e.target.value='';} };
+    const handleAnaResimChange = (e: ChangeEvent<HTMLInputElement>) => { const f=e.target.files?.[0]; if(f){if(f.size>MAX_IMAGE_SIZE_BYTES){toast.error(`Max ${MAX_IMAGE_SIZE_LABEL}.`);e.target.value='';return;}setAnaResimDosyasi(f);const r=new FileReader();r.onloadend=()=>{setAnaResimOnizleme(r.result as string);};r.readAsDataURL(f);}else{setAnaResimDosyasi(null);setAnaResimOnizleme(mevcutUrun?.ana_resim_url||null);} };
+    const handleGaleriResimleriChange = (e: ChangeEvent<HTMLInputElement>) => { const fs=e.target.files;if(fs){const nf=Array.from(fs);let err=false;nf.forEach(f=>{if(f.size>MAX_IMAGE_SIZE_BYTES){toast.error(`${f.name} > ${MAX_IMAGE_SIZE_LABEL}.`);err=true;}});if(err){e.target.value='';return;}nf.forEach((f,i)=>{const r=new FileReader();r.onloadend=()=>{setGaleriOnizlemeler(p=>[...p,{id:`${i}-${Date.now()}`,url:r.result as string,file:f}]);};r.readAsDataURL(f);});e.target.value='';} };
     const handleGaleriResimLoeschen = (id: string | number) => { const z=galeriOnizlemeler.find(b=>b.id===id);if(!z)return;if(typeof id==='string'&&mevcutUrun?.galeri_resim_urls?.includes(id)){setMarkierteGeloeschteUrls(p=>[...p,id]);}setGaleriOnizlemeler(p=>p.filter(b=>b.id!==id)); };
 
     // Formularübermittlung
@@ -523,20 +559,38 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                      const pathsToRemove: string[] = [];
                      markierteGeloeschteUrls.forEach(url => { try { const u=new URL(url);const p=u.pathname.split('/');if(p.length>2)pathsToRemove.push(p.slice(2).join('/'));}catch(e){} });
                      if (pathsToRemove.length > 0) {
-                         const { error: deleteError } = await supabase.storage.from('urun-gorselleri').remove(pathsToRemove);
-                         if (deleteError) toast.warning('Failed to delete old images.');
+                         const deleteResult = await removeUrunImagesAction(pathsToRemove);
+                         if (!deleteResult?.success) toast.warning(deleteResult?.message || 'Failed to delete old images.');
                          else finalGaleriUrls = finalGaleriUrls.filter(url => !markierteGeloeschteUrls.includes(url));
                      }
                 }
                 // 2. Hauptbild hochladen
                 if (anaResimDosyasi) {
-                    const n=`${Date.now()}-ana-${slugify(anaResimDosyasi.name)}`; const { data: d, error: e } = await supabase.storage.from('urun-gorselleri').upload(n, anaResimDosyasi, { upsert: !!isEditMode }); if (e) throw e; anaResimUrl = supabase.storage.from('urun-gorselleri').getPublicUrl(d.path).data.publicUrl;
+                    const uploadForm = new FormData();
+                    uploadForm.append('file', anaResimDosyasi);
+                    uploadForm.append('folder', 'main');
+                    uploadForm.append('upsert', String(Boolean(isEditMode)));
+                    const uploadResult = await uploadUrunImageAction(uploadForm);
+                    if (!uploadResult?.success || !uploadResult.url) {
+                        throw new Error(uploadResult?.message || 'Main image upload failed.');
+                    }
+                    anaResimUrl = uploadResult.url;
                 }
                 formData.set('ana_resim_url', anaResimUrl || '');
 
                 // 3. Galeriebilder hochladen
                 const neueDateien = galeriOnizlemeler.filter(b => b.file).map(b => b.file as File); const neueUrls: string[] = [];
-                for (const f of neueDateien) { const n=`${Date.now()}-galeri-${slugify(f.name)}`; const { data: d, error: e } = await supabase.storage.from('urun-gorselleri').upload(n, f); if (e) { toast.warning(`Upload ${f.name} fehlgeschlagen.`); continue; } neueUrls.push(supabase.storage.from('urun-gorselleri').getPublicUrl(d.path).data.publicUrl); }
+                for (const f of neueDateien) {
+                    const uploadForm = new FormData();
+                    uploadForm.append('file', f);
+                    uploadForm.append('folder', 'gallery');
+                    const uploadResult = await uploadUrunImageAction(uploadForm);
+                    if (!uploadResult?.success || !uploadResult.url) {
+                        toast.warning(uploadResult?.message || `Upload ${f.name} fehlgeschlagen.`);
+                        continue;
+                    }
+                    neueUrls.push(uploadResult.url);
+                }
 
                 // 4. URLs in FormData
                 const finaleGalerieListe = [...finalGaleriUrls, ...neueUrls]; formData.delete('galeri_resim_urls[]'); finaleGalerieListe.forEach(url => formData.append('galeri_resim_urls[]', url));
@@ -550,8 +604,9 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
 
             } catch (error: any) {
                 toast.dismiss('upload-toast');
-                toast.error('Image upload error: ' + error.message);
-                setFormResult({ success: false, message: 'Image upload error.' });
+                const uploadMessage = error?.message || 'Image upload error.';
+                toast.error(uploadMessage);
+                setFormResult({ success: false, message: uploadMessage });
             }
         });
     };
@@ -682,13 +737,52 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                      {gorunenAltKategoriler.length === 0 && anaKategoriId && (
                          <input type="hidden" name="kategori_id" value={anaKategoriId} />
                      )}
+                     <input type="hidden" name="urun_gami" value={seciliUrunGami || ''} />
 
                      <div>
                          <label htmlFor="tedarikci_id" className={labelClasses}>{L.supplierSection.supplier}</label>
-                         <select id="tedarikci_id" name="tedarikci_id" defaultValue={mevcutUrun?.tedarikci_id || ""} className="w-full p-2 border rounded-md bg-gray-50">
+                         <select id="tedarikci_id" name="tedarikci_id" defaultValue={normalizedSupplierValue} className="w-full p-2 border rounded-md bg-gray-50">
                              <option value="">{L.supplierSection.none}</option>
-                             {tedarikciler.map(t => <option key={t.id} value={t.id}>{t.unvan}</option>)}
+                             {supplierOptions.map(t => <option key={t.id} value={t.id}>{getCanonicalSupplierLabel(t.unvan)}</option>)}
                          </select>
+                     </div>
+
+                     <div className="md:col-span-2 rounded-lg border border-dashed border-amber-200 bg-amber-50/70 p-4 space-y-3">
+                         <div>
+                             <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">Hizli fiyatlandirma tipi</p>
+                             <p className="mt-1 text-sm text-gray-700">
+                                 Bu urunun donuk mu donuk olmayan mi oldugunu buradan net secin. Fiyatlandirma merkezindeki liste de ayni secimi kullanir.
+                             </p>
+                         </div>
+
+                         <select
+                             value={manuelUrunGami}
+                             onChange={(e) => setManuelUrunGami(e.target.value as ProductLineKey | 'auto')}
+                             className="w-full p-2 border rounded-md bg-white"
+                         >
+                             <option value="auto">Kategoriye gore otomatik sec</option>
+                             <option value="frozen-desserts">Donuk urun</option>
+                             <option value="barista-bakery-essentials">Donuk olmayan urun</option>
+                         </select>
+
+                         <div className="flex flex-wrap items-center gap-2">
+                             <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                                 seciliUrunGami === 'frozen-desserts'
+                                     ? 'bg-rose-100 text-rose-700'
+                                     : seciliUrunGami === 'barista-bakery-essentials'
+                                       ? 'bg-emerald-100 text-emerald-700'
+                                       : 'bg-gray-100 text-gray-600'
+                             }`}>
+                                 {seciliUrunGami
+                                     ? getProductLineLabel(seciliUrunGami, locale)
+                                     : 'Kategori secildiginde otomatik belirlenir'}
+                             </span>
+                             <span className="text-xs text-gray-600">
+                                 {manuelUrunGami === 'auto'
+                                     ? 'Otomatik secimde kategori esas alinir.'
+                                     : 'Manuel secim bu urunu dogru fiyat listesine tasir.'}
+                             </span>
+                         </div>
                      </div>
                  </div>
              </div>
@@ -758,6 +852,109 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                 <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiDollarSign />{L.pricingStockSection.title}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Elysion fiyat motoru</p>
+                        <p className="mt-1 text-sm text-blue-900">
+                            Sistem artik net inis maliyetini baz alir ve 3 tier saklar: Alt bayi %+15, toptanci / otel %+35, perakende / kafe %+60. Gerekirse bu urune ozel maliyet verilerini asagidan girebilirsiniz.
+                        </p>
+                    </div>
+
+                    <div className="md:col-span-3 rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-4">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Ambalaj / toptanci hiyerarsisi</p>
+                            <p className="mt-1 text-sm text-slate-700">
+                                Bir kutuda kac adet oldugu, bir kolide kac kutu bulundugu ve bir palette kac koli oldugu burada saklanir.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label htmlFor="alis_fiyat_seviyesi" className={labelClasses}>Alis fiyat seviyesi</label>
+                                <select
+                                    id="alis_fiyat_seviyesi"
+                                    name="alis_fiyat_seviyesi"
+                                    defaultValue={mevcutUrun?.alis_fiyat_seviyesi || (mevcutUrun?.teknik_ozellikler as any)?.alis_fiyat_seviyesi || 'kutu'}
+                                    className="w-full p-2 border rounded-md bg-white"
+                                >
+                                    <option value="adet">Tekil / adet</option>
+                                    <option value="kutu">Kutu</option>
+                                    <option value="koli">Koli</option>
+                                    <option value="palet">Palet</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label htmlFor="kutu_ici_adet" className={labelClasses}>1 kutuda kac adet?</label>
+                                <input type="number" min="1" step="1" name="kutu_ici_adet" id="kutu_ici_adet" defaultValue={mevcutUrun?.kutu_ici_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.kutu_ici_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="koli_ici_kutu_adet" className={labelClasses}>1 kolide kac kutu?</label>
+                                <input type="number" min="1" step="1" name="koli_ici_kutu_adet" id="koli_ici_kutu_adet" defaultValue={mevcutUrun?.koli_ici_kutu_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.koli_ici_kutu_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="palet_ici_koli_adet" className={labelClasses}>1 palette kac koli?</label>
+                                <input type="number" min="1" step="1" name="palet_ici_koli_adet" id="palet_ici_koli_adet" defaultValue={mevcutUrun?.palet_ici_koli_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.palet_ici_koli_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                        </div>
+
+                        <p className="text-xs text-slate-600">
+                            Kayit sonrasi sistem koli/palet toplamlarini otomatik turetir ve fiyat motoru bunlari toplu alim hesaplarinda kullanir.
+                        </p>
+                    </div>
+
+                    <div className="md:col-span-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 space-y-4">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Maliyet master verisi</p>
+                            <p className="mt-1 text-sm text-emerald-900">
+                                Parti maliyeti, kg bazli gumruk/lojistik ve karlilik alarmi icin gereken alanlar burada saklanir.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label htmlFor="birim_agirlik_kg" className={labelClasses}>Birim agirlik (kg)</label>
+                                <input type="number" step="0.001" name="birim_agirlik_kg" id="birim_agirlik_kg" defaultValue={mevcutUrun?.birim_agirlik_kg ?? (mevcutUrun?.teknik_ozellikler as any)?.birim_agirlik_kg ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="lojistik_sinifi" className={labelClasses}>Lojistik sinifi</label>
+                                <select name="lojistik_sinifi" id="lojistik_sinifi" defaultValue={mevcutUrun?.lojistik_sinifi ?? (mevcutUrun?.teknik_ozellikler as any)?.lojistik_sinifi ?? 'cold-chain'} className="w-full p-2 border rounded-md bg-white">
+                                    <option value="cold-chain">Cold chain / donuk</option>
+                                    <option value="dry-load">Dry load / ambient</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label htmlFor="gumruk_vergi_orani_yuzde" className={labelClasses}>Gumruk vergi %</label>
+                                <input type="number" step="0.01" name="gumruk_vergi_orani_yuzde" id="gumruk_vergi_orani_yuzde" defaultValue={mevcutUrun?.gumruk_vergi_orani_yuzde ?? (mevcutUrun?.teknik_ozellikler as any)?.gumruk_vergi_orani_yuzde ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="almanya_kdv_orani" className={labelClasses}>Almanya KDV %</label>
+                                <input type="number" step="0.01" name="almanya_kdv_orani" id="almanya_kdv_orani" defaultValue={mevcutUrun?.almanya_kdv_orani ?? (mevcutUrun?.teknik_ozellikler as any)?.almanya_kdv_orani ?? '7'} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="gunluk_depolama_maliyeti_eur" className={labelClasses}>Gunluk depolama (€)</label>
+                                <input type="number" step="0.0001" name="gunluk_depolama_maliyeti_eur" id="gunluk_depolama_maliyeti_eur" defaultValue={mevcutUrun?.gunluk_depolama_maliyeti_eur ?? (mevcutUrun?.teknik_ozellikler as any)?.gunluk_depolama_maliyeti_eur ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="ortalama_stokta_kalma_suresi" className={labelClasses}>Ortalama stokta kalma (gun)</label>
+                                <input type="number" min="0" step="1" name="ortalama_stokta_kalma_suresi" id="ortalama_stokta_kalma_suresi" defaultValue={mevcutUrun?.ortalama_stokta_kalma_suresi ?? (mevcutUrun?.teknik_ozellikler as any)?.ortalama_stokta_kalma_suresi ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="fire_zayiat_orani_yuzde" className={labelClasses}>Fire / zayiat %</label>
+                                <input type="number" step="0.01" name="fire_zayiat_orani_yuzde" id="fire_zayiat_orani_yuzde" defaultValue={mevcutUrun?.fire_zayiat_orani_yuzde ?? (mevcutUrun?.teknik_ozellikler as any)?.fire_zayiat_orani_yuzde ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="standart_inis_maliyeti_net" className={labelClasses}>Standart inis maliyeti net (€)</label>
+                                <input type="number" step="0.01" name="standart_inis_maliyeti_net" id="standart_inis_maliyeti_net" defaultValue={mevcutUrun?.standart_inis_maliyeti_net ?? (mevcutUrun?.teknik_ozellikler as any)?.standart_inis_maliyeti_net ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div>
+                                <label htmlFor="son_gercek_inis_maliyeti_net" className={labelClasses}>Son gercek inis maliyeti (€)</label>
+                                <input type="number" step="0.01" name="son_gercek_inis_maliyeti_net" id="son_gercek_inis_maliyeti_net" defaultValue={mevcutUrun?.son_gercek_inis_maliyeti_net ?? (mevcutUrun?.teknik_ozellikler as any)?.son_gercek_inis_maliyeti_net ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                            <div className="flex items-center gap-2 pt-6">
+                                <input type="checkbox" id="karlilik_alarm_aktif" name="karlilik_alarm_aktif" defaultChecked={mevcutUrun?.karlilik_alarm_aktif ?? false} className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" />
+                                <label htmlFor="karlilik_alarm_aktif" className="text-sm font-medium text-gray-700">Karlilik alarmi aktif</label>
+                            </div>
+                        </div>
+                    </div>
                     <div>
                         <label htmlFor="stok_miktari" className={labelClasses}>{L.pricingStockSection.stockQty}</label>
                         <input type="number" name="stok_miktari" id="stok_miktari" defaultValue={mevcutUrun?.stok_miktari ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
@@ -767,12 +964,16 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                         <input type="number" name="stok_esigi" id="stok_esigi" defaultValue={mevcutUrun?.stok_esigi ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
                     </div>
                     <div>
-                        <label htmlFor="satis_fiyati_musteri" className={labelClasses}>{L.pricingStockSection.customerPrice}</label>
+                        <label htmlFor="satis_fiyati_musteri" className={labelClasses}>Perakende / {L.pricingStockSection.customerPrice}</label>
                         <input type="number" step="0.01" name="satis_fiyati_musteri" id="satis_fiyati_musteri" defaultValue={mevcutUrun?.satis_fiyati_musteri ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
                     </div>
                     <div>
-                        <label htmlFor="satis_fiyati_alt_bayi" className={labelClasses}>{L.pricingStockSection.resellerPrice}</label>
+                        <label htmlFor="satis_fiyati_alt_bayi" className={labelClasses}>Alt bayi / {L.pricingStockSection.resellerPrice}</label>
                         <input type="number" step="0.01" name="satis_fiyati_alt_bayi" id="satis_fiyati_alt_bayi" defaultValue={mevcutUrun?.satis_fiyati_alt_bayi ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
+                    </div>
+                    <div>
+                        <label htmlFor="satis_fiyati_toptanci" className={labelClasses}>Toptanci fiyati</label>
+                        <input type="number" step="0.01" name="satis_fiyati_toptanci" id="satis_fiyati_toptanci" defaultValue={mevcutUrun?.satis_fiyati_toptanci ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
                     </div>
                     <div>
                         <label htmlFor="distributor_alis_fiyati" className={labelClasses}>{L.pricingStockSection.distributorCost}</label>
@@ -835,6 +1036,51 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                     className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
                                 />
                                 <span className="text-sm text-gray-700">{L.attributesSection.organic}</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="eigenschaft_ohne_zucker" 
+                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.ohne_zucker === true}
+                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
+                                />
+                                <span className="text-sm text-gray-700">{L.attributesSection.sugarFree || 'Şekersiz / Sugar-Free'}</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="eigenschaft_dogal_icerik" 
+                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.dogal_icerik === true}
+                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
+                                />
+                                <span className="text-sm text-gray-700">{L.attributesSection.naturalIngredients || 'Doğal içerik / Natural ingredients'}</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="eigenschaft_katkisiz" 
+                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.katkisiz === true}
+                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
+                                />
+                                <span className="text-sm text-gray-700">{L.attributesSection.additiveFree || 'Katkısız / No additives'}</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="eigenschaft_koruyucusuz" 
+                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.koruyucusuz === true}
+                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
+                                />
+                                <span className="text-sm text-gray-700">{L.attributesSection.preservativeFree || 'Koruyucusuz / Preservative-free'}</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    name="eigenschaft_pompa_uyumlu" 
+                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.pompa_uyumlu === true}
+                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
+                                />
+                                <span className="text-sm text-gray-700">{L.attributesSection.pumpCompatible || 'Pompa uyumlu / Pump-compatible'}</span>
                             </label>
                         </div>
                     </div>

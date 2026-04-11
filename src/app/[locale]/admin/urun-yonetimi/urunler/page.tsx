@@ -15,6 +15,7 @@ import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Dat
 import { UrunFiltre } from './urun-filtre';
 import { Pagination } from './pagination';
 import EditableUrunRowClient from "./EditableUrunRowClient";
+import UrunExcelImportPanel from './UrunExcelImportPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -81,6 +82,7 @@ export default async function UrunlerListPage({
      // Rollenprüfung
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
     const isAdmin = profile?.rol === 'Yönetici';
+    const canImportProducts = profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi';
     const canSeePurchasePrice = profile?.rol !== 'Personel';
      // Ekip Üyesi sadece okuma yapabilir, düzenleme yetkisi yok
 
@@ -98,6 +100,12 @@ export default async function UrunlerListPage({
         .from('kategoriler')
         .select('id, ad, ust_kategori_id')
         .order(`ad->>${locale}`, { ascending: true });
+
+    const { data: tedarikciler } = await supabase
+        .from('tedarikciler')
+        .select('id, unvan')
+        .order('unvan', { ascending: true })
+        .limit(1000);
 
     // Supabase-Abfrage erstellen (ohne count für Performance)
     let query = supabase
@@ -195,6 +203,13 @@ export default async function UrunlerListPage({
                     </Link>
                 )}
             </header>
+
+            {canImportProducts && (
+                <UrunExcelImportPanel
+                    locale={locale}
+                    suppliers={(tedarikciler as Array<{ id: string; unvan: string | null }>) || []}
+                />
+            )}
 
             {/* Filter Component */}
                         <UrunFiltre 

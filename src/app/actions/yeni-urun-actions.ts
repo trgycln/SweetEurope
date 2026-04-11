@@ -90,6 +90,7 @@ export async function createYeniUrunTalepAction(
         aliciRol: ['Yönetici', 'Ekip Üyesi'],
         icerik: bildirimMesaj,
         link: bildirimLink,
+        preferenceKey: 'general_announcements',
         supabaseClient: supabase // Mevcut client'ı kullan
     });
     // --- Benachrichtigung Ende ---
@@ -134,12 +135,13 @@ export async function partnerDeleteUrunTalepAction(
 
     // --- Benachrichtigung an Admins senden (Optional) ---
     if (talepData) {
-        const firmaAdi = (talepData as any).firmalar?.unvan || 'Ein Partner'; // Typ-Cast, da Join
+        const firmaAdi = (talepData as { firmalar?: { unvan?: string | null } | null }).firmalar?.unvan || 'Ein Partner';
         const productName = talepData.produkt_name || 'ein Produkt';
         const bildirimMesaj = `${firmaAdi} hat die Produktanfrage für "${productName}" gelöscht.`;
         await sendNotification({
             aliciRol: ['Yönetici', 'Ekip Üyesi'],
             icerik: bildirimMesaj,
+            preferenceKey: 'general_announcements',
             supabaseClient: supabase
         });
     }

@@ -13,7 +13,14 @@ interface ProductGridClientProps {
     kategoriAdlariMap: Map<string, string>;
     sablonMap: Record<string, Array<{ alan_adi: string; gosterim_adi: any; sira: number }>>;
     kategoriParentMap: Record<string, string | null>; // for inheritance fallback
-    pagination?: { page: number; perPage: number; total: number; kategori?: string };
+    pagination?: {
+        page: number;
+        perPage: number;
+        total: number;
+        kategori?: string;
+        query?: Record<string, string | undefined | null>;
+        basePath?: string;
+    };
     dictionary?: any;
 }
 
@@ -69,7 +76,7 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
 
     const Pagination = () => {
         if (!pagination) return null;
-        const { page, perPage, total, kategori } = pagination;
+        const { page, perPage, total, kategori, query, basePath } = pagination;
         const totalPages = Math.max(1, Math.ceil(total / perPage));
         if (totalPages <= 1) return null;
 
@@ -77,8 +84,16 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
             const params = new URLSearchParams();
             params.set('page', String(p));
             params.set('limit', String(perPage));
-            if (kategori) params.set('kategori', kategori);
-            return `/${locale}/products?${params.toString()}`;
+
+            if (query) {
+                Object.entries(query).forEach(([key, value]) => {
+                    if (value) params.set(key, value);
+                });
+            } else if (kategori) {
+                params.set('kategori', kategori);
+            }
+
+            return `${basePath || `/${locale}/products`}?${params.toString()}`;
         };
 
         const pages: number[] = [];
@@ -335,25 +350,36 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
                                                 </Link>
                                             </div>
                                             {/* Nutrition/Property Badges overlay (top-right) */}
-                                            {(tekniks.vegan || tekniks.vegetarisch || tekniks.glutenfrei || tekniks.laktosefrei || tekniks.bio) && (
-                                                <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-                                                    {tekniks.vegan && (
-                                                        <span title={getBadgeText('vegan', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-xs font-bold shadow-lg">🌿</span>
-                                                    )}
-                                                    {tekniks.vegetarisch && (
-                                                        <span title={getBadgeText('vegetarisch', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-800 text-white text-[10px] font-bold shadow-lg">VEG</span>
-                                                    )}
-                                                    {tekniks.glutenfrei && (
-                                                        <span title={getBadgeText('glutenfrei', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-600 text-white text-[10px] font-bold shadow-lg">GF</span>
-                                                    )}
-                                                    {tekniks.laktosefrei && (
-                                                        <span title={getBadgeText('laktosefrei', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-lg">LF</span>
-                                                    )}
-                                                    {tekniks.bio && (
-                                                        <span title={getBadgeText('bio', locale as any)} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-700 text-white text-[10px] font-bold shadow-lg">BIO</span>
-                                                    )}
-                                                </div>
-                                            )}
+                                            {(() => {
+                                                const badgeItems = [
+                                                    tekniks.vegan ? { key: 'vegan', short: '🌿', className: 'bg-green-600 text-white' } : null,
+                                                    tekniks.vegetarisch ? { key: 'vegetarisch', short: 'VEG', className: 'bg-green-800 text-white' } : null,
+                                                    tekniks.glutenfrei ? { key: 'glutenfrei', short: 'GF', className: 'bg-yellow-600 text-white' } : null,
+                                                    tekniks.laktosefrei ? { key: 'laktosefrei', short: 'LF', className: 'bg-blue-600 text-white' } : null,
+                                                    tekniks.bio ? { key: 'bio', short: 'BIO', className: 'bg-emerald-700 text-white' } : null,
+                                                    tekniks.ohne_zucker ? { key: 'ohne_zucker', short: '0%', className: 'bg-sky-600 text-white' } : null,
+                                                    tekniks.dogal_icerik ? { key: 'dogal_icerik', short: 'NAT', className: 'bg-teal-600 text-white' } : null,
+                                                    tekniks.katkisiz ? { key: 'katkisiz', short: 'PURE', className: 'bg-cyan-700 text-white' } : null,
+                                                    tekniks.koruyucusuz ? { key: 'koruyucusuz', short: 'NP', className: 'bg-violet-700 text-white' } : null,
+                                                    tekniks.pompa_uyumlu ? { key: 'pompa_uyumlu', short: 'PUMP', className: 'bg-orange-600 text-white' } : null,
+                                                ].filter(Boolean) as Array<{ key: string; short: string; className: string }>;
+
+                                                if (badgeItems.length === 0) return null;
+
+                                                return (
+                                                    <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+                                                        {badgeItems.slice(0, 4).map((badge) => (
+                                                            <span
+                                                                key={badge.key}
+                                                                title={getBadgeText(badge.key as any, locale as any)}
+                                                                className={`inline-flex min-w-[2rem] items-center justify-center rounded-full px-2 py-1 text-[10px] font-bold shadow-lg ${badge.className}`}
+                                                            >
+                                                                {badge.short}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            })()}
                                         </>
                                     ) : (
                                         <div className="absolute inset-0 flex items-center justify-center">

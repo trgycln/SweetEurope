@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaChevronRight } from 'react-icons/fa';
+import { isPublicMegaMenuCategoryHidden } from '@/lib/public-category-visibility';
 
 // Tipleri tanımlıyoruz
 interface Sublink { name: string; href: string; description?: string; }
@@ -15,6 +16,9 @@ interface MegaMenuData {
 
 const MegaMenu: React.FC<{ dictionary: { megaMenu: MegaMenuData } }> = ({ dictionary }) => {
   const { promo, mainCategories } = dictionary.megaMenu;
+  const visibleMainCategories = mainCategories.filter(
+    (category) => !isPublicMegaMenuCategoryHidden(category)
+  );
   const [activeCategory, setActiveCategory] = useState<MainCategory | null>(null);
 
   return (
@@ -25,7 +29,7 @@ const MegaMenu: React.FC<{ dictionary: { megaMenu: MegaMenuData } }> = ({ dictio
       <div className="container mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="col-span-1 border-r border-gray-200 pr-8">
           <nav className="flex flex-col space-y-2">
-            {mainCategories.map((category: MainCategory) => (
+            {visibleMainCategories.map((category: MainCategory) => (
               <div key={category.name} onMouseEnter={() => setActiveCategory(category)} className="flex justify-between items-center p-3 rounded-md hover:bg-bg-subtle cursor-pointer transition-colors">
                 <span className="font-bold font-sans tracking-wider uppercase text-primary">{category.name}</span>
                 <FaChevronRight className="text-accent opacity-50" />

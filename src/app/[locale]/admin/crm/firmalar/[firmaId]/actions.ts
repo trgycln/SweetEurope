@@ -45,6 +45,7 @@ export async function updateFirmaAction(
     const email = formData.get('email') as string | null;
     const oncelik_puani_raw = formData.get('oncelik_puani') as string | null; // YENİ: Öncelik puanı form'dan oku
     const instagram_url = formData.get('instagram_url') as string | null;
+    const linkedin_url = formData.get('linkedin_url') as string | null;
     const facebook_url = formData.get('facebook_url') as string | null;
     const web_url = formData.get('web_url') as string | null;
     const google_maps_url = formData.get('google_maps_url') as string | null;
@@ -57,8 +58,15 @@ export async function updateFirmaAction(
     const kaynak = formData.get('kaynak') as string | null;
     const ticari_tip_raw = formData.get('ticari_tip') as string | null;
     const sahip_id_raw = formData.get('sahip_id') as string | null;
+    const parent_firma_id = formData.get('parent_firma_id') as string | null;
     // Checkbox-Wert korrekt auslesen
     const referans_olarak_goster = formData.get('referans_olarak_goster') === 'on';
+    // Inheritance flags
+    const inherit_web_url = formData.get('inherit_web_url') === 'on';
+    const inherit_instagram_url = formData.get('inherit_instagram_url') === 'on';
+    const inherit_linkedin_url = formData.get('inherit_linkedin_url') === 'on';
+    const inherit_facebook_url = formData.get('inherit_facebook_url') === 'on';
+    const inherit_google_maps_url = formData.get('inherit_google_maps_url') === 'on';
 
     // Einfache Validierung (Beispiel)
     if (!unvan) { // Status ist oft optional oder wird nicht immer geändert
@@ -86,6 +94,7 @@ export async function updateFirmaAction(
     if (email) updatedData.email = email; else updatedData.email = null;
     // if (oncelik) (updatedData as any).oncelik = oncelik; else (updatedData as any).oncelik = null; // Removed manual priority
     if (instagram_url) (updatedData as any).instagram_url = instagram_url; else (updatedData as any).instagram_url = null;
+    if (linkedin_url) (updatedData as any).linkedin_url = linkedin_url; else (updatedData as any).linkedin_url = null;
     if (facebook_url) (updatedData as any).facebook_url = facebook_url; else (updatedData as any).facebook_url = null;
     if (web_url) (updatedData as any).web_url = web_url; else (updatedData as any).web_url = null;
     if (google_maps_url) (updatedData as any).google_maps_url = google_maps_url; else (updatedData as any).google_maps_url = null;
@@ -102,6 +111,15 @@ export async function updateFirmaAction(
     if (sahip_id_raw !== null) {
         (updatedData as any).sahip_id = sahip_id_raw || null;
     }
+    if (parent_firma_id !== null) {
+        (updatedData as any).parent_firma_id = parent_firma_id || null;
+    }
+    // Store inheritance flags
+    (updatedData as any).inherit_web_url = inherit_web_url;
+    (updatedData as any).inherit_instagram_url = inherit_instagram_url;
+    (updatedData as any).inherit_linkedin_url = inherit_linkedin_url;
+    (updatedData as any).inherit_facebook_url = inherit_facebook_url;
+    (updatedData as any).inherit_google_maps_url = inherit_google_maps_url;
     
     // --- YENİ PUANLAMA SİSTEMİ (KÖLN DİSTRİBÜTÖR) ---
     let oncelik_puani: number | null = null;

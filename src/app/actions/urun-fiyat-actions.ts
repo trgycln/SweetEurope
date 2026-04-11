@@ -9,13 +9,34 @@ import { Tables } from '@/lib/supabase/database.types';
 export type SavePricesPayload = {
   urunId: string;
   satis_fiyati_alt_bayi?: number | null;
+  satis_fiyati_toptanci?: number | null;
   satis_fiyati_musteri?: number | null;
+  distributor_alis_fiyati?: number | null;
+  urun_gami?: string | null;
 };
 
 export type SavePricesResult = {
   success?: boolean;
   error?: string;
 };
+
+function isUnsupportedPriceColumnError(error: { code?: string; message?: string } | null | undefined) {
+  if (!error) return false;
+  const message = `${error.message || ''}`;
+  return error.code === '42703'
+    || error.code === 'PGRST204'
+    || message.includes('urun_gami')
+    || message.includes('satis_fiyati_toptanci');
+}
+
+function stripUnsupportedPriceFields(data: Partial<Tables<'urunler'>>): Partial<Tables<'urunler'>> {
+  const {
+    urun_gami,
+    satis_fiyati_toptanci,
+    ...fallbackData
+  } = data as Partial<Tables<'urunler'>> & { urun_gami?: string | null; satis_fiyati_toptanci?: number | null };
+  return fallbackData;
+}
 
 export async function saveProductPricesAction(payload: SavePricesPayload, locale?: string): Promise<SavePricesResult> {
   try {
@@ -33,15 +54,31 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
     if (typeof payload.satis_fiyati_musteri === 'number') {
       updateData.satis_fiyati_musteri = payload.satis_fiyati_musteri;
     }
+    if (typeof payload.satis_fiyati_toptanci === 'number') {
+      updateData.satis_fiyati_toptanci = payload.satis_fiyati_toptanci;
+    }
+    if (typeof payload.distributor_alis_fiyati === 'number') {
+      updateData.distributor_alis_fiyati = payload.distributor_alis_fiyati;
+    }
+    if (Object.prototype.hasOwnProperty.call(payload, 'urun_gami')) {
+      updateData.urun_gami = payload.urun_gami ?? null;
+    }
 
     if (Object.keys(updateData).length === 0) {
       return { error: 'Güncellenecek bir alan yok.' };
     }
 
-    const { error } = await supabase
+    let { error } = await supabase
       .from('urunler')
       .update(updateData)
       .eq('id', payload.urunId);
+
+    if (error && isUnsupportedPriceColumnError(error)) {
+      ({ error } = await supabase
+        .from('urunler')
+        .update(stripUnsupportedPriceFields(updateData))
+        .eq('id', payload.urunId));
+    }
 
     if (error) {
       console.error('Fiyat güncelleme hatası:', error);
@@ -51,6 +88,7 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
     // Revalidate products list and calculator page for the active locale
     revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/urunler`);
     revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyat-hesaplama`);
+    revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
 
     return { success: true };
   } catch (e) {
@@ -168,7 +206,10 @@ export type BulkSavePricesPayload = {
   items: Array<{
     urunId: string;
     satis_fiyati_alt_bayi?: number;
+    satis_fiyati_toptanci?: number;
     satis_fiyati_musteri?: number;
+    distributor_alis_fiyati?: number;
+    urun_gami?: string | null;
   }>;
 };
 
@@ -207,16 +248,32 @@ export async function bulkSaveProductPricesAction(
       if (typeof item.satis_fiyati_musteri === 'number') {
         updateData.satis_fiyati_musteri = item.satis_fiyati_musteri;
       }
+      if (typeof item.satis_fiyati_toptanci === 'number') {
+        updateData.satis_fiyati_toptanci = item.satis_fiyati_toptanci;
+      }
+      if (typeof item.distributor_alis_fiyati === 'number') {
+        updateData.distributor_alis_fiyati = item.distributor_alis_fiyati;
+      }
+      if (Object.prototype.hasOwnProperty.call(item, 'urun_gami')) {
+        updateData.urun_gami = item.urun_gami ?? null;
+      }
 
       if (Object.keys(updateData).length === 0) {
         skipped.push({ urunId: item.urunId, reason: 'Güncellenecek alan yok' });
         continue;
       }
 
-      const { error } = await supabase
+      let { error } = await supabase
         .from('urunler')
         .update(updateData)
         .eq('id', item.urunId);
+
+      if (error && isUnsupportedPriceColumnError(error)) {
+        ({ error } = await supabase
+          .from('urunler')
+          .update(stripUnsupportedPriceFields(updateData))
+          .eq('id', item.urunId));
+      }
 
       if (error) {
         console.error(`Ürün ${item.urunId} güncellenemedi:`, error);

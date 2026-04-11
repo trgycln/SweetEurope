@@ -75,6 +75,20 @@ function KategoriFormModal({
                                 {tumKategoriler.filter(k => k.id !== mevcutKategori?.id).map(k => <option key={k.id} value={k.id}>{k.ad?.['tr']}</option>)}
                             </select>
                         </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="slug" className="block text-sm font-bold text-gray-600 mb-1">Slug</label>
+                                <input id="slug" name="slug" type="text" defaultValue={mevcutKategori?.slug || ''} className="w-full p-2 border rounded-md font-mono" placeholder="or. coffee-syrups" />
+                            </div>
+                            <div>
+                                <label htmlFor="urun_gami" className="block text-sm font-bold text-gray-600 mb-1">Ürün Gamı</label>
+                                <select id="urun_gami" name="urun_gami" defaultValue={mevcutKategori?.urun_gami || ''} className="w-full p-2 border rounded-md bg-gray-50">
+                                    <option value="">Seçiniz</option>
+                                    <option value="frozen-desserts">Frozen Desserts / Donuk Tatlılar</option>
+                                    <option value="barista-bakery-essentials">Barista & Bakery Essentials / FO</option>
+                                </select>
+                            </div>
+                        </div>
                         {diller.map(dil => (
                             <div key={dil.kod}>
                                 <label htmlFor={`ad_${dil.kod}`} className="block text-sm font-bold text-gray-600 mb-1">Kategori Adı ({dil.ad})</label>
@@ -105,7 +119,17 @@ function KategoriListesi({ kategoriler, parentId = null, seviye = 0, onDuzenle, 
             {altKategoriler.map(kategori => (
                 <li key={kategori.id}>
                     <div className="flex justify-between items-center p-3 bg-gray-50 border rounded-md hover:border-gray-300">
-                        <span className="font-semibold text-gray-800">{kategori.ad?.['tr'] || 'İsimsiz'}</span>
+                        <div>
+                            <span className="font-semibold text-gray-800">{kategori.ad?.['tr'] || 'İsimsiz'}</span>
+                            <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-gray-500">
+                                {kategori.slug && <span className="rounded-full bg-white px-2 py-0.5 border">{kategori.slug}</span>}
+                                {kategori.urun_gami && (
+                                    <span className="rounded-full bg-accent/10 px-2 py-0.5 text-accent font-semibold">
+                                        {kategori.urun_gami === 'frozen-desserts' ? 'Frozen Desserts' : 'Barista & Bakery Essentials'}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
                         <div className="flex gap-3">
                             <button onClick={() => onDuzenle(kategori)} className="p-1 text-gray-500 hover:text-blue-600" title="Düzenle"><FiEdit size={16} /></button>
                             <button onClick={() => onSil(kategori.id, kategori.ad?.['tr'] || 'bu kategoriyi')} className="p-1 text-gray-500 hover:text-red-600" title="Sil"><FiTrash2 size={16} /></button>

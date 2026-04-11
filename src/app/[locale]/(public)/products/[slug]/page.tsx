@@ -8,6 +8,7 @@ import { UrunDetayGorunumu } from '@/components/urun-detay-gorunumu';
 import { UrunReviewSection } from '@/components/UrunReviewSection';
 import { Locale } from '@/lib/utils'; // Locale aus utils holen
 import { Tables } from '@/lib/supabase/database.types';
+import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 import type { Metadata } from 'next';
 
 // Typ für die Sablon-Daten
@@ -18,7 +19,7 @@ type Sablon = {
 
 // Typ für Urun mit Kategorie
 type UrunWithKategorie = Tables<'urunler'> & {
-    kategoriler?: Pick<Tables<'kategoriler'>, 'id' | 'kategori_adi' | 'ust_kategori_id'> | null;
+    kategoriler?: Pick<Tables<'kategoriler'>, 'id' | 'slug' | 'ust_kategori_id'> | null;
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; slug: string }> }): Promise<Metadata> {
@@ -27,14 +28,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
     const { locale, slug } = await params;
     const dictionary = await getDictionary(locale as any);
 
-    const { data: urun } = await supabase
-        .from('urunler')
-        .select('urun_adi, aciklama, gorsel_url')
-        .eq('slug', slug)
-        .eq('aktif', true)
-        .single();
+    const [{ data: urun }, { data: allCategories }] = await Promise.all([
+        supabase
+            .from('urunler')
+            .select('urun_adi, aciklama, gorsel_url, kategoriler (id, slug, ust_kategori_id)')
+            .eq('slug', slug)
+            .eq('aktif', true)
+            .single(),
+        supabase
+            .from('kategoriler')
+            .select('id, slug, ust_kategori_id')
+    ]);
 
-    if (!urun) {
+    const hiddenKategoriIds = buildHiddenPublicCategoryIds((allCategories || []) as any[]);
+    const productKategoriId = (urun as any)?.kategoriler?.id as string | undefined;
+
+    if (!urun || hiddenKategoriIds.has(productKategoriId || '')) {
         return {
             title: 'Product Not Found | Elysion Sweets',
         };
@@ -64,20 +73,24 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
     const { locale, slug } = await params;
 
     // Dictionary und Produkt parallel abrufen
-    const [dictionary, { data: urunData }] = await Promise.all([
+    const [dictionary, { data: urunData }, { data: allCategories }] = await Promise.all([
         getDictionary(locale as any),
         supabase
             .from('urunler')
             // Kategorie-Daten (ust_kategori_id dahil)
-            .select(`*, kategoriler (id, ad, ust_kategori_id)`) 
+            .select(`*, kategoriler (id, ad, slug, ust_kategori_id)`) 
             .eq('slug', slug)
             .eq('aktif', true) // Only show active products
-            .single()
+            .single(),
+        supabase
+            .from('kategoriler')
+            .select('id, slug, ust_kategori_id')
     ]);
     
     const urun = urunData as UrunWithKategorie | null;
+    const hiddenKategoriIds = buildHiddenPublicCategoryIds((allCategories || []) as any[]);
 
-    if (!urun) {
+    if (!urun || hiddenKategoriIds.has(urun.kategoriler?.id || '')) {
         return notFound();
     }
 

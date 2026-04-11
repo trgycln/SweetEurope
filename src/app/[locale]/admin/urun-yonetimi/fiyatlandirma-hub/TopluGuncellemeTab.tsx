@@ -4,10 +4,11 @@ import { useMemo, useState } from 'react';
 import { Tables } from '@/lib/supabase/database.types';
 import { calculateAdminPrice, PricingParams, formatPrice } from '@/lib/admin-pricing';
 import { bulkSaveProductPricesAction, bulkCreatePriceChangeRequestsAction } from '@/app/actions/urun-fiyat-actions';
+import { PRODUCT_LINE_ORDER, getProductLineLabel, inferProductLineFromCategoryId, isProductLineKey, type ProductLineKey } from '@/lib/product-lines';
 
 // stok_kodu alanı tiplerde mevcut olduğu için onu ekliyoruz; yoksa optional olarak genişletiyoruz.
 // teknik_ozellikler içinden dilim/porsiyon bilgisini okuyacağız
-type ProductLite = Pick<Tables<'urunler'>, 'id' | 'ad' | 'kategori_id' | 'distributor_alis_fiyati' | 'satis_fiyati_alt_bayi' | 'satis_fiyati_musteri' | 'aktif'> & { stok_kodu?: string | null; teknik_ozellikler?: any | null };
+type ProductLite = Pick<Tables<'urunler'>, 'id' | 'ad' | 'kategori_id' | 'distributor_alis_fiyati' | 'satis_fiyati_alt_bayi' | 'satis_fiyati_musteri' | 'aktif' | 'urun_gami'> & { stok_kodu?: string | null; teknik_ozellikler?: any | null };
 
 interface Props {
   locale: string;
@@ -61,9 +62,30 @@ export default function TopluGuncellemeTab({
     return 1;
   }
 
+  const inferProductLine = (product: ProductLite): ProductLineKey | null => {
+    if (isProductLineKey(product.urun_gami)) return product.urun_gami;
+    return inferProductLineFromCategoryId(kategoriler as any, product.kategori_id);
+  };
+
+  const buildCategoryScope = (categoryId: string) => {
+    const scoped = new Set<string>([categoryId]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const kategori of kategoriler) {
+        if (kategori.ust_kategori_id && scoped.has(kategori.ust_kategori_id) && !scoped.has(kategori.id)) {
+          scoped.add(kategori.id);
+          changed = true;
+        }
+      }
+    }
+    return scoped;
+  };
+
   // Filters
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const [productLineFilter, setProductLineFilter] = useState<'all' | ProductLineKey>('all');
   // Removed değişim filtresi (showOnlyChanged)
 
   // Selection and overrides
@@ -82,6 +104,10 @@ export default function TopluGuncellemeTab({
   const filteredProducts = useMemo(() => {
     let filtered = products;
 
+    if (productLineFilter !== 'all') {
+      filtered = filtered.filter((p) => inferProductLine(p) === productLineFilter);
+    }
+
     // Search (by name or product code)
     if (search.trim()) {
       const term = search.trim().toLowerCase();
@@ -94,11 +120,12 @@ export default function TopluGuncellemeTab({
 
     // Category
     if (categoryFilter) {
-      filtered = filtered.filter(p => p.kategori_id === categoryFilter);
+      const scopedCategoryIds = buildCategoryScope(categoryFilter);
+      filtered = filtered.filter(p => p.kategori_id && scopedCategoryIds.has(p.kategori_id));
     }
 
     return filtered;
-  }, [products, search, categoryFilter, locale]);
+  }, [products, search, categoryFilter, productLineFilter, locale]);
 
   // Basit hesaplama mantığı (HTML hesaplayıcıdan)
   const productPrices = useMemo(() => {
@@ -348,7 +375,7 @@ export default function TopluGuncellemeTab({
       {/* Filter Panel */}
       <div className="bg-white rounded-lg border p-4">
         <h3 className="font-semibold text-lg mb-3">Filtreler</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label className="text-xs text-gray-600 block mb-1">Ara (Ad veya Kod)</label>
             <input
@@ -360,12 +387,31 @@ export default function TopluGuncellemeTab({
             />
           </div>
           <div>
+            <label className="text-xs text-gray-600 block mb-1">Ürün Gamı</label>
+            <select
+              value={productLineFilter}
+              onChange={e => {
+                setProductLineFilter(e.target.value as 'all' | ProductLineKey);
+                setCategoryFilter('');
+              }}
+              className="w-full border rounded px-3 py-2 text-sm"
+            >
+              <option value="all">Tüm Ürün Gamları</option>
+              {PRODUCT_LINE_ORDER.map(line => (
+                <option key={line} value={line}>{getProductLineLabel(line, locale as any)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className="text-xs text-gray-600 block mb-1">Kategori</label>
             <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="w-full border rounded px-3 py-2 text-sm">
               <option value="">Tüm Kategoriler</option>
-              {kategoriler.filter(k => !k.ust_kategori_id).map(k => (
-                <option key={k.id} value={k.id}>{getCategoryName(k.id)}</option>
-              ))}
+              {kategoriler
+                .filter(k => !k.ust_kategori_id)
+                .filter(k => productLineFilter === 'all' || inferProductLineFromCategoryId(kategoriler as any, k.id) === productLineFilter)
+                .map(k => (
+                  <option key={k.id} value={k.id}>{getCategoryName(k.id)}</option>
+                ))}
             </select>
           </div>
           <div className="flex items-end" />

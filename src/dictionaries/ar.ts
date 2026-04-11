@@ -995,7 +995,7 @@ export const dictionary: Partial<Dictionary> = {
       mainImage: 'الصورة الرئيسية',
       change: 'تغيير',
       upload: 'رفع',
-      formatsHint: 'PNG أو JPG أو WEBP حتى 2MB.',
+      formatsHint: 'PNG أو JPG أو WEBP حتى 10MB.',
       galleryImages: 'صور المعرض',
       addImages: 'إضافة صور'
     },

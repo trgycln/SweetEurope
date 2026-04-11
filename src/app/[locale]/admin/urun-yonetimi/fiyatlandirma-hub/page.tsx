@@ -21,18 +21,42 @@ export default async function FiyatlandirmaHubPage({ params }: { params: Promise
   const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Ekip Üyesi';
   if (!isAdmin) return redirect(`/${locale}/admin`);
 
-  // Fetch all data needed for all tabs
-  // Tab 1: Toplu Güncelleme - Products + Categories + System Settings
-    const { data: products } = await (supabase as any)
+  let productResponse = await (supabase as any)
     .from('urunler')
-    .select('id, ad, kategori_id, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_musteri, aktif, stok_kodu, teknik_ozellikler')
+    .select('id, ad, kategori_id, tedarikci_id, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_toptanci, satis_fiyati_musteri, aktif, stok_miktari, teknik_ozellikler, urun_gami, stok_kodu, birim_agirlik_kg, lojistik_sinifi, gumruk_vergi_orani_yuzde, almanya_kdv_orani, gunluk_depolama_maliyeti_eur, ortalama_stokta_kalma_suresi, fire_zayiat_orani_yuzde, standart_inis_maliyeti_net, son_gercek_inis_maliyeti_net, son_maliyet_sapma_yuzde, karlilik_alarm_aktif')
     .order('created_at', { ascending: false })
     .limit(500);
 
-  const { data: kategoriler } = await (supabase as any)
+  if (
+    productResponse.error
+    && (
+      productResponse.error.code === '42703'
+      || ['urun_gami', 'satis_fiyati_toptanci', 'birim_agirlik_kg', 'lojistik_sinifi', 'standart_inis_maliyeti_net']
+        .some((column) => `${productResponse.error?.message || ''}`.includes(column))
+    )
+  ) {
+    productResponse = await (supabase as any)
+      .from('urunler')
+      .select('id, ad, kategori_id, tedarikci_id, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_musteri, aktif, stok_miktari, teknik_ozellikler, stok_kodu')
+      .order('created_at', { ascending: false })
+      .limit(500);
+  }
+
+  const products = productResponse.data || [];
+
+  let categoryResponse = await (supabase as any)
     .from('kategoriler')
-    .select('id, ad, ust_kategori_id, slug')
+    .select('id, ad, slug, ust_kategori_id, urun_gami')
     .order('created_at', { ascending: false });
+
+  if (categoryResponse.error && (categoryResponse.error.code === '42703' || `${categoryResponse.error.message || ''}`.includes('urun_gami'))) {
+    categoryResponse = await (supabase as any)
+      .from('kategoriler')
+      .select('id, ad, slug, ust_kategori_id')
+      .order('created_at', { ascending: false });
+  }
+
+  const kategoriler = categoryResponse.data || [];
 
   const { data: systemSettingsRaw } = await (supabase as any)
     .from('system_settings')
@@ -47,102 +71,68 @@ export default async function FiyatlandirmaHubPage({ params }: { params: Promise
     }
   });
 
-  // Tab 2: Kurallar - Pricing Rules
-  const { data: kurallar } = await (supabase as any)
-    .from('fiyat_kurallari')
-    .select('id, ad, kapsam, kategori_id, urun_id, kanal, firma_id, min_adet, yuzde_degisim, oncelik, aktif, baslangic_tarihi, bitis_tarihi, aciklama, created_at, kategoriler:kategori_id(ad), urunler:urun_id(ad), firmalar:firma_id(unvan)')
-    .order('oncelik', { ascending: true })
-    .order('created_at', { ascending: true })
-    .limit(200);
-
-  // Tab 3: İstisnalar - Customer Overrides
-  const { data: istisnalar } = await (supabase as any)
-    .from('musteri_fiyat_istisnalari')
-    .select('id, urun_id, firma_id, kanal, ozel_fiyat_net, baslangic_tarihi, bitis_tarihi, aciklama, created_at, urunler:urun_id(ad), firmalar:firma_id(unvan)')
-    .order('created_at', { ascending: false })
-    .limit(200);
-
-  // Tab 4: Talepler - Price Change Requests
-  let taleplerQuery = (supabase as any)
-    .from('fiyat_degisim_talepleri')
-    .select('id, created_at, urun_id, created_by, notlar, proposed_satis_fiyati_alt_bayi, proposed_satis_fiyati_musteri, status, approved_by, approved_at, urunler:urun_id(ad)')
-    .order('created_at', { ascending: false })
-    .limit(100);
-  
-  if (!isAdmin) {
-    taleplerQuery = taleplerQuery.eq('created_by', user.id);
-  }
-  const { data: talepler } = await taleplerQuery;
-
-  // Get user names for requests
-  const userIds = Array.from(new Set(((talepler ?? []) as any[]).map(t => t.created_by).filter(Boolean)));
-  const profillerById: Record<string, string> = {};
-  if (userIds.length > 0) {
-    const { data: profs } = await (supabase as any)
-      .from('profiller')
-      .select('id, tam_ad')
-      .in('id', userIds);
-    (profs || []).forEach((p: any) => {
-      profillerById[p.id] = p.tam_ad || p.id;
-    });
-  }
-
-  // Tab 5: Müşteri Profilleri
-  const { data: musteriProfilleri } = await (supabase as any)
-    .from('musteri_profilleri')
-    .select('*')
-    .order('sira_no', { ascending: true })
-    .order('created_at', { ascending: true });
-
-  // Profile usage stats
-  const { data: profilStats } = await (supabase as any)
-    .from('firmalar')
-    .select('musteri_profil_id')
-    .not('musteri_profil_id', 'is', null);
-  
-  const profilKullanimSayisi: Record<string, number> = {};
-  (profilStats || []).forEach((stat: any) => {
-    const profilId = stat.musteri_profil_id;
-    profilKullanimSayisi[profilId] = (profilKullanimSayisi[profilId] || 0) + 1;
-  });
-
-  // Firmalar (needed for istisna and kural forms)
   const { data: firmalar } = await (supabase as any)
     .from('firmalar')
-    .select(`
-      id, 
-      unvan, 
-      kategori,
-      status,
-      musteri_profil_id,
-      musteri_profilleri:musteri_profil_id(ad, genel_indirim_yuzdesi)
-    `)
+    .select('id, unvan')
     .order('unvan', { ascending: true })
-    .limit(500);
+    .limit(1000);
+
+  const { data: tedarikciler } = await (supabase as any)
+    .from('tedarikciler')
+    .select('id, unvan')
+    .order('unvan', { ascending: true })
+    .limit(1000);
+
+  let recentBatches: Array<any> = [];
+  const recentBatchResponse = await (supabase as any)
+    .from('ithalat_partileri')
+    .select('id, referans_kodu, tedarikci_id, para_birimi, kur_orani, navlun_soguk_eur, navlun_kuru_eur, gumruk_vergi_toplam_eur, traces_numune_ardiye_eur, varis_tarihi, durum, created_at')
+    .order('created_at', { ascending: false })
+    .limit(8);
+
+  if (!recentBatchResponse.error && recentBatchResponse.data?.length) {
+    recentBatches = recentBatchResponse.data;
+
+    const partiIds = recentBatches.map((batch) => batch.id);
+    const batchItemsResponse = await (supabase as any)
+      .from('ithalat_parti_kalemleri')
+      .select('parti_id, miktar_adet')
+      .in('parti_id', partiIds);
+
+    if (!batchItemsResponse.error && batchItemsResponse.data) {
+      const summaryByBatch = (batchItemsResponse.data as Array<any>).reduce((acc, item) => {
+        const key = item.parti_id;
+        if (!acc[key]) acc[key] = { itemCount: 0, totalQuantity: 0 };
+        acc[key].itemCount += 1;
+        acc[key].totalQuantity += Number(item.miktar_adet || 0);
+        return acc;
+      }, {} as Record<string, { itemCount: number; totalQuantity: number }>);
+
+      recentBatches = recentBatches.map((batch) => ({
+        ...batch,
+        itemCount: summaryByBatch[batch.id]?.itemCount || 0,
+        totalQuantity: summaryByBatch[batch.id]?.totalQuantity || 0,
+      }));
+    }
+  }
 
   return (
     <div className="p-6 max-w-[1600px] mx-auto">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-text-main mb-2">🏷️ Fiyatlandırma Yönetim Merkezi</h1>
+        <h1 className="text-3xl font-bold text-text-main mb-2">🏷️ Basit Fiyatlandirma Merkezi</h1>
         <p className="text-sm text-text-main/70">
-          Tüm fiyatlandırma işlemlerinizi tek sayfadan yönetin: Toplu güncelleme, kurallar, istisnalar, talepler ve müşteri profilleri.
+          Donuk ve kuru gida icin temel parametreleri ayarlayin, fiyatlari hizlica kontrol edin ve urunlere toplu olarak uygulayin.
         </p>
       </div>
 
       <FiyatlandirmaHubClient
         locale={locale}
         products={products || []}
-        kategoriler={kategoriler || []}
+        categories={kategoriler || []}
+        companies={firmalar || []}
+        suppliers={tedarikciler || []}
+        recentBatches={recentBatches}
         systemSettings={systemSettings}
-        kurallar={kurallar || []}
-        istisnalar={istisnalar || []}
-        talepler={talepler || []}
-        profillerById={profillerById}
-        musteriProfilleri={musteriProfilleri || []}
-        profilKullanimSayisi={profilKullanimSayisi}
-        firmalar={firmalar || []}
-        isAdmin={isAdmin}
-        userId={user.id}
       />
     </div>
   );

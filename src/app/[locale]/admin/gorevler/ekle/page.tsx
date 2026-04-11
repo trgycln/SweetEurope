@@ -53,6 +53,7 @@ async function gorevEkleAction(locale: Locale, formData: FormData) { // Locale Ã
       aciklama: aciklama || null,
       son_tarih: (son_tarih_raw && son_tarih_raw.trim() !== '') ? new Date(son_tarih_raw).toISOString() : null,
       atanan_kisi_id: atanan_kisi_id,
+      sahip_id: atanan_kisi_id,
       ilgili_firma_id: (ilgili_firma_id && ilgili_firma_id.trim() !== '') ? ilgili_firma_id : null, // Leeren String als NULL speichern
       olusturan_kisi_id: user.id, // Ersteller setzen
       oncelik: oncelik,

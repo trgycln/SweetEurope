@@ -1386,6 +1386,7 @@ export type Database = {
           id: string
           image_url: string | null
           slug: string | null
+          urun_gami: string | null
           ust_kategori_id: string | null
         }
         Insert: {
@@ -1394,6 +1395,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           slug?: string | null
+          urun_gami?: string | null
           ust_kategori_id?: string | null
         }
         Update: {
@@ -1402,6 +1404,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           slug?: string | null
+          urun_gami?: string | null
           ust_kategori_id?: string | null
         }
         Relationships: [
@@ -1906,67 +1909,124 @@ export type Database = {
           aciklamalar: Json | null
           ad: Json
           aktif: boolean
+          alis_fiyat_seviyesi: string | null
+          almanya_kdv_orani: number | null
           ana_resim_url: string | null
           ana_satis_birimi_id: string | null
+          birim_agirlik_kg: number | null
           created_at: string
           degerlendirme_sayisi: number | null
           distributor_alis_fiyati: number
+          fire_zayiat_orani_yuzde: number | null
+          gunluk_depolama_maliyeti_eur: number | null
+          gumruk_vergi_orani_yuzde: number | null
           galeri_resim_urls: string[] | null
           id: string
           kategori_id: string
+          karlilik_alarm_aktif: boolean
+          koli_ici_adet: number | null
+          koli_ici_kutu_adet: number | null
+          lojistik_sinifi: string | null
           ortalama_puan: number | null
+          ortalama_stokta_kalma_suresi: number | null
+          palet_ici_adet: number | null
+          palet_ici_koli_adet: number | null
+          palet_ici_kutu_adet: number | null
           satis_fiyati_alt_bayi: number
           satis_fiyati_musteri: number
+          satis_fiyati_toptanci: number | null
+          son_gercek_inis_maliyeti_net: number | null
+          son_maliyet_sapma_yuzde: number | null
+          standart_inis_maliyeti_net: number | null
           slug: string | null
           stok_esigi: number
           stok_kodu: string | null
           stok_miktari: number
           tedarikci_id: string | null
           teknik_ozellikler: Json | null
+          urun_gami: string | null
         }
         Insert: {
           aciklamalar?: Json | null
           ad: Json
           aktif?: boolean
+          alis_fiyat_seviyesi?: string | null
+          almanya_kdv_orani?: number | null
           ana_resim_url?: string | null
           ana_satis_birimi_id?: string | null
+          birim_agirlik_kg?: number | null
           created_at?: string
           degerlendirme_sayisi?: number | null
           distributor_alis_fiyati?: number
+          fire_zayiat_orani_yuzde?: number | null
+          gunluk_depolama_maliyeti_eur?: number | null
+          gumruk_vergi_orani_yuzde?: number | null
           galeri_resim_urls?: string[] | null
           id?: string
           kategori_id: string
+          karlilik_alarm_aktif?: boolean
+          koli_ici_adet?: number | null
+          koli_ici_kutu_adet?: number | null
+          lojistik_sinifi?: string | null
           ortalama_puan?: number | null
+          ortalama_stokta_kalma_suresi?: number | null
+          palet_ici_adet?: number | null
+          palet_ici_koli_adet?: number | null
+          palet_ici_kutu_adet?: number | null
           satis_fiyati_alt_bayi?: number
           satis_fiyati_musteri?: number
+          satis_fiyati_toptanci?: number | null
+          son_gercek_inis_maliyeti_net?: number | null
+          son_maliyet_sapma_yuzde?: number | null
+          standart_inis_maliyeti_net?: number | null
           slug?: string | null
           stok_esigi?: number
           stok_kodu?: string | null
           stok_miktari?: number
           tedarikci_id?: string | null
           teknik_ozellikler?: Json | null
+          urun_gami?: string | null
         }
         Update: {
           aciklamalar?: Json | null
           ad?: Json
           aktif?: boolean
+          alis_fiyat_seviyesi?: string | null
+          almanya_kdv_orani?: number | null
           ana_resim_url?: string | null
           ana_satis_birimi_id?: string | null
+          birim_agirlik_kg?: number | null
           created_at?: string
           degerlendirme_sayisi?: number | null
           distributor_alis_fiyati?: number
+          fire_zayiat_orani_yuzde?: number | null
+          gunluk_depolama_maliyeti_eur?: number | null
+          gumruk_vergi_orani_yuzde?: number | null
           galeri_resim_urls?: string[] | null
           id?: string
           kategori_id?: string
+          karlilik_alarm_aktif?: boolean
+          koli_ici_adet?: number | null
+          koli_ici_kutu_adet?: number | null
+          lojistik_sinifi?: string | null
           ortalama_puan?: number | null
+          ortalama_stokta_kalma_suresi?: number | null
+          palet_ici_adet?: number | null
+          palet_ici_koli_adet?: number | null
+          palet_ici_kutu_adet?: number | null
           satis_fiyati_alt_bayi?: number
           satis_fiyati_musteri?: number
+          satis_fiyati_toptanci?: number | null
+          son_gercek_inis_maliyeti_net?: number | null
+          son_maliyet_sapma_yuzde?: number | null
+          standart_inis_maliyeti_net?: number | null
           slug?: string | null
           stok_esigi?: number
           stok_kodu?: string | null
           stok_miktari?: number
           tedarikci_id?: string | null
           teknik_ozellikler?: Json | null
+          urun_gami?: string | null
         }
         Relationships: [
           {

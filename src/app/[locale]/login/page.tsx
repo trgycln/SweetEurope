@@ -39,5 +39,5 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
     }
     
     // Benutzer ist nicht eingeloggt, Login-Formular anzeigen
-    return <LoginForm dictionary={dictionary} />;
+    return <LoginForm dictionary={dictionary} locale={locale} />;
 }

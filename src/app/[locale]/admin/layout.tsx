@@ -10,6 +10,7 @@ import { Locale } from '@/i18n-config';
 import { cookies } from 'next/headers'; // Wichtig
 import { VisitPlannerProvider } from '@/contexts/VisitPlannerContext';
 import VisitPlannerPanel from '@/components/VisitPlannerPanel';
+import { normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
 
 // Typ für Benachrichtigungen
 type Bildirim = Tables<'bildirimler'>;
@@ -81,6 +82,7 @@ export default async function AdminLayout({
     }
 
     const userRole = profileData.rol as Enums<'user_role'> | null;
+    const allowedPanels = normalizeAllowedAdminPanels(user.user_metadata?.allowed_admin_panels);
 
     // Dictionary laden
     const dictionary = await getDictionary(locale);
@@ -124,6 +126,7 @@ export default async function AdminLayout({
                 initialNotifications={initialNotifications}
                 initialUnreadCount={unreadNotificationCount} // Verwenden Sie den (potenziell 0) Wert
                 locale={locale}
+                allowedPanels={allowedPanels}
             >
                 {children}
             </AdminLayoutClient>

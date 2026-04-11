@@ -1001,7 +1001,7 @@ export const dictionary: Partial<Dictionary> = {
       mainImage: 'Ana görsel',
       change: 'Değiştir',
       upload: 'Yükle',
-      formatsHint: 'PNG, JPG veya WEBP, en fazla 2MB.',
+      formatsHint: 'PNG, JPG veya WEBP, en fazla 10MB.',
       galleryImages: 'Galeri görselleri',
       addImages: 'Görsel ekle'
     },

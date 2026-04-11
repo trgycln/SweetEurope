@@ -6,11 +6,17 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 // Tipleri ana sayfadan alacağız, şimdilik basitçe tanımlıyoruz.
 type Profil = { id: string; tam_ad: string | null };
 type Oncelik = 'Düşük' | 'Orta' | 'Yüksek';
+type TasksPageDictionary = Record<string, string | undefined>;
 
 interface GorevFiltreleriProps {
     profiller: Profil[];
     oncelikler: Oncelik[];
-    dictionary: any;
+    dictionary?: {
+        tasksPage?: TasksPageDictionary;
+        adminDashboard?: {
+            tasksPage?: TasksPageDictionary;
+        };
+    };
 }
 
 export default function GorevFiltreleri({ profiller, oncelikler, dictionary }: GorevFiltreleriProps) {

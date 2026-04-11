@@ -79,6 +79,7 @@ export async function createNumuneTalepAction(
         aliciRol: ['Yönetici', 'Ekip Üyesi'],
         icerik: bildirimMesaj,
         link: bildirimLink,
+        preferenceKey: 'sample_updates',
         supabaseClient: supabase // Client übergeben
     });
 
@@ -257,6 +258,7 @@ export async function partnerCancelNumuneTalepAction(
             aliciRol: ['Yönetici', 'Ekip Üyesi'],
             icerik: bildirimMesaj,
             link: bildirimLink,
+            preferenceKey: 'sample_updates',
             supabaseClient: supabase
         });
     }
