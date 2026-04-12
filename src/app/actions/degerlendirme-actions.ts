@@ -128,8 +128,8 @@ export async function createDegerlendirme(formData: {
     .eq('id', user.id)
     .single();
 
-  // Yalnızca portal rollerine izin ver (Müşteri, Alt Bayi, Yönetici, Ekip Üyesi)
-  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Ekip Üyesi'];
+  // Yalnızca portal ve iç kullanıcı rollerine izin ver
+  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Personel', 'Ekip Üyesi'];
   if (!profil || !profil.rol || !allowedRoles.includes(profil.rol as any)) {
     return { success: false, error: 'Yetkiniz yok' };
   }
@@ -189,13 +189,13 @@ export async function updateDegerlendirme(
     return { success: false, error: 'Giriş yapmalısınız' };
   }
 
-  // Rol kontrolü (sadece portal roller)
+  // Rol kontrolü (portal + iç kullanıcı rolleri)
   const { data: profil } = await supabase
     .from('profiller')
     .select('rol')
     .eq('id', user.id)
     .single();
-  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Ekip Üyesi'];
+  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Personel', 'Ekip Üyesi'];
   if (!profil || !profil.rol || !allowedRoles.includes(profil.rol as any)) {
     return { success: false, error: 'Yetkiniz yok' };
   }
@@ -234,13 +234,13 @@ export async function voteDegerlendirme(
     return { success: false, error: 'Giriş yapmalısınız' };
   }
 
-  // Rol kontrolü (sadece portal roller)
+  // Rol kontrolü (portal + iç kullanıcı rolleri)
   const { data: profil } = await supabase
     .from('profiller')
     .select('rol')
     .eq('id', user.id)
     .single();
-  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Ekip Üyesi'];
+  const allowedRoles = ['Müşteri', 'Alt Bayi', 'Yönetici', 'Personel', 'Ekip Üyesi'];
   if (!profil || !profil.rol || !allowedRoles.includes(profil.rol as any)) {
     return { success: false, error: 'Yetkiniz yok' };
   }

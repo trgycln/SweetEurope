@@ -6,7 +6,7 @@ import { User } from '@supabase/supabase-js';
 // Profilimiz için TypeScript tipi
 export type Profile = {
   id: string;
-  rol: 'Yönetici' | 'Ekip Üyesi' | null;
+  rol: 'Yönetici' | 'Personel' | 'Ekip Üyesi' | null;
   // Gelecekte eklenecek diğer profil bilgileri (isim, telefon vb.) buraya eklenebilir.
 };
 

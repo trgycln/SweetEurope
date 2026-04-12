@@ -29,7 +29,7 @@ export default async function FiyatMatrisiPage({ params }: PageProps) {
         .single();
 
     const userRole = profile?.rol;
-    if (userRole !== 'Yönetici' && userRole !== 'Ekip Üyesi') {
+    if (userRole !== 'Yönetici' && userRole !== 'Personel' && userRole !== 'Ekip Üyesi') {
         redirect(`/${locale}/login`);
     }
 

@@ -48,21 +48,38 @@ export default async function PersonelPage({ params }: PageProps) {
   if (!user) return redirect(`/${locale}/login?next=/${locale}/admin/idari/personel`);
 
   const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();
+  const currentRole = String(profile?.rol ?? '');
 
-  if (!profile || (profile.rol !== 'Yönetici' && profile.rol !== 'Ekip Üyesi')) {
+  if (!profile || (currentRole !== 'Yönetici' && currentRole !== 'Personel' && currentRole !== 'Ekip Üyesi')) {
     return redirect(`/${locale}/admin`);
   }
 
+  let supabaseAdmin: ReturnType<typeof createSupabaseServiceClient> | null = null;
+  try {
+    supabaseAdmin = createSupabaseServiceClient();
+  } catch (error) {
+    console.error('Service client başlatılamadı, kullanıcı yönetimi oturum istemcisi ile devam edecek:', error);
+  }
+
+  const dataClient = supabaseAdmin ?? supabase;
+
   const [profilesRes, gorevlerRes, firmalarRes] = await Promise.all([
-    supabase
+    dataClient
       .from('profiller')
-      .select('id, tam_ad, rol, firma_id, tercih_edilen_dil, firma:firmalar(id, unvan)')
+      .select('id, tam_ad, rol, firma_id, tercih_edilen_dil, firma:firmalar!profiller_firma_id_fkey(id, unvan)')
       .order('tam_ad'),
-    supabase.from('gorevler').select('id, baslik, atanan_kisi_id, tamamlandi').order('created_at', { ascending: false }),
-    supabase.from('firmalar').select('id, unvan, ticari_tip, kategori, sahip_id').order('unvan'),
+    dataClient.from('gorevler').select('id, baslik, atanan_kisi_id, tamamlandi').order('created_at', { ascending: false }),
+    dataClient.from('firmalar').select('id, unvan, ticari_tip, kategori, sahip_id').order('unvan'),
   ]);
 
-  const profiles = profilesRes.data || [];
+  if (profilesRes.error) console.error('Kullanıcı profilleri yüklenemedi:', profilesRes.error.message);
+  if (gorevlerRes.error) console.error('Görev listesi yüklenemedi:', gorevlerRes.error.message);
+  if (firmalarRes.error) console.error('Firma listesi yüklenemedi:', firmalarRes.error.message);
+
+  const archivedUserPrefix = '[Silindi]';
+  const profiles = (profilesRes.data || []).filter(
+    (item) => !String(item?.tam_ad ?? '').startsWith(archivedUserPrefix)
+  );
   const gorevler = gorevlerRes.data || [];
   const firmalar: FirmaOption[] = firmalarRes.data || [];
 
@@ -80,31 +97,36 @@ export default async function PersonelPage({ params }: PageProps) {
   const notificationPreferencesMap = new Map<string, Record<string, boolean>>();
   const authNameMap = new Map<string, string | null>();
 
-  try {
-    const supabaseAdmin = createSupabaseServiceClient();
-    const { data: authUsersData, error: authUsersError } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (supabaseAdmin) {
+    try {
+      const { data: authUsersData, error: authUsersError } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
 
-    if (authUsersError) {
-      console.error('Auth kullanıcı listesi alınamadı:', authUsersError);
-    } else {
-      for (const authUser of authUsersData.users) {
-        emailMap.set(authUser.id, authUser.email ?? null);
-        authNameMap.set(authUser.id, typeof authUser.user_metadata?.tam_ad === 'string' ? authUser.user_metadata.tam_ad : null);
-        allowedPanelsMap.set(
-          authUser.id,
-          getEffectiveAdminPanels(
-            (profiles.find((item) => item.id === authUser.id)?.rol as string | null) || null,
-            authUser.user_metadata?.allowed_admin_panels
-          )
-        );
-        notificationPreferencesMap.set(
-          authUser.id,
-          normalizeInternalNotificationPreferences(authUser.user_metadata?.internal_notification_preferences)
-        );
+      if (authUsersError) {
+        console.error('Auth kullanıcı listesi alınamadı:', authUsersError);
+      } else {
+        for (const authUser of authUsersData.users) {
+          if (typeof authUser.deleted_at === 'string' && authUser.deleted_at.length > 0) {
+            continue;
+          }
+
+          emailMap.set(authUser.id, authUser.email ?? null);
+          authNameMap.set(authUser.id, typeof authUser.user_metadata?.tam_ad === 'string' ? authUser.user_metadata.tam_ad : null);
+          allowedPanelsMap.set(
+            authUser.id,
+            getEffectiveAdminPanels(
+              (profiles.find((item) => item.id === authUser.id)?.rol as string | null) || null,
+              authUser.user_metadata?.allowed_admin_panels
+            )
+          );
+          notificationPreferencesMap.set(
+            authUser.id,
+            normalizeInternalNotificationPreferences(authUser.user_metadata?.internal_notification_preferences)
+          );
+        }
       }
+    } catch (error) {
+      console.error('Auth kullanıcıları service client ile alınamadı:', error);
     }
-  } catch (error) {
-    console.error('Auth kullanıcıları service client ile alınamadı:', error);
   }
 
   const profileMap = new Map(profiles.map((item) => [item.id, item]));
@@ -119,7 +141,7 @@ export default async function PersonelPage({ params }: PageProps) {
       return {
         id: userId,
         tam_ad: item?.tam_ad ?? authNameMap.get(userId) ?? null,
-        rol: item?.rol ? String(item.rol) : 'Tanımsız',
+        rol: item?.rol === 'Ekip Üyesi' ? 'Personel' : item?.rol ? String(item.rol) : 'Tanımsız',
         email: emailMap.get(userId) ?? null,
         firma_id: item?.firma_id ?? null,
         firma_unvan: firma?.unvan ?? null,
@@ -131,6 +153,7 @@ export default async function PersonelPage({ params }: PageProps) {
         notification_preferences: notificationPreferencesMap.get(userId) ?? normalizeInternalNotificationPreferences(null),
       };
     })
+    .filter((item) => !String(item.tam_ad ?? '').startsWith(archivedUserPrefix))
     .sort((a, b) => {
       const left = (a.tam_ad || a.email || a.id).toLocaleLowerCase('tr');
       const right = (b.tam_ad || b.email || b.id).toLocaleLowerCase('tr');

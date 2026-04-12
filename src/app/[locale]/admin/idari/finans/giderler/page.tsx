@@ -110,7 +110,7 @@ export default async function GiderlerPage({
         .eq('id', user.id)
         .single();
 
-    if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') {
+    if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Personel' && profile?.rol !== 'Ekip Üyesi') {
         return redirect(`/${locale}/dashboard`);
     }
 

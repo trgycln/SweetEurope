@@ -76,7 +76,7 @@ export async function createNumuneTalepAction(
     const bildirimMesaj = `${firmaAdi}, "${urunAdi}" ürünü için yeni bir numune talebinde bulundu.`;
     const bildirimLink = newTalepId ? `/admin/operasyon/numune-talepleri?q=${newTalepId}` : '/admin/operasyon/numune-talepleri'; // Pfad angepasst
     await sendNotification({
-        aliciRol: ['Yönetici', 'Ekip Üyesi'],
+        aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
         icerik: bildirimMesaj,
         link: bildirimLink,
         preferenceKey: 'sample_updates',
@@ -255,7 +255,7 @@ export async function partnerCancelNumuneTalepAction(
         const bildirimMesaj = `${firmaAdi} hat die Musteranfrage für "${urunAdi}" storniert.`;
         const bildirimLink = `/admin/operasyon/numune-talepleri`;
         await sendNotification({
-            aliciRol: ['Yönetici', 'Ekip Üyesi'],
+            aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
             icerik: bildirimMesaj,
             link: bildirimLink,
             preferenceKey: 'sample_updates',

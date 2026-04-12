@@ -82,7 +82,7 @@ export default async function UrunlerListPage({
      // Rollenprüfung
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
     const isAdmin = profile?.rol === 'Yönetici';
-    const canImportProducts = profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi';
+    const canImportProducts = profile?.rol === 'Yönetici' || profile?.rol === 'Personel' || profile?.rol === 'Ekip Üyesi';
     const canSeePurchasePrice = profile?.rol !== 'Personel';
      // Ekip Üyesi sadece okuma yapabilir, düzenleme yetkisi yok
 

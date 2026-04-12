@@ -61,11 +61,8 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
         .single();
 
         if (!profile || !profile.firma_id) {
-            // Sicherstellen, dass Admins/Team/Personel nicht hier landen (obwohl Middleware dies tun sollte)
-            if (profile?.rol === 'Personel') {
-                return redirect(`/${locale}/admin/operasyon/siparisler`);
-            }
-            if (profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi') {
+            // İç kullanıcılar portal yerine admin alanını kullanır
+            if (profile?.rol === 'Personel' || profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi') {
                 return redirect(`/${locale}/admin/dashboard`);
             }
            return redirect(`/${locale}/login?error=unauthorized`);

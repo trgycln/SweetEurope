@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { assignCustomerProfileAction } from '@/app/actions/customer-profile-actions';
 
 interface ProfileAssignmentFormProps {
@@ -25,6 +25,11 @@ export default function ProfileAssignmentForm({
   const [selectedProfilId, setSelectedProfilId] = useState(firma.musteri_profil_id || '');
   const [isLoading, setIsLoading] = useState(false);
 
+  const selectedProfil = useMemo(
+    () => profiller.find((profil) => profil.id === selectedProfilId) || null,
+    [profiller, selectedProfilId]
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -42,40 +47,46 @@ export default function ProfileAssignmentForm({
   const hasChanged = selectedProfilId !== (firma.musteri_profil_id || '');
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 items-center">
-      <select 
-        value={selectedProfilId}
-        onChange={(e) => setSelectedProfilId(e.target.value)}
-        className="text-sm border border-gray-300 rounded px-2 py-1 min-w-[140px]"
-        disabled={isLoading}
-      >
-        <option value="">Profil yok</option>
-        {profiller.map((profil) => (
-          <option key={profil.id} value={profil.id}>
-            {profil.ad} ({profil.genel_indirim_yuzdesi > 0 ? '+' : ''}{profil.genel_indirim_yuzdesi}%)
-          </option>
-        ))}
-      </select>
-      
-      {hasChanged && (
-        <button 
-          type="submit"
+    <div className="space-y-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <select 
+          value={selectedProfilId}
+          onChange={(e) => setSelectedProfilId(e.target.value)}
+          className="min-w-[220px] rounded-lg border border-gray-300 px-3 py-2 text-sm"
           disabled={isLoading}
-          className={`px-3 py-1 text-xs rounded text-white font-medium ${
-            isLoading 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-blue-600 hover:bg-blue-700'
-          }`}
         >
-          {isLoading ? '...' : 'Kaydet'}
-        </button>
-      )}
-      
-      {!hasChanged && (
-        <span className="text-xs text-gray-500 px-3 py-1">
-          ✓ Güncel
-        </span>
-      )}
-    </form>
+          <option value="">Standart fiyat / profil yok</option>
+          {profiller.map((profil) => (
+            <option key={profil.id} value={profil.id}>
+              {profil.ad} ({profil.genel_indirim_yuzdesi > 0 ? '+' : ''}{profil.genel_indirim_yuzdesi}%)
+            </option>
+          ))}
+        </select>
+        
+        {hasChanged ? (
+          <button 
+            type="submit"
+            disabled={isLoading}
+            className={`rounded-lg px-4 py-2 text-sm font-medium text-white ${
+              isLoading 
+                ? 'cursor-not-allowed bg-gray-400' 
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {isLoading ? 'Kaydediliyor...' : 'Profili Kaydet'}
+          </button>
+        ) : (
+          <span className="rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-700">
+            ✓ Mevcut seçim kayıtlı
+          </span>
+        )}
+      </form>
+
+      <p className="text-xs text-gray-500">
+        {selectedProfil
+          ? `Seçili profil: ${selectedProfil.ad} (${selectedProfil.genel_indirim_yuzdesi > 0 ? '+' : ''}${selectedProfil.genel_indirim_yuzdesi}% genel etki)`
+          : 'Bu firma için standart fiyatlandırma geçerli olur.'}
+      </p>
+    </div>
   );
 }

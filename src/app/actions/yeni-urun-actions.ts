@@ -87,7 +87,7 @@ export async function createYeniUrunTalepAction(
     // Pfad anpassen an Ihre Admin-Struktur
     const bildirimLink = newTalepId ? `/admin/urun-yonetimi/urun-talepleri?q=${newTalepId}` : '/admin/urun-yonetimi/urun-talepleri';
     await sendNotification({
-        aliciRol: ['Yönetici', 'Ekip Üyesi'],
+        aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
         icerik: bildirimMesaj,
         link: bildirimLink,
         preferenceKey: 'general_announcements',
@@ -139,7 +139,7 @@ export async function partnerDeleteUrunTalepAction(
         const productName = talepData.produkt_name || 'ein Produkt';
         const bildirimMesaj = `${firmaAdi} hat die Produktanfrage für "${productName}" gelöscht.`;
         await sendNotification({
-            aliciRol: ['Yönetici', 'Ekip Üyesi'],
+            aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
             icerik: bildirimMesaj,
             preferenceKey: 'general_announcements',
             supabaseClient: supabase

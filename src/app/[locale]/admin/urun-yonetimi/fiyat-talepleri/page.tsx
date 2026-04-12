@@ -16,7 +16,7 @@ export default async function FiyatTalepleriPage({ params }: { params: Promise<{
     .select('id, rol, tam_ad')
     .eq('id', user.id)
     .maybeSingle();
-  const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Ekip Üyesi';
+  const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Personel' || profil?.rol === 'Ekip Üyesi';
 
   // Talep sorgusu (admin tümünü görür, aksi halde sadece kendi kayıtları)
   let baseQuery = (supabase as any)

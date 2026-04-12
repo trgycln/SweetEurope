@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiBell, FiBriefcase, FiClipboard, FiEdit2, FiMail, FiSave, FiShield, FiTrash2, FiUserPlus, FiXCircle } from 'react-icons/fi';
+import { FiBell, FiBriefcase, FiChevronDown, FiClipboard, FiEdit2, FiMail, FiSave, FiShield, FiTrash2, FiUserPlus, FiXCircle } from 'react-icons/fi';
 import { toast } from 'sonner';
 
 import { DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES, INTERNAL_NOTIFICATION_OPTIONS } from '@/lib/admin/panel-access';
@@ -48,9 +48,9 @@ interface PersonelManagerProps {
   currentUserId: string;
 }
 
-const INTERNAL_ROLES = ['Yönetici', 'Ekip Üyesi', 'Personel'];
-const CREATE_ROLE_OPTIONS = ['Personel', 'Ekip Üyesi', 'Yönetici'];
-const MANAGED_ROLE_OPTIONS = ['Personel', 'Ekip Üyesi', 'Yönetici'];
+const INTERNAL_ROLES = ['Yönetici', 'Personel'];
+const CREATE_ROLE_OPTIONS = ['Personel', 'Yönetici'];
+const MANAGED_ROLE_OPTIONS = ['Personel', 'Yönetici'];
 const PORTAL_ROLE_OPTIONS = ['Müşteri', 'Alt Bayi'];
 
 type NotificationPreferenceKey = keyof typeof DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES;
@@ -61,7 +61,7 @@ function getDefaultNotificationPreferences() {
 
 const ROLE_BADGE_CLASSES: Record<string, string> = {
   'Yönetici': 'bg-red-100 text-red-700',
-  'Ekip Üyesi': 'bg-blue-100 text-blue-700',
+  'Ekip Üyesi': 'bg-amber-100 text-amber-700',
   'Personel': 'bg-amber-100 text-amber-700',
   'Müşteri': 'bg-green-100 text-green-700',
   'Alt Bayi': 'bg-purple-100 text-purple-700',
@@ -83,6 +83,49 @@ function getFirmaRoleType(firma: FirmaOption): 'Müşteri' | 'Alt Bayi' {
 
 function getFirmsForRole(role: string, firmalar: FirmaOption[]) {
   return firmalar.filter((firma) => getFirmaRoleType(firma) === role);
+}
+
+type AccordionSectionKey = 'filters' | 'create-internal' | 'create-portal' | 'internal-users' | 'pending-users' | 'partner-users';
+
+type AccordionSectionProps = {
+  title: string;
+  description: string;
+  icon?: ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+  tone?: 'default' | 'warning';
+  children: ReactNode;
+};
+
+function AccordionSection({ title, description, icon, isOpen, onToggle, tone = 'default', children }: AccordionSectionProps) {
+  const isWarning = tone === 'warning';
+
+  return (
+    <section className={`overflow-hidden rounded-xl border p-0 shadow-sm ${isWarning ? 'border-amber-200 bg-amber-50' : 'border-gray-200 bg-white'}`}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left"
+      >
+        <div>
+          <div className="mb-1 flex items-center gap-2">
+            {icon}
+            <h2 className={`text-lg font-semibold ${isWarning ? 'text-amber-900' : 'text-primary'}`}>{title}</h2>
+          </div>
+          <p className={`text-sm ${isWarning ? 'text-amber-800' : 'text-gray-600'}`}>{description}</p>
+        </div>
+        <span
+          className={`inline-flex rounded-full border p-2 transition-transform ${
+            isWarning ? 'border-amber-200 bg-amber-100 text-amber-900' : 'border-gray-200 bg-gray-50 text-gray-600'
+          } ${isOpen ? 'rotate-180' : ''}`}
+        >
+          <FiChevronDown size={16} />
+        </span>
+      </button>
+
+      {isOpen && <div className={`border-t px-5 pb-5 pt-4 ${isWarning ? 'border-amber-200' : 'border-gray-200'}`}>{children}</div>}
+    </section>
+  );
 }
 
 export default function PersonelManager({
@@ -109,7 +152,7 @@ export default function PersonelManager({
     rol: 'Personel',
     allowedPanels: ['dashboard', 'orders', 'tasks'],
     notificationPreferences: getDefaultNotificationPreferences(),
-    sendInviteEmail: true,
+    sendInviteEmail: false,
   });
   const [newPortalUser, setNewPortalUser] = useState({
     tamAd: '',
@@ -117,10 +160,11 @@ export default function PersonelManager({
     password: '',
     rol: 'Müşteri',
     firmaId: '',
-    sendInviteEmail: true,
+    sendInviteEmail: false,
   });
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'Tümü' | 'Yönetici' | 'Ekip Üyesi' | 'Personel' | 'Müşteri' | 'Alt Bayi' | 'Tanımsız'>('Tümü');
+  const [roleFilter, setRoleFilter] = useState<'Tümü' | 'Yönetici' | 'Personel' | 'Müşteri' | 'Alt Bayi' | 'Tanımsız'>('Tümü');
+  const [openSection, setOpenSection] = useState<AccordionSectionKey | null>(null);
 
   const initialUserMap = useMemo(
     () => new Map(initialUsers.map((user) => [user.id, user] as const)),
@@ -163,7 +207,6 @@ export default function PersonelManager({
       users.filter((user) => user.rol === role && !pendingApprovalIds.includes(user.id)).length;
     return {
       yonetici: countByRole('Yönetici'),
-      ekip: countByRole('Ekip Üyesi'),
       personel: countByRole('Personel'),
       musteri: countByRole('Müşteri'),
       altBayi: countByRole('Alt Bayi'),
@@ -296,7 +339,7 @@ export default function PersonelManager({
         }),
       });
 
-      const data = (await response.json().catch(() => null)) as { error?: string } | null;
+      const data = (await response.json().catch(() => null)) as { error?: string; message?: string } | null;
       if (!response.ok) {
         const message = data?.error || 'Kullanıcı oluşturulamadı.';
         setError(message);
@@ -304,7 +347,7 @@ export default function PersonelManager({
         return;
       }
 
-      const message = newUser.sendInviteEmail ? 'Yeni iç kullanıcı oluşturuldu ve davet maili gönderildi.' : 'Yeni iç kullanıcı oluşturuldu.';
+      const message = data?.message || (newUser.sendInviteEmail ? 'Yeni iç kullanıcı oluşturuldu ve davet maili gönderildi.' : 'Yeni iç kullanıcı oluşturuldu.');
       setSuccess(message);
       toast.success(message);
       setNewUser({
@@ -314,7 +357,7 @@ export default function PersonelManager({
         rol: 'Personel',
         allowedPanels: ['dashboard', 'orders', 'tasks'],
         notificationPreferences: getDefaultNotificationPreferences(),
-        sendInviteEmail: true,
+        sendInviteEmail: false,
       });
       router.refresh();
     } catch (createError) {
@@ -352,7 +395,7 @@ export default function PersonelManager({
         }),
       });
 
-      const data = (await response.json().catch(() => null)) as { error?: string } | null;
+      const data = (await response.json().catch(() => null)) as { error?: string; message?: string } | null;
       if (!response.ok) {
         const message = data?.error || 'Portal kullanıcısı oluşturulamadı.';
         setError(message);
@@ -360,7 +403,7 @@ export default function PersonelManager({
         return;
       }
 
-      const message = newPortalUser.sendInviteEmail ? 'Portal kullanıcısı oluşturuldu, firmaya bağlandı ve davet e-postası gönderildi.' : 'Portal kullanıcısı oluşturuldu ve firma kaydına bağlandı.';
+      const message = data?.message || (newPortalUser.sendInviteEmail ? 'Portal kullanıcısı oluşturuldu, firmaya bağlandı ve davet e-postası gönderildi.' : 'Portal kullanıcısı oluşturuldu ve firma kaydına bağlandı.');
       setSuccess(message);
       toast.success(message);
       setNewPortalUser({
@@ -369,7 +412,7 @@ export default function PersonelManager({
         password: '',
         rol: 'Müşteri',
         firmaId: '',
-        sendInviteEmail: true,
+        sendInviteEmail: false,
       });
       router.refresh();
     } catch (createError) {
@@ -457,6 +500,10 @@ export default function PersonelManager({
       warnings.push(`• Bağlı firma: ${user.firma_unvan}`);
     }
 
+    if (user?.rol === 'Yönetici') {
+      warnings.push('• Bu kullanıcı yönetici yetkisine sahip.');
+    }
+
     const confirmMessage = [
       `${label} kullanıcısını silmek istediğinizden emin misiniz?`,
       warnings.length > 0 ? '' : null,
@@ -489,6 +536,9 @@ export default function PersonelManager({
         return;
       }
 
+      setUsers((currentUsers) => currentUsers.filter((item) => item.id !== userId));
+      setPendingApprovalIds((current) => current.filter((id) => id !== userId));
+      setEditingUserIds((current) => current.filter((id) => id !== userId));
       setSuccess('Kullanıcı silindi.');
       toast.success('Kullanıcı silindi.');
       router.refresh();
@@ -537,14 +587,10 @@ export default function PersonelManager({
 
   return (
     <div className="space-y-8">
-      <section className="grid grid-cols-2 gap-4 xl:grid-cols-5">
+      <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <div className="rounded-xl border border-red-200 bg-red-50 p-4">
           <div className="text-2xl font-bold text-red-700">{summary.yonetici}</div>
           <div className="text-sm text-red-800">Yönetici</div>
-        </div>
-        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-          <div className="text-2xl font-bold text-blue-700">{summary.ekip}</div>
-          <div className="text-sm text-blue-800">Ekip Üyesi</div>
         </div>
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
           <div className="text-2xl font-bold text-amber-700">{summary.personel}</div>
@@ -566,13 +612,14 @@ export default function PersonelManager({
         </div>
       )}
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-primary">Kullanıcı Arama ve Filtre</h2>
-            <p className="text-sm text-gray-600">İsim, e-posta, firma veya role göre hızlıca filtreleyin.</p>
-          </div>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      <AccordionSection
+        title="Kullanıcı Arama ve Filtre"
+        description="İsim, e-posta, firma veya role göre hızlıca filtreleyin."
+        icon={<FiClipboard className="text-accent" />}
+        isOpen={openSection === 'filters'}
+        onToggle={() => setOpenSection((current) => (current === 'filters' ? null : 'filters'))}
+      >
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <input
               type="text"
               value={searchTerm}
@@ -585,25 +632,22 @@ export default function PersonelManager({
               onChange={(event) => setRoleFilter(event.target.value as typeof roleFilter)}
               className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
             >
-              {['Tümü', 'Yönetici', 'Ekip Üyesi', 'Personel', 'Müşteri', 'Alt Bayi', 'Tanımsız'].map((role) => (
+              {['Tümü', 'Yönetici', 'Personel', 'Müşteri', 'Alt Bayi', 'Tanımsız'].map((role) => (
                 <option key={role} value={role}>
                   {role}
                 </option>
               ))}
             </select>
           </div>
-        </div>
-      </section>
+      </AccordionSection>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex items-center gap-2">
-          <FiUserPlus className="text-accent" />
-          <h2 className="text-lg font-semibold text-primary">Yeni İç Kullanıcı Oluştur</h2>
-        </div>
-        <p className="mb-4 text-sm text-gray-600">
-          Buradan yeni personel veya ekip üyesi açabilir, hangi admin panellerini görebileceğini ve iç görevlendirme bildirimlerini daha en baştan belirleyebilirsiniz.
-        </p>
-
+      <AccordionSection
+        title="Yeni İç Kullanıcı Oluştur"
+        description="Yeni iç kullanıcı açın; panel erişimlerini ve bildirim tercihlerini ilk anda belirleyin."
+        icon={<FiUserPlus className="text-accent" />}
+        isOpen={openSection === 'create-internal'}
+        onToggle={() => setOpenSection((current) => (current === 'create-internal' ? null : 'create-internal'))}
+      >
         <form onSubmit={handleCreate} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             <input
@@ -656,6 +700,9 @@ export default function PersonelManager({
             />
             Davet e-postası gönder ve şifreyi kullanıcının belirlemesine izin ver
           </label>
+          <p className="text-xs text-gray-500">
+            Geçici şifre girerseniz kullanıcı hemen giriş yapabilir; bu seçenek açıkken ayrıca şifre kurulum maili de gider.
+          </p>
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
@@ -726,17 +773,15 @@ export default function PersonelManager({
                 : 'Kullanıcı Oluştur'}
           </button>
         </form>
-      </section>
+      </AccordionSection>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex items-center gap-2">
-          <FiUserPlus className="text-accent" />
-          <h2 className="text-lg font-semibold text-primary">Mevcut Firmaya Portal Girişi Bağla</h2>
-        </div>
-        <p className="mb-4 text-sm text-gray-600">
-          Müşteri ve alt bayi kullanıcılarını mevcut firma listenizden seçerek oluşturabilirsiniz. Böylece portal hesabı doğrudan mevcut firma kaydına bağlanır.
-        </p>
-
+      <AccordionSection
+        title="Mevcut Firmaya Portal Girişi Bağla"
+        description="Müşteri ve alt bayi kullanıcılarını mevcut firma kaydına bağlayarak portal hesabı oluşturun."
+        icon={<FiUserPlus className="text-accent" />}
+        isOpen={openSection === 'create-portal'}
+        onToggle={() => setOpenSection((current) => (current === 'create-portal' ? null : 'create-portal'))}
+      >
         <form onSubmit={handlePortalCreate} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             <input
@@ -789,6 +834,9 @@ export default function PersonelManager({
             />
             Seçilen firma kullanıcısına davet e-postası gönder ve şifre kurulumunu kullanıcıya bırak
           </label>
+          <p className="text-xs text-gray-500">
+            Geçici şifre girerseniz bu portal kullanıcısı hemen giriş yapabilir; isterseniz aynı anda şifre kurulum maili de gönderebilirsiniz.
+          </p>
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
             <label className="mb-2 block text-sm font-semibold text-gray-700">Bağlanacak firma kaydı</label>
@@ -831,16 +879,15 @@ export default function PersonelManager({
                 : 'Portal Kullanıcısı Oluştur'}
           </button>
         </form>
-      </section>
+      </AccordionSection>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-primary">İç Ekip Kullanıcıları</h2>
-          <p className="text-sm text-gray-600">
-            Personelinizin rolünü, görev yükünü, erişebileceği panelleri ve iç görevlendirme bildirimlerini buradan yönetebilirsiniz.
-          </p>
-        </div>
-
+      <AccordionSection
+        title="İç Ekip Kullanıcıları"
+        description="Personelinizin rolünü, görev yükünü, panel erişimlerini ve bildirim ayarlarını yönetin."
+        icon={<FiBriefcase className="text-accent" />}
+        isOpen={openSection === 'internal-users'}
+        onToggle={() => setOpenSection((current) => (current === 'internal-users' ? null : 'internal-users'))}
+      >
         <div className="space-y-4">
           {internalUsers.length === 0 && <div className="text-sm text-gray-500">Filtreye uygun iç ekip kullanıcısı bulunmuyor.</div>}
 
@@ -1046,7 +1093,7 @@ export default function PersonelManager({
                     </button>
                   )}
 
-                  {!isCurrentUser && !isAdminUser && (
+                  {!isCurrentUser && (
                     <button
                       type="button"
                       onClick={() => handleDelete(user.id)}
@@ -1062,16 +1109,16 @@ export default function PersonelManager({
             );
           })}
         </div>
-      </section>
+      </AccordionSection>
 
-      <section className="rounded-xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-amber-900">Onay Bekleyen Kullanıcılar</h2>
-          <p className="text-sm text-amber-800">
-            Veritabanında bulunan ama henüz rol veya firma ataması tamamlanmamış kullanıcılar burada görünür. İsterseniz bu kayıtlara iç ekip rolü ya da portal rolü verip kaydedebilirsiniz.
-          </p>
-        </div>
-
+      <AccordionSection
+        title="Onay Bekleyen Kullanıcılar"
+        description="Rolü veya firma ataması tamamlanmamış kullanıcıları buradan onaylayın ya da silin."
+        icon={<FiClipboard className="text-amber-900" />}
+        tone="warning"
+        isOpen={openSection === 'pending-users'}
+        onToggle={() => setOpenSection((current) => (current === 'pending-users' ? null : 'pending-users'))}
+      >
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-amber-200 text-sm">
             <thead className="bg-amber-100/70">
@@ -1200,16 +1247,15 @@ export default function PersonelManager({
             </tbody>
           </table>
         </div>
-      </section>
+      </AccordionSection>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold text-primary">Partner Portal Kullanıcıları</h2>
-          <p className="text-sm text-gray-600">
-            Standart müşteri ve alt bayi kullanıcıları burada listelenir. İç görevlendirme bildirim ayarları bu hesaplara uygulanmaz.
-          </p>
-        </div>
-
+      <AccordionSection
+        title="Partner Portal Kullanıcıları"
+        description="Müşteri ve alt bayi kullanıcılarını firma bağlantılarıyla birlikte yönetin."
+        icon={<FiMail className="text-accent" />}
+        isOpen={openSection === 'partner-users'}
+        onToggle={() => setOpenSection((current) => (current === 'partner-users' ? null : 'partner-users'))}
+      >
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
@@ -1382,7 +1428,7 @@ export default function PersonelManager({
             </tbody>
           </table>
         </div>
-      </section>
+      </AccordionSection>
 
       {error && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
       {success && <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{success}</div>}

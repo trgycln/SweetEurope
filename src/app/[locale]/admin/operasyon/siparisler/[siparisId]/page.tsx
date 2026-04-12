@@ -91,7 +91,7 @@ export default async function OperasyonSiparisDetayPage({
         .eq('id', user.id)
         .maybeSingle();
 
-    const isManager = myProfile?.rol === 'Yönetici' || myProfile?.rol === 'Ekip Üyesi';
+    const isManager = myProfile?.rol === 'Yönetici' || myProfile?.rol === 'Personel' || myProfile?.rol === 'Ekip Üyesi';
 
     let personelProfiles: Array<{ id: string; tam_ad: string | null }> = [];
     if (isManager) {

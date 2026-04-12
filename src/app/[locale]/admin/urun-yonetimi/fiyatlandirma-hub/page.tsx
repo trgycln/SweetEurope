@@ -18,7 +18,7 @@ export default async function FiyatlandirmaHubPage({ params }: { params: Promise
     .eq('id', user.id)
     .maybeSingle();
   
-  const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Ekip Üyesi';
+  const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Personel' || profil?.rol === 'Ekip Üyesi';
   if (!isAdmin) return redirect(`/${locale}/admin`);
 
   let productResponse = await (supabase as any)

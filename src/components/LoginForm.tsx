@@ -34,15 +34,17 @@ export default function LoginForm({ dictionary, locale }: { dictionary: Dictiona
 
         const supabase = createDynamicSupabaseClient(rememberMe);
 
+        const normalizedEmail = email.trim().toLowerCase();
+
         const { error } = await supabase.auth.signInWithPassword({
-            email,
+            email: normalizedEmail,
             password,
         });
 
         if (error) {
             // Kullanıcı dostu hata mesajı
             if (error.message.includes('Invalid login credentials')) {
-                setError(content.invalidCredentialsError || 'E-posta veya şifre hatalı. Lütfen tekrar deneyin.');
+                setError(content.invalidCredentialsError || 'E-posta veya şifre hatalı. Hesap yeni oluşturulduysa önce davet / şifre kurulum mailindeki bağlantıdan şifre belirleyin.');
             } else {
                 setError(content.errorMessage);
             }

@@ -15,7 +15,7 @@ export default async function FiyatKurallariPage({ params }: { params: Promise<{
     .select('id, rol')
     .eq('id', user.id)
     .maybeSingle();
-  const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Ekip Üyesi';
+  const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Personel' || profil?.rol === 'Ekip Üyesi';
   if (!isAdmin) return redirect(`/${locale}/admin`);
 
   const { data: kategoriler } = await (supabase as any)

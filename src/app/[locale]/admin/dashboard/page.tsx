@@ -28,6 +28,13 @@ const formatCurrency = (value: number | null | undefined) => {
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
 };
 
+const toLocalDateString = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 // StatCard Komponente
 const StatCard = ({ title, value, icon, link, linkText, isNegative }: { title: string, value: string | number, icon: React.ReactNode, link?: string, linkText?: string, isNegative?: boolean }) => {
     const valueColorClass = isNegative ? 'text-red-600' : 'text-primary';
@@ -137,19 +144,19 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     const startOfTomorrowISO = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString();
     // Ay başlangıcı (MTD başlangıcı)
     const mtdStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const mtdStartStr = mtdStart.toISOString().split('T')[0];
+    const mtdStartStr = toLocalDateString(mtdStart);
     // Grafik için tam ay (mevcut chart bu aralığı kullanıyor)
     const fullMonthStartStr = mtdStartStr;
-    const fullMonthEndStr = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+    const fullMonthEndStr = toLocalDateString(new Date(now.getFullYear(), now.getMonth() + 1, 0));
     // MTD bitiş bugünün tarihi
-    const mtdEndStr = todayISO.split('T')[0];
+    const mtdEndStr = toLocalDateString(now);
     // Geçen ay aynı dönem: geçen ayın ilk günü -> geçen ayın bugüne denk gelen günü
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonthStartStr = lastMonth.toISOString().split('T')[0];
+    const lastMonthStartStr = toLocalDateString(lastMonth);
     const lastMonthEndSameDay = new Date(now.getFullYear(), now.getMonth(), 0); // geçen ayın son günü
     const targetDay = now.getDate();
     const lastMonthEnd = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), Math.min(targetDay, lastMonthEndSameDay.getDate()));
-    const lastMonthEndStr = lastMonthEnd.toISOString().split('T')[0];
+    const lastMonthEndStr = toLocalDateString(lastMonthEnd);
 
     // Statusdefinitionen
     const OFFENE_BESTELL_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
@@ -336,8 +343,9 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
             {/* EN ÜSTTE: Ciro, Kar, Zarar KPI Bar */}
             <KPIBar items={[ 
                 { label: (operationalContent as any).kpiRevenueMtd || 'Net Ciro (Bu Ay)', value: formatCurrency(revenueMtdNet), hint: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% zum Vormonat` : undefined, tone: 'accent' },
+                { label: 'Satılan Malın Maliyeti', value: formatCurrency(mtd?.totalCogs ?? 0), tone: 'default' },
                 { label: 'Toplam Gider', value: formatCurrency(mtd?.totalExpenses ?? 0), tone: 'default' },
-                { label: 'Net Kâr', value: formatCurrency(mtd?.netProfit ?? 0), tone: (mtd?.netProfit ?? 0) >= 0 ? 'positive' : 'negative' },
+                { label: 'Net Kâr', value: formatCurrency(mtd?.netProfit ?? 0), hint: 'Formül: Net Ciro - COGS - Gider', tone: (mtd?.netProfit ?? 0) >= 0 ? 'positive' : 'negative' },
                 { label: 'Sipariş Adedi', value: String(ordersMtd), tone: 'default' },
             ]} />
 
@@ -643,7 +651,7 @@ export default async function AdminDashboardPage({
     }
     const userRole = profile.rol;
 
-    if (userRole !== 'Yönetici' && userRole !== 'Ekip Üyesi') {
+    if (userRole !== 'Yönetici' && userRole !== 'Personel' && userRole !== 'Ekip Üyesi') {
          console.warn(`Unauthorized access to Admin Dashboard by role: ${userRole}`);
          return <div>Unauthorized access. Please return to the homepage.</div>;
     }
@@ -661,7 +669,7 @@ export default async function AdminDashboardPage({
 
             {/* cookieStore wird übergeben */}
             {userRole === 'Yönetici' && <ManagerDashboard locale={locale} dictionary={dictionary} cookieStore={cookieStore} />}
-            {userRole === 'Ekip Üyesi' && <TeamMemberDashboard userId={user.id} locale={locale} dictionary={dictionary} cookieStore={cookieStore} />}
+            {(userRole === 'Personel' || userRole === 'Ekip Üyesi') && <TeamMemberDashboard userId={user.id} locale={locale} dictionary={dictionary} cookieStore={cookieStore} />}
         </div>
     );
 }

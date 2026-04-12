@@ -167,18 +167,44 @@ function DeleteButtonWrapper({ urun, locale, labels }: { urun: Urun, locale: Loc
     const handleDelete = () => {
         const name = urun.ad?.[locale] || urun.ad?.['tr'] || 'Produkt';
         const message = labels.deleteConfirm.replace('%{name}', String(name));
-        if (confirm(message)) {
-            startTransition(async () => {
-                const result = await deleteUrunAction(urun.id);
-                if (result?.success) {
-                    toast.success(result.message);
-                    // Weiterleitung nach Erfolg
+        if (!confirm(message)) return;
+
+        startTransition(async () => {
+            // İlk deneme — force=false
+            const result = await deleteUrunAction(urun.id, false);
+
+            if (result?.success) {
+                toast.success(result.message);
+                router.push(`/${locale}/admin/urun-yonetimi/urunler`);
+                return;
+            }
+
+            // Sipariş bağlantısı var, ikinci onay iste
+            if (result?.message?.startsWith('FORCE_CONFIRM:')) {
+                const count = result.message.split(':')[1];
+                const confirmed = confirm(
+                    `Bu ürün ${count} geçmiş sipariş kaleminde kullanılmış.\n\n` +
+                    `Yine de silinirse:\n` +
+                    `• Tüm tutarlar ve fiyatlar sistemde korunur (bozulmaz)\n` +
+                    `• İlgili sipariş kalemlerinde ürün adı "Silinmiş Ürün" olarak görünür\n\n` +
+                    `Silmeyi onaylıyor musunuz?`
+                );
+                if (!confirmed) return;
+
+                // force=true ile tekrar çalıştır
+                const forceResult = await deleteUrunAction(urun.id, true);
+                if (forceResult?.success) {
+                    toast.success(forceResult.message);
                     router.push(`/${locale}/admin/urun-yonetimi/urunler`);
-                } else if (result) {
-                    toast.error(result.message);
+                } else {
+                    toast.error(forceResult?.message || 'Silme işlemi başarısız.');
                 }
-            });
-        }
+                return;
+            }
+
+            // Diğer hatalar
+            toast.error(result?.message || 'Silme işlemi başarısız.');
+        });
     };
 
     return (

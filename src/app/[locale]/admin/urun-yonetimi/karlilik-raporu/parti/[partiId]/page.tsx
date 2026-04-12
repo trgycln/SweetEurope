@@ -126,7 +126,7 @@ export default async function PartiDetayPage({
     .eq('id', user.id)
     .maybeSingle();
 
-  const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Ekip Üyesi';
+  const isAdmin = profil?.rol === 'Yönetici' || profil?.rol === 'Personel' || profil?.rol === 'Ekip Üyesi';
   if (!isAdmin) {
     return redirect(`/${locale}/admin`);
   }

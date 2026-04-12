@@ -69,7 +69,7 @@ export async function assignSiparisPersonelAction(formData: FormData): Promise<A
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) return { error: 'Yetkisiz işlem.' };
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-    const isManager = profile?.rol === 'Yönetici' || profile?.rol === 'Ekip Üyesi';
+    const isManager = profile?.rol === 'Yönetici' || profile?.rol === 'Personel' || profile?.rol === 'Ekip Üyesi';
     if (!isManager) return { error: 'Bu işlemi yapma yetkiniz yok.' };
 
     const supabaseAdmin = createSupabaseServiceClient();

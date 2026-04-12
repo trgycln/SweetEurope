@@ -14,7 +14,7 @@ export default async function AdminNotificationsTestPage({ params }: { params: {
   if (!user) return redirect(`/${locale}/login`);
 
   const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-  if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') {
+  if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Personel' && profile?.rol !== 'Ekip Üyesi') {
     return redirect(`/${locale}/portal/dashboard`);
   }
 

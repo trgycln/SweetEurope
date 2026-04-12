@@ -33,10 +33,10 @@ export async function markAllReadForCurrentUser() {
 export async function simulateAdminBroadcast() {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const icerik = "[TEST] Yeni test bildirimi (Admin/Ekip)";
+  const icerik = "[TEST] Yeni test bildirimi (Admin/Personel)";
   const link = "/admin";
   const res = await sendNotification({
-    aliciRol: ["Yönetici", "Ekip Üyesi"],
+    aliciRol: ["Yönetici", "Personel", "Ekip Üyesi"],
     icerik,
     link,
     preferenceKey: 'general_announcements',

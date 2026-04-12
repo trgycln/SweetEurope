@@ -231,7 +231,7 @@ async function ensureUrunImageAccess() {
         .eq('id', user.id)
         .maybeSingle();
 
-    if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') {
+    if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Personel' && profile?.rol !== 'Ekip Üyesi') {
         return { error: 'Bu islem icin yetki gerekiyor.' };
     }
 
@@ -434,14 +434,15 @@ export async function createUrunAction(formData: FormData): Promise<FormState> {
     return { success: true, message: 'Produkt erstellt!' };
 }
 
-export async function deleteUrunAction(urunId: string): Promise<{ success: boolean; message: string }> {
+export async function deleteUrunAction(
+    urunId: string,
+    force = false,
+): Promise<{ success: boolean; message: string; orderCount?: number }> {
 
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    // --- ENDE KORREKTUR ---
 
-    // Zuerst prüfen, ob das Produkt in siparis_detay verwendet wird
+    // Sipariş kaydı var mı kontrol et
     const { count: orderCount, error: countError } = await supabase
         .from('siparis_detay')
         .select('id', { count: 'exact', head: true })
@@ -452,14 +453,62 @@ export async function deleteUrunAction(urunId: string): Promise<{ success: boole
         return { success: false, message: 'Fehler bei der Prüfung von Bestellungen: ' + countError.message };
     }
 
-    if (orderCount !== null && orderCount > 0) {
-        return { 
-            success: false, 
-            message: `Dieses Produkt ist mit ${orderCount} Bestellung(en) verknüpft und kann nicht gelöscht werden. Sie können es stattdessen deaktivieren, um es aus dem Shop zu entfernen.` 
+    const hasOrders = orderCount !== null && orderCount > 0;
+
+    // force=false ise kullanıcıya bildir, onay bekle
+    if (hasOrders && !force) {
+        return {
+            success: false,
+            orderCount: orderCount ?? 0,
+            message: `FORCE_CONFIRM:${orderCount}`,
         };
     }
 
-    // Wenn keine Bestellungen verknüpft sind, löschen
+    // Sipariş satırları varsa, geçmiş verileri korumak için placeholder ürüne yönlendir
+    if (hasOrders && force) {
+        // Placeholder ürünü bul veya oluştur
+        let { data: placeholder } = await supabase
+            .from('urunler')
+            .select('id')
+            .eq('stok_kodu', '__DELETED__')
+            .maybeSingle();
+
+        if (!placeholder) {
+            const { data: newPlaceholder, error: createErr } = await supabase
+                .from('urunler')
+                .insert({
+                    stok_kodu: '__DELETED__',
+                    ad: { tr: 'Silinmiş Ürün', de: 'Gelöschtes Produkt', en: 'Deleted Product', ar: 'منتج محذوف' },
+                    slug: '__deleted-placeholder__',
+                    aktif: false,
+                    distributor_alis_fiyati: 0,
+                })
+                .select('id')
+                .single();
+            if (createErr || !newPlaceholder) {
+                console.error('Placeholder ürün oluşturulamadı:', createErr);
+                return { success: false, message: 'Placeholder ürün oluşturulamadı: ' + createErr?.message };
+            }
+            placeholder = newPlaceholder;
+        }
+
+        // Sipariş satırlarını placeholder'a yönlendir
+        const { error: redirectErr } = await supabase
+            .from('siparis_detay')
+            .update({ urun_id: placeholder.id })
+            .eq('urun_id', urunId);
+
+        if (redirectErr) {
+            console.error('siparis_detay yönlendirme hatası:', redirectErr);
+            return { success: false, message: 'Sipariş satırları taşınamadı: ' + redirectErr.message };
+        }
+    }
+
+    // Değerlendirmeleri ve favorileri sil (bunlar silinebilir)
+    await supabase.from('urun_degerlendirmeleri').delete().eq('urun_id', urunId);
+    await supabase.from('favori_urunler').delete().eq('urun_id', urunId);
+
+    // Ürünü sil
     const { error } = await supabase.from('urunler').delete().eq('id', urunId);
 
     if (error) {
@@ -470,13 +519,7 @@ export async function deleteUrunAction(urunId: string): Promise<{ success: boole
     revalidatePath('/admin/urun-yonetimi/urunler');
     revalidatePath('/[locale]/products', 'layout');
 
-    // WICHTIG: Nach erfolgreichem Löschen weiterleiten
-    // Da dies eine Action ist, die von einem Formular (Button) aufgerufen wird,
-    // sollte die Weiterleitung im Client-Code (DeleteButtonWrapper) erfolgen,
-    // nachdem 'success: true' zurückgegeben wurde.
-    // Der Redirect hier würde den Toast im Client verhindern.
-    // redirect('/admin/urun-yonetimi/urunler'); // Nicht hier, sondern im Client
-    return { success: true, message: 'Produkt erfolgreich gelöscht!' };
+    return { success: true, message: hasOrders ? 'Ürün silindi. Geçmiş sipariş satırları "Silinmiş Ürün" olarak işaretlendi.' : 'Produkt erfolgreich gelöscht!' };
 }
 
 // Hafif güncelleme action'ı - sadece belirli alanları günceller

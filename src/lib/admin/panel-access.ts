@@ -17,10 +17,14 @@ export const ADMIN_PANEL_OPTIONS = [
 ] as const;
 
 export type AdminPanelKey = (typeof ADMIN_PANEL_OPTIONS)[number]['key'];
-export type InternalUserRole = 'Yönetici' | 'Ekip Üyesi' | 'Personel';
+export type InternalUserRole = 'Yönetici' | 'Personel' | 'Ekip Üyesi';
 export type AppUserRole = InternalUserRole | 'Müşteri' | 'Alt Bayi' | null | undefined | string;
 
-export const INTERNAL_USER_ROLE_OPTIONS: InternalUserRole[] = ['Personel', 'Ekip Üyesi', 'Yönetici'];
+export const INTERNAL_USER_ROLE_OPTIONS: Array<'Personel' | 'Yönetici'> = ['Personel', 'Yönetici'];
+
+function normalizeLegacyInternalRole(role: AppUserRole): AppUserRole {
+  return role === 'Ekip Üyesi' ? 'Personel' : role;
+}
 
 export const INTERNAL_NOTIFICATION_OPTIONS = [
   {
@@ -60,22 +64,6 @@ export const DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES: InternalNotificationPref
 
 const DEFAULT_ROLE_PANELS: Record<string, AdminPanelKey[]> = {
   'Yönetici': ALL_PANEL_KEYS,
-  'Ekip Üyesi': [
-    'dashboard',
-    'personnel',
-    'crm',
-    'subdealers',
-    'orders',
-    'samples',
-    'tasks',
-    'documents',
-    'pricing',
-    'reviews',
-    'marketing',
-    'finances',
-    'reporting',
-    'settings',
-  ],
   'Personel': ['dashboard', 'crm', 'orders', 'tasks', 'products'],
 };
 
@@ -142,20 +130,27 @@ export function normalizeInternalNotificationPreferences(value: unknown): Intern
 }
 
 export function getDefaultRolePanels(role: AppUserRole): AdminPanelKey[] {
-  if (!role) {
+  const normalizedRole = normalizeLegacyInternalRole(role);
+  if (!normalizedRole) {
     return [];
   }
 
-  return DEFAULT_ROLE_PANELS[role] || [];
+  return DEFAULT_ROLE_PANELS[normalizedRole] || [];
 }
 
 export function getEffectiveAdminPanels(role: AppUserRole, configuredPanels: unknown): AdminPanelKey[] {
-  if (role === 'Yönetici') {
+  const normalizedRole = normalizeLegacyInternalRole(role);
+
+  if (normalizedRole === 'Yönetici') {
     return ALL_PANEL_KEYS;
   }
 
-  const defaults = getDefaultRolePanels(role);
+  const defaults = getDefaultRolePanels(normalizedRole);
   const selected = normalizeAllowedAdminPanels(configuredPanels);
+
+  if (normalizedRole === 'Personel') {
+    return selected.length > 0 ? selected : defaults;
+  }
 
   if (selected.length === 0) {
     return defaults;
@@ -165,23 +160,25 @@ export function getEffectiveAdminPanels(role: AppUserRole, configuredPanels: unk
 }
 
 export function canAccessAdminPath(role: AppUserRole, pathname: string, configuredPanels: unknown): boolean {
+  const normalizedRole = normalizeLegacyInternalRole(role);
+
   if (!pathname.startsWith('/admin')) {
     return true;
   }
 
   if (pathname === '/admin' || pathname.startsWith('/admin/profil')) {
-    return role === 'Yönetici' || role === 'Ekip Üyesi' || role === 'Personel';
+    return normalizedRole === 'Yönetici' || normalizedRole === 'Personel';
   }
 
-  if (role === 'Yönetici') {
+  if (normalizedRole === 'Yönetici') {
     return true;
   }
 
-  if (role !== 'Ekip Üyesi' && role !== 'Personel') {
+  if (normalizedRole !== 'Personel') {
     return false;
   }
 
-  const effectivePanels = getEffectiveAdminPanels(role, configuredPanels);
+  const effectivePanels = getEffectiveAdminPanels(normalizedRole, configuredPanels);
 
   return effectivePanels.some((panel) => {
     const prefixes = PANEL_ROUTE_PREFIXES[panel] || [];

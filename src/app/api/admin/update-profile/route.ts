@@ -5,7 +5,7 @@ import { normalizeAllowedAdminPanels, normalizeInternalNotificationPreferences }
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const VALID_ROLES = ['Yönetici', 'Ekip Üyesi', 'Personel', 'Müşteri', 'Alt Bayi'] as const;
+const VALID_ROLES = ['Yönetici', 'Personel', 'Müşteri', 'Alt Bayi'] as const;
 type ValidRole = (typeof VALID_ROLES)[number];
 
 export async function POST(request: Request) {

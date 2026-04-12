@@ -112,7 +112,7 @@ export async function siparisOlusturAction(payload: {
            const mesaj = `${firma?.unvan || 'Ein Partner'} hat eine neue Bestellung (#${newOrderId.substring(0,8)}) erstellt.`;
            const link = `/admin/operasyon/siparisler/${newOrderId}`;
            await sendNotification({
-              aliciRol: ['Yönetici', 'Ekip Üyesi'],
+              aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
               icerik: mesaj,
               link,
               preferenceKey: 'order_updates',
@@ -309,7 +309,7 @@ export async function iptalSiparisAction(formData: FormData): Promise<ActionResu
             const mesaj = `Bir sipariş (#${siparisId.substring(0,8)}) müşteri tarafından iptal edildi.`;
             const link = `/admin/operasyon/siparisler/${siparisId}`;
             await sendNotification({
-                aliciRol: ['Yönetici', 'Ekip Üyesi'],
+                aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
                 icerik: mesaj,
                 link,
                 preferenceKey: 'order_updates',

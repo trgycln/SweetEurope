@@ -755,7 +755,7 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
       .eq('id', user.id)
       .maybeSingle();
 
-    if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') {
+    if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Personel' && profile?.rol !== 'Ekip Üyesi') {
       return { error: 'Bu islem icin yetki gerekiyor.' };
     }
 
