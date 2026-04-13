@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { FiFile, FiFileText, FiMail, FiPlus, FiPrinter, FiSave, FiTrash2 } from 'react-icons/fi';
+import { FiFile, FiFileText, FiMail, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import {
   deleteSupplierOrderPlanSnapshotAction,
@@ -590,97 +590,260 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     const autoTable = (await import('jspdf-autotable')).default;
 
     const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const mL = 14;
+    const mR = 14;
 
-    // Logo varsa PDF'e filigran olarak ekle.
+    // jsPDF/Helvetica does not support Turkish chars; replace with ASCII equivalents.
+    const sp = (t: string) =>
+      t.replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
+       .replace(/ş/g, 's').replace(/Ş/g, 'S')
+       .replace(/ı/g, 'i').replace(/İ/g, 'I')
+       .replace(/ü/g, 'u').replace(/Ü/g, 'U')
+       .replace(/ö/g, 'o').replace(/Ö/g, 'O')
+       .replace(/ç/g, 'c').replace(/Ç/g, 'C')
+       .replace(/â/g, 'a').replace(/·/g, '-');
+
+    // Load watermark logo once, draw on every page via didDrawPage.
+    let logoDataUrl: string | null = null;
+    let logoType: 'PNG' | 'JPEG' = 'PNG';
     try {
-      let response = await fetch('/logo.png?v=1', { cache: 'no-store' });
-      let imageType: 'JPEG' | 'PNG' = 'PNG';
-
-      if (!response.ok) {
-        response = await fetch('/Logo.jpg?v=1', { cache: 'no-store' });
-        imageType = 'JPEG';
-      }
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const dataUrl = await new Promise<string>((resolve) => {
+      let r = await fetch('/logo.png?v=1', { cache: 'no-store' });
+      if (!r.ok) { r = await fetch('/Logo.jpg?v=1', { cache: 'no-store' }); logoType = 'JPEG'; }
+      if (r.ok) {
+        const blob = await r.blob();
+        logoDataUrl = await new Promise<string>((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(String(reader.result));
           reader.readAsDataURL(blob);
         });
-
-        // jsPDF sürümlerinde opacity desteği değişken olabildiği için güvenli fallback ile kullan.
-        try {
-          const anyDoc = doc as any;
-          if (typeof anyDoc.GState === 'function' && typeof anyDoc.setGState === 'function') {
-            anyDoc.setGState(new anyDoc.GState({ opacity: 0.06 }));
-          }
-        } catch {
-          // Opacity desteklenmiyorsa normal çizimle devam.
-        }
-
-        doc.addImage(dataUrl, imageType, 18, 45, 175, 175);
-
-        // Sonraki metinler normal opaklıkta olsun.
-        try {
-          const anyDoc = doc as any;
-          if (typeof anyDoc.GState === 'function' && typeof anyDoc.setGState === 'function') {
-            anyDoc.setGState(new anyDoc.GState({ opacity: 1 }));
-          }
-        } catch {
-          // No-op
-        }
       }
-    } catch {
-      // Logo zorunlu değil.
-    }
+    } catch { /* no-op */ }
 
-    doc.setDrawColor(203, 213, 225);
-    doc.setFillColor(248, 250, 252);
-    doc.roundedRect(12, 10, 186, 30, 2, 2, 'FD');
+    const drawWatermark = (d: typeof doc) => {
+      if (!logoDataUrl) return;
+      const pw = d.internal.pageSize.getWidth();
+      const ph = d.internal.pageSize.getHeight();
+      const anyD = d as any;
+      try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 0.05 })); } catch { /* no-op */ }
+      d.addImage(logoDataUrl, logoType, (pw - 130) / 2, (ph - 130) / 2, 130, 130);
+      try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 1 })); } catch { /* no-op */ }
+    };
 
-    doc.setFontSize(17);
-    doc.setTextColor(30, 41, 59);
-    doc.text(COMPANY_NAME, 16, 19);
+    const today = new Date().toLocaleDateString('tr-TR');
+    const docNo = `${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-${draftName.slice(0, 8).toUpperCase().replace(/[^A-Z0-9]/g, '')}`;
 
-    doc.setFontSize(9);
-    doc.setTextColor(71, 85, 105);
-    doc.text(`E-posta: ${COMPANY_EMAIL}`, 16, 24);
-    doc.text(`Konum: ${COMPANY_LOCATION}`, 16, 28.5);
+    // ── Page-1 header ────────────────────────────────────────────────
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.setTextColor(20, 20, 20);
+    doc.text(COMPANY_NAME, mL, 17);
 
-    doc.setFontSize(10);
-    doc.setTextColor(15, 23, 42);
-    doc.text('Satin Alma Siparis Formu', 145, 18);
-    doc.setFontSize(9);
-    doc.text(`Tedarikci: ${selectedSupplierName}`, 145, 23);
-    doc.text(`Belge Tarihi: ${new Date().toLocaleDateString('tr-TR')}`, 145, 27.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('Satin Alma / Siparis Formu', pageW - mR, 17, { align: 'right' });
+
+    doc.setDrawColor(20, 20, 20);
+    doc.setLineWidth(0.5);
+    doc.line(mL, 20, pageW - mR, 20);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(50, 50, 50);
+    const infoY = 26;
+    doc.text(`Gonderen  : ${COMPANY_NAME}`,  mL, infoY);
+    doc.text(`E-posta   : ${COMPANY_EMAIL}`, mL, infoY + 5);
+    doc.text(`Konum     : ${COMPANY_LOCATION}`, mL, infoY + 10);
+    doc.text(`Tedarikci : ${sp(selectedSupplierName)}`, pageW - mR, infoY,      { align: 'right' });
+    doc.text(`Tarih     : ${today}`,                    pageW - mR, infoY + 5,  { align: 'right' });
+    doc.text(`Belge No  : ${docNo}`,                    pageW - mR, infoY + 10, { align: 'right' });
+
+    doc.setDrawColor(100, 100, 100);
+    doc.setLineWidth(0.3);
+    doc.line(mL, infoY + 14, pageW - mR, infoY + 14);
+
+    // Watermark on page 1 (drawn before table so it sits behind content)
+    drawWatermark(doc);
 
     autoTable(doc, {
-      startY: 46,
-      head: [['Stok Kodu', 'Urun Adi', 'Birim', 'Miktar', 'Birim Maliyet', 'Satir Toplami']],
+      startY: infoY + 18,
+      margin: { left: mL, right: mR },
+      head: [[
+        { content: 'Stok Kodu', styles: { halign: 'left' } },
+        { content: 'Urun Adi', styles: { halign: 'left' } },
+        { content: 'Birim', styles: { halign: 'center' } },
+        { content: 'Miktar', styles: { halign: 'right' } },
+        { content: 'Birim Maliyet', styles: { halign: 'right' } },
+        { content: 'Satir Toplami', styles: { halign: 'right' } },
+      ]],
       body: enrichedItems.map((row) => [
         row.product.stok_kodu || '-',
-        getProductName(row.product.ad, locale),
+        sp(getProductName(row.product.ad, locale)),
         row.unitType,
         String(row.quantity),
         formatCurrency(row.unitCost),
         formatCurrency(row.lineTotal),
       ]),
-      styles: { fontSize: 9, cellPadding: 2.2 },
-      headStyles: { fillColor: [245, 158, 11], textColor: 20 },
-      alternateRowStyles: { fillColor: [250, 250, 250] },
+      columnStyles: {
+        0: { cellWidth: 22 },
+        1: { cellWidth: 70, overflow: 'linebreak' },
+        2: { cellWidth: 16, halign: 'center' },
+        3: { cellWidth: 16, halign: 'right' },
+        4: { cellWidth: 29, halign: 'right' },
+        5: { cellWidth: 29, halign: 'right' },
+      },
+      styles: { fontSize: 8.5, cellPadding: 2.5, overflow: 'linebreak' },
+      headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
+      alternateRowStyles: { fillColor: [248, 248, 248] },
+      didDrawPage: (data) => {
+        if (data.pageNumber > 1) drawWatermark(doc);
+        const ph = doc.internal.pageSize.getHeight();
+        doc.setDrawColor(160, 160, 160);
+        doc.setLineWidth(0.2);
+        doc.line(mL, ph - 11, pageW - mR, ph - 11);
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(130, 130, 130);
+        doc.text('Lutfen urun, miktar ve fiyat teyidi ile geri donus saglayiniz.', mL, ph - 7);
+        doc.text(`Sayfa ${data.pageNumber}`, pageW - mR, ph - 7, { align: 'right' });
+      },
     });
 
-    const finalY = (doc as any).lastAutoTable?.finalY || 50;
-    doc.setFontSize(11);
-    doc.setTextColor(15, 23, 42);
-    doc.text(`Genel Toplam: ${formatCurrency(totals.grandTotal)}`, 14, finalY + 10);
-
-    doc.setFontSize(9);
-    doc.setTextColor(100, 116, 139);
-    doc.text('Lutfen urun, miktar ve fiyat teyidi ile geri donus saglayiniz.', 14, finalY + 17);
+    const finalY = (doc as any).lastAutoTable?.finalY || infoY + 18;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(20, 20, 20);
+    doc.text(`Genel Toplam : ${formatCurrency(totals.grandTotal)}`, pageW - mR, finalY + 8, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`${totals.totalLines} kalem  /  ${totals.totalUnits} toplam birim`, mL, finalY + 8);
 
     doc.save(`elysonsweets-siparis-formu-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
+  const exportSupplierPdf = async () => {
+    const { jsPDF } = await import('jspdf');
+    const autoTable = (await import('jspdf-autotable')).default;
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const mL = 14;
+    const mR = 14;
+
+    const sp = (t: string) =>
+      t.replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
+       .replace(/ş/g, 's').replace(/Ş/g, 'S')
+       .replace(/ı/g, 'i').replace(/İ/g, 'I')
+       .replace(/ü/g, 'u').replace(/Ü/g, 'U')
+       .replace(/ö/g, 'o').replace(/Ö/g, 'O')
+       .replace(/ç/g, 'c').replace(/Ç/g, 'C')
+       .replace(/â/g, 'a').replace(/·/g, '-');
+
+    let logoDataUrl: string | null = null;
+    let logoType: 'PNG' | 'JPEG' = 'PNG';
+    try {
+      let r = await fetch('/logo.png?v=1', { cache: 'no-store' });
+      if (!r.ok) { r = await fetch('/Logo.jpg?v=1', { cache: 'no-store' }); logoType = 'JPEG'; }
+      if (r.ok) {
+        const blob = await r.blob();
+        logoDataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(String(reader.result));
+          reader.readAsDataURL(blob);
+        });
+      }
+    } catch { /* no-op */ }
+
+    const drawWatermark = (d: typeof doc) => {
+      if (!logoDataUrl) return;
+      const pw = d.internal.pageSize.getWidth();
+      const ph = d.internal.pageSize.getHeight();
+      const anyD = d as any;
+      try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 0.05 })); } catch { /* no-op */ }
+      d.addImage(logoDataUrl, logoType, (pw - 130) / 2, (ph - 130) / 2, 130, 130);
+      try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 1 })); } catch { /* no-op */ }
+    };
+
+    const today = new Date().toLocaleDateString('tr-TR');
+    const docNo = `${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-TL`;
+
+    // ── Page-1 header ────────────────────────────────────────────────
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.setTextColor(20, 20, 20);
+    doc.text(COMPANY_NAME, mL, 17);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('Urun Talep Listesi', pageW - mR, 17, { align: 'right' });
+
+    doc.setDrawColor(20, 20, 20);
+    doc.setLineWidth(0.5);
+    doc.line(mL, 20, pageW - mR, 20);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(50, 50, 50);
+    const infoY = 26;
+    doc.text(`Gonderen  : ${COMPANY_NAME}`,  mL, infoY);
+    doc.text(`E-posta   : ${COMPANY_EMAIL}`, mL, infoY + 5);
+    doc.text(`Konum     : ${COMPANY_LOCATION}`, mL, infoY + 10);
+    doc.text(`Tedarikci : ${sp(selectedSupplierName)}`, pageW - mR, infoY,      { align: 'right' });
+    doc.text(`Tarih     : ${today}`,                    pageW - mR, infoY + 5,  { align: 'right' });
+    doc.text(`Belge No  : ${docNo}`,                    pageW - mR, infoY + 10, { align: 'right' });
+
+    doc.setDrawColor(100, 100, 100);
+    doc.setLineWidth(0.3);
+    doc.line(mL, infoY + 14, pageW - mR, infoY + 14);
+
+    drawWatermark(doc);
+
+    autoTable(doc, {
+      startY: infoY + 18,
+      margin: { left: mL, right: mR },
+      head: [[
+        { content: 'Stok Kodu', styles: { halign: 'left' } },
+        { content: 'Urun Adi', styles: { halign: 'left' } },
+        { content: 'Birim', styles: { halign: 'center' } },
+        { content: 'Miktar', styles: { halign: 'right' } },
+      ]],
+      body: enrichedItems.map((row) => [
+        row.product.stok_kodu || '-',
+        sp(getProductName(row.product.ad, locale)),
+        row.unitType,
+        String(row.quantity),
+      ]),
+      columnStyles: {
+        0: { cellWidth: 24 },
+        1: { cellWidth: 98, overflow: 'linebreak' },
+        2: { cellWidth: 30, halign: 'center' },
+        3: { cellWidth: 30, halign: 'right' },
+      },
+      styles: { fontSize: 8.5, cellPadding: 2.5, overflow: 'linebreak' },
+      headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
+      alternateRowStyles: { fillColor: [248, 248, 248] },
+      didDrawPage: (data) => {
+        if (data.pageNumber > 1) drawWatermark(doc);
+        const ph = doc.internal.pageSize.getHeight();
+        doc.setDrawColor(160, 160, 160);
+        doc.setLineWidth(0.2);
+        doc.line(mL, ph - 11, pageW - mR, ph - 11);
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(130, 130, 130);
+        doc.text('Lutfen miktar onaylayarak geri donus saglayiniz.', mL, ph - 7);
+        doc.text(`Sayfa ${data.pageNumber}`, pageW - mR, ph - 7, { align: 'right' });
+      },
+    });
+
+    const finalY = (doc as any).lastAutoTable?.finalY || infoY + 18;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text(`${totals.totalLines} kalem  /  ${totals.totalUnits} toplam birim`, mL, finalY + 8);
+
+    doc.save(`tedarikci-talep-listesi-${sp(selectedSupplierName).replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   const sendByEmail = () => {
@@ -1019,6 +1182,14 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FiPrinter /> Yazdır
+            </button>
+            <button
+              type="button"
+              onClick={exportSupplierPdf}
+              disabled={enrichedItems.length === 0}
+              className="inline-flex items-center gap-2 rounded-lg border border-emerald-400 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <FiSend /> Tedarikçiye Gönder (Fiyatsız PDF)
             </button>
             <button
               type="button"
