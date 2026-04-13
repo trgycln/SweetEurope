@@ -49,6 +49,11 @@ type ParsedImportRow = {
   boxesPerCase: number | null;
   casesPerPallet: number | null;
   profile: SupplierProfile;
+  // Direct values (bypass auto-calculation when present)
+  directCustomerPrice: number | null;
+  directAltBayiPrice: number | null;
+  directStockQty: number | null;
+  directAktif: boolean | null;
 };
 
 type SupplierRow = {
@@ -110,6 +115,11 @@ const CASE_BOX_HEADERS = ['koliicikutu', 'koliicikutuadet', 'boxespercase', 'cas
 const PALLET_CASE_HEADERS = ['paleticikoli', 'paleticikoliadet', 'casesperpallet', 'palletcasecount'];
 const TYPE_HEADERS = ['uruntipi', 'urungrubu', 'urungami', 'producttype', 'tip'];
 const PURCHASE_LEVEL_HEADERS = ['alisfiyatseviyesi', 'fiyatseviyesi', 'purchaselevel', 'pricelevel'];
+// Direct sale price columns (skip calculation when these are present)
+const CUSTOMER_PRICE_HEADERS = ['satisfiyatimusteri', 'musterifiyati', 'kafefiyati', 'perakende', 'customerprice', 'retailprice'];
+const ALT_BAYI_PRICE_HEADERS = ['satisfiyatialtbayi', 'altbayifiyati', 'resellerPrice', 'tier1price'];
+const STOCK_QTY_HEADERS = ['stokmiktari', 'stok', 'stockquantity', 'quantity', 'qty', 'miktar'];
+const AKTIF_HEADERS = ['aktif', 'active', 'durum', 'status', 'enabled'];
 const CATEGORY_STOP_WORDS = new Set(['ve', 'ile', 'the', 'and', 'urun', 'urunler', 'kategori', 'main', 'sub', 'ana', 'alt']);
 const CATEGORY_ALIAS_SLUGS: Record<string, string[]> = {
   purevepastalar: ['bakery-fillings', 'sauces-and-ingredients'],
@@ -310,14 +320,23 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
     casesPerPallet: findColumnIndex(header, PALLET_CASE_HEADERS),
     type: findColumnIndex(header, TYPE_HEADERS),
     purchaseLevel: findColumnIndex(header, PURCHASE_LEVEL_HEADERS),
+    customerPrice: findColumnIndex(header, CUSTOMER_PRICE_HEADERS),
+    altBayiPrice: findColumnIndex(header, ALT_BAYI_PRICE_HEADERS),
+    stockQty: findColumnIndex(header, STOCK_QTY_HEADERS),
+    aktif: findColumnIndex(header, AKTIF_HEADERS),
   };
 
   if (indexes.stockCode == null && indexes.productName == null && indexes.productNameTr == null) {
-    throw new Error('En az bir tanima kolonu gerekli: Urun Kodu/Stok Kodu veya Ürün Adı.');
+    throw new Error('En az bir tanıma kolonu gerekli: Urun Kodu/Stok Kodu veya Ürün Adı.');
   }
 
-  if (indexes.purchase == null && indexes.boxPrice == null && indexes.unitPrice == null) {
-    throw new Error('Fiyat kolonu bulunamadi. Alis fiyati veya kutu fiyatı kolonu gerekli.');
+  const hasPriceColumn = indexes.purchase != null || indexes.boxPrice != null || indexes.unitPrice != null
+    || indexes.customerPrice != null || indexes.altBayiPrice != null;
+  const hasAnyDataColumn = hasPriceColumn || indexes.stockQty != null || indexes.aktif != null
+    || indexes.descriptionTr != null || indexes.descriptionDe != null;
+
+  if (!hasAnyDataColumn) {
+    throw new Error('Güncellenebilir veri kolonu bulunamadı. Fiyat, stok, açıklama veya durum kolonu gerekli.');
   }
 
   const parsedRows: ParsedImportRow[] = [];
@@ -364,6 +383,27 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
       purchaseLevel = 'adet';
     }
 
+    // Direct sale prices (bypass calculation)
+    const directCustomerPrice = indexes.customerPrice != null ? moneyToNumber(row[indexes.customerPrice]) : null;
+    const directAltBayiPrice = indexes.altBayiPrice != null ? moneyToNumber(row[indexes.altBayiPrice]) : null;
+
+    // Direct stock quantity
+    const directStockQty = indexes.stockQty != null ? (() => {
+      const raw = String(row[indexes.stockQty] ?? '').trim();
+      if (!raw) return null;
+      const parsed = Number(raw.replace(/[^0-9.-]/g, ''));
+      return Number.isFinite(parsed) ? Math.floor(parsed) : null;
+    })() : null;
+
+    // Direct aktif flag
+    const directAktif = indexes.aktif != null ? (() => {
+      const raw = normalizeText(row[indexes.aktif]);
+      if (!raw) return null;
+      if (['1', 'true', 'yes', 'evet', 'aktif', 'active', 'enabled'].includes(raw)) return true;
+      if (['0', 'false', 'no', 'hayir', 'pasif', 'inactive', 'disabled'].includes(raw)) return false;
+      return null;
+    })() : null;
+
     parsedRows.push({
       rowNumber: index + 1,
       stockCode,
@@ -379,6 +419,10 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
       boxesPerCase,
       casesPerPallet,
       profile: detectProfile(indexes.type != null ? row[indexes.type] : '', fallbackProfile),
+      directCustomerPrice,
+      directAltBayiPrice,
+      directStockQty,
+      directAktif,
     });
   }
 
@@ -713,16 +757,16 @@ function buildProductPayload(row: ParsedImportRow, settings: Record<string, unkn
   return {
     ad: buildLocalizedNameJson(row),
     aciklamalar: buildLocalizedDescriptionJson(row),
-    aktif: true,
+    aktif: row.directAktif ?? true,
     distributor_alis_fiyati: pricePerBox,
-    satis_fiyati_alt_bayi: pricing.tier1Net,
+    satis_fiyati_alt_bayi: row.directAltBayiPrice ?? pricing.tier1Net,
     satis_fiyati_toptanci: pricing.tier2Net,
-    satis_fiyati_musteri: pricing.tier3Net,
+    satis_fiyati_musteri: row.directCustomerPrice ?? pricing.tier3Net,
     kategori_id: categoryId || '',
     tedarikci_id: supplierId || null,
     stok_kodu: row.stockCode,
     slug: slugify(`${displayName}-${row.stockCode || Date.now()}`),
-    stok_miktari: 0,
+    stok_miktari: row.directStockQty ?? 0,
     stok_esigi: 0,
     teknik_ozellikler: specs,
     urun_gami: profileToProductLine(row.profile),
@@ -1007,16 +1051,36 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
 
       if (pricePerBox != null && pricing) {
         updateData.distributor_alis_fiyati = pricePerBox;
-        updateData.satis_fiyati_alt_bayi = pricing.tier1Net;
+        updateData.satis_fiyati_alt_bayi = row.directAltBayiPrice ?? pricing.tier1Net;
         updateData.satis_fiyati_toptanci = pricing.tier2Net;
-        updateData.satis_fiyati_musteri = pricing.tier3Net;
+        updateData.satis_fiyati_musteri = row.directCustomerPrice ?? pricing.tier3Net;
+      } else {
+        // No purchase price — apply direct sale prices if provided
+        if (row.directCustomerPrice != null) {
+          updateData.satis_fiyati_musteri = row.directCustomerPrice;
+        }
+        if (row.directAltBayiPrice != null) {
+          updateData.satis_fiyati_alt_bayi = row.directAltBayiPrice;
+        }
+      }
+
+      // Non-destructive: only update stock if explicitly provided
+      if (row.directStockQty != null) {
+        updateData.stok_miktari = row.directStockQty;
+      }
+
+      // Non-destructive: only update aktif if explicitly provided
+      if (row.directAktif != null) {
+        updateData.aktif = row.directAktif;
       }
 
       const effectiveUpdateData = dbSupportsExtendedProductColumns
         ? updateData
         : stripUnsupportedProductFields(updateData) as TablesUpdate<'urunler'>;
-      const hasOnlyNoopTypeUpdate = Object.keys(effectiveUpdateData).length === 0
-        || (Object.keys(effectiveUpdateData).length === 1 && effectiveUpdateData.urun_gami === matchedProduct.urun_gami);
+      const meaningfulKeys = Object.keys(effectiveUpdateData).filter(
+        k => k !== 'urun_gami' || effectiveUpdateData.urun_gami !== matchedProduct.urun_gami
+      );
+      const hasOnlyNoopTypeUpdate = meaningfulKeys.length === 0;
       if (hasOnlyNoopTypeUpdate) {
         skippedCount += 1;
         skipReasons.push(`${rowLabel}: guncelleme icin fiyat veya yeni alan bulunamadi`);

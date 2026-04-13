@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import { FiSearch, FiFilter, FiX } from 'react-icons/fi';
+import { FiSearch, FiX } from 'react-icons/fi';
 
 interface UrunFiltreProps {
   kategoriler: Array<{ id: string; ad: any; ust_kategori_id?: string | null }>;
@@ -42,26 +42,14 @@ export function UrunFiltre({ kategoriler, locale, labels }: UrunFiltreProps) {
 
   const updateFilters = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    
-    // Reset to page 1 when filters change
+    if (value) { params.set(key, value); } else { params.delete(key); }
     params.delete('page');
-    
-    startTransition(() => {
-      router.push(`${pathname}?${params.toString()}`);
-    });
+    startTransition(() => { router.push(`${pathname}?${params.toString()}`); });
   };
 
   const clearFilters = () => {
     setSearchQuery('');
-    startTransition(() => {
-      router.push(pathname);
-    });
+    startTransition(() => { router.push(pathname); });
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -72,115 +60,55 @@ export function UrunFiltre({ kategoriler, locale, labels }: UrunFiltreProps) {
   const hasActiveFilters = searchQuery || selectedCategory || selectedStatus || selectedStok;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <div className="relative flex-1">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+    <div className="flex flex-wrap items-center gap-2">
+      <form onSubmit={handleSearch} className="flex items-center gap-1">
+        <div className="relative">
+          <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={labels.searchPlaceholder}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent transition-all"
+            className="w-52 pl-8 pr-3 py-1.5 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-slate-400"
           />
         </div>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="px-6 py-2.5 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium disabled:opacity-50"
-        >
+        <button type="submit" disabled={isPending}
+          className="px-3 py-1.5 bg-slate-900 text-white rounded-md text-sm font-medium disabled:opacity-50">
           {labels.searchButton}
         </button>
       </form>
 
-      {/* Filter Row */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2 text-gray-700 font-medium">
-          <FiFilter className="w-4 h-4" />
-          <span className="text-sm">{labels.filterLabel}</span>
-        </div>
+      <select value={selectedCategory} onChange={(e) => updateFilters('kategori', e.target.value)}
+        className="rounded-md border border-slate-200 px-2 py-1.5 text-sm" disabled={isPending}>
+        <option value="">{labels.allCategories}</option>
+        {kategoriler.filter(k => !k.ust_kategori_id).map(k => (
+          <option key={k.id} value={k.id}>{k.ad?.[locale] || k.ad?.de || '?'}</option>
+        ))}
+      </select>
 
-        {/* Category Filter */}
-        <select
-          value={selectedCategory}
-          onChange={(e) => updateFilters('kategori', e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm"
-          disabled={isPending}
-        >
-          <option value="">{labels.allCategories}</option>
-          {kategoriler
-            .filter(k => !k.ust_kategori_id)
-            .map(k => (
-              <option key={k.id} value={k.id}>
-                {k.ad?.[locale] || k.ad?.de || 'Unbekannt'}
-              </option>
-            ))}
-        </select>
+      <select value={selectedStatus} onChange={(e) => updateFilters('durum', e.target.value)}
+        className="rounded-md border border-slate-200 px-2 py-1.5 text-sm" disabled={isPending}>
+        <option value="">{labels.allStatuses}</option>
+        <option value="aktif">{labels.statusActiveLabel}</option>
+        <option value="pasif">{labels.statusInactiveLabel}</option>
+      </select>
 
-        {/* Status Filter */}
-        <select
-          value={selectedStatus}
-          onChange={(e) => updateFilters('durum', e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm"
-          disabled={isPending}
-        >
-          <option value="">{labels.allStatuses}</option>
-          <option value="aktif">{labels.statusActiveLabel}</option>
-          <option value="pasif">{labels.statusInactiveLabel}</option>
-        </select>
+      <select value={selectedStok} onChange={(e) => updateFilters('stok', e.target.value)}
+        className="rounded-md border border-slate-200 px-2 py-1.5 text-sm" disabled={isPending}>
+        <option value="">{labels.allStocks}</option>
+        <option value="kritisch">{labels.stockCriticalLabel}</option>
+        <option value="aufgebraucht">{labels.stockOutLabel}</option>
+        <option value="ausreichend">{labels.stockSufficientLabel}</option>
+      </select>
 
-        {/* Stock Filter */}
-        <select
-          value={selectedStok}
-          onChange={(e) => updateFilters('stok', e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm"
-          disabled={isPending}
-        >
-          <option value="">{labels.allStocks}</option>
-          <option value="kritisch">{labels.stockCriticalLabel}</option>
-          <option value="aufgebraucht">{labels.stockOutLabel}</option>
-          <option value="ausreichend">{labels.stockSufficientLabel}</option>
-        </select>
-
-        {/* Clear Filters */}
-        {hasActiveFilters && (
-          <button
-            onClick={clearFilters}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-            disabled={isPending}
-          >
-            <FiX className="w-4 h-4" />
-            {labels.clearFilters}
-          </button>
-        )}
-      </div>
-
-      {/* Active Filters Display */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
-          {searchQuery && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent rounded-full text-sm">
-              {labels.active.searchPrefix} "{searchQuery}"
-            </span>
-          )}
-          {selectedCategory && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
-              {labels.active.categoryFiltered}
-            </span>
-          )}
-          {selectedStatus && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
-              {labels.active.statusPrefix} {selectedStatus === 'aktif' ? labels.statusActiveLabel : labels.statusInactiveLabel}
-            </span>
-          )}
-          {selectedStok && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-sm">
-              {labels.active.stockPrefix} {selectedStok === 'kritisch' ? labels.stockCriticalLabel : selectedStok === 'aufgebraucht' ? labels.stockOutLabel : labels.stockSufficientLabel}
-            </span>
-          )}
-        </div>
+        <button onClick={clearFilters} disabled={isPending}
+          className="flex items-center gap-1 px-2 py-1.5 text-sm text-slate-600 hover:text-red-600 rounded-md border border-slate-200 hover:border-red-200">
+          <FiX className="w-3.5 h-3.5" />
+          {labels.clearFilters}
+        </button>
       )}
+      {isPending && <span className="text-xs text-slate-400 ml-1">yükleniyor...</span>}
     </div>
   );
 }

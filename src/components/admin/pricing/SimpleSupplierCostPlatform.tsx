@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState, useTransition, type ReactNode } from 'rea
 import { FiChevronDown } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { bulkSaveProductPricesAction, saveProductPricesAction } from '@/app/actions/urun-fiyat-actions';
-import { saveImportBatchAction } from '@/app/actions/ithalat-parti-actions';
 import { importSupplierPriceListAction } from '@/app/actions/supplier-price-import-actions';
 import { savePricingDefaultsAction } from '@/app/actions/system-settings-actions';
 import {
@@ -60,8 +59,6 @@ type RecentBatchLite = {
   id: string;
   referans_kodu: string;
   tedarikci_id?: string | null;
-  para_birimi?: string | null;
-  kur_orani?: number | null;
   navlun_soguk_eur?: number | null;
   navlun_kuru_eur?: number | null;
   gumruk_vergi_toplam_eur?: number | null;
@@ -111,10 +108,6 @@ function roundToStep(value: number, step: number) {
   const safeStep = toNumber(step, 0);
   if (!safeStep || safeStep <= 0) return round2(safeValue);
   return round2(Math.round(safeValue / safeStep) * safeStep);
-}
-
-function buildDefaultBatchReference() {
-  return `TIR-${new Date().toISOString().slice(0, 10)}`;
 }
 
 function inferUnitsPerBox(raw: Record<string, unknown> | null | undefined): number {
@@ -360,30 +353,13 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
   const [isSaving, startSaving] = useTransition();
   const [isPersisting, startPersisting] = useTransition();
   const [isImporting, startImporting] = useTransition();
-  const [isSavingBatch, startSavingBatch] = useTransition();
   const [selectedProfile, setSelectedProfile] = useState<SupplierProfile>('cold-chain');
   const [focusedProductId, setFocusedProductId] = useState<string>('');
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>('all');
   const [productSearch, setProductSearch] = useState<string>('');
   const [importSupplierId, setImportSupplierId] = useState<string>('');
-  const [batchSupplierId, setBatchSupplierId] = useState<string>('');
-  const [batchReference, setBatchReference] = useState<string>(() => buildDefaultBatchReference());
-  const [batchArrivalDate, setBatchArrivalDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
-  const [batchNotes, setBatchNotes] = useState<string>('');
-  const [batchItems, setBatchItems] = useState<Record<string, { quantity: number }>>({});
-  const [batchInputs, setBatchInputs] = useState(() => ({
-    currency: 'EUR',
-    exchangeRate: 1,
-    coldKg: 0,
-    dryKg: 0,
-    freightColdEur: 0,
-    freightDryEur: 0,
-    customsTotalEur: 0,
-    docsTotalEur: 0,
-  }));
   const [importFile, setImportFile] = useState<File | null>(null);
   const [lastImportSummary, setLastImportSummary] = useState<string>('');
-  const [lastBatchSummary, setLastBatchSummary] = useState<string>('');
   const [productCostInputs, setProductCostInputs] = useState<Record<string, number>>(() => (
     Object.fromEntries(products.map((product) => [product.id, toNumber(product.distributor_alis_fiyati, 0)]))
   ));
@@ -527,12 +503,6 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
     }
   }, [visibleRows, focusedProductId]);
 
-  useEffect(() => {
-    if (!batchSupplierId && selectedSupplierId !== 'all' && selectedSupplierId !== 'unassigned') {
-      setBatchSupplierId(selectedSupplierId);
-    }
-  }, [selectedSupplierId, batchSupplierId]);
-
   const activeRow = visibleRows.find((row) => row.product.id === focusedProductId) || visibleRows[0] || null;
   const currentShipping = profileInputs[selectedProfile].shippingPerBox;
   const currentCustoms = profileInputs[selectedProfile].customsPct;
@@ -557,95 +527,6 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
       }
     : null;
 
-  const batchSelectedRows = useMemo(
-    () => rows.filter((row) => toNumber(batchItems[row.product.id]?.quantity, 0) > 0),
-    [rows, batchItems]
-  );
-
-  const batchSimulationRows = useMemo(() => {
-    const selectedColdWeight = batchSelectedRows.reduce((sum, row) => {
-      const quantity = Math.max(1, Math.floor(toNumber(batchItems[row.product.id]?.quantity, 1)));
-      return row.profile === 'cold-chain'
-        ? sum + (toNumber(row.product.birim_agirlik_kg, getNumericMetric(row.product.teknik_ozellikler, ['birim_agirlik_kg', 'agirlik_kg', 'weight_kg'], 0)) * quantity)
-        : sum;
-    }, 0);
-
-    const selectedDryWeight = batchSelectedRows.reduce((sum, row) => {
-      const quantity = Math.max(1, Math.floor(toNumber(batchItems[row.product.id]?.quantity, 1)));
-      return row.profile === 'non-cold'
-        ? sum + (toNumber(row.product.birim_agirlik_kg, getNumericMetric(row.product.teknik_ozellikler, ['birim_agirlik_kg', 'agirlik_kg', 'weight_kg'], 0)) * quantity)
-        : sum;
-    }, 0);
-
-    const totalDeclaredValue = batchSelectedRows.reduce((sum, row) => {
-      const quantity = Math.max(1, Math.floor(toNumber(batchItems[row.product.id]?.quantity, 1)));
-      return sum + (row.purchase * quantity);
-    }, 0);
-
-    const effectiveColdKg = Math.max(toNumber(batchInputs.coldKg, 0), selectedColdWeight);
-    const effectiveDryKg = Math.max(toNumber(batchInputs.dryKg, 0), selectedDryWeight);
-    const freightColdTotal = toNumber(batchInputs.freightColdEur, 0);
-    const freightDryTotal = toNumber(batchInputs.freightDryEur, 0);
-    const customsTotal = toNumber(batchInputs.customsTotalEur, 0);
-    const docsTotal = toNumber(batchInputs.docsTotalEur, 0);
-
-    return batchSelectedRows.map((row) => {
-      const quantity = Math.max(1, Math.floor(toNumber(batchItems[row.product.id]?.quantity, 1)));
-      const weightKg = toNumber(row.product.birim_agirlik_kg, getNumericMetric(row.product.teknik_ozellikler, ['birim_agirlik_kg', 'agirlik_kg', 'weight_kg'], 0));
-      const stockDays = toNumber(row.product.ortalama_stokta_kalma_suresi, getNumericMetric(row.product.teknik_ozellikler, ['ortalama_stokta_kalma_suresi', 'stok_gun'], DEFAULT_STOCK_DAYS));
-      const wastePct = toNumber(row.product.fire_zayiat_orani_yuzde, getNumericMetric(row.product.teknik_ozellikler, ['fire_zayiat_orani_yuzde', 'fire_orani'], 0)) / 100;
-      const storageDaily = toNumber(row.product.gunluk_depolama_maliyeti_eur, row.profile === 'cold-chain' ? coldStorageDaily : dryStorageDaily);
-      const totalWeightKg = weightKg * quantity;
-      const nakedCostTotal = row.purchase * quantity;
-      const freightTotal = row.profile === 'cold-chain'
-        ? (effectiveColdKg > 0 ? (freightColdTotal / effectiveColdKg) * totalWeightKg : 0)
-        : (effectiveDryKg > 0 ? (freightDryTotal / effectiveDryKg) * totalWeightKg : 0);
-      const customsAllocatedTotal = totalDeclaredValue > 0 ? (customsTotal * nakedCostTotal) / totalDeclaredValue : 0;
-      const docsAllocatedTotal = row.profile === 'cold-chain' && effectiveColdKg > 0
-        ? (docsTotal / effectiveColdKg) * totalWeightKg
-        : 0;
-      const storageTotal = storageDaily * stockDays * quantity;
-      const wasteTotal = nakedCostTotal * wastePct;
-      const actualTotal = nakedCostTotal + freightTotal + customsAllocatedTotal + docsAllocatedTotal + storageTotal + wasteTotal;
-      const actualPerBox = quantity > 0 ? actualTotal / quantity : 0;
-      const standardPerBox = toNumber(row.product.standart_inis_maliyeti_net, row.calculation.landedCost);
-      const variancePct = standardPerBox > 0 ? ((actualPerBox - standardPerBox) / standardPerBox) * 100 : 0;
-      const vatPct = toNumber(row.product.almanya_kdv_orani, taxPct) / 100;
-
-      return {
-        row,
-        quantity,
-        totalWeightKg,
-        nakedCostTotal,
-        freightTotal,
-        customsAllocatedTotal,
-        docsAllocatedTotal,
-        storageTotal,
-        wasteTotal,
-        actualTotal,
-        actualPerBox,
-        standardPerBox,
-        variancePct,
-        shouldAlert: Math.abs(variancePct) >= varianceAlertThreshold,
-        actualResellerNet: actualPerBox * (1 + resellerProfitPct / 100),
-        actualWholesaleNet: actualPerBox * (1 + wholesaleProfitPct / 100),
-        actualCustomerNet: actualPerBox * (1 + customerProfitPct / 100),
-        actualCustomerGross: actualPerBox * (1 + customerProfitPct / 100) * (1 + vatPct),
-      };
-    });
-  }, [batchSelectedRows, batchItems, batchInputs, coldStorageDaily, dryStorageDaily, resellerProfitPct, wholesaleProfitPct, customerProfitPct, taxPct, varianceAlertThreshold]);
-
-  const batchSummary = useMemo(() => ({
-    totalProducts: batchSimulationRows.length,
-    totalQuantity: batchSimulationRows.reduce((sum, item) => sum + item.quantity, 0),
-    totalWeightKg: batchSimulationRows.reduce((sum, item) => sum + item.totalWeightKg, 0),
-    totalActualCost: batchSimulationRows.reduce((sum, item) => sum + item.actualTotal, 0),
-    totalStandardCost: batchSimulationRows.reduce((sum, item) => sum + (item.standardPerBox * item.quantity), 0),
-    alertCount: batchSimulationRows.filter((item) => item.shouldAlert).length,
-    coldWeightKg: batchSimulationRows.filter((item) => item.row.profile === 'cold-chain').reduce((sum, item) => sum + item.totalWeightKg, 0),
-    dryWeightKg: batchSimulationRows.filter((item) => item.row.profile === 'non-cold').reduce((sum, item) => sum + item.totalWeightKg, 0),
-  }), [batchSimulationRows]);
-
   const alertRows = useMemo(
     () => [...rows]
       .filter((row) => row.product.karlilik_alarm_aktif || Math.abs(toNumber(row.product.son_maliyet_sapma_yuzde, 0)) >= varianceAlertThreshold)
@@ -660,40 +541,6 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
       [selectedProfile]: {
         ...prev[selectedProfile],
         ...patch,
-      },
-    }));
-  };
-
-  const updateBatchInputs = (patch: Partial<typeof batchInputs>) => {
-    setBatchInputs((prev) => ({ ...prev, ...patch }));
-  };
-
-  const addRowToBatch = (row: PricingRow) => {
-    setBatchItems((prev) => ({
-      ...prev,
-      [row.product.id]: {
-        quantity: Math.max(1, Math.floor(toNumber(prev[row.product.id]?.quantity, 0))) + (prev[row.product.id] ? 1 : 0),
-      },
-    }));
-
-    if (!batchSupplierId && row.product.tedarikci_id) {
-      setBatchSupplierId(row.product.tedarikci_id);
-    }
-  };
-
-  const removeRowFromBatch = (productId: string) => {
-    setBatchItems((prev) => {
-      const next = { ...prev };
-      delete next[productId];
-      return next;
-    });
-  };
-
-  const updateBatchQuantity = (productId: string, quantity: number) => {
-    setBatchItems((prev) => ({
-      ...prev,
-      [productId]: {
-        quantity: Math.max(1, Math.floor(toNumber(quantity, 1))),
       },
     }));
   };
@@ -872,65 +719,228 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
     });
   };
 
-  const handleSaveBatch = () => {
-    if (batchSimulationRows.length === 0) {
-      toast.error('Once asagidaki urunlerden tir/parti listesine ekleyin.');
-      return;
-    }
-
-    if (!batchReference.trim()) {
-      toast.error('Lutfen bir tir / parti referansi girin.');
-      return;
-    }
-
-    startSavingBatch(async () => {
-      const response = await saveImportBatchAction({
-        referansKodu: batchReference.trim(),
-        tedarikciId: batchSupplierId || null,
-        paraBirimi: batchInputs.currency,
-        kurOrani: batchInputs.exchangeRate,
-        sogukKg: batchInputs.coldKg || batchSummary.coldWeightKg,
-        kuruKg: batchInputs.dryKg || batchSummary.dryWeightKg,
-        navlunSogukEur: batchInputs.freightColdEur,
-        navlunKuruEur: batchInputs.freightDryEur,
-        gumrukVergiToplamEur: batchInputs.customsTotalEur,
-        tracesNumuneArdiyeEur: batchInputs.docsTotalEur,
-        varisTarihi: batchArrivalDate || null,
-        ekNotlar: batchNotes || null,
-        items: batchSimulationRows.map((item) => ({
-          urunId: item.row.product.id,
-          miktarAdet: item.quantity,
-          toplamAgirlikKg: item.totalWeightKg,
-          birimAlisFiyatiOrijinal: item.row.purchase,
-          ciplakMaliyetEur: item.quantity > 0 ? item.nakedCostTotal / item.quantity : 0,
-          dagitilanNavlunEur: item.quantity > 0 ? item.freightTotal / item.quantity : 0,
-          dagitilanGumrukEur: item.quantity > 0 ? item.customsAllocatedTotal / item.quantity : 0,
-          dagitilanOzelGiderEur: item.quantity > 0 ? item.docsAllocatedTotal / item.quantity : 0,
-          operasyonVeRiskYukuEur: item.quantity > 0 ? (item.storageTotal + item.wasteTotal) / item.quantity : 0,
-          gercekInisMaliyetiNet: item.actualPerBox,
-          standartInisMaliyetiNet: item.standardPerBox,
-          maliyetSapmaYuzde: item.variancePct,
-        })),
-      }, locale);
-
-      if (response?.error) {
-        toast.error(response.error);
-        return;
-      }
-
-      const summary = `${response?.savedItemCount || 0} kalemli tir/parti kaydedildi. ${response?.updatedProductCount || 0} urunun stok ve maliyet snapshoti guncellendi, toplam +${response?.totalStockAdded || 0} stok eklendi.`;
-      setLastBatchSummary(summary);
-      toast.success(summary);
-      setBatchItems({});
-      setBatchNotes('');
-      setBatchReference(buildDefaultBatchReference());
-      router.refresh();
-    });
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
+    <div className="space-y-4">
+      {/* ─── Üst araç çubuğu ───────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        {/* Profil toggle */}
+        <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+          <button
+            type="button"
+            onClick={() => setSelectedProfile('cold-chain')}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold transition ${selectedProfile === 'cold-chain' ? 'bg-white text-rose-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            Donuk ({coldCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedProfile('non-cold')}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold transition ${selectedProfile === 'non-cold' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          >
+            Kuru ({nonColdCount})
+          </button>
+        </div>
+
+        <input
+          type="search"
+          value={productSearch}
+          onChange={(e) => setProductSearch(e.target.value)}
+          placeholder="Ürün ara..."
+          className="w-52 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+        />
+        <select
+          value={selectedSupplierId}
+          onChange={(e) => setSelectedSupplierId(e.target.value)}
+          className="rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+        >
+          <option value="all">Tüm tedarikçiler</option>
+          <option value="unassigned">Kaynaksız</option>
+          {dedupedSuppliers.map((s) => (
+            <option key={s.id} value={s.id}>{getCanonicalSupplierLabel(s.unvan)}</option>
+          ))}
+        </select>
+        {productSearch && (
+          <button type="button" onClick={() => setProductSearch('')} className="rounded-md border border-slate-200 px-2 py-1.5 text-xs text-slate-600">✕</button>
+        )}
+
+        <div className="ml-auto flex items-center gap-2">
+          <span className="text-xs text-slate-500">{visibleRows.length} ürün · {readyRows.length} hazır</span>
+          <button
+            type="button"
+            onClick={handleApplyVisible}
+            disabled={isSaving || readyRows.length === 0}
+            className="rounded-md bg-indigo-700 px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            {isSaving ? 'Kaydediliyor...' : `Tümünü Uygula (${readyRows.length})`}
+          </button>
+        </div>
+      </div>
+
+      {/* ─── Hesaplama parametreleri (katlanabilir) ────────────────────── */}
+      <details className="group rounded-xl border border-slate-200 bg-white shadow-sm">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5">
+          <div className="flex items-center gap-3 text-sm font-semibold text-slate-700">
+            Hesaplama Parametreleri
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+              Nakliye {money(currentShipping)}/kutu · Gümrük %{currentCustoms} · Alt bayi %{resellerProfitPct} · Müşteri %{customerProfitPct}
+            </span>
+          </div>
+          <span className="text-xs text-slate-400 group-open:hidden">Aç</span>
+          <span className="hidden text-xs text-slate-400 group-open:inline">Kapat</span>
+        </summary>
+        <div className="border-t border-slate-100 px-4 pb-4 pt-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Nakliye/Kutu (€)</label>
+              <input type="number" min={0} step="0.01" value={currentShipping}
+                onChange={(e) => updateProfileInputs({ shippingPerBox: toNumber(e.target.value, 0) })}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Gümrük (%)</label>
+              <input type="number" min={0} step="0.1" value={currentCustoms}
+                onChange={(e) => updateProfileInputs({ customsPct: toNumber(e.target.value, 0) })}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Operasyonel (%)</label>
+              <input type="number" min={0} step="0.1" value={operationalPct}
+                onChange={(e) => setOperationalPct(toNumber(e.target.value, 0))}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">KDV (%)</label>
+              <input type="number" min={0} step="0.1" value={taxPct}
+                onChange={(e) => setTaxPct(toNumber(e.target.value, 0))}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Alt Bayi Marjı (%)</label>
+              <input type="number" min={0} step="0.1" value={resellerProfitPct}
+                onChange={(e) => setResellerProfitPct(toNumber(e.target.value, DEFAULT_RESELLER_PROFIT_PCT))}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Müşteri Marjı (%)</label>
+              <input type="number" min={0} step="0.1" value={customerProfitPct}
+                onChange={(e) => setCustomerProfitPct(toNumber(e.target.value, DEFAULT_CUSTOMER_PROFIT_PCT))}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Yuvarlama</label>
+              <select value={roundStep} onChange={(e) => setRoundStep(toNumber(e.target.value, 0))}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm">
+                <option value={0}>Yok</option>
+                <option value={0.05}>0.05</option>
+                <option value={0.1}>0.10</option>
+                <option value={0.5}>0.50</option>
+                <option value={1}>1.00</option>
+              </select>
+            </div>
+            <div className="flex items-end gap-2">
+              <button type="button" onClick={saveCurrentProfileDefaults} disabled={isPersisting}
+                className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 disabled:opacity-60">
+                {selectedProfile === 'cold-chain' ? 'Donuk' : 'Kuru'} kaydet
+              </button>
+              <button type="button" onClick={saveMarginDefaults} disabled={isPersisting}
+                className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60">
+                Genel kaydet
+              </button>
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-slate-400">
+            Toptan fiyat otomatik: <strong>%{wholesaleProfitPct}</strong> · Hesap: alış + nakliye + gümrük + operasyon = net maliyet
+          </p>
+        </div>
+      </details>
+
+      {/* ─── Ürün tablosu ─────────────────────────────────────────────── */}
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        {visibleRows.length === 0 ? (
+          <div className="p-10 text-center text-sm text-slate-400">
+            {productSearch ? 'Arama kriterine uyan ürün bulunamadı.' : 'Bu listede henüz ürün yok.'}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-2.5">Ürün</th>
+                  <th className="px-3 py-2.5 w-32">Alış (€/kutu)</th>
+                  <th className="px-3 py-2.5 text-right w-28">Net Maliyet</th>
+                  <th className="px-3 py-2.5 text-right w-28 text-blue-700">Alt Bayi</th>
+                  <th className="px-3 py-2.5 text-right w-28 text-violet-700">Toptan</th>
+                  <th className="px-3 py-2.5 text-right w-28 text-emerald-700">Kafe</th>
+                  <th className="px-3 py-2.5 text-right w-24">Mevcut</th>
+                  <th className="px-3 py-2.5 w-28 text-right">İşlem</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {visibleRows.map((row) => {
+                  const hasChanged = Math.abs(toNumber(productCostInputs[row.product.id], row.purchase) - toNumber(row.product.distributor_alis_fiyati, 0)) > 0.001;
+                  return (
+                    <tr key={row.product.id} className={`hover:bg-slate-50/60 transition ${hasChanged ? 'bg-amber-50/40' : ''}`}>
+                      <td className="px-4 py-2">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-slate-900 leading-snug">{productName(row.product)}</span>
+                          <div className="flex flex-wrap items-center gap-1 text-[11px]">
+                            {row.product.stok_kodu && <span className="text-slate-400">{row.product.stok_kodu}</span>}
+                            <span className="text-slate-400">·</span>
+                            <span className="text-slate-500">{productSupplierLabel(row.product)}</span>
+                            <span className={`rounded-full px-1.5 py-0.5 font-medium ${row.profile === 'cold-chain' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                              {row.profile === 'cold-chain' ? 'Donuk' : 'Kuru'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={productCostInputs[row.product.id] ?? row.purchase}
+                          onChange={(e) => setProductCostInputs((prev) => ({ ...prev, [row.product.id]: toNumber(e.target.value, 0) }))}
+                          className={`w-full rounded-md border px-2 py-1.5 text-sm text-right ${hasChanged ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white'}`}
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-right font-semibold text-slate-800">{money(row.calculation.landedCost)}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-blue-800">{money(row.calculation.resellerNet)}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-violet-800">{money(row.calculation.wholesaleNet)}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-emerald-800">{money(row.calculation.customerNet)}</td>
+                      <td className="px-3 py-2 text-right">
+                        <span className="text-[11px] text-slate-400 leading-tight block">{money(toNumber(row.product.satis_fiyati_musteri, 0))}</span>
+                        <span className="text-[11px] text-slate-300 leading-tight block">{money(toNumber(row.product.satis_fiyati_alt_bayi, 0))}</span>
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleApplySingle(row)}
+                            disabled={isSaving || row.purchase <= 0}
+                            className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40"
+                          >
+                            Uygula
+                          </button>
+                          <Link
+                            href={`/${locale}/admin/urun-yonetimi/urunler/${row.product.id}`}
+                            className="rounded-md border border-slate-200 px-2 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                          >
+                            ↗
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+      {/* ─────────────────────────────────────────────────────────────── */}
+      {/* Yorum: Eski bloklar (4-col header, sticky aside, card grid) kaldırıldı */}
+      {false && <div className="space-y-6">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))]">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-1">
           <h2 className="text-2xl font-bold text-slate-900">Basit fiyatlandirma sayfasi</h2>
           <p className="mt-2 text-sm text-slate-600">
@@ -1222,6 +1232,11 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           </div>
 
           <div className="mt-4">
+            <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+              Parti ve siparişten stok işleme akışı tedarikçi sipariş sayfasına taşındı.
+              Bu ekran sadece fiyat hesaplama ve toplu fiyat uygulama için sadeleştirildi.
+            </div>
+
             {visibleRows.length === 0 ? (
               <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
                 {productSearch ? 'Arama kriterine uyan urun bulunamadi.' : 'Bu listede henuz urun yok.'}
@@ -1330,6 +1345,7 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           </div>
         </section>
       </div>
+      </div>}
     </div>
   );
 }

@@ -437,6 +437,7 @@ export async function createUrunAction(formData: FormData): Promise<FormState> {
 export async function deleteUrunAction(
     urunId: string,
     force = false,
+    locale = 'de',
 ): Promise<{ success: boolean; message: string; orderCount?: number }> {
 
     const cookieStore = await cookies();
@@ -519,7 +520,7 @@ export async function deleteUrunAction(
     revalidatePath('/admin/urun-yonetimi/urunler');
     revalidatePath('/[locale]/products', 'layout');
 
-    return { success: true, message: hasOrders ? 'Ürün silindi. Geçmiş sipariş satırları "Silinmiş Ürün" olarak işaretlendi.' : 'Produkt erfolgreich gelöscht!' };
+    redirect(`/${locale}/admin/urun-yonetimi/urunler`);
 }
 
 // Hafif güncelleme action'ı - sadece belirli alanları günceller

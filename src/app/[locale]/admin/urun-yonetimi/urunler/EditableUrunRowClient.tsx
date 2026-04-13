@@ -12,6 +12,10 @@ export default function EditableUrunRowClient({ urun, locale, content, isAdmin, 
     const [success, setSuccess] = React.useState(false);
     const [error, setError] = React.useState("");
 
+    const isDirty = alisFiyati !== (urun.distributor_alis_fiyati ?? 0)
+        || stokMiktari !== (urun.stok_miktari ?? 0)
+        || aktif !== (urun.aktif ?? true);
+
     async function handleSave() {
         setLoading(true);
         setError("");
@@ -22,7 +26,6 @@ export default function EditableUrunRowClient({ urun, locale, content, isAdmin, 
                 stok_miktari: stokMiktari,
                 aktif: aktif
             });
-            
             if (result && result.success) {
                 setSuccess(true);
                 setTimeout(() => setSuccess(false), 2000);
@@ -30,68 +33,124 @@ export default function EditableUrunRowClient({ urun, locale, content, isAdmin, 
                 setError(result?.message || "Hata oluştu");
             }
         } catch (e: any) {
-            setError("Sunucu hatası: " + (e?.message || "Bilinmeyen hata"));
+            setError("Hata: " + (e?.message || "Bilinmeyen hata"));
         }
         setLoading(false);
     }
 
+    const urunAdi = getLocalizedName(urun.ad, locale);
+    const kategoriAdi = urun.kategoriler?.ad ? getLocalizedName(urun.kategoriler.ad, locale) : '—';
+
     return (
-        <tr className="hover:bg-gray-50 transition-colors duration-150">
-            <td className="px-4 py-3 whitespace-nowrap">
-                <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="block">
-                    <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
-                        {urun.ana_resim_url ? (
-                            <img src={urun.ana_resim_url} alt={getLocalizedName(urun.ad, locale)} className="w-full h-full object-cover" />
-                        ) : (
-                            <span className="text-[10px] text-gray-400">no img</span>
-                        )}
+        <tr className={`hover:bg-slate-50/60 transition ${isDirty ? 'bg-amber-50/40' : ''}`}>
+            {/* Resim */}
+            <td className="w-10 px-3 py-2">
+                <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`}>
+                    <div className="w-8 h-8 rounded overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
+                        {urun.ana_resim_url
+                            ? <img src={urun.ana_resim_url} alt={urunAdi} className="w-full h-full object-cover" />
+                            : <span className="text-[9px] text-slate-300">img</span>
+                        }
                     </div>
                 </Link>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
-                <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`} className="hover:underline hover:text-accent transition-colors">
-                    {getLocalizedName(urun.ad, locale)}
+
+            {/* Ürün adı + kodu */}
+            <td className="px-3 py-2 max-w-[220px]">
+                <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`}
+                    className="font-medium text-slate-900 hover:text-slate-600 hover:underline leading-snug block truncate">
+                    {urunAdi}
                 </Link>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">{urun.stok_kodu || "-"}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{urun.kategoriler?.ad ? getLocalizedName(urun.kategoriler.ad, locale) : (content.unknownCategory || "Ohne Kategorie")}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                {isAdmin ? (
-                    <input type="number" className="w-20 px-2 py-1 border rounded" value={stokMiktari} onChange={e => setStokMiktari(Number(e.target.value))} disabled={loading} />
-                ) : (
-                    <span className="font-medium">{urun.stok_miktari}</span>
+                {urun.stok_kodu && (
+                    <span className="text-[11px] font-mono text-slate-400">{urun.stok_kodu}</span>
                 )}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm">
+
+            {/* Kategori */}
+            <td className="px-3 py-2 text-xs text-slate-600 max-w-[140px]">
+                <span className="truncate block">{kategoriAdi}</span>
+            </td>
+
+            {/* Stok */}
+            <td className="px-3 py-2">
                 {isAdmin ? (
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" className="h-4 w-4 rounded" checked={aktif} onChange={e => setAktif(e.target.checked)} disabled={loading} />
-                        <span className={`text-xs font-semibold ${aktif ? "text-green-700" : "text-red-700"}`}>{aktif ? (content.statusActive || "Aktiv") : (content.statusInactive || "Inaktiv")}</span>
+                    <input
+                        type="number"
+                        className={`w-16 rounded border px-1.5 py-1 text-sm text-right ${isDirty && stokMiktari !== (urun.stok_miktari ?? 0) ? 'border-amber-300 bg-amber-50' : 'border-slate-200'}`}
+                        value={stokMiktari}
+                        onChange={e => setStokMiktari(Number(e.target.value))}
+                        disabled={loading}
+                    />
+                ) : (
+                    <span className="text-sm font-medium text-slate-700">{urun.stok_miktari ?? 0}</span>
+                )}
+            </td>
+
+            {/* Aktif */}
+            <td className="px-3 py-2">
+                {isAdmin ? (
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" className="h-3.5 w-3.5 rounded accent-slate-900"
+                            checked={aktif} onChange={e => setAktif(e.target.checked)} disabled={loading} />
+                        <span className={`text-xs font-medium ${aktif ? 'text-emerald-700' : 'text-red-600'}`}>
+                            {aktif ? 'Aktif' : 'Pasif'}
+                        </span>
                     </label>
                 ) : (
-                    <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${urun.aktif ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{urun.aktif ? (content.statusActive || "Aktiv") : (content.statusInactive || "Inaktiv")}</span>
+                    <span className={`inline-flex px-2 py-0.5 text-[11px] font-semibold rounded-full ${urun.aktif ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                        {urun.aktif ? 'Aktif' : 'Pasif'}
+                    </span>
                 )}
             </td>
+
+            {/* Alış fiyatı */}
             {canSeePurchasePrice && (
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-3 py-2 text-right">
                     {isAdmin ? (
-                        <input type="number" className="w-24 px-2 py-1 border rounded" value={alisFiyati} onChange={e => setAlisFiyati(Number(e.target.value))} disabled={loading} />
+                        <input
+                            type="number"
+                            step="0.01"
+                            className={`w-20 rounded border px-1.5 py-1 text-sm text-right ${isDirty && alisFiyati !== (urun.distributor_alis_fiyati ?? 0) ? 'border-amber-300 bg-amber-50' : 'border-slate-200'}`}
+                            value={alisFiyati}
+                            onChange={e => setAlisFiyati(Number(e.target.value))}
+                            disabled={loading}
+                        />
                     ) : (
-                        <span className="font-medium">{formatCurrency(urun.distributor_alis_fiyati, locale)}</span>
+                        <span className="text-sm text-slate-700">{formatCurrency(urun.distributor_alis_fiyati, locale)}</span>
                     )}
                 </td>
             )}
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatCurrency(urun.satis_fiyati_musteri, locale)}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatCurrency(urun.satis_fiyati_alt_bayi, locale)}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                {isAdmin && (
-                    <>
-                        <button className="px-3 py-1 bg-accent text-white rounded hover:bg-accent-dark disabled:opacity-50" onClick={handleSave} disabled={loading}>
-                            {loading ? "Kaydediliyor..." : success ? "✓" : "Kaydet"}
+
+            {/* Müşteri fiyatı */}
+            <td className="px-3 py-2 text-right">
+                <span className="text-sm font-medium text-emerald-800">{formatCurrency(urun.satis_fiyati_musteri, locale)}</span>
+            </td>
+
+            {/* Alt bayi fiyatı */}
+            <td className="px-3 py-2 text-right">
+                <span className="text-sm font-medium text-blue-800">{formatCurrency(urun.satis_fiyati_alt_bayi, locale)}</span>
+            </td>
+
+            {/* Kaydet + Detay */}
+            <td className="px-3 py-2 text-right">
+                <div className="flex justify-end items-center gap-1">
+                    {isAdmin && (
+                        <button
+                            className={`rounded px-2.5 py-1 text-xs font-semibold transition ${
+                                success ? 'bg-emerald-600 text-white' : isDirty ? 'bg-amber-600 text-white hover:bg-amber-700' : 'bg-slate-900 text-white hover:bg-slate-700'
+                            } disabled:opacity-50`}
+                            onClick={handleSave}
+                            disabled={loading}
+                        >
+                            {loading ? '...' : success ? '✓' : 'Kaydet'}
                         </button>
-                        {error && <div className="text-xs text-red-500 mt-1">{error}</div>}
-                    </>
-                )}
+                    )}
+                    <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`}
+                        className="rounded border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50">
+                        ↗
+                    </Link>
+                </div>
+                {error && <div className="text-[10px] text-red-500 mt-0.5 text-right">{error}</div>}
             </td>
         </tr>
     );

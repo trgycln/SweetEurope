@@ -19,8 +19,7 @@ type BatchHeader = {
   id: string;
   referans_kodu: string;
   tedarikci_id?: string | null;
-  para_birimi?: string | null;
-  kur_orani?: number | null;
+  supplier_order_plan_record_id?: string | null;
   soguk_kg?: number | null;
   kuru_kg?: number | null;
   navlun_soguk_eur?: number | null;
@@ -134,7 +133,7 @@ export default async function PartiDetayPage({
   const [batchResponse, suppliersResponse] = await Promise.all([
     db
       .from('ithalat_partileri')
-      .select('id, referans_kodu, tedarikci_id, para_birimi, kur_orani, soguk_kg, kuru_kg, navlun_soguk_eur, navlun_kuru_eur, gumruk_vergi_toplam_eur, traces_numune_ardiye_eur, ek_notlar, varis_tarihi, durum, created_at')
+      .select('id, referans_kodu, tedarikci_id, supplier_order_plan_record_id, soguk_kg, kuru_kg, navlun_soguk_eur, navlun_kuru_eur, gumruk_vergi_toplam_eur, traces_numune_ardiye_eur, ek_notlar, varis_tarihi, durum, created_at')
       .eq('id', partiId)
       .maybeSingle(),
     db.from('tedarikciler').select('id, unvan').order('unvan', { ascending: true }).limit(1000),
@@ -225,7 +224,7 @@ export default async function PartiDetayPage({
         <SummaryCard title="Parti kalemi" value={String(rows.length)} hint="Bu tırdaki ürün satırı" icon={<FiPackage size={18} />} />
         <SummaryCard title="Toplam giriş" value={`${totalQuantity.toLocaleString('tr-TR')} adet`} hint={`${totalWeight.toFixed(2)} kg toplam ağırlık`} icon={<FiTruck size={18} />} />
         <SummaryCard title="Ortalama sapma" value={formatVariance(avgVariance)} hint={`${alertLineCount} kalem alarm üretiyor`} icon={<FiTrendingDown size={18} />} />
-        <SummaryCard title="Ek maliyet toplamı" value={money(totalExtraCost)} hint={`Kur ${Number(batch.kur_orani || 1).toFixed(4)} ${batch.para_birimi || 'EUR'}`} icon={<FiBarChart2 size={18} />} />
+        <SummaryCard title="Ek maliyet toplamı" value={money(totalExtraCost)} hint="Para birimi: EUR" icon={<FiBarChart2 size={18} />} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
@@ -245,6 +244,7 @@ export default async function PartiDetayPage({
               <p><strong>Tedarikçi:</strong> {supplierNameById[batch.tedarikci_id || ''] || 'Belirtilmedi'}</p>
               <p className="mt-1"><strong>Varış tarihi:</strong> {batch.varis_tarihi || '-'}</p>
               <p className="mt-1"><strong>Durum:</strong> {batch.durum || 'Taslak'}</p>
+              {batch.supplier_order_plan_record_id ? <p className="mt-1"><strong>Kaynak sipariş kaydı:</strong> {batch.supplier_order_plan_record_id}</p> : null}
               <p className="mt-1"><strong>Sıcaklık profili:</strong> Soğuk {Number(batch.soguk_kg || 0).toFixed(2)} kg • Kuru {Number(batch.kuru_kg || 0).toFixed(2)} kg</p>
             </div>
 

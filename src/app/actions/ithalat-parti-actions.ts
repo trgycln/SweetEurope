@@ -4,13 +4,13 @@
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { buildBatchItemInsertRows, buildProductSnapshotUpdate, summarizeIncomingStock, toSafeNumber } from '@/lib/import-batch-utils';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
+import { buildBatchItemInsertRows, buildProductSnapshotUpdate, round4, summarizeIncomingStock, toSafeNumber } from '@/lib/import-batch-utils';
 
 export type SaveImportBatchPayload = {
   referansKodu?: string;
   tedarikciId?: string | null;
-  paraBirimi?: string;
-  kurOrani?: number;
+  supplierOrderPlanRecordId?: string | null;
   sogukKg?: number;
   kuruKg?: number;
   navlunSogukEur?: number;
@@ -94,8 +94,7 @@ export async function saveImportBatchAction(payload: SaveImportBatchPayload, loc
       .insert({
         referans_kodu: referansKodu,
         tedarikci_id: payload.tedarikciId || null,
-        para_birimi: payload.paraBirimi || 'EUR',
-        kur_orani: round4(payload.kurOrani ?? 1),
+        supplier_order_plan_record_id: payload.supplierOrderPlanRecordId || null,
         soguk_kg: round4(payload.sogukKg),
         kuru_kg: round4(payload.kuruKg),
         navlun_soguk_eur: round4(payload.navlunSogukEur),

@@ -86,7 +86,7 @@ export default async function FiyatlandirmaHubPage({ params }: { params: Promise
   let recentBatches: Array<any> = [];
   const recentBatchResponse = await (supabase as any)
     .from('ithalat_partileri')
-    .select('id, referans_kodu, tedarikci_id, para_birimi, kur_orani, navlun_soguk_eur, navlun_kuru_eur, gumruk_vergi_toplam_eur, traces_numune_ardiye_eur, varis_tarihi, durum, created_at')
+    .select('id, referans_kodu, tedarikci_id, supplier_order_plan_record_id, navlun_soguk_eur, navlun_kuru_eur, gumruk_vergi_toplam_eur, traces_numune_ardiye_eur, varis_tarihi, durum, created_at')
     .order('created_at', { ascending: false })
     .limit(8);
 

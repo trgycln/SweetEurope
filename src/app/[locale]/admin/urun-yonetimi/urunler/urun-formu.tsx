@@ -171,10 +171,10 @@ function DeleteButtonWrapper({ urun, locale, labels }: { urun: Urun, locale: Loc
 
         startTransition(async () => {
             // İlk deneme — force=false
-            const result = await deleteUrunAction(urun.id, false);
+            const result = await deleteUrunAction(urun.id, false, locale);
 
             if (result?.success) {
-                toast.success(result.message);
+                // Server action redirected; this branch is a fallback only
                 router.push(`/${locale}/admin/urun-yonetimi/urunler`);
                 return;
             }
@@ -192,9 +192,9 @@ function DeleteButtonWrapper({ urun, locale, labels }: { urun: Urun, locale: Loc
                 if (!confirmed) return;
 
                 // force=true ile tekrar çalıştır
-                const forceResult = await deleteUrunAction(urun.id, true);
+                const forceResult = await deleteUrunAction(urun.id, true, locale);
                 if (forceResult?.success) {
-                    toast.success(forceResult.message);
+                    // Server action redirected; this branch is a fallback only
                     router.push(`/${locale}/admin/urun-yonetimi/urunler`);
                 } else {
                     toast.error(forceResult?.message || 'Silme işlemi başarısız.');

@@ -184,116 +184,134 @@ export default async function UrunlerListPage({
     const urunListesi: UrunWithKategori[] = (urunler as any[]) || [];
 
     return (
-        <div className="space-y-8">
-            {/* Header */}
-            <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div>
-                    <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Produktverwaltung'}</h1>
-                    <p className="text-text-main/80 mt-1">
-                        {totalCount || 0} {content.productsListed || 'Produkte gefunden'}
-                        {(kategoriFilter || durumFilter || stokFilter || queryParam) && (content.filteredSuffix || ' (gefiltert)')}
-                    </p>
+        <div className="space-y-4">
+            {/* ─── Compact toolbar ─────────────────────────────────────────── */}
+            <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <div className="flex items-baseline gap-2 mr-2">
+                    <h1 className="text-lg font-bold text-slate-900">Ürün Yönetimi</h1>
+                    <span className="text-sm text-slate-400">
+                        {totalCount || 0} ürün
+                        {(kategoriFilter || durumFilter || stokFilter || queryParam) && ' (filtrelenmiş)'}
+                    </span>
                 </div>
+
+                <UrunFiltre
+                    kategoriler={allKategoriler || []}
+                    locale={locale}
+                    labels={{
+                        searchPlaceholder: 'Ürün adı veya kodu...',
+                        searchButton: 'Ara',
+                        filterLabel: 'Filtreler:',
+                        allCategories: 'Tüm kategoriler',
+                        allStatuses: 'Tüm durumlar',
+                        allStocks: 'Tüm stoklar',
+                        statusActiveLabel: 'Aktif',
+                        statusInactiveLabel: 'Pasif',
+                        stockCriticalLabel: 'Kritik',
+                        stockOutLabel: 'Tükendi',
+                        stockSufficientLabel: 'Yeterli',
+                        clearFilters: 'Sıfırla',
+                        active: {
+                            searchPrefix: 'Arama:',
+                            categoryFiltered: 'Kategori filtreli',
+                            statusPrefix: 'Durum:',
+                            stockPrefix: 'Stok:',
+                        }
+                    }}
+                />
+
                 {isAdmin && (
-                    <Link href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} passHref>
-                        <button className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto">
-                            <FiPlus size={18} />
-                            {content.addProduct || 'Neues Produkt hinzufügen'}
+                    <Link href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} className="ml-auto">
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-md text-sm font-semibold shadow-sm hover:bg-slate-800 whitespace-nowrap">
+                            <FiPlus size={14} />
+                            Yeni Ürün
                         </button>
                     </Link>
                 )}
-            </header>
+            </div>
 
+            {/* ─── Import paneli (katlanabilir) ────────────────────────────── */}
             {canImportProducts && (
-                <UrunExcelImportPanel
-                    locale={locale}
-                    suppliers={(tedarikciler as Array<{ id: string; unvan: string | null }>) || []}
-                />
+                <details className="group rounded-xl border border-amber-200 bg-amber-50/60 shadow-sm">
+                    <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+                            Excel / CSV ile Toplu İçe Aktar
+                            <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[11px] font-medium text-amber-900">
+                                Mevcut ürünleri günceller · Yeni ürün oluşturur · Boş alanlar eski değeri korur
+                            </span>
+                        </div>
+                        <span className="text-xs text-amber-700 group-open:hidden">Aç ▾</span>
+                        <span className="hidden text-xs text-amber-700 group-open:inline">Kapat ▴</span>
+                    </summary>
+                    <div className="border-t border-amber-200 px-4 pb-4 pt-3">
+                        <UrunExcelImportPanel
+                            locale={locale}
+                            suppliers={(tedarikciler as Array<{ id: string; unvan: string | null }>) || []}
+                        />
+                    </div>
+                </details>
             )}
 
-            {/* Filter Component */}
-                        <UrunFiltre 
-                            kategoriler={allKategoriler || []} 
-                            locale={locale}
-                            labels={{
-                                searchPlaceholder: content.filter?.searchPlaceholder || 'Search by product name or SKU...',
-                                searchButton: content.filter?.searchButton || 'Search',
-                                filterLabel: content.filter?.filterLabel || 'Filters:',
-                                allCategories: content.filter?.allCategories || 'All Categories',
-                                allStatuses: content.filter?.allStatuses || 'All Statuses',
-                                allStocks: content.filter?.allStocks || 'All Stock Levels',
-                                statusActiveLabel: content.filter?.statusActiveLabel || 'Active',
-                                statusInactiveLabel: content.filter?.statusInactiveLabel || 'Inactive',
-                                stockCriticalLabel: content.filter?.stockCriticalLabel || 'Critical',
-                                stockOutLabel: content.filter?.stockOutLabel || 'Out of Stock',
-                                stockSufficientLabel: content.filter?.stockSufficientLabel || 'Sufficient',
-                                clearFilters: content.filter?.clearFilters || 'Reset filters',
-                                active: {
-                                    searchPrefix: content.filter?.active?.searchPrefix || 'Search:',
-                                    categoryFiltered: content.filter?.active?.categoryFiltered || 'Category filtered',
-                                    statusPrefix: content.filter?.active?.statusPrefix || 'Status:',
-                                    stockPrefix: content.filter?.active?.stockPrefix || 'Stock:',
-                                }
-                            }}
-                        />
-
-            {/* Liste oder "Keine Ergebnisse" */}
+            {/* ─── Ürün tablosu ────────────────────────────────────────────── */}
             {urunListesi.length === 0 ? (
-                <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
-                    <FiArchive className="mx-auto text-5xl text-gray-300 mb-4" />
-                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                         {(kategoriFilter || durumFilter || stokFilter || queryParam) 
-                            ? (content.noProductsFoundFilter || 'Keine Produkte für diese Filter gefunden') 
-                            : (content.noProductsYet || 'Noch keine Produkte hinzugefügt')}
-                    </h2>
-                    {!(kategoriFilter || durumFilter || stokFilter || queryParam) && (
-                         <p className="mt-2 text-gray-600">{content.noProductsYetHint || 'Verwenden Sie die Schaltfläche "Neues Produkt hinzufügen", um zu beginnen.'}</p>
-                    )}
+                <div className="rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
+                    <FiArchive className="mx-auto mb-3 text-4xl text-slate-300" />
+                    <p className="text-sm text-slate-500">
+                        {(kategoriFilter || durumFilter || stokFilter || queryParam)
+                            ? 'Bu filtrelere uygun ürün bulunamadı.'
+                            : 'Henüz ürün eklenmemiş.'}
+                    </p>
                 </div>
             ) : (
-                <>
-                    <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50 sticky top-0 z-10">
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-slate-100 text-sm">
+                            <thead className="bg-slate-50">
                                 <tr>
-                                    <th className="px-4 py-3"></th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ürün Adı</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ürün Kodu</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kategori</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stok Durumu</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Aktif/Pasif</th>
+                                    <th className="w-10 px-3 py-2.5"></th>
+                                    <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Ürün</th>
+                                    <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kategori</th>
+                                    <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Stok</th>
+                                    <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Aktif</th>
                                     {canSeePurchasePrice && (
-                                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Alış Fiyatı</th>
+                                        <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Alış</th>
                                     )}
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Müşteri Satış Fiyatı</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Alt Bayi Satış Fiyatı</th>
-                                    <th className="relative px-6 py-3"><span className="sr-only">Kaydet</span></th>
+                                    <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-emerald-700">Kafe</th>
+                                    <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-blue-700">Alt Bayi</th>
+                                    <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 w-24">İşlem</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                    {urunListesi.map((urun) => (
-                                        <EditableUrunRowClient key={urun.id} urun={urun} locale={locale} content={content} isAdmin={isAdmin} canSeePurchasePrice={canSeePurchasePrice} />
+                            <tbody className="divide-y divide-slate-100">
+                                {urunListesi.map((urun) => (
+                                    <EditableUrunRowClient
+                                        key={urun.id}
+                                        urun={urun}
+                                        locale={locale}
+                                        content={content}
+                                        isAdmin={isAdmin}
+                                        canSeePurchasePrice={canSeePurchasePrice}
+                                    />
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                    
-                    {/* Pagination */}
-                    <Pagination 
-                        currentPage={clampedPage}
-                        totalPages={totalPages}
-                        totalItems={totalCount || 0}
-                        itemsPerPage={itemsPerPage}
-                        labels={{
-                          prev: content.pagination?.prev || 'Zurück',
-                          next: content.pagination?.next || 'Weiter',
-                          showing: content.pagination?.showing || 'Zeige',
-                          to: content.pagination?.to || 'bis',
-                          of: content.pagination?.of || 'von',
-                          products: content.pagination?.products || 'Produkten'
-                        }}
-                    />
-                </>
+                    <div className="border-t border-slate-100 px-4 py-2">
+                        <Pagination
+                            currentPage={clampedPage}
+                            totalPages={totalPages}
+                            totalItems={totalCount || 0}
+                            itemsPerPage={itemsPerPage}
+                            labels={{
+                                prev: content.pagination?.prev || 'Önceki',
+                                next: content.pagination?.next || 'Sonraki',
+                                showing: content.pagination?.showing || 'Gösterilen',
+                                to: content.pagination?.to || '-',
+                                of: content.pagination?.of || '/',
+                                products: content.pagination?.products || 'ürün'
+                            }}
+                        />
+                    </div>
+                </div>
             )}
         </div>
     );

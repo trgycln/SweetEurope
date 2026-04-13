@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { FiDownload, FiMail, FiPlus, FiPrinter, FiSave, FiTrash2 } from 'react-icons/fi';
+import { FiFile, FiFileText, FiMail, FiPlus, FiPrinter, FiSave, FiTrash2 } from 'react-icons/fi';
+import { toast } from 'sonner';
+import {
+  deleteSupplierOrderPlanSnapshotAction,
+  getSupplierOrderPlanStorageAction,
+  receiveSupplierOrderAndUpdateStockAction,
+  saveSupplierOrderPlanDraftAction,
+  saveSupplierOrderPlanSnapshotAction,
+} from './actions';
 
 type ProductRow = {
   id: string;
@@ -33,6 +41,9 @@ type SavedPlanRecord = {
   id: string;
   name: string;
   createdAt: string;
+  status?: 'sablon' | 'gonderildi' | 'teslim_alindi';
+  sentAt?: string | null;
+  receivedAt?: string | null;
   supplierId: string;
   search: string;
   selectedUnitType: UnitType;
@@ -75,6 +86,9 @@ function unitMultiplier(product: ProductRow, unitType: UnitType): number {
 
 const DRAFT_STORAGE_KEY = 'tedarikci-siparis-plani:draft:v1';
 const HISTORY_STORAGE_KEY = 'tedarikci-siparis-plani:history:v1';
+const COMPANY_NAME = 'ElysonSweets GmbH';
+const COMPANY_EMAIL = 'info@elysonsweets.de';
+const COMPANY_LOCATION = 'Koln, Deutschland';
 
 function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat('tr-TR', {
@@ -88,7 +102,7 @@ function formatDateTime(value: string): string {
 
 export default function TedarikciSiparisPlaniClient({ locale, products, suppliers }: Props) {
   const [draftName, setDraftName] = useState('Sipariş Taslağı');
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string>('all');
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
   const [search, setSearch] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [selectedUnitType, setSelectedUnitType] = useState<UnitType>('koli');
@@ -96,6 +110,8 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   const [items, setItems] = useState<PlanItem[]>([]);
   const [planHistory, setPlanHistory] = useState<SavedPlanRecord[]>([]);
   const [lastDraftSaveAt, setLastDraftSaveAt] = useState<string | null>(null);
+  const [storageReady, setStorageReady] = useState(false);
+  const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
 
   const productsById = useMemo(() => {
     const map = new Map<string, ProductRow>();
@@ -105,9 +121,10 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
 
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLocaleLowerCase('tr');
+    if (!selectedSupplierId) return [];
     return products
       .filter((p) => {
-        if (selectedSupplierId !== 'all' && p.tedarikci_id !== selectedSupplierId) return false;
+        if (p.tedarikci_id !== selectedSupplierId) return false;
         if (!q) return true;
         const name = getProductName(p.ad, locale).toLocaleLowerCase('tr');
         const code = String(p.stok_kodu || '').toLocaleLowerCase('tr');
@@ -117,7 +134,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   }, [products, locale, search, selectedSupplierId]);
 
   const selectedSupplierName = useMemo(() => {
-    if (selectedSupplierId === 'all') return 'Tüm Tedarikçiler';
+    if (!selectedSupplierId) return 'Seçilmedi';
     return suppliers.find((s) => s.id === selectedSupplierId)?.unvan || 'Bilinmeyen Tedarikçi';
   }, [selectedSupplierId, suppliers]);
 
@@ -140,10 +157,13 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   const selectedProduct = selectedProductId ? productsById.get(selectedProductId) || null : null;
 
   useEffect(() => {
-    try {
-      const rawDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
-      if (rawDraft) {
-        const parsed = JSON.parse(rawDraft) as {
+    let mounted = true;
+
+    const parseLocalDraft = () => {
+      try {
+        const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw) as {
           draftName?: string;
           selectedSupplierId?: string;
           search?: string;
@@ -153,28 +173,113 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           items?: PlanItem[];
           savedAt?: string;
         };
+      } catch {
+        return null;
+      }
+    };
 
-        if (parsed.draftName) setDraftName(parsed.draftName);
-        if (parsed.selectedSupplierId) setSelectedSupplierId(parsed.selectedSupplierId);
-        if (typeof parsed.search === 'string') setSearch(parsed.search);
-        if (parsed.selectedProductId) setSelectedProductId(parsed.selectedProductId);
-        if (parsed.selectedUnitType) setSelectedUnitType(parsed.selectedUnitType);
-        if (typeof parsed.selectedQuantity === 'number') setSelectedQuantity(parsed.selectedQuantity);
-        if (Array.isArray(parsed.items)) setItems(parsed.items);
-        if (parsed.savedAt) setLastDraftSaveAt(parsed.savedAt);
+    const parseLocalHistory = () => {
+      try {
+        const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+        if (!raw) return [] as SavedPlanRecord[];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? (parsed as SavedPlanRecord[]) : [];
+      } catch {
+        return [] as SavedPlanRecord[];
+      }
+    };
+
+    const mergeHistory = (remoteHistory: SavedPlanRecord[], localHistory: SavedPlanRecord[]) => {
+      const mergedMap = new Map<string, SavedPlanRecord>();
+      for (const r of [...remoteHistory, ...localHistory]) {
+        const normalized: SavedPlanRecord = {
+          ...r,
+          status: r.status || 'sablon',
+          sentAt: r.sentAt || null,
+          receivedAt: r.receivedAt || null,
+        };
+        const key = normalized.id || `${normalized.name}-${normalized.createdAt}`;
+        if (!mergedMap.has(key)) mergedMap.set(key, normalized);
       }
 
-      const rawHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
-      if (rawHistory) {
-        const parsedHistory = JSON.parse(rawHistory) as SavedPlanRecord[];
-        if (Array.isArray(parsedHistory)) setPlanHistory(parsedHistory);
+      return Array.from(mergedMap.values())
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 200);
+    };
+
+    const loadStorage = async () => {
+      const remote = await getSupplierOrderPlanStorageAction();
+      const localDraft = parseLocalDraft();
+      const localHistory = parseLocalHistory();
+
+      // Cloud + local veriyi birleştirerek yükle (kayıp taslakları geri kazanmak için).
+      if (mounted && remote.success) {
+        const remoteDraft = remote.draft;
+        const d = remoteDraft || localDraft;
+        if (d) {
+          if (d.draftName) setDraftName(d.draftName);
+          if (d.selectedSupplierId) setSelectedSupplierId(d.selectedSupplierId);
+          if (typeof d.search === 'string') setSearch(d.search);
+          if (d.selectedProductId) setSelectedProductId(d.selectedProductId);
+          if (d.selectedUnitType) setSelectedUnitType(d.selectedUnitType);
+          if (typeof d.selectedQuantity === 'number') setSelectedQuantity(d.selectedQuantity);
+          if (Array.isArray(d.items)) setItems(d.items);
+          if (d.savedAt) setLastDraftSaveAt(d.savedAt);
+        }
+
+        const remoteHistory = Array.isArray(remote.history) ? remote.history : [];
+        const merged = mergeHistory(remoteHistory, localHistory);
+        setPlanHistory(merged);
+
+        // Eğer local'de ek kayıt varsa buluta taşı
+        if (localDraft && !remoteDraft) {
+          void saveSupplierOrderPlanDraftAction({
+            draftName: localDraft.draftName || 'Sipariş Taslağı',
+              selectedSupplierId: localDraft.selectedSupplierId === 'all' ? '' : localDraft.selectedSupplierId || '',
+            search: localDraft.search || '',
+            selectedProductId: localDraft.selectedProductId || '',
+            selectedUnitType: localDraft.selectedUnitType || 'koli',
+            selectedQuantity: localDraft.selectedQuantity || 1,
+            items: Array.isArray(localDraft.items) ? localDraft.items : [],
+            savedAt: localDraft.savedAt || new Date().toISOString(),
+          });
+        }
+
+        if (merged.length > remoteHistory.length) {
+          for (const rec of merged) {
+            void saveSupplierOrderPlanSnapshotAction(rec);
+          }
+        }
       }
-    } catch {
-      // Ignore malformed local storage data and continue with clean defaults.
-    }
+
+      if (mounted && !remote.success) {
+        // Cloud okunamazsa local fallback
+        if (localDraft) {
+          if (localDraft.draftName) setDraftName(localDraft.draftName);
+          if (localDraft.selectedSupplierId) setSelectedSupplierId(localDraft.selectedSupplierId);
+          if (typeof localDraft.search === 'string') setSearch(localDraft.search);
+          if (localDraft.selectedProductId) setSelectedProductId(localDraft.selectedProductId);
+          if (localDraft.selectedUnitType) setSelectedUnitType(localDraft.selectedUnitType);
+          if (typeof localDraft.selectedQuantity === 'number') setSelectedQuantity(localDraft.selectedQuantity);
+          if (Array.isArray(localDraft.items)) setItems(localDraft.items);
+          if (localDraft.savedAt) setLastDraftSaveAt(localDraft.savedAt);
+        }
+        if (localHistory.length > 0) setPlanHistory(localHistory);
+      }
+
+      if (mounted) setStorageReady(true);
+    };
+
+    loadStorage();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {
+    if (!storageReady) return;
+
     const payload = {
       draftName,
       selectedSupplierId,
@@ -192,7 +297,13 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     } catch {
       // Local storage quota errors should not block core workflow.
     }
-  }, [draftName, selectedSupplierId, search, selectedProductId, selectedUnitType, selectedQuantity, items]);
+
+    const timer = setTimeout(() => {
+      void saveSupplierOrderPlanDraftAction(payload);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [storageReady, draftName, selectedSupplierId, search, selectedProductId, selectedUnitType, selectedQuantity, items]);
 
   const enrichedItems = useMemo(() => {
     return items
@@ -229,14 +340,22 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     );
   }, [enrichedItems]);
 
-  const recentSavedRecords = useMemo(() => {
-    const threshold = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    return planHistory.filter((record) => new Date(record.createdAt).getTime() >= threshold);
+  const templateRecords = useMemo(() => {
+    return planHistory
+      .filter((record) => (record.status || 'sablon') === 'sablon')
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [planHistory]);
 
-  const olderSavedRecords = useMemo(() => {
-    const threshold = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    return planHistory.filter((record) => new Date(record.createdAt).getTime() < threshold);
+  const sentRecords = useMemo(() => {
+    return planHistory
+      .filter((record) => (record.status || 'sablon') === 'gonderildi')
+      .sort((a, b) => new Date(b.sentAt || b.createdAt).getTime() - new Date(a.sentAt || a.createdAt).getTime());
+  }, [planHistory]);
+
+  const receivedRecords = useMemo(() => {
+    return planHistory
+      .filter((record) => (record.status || 'sablon') === 'teslim_alindi')
+      .sort((a, b) => new Date(b.receivedAt || b.createdAt).getTime() - new Date(a.receivedAt || a.createdAt).getTime());
   }, [planHistory]);
 
   const calculateRecordTotal = (record: SavedPlanRecord) => {
@@ -250,8 +369,18 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   };
 
   const addItemByProduct = (productId: string, unitType = selectedUnitType, quantity = selectedQuantity) => {
+    if (!selectedSupplierId) {
+      toast.warning('Önce tedarikçi seçmelisiniz.');
+      return;
+    }
     if (!productId) return;
     if (!Number.isFinite(quantity) || quantity <= 0) return;
+
+    const alreadyExists = items.some((item) => item.productId === productId);
+    if (alreadyExists) {
+      toast.warning('Bu ürün zaten listeye eklendi. Miktarı satırdan artırabilirsiniz.');
+      return;
+    }
 
     setItems((prev) => [
       ...prev,
@@ -265,6 +394,10 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   };
 
   const addItem = () => {
+    if (!selectedSupplierId) {
+      toast.warning('Önce tedarikçi seçmelisiniz.');
+      return;
+    }
     addItemByProduct(selectedProductId);
   };
 
@@ -277,10 +410,15 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   const saveSnapshot = () => {
     if (items.length === 0) return;
 
+    const existing = editingRecordId ? planHistory.find((r) => r.id === editingRecordId) : null;
+    const isEditingSentRecord = existing?.status === 'gonderildi';
+
     const record: SavedPlanRecord = {
-      id: crypto.randomUUID(),
+      id: isEditingSentRecord ? crypto.randomUUID() : editingRecordId || crypto.randomUUID(),
       name: draftName.trim() || `Sipariş Planı ${new Date().toLocaleDateString('tr-TR')}`,
-      createdAt: new Date().toISOString(),
+      createdAt: isEditingSentRecord ? new Date().toISOString() : existing?.createdAt || new Date().toISOString(),
+      status: 'sablon',
+      sentAt: null,
       supplierId: selectedSupplierId,
       search,
       selectedUnitType,
@@ -288,9 +426,30 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       items,
     };
 
-    const nextHistory = [record, ...planHistory].slice(0, 200);
+    const nextHistory = (() => {
+      const i = planHistory.findIndex((r) => r.id === record.id);
+      if (i >= 0) {
+        const cloned = [...planHistory];
+        cloned[i] = record;
+        return cloned;
+      }
+      return [record, ...planHistory].slice(0, 200);
+    })();
+
     setPlanHistory(nextHistory);
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
+
+    void saveSupplierOrderPlanSnapshotAction(record).then((res) => {
+      if (res.success) {
+        setPlanHistory(res.history);
+        if (isEditingSentRecord) {
+          setEditingRecordId(null);
+          toast.success('Gönderilen kayıttan yeni şablon oluşturuldu');
+        } else {
+          toast.success(editingRecordId ? 'Şablon güncellendi' : 'Yeni şablon kaydedildi');
+        }
+      }
+    });
   };
 
   const loadSavedRecord = (record: SavedPlanRecord) => {
@@ -301,12 +460,87 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     setSelectedUnitType(record.selectedUnitType);
     setSelectedQuantity(record.selectedQuantity);
     setItems(record.items);
+    setEditingRecordId(record.id);
+    toast.success('Şablon düzenleme için yüklendi');
   };
 
   const deleteSavedRecord = (recordId: string) => {
     const nextHistory = planHistory.filter((record) => record.id !== recordId);
     setPlanHistory(nextHistory);
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
+    if (editingRecordId === recordId) setEditingRecordId(null);
+
+    void deleteSupplierOrderPlanSnapshotAction(recordId).then((res) => {
+      if (res.success) {
+        setPlanHistory(res.history);
+        toast.success('Şablon silindi');
+      }
+    });
+  };
+
+  const updateRecordStatus = (recordId: string, status: 'sablon' | 'gonderildi' | 'teslim_alindi') => {
+    const nowIso = new Date().toISOString();
+    const nextHistory = planHistory.map((record) => {
+      if (record.id !== recordId) return record;
+      return {
+        ...record,
+        status,
+        sentAt: status === 'gonderildi' ? nowIso : null,
+        receivedAt: status === 'teslim_alindi' ? nowIso : null,
+      };
+    });
+
+    setPlanHistory(nextHistory);
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
+
+    const target = nextHistory.find((r) => r.id === recordId);
+    if (target) {
+      void saveSupplierOrderPlanSnapshotAction(target).then((res) => {
+        if (res.success) {
+          setPlanHistory(res.history);
+          toast.success(
+            status === 'gonderildi'
+              ? 'Kayıt gönderildi olarak işaretlendi'
+              : status === 'teslim_alindi'
+                ? 'Kayıt teslim alındı olarak işaretlendi'
+                : 'Kayıt şablon durumuna alındı'
+          );
+        }
+      });
+    }
+  };
+
+  const receiveOrderAndUpdateStock = (record: SavedPlanRecord) => {
+    const confirmed = window.confirm(
+      'Bu kaydı teslim alındı olarak onaylarsanız listedeki miktarlar ürün stoklarına eklenecek. Devam edilsin mi?'
+    );
+    if (!confirmed) return;
+
+    void receiveSupplierOrderAndUpdateStockAction(record.id).then((res) => {
+      if (!res.success) {
+        toast.error(res.message || 'Stok güncelleme sırasında hata oluştu');
+        return;
+      }
+
+      setPlanHistory(res.history);
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(res.history));
+
+      const lineCount = res.updatedLines || 0;
+      const stockAdded = res.totalStockAdded || 0;
+      toast.success(`Teslim alındı. ${lineCount} ürün satırı işlendi, stoklara ${formatNumber(stockAdded)} birim eklendi.`);
+    });
+  };
+
+  const copyRecordAsTemplate = (record: SavedPlanRecord) => {
+    setDraftName(`${record.name} - Kopya`);
+    setSelectedSupplierId(record.supplierId);
+    setSearch(record.search);
+    setSelectedProductId('');
+    setSelectedUnitType(record.selectedUnitType);
+    setSelectedQuantity(record.selectedQuantity);
+    setItems(record.items);
+    setEditingRecordId(null);
+    toast.success('Gönderilen kayıt kopyalandı. Yeni şablon olarak kaydedebilirsiniz.');
   };
 
   const updateRow = (id: string, patch: Partial<Pick<PlanItem, 'unitType' | 'quantity'>>) => {
@@ -322,40 +556,131 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     );
   };
 
-  const exportCsv = () => {
-    const header = [
-      'Tedarikçi',
-      'Stok Kodu',
-      'Ürün Adı',
-      'Sipariş Birimi',
-      'Miktar',
-      'Birim Maliyet (EUR)',
-      'Satır Toplamı (EUR)',
-    ];
+  const exportExcel = async () => {
+    const XLSX = await import('xlsx');
 
-    const lines = enrichedItems.map((row) => [
-      selectedSupplierName,
-      row.product.stok_kodu || '',
-      getProductName(row.product.ad, locale),
-      row.unitType,
-      String(row.quantity),
-      row.unitCost.toFixed(2),
-      row.lineTotal.toFixed(2),
-    ]);
+    const rows = enrichedItems.map((row) => ({
+      Tedarikci: selectedSupplierName,
+      'Stok Kodu': row.product.stok_kodu || '-',
+      'Urun Adi': getProductName(row.product.ad, locale),
+      Birim: row.unitType,
+      Miktar: row.quantity,
+      'Birim Maliyet (EUR)': Number(row.unitCost.toFixed(2)),
+      'Satir Toplami (EUR)': Number(row.lineTotal.toFixed(2)),
+    }));
 
-    lines.push(['', '', '', '', '', 'GENEL TOPLAM', totals.grandTotal.toFixed(2)]);
+    rows.push({
+      Tedarikci: '',
+      'Stok Kodu': '',
+      'Urun Adi': 'GENEL TOPLAM',
+      Birim: '',
+      Miktar: 0,
+      'Birim Maliyet (EUR)': 0,
+      'Satir Toplami (EUR)': Number(totals.grandTotal.toFixed(2)),
+    });
 
-    const csv = [header, ...lines]
-      .map((cols) => cols.map((c) => `"${String(c).replaceAll('"', '""')}"`).join(';'))
-      .join('\n');
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Siparis Formu');
+    XLSX.writeFile(wb, `elysonsweets-siparis-formu-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tedarikci-siparis-plani-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const exportPdf = async () => {
+    const { jsPDF } = await import('jspdf');
+    const autoTable = (await import('jspdf-autotable')).default;
+
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+    // Logo varsa PDF'e filigran olarak ekle.
+    try {
+      let response = await fetch('/logo.png?v=1', { cache: 'no-store' });
+      let imageType: 'JPEG' | 'PNG' = 'PNG';
+
+      if (!response.ok) {
+        response = await fetch('/Logo.jpg?v=1', { cache: 'no-store' });
+        imageType = 'JPEG';
+      }
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const dataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(String(reader.result));
+          reader.readAsDataURL(blob);
+        });
+
+        // jsPDF sürümlerinde opacity desteği değişken olabildiği için güvenli fallback ile kullan.
+        try {
+          const anyDoc = doc as any;
+          if (typeof anyDoc.GState === 'function' && typeof anyDoc.setGState === 'function') {
+            anyDoc.setGState(new anyDoc.GState({ opacity: 0.06 }));
+          }
+        } catch {
+          // Opacity desteklenmiyorsa normal çizimle devam.
+        }
+
+        doc.addImage(dataUrl, imageType, 18, 45, 175, 175);
+
+        // Sonraki metinler normal opaklıkta olsun.
+        try {
+          const anyDoc = doc as any;
+          if (typeof anyDoc.GState === 'function' && typeof anyDoc.setGState === 'function') {
+            anyDoc.setGState(new anyDoc.GState({ opacity: 1 }));
+          }
+        } catch {
+          // No-op
+        }
+      }
+    } catch {
+      // Logo zorunlu değil.
+    }
+
+    doc.setDrawColor(203, 213, 225);
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(12, 10, 186, 30, 2, 2, 'FD');
+
+    doc.setFontSize(17);
+    doc.setTextColor(30, 41, 59);
+    doc.text(COMPANY_NAME, 16, 19);
+
+    doc.setFontSize(9);
+    doc.setTextColor(71, 85, 105);
+    doc.text(`E-posta: ${COMPANY_EMAIL}`, 16, 24);
+    doc.text(`Konum: ${COMPANY_LOCATION}`, 16, 28.5);
+
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Satin Alma Siparis Formu', 145, 18);
+    doc.setFontSize(9);
+    doc.text(`Tedarikci: ${selectedSupplierName}`, 145, 23);
+    doc.text(`Belge Tarihi: ${new Date().toLocaleDateString('tr-TR')}`, 145, 27.5);
+
+    autoTable(doc, {
+      startY: 46,
+      head: [['Stok Kodu', 'Urun Adi', 'Birim', 'Miktar', 'Birim Maliyet', 'Satir Toplami']],
+      body: enrichedItems.map((row) => [
+        row.product.stok_kodu || '-',
+        getProductName(row.product.ad, locale),
+        row.unitType,
+        String(row.quantity),
+        formatCurrency(row.unitCost),
+        formatCurrency(row.lineTotal),
+      ]),
+      styles: { fontSize: 9, cellPadding: 2.2 },
+      headStyles: { fillColor: [245, 158, 11], textColor: 20 },
+      alternateRowStyles: { fillColor: [250, 250, 250] },
+    });
+
+    const finalY = (doc as any).lastAutoTable?.finalY || 50;
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`Genel Toplam: ${formatCurrency(totals.grandTotal)}`, 14, finalY + 10);
+
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Lutfen urun, miktar ve fiyat teyidi ile geri donus saglayiniz.', 14, finalY + 17);
+
+    doc.save(`elysonsweets-siparis-formu-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   const sendByEmail = () => {
@@ -377,304 +702,315 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     ].join('\n');
 
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    if (editingRecordId) {
+      updateRecordStatus(editingRecordId, 'gonderildi');
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-2xl border border-orange-200 bg-gradient-to-br from-orange-50 via-amber-50 to-white p-4 shadow-sm">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <div className="xl:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Tedarikçi</label>
-            <select
-              value={selectedSupplierId}
-              onChange={(e) => {
-                setSelectedSupplierId(e.target.value);
-                setSelectedProductId('');
-              }}
-              className="w-full rounded-lg border border-orange-200 bg-white px-3 py-2 shadow-sm"
-            >
-              <option value="all">Tüm Tedarikçiler</option>
-              {suppliers.map((supplier) => (
-                <option key={supplier.id} value={supplier.id}>
-                  {supplier.unvan || 'İsimsiz tedarikçi'}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="xl:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Ürün ara (ad veya stok kodu)</label>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="örn. MM10000 veya Cheesecake"
-              className="w-full rounded-lg border-2 border-orange-300 bg-white px-3 py-2 shadow-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Bulunan ürün</label>
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 shadow-sm">
-              {filteredProducts.length} kayıt bulundu
-            </div>
-          </div>
+    <div className="space-y-5">
+      {/* ─── Üst çubuk: tedarikçi + sipariş adı + kaydet ─────────────── */}
+      <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="min-w-48 w-56">
+          <label className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-600">
+            Tedarikçi
+            <span className="rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">Zorunlu</span>
+          </label>
+          <select
+            value={selectedSupplierId}
+            onChange={(e) => { setSelectedSupplierId(e.target.value); setSelectedProductId(''); setSearch(''); }}
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm"
+          >
+            <option value="">Tedarikçi seçin</option>
+            {suppliers.map((supplier) => (
+              <option key={supplier.id} value={supplier.id}>{supplier.unvan || 'İsimsiz tedarikçi'}</option>
+            ))}
+          </select>
         </div>
 
-        <div className="mt-4">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-wide text-orange-700">Hızlı sonuçlar (ilk 12 ürün)</p>
-            <p className="text-xs text-gray-600">Arama kutusundan filtrele, tek tıkla ekle</p>
-          </div>
-
-          <div className="max-h-72 overflow-y-auto rounded-xl border border-orange-200 bg-white shadow-sm">
-            {quickProducts.length === 0 ? (
-              <div className="px-3 py-6 text-center text-sm text-gray-500">Filtreye uygun ürün bulunamadı.</div>
-            ) : (
-              <ul className="divide-y divide-orange-100">
-                {quickProducts.map((product) => (
-                  <li key={product.id} className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-orange-50/60">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-gray-900">
-                        {product.stok_kodu ? `${product.stok_kodu} - ` : ''}
-                        {getProductName(product.ad, locale)}
-                        {!product.aktif ? ' (Pasif)' : ''}
-                      </p>
-                      <p className="text-xs text-gray-600">Kutu alış: {formatCurrency(Number(product.distributor_alis_fiyati || 0))}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                          product.aktif ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-                        }`}
-                      >
-                        {product.aktif ? 'Aktif' : 'Pasif'}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => addItemByProduct(product.id)}
-                        className="inline-flex items-center gap-1 rounded-md border border-orange-300 bg-orange-100 px-2.5 py-1.5 text-xs font-semibold text-orange-800 hover:bg-orange-200"
-                      >
-                        <FiPlus /> Ekle
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+        <div className="min-w-56 flex-1">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">Sipariş adı</label>
+          <input
+            value={draftName}
+            onChange={(e) => setDraftName(e.target.value)}
+            placeholder="örn. Haftalık Pasta Siparişi"
+            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm"
+          />
         </div>
-      </section>
 
-      <section className="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-4 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-end gap-3">
-          <div className="min-w-64 flex-1">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Taslak adı</label>
-            <input
-              value={draftName}
-              onChange={(e) => setDraftName(e.target.value)}
-              placeholder="örn. Haftalık Pasta Siparişi"
-              className="w-full rounded-lg border border-sky-300 bg-white px-3 py-2 shadow-sm"
-            />
-          </div>
+        <div className="flex items-end gap-2">
           <button
             type="button"
             onClick={saveSnapshot}
             disabled={items.length === 0}
-            className="inline-flex items-center gap-2 rounded-lg border border-sky-300 bg-sky-100 px-4 py-2 text-sm font-semibold text-sky-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
-            <FiSave /> Kayıt Al
+            <FiSave /> {editingRecordId ? 'Şablonu Güncelle' : 'Şablon Kaydet'}
           </button>
-        </div>
-
-        <p className="mb-3 text-xs text-sky-800">
-          Taslak otomatik kaydedilir. Son taslak kayıt zamanı: {lastDraftSaveAt ? formatDateTime(lastDraftSaveAt) : 'Henüz yok'}
-        </p>
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-            <h3 className="mb-2 text-sm font-semibold text-emerald-800">Yeni Kayıtlar (Son 7 Gün)</h3>
-            <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-              {recentSavedRecords.length === 0 ? (
-                <p className="text-xs text-emerald-700">Henüz yeni kayıt yok.</p>
-              ) : (
-                recentSavedRecords.map((record) => {
-                  const supplierName =
-                    record.supplierId === 'all'
-                      ? 'Tüm Tedarikçiler'
-                      : suppliers.find((s) => s.id === record.supplierId)?.unvan || 'Bilinmeyen Tedarikçi';
-                  return (
-                    <div key={record.id} className="rounded-lg border border-emerald-200 bg-white p-2.5">
-                      <p className="text-sm font-semibold text-gray-900">{record.name}</p>
-                      <p className="text-xs text-gray-600">
-                        {formatDateTime(record.createdAt)} · {supplierName}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        {record.items.length} kalem · {formatCurrency(calculateRecordTotal(record))}
-                      </p>
-                      <div className="mt-2 flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => loadSavedRecord(record)}
-                          className="rounded-md border border-emerald-300 bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800"
-                        >
-                          Taslağa Yükle
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteSavedRecord(record.id)}
-                          className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-700"
-                        >
-                          Sil
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
-            <h3 className="mb-2 text-sm font-semibold text-amber-800">Eski Kayıtlar</h3>
-            <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-              {olderSavedRecords.length === 0 ? (
-                <p className="text-xs text-amber-700">Eski kayıt bulunmuyor.</p>
-              ) : (
-                olderSavedRecords.map((record) => {
-                  const supplierName =
-                    record.supplierId === 'all'
-                      ? 'Tüm Tedarikçiler'
-                      : suppliers.find((s) => s.id === record.supplierId)?.unvan || 'Bilinmeyen Tedarikçi';
-                  return (
-                    <div key={record.id} className="rounded-lg border border-amber-200 bg-white p-2.5">
-                      <p className="text-sm font-semibold text-gray-900">{record.name}</p>
-                      <p className="text-xs text-gray-600">
-                        {formatDateTime(record.createdAt)} · {supplierName}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        {record.items.length} kalem · {formatCurrency(calculateRecordTotal(record))}
-                      </p>
-                      <div className="mt-2 flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => loadSavedRecord(record)}
-                          className="rounded-md border border-amber-300 bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800"
-                        >
-                          Taslağa Yükle
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteSavedRecord(record.id)}
-                          className="rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-700"
-                        >
-                          Sil
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">Sipariş Kalemi Ekle</h2>
-        <div className="grid gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 md:grid-cols-12">
-          <div className="md:col-span-6">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Ürün</label>
-            <select
-              value={selectedProductId}
-              onChange={(e) => setSelectedProductId(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
-            >
-              <option value="">Ürün seçin</option>
-              {filteredProducts.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {(p.stok_kodu ? `${p.stok_kodu} - ` : '') + getProductName(p.ad, locale)}
-                  {!p.aktif ? ' [Pasif]' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Birim</label>
-            <select
-              value={selectedUnitType}
-              onChange={(e) => setSelectedUnitType(e.target.value as UnitType)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2"
-            >
-              <option value="kutu">Kutu</option>
-              <option value="koli">Koli</option>
-              <option value="palet">Palet</option>
-            </select>
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-gray-700">Miktar</label>
-            <input
-              type="number"
-              min={1}
-              step={1}
-              value={selectedQuantity}
-              onChange={(e) => setSelectedQuantity(Number(e.target.value || 1))}
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2"
-            />
-          </div>
-
-          <div className="md:col-span-2 flex items-end">
+          {editingRecordId && (
             <button
               type="button"
-              onClick={addItem}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+              onClick={() => setEditingRecordId(null)}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700"
             >
-              <FiPlus /> Ekle
+              Düzenlemeyi Kapat
             </button>
-          </div>
+          )}
         </div>
 
-        {selectedProduct && (
-          <div className="mt-3 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
-            Seçili ürün: <span className="font-semibold">{getProductName(selectedProduct.ad, locale)}</span>
-            {selectedProduct.stok_kodu ? ` (${selectedProduct.stok_kodu})` : ''}
-            {!selectedProduct.aktif ? ' · Pasif ürün' : ''}
-          </div>
-        )}
+        <p className="w-full text-xs text-slate-400">
+          Taslak otomatik kaydedilir · Son kayıt: {lastDraftSaveAt ? formatDateTime(lastDraftSaveAt) : 'Henüz yok'}
+        </p>
+      </div>
 
-        {recentProducts.length > 0 && (
-          <div className="mt-4">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">Son eklenenlerden hızlı tekrar</p>
-            <div className="flex flex-wrap gap-2">
-              {recentProducts.map((product) => (
-                <button
-                  key={product.id}
-                  type="button"
-                  onClick={() => addItemByProduct(product.id)}
-                  className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-100"
-                >
-                  <FiPlus className="text-gray-500" />
-                  {product.stok_kodu ? `${product.stok_kodu} · ` : ''}
-                  {getProductName(product.ad, locale)}
-                </button>
-              ))}
+      {/* ─── Ürün arama + hızlı ekle ──────────────────────────────────── */}
+      <details open className="group rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
+          <span className="text-sm font-semibold text-slate-800">Ürün Ekle</span>
+          <span className="text-xs text-slate-400 group-open:hidden">Aç</span>
+          <span className="hidden text-xs text-slate-400 group-open:inline">Kapat</span>
+        </summary>
+
+        <div className="border-t border-slate-100 px-4 pb-4 pt-3 space-y-3">
+          {/* Arama + dropdown satırı */}
+          <div className="grid gap-3 md:grid-cols-12">
+            <div className="md:col-span-4">
+              <label className="mb-1 block text-xs font-medium text-slate-600">Hızlı arama</label>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Ürün adı veya stok kodu"
+                disabled={!selectedSupplierId}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-50 disabled:text-slate-400"
+              />
+              {!selectedSupplierId && <p className="mt-1 text-xs text-amber-600">Önce tedarikçi seçin.</p>}
+            </div>
+
+            <div className="md:col-span-4">
+              <label className="mb-1 block text-xs font-medium text-slate-600">Ürün seç</label>
+              <select
+                value={selectedProductId}
+                onChange={(e) => setSelectedProductId(e.target.value)}
+                disabled={!selectedSupplierId}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-50"
+              >
+                <option value="">Listeden seç</option>
+                {filteredProducts.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {(p.stok_kodu ? `${p.stok_kodu} - ` : '') + getProductName(p.ad, locale)}{!p.aktif ? ' [Pasif]' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-xs font-medium text-slate-600">Birim</label>
+              <select
+                value={selectedUnitType}
+                onChange={(e) => setSelectedUnitType(e.target.value as UnitType)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              >
+                <option value="kutu">Kutu</option>
+                <option value="koli">Koli</option>
+                <option value="palet">Palet</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-1">
+              <label className="mb-1 block text-xs font-medium text-slate-600">Miktar</label>
+              <input
+                type="number"
+                min={1}
+                step={1}
+                value={selectedQuantity}
+                onChange={(e) => setSelectedQuantity(Number(e.target.value || 1))}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+              />
+            </div>
+
+            <div className="md:col-span-1 flex items-end">
+              <button
+                type="button"
+                onClick={addItem}
+                disabled={!selectedSupplierId || !selectedProductId}
+                className="inline-flex w-full items-center justify-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                <FiPlus /> Ekle
+              </button>
             </div>
           </div>
-        )}
-      </section>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          {/* Hızlı sonuçlar */}
+          {search.trim().length > 0 && quickProducts.length > 0 && (
+            <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-slate-50">
+              {quickProducts.map((product) => (
+                <li key={product.id} className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-white">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-900">
+                      {product.stok_kodu ? `${product.stok_kodu} – ` : ''}{getProductName(product.ad, locale)}
+                      {!product.aktif ? <span className="ml-1 text-xs text-rose-500">(Pasif)</span> : null}
+                    </p>
+                    <p className="text-xs text-slate-500">Kutu alış: {formatCurrency(Number(product.distributor_alis_fiyati || 0))}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => addItemByProduct(product.id)}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                  >
+                    <FiPlus /> Ekle
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Son eklenenler */}
+          {recentProducts.length > 0 && (
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-slate-500">Son eklenenler</p>
+              <div className="flex flex-wrap gap-1.5">
+                {recentProducts.map((product) => (
+                  <button
+                    key={product.id}
+                    type="button"
+                    onClick={() => addItemByProduct(product.id)}
+                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+                  >
+                    <FiPlus className="opacity-50" />
+                    {product.stok_kodu ? `${product.stok_kodu} · ` : ''}{getProductName(product.ad, locale)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </details>
+
+      {/* ─── Geçmiş kayıtlar — birleşik tablo ────────────────────────── */}
+      {planHistory.length > 0 && (
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 px-4 py-3">
+            <h2 className="text-sm font-semibold text-slate-800">Geçmiş Kayıtlar</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-2">Durum</th>
+                  <th className="px-4 py-2">Sipariş Adı</th>
+                  <th className="px-4 py-2">Tedarikçi</th>
+                  <th className="px-4 py-2">Tarih</th>
+                  <th className="px-4 py-2 text-right">Kalem · Toplam</th>
+                  <th className="px-4 py-2 text-right">İşlem</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {planHistory
+                  .slice()
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .map((record) => {
+                    const status = record.status || 'sablon';
+                    const supplierName = record.supplierId === 'all'
+                      ? 'Tüm Tedarikçiler'
+                      : suppliers.find((s) => s.id === record.supplierId)?.unvan || '—';
+
+                    const statusBadge = {
+                      sablon: <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">Şablon</span>,
+                      gonderildi: <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">Gönderildi</span>,
+                      teslim_alindi: <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">Teslim Alındı</span>,
+                    }[status];
+
+                    const date = status === 'teslim_alindi' && record.receivedAt
+                      ? formatDateTime(record.receivedAt)
+                      : status === 'gonderildi' && record.sentAt
+                        ? formatDateTime(record.sentAt)
+                        : formatDateTime(record.createdAt);
+
+                    return (
+                      <tr key={record.id} className="hover:bg-slate-50">
+                        <td className="px-4 py-2">{statusBadge}</td>
+                        <td className="px-4 py-2 font-medium text-slate-900">{record.name}</td>
+                        <td className="px-4 py-2 text-slate-500">{supplierName}</td>
+                        <td className="px-4 py-2 text-slate-500 whitespace-nowrap">{date}</td>
+                        <td className="px-4 py-2 text-right text-slate-700 whitespace-nowrap">
+                          {record.items.length} kalem · {formatCurrency(calculateRecordTotal(record))}
+                        </td>
+                        <td className="px-4 py-2 text-right">
+                          <div className="flex flex-wrap justify-end gap-1.5">
+                            {status === 'sablon' && (
+                              <>
+                                <button type="button" onClick={() => loadSavedRecord(record)}
+                                  className="rounded border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100">
+                                  Yükle
+                                </button>
+                                <button type="button" onClick={() => updateRecordStatus(record.id, 'gonderildi')}
+                                  className="rounded border border-sky-300 bg-sky-50 px-2 py-1 text-xs font-semibold text-sky-800 hover:bg-sky-100">
+                                  Gönderildi
+                                </button>
+                              </>
+                            )}
+                            {status === 'gonderildi' && (
+                              <button type="button" onClick={() => receiveOrderAndUpdateStock(record)}
+                                className="rounded border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100">
+                                Teslim Al + Stoka İşle
+                              </button>
+                            )}
+                            {(status === 'gonderildi' || status === 'teslim_alindi') && (
+                              <button type="button" onClick={() => copyRecordAsTemplate(record)}
+                                className="rounded border border-slate-300 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                                Kopyala
+                              </button>
+                            )}
+                            <button type="button" onClick={() => deleteSavedRecord(record.id)}
+                              className="rounded border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100">
+                              Sil
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Aktif sipariş listesi (yazdırılabilir) ───────────────────── */}
+      <section id="print-order-list" className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="form-watermark" aria-hidden="true">
+          <img
+            src="/logo.png"
+            alt=""
+            className="h-[760px] w-auto object-contain"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (!target.src.includes('/Logo.jpg')) {
+                target.src = '/Logo.jpg';
+              }
+            }}
+          />
+        </div>
+
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-gray-900">Oluşturulan Sipariş Listesi</h2>
-          <div className="flex flex-wrap gap-2">
+          <h2 className="no-print text-base font-semibold text-slate-900">Aktif Sipariş Listesi</h2>
+          <div className="no-print flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={exportCsv}
+              onClick={exportPdf}
               disabled={enrichedItems.length === 0}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <FiDownload /> CSV İndir
+              <FiFileText /> PDF İndir
+            </button>
+            <button
+              type="button"
+              onClick={exportExcel}
+              disabled={enrichedItems.length === 0}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <FiFile /> Excel İndir
             </button>
             <button
               type="button"
@@ -703,7 +1039,29 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="relative z-10 mb-4 rounded-xl border border-gray-200 bg-gray-50 p-4 print:border-0 print:bg-white print:p-0">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-end justify-between gap-2 border-b border-gray-200 pb-2">
+              <p className="text-2xl font-extrabold tracking-wide text-gray-900">{COMPANY_NAME}</p>
+              <p className="text-sm font-semibold text-gray-700">Satın Alma Sipariş Formu</p>
+            </div>
+
+            <div className="grid gap-2 text-sm text-gray-700 sm:grid-cols-2">
+              <div className="space-y-1">
+                <p><span className="font-semibold">Gönderen Firma:</span> {COMPANY_NAME}</p>
+                <p><span className="font-semibold">E-posta:</span> {COMPANY_EMAIL}</p>
+                <p><span className="font-semibold">Konum:</span> {COMPANY_LOCATION}</p>
+              </div>
+              <div className="space-y-1 sm:text-right">
+                <p><span className="font-semibold">Tedarikçi Firma:</span> {selectedSupplierName}</p>
+                <p><span className="font-semibold">Belge Tarihi:</span> {new Date().toLocaleDateString('tr-TR')}</p>
+                <p><span className="font-semibold">Belge No:</span> {new Date().toISOString().slice(0, 10).replaceAll('-', '')}-{draftName.slice(0, 8).toUpperCase()}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-0 text-sm">
             <thead>
               <tr className="bg-gray-50 text-left text-gray-700">
@@ -713,7 +1071,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                 <th className="border-b border-gray-200 px-3 py-2 text-right">Miktar</th>
                 <th className="border-b border-gray-200 px-3 py-2 text-right">Birim Maliyet</th>
                 <th className="border-b border-gray-200 px-3 py-2 text-right">Satır Toplamı</th>
-                <th className="rounded-tr-lg border-b border-gray-200 px-3 py-2 text-right">İşlem</th>
+                <th className="no-print rounded-tr-lg border-b border-gray-200 px-3 py-2 text-right">İşlem</th>
               </tr>
             </thead>
             <tbody>
@@ -743,6 +1101,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                       <option value="koli">Koli</option>
                       <option value="palet">Palet</option>
                     </select>
+                    <span className="print-only text-sm font-medium text-gray-800">{row.unitType}</span>
                   </td>
                   <td className="px-3 py-2 text-right">
                     <input
@@ -753,10 +1112,11 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                       onChange={(e) => updateRow(row.id, { quantity: Number(e.target.value || 1) })}
                       className="w-20 rounded-md border border-gray-300 px-2 py-1 text-right"
                     />
+                    <span className="print-only text-sm font-medium text-gray-800">{row.quantity}</span>
                   </td>
                   <td className="px-3 py-2 text-right font-medium">{formatCurrency(row.unitCost)}</td>
                   <td className="px-3 py-2 text-right font-semibold text-primary">{formatCurrency(row.lineTotal)}</td>
-                  <td className="px-3 py-2 text-right">
+                  <td className="no-print px-3 py-2 text-right">
                     <button
                       type="button"
                       onClick={() => removeItem(row.id)}
@@ -783,11 +1143,73 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           </table>
         </div>
 
-        <p className="mt-3 text-xs text-gray-500">
-          Bu modül planlama amaçlıdır. Ürün stok miktarları ve operasyon sipariş kayıtları üzerinde herhangi bir değişiklik
-          yapmaz.
+        <p className="relative z-10 mt-4 text-xs text-gray-600">
+          Lütfen ürün, miktar ve fiyat teyidi ile geri dönüş sağlayınız.
         </p>
       </section>
+
+      <style jsx global>{`
+        .form-watermark {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0.06;
+          transform: rotate(-14deg) scale(1.05);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .print-only {
+          display: none;
+        }
+
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+
+          #print-order-list,
+          #print-order-list * {
+            visibility: visible !important;
+          }
+
+          #print-order-list {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            border: 0 !important;
+            box-shadow: none !important;
+            background: #fff !important;
+            padding: 0 !important;
+          }
+
+          .form-watermark {
+            opacity: 0.07 !important;
+          }
+
+          .no-print {
+            display: none !important;
+          }
+
+          #print-order-list select,
+          #print-order-list input,
+          #print-order-list button {
+            display: none !important;
+          }
+
+          #print-order-list .print-only {
+            display: inline !important;
+          }
+
+          @page {
+            size: A4 portrait;
+            margin: 12mm;
+          }
+        }
+      `}</style>
     </div>
   );
 }

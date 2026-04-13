@@ -306,20 +306,25 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         if (!batchItemRes.error && batchItemRes.data) {
             const batchSummary = (batchItemRes.data as Array<any>).reduce((acc, item) => {
                 const key = item.parti_id;
-                if (!acc[key]) acc[key] = { itemCount: 0, totalQuantity: 0, alertLineCount: 0 };
+                if (!acc[key]) acc[key] = { itemCount: 0, totalQuantity: 0, alertLineCount: 0, absVarianceTotal: 0, maxAbsVariance: 0 };
+                const absVariance = Math.abs(Number(item.maliyet_sapma_yuzde || 0));
                 acc[key].itemCount += 1;
                 acc[key].totalQuantity += Number(item.miktar_adet || 0);
-                if (Math.abs(Number(item.maliyet_sapma_yuzde || 0)) >= 5) {
+                acc[key].absVarianceTotal += absVariance;
+                acc[key].maxAbsVariance = Math.max(acc[key].maxAbsVariance, absVariance);
+                if (absVariance >= 5) {
                     acc[key].alertLineCount += 1;
                 }
                 return acc;
-            }, {} as Record<string, { itemCount: number; totalQuantity: number; alertLineCount: number }>);
+            }, {} as Record<string, { itemCount: number; totalQuantity: number; alertLineCount: number; absVarianceTotal: number; maxAbsVariance: number }>);
 
             recentBatchesWithSummary = recentBatchesWithSummary.map((batch: any) => ({
                 ...batch,
                 itemCount: batchSummary[batch.id]?.itemCount || 0,
                 totalQuantity: batchSummary[batch.id]?.totalQuantity || 0,
                 alertLineCount: batchSummary[batch.id]?.alertLineCount || 0,
+                averageAbsVariance: batchSummary[batch.id]?.itemCount ? (batchSummary[batch.id].absVarianceTotal / batchSummary[batch.id].itemCount) : 0,
+                maxAbsVariance: batchSummary[batch.id]?.maxAbsVariance || 0,
             }));
         } else if (batchItemRes.error && !(batchItemRes.error.message || '').includes('ithalat_parti_kalemleri')) {
             console.error('Batch Item Summary Error:', batchItemRes.error);
@@ -329,6 +334,8 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
     const recentBatchAlertLines = recentBatchesWithSummary.reduce((sum: number, batch: any) => sum + Number(batch.alertLineCount || 0), 0);
     const latestBatch = recentBatchesWithSummary[0] || null;
     const latestBatchDate = latestBatch?.varis_tarihi || latestBatch?.created_at || null;
+    const latestBatchAvgVariance = Number(latestBatch?.averageAbsVariance || 0);
+    const latestBatchMaxVariance = Number(latestBatch?.maxAbsVariance || 0);
     const daysSinceLastBatch = latestBatchDate
         ? Math.max(0, Math.floor((Date.now() - new Date(latestBatchDate).getTime()) / (1000 * 60 * 60 * 24)))
         : null;
@@ -353,7 +360,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <h2 className="font-serif text-2xl font-bold text-primary">{(operationalContent as any).pricingHealthTitle || 'Fiyatlandırma Sağlık Özeti'}</h2>
-                        <p className="text-sm text-text-main/70 mt-1">Kırmızı / sarı / yeşil sinyallerle kârlılık ve parti akışını yönetin.</p>
+                        <p className="text-sm text-text-main/70 mt-1">Bu bölüm, parti maliyet farklarını erken görmek için karar destek ekranıdır.</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <Link href={`/${locale}/admin/urun-yonetimi/fiyatlandirma-hub`} className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">Fiyatlandırma merkezi</Link>
@@ -361,32 +368,36 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                     </div>
                 </div>
 
+                <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+                    Not: Bu özet satış fiyatlarını otomatik değiştirmez. Sadece maliyet farklarını görünür yapar.
+                </div>
+
                 <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                     <HealthSignalCard
-                        title="Karlılık alarm yoğunluğu"
+                        title="Marj riski olan ürün"
                         value={`${profitabilityAlertCount} ürün`}
-                        hint={profitabilityAlertCount === 0 ? 'Aktif alarm görünmüyor.' : 'Alarmdaki ürünleri öncelikli inceleyin.'}
+                        hint={profitabilityAlertCount === 0 ? 'Şu an riskli ürün görünmüyor.' : 'Bu ürünlerde maliyet farkı satış marjını baskılıyor olabilir.'}
                         status={alertStatus}
                         href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
                     />
                     <HealthSignalCard
-                        title="Parti alarm baskısı"
-                        value={`${recentBatchAlertLines} kalem`}
-                        hint={recentBatchAlertLines === 0 ? 'Son partiler sakin görünüyor.' : 'Son partilerde sapma üreten kalemler var.'}
+                        title="Son partide maliyet farkı"
+                        value={latestBatch ? `%${latestBatchAvgVariance.toFixed(1)}` : 'Kayıt yok'}
+                        hint={latestBatch ? `Maks. fark %${latestBatchMaxVariance.toFixed(1)} · Alarm üreten ${recentBatchAlertLines} kalem` : 'Henüz parti kaydı bulunmuyor.'}
                         status={batchStatus}
                         href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
                     />
                     <HealthSignalCard
-                        title="Son parti güncelliği"
+                        title="Parti verisi güncelliği"
                         value={daysSinceLastBatch === null ? 'Kayıt yok' : `${daysSinceLastBatch} gün`}
-                        hint={latestBatch ? `${latestBatch.referans_kodu || 'Son parti'} kaydı baz alındı.` : 'Henüz parti kaydı bulunmuyor.'}
+                        hint={latestBatch ? `${latestBatch.referans_kodu || 'Son parti'} baz alındı.` : 'Henüz parti kaydı bulunmuyor.'}
                         status={freshnessStatus}
                         href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
                     />
                     <HealthSignalCard
-                        title="Kritik stok baskısı"
+                        title="Kritik stokta ürün"
                         value={`${criticalStockCount} ürün`}
-                        hint={criticalStockCount === 0 ? 'Kritik stok görünmüyor.' : 'Stok baskısı olan ürünleri kontrol edin.'}
+                        hint={criticalStockCount === 0 ? 'Kritik stok görünmüyor.' : 'Tedarik planı ve stok eşiğini gözden geçirin.'}
                         status={stockStatus}
                         href={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
                     />
