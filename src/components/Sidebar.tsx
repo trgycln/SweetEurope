@@ -186,8 +186,6 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
         {
             title: sidebarContent.settings,
             links: [
-                { name: sidebarContent.systemSettings || 'Sistem Ayarları', href: '/admin/ayarlar/sistem-ayarlari', icon: FiSettings, roles: ['Yönetici'] as UserRole[], panelKey: 'settings' },
-                { name: sidebarContent.templates, href: '/admin/ayarlar/sablonlar', icon: FiSettings, roles: ['Yönetici'] as UserRole[], panelKey: 'settings' },
                 { name: sidebarContent.profile || 'Profil', href: '/admin/profil', icon: FiUser },
             ]
         }

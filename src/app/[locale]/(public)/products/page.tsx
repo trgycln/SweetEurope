@@ -3,7 +3,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getDictionary } from '@/dictionaries';
 import { ProductGridClient } from './product-grid-client';
-import ProfesyonelFiltre from './profesyonel-filtre';
 import { getLocalizedName } from '@/lib/utils';
 import {
     PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER,
@@ -11,8 +10,8 @@ import {
     isPublicCategorySlugHidden,
 } from '@/lib/public-category-visibility';
 import {
-    PRODUCT_LINE_META,
     PRODUCT_LINE_ORDER,
+    PRODUCT_LINE_META,
     getProductLineLabel,
     inferProductLineFromCategoryId,
     isProductLineKey,
@@ -20,7 +19,7 @@ import {
 import Link from 'next/link';
 import { type Kategori, type Urun } from './types';
 import { cookies } from 'next/headers';
-import { FiGrid, FiPackage } from 'react-icons/fi';
+import { FiPackage } from 'react-icons/fi';
 import type { Metadata } from 'next';
 
 // HATA ÇÖZÜMÜ: Bu satır, Next.js'e sayfanın her zaman dinamik olarak
@@ -365,141 +364,275 @@ export default async function PublicUrunlerPage({
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="container mx-auto px-4 sm:px-8 py-4">
-                {/* Ürün Gamı + Kategori Butonları */}
-                <div className="mb-4 space-y-3">
-                    <div className="flex flex-wrap gap-2">
-                        <Link
-                            href={buildProductsHref({})}
-                            className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
-                                !seciliUrunGami
-                                    ? 'bg-primary text-white'
-                                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                            }`}
-                        >
-                            {locale === 'de'
-                                ? 'Alle Produktlinien'
-                                : locale === 'en'
-                                  ? 'All Product Lines'
-                                  : locale === 'ar'
-                                    ? 'كل خطوط المنتجات'
-                                    : 'Tüm Ürün Gamları'}
-                        </Link>
-                        {PRODUCT_LINE_ORDER.map(line => (
-                            <Link
-                                key={line}
-                                href={buildProductsHref({ urunGami: line })}
-                                className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
-                                    seciliUrunGami === line
-                                        ? 'bg-primary text-white'
-                                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                                }`}
-                            >
-                                {getProductLineLabel(line, locale as any)}
-                            </Link>
-                        ))}
+        <div className="min-h-screen bg-slate-50">
+            {/* ── B2B Page Header ─────────────────────────────────────────── */}
+            <div className="bg-white border-b border-slate-200">
+                <div className="container mx-auto px-4 sm:px-8 py-6">
+                    <div className="flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">
+                                {locale === 'de' ? 'B2B Produktkatalog' : locale === 'tr' ? 'B2B Ürün Kataloğu' : locale === 'en' ? 'B2B Product Catalog' : 'كتالوج المنتجات B2B'}
+                            </p>
+                            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                                {locale === 'de' ? 'Sortiment für Profi-Küchen' : locale === 'tr' ? 'Profesyonel Mutfaklar İçin Ürün Gamı' : locale === 'en' ? 'Range for Professional Kitchens' : 'تشكيلة للمطابخ الاحترافية'}
+                            </h1>
+                            <p className="mt-1 text-sm text-slate-500 max-w-xl">
+                                {locale === 'de'
+                                    ? 'Tiefkühl-Desserts, Sirupe, Kaffee und Backzutaten – direkt für Cafés, Hotels und Patisserien.'
+                                    : locale === 'tr'
+                                    ? 'Donuk tatlılar, şuruplar, kahve ve pastane malzemeleri — kafeler, oteller ve pastaneler için doğrudan.'
+                                    : locale === 'en'
+                                    ? 'Frozen desserts, syrups, coffee and bakery ingredients — direct for cafés, hotels and pastry shops.'
+                                    : 'حلويات مجمدة وشراب وقهوة ومكونات للحلويات — مباشرةً للمقاهي والفنادق والمخابز.'}
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 self-start sm:self-auto">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                            {totalAllProducts} {locale === 'de' ? 'Artikel im Sortiment' : locale === 'tr' ? 'ürün katalogda' : locale === 'en' ? 'items in catalog' : 'منتج في الكتالوج'}
+                        </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                        <Link
-                            href={buildProductsHref({ urunGami: seciliUrunGami })}
-                            className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
-                                !seciliKategoriSlug
-                                    ? 'bg-accent text-white'
-                                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                            }`}
-                        >
-                            Alle ({totalAllProducts})
-                        </Link>
-                        {lineVisibleKategoriler
-                            .filter(
-                                k =>
-                                    !k.ust_kategori_id &&
-                                    visibleMainCategoryOrder.includes((k.slug ?? '') as any)
-                            )
-                            .sort((a, b) => {
-                                return (
-                                    visibleMainCategoryOrder.indexOf((a.slug ?? '') as any) -
-                                    visibleMainCategoryOrder.indexOf((b.slug ?? '') as any)
-                                );
-                            })
-                            .map(k => {
-                                const count = categoryProductCounts[k.id] || 0;
-                                return (
-                                    <Link
-                                        key={k.id}
-                                        href={buildProductsHref({
-                                            urunGami: seciliUrunGami,
-                                            kategori: k.slug || undefined,
-                                        })}
-                                        className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
-                                            seciliKategoriSlug === k.slug
-                                                ? 'bg-accent text-white'
-                                                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                                        }`}
-                                    >
-                                        {getLocalizedName(k.ad, locale as any)} ({count})
-                                    </Link>
-                                );
-                            })}
+                    {/* ── Business Segment Quick Links ───────────────────────── */}
+                    <div className="mt-5 pt-4 border-t border-slate-100">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2.5">
+                            {locale === 'de' ? 'Für Ihr Unternehmen' : locale === 'tr' ? 'İşletmenize Göre' : locale === 'en' ? 'For Your Business' : 'لنشاطك التجاري'}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {[
+                                {
+                                    icon: '☕',
+                                    label: { de: 'Café & Bistro', tr: 'Kafe & Bistro', en: 'Café & Bistro', ar: 'مقهى' },
+                                    desc: { de: 'Sirupe, Kaffee, Torten & Barista-Essentials', tr: 'Şurup, kahve, pasta ve barista ürünleri', en: 'Syrups, coffee, cakes & barista essentials', ar: 'شراب وقهوة وكيك' },
+                                    href: buildProductsHref({ urunGami: 'barista-bakery-essentials' }),
+                                    active: seciliUrunGami === 'barista-bakery-essentials',
+                                },
+                                {
+                                    icon: '🏨',
+                                    label: { de: 'Hotel & Catering', tr: 'Otel & Catering', en: 'Hotel & Catering', ar: 'فندق' },
+                                    desc: { de: 'Portionierte Desserts, Torten und Premium-Sirupe', tr: 'Porsiyon tatlılar, pastalar ve premium şuruplar', en: 'Portioned desserts, cakes and premium syrups', ar: 'حلويات مجزأة وكيك' },
+                                    href: buildProductsHref({ urunGami: 'frozen-desserts' }),
+                                    active: seciliUrunGami === 'frozen-desserts',
+                                },
+                                {
+                                    icon: '🎂',
+                                    label: { de: 'Konditorei & Bäckerei', tr: 'Pastane & Fırın', en: 'Patisserie & Bakery', ar: 'المخبز' },
+                                    desc: { de: 'Cheesecakes, Backzutaten und Fertigböden', tr: 'Cheesecake, pastane malzemeleri ve bitmiş tabanlar', en: 'Cheesecakes, bakery ingredients and ready bases', ar: 'تشيز كيك ومكونات الحلويات' },
+                                    href: buildProductsHref({ kategori: 'cakes-and-tarts' }),
+                                    active: seciliKategoriSlug === 'cakes-and-tarts',
+                                },
+                                {
+                                    icon: '🍦',
+                                    label: { de: 'Dessert-Bar', tr: 'Dessert Bar', en: 'Dessert Bar', ar: 'بار الحلويات' },
+                                    desc: { de: 'Portionsdesserts, Cups und Eis-Spezialitäten', tr: 'Porsiyon tatlı, kuplar ve dondurma ürünleri', en: 'Portioned desserts, cups and frozen specialties', ar: 'حلويات مجزأة وتخصصات مجمدة' },
+                                    href: buildProductsHref({ urunGami: 'frozen-desserts' }),
+                                    active: false,
+                                },
+                            ].map((seg) => (
+                                <Link
+                                    key={seg.icon}
+                                    href={seg.href}
+                                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left transition-all group
+                                        ${seg.active
+                                            ? 'bg-slate-900 border-slate-900 text-white shadow-sm'
+                                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400 hover:shadow-sm'}`}
+                                >
+                                    <span className="text-lg leading-none">{seg.icon}</span>
+                                    <div>
+                                        <p className={`text-xs font-semibold leading-tight ${seg.active ? 'text-white' : 'text-slate-800'}`}>
+                                            {seg.label[locale as keyof typeof seg.label] || seg.label.de}
+                                        </p>
+                                        <p className={`text-[10px] leading-tight mt-0.5 hidden sm:block ${seg.active ? 'text-slate-300' : 'text-slate-400'}`}>
+                                            {seg.desc[locale as keyof typeof seg.desc] || seg.desc.de}
+                                        </p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Profesyonel Filtre */}
-                <ProfesyonelFiltre 
-                    kategoriler={kategoriler}
-                    locale={locale}
-                    seciliKategoriSlug={seciliKategoriSlug}
-                    seciliUrunGami={seciliUrunGami}
-                    totalCount={totalCount}
-                    labels={dictionary.productsProfessionalFilter}
-                    availablePorsiyonlar={availablePorsiyonlar}
-                    availableHacimler={availableHacimler}
-                />
+            {/* ── Main Content: Sidebar + Product Grid ────────────────────── */}
+            <div className="container mx-auto px-4 sm:px-8 py-6">
+                <div className="flex gap-6">
+                    {/* ─ Left sidebar: Filters ─ */}
+                    <aside className="hidden lg:flex flex-col gap-4 w-52 flex-shrink-0">
 
-                {/* Ürünler Grid - Full Width */}
-                {urunler.length === 0 ? (
-                    <div className="text-center p-16 bg-white rounded-2xl shadow-sm border border-gray-200">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
-                            <FiPackage className="w-10 h-10 text-gray-400" />
+                        {/* Product Line */}
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                                {locale === 'de' ? 'Produktlinie' : locale === 'tr' ? 'Ürün Gamı' : locale === 'en' ? 'Product Line' : 'خط المنتجات'}
+                            </p>
+                            <div className="space-y-1">
+                                <Link href={buildProductsHref({})}
+                                    className={`flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
+                                        ${!seciliUrunGami ? 'bg-slate-900 text-white font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                                    <span>{locale === 'de' ? 'Alle' : locale === 'tr' ? 'Tümü' : 'All'}</span>
+                                    <span className={`text-[10px] ${!seciliUrunGami ? 'text-slate-300' : 'text-slate-400'}`}>{totalAllProducts}</span>
+                                </Link>
+                                {PRODUCT_LINE_ORDER.map(line => (
+                                    <Link key={line} href={buildProductsHref({ urunGami: line })}
+                                        className={`flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
+                                            ${seciliUrunGami === line ? 'bg-slate-900 text-white font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                                        <span>{getProductLineLabel(line, locale as any)}</span>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                        <p className="text-xl font-semibold text-gray-700 mb-2">Keine Produkte gefunden</p>
-                        <p className="text-gray-500 mb-6">Versuchen Sie andere Filter oder durchsuchen Sie alle Kategorien</p>
-                        <Link 
-                            href={`/${locale}/products`} 
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent text-white rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
-                        >
-                            <FiGrid />
-                            Alle Produkte ansehen
-                        </Link>
+
+                        {/* Categories */}
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                                {locale === 'de' ? 'Kategorien' : locale === 'tr' ? 'Kategoriler' : locale === 'en' ? 'Categories' : 'الفئات'}
+                            </p>
+                            <div className="space-y-1">
+                                <Link href={buildProductsHref({ urunGami: seciliUrunGami })}
+                                    className={`flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
+                                        ${!seciliKategoriSlug ? 'bg-slate-100 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                                    <span>{locale === 'de' ? 'Alle Kategorien' : locale === 'tr' ? 'Tüm Kategoriler' : 'All Categories'}</span>
+                                </Link>
+                                {lineVisibleKategoriler
+                                    .filter(k => !k.ust_kategori_id && visibleMainCategoryOrder.includes((k.slug ?? '') as any))
+                                    .sort((a, b) => visibleMainCategoryOrder.indexOf((a.slug ?? '') as any) - visibleMainCategoryOrder.indexOf((b.slug ?? '') as any))
+                                    .map(k => {
+                                        const count = categoryProductCounts[k.id] || 0;
+                                        const isSelected = seciliKategoriSlug === k.slug;
+                                        // Subcategories for this main category
+                                        const subKats = lineVisibleKategoriler.filter(sk => sk.ust_kategori_id === k.id);
+                                        return (
+                                            <div key={k.id}>
+                                                <Link href={buildProductsHref({ urunGami: seciliUrunGami, kategori: k.slug || undefined })}
+                                                    className={`flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
+                                                        ${isSelected ? 'bg-slate-100 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                                                    <span className="truncate">{getLocalizedName(k.ad, locale as any)}</span>
+                                                    <span className="text-[10px] text-slate-400 ml-1 flex-shrink-0">{count}</span>
+                                                </Link>
+                                                {/* Subcategories shown when parent selected */}
+                                                {isSelected && subKats.length > 0 && (
+                                                    <div className="ml-3 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
+                                                        {subKats.map(sk => (
+                                                            <Link key={sk.id}
+                                                                href={buildProductsHref({ urunGami: seciliUrunGami, kategori: k.slug || undefined, altKategori: sk.slug || undefined })}
+                                                                className={`flex items-center justify-between w-full px-2 py-1 rounded text-xs transition-colors
+                                                                    ${sp.altKategori === sk.slug ? 'text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-800'}`}>
+                                                                <span className="truncate">{getLocalizedName(sk.ad, locale as any)}</span>
+                                                                <span className="text-[10px] text-slate-400 ml-1 flex-shrink-0">{categoryProductCounts[sk.id] || 0}</span>
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+                        </div>
+
+                        {/* Portion filter */}
+                        {availablePorsiyonlar.length > 0 && (
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                                    {locale === 'de' ? 'Portionen / Stück' : locale === 'tr' ? 'Porsiyon / Adet' : 'Portion size'}
+                                </p>
+                                <div className="flex flex-wrap gap-1">
+                                    {availablePorsiyonlar.map(v => (
+                                        <Link key={v}
+                                            href={buildProductsHref({ ...Object.fromEntries(Object.entries({ urunGami: seciliUrunGami, kategori: seciliKategoriSlug, porsiyon: String(v) }).filter(([, val]) => Boolean(val))) })}
+                                            className={`px-2 py-0.5 rounded border text-xs font-medium transition-colors
+                                                ${sp.porsiyon === String(v) ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'}`}>
+                                            {v}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </aside>
+
+                    {/* ─ Main product area ─ */}
+                    <div className="flex-1 min-w-0">
+                        {/* Mobile category row */}
+                        <div className="flex flex-wrap gap-1.5 mb-4 lg:hidden">
+                            <Link href={buildProductsHref({})}
+                                className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-colors
+                                    ${!seciliKategoriSlug && !seciliUrunGami ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200'}`}>
+                                {locale === 'de' ? 'Alle' : locale === 'tr' ? 'Tümü' : 'All'} ({totalAllProducts})
+                            </Link>
+                            {lineVisibleKategoriler
+                                .filter(k => !k.ust_kategori_id && visibleMainCategoryOrder.includes((k.slug ?? '') as any))
+                                .sort((a, b) => visibleMainCategoryOrder.indexOf((a.slug ?? '') as any) - visibleMainCategoryOrder.indexOf((b.slug ?? '') as any))
+                                .map(k => (
+                                    <Link key={k.id}
+                                        href={buildProductsHref({ urunGami: seciliUrunGami, kategori: k.slug || undefined })}
+                                        className={`px-3 py-1.5 text-xs rounded-lg font-medium border transition-colors
+                                            ${seciliKategoriSlug === k.slug ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200'}`}>
+                                        {getLocalizedName(k.ad, locale as any)} ({categoryProductCounts[k.id] || 0})
+                                    </Link>
+                                ))}
+                        </div>
+
+                        {/* Result count + active filters bar */}
+                        {(seciliKategoriSlug || seciliUrunGami || sp.altKategori || sp.porsiyon) && (
+                            <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
+                                <span className="text-slate-500">
+                                    {totalCount} {locale === 'de' ? 'Ergebnisse' : locale === 'tr' ? 'sonuç' : 'results'}
+                                </span>
+                                {seciliKategoriSlug && (
+                                    <Link href={buildProductsHref({ urunGami: seciliUrunGami })}
+                                        className="inline-flex items-center gap-1 bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium hover:bg-slate-300">
+                                        {seciliKategoriAdi} ✕
+                                    </Link>
+                                )}
+                                {seciliUrunGami && (
+                                    <Link href={buildProductsHref({})}
+                                        className="inline-flex items-center gap-1 bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium hover:bg-slate-300">
+                                        {getProductLineLabel(seciliUrunGami, locale as any)} ✕
+                                    </Link>
+                                )}
+                                {(seciliKategoriSlug || seciliUrunGami) && (
+                                    <Link href={buildProductsHref({})} className="text-slate-400 hover:text-slate-600 underline">
+                                        {locale === 'de' ? 'Alle Filter löschen' : locale === 'tr' ? 'Filtreleri temizle' : 'Clear all'}
+                                    </Link>
+                                )}
+                            </div>
+                        )}
+
+                        {urunler.length === 0 ? (
+                            <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
+                                <FiPackage className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                                <p className="text-sm font-medium text-slate-600">
+                                    {locale === 'de' ? 'Keine Produkte gefunden' : locale === 'tr' ? 'Ürün bulunamadı' : 'No products found'}
+                                </p>
+                                <Link href={`/${locale}/products`} className="mt-3 inline-flex text-xs text-slate-500 underline hover:text-slate-700">
+                                    {locale === 'de' ? 'Alle Produkte ansehen' : locale === 'tr' ? 'Tüm ürünleri gör' : 'View all products'}
+                                </Link>
+                            </div>
+                        ) : (
+                            <ProductGridClient
+                                urunler={urunler}
+                                locale={locale}
+                                kategoriAdlariMap={kategoriAdlariMap}
+                                kategoriParentMap={kategoriParentMap}
+                                sablonMap={sablonMap}
+                                pagination={{
+                                    page: clampedPage,
+                                    perPage,
+                                    total: totalCount,
+                                    kategori: seciliKategoriSlug,
+                                    query: {
+                                        kategori: seciliKategoriSlug,
+                                        urunGami: seciliUrunGami,
+                                        altKategori: sp.altKategori,
+                                        porsiyon: sp.porsiyon,
+                                        hacim: sp.hacim,
+                                        ozellik: sp.ozellik,
+                                        tat: sp.tat,
+                                    },
+                                    basePath: `/${locale}/products`,
+                                }}
+                                dictionary={dictionary}
+                            />
+                        )}
                     </div>
-                ) : (
-                    <ProductGridClient 
-                        urunler={urunler}
-                        locale={locale}
-                        kategoriAdlariMap={kategoriAdlariMap}
-                        kategoriParentMap={kategoriParentMap}
-                        sablonMap={sablonMap}
-                        pagination={{ 
-                            page: clampedPage,
-                            perPage,
-                            total: totalCount,
-                            kategori: seciliKategoriSlug,
-                            query: {
-                                kategori: seciliKategoriSlug,
-                                urunGami: seciliUrunGami,
-                                altKategori: sp.altKategori,
-                                porsiyon: sp.porsiyon,
-                                hacim: sp.hacim,
-                                ozellik: sp.ozellik,
-                                tat: sp.tat,
-                            },
-                            basePath: `/${locale}/products`,
-                        }}
-                        dictionary={dictionary}
-                    />
-                )}
+                </div>
             </div>
         </div>
     );

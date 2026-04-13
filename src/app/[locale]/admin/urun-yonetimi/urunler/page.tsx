@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Tables, Database } from '@/lib/supabase/database.types'; // Database importieren
-import { FiPlus, FiArchive, FiAlertTriangle, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiPlus, FiArchive, FiAlertTriangle, FiCheckCircle, FiXCircle, FiDownload } from 'react-icons/fi';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 import { formatCurrency, getLocalizedName } from '@/lib/utils';
@@ -16,6 +16,7 @@ import { UrunFiltre } from './urun-filtre';
 import { Pagination } from './pagination';
 import EditableUrunRowClient from "./EditableUrunRowClient";
 import UrunExcelImportPanel from './UrunExcelImportPanel';
+import UrunExcelExportPanel from './UrunExcelExportPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -229,6 +230,30 @@ export default async function UrunlerListPage({
                     </Link>
                 )}
             </div>
+
+            {/* ─── Export paneli (katlanabilir) ────────────────────────────── */}
+            {canImportProducts && (
+                <details className="group rounded-xl border border-emerald-200 bg-emerald-50/60 shadow-sm">
+                    <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-emerald-900">
+                            <FiDownload size={14} />
+                            Excel Dışa Aktar
+                            <span className="rounded-full bg-emerald-200 px-2 py-0.5 text-[11px] font-medium text-emerald-900">
+                                Tedarikçi &amp; kategori bazında filtreli indirme
+                            </span>
+                        </div>
+                        <span className="text-xs text-emerald-700 group-open:hidden">Aç ▾</span>
+                        <span className="hidden text-xs text-emerald-700 group-open:inline">Kapat ▴</span>
+                    </summary>
+                    <div className="border-t border-emerald-200 px-4 pb-4 pt-3">
+                        <UrunExcelExportPanel
+                            locale={locale}
+                            suppliers={(tedarikciler as Array<{ id: string; unvan: string | null }>) || []}
+                            kategoriler={(allKategoriler as Array<{ id: string; ad: unknown; ust_kategori_id: string | null }>) || []}
+                        />
+                    </div>
+                </details>
+            )}
 
             {/* ─── Import paneli (katlanabilir) ────────────────────────────── */}
             {canImportProducts && (

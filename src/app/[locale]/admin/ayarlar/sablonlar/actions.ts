@@ -10,7 +10,10 @@ import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { redirect } from 'next/navigation'; // Importieren, falls benötigt
 
 const diller = ['de', 'en', 'tr', 'ar'];
-const revalidatePage = () => revalidatePath('/admin/ayarlar/sablonlar');
+const revalidatePage = () => {
+    revalidatePath('/admin/ayarlar/sablonlar');
+    revalidatePath('/admin/urun-yonetimi/kategoriler');
+};
 
 // Typ für Rückgabewerte
 type ActionResult = {
@@ -142,4 +145,48 @@ export async function deleteSablonAction(sablonId: string): Promise<ActionResult
     
     revalidatePage();
     return { success: true, message: 'Eigenschaft erfolgreich gelöscht.' };
+}
+
+// GRUP HALİNDE ÖZELLİK EKLEYEN ACTION
+export async function createBatchSablonlarAction(
+    kategoriId: string,
+    items: Array<{
+        alan_adi: string;
+        gosterim_adi: Record<string, string>;
+        alan_tipi: string;
+        sira: number;
+    }>
+): Promise<ActionResult> {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
+    if (!kategoriId || !items || items.length === 0) {
+        return { success: false, message: 'Geçersiz istek: kategori veya özellik listesi eksik.' };
+    }
+
+    const inserts = items.map(item => ({
+        kategori_id: kategoriId,
+        alan_adi: item.alan_adi,
+        gosterim_adi: item.gosterim_adi,
+        alan_tipi: item.alan_tipi,
+        sira: item.sira,
+        public_gorunur: false,
+        musteri_gorunur: false,
+        alt_bayi_gorunur: false,
+    }));
+
+    const { error } = await supabase
+        .from('kategori_ozellik_sablonlari')
+        .upsert(inserts as TablesInsert<'kategori_ozellik_sablonlari'>[], {
+            onConflict: 'kategori_id,alan_adi',
+            ignoreDuplicates: true,
+        });
+
+    if (error) {
+        console.error('Toplu özellik ekleme hatası:', error);
+        return { success: false, message: 'Özellikler eklenirken hata oluştu: ' + error.message };
+    }
+
+    revalidatePage();
+    return { success: true, message: `${items.length} özellik başarıyla eklendi.` };
 }

@@ -1,12 +1,15 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FiPlus, FiFilter, FiEdit, FiTrash2, FiCopy } from 'react-icons/fi';
+import {
+    FiPlus, FiEdit, FiTrash2, FiCopy, FiCheckCircle, FiChevronDown,
+    FiChevronUp, FiSliders, FiX, FiAlertCircle, FiCheck,
+} from 'react-icons/fi';
 import { Dictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
-import { Tables, Enums, Database } from '@/lib/supabase/database.types';
+import { Tables, Database } from '@/lib/supabase/database.types';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { deleteGiderAction, approveGiderler } from '@/app/actions/gider-actions';
 import { toast } from 'sonner';
@@ -37,6 +40,11 @@ interface GiderlerClientProps {
     currentPeriod: string;
 }
 
+const fmtEur = (v: number, locale: Locale) =>
+    new Intl.NumberFormat(locale === 'tr' ? 'tr-TR' : 'de-DE', {
+        style: 'currency', currency: 'EUR', maximumFractionDigits: 2,
+    }).format(v);
+
 export function GiderlerClient({
     initialGiderler,
     hauptKategorien,
@@ -45,87 +53,57 @@ export function GiderlerClient({
     dictionary,
     locale,
     datePeriods,
-    currentPeriod
+    currentPeriod,
 }: GiderlerClientProps) {
     const router = useRouter();
 
-    // ✅ Helper: Kategori/Kalem adını locale'e göre getir
     const getLocalizedName = (item: any) => {
         if (!item) return '';
-        
-        // Eğer ad_translations varsa locale'e göre dön
         if (item.ad_translations && typeof item.ad_translations === 'object') {
             return item.ad_translations[locale] || item.ad_translations['de'] || item.ad || '';
         }
-        
-        // Yoksa direkt ad'ı kullan
         return item.ad || '';
     };
 
-    // ✅ Helper: Gider'in kategori ve kalem adını localize et
     const getCategoryName = (gider: GiderWithDetails) => {
-        const kalemId = gider.gider_kalemi_id;
-        const kalem = giderKalemleri.find(k => k.id === kalemId);
-        if (!kalem) return gider.gider_kalemleri?.gider_ana_kategoriler?.ad || '-';
-        
-        const kategoriId = kalem.ana_kategori_id;
-        const kategori = hauptKategorien.find(k => k.id === kategoriId);
-        return getLocalizedName(kategori) || '-';
+        const kalem = giderKalemleri.find(k => k.id === gider.gider_kalemi_id);
+        if (!kalem) return gider.gider_kalemleri?.gider_ana_kategoriler?.ad || '—';
+        const kategori = hauptKategorien.find(k => k.id === kalem.ana_kategori_id);
+        return getLocalizedName(kategori) || '—';
     };
 
     const getItemName = (gider: GiderWithDetails) => {
-        const kalemId = gider.gider_kalemi_id;
-        const kalem = giderKalemleri.find(k => k.id === kalemId);
-        return getLocalizedName(kalem) || gider.gider_kalemleri?.ad || '-';
+        const kalem = giderKalemleri.find(k => k.id === gider.gider_kalemi_id);
+        return getLocalizedName(kalem) || gider.gider_kalemleri?.ad || '—';
     };
 
-    // ✅ EINFACHE STATE-VERWALTUNG - Filtern im CLIENT, nicht Server!
+    // ── Filters ─────────────────────────────────────────────────────────
     const [selectedHauptCategory, setSelectedHauptCategory] = useState('');
     const [selectedGiderKalemi, setSelectedGiderKalemi] = useState('');
     const [selectedPeriod, setSelectedPeriod] = useState(currentPeriod);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
     const [selectedDurum, setSelectedDurum] = useState<'all' | 'Taslak' | 'Onaylandı'>('all');
-    const [selectedGiderIds, setSelectedGiderIds] = useState<string[]>([]);
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
+    // ── Modal ────────────────────────────────────────────────────────────
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingGider, setEditingGider] = useState<GiderWithDetails | null>(null);
     const [modalKey, setModalKey] = useState(Date.now().toString());
 
-    const content = (dictionary as any).admin?.finans?.giderlerPage || {
-        title: "Ausgabenverwaltung",
-        description: "Alle Betriebsausgaben auflisten und verwalten.",
-        newExpense: "Neue Ausgabe",
-        filterByHauptCategory: "Nach Hauptkategorie filtern",
-        filterByCategory: "Nach Ausgabenposten filtern",
-        allCategories: "Alle Hauptkategorien",
-        allSubCategories: "Alle Posten",
-        date: "Datum",
-        hauptCategory: "Hauptkategorie",
-        category: "Ausgabenposten",
-        descriptionCol: "Beschreibung",
-        amount: "Betrag",
-        frequency: "Häufigkeit",
-        recordedBy: "Erfasst von",
-        actions: "Aktionen",
-        edit: "Bearbeiten",
-        delete: "Löschen",
-        duplicate: "Duplizieren",
-        confirmDelete: "Möchten Sie diese Ausgabe wirklich löschen?",
-        deleteSuccess: "Ausgabe gelöscht.",
-        deleteError: "Fehler beim Löschen.",
-        noExpensesFoundFilter: "Für diese Filter wurden keine Ausgaben gefunden.",
-        noExpensesYet: "Noch keine Ausgaben erfasst.",
-    };
+    // ── Selection ────────────────────────────────────────────────────────
+    const [selectedGiderIds, setSelectedGiderIds] = useState<string[]>([]);
 
-    // ✅ DATUM-BERECHNUNG basierend auf Periode
+    // ── Sorting ──────────────────────────────────────────────────────────
+    const [sortField, setSortField] = useState<'tarih' | 'tutar'>('tarih');
+    const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+    // Recalculate date range when period changes
     useEffect(() => {
         if (selectedPeriod === 'custom') return;
-
         const now = new Date();
         let start = new Date();
         let end = new Date();
-
         if (selectedPeriod === 'this-month') {
             start = new Date(now.getFullYear(), now.getMonth(), 1);
             end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -136,57 +114,55 @@ export function GiderlerClient({
             start = new Date(now.getFullYear(), 0, 1);
             end = new Date(now.getFullYear(), 11, 31);
         }
-
-        const formatDate = (d: Date) => {
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-
-        setDateFrom(formatDate(start));
-        setDateTo(formatDate(end));
+        const fmt = (d: Date) =>
+            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        setDateFrom(fmt(start));
+        setDateTo(fmt(end));
     }, [selectedPeriod]);
 
-    // ✅ CLIENT-SIDE FILTERING - Super einfach!
-    const filteredGiderler = useMemo(() => {
-        let result = [...initialGiderler];
-
-        // Filter nach Hauptkategorie
-        if (selectedHauptCategory) {
-            result = result.filter(g => 
-                g.gider_kalemleri?.ana_kategori_id === selectedHauptCategory
-            );
-        }
-
-        // Filter nach Gider Kalemi
-        if (selectedGiderKalemi) {
-            result = result.filter(g => g.gider_kalemi_id === selectedGiderKalemi);
-        }
-
-        // Filter nach Datum
-        if (dateFrom) {
-            result = result.filter(g => g.tarih >= dateFrom);
-        }
-        if (dateTo) {
-            result = result.filter(g => g.tarih <= dateTo);
-        }
-
-        // Filter nach Durum (Taslak/Onaylandı)
-        if (selectedDurum !== 'all') {
-            result = result.filter(g => g.durum === selectedDurum);
-        }
-
-        console.log('🔍 Gefilterte Gider:', result.length, '/', initialGiderler.length);
-        return result;
-    }, [initialGiderler, selectedHauptCategory, selectedGiderKalemi, dateFrom, dateTo, selectedDurum]);
-
-    // ✅ Gider Kalemleri filtern basierend auf Hauptkategorie
     const filteredGiderKalemleri = useMemo(() => {
         if (!selectedHauptCategory) return giderKalemleri;
         return giderKalemleri.filter(k => k.ana_kategori_id === selectedHauptCategory);
     }, [selectedHauptCategory, giderKalemleri]);
 
+    const filteredGiderler = useMemo(() => {
+        let result = [...initialGiderler];
+        if (selectedHauptCategory)
+            result = result.filter(g => g.gider_kalemleri?.ana_kategori_id === selectedHauptCategory);
+        if (selectedGiderKalemi)
+            result = result.filter(g => g.gider_kalemi_id === selectedGiderKalemi);
+        if (dateFrom) result = result.filter(g => g.tarih >= dateFrom);
+        if (dateTo) result = result.filter(g => g.tarih <= dateTo);
+        if (selectedDurum !== 'all') result = result.filter(g => g.durum === selectedDurum);
+        result.sort((a, b) => {
+            const dir = sortDir === 'asc' ? 1 : -1;
+            if (sortField === 'tarih') return a.tarih.localeCompare(b.tarih) * dir;
+            return ((Number(a.tutar) || 0) - (Number(b.tutar) || 0)) * dir;
+        });
+        return result;
+    }, [initialGiderler, selectedHauptCategory, selectedGiderKalemi, dateFrom, dateTo, selectedDurum, sortField, sortDir]);
+
+    // ── Stats ────────────────────────────────────────────────────────────
+    const stats = useMemo(() => {
+        const all = filteredGiderler;
+        const approved = all.filter(g => g.durum === 'Onaylandı');
+        const draft = all.filter(g => g.durum === 'Taslak');
+        return {
+            toplam: all.reduce((s, g) => s + Number(g.tutar || 0), 0),
+            onaylandi: approved.reduce((s, g) => s + Number(g.tutar || 0), 0),
+            taslak: draft.reduce((s, g) => s + Number(g.tutar || 0), 0),
+            kayitSayisi: all.length,
+            taslakSayisi: draft.length,
+        };
+    }, [filteredGiderler]);
+
+    const visibleDraftIds = useMemo(
+        () => filteredGiderler.filter(g => g.durum === 'Taslak').map(g => g.id),
+        [filteredGiderler]
+    );
+    const allDraftsSelected = visibleDraftIds.length > 0 && visibleDraftIds.every(id => selectedGiderIds.includes(id));
+
+    // ── Handlers ─────────────────────────────────────────────────────────
     const handleNewExpense = () => {
         setEditingGider(null);
         setModalKey(Date.now().toString());
@@ -200,30 +176,44 @@ export function GiderlerClient({
     };
 
     const handleDuplicateExpense = (gider: GiderWithDetails) => {
-        const duplicatedData = { ...gider };
-        delete (duplicatedData as any).id;
-        delete (duplicatedData as any).created_at;
-        delete (duplicatedData as any).islem_yapan_kullanici_id;
-        delete (duplicatedData as any).profiller;
-        duplicatedData.tarih = new Date().toISOString().split('T')[0];
-        setEditingGider(duplicatedData as GiderWithDetails);
+        const dup = { ...gider };
+        delete (dup as any).id;
+        delete (dup as any).created_at;
+        delete (dup as any).islem_yapan_kullanici_id;
+        delete (dup as any).profiller;
+        dup.tarih = new Date().toISOString().split('T')[0];
+        setEditingGider(dup as GiderWithDetails);
         setModalKey(Date.now().toString());
         setIsModalOpen(true);
     };
 
     const handleDelete = async (gider: GiderWithDetails) => {
-        if (window.confirm(`${content.confirmDelete}\n\n${formatDate(gider.tarih, locale)} - ${gider.aciklama}: ${formatCurrency(gider.tutar, locale)}`)) {
-            const result = await deleteGiderAction(gider.id);
-            if (result.success) {
-                toast.success(content.deleteSuccess || 'Ausgabe gelöscht.');
-                router.refresh();
-            } else {
-                toast.error(`${content.deleteError || 'Fehler:'} ${result.error}`);
-            }
-        }
+        if (!window.confirm(
+            `Bu gideri silmek istediğinizden emin misiniz?\n\n${formatDate(gider.tarih, locale)} — ${gider.aciklama}: ${formatCurrency(gider.tutar, locale)}`
+        )) return;
+        const result = await deleteGiderAction(gider.id);
+        if (result.success) { toast.success('Gider silindi.'); router.refresh(); }
+        else toast.error(`Hata: ${result.error}`);
     };
 
-    // ✅ FILTER ZURÜCKSETZEN
+    const handleApprove = async (ids: string[]) => {
+        if (ids.length === 0) return;
+        const result = await approveGiderler(ids);
+        if (result.success) {
+            toast.success(`${result.count} gider onaylandı.`);
+            setSelectedGiderIds([]);
+            router.refresh();
+        } else toast.error(result.error || 'Onaylama sırasında hata oluştu.');
+    };
+
+    const handleToggleSelect = (id: string) =>
+        setSelectedGiderIds(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
+
+    const handleToggleAllDrafts = () =>
+        setSelectedGiderIds(allDraftsSelected ? [] : visibleDraftIds);
+
     const handleResetFilters = () => {
         setSelectedHauptCategory('');
         setSelectedGiderKalemi('');
@@ -232,295 +222,302 @@ export function GiderlerClient({
         setSelectedGiderIds([]);
     };
 
-    const handleApproveSelected = async () => {
-        if (selectedGiderIds.length === 0) {
-            toast.error(content.selectError);
-            return;
-        }
-
-        const confirmed = window.confirm(
-            content.confirmApprove.replace('%{count}', selectedGiderIds.length.toString())
-        );
-
-        if (!confirmed) return;
-
-        try {
-            const result = await approveGiderler(selectedGiderIds);
-
-            if (result.success) {
-                toast.success(content.approveSuccess.replace('%{count}', result.count?.toString() || '0'));
-                setSelectedGiderIds([]);
-                router.refresh();
-            } else {
-                toast.error(result.error || content.approveError);
-            }
-        } catch (error) {
-            console.error('Onaylama hatası:', error);
-            toast.error(content.approveError);
-        }
+    const toggleSort = (field: 'tarih' | 'tutar') => {
+        if (sortField === field) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+        else { setSortField(field); setSortDir('desc'); }
     };
 
-    const handleToggleSelectGider = (giderId: string) => {
-        setSelectedGiderIds(prev =>
-            prev.includes(giderId)
-                ? prev.filter(id => id !== giderId)
-                : [...prev, giderId]
-        );
-    };
+    const SortIcon = ({ field }: { field: 'tarih' | 'tutar' }) =>
+        sortField !== field ? null : sortDir === 'desc'
+            ? <FiChevronDown className="inline ml-0.5" size={12} />
+            : <FiChevronUp className="inline ml-0.5" size={12} />;
 
-    const handleSelectAllTaslak = () => {
-        const taslakGiderIds = filteredGiderler
-            .filter(g => g.durum === 'Taslak')
-            .map(g => g.id);
-        setSelectedGiderIds(taslakGiderIds);
-    };
+    const activeFilterCount = [selectedHauptCategory, selectedGiderKalemi, selectedDurum !== 'all' ? '1' : ''].filter(Boolean).length;
 
     return (
-        <div className="space-y-6">
-            <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <div className="space-y-5">
+
+            {/* ─── Başlık + Butonlar ───────────────────────────────────── */}
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <div>
-                    <h1 className="font-serif text-4xl font-bold text-primary">{content.title}</h1>
-                    <p className="text-text-main/80 mt-1">{content.description}</p>
+                    <h1 className="font-serif text-3xl font-bold text-primary">Gider Yönetimi</h1>
+                    <p className="text-sm text-slate-500 mt-0.5">Tüm işletme giderlerini takip edin ve raporlayın.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <Link
                         href={`/${locale}/admin/idari/finans/gider-sablonlari`}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-purple-500 text-white rounded-lg shadow-md hover:bg-purple-600 transition-all duration-200 font-bold text-sm"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                     >
-                        <FiEdit size={18} />
-                        {content.templateManage}
+                        Şablon Yönetimi
                     </Link>
                     <button
                         onClick={handleNewExpense}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
                     >
-                        <FiPlus size={18} />
-                        {content.newExpense}
+                        <FiPlus size={16} /> Yeni Gider Ekle
                     </button>
                 </div>
-            </header>
+            </div>
 
-            {/* ✅ EINFACHE FILTER-SEKTION */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <FiFilter className="text-gray-500" />
-                        <span className="text-sm font-bold text-primary">{content.filters}</span>
-                    </div>
+            {/* ─── Özet Kartlar ───────────────────────────────────────── */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Dönem Toplamı</p>
+                    <p className="mt-1 text-2xl font-bold text-slate-900">{fmtEur(stats.toplam, locale)}</p>
+                    <p className="mt-0.5 text-xs text-slate-400">{stats.kayitSayisi} kayıt</p>
+                </div>
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+                    <p className="text-xs font-medium uppercase tracking-wide text-emerald-600">Onaylandı</p>
+                    <p className="mt-1 text-2xl font-bold text-emerald-800">{fmtEur(stats.onaylandi, locale)}</p>
+                    <p className="mt-0.5 text-xs text-emerald-500">{stats.kayitSayisi - stats.taslakSayisi} kayıt</p>
+                </div>
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                    <p className="text-xs font-medium uppercase tracking-wide text-amber-600">Taslak / Bekliyor</p>
+                    <p className="mt-1 text-2xl font-bold text-amber-800">{fmtEur(stats.taslak, locale)}</p>
+                    <p className="mt-0.5 text-xs text-amber-500">{stats.taslakSayisi} kayıt onay bekliyor</p>
+                </div>
+                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Onay Oranı</p>
+                    <p className="mt-1 text-2xl font-bold text-slate-900">
+                        {stats.kayitSayisi > 0
+                            ? `%${Math.round(((stats.kayitSayisi - stats.taslakSayisi) / stats.kayitSayisi) * 100)}`
+                            : '—'}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-400">onaylanan kayıtlar</p>
+                </div>
+            </div>
+
+            {/* ─── Filtreler ──────────────────────────────────────────── */}
+            <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+                {/* Dönem hızlı seçim + filtre toggle */}
+                <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-b border-slate-100">
+                    {datePeriods.map(p => (
+                        <button
+                            key={p.value}
+                            onClick={() => setSelectedPeriod(p.value)}
+                            className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                                selectedPeriod === p.value
+                                    ? 'bg-primary text-white'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                        >
+                            {p.label}
+                        </button>
+                    ))}
                     <button
-                        onClick={handleResetFilters}
-                        className="text-sm text-gray-500 hover:text-gray-700 underline"
+                        onClick={() => setFiltersOpen(v => !v)}
+                        className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                            filtersOpen || activeFilterCount > 0
+                                ? 'bg-primary/10 text-primary'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
                     >
-                        {content.resetFilters}
+                        <FiSliders size={12} />
+                        Filtrele {activeFilterCount > 0 && <span className="rounded-full bg-primary text-white px-1.5 py-0.5 text-[10px]">{activeFilterCount}</span>}
+                        {filtersOpen ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />}
                     </button>
                 </div>
 
-                {/* Zeitraum Filter */}
-                <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-2">{content.period}</label>
-                    <div className="flex flex-wrap gap-2">
-                        {datePeriods.map(p => (
-                            <button
-                                key={p.value}
-                                onClick={() => setSelectedPeriod(p.value)}
-                                className={`px-3 py-1 text-sm font-medium rounded-full transition-colors ${
-                                    selectedPeriod === p.value 
-                                        ? 'bg-accent text-white' 
-                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                                }`}
-                            >
-                                {p.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Custom Datum */}
-                {selectedPeriod === 'custom' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="dateFrom" className="text-sm font-medium text-gray-700 block mb-1">{content.dateFrom}</label>
-                            <input
-                                type="date"
-                                id="dateFrom"
-                                value={dateFrom}
-                                onChange={(e) => setDateFrom(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md py-2 px-3 bg-white shadow-sm focus:ring-accent focus:border-accent"
-                            />
+                {/* Genişleyen filtre paneli */}
+                {filtersOpen && (
+                    <div className="px-4 py-4 space-y-3 border-b border-slate-100">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+                            {selectedPeriod === 'custom' && (
+                                <>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-600">Başlangıç tarihi</label>
+                                        <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-medium text-slate-600">Bitiş tarihi</label>
+                                        <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
+                                    </div>
+                                </>
+                            )}
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-slate-600">Ana kategori</label>
+                                <select value={selectedHauptCategory}
+                                    onChange={e => { setSelectedHauptCategory(e.target.value); setSelectedGiderKalemi(''); }}
+                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                                    <option value="">Tümü</option>
+                                    {hauptKategorien.map(cat => <option key={cat.id} value={cat.id}>{cat.ad}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-slate-600">Gider kalemi</label>
+                                <select value={selectedGiderKalemi} onChange={e => setSelectedGiderKalemi(e.target.value)}
+                                    disabled={filteredGiderKalemleri.length === 0}
+                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50">
+                                    <option value="">Tümü</option>
+                                    {filteredGiderKalemleri.map(k => <option key={k.id} value={k.id}>{k.ad}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-xs font-medium text-slate-600">Durum</label>
+                                <div className="flex gap-1">
+                                    {(['all', 'Taslak', 'Onaylandı'] as const).map(d => (
+                                        <button key={d} onClick={() => setSelectedDurum(d)}
+                                            className={`flex-1 rounded-lg border px-2 py-2 text-xs font-semibold transition-colors ${
+                                                selectedDurum === d
+                                                    ? d === 'Taslak' ? 'border-amber-400 bg-amber-50 text-amber-800'
+                                                        : d === 'Onaylandı' ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
+                                                        : 'border-primary bg-primary/10 text-primary'
+                                                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                                            }`}>
+                                            {d === 'all' ? 'Tümü' : d}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label htmlFor="dateTo" className="text-sm font-medium text-gray-700 block mb-1">{content.dateTo}</label>
-                            <input
-                                type="date"
-                                id="dateTo"
-                                value={dateTo}
-                                onChange={(e) => setDateTo(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md py-2 px-3 bg-white shadow-sm focus:ring-accent focus:border-accent"
-                            />
+                        <div className="flex items-center justify-between pt-1">
+                            <p className="text-xs text-slate-500">{filteredGiderler.length} / {initialGiderler.length} kayıt gösteriliyor</p>
+                            <button onClick={handleResetFilters} className="text-xs text-slate-500 hover:text-slate-700 underline">
+                                Filtreleri temizle
+                            </button>
                         </div>
                     </div>
                 )}
 
-                {/* Kategorie Filter */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label htmlFor="hauptCategoryFilter" className="text-sm font-medium text-gray-700 block mb-1">
-                            {content.filterByHauptCategory}:
-                        </label>
-                        <select
-                            id="hauptCategoryFilter"
-                            value={selectedHauptCategory}
-                            onChange={(e) => {
-                                setSelectedHauptCategory(e.target.value);
-                                setSelectedGiderKalemi(''); // Unterkategorie zurücksetzen
-                            }}
-                            className="w-full border border-gray-300 rounded-md py-2 px-3 bg-white shadow-sm focus:ring-accent focus:border-accent"
-                        >
-                            <option value="">{content.allCategories}</option>
-                            {hauptKategorien.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.ad}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label htmlFor="categoryFilter" className="text-sm font-medium text-gray-700 block mb-1">
-                            {content.filterByCategory}:
-                        </label>
-                        <select
-                            id="categoryFilter"
-                            value={selectedGiderKalemi}
-                            onChange={(e) => setSelectedGiderKalemi(e.target.value)}
-                            disabled={filteredGiderKalemleri.length === 0}
-                            className="w-full border border-gray-300 rounded-md py-2 px-3 bg-white shadow-sm focus:ring-accent focus:border-accent disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <option value="">{content.allSubCategories}</option>
-                            {filteredGiderKalemleri.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.ad}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label htmlFor="durumFilter" className="text-sm font-medium text-gray-700 block mb-1">
-                            {content.statusFilter}
-                        </label>
-                        <select
-                            id="durumFilter"
-                            value={selectedDurum}
-                            onChange={(e) => setSelectedDurum(e.target.value as 'all' | 'Taslak' | 'Onaylandı')}
-                            className="w-full border border-gray-300 rounded-md py-2 px-3 bg-white shadow-sm focus:ring-accent focus:border-accent"
-                        >
-                            <option value="all">{content.statusAll}</option>
-                            <option value="Taslak">{content.statusDraft}</option>
-                            <option value="Onaylandı">{content.statusApproved}</option>
-                        </select>
-                    </div>
-                </div>
-
-                {/* Ergebnis-Anzeige ve Onay Butonu */}
-                <div className="pt-2 border-t border-gray-200 flex justify-between items-center">
-                    <p className="text-sm text-gray-600">
-                        {content.showingExpenses
-                            ?.replace('%{filtered}', filteredGiderler.length.toString())
-                            .replace('%{total}', initialGiderler.length.toString())}
-                    </p>
-                    {selectedDurum === 'Taslak' && filteredGiderler.filter(g => g.durum === 'Taslak').length > 0 && (
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleSelectAllTaslak}
-                                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md"
-                            >
-                                {content.selectAllDrafts} ({filteredGiderler.filter(g => g.durum === 'Taslak').length})
-                            </button>
-                            {selectedGiderIds.length > 0 && (
-                                <button
-                                    onClick={handleApproveSelected}
-                                    className="px-4 py-1 text-sm bg-green-500 hover:bg-green-600 text-white rounded-md font-bold"
-                                >
-                                    {content.approveSelected} ({selectedGiderIds.length})
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* TABLO */}
-            <div className="overflow-x-auto bg-white rounded-lg shadow-md border border-gray-200">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            {selectedDurum === 'Taslak' && (
-                                <th className="px-3 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedGiderIds.length === filteredGiderler.filter(g => g.durum === 'Taslak').length && filteredGiderler.filter(g => g.durum === 'Taslak').length > 0}
-                                        onChange={handleSelectAllTaslak}
-                                        className="rounded"
-                                    />
-                                </th>
-                            )}
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.status}</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.date}</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.hauptCategory}</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.category}</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.descriptionCol}</th>
-                            <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">{content.amount}</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.frequency}</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.recordedBy}</th>
-                            <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">{content.actions}</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredGiderler.length > 0 ? (
-                            filteredGiderler.map((gider) => (
-                                <tr key={gider.id} className={`hover:bg-gray-50/50 transition-colors duration-150 ${gider.durum === 'Taslak' ? 'bg-yellow-50' : ''}`}>
-                                    {selectedDurum === 'Taslak' && (
-                                        <td className="px-3 py-4 text-center">
-                                            {gider.durum === 'Taslak' && (
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedGiderIds.includes(gider.id)}
-                                                    onChange={() => handleToggleSelectGider(gider.id)}
-                                                    className="rounded"
-                                                />
-                                            )}
-                                        </td>
+                {/* ─── Tablo ──────────────────────────────────────────── */}
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                        <thead>
+                            <tr className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                <th className="w-8 px-3 py-2.5">
+                                    {visibleDraftIds.length > 0 && (
+                                        <input type="checkbox" checked={allDraftsSelected} onChange={handleToggleAllDrafts}
+                                            className="rounded border-slate-300" title="Tüm taslakları seç" />
                                     )}
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                                            gider.durum === 'Taslak' 
-                                                ? 'bg-yellow-100 text-yellow-800' 
-                                                : 'bg-green-100 text-green-800'
-                                        }`}>
-                                            {gider.durum}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatDate(gider.tarih, locale)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{getCategoryName(gider)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{getItemName(gider)}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={gider.aciklama || ''}>{gider.aciklama}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold text-right">{formatCurrency(gider.tutar, locale)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{gider.odeme_sikligi || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{gider.profiller?.tam_ad || 'System'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <button onClick={() => handleEditExpense(gider)} className="text-indigo-600 hover:text-indigo-900" title={content.edit}><FiEdit /></button>
-                                        <button onClick={() => handleDuplicateExpense(gider)} className="text-green-600 hover:text-green-900" title={content.duplicate}><FiCopy /></button>
-                                        <button onClick={() => handleDelete(gider)} className="text-red-600 hover:text-red-900" title={content.delete}><FiTrash2 /></button>
+                                </th>
+                                <th className="px-3 py-2.5 text-left">Durum</th>
+                                <th className="px-3 py-2.5 text-left cursor-pointer select-none" onClick={() => toggleSort('tarih')}>
+                                    Tarih <SortIcon field="tarih" />
+                                </th>
+                                <th className="px-3 py-2.5 text-left">Kategori / Kalem</th>
+                                <th className="px-3 py-2.5 text-left">Açıklama</th>
+                                <th className="px-3 py-2.5 text-right cursor-pointer select-none" onClick={() => toggleSort('tutar')}>
+                                    Tutar <SortIcon field="tutar" />
+                                </th>
+                                <th className="px-3 py-2.5 text-left">Sıklık</th>
+                                <th className="px-3 py-2.5 text-right">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {filteredGiderler.length === 0 ? (
+                                <tr>
+                                    <td colSpan={8} className="px-4 py-12 text-center">
+                                        <FiAlertCircle className="mx-auto mb-2 text-slate-300" size={32} />
+                                        <p className="text-sm text-slate-500">
+                                            {selectedHauptCategory || selectedGiderKalemi || selectedDurum !== 'all'
+                                                ? 'Bu filtrelere uyan kayıt bulunamadı.'
+                                                : 'Henüz gider kaydı yok. Yeni Gider Ekle butonuyla başlayın.'}
+                                        </p>
                                     </td>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={selectedDurum === 'Taslak' ? 10 : 9} className="px-6 py-10 text-center text-gray-500">
-                                    {selectedGiderKalemi || selectedHauptCategory || dateFrom || dateTo ? content.noExpensesFoundFilter : content.noExpensesYet}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            ) : (
+                                filteredGiderler.map(gider => {
+                                    const isDraft = gider.durum === 'Taslak';
+                                    const isSelected = selectedGiderIds.includes(gider.id);
+                                    return (
+                                        <tr key={gider.id}
+                                            className={`transition-colors hover:bg-slate-50/70 ${isDraft ? 'bg-amber-50/40' : ''} ${isSelected ? 'ring-1 ring-inset ring-primary/30 bg-primary/5' : ''}`}>
+                                            <td className="px-3 py-2.5 text-center">
+                                                {isDraft && (
+                                                    <input type="checkbox" checked={isSelected}
+                                                        onChange={() => handleToggleSelect(gider.id)}
+                                                        className="rounded border-slate-300" />
+                                                )}
+                                            </td>
+                                            <td className="px-3 py-2.5">
+                                                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                                                    isDraft
+                                                        ? 'bg-amber-100 text-amber-800'
+                                                        : 'bg-emerald-100 text-emerald-800'
+                                                }`}>
+                                                    {isDraft ? <FiAlertCircle size={10} /> : <FiCheck size={10} />}
+                                                    {gider.durum}
+                                                </span>
+                                            </td>
+                                            <td className="px-3 py-2.5 whitespace-nowrap text-slate-700">
+                                                {formatDate(gider.tarih, locale)}
+                                            </td>
+                                            <td className="px-3 py-2.5">
+                                                <p className="font-medium text-slate-900 leading-tight">{getCategoryName(gider)}</p>
+                                                <p className="text-xs text-slate-400 leading-tight">{getItemName(gider)}</p>
+                                            </td>
+                                            <td className="px-3 py-2.5 max-w-[220px]">
+                                                <p className="truncate text-slate-700" title={gider.aciklama || ''}>
+                                                    {gider.aciklama || '—'}
+                                                </p>
+                                                {gider.profiller?.tam_ad && (
+                                                    <p className="text-[11px] text-slate-400">{gider.profiller.tam_ad}</p>
+                                                )}
+                                            </td>
+                                            <td className="px-3 py-2.5 text-right font-semibold whitespace-nowrap text-slate-900">
+                                                {fmtEur(Number(gider.tutar || 0), locale)}
+                                            </td>
+                                            <td className="px-3 py-2.5 whitespace-nowrap text-xs text-slate-500">
+                                                {gider.odeme_sikligi || '—'}
+                                            </td>
+                                            <td className="px-3 py-2.5 text-right">
+                                                <div className="flex items-center justify-end gap-1.5">
+                                                    {isDraft && (
+                                                        <button onClick={() => handleApprove([gider.id])}
+                                                            title="Onayla"
+                                                            className="rounded border border-emerald-300 bg-emerald-50 p-1.5 text-emerald-700 hover:bg-emerald-100">
+                                                            <FiCheckCircle size={14} />
+                                                        </button>
+                                                    )}
+                                                    <button onClick={() => handleEditExpense(gider)} title="Düzenle"
+                                                        className="rounded border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-100">
+                                                        <FiEdit size={14} />
+                                                    </button>
+                                                    <button onClick={() => handleDuplicateExpense(gider)} title="Kopyala"
+                                                        className="rounded border border-slate-200 bg-white p-1.5 text-slate-600 hover:bg-slate-100">
+                                                        <FiCopy size={14} />
+                                                    </button>
+                                                    <button onClick={() => handleDelete(gider)} title="Sil"
+                                                        className="rounded border border-rose-200 bg-white p-1.5 text-rose-600 hover:bg-rose-50">
+                                                        <FiTrash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Tablo alt özet */}
+                {filteredGiderler.length > 0 && (
+                    <div className="flex items-center justify-between border-t border-slate-100 px-4 py-2.5 text-xs text-slate-500">
+                        <span>{filteredGiderler.length} kayıt</span>
+                        <span className="font-semibold text-slate-700">
+                            Görünen toplam: {fmtEur(stats.toplam, locale)}
+                        </span>
+                    </div>
+                )}
             </div>
+
+            {/* ─── Seçili taslaklar için sabit onay çubuğu ────────────── */}
+            {selectedGiderIds.length > 0 && (
+                <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-2xl">
+                    <span className="text-sm font-semibold text-slate-700">{selectedGiderIds.length} taslak seçildi</span>
+                    <button onClick={() => handleApprove(selectedGiderIds)}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                        <FiCheckCircle size={14} /> Tümünü Onayla
+                    </button>
+                    <button onClick={() => setSelectedGiderIds([])}
+                        className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-slate-100">
+                        <FiX size={14} />
+                    </button>
+                </div>
+            )}
 
             <GiderFormModal
                 key={modalKey}

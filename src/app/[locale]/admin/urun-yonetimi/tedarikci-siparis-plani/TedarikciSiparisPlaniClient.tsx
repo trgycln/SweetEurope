@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { FiFile, FiFileText, FiMail, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2 } from 'react-icons/fi';
+import { FiFile, FiFileText, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import {
   deleteSupplierOrderPlanSnapshotAction,
@@ -140,19 +140,40 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
 
   const quickProducts = useMemo(() => filteredProducts.slice(0, 12), [filteredProducts]);
 
-  const recentProducts = useMemo(() => {
-    const seen = new Set<string>();
-    const result: ProductRow[] = [];
-    for (let i = items.length - 1; i >= 0 && result.length < 8; i -= 1) {
-      const productId = items[i].productId;
-      if (seen.has(productId)) continue;
-      const product = productsById.get(productId);
-      if (!product) continue;
-      seen.add(productId);
-      result.push(product);
+  const frequentProducts = useMemo(() => {
+    // Score products from confirmed (teslim_alindi) + sent (gonderildi) records
+    // filtered to the current supplier. Score = appearances * 10 + total units ordered.
+    const scoreMap = new Map<string, { freq: number; units: number }>();
+
+    for (const record of planHistory) {
+      const status = record.status || 'sablon';
+      if (status !== 'teslim_alindi' && status !== 'gonderildi') continue;
+      if (selectedSupplierId && record.supplierId !== selectedSupplierId) continue;
+      for (const item of record.items) {
+        const existing = scoreMap.get(item.productId) ?? { freq: 0, units: 0 };
+        const product = productsById.get(item.productId);
+        const multiplier = product ? unitMultiplier(product, item.unitType) : 1;
+        scoreMap.set(item.productId, {
+          freq: existing.freq + 1,
+          units: existing.units + item.quantity * multiplier,
+        });
+      }
     }
-    return result;
-  }, [items, productsById]);
+
+    // Also give a small boost for products in the current draft (most-recently touched)
+    const currentIds = new Set(items.map((i) => i.productId));
+
+    return Array.from(scoreMap.entries())
+      .map(([productId, { freq, units }]) => ({
+        product: productsById.get(productId),
+        score: freq * 10 + Math.log1p(units) + (currentIds.has(productId) ? 0 : 0),
+        freq,
+      }))
+      .filter((entry): entry is { product: ProductRow; score: number; freq: number } => Boolean(entry.product))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 12)
+      .map((entry) => ({ product: entry.product, freq: entry.freq }));
+  }, [planHistory, selectedSupplierId, productsById, items]);
 
   const selectedProduct = selectedProductId ? productsById.get(selectedProductId) || null : null;
 
@@ -846,31 +867,6 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     doc.save(`tedarikci-talep-listesi-${sp(selectedSupplierName).replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
-  const sendByEmail = () => {
-    const subject = `Tedarikçi Sipariş Planı - ${selectedSupplierName}`;
-    const lines = enrichedItems.map(
-      (row, i) =>
-        `${i + 1}) ${row.product.stok_kodu || '-'} | ${getProductName(row.product.ad, locale)} | ${row.quantity} ${row.unitType} | ${formatCurrency(row.lineTotal)}`
-    );
-
-    const body = [
-      `Tedarikçi: ${selectedSupplierName}`,
-      '',
-      'Sipariş Kalemleri:',
-      ...lines,
-      '',
-      `Toplam: ${formatCurrency(totals.grandTotal)}`,
-      '',
-      'Not: Bu liste planlama amaçlıdır, stok hareketi oluşturmaz.',
-    ].join('\n');
-
-    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    if (editingRecordId) {
-      updateRecordStatus(editingRecordId, 'gonderildi');
-    }
-  };
-
   return (
     <div className="space-y-5">
       {/* ─── Üst çubuk: tedarikçi + sipariş adı + kaydet ─────────────── */}
@@ -1028,12 +1024,15 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             </ul>
           )}
 
-          {/* Son eklenenler */}
-          {recentProducts.length > 0 && (
+          {/* Sık sipariş edilenler */}
+          {frequentProducts.length > 0 && (
             <div>
-              <p className="mb-1.5 text-xs font-medium text-slate-500">Son eklenenler</p>
+              <p className="mb-1.5 text-xs font-medium text-slate-500">
+                Sık sipariş edilenler
+                <span className="ml-1.5 text-[10px] text-slate-400">(onaylanan geçmiş siparişlere göre)</span>
+              </p>
               <div className="flex flex-wrap gap-1.5">
-                {recentProducts.map((product) => (
+                {frequentProducts.map(({ product, freq }) => (
                   <button
                     key={product.id}
                     type="button"
@@ -1042,6 +1041,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                   >
                     <FiPlus className="opacity-50" />
                     {product.stok_kodu ? `${product.stok_kodu} · ` : ''}{getProductName(product.ad, locale)}
+                    <span className="ml-0.5 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">{freq}×</span>
                   </button>
                 ))}
               </div>
@@ -1190,14 +1190,6 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
               className="inline-flex items-center gap-2 rounded-lg border border-emerald-400 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FiSend /> Tedarikçiye Gönder (Fiyatsız PDF)
-            </button>
-            <button
-              type="button"
-              onClick={sendByEmail}
-              disabled={enrichedItems.length === 0}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <FiMail /> E-posta Taslağı
             </button>
             <button
               type="button"

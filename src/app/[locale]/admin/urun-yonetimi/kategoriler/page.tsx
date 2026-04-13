@@ -1,70 +1,53 @@
-// src/app/[locale]/admin/urun-yonetimi/kategoriler/page.tsx
-// KORRIGIERTE VERSION (await cookies + await createClient)
+﻿// src/app/[locale]/admin/urun-yonetimi/kategoriler/page.tsx
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { KategoriYonetimIstemcisi } from './kategori-yonetim-istemcisi';
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-import { Locale } from '@/i18n-config'; // Importiere Locale
-import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { cookies } from 'next/headers';
+import { Locale } from '@/i18n-config';
+import { unstable_noStore as noStore } from 'next/cache';
 
-export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
+export const dynamic = 'force-dynamic';
 
-// Props-Typ für die Seite
 interface KategoriYonetimPageProps {
-    params: { locale: Locale };
-    searchParams?: { [key: string]: string | string[] | undefined };
+  params: { locale: Locale };
 }
 
 export default async function KategoriYonetimPage({ params }: KategoriYonetimPageProps) {
-    noStore(); // Caching deaktivieren
-    const locale = params.locale; // Locale holen
+  noStore();
+  const locale = params.locale;
 
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
 
-    // Benutzerprüfung
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
-    if (!user) {
-        // Zur sprachspezifischen Login-Seite weiterleiten
-        return redirect(`/${locale}/login?next=/admin/urun-yonetimi/kategoriler`);
-    }
-    
-    // Optional: Rollenprüfung (z.B. nur Admins)
-    // const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-    // if (profile?.rol !== 'Yönetici') {
-    //     return redirect(`/${locale}/admin/dashboard`); // Oder Fehlerseite
-    // }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return redirect('/' + locale + '/login?next=/admin/urun-yonetimi/kategoriler');
+  }
 
-    // Alle Kategorien abrufen, nach lokalisiertem Namen sortieren
-    const { data: kategoriler, error } = await supabase
-        .from('kategoriler')
-        .select('*')
-        // Sortieren nach dem Namen in der aktuellen Sprache (oder einem Fallback)
-        .order(`ad->>${locale}`, { ascending: true, nullsFirst: false })
-        .order(`ad->>de`, { ascending: true, nullsFirst: false }); // Fallback-Sortierung
+  const [{ data: kategoriler, error: katError }, { data: sablonlar }] = await Promise.all([
+    supabase.from('kategoriler').select('*').order('created_at', { ascending: true }),
+    supabase.from('kategori_ozellik_sablonlari').select('*').order('sira', { ascending: true }),
+  ]);
 
-    if (error) {
-        console.error("Fehler beim Laden der Kategorien:", error);
-        return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Kategorien konnten nicht geladen werden. Details: {error.message}</div>;
-    }
+  if (katError) {
+    return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Kategoriler yuklenemedi: {katError.message}</div>;
+  }
 
-    return (
-        <div className="space-y-8">
-            <header>
-                <h1 className="font-serif text-4xl font-bold text-primary">Kategorieverwaltung</h1>
-                <p className="text-text-main/80 mt-1">
-                    Erstellen, bearbeiten und verwalten Sie die Hierarchie Ihrer Produktkategorien.
-                </p>
-            </header>
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="font-serif text-4xl font-bold text-primary">Kategori Yonetimi</h1>
+        <p className="text-text-main/80 mt-1">
+          Kategori hiyerarsisini ve her kategorinin urun ozellik sablonlarini tek yerden yonetin.
+        </p>
+      </header>
 
-            {/* Client-Komponente für die interaktive Verwaltung */}
-            <KategoriYonetimIstemcisi
-                serverKategoriler={kategoriler || []}
-                locale={locale} // Locale übergeben
-            />
-        </div>
-    );
+      <KategoriYonetimIstemcisi
+        serverKategoriler={kategoriler || []}
+        serverSablonlar={sablonlar || []}
+        locale={locale}
+      />
+    </div>
+  );
 }
