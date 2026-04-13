@@ -222,7 +222,7 @@ export default async function PublicUrunlerPage({
     
     let urunlerQuery = supabase
         .from('urunler')
-        .select(`id, ad, slug, ana_resim_url, galeri_resim_urls, kategori_id, ortalama_puan, degerlendirme_sayisi, teknik_ozellikler, aciklamalar`, { count: 'exact' })
+        .select(`id, ad, slug, ana_resim_url, galeri_resim_urls, kategori_id, ortalama_puan, degerlendirme_sayisi, teknik_ozellikler, aciklamalar, koli_ici_kutu_adet, birim_agirlik_kg`, { count: 'exact' })
         .eq('aktif', true); // Only show active products
 
     if (filtrelenecekKategoriIdleri.length > 0) {

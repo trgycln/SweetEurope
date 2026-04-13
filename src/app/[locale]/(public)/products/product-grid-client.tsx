@@ -4,8 +4,9 @@ import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
-import { FiSearch, FiPackage, FiBox, FiGrid, FiList, FiChevronRight } from 'react-icons/fi';
-import { getBadgeText, piecesSuffix } from '@/lib/labels';
+import { FiSearch, FiPackage, FiGrid, FiList, FiChevronRight } from 'react-icons/fi';
+import { LuPackage, LuPackage2, LuWeight, LuDroplets } from 'react-icons/lu';
+import { getBadgeText } from '@/lib/labels';
 
 interface ProductGridClientProps {
     urunler: Urun[];
@@ -35,27 +36,79 @@ const BADGE_DEFS = [
     { key: 'katkisiz',    short: 'Pure',   bg: 'bg-teal-100 text-teal-800 border-teal-200' },
 ] as const;
 
-function PackagingInfo({ tekniks, locale }: { tekniks: Record<string, unknown>; locale: string }) {
-    const unitsPerBox = Number(tekniks.kutu_ici_adet || tekniks.dilim_adedi || tekniks.porsiyon_sayisi || 0);
-    const boxesPerCase = Number(tekniks.koli_ici_kutu_adet || tekniks.koli_ici_kutu || 0);
-    const weightRaw = tekniks.net_agirlik_gram || tekniks.net_agirlik_gr || tekniks.net_agirlik || tekniks.gramaj;
-    const numericWeight = typeof weightRaw === 'number' ? weightRaw : parseFloat(String(weightRaw || ''));
-    const weight = weightRaw && Number.isFinite(numericWeight)
-        ? (numericWeight >= 1000 ? `${(numericWeight / 1000).toFixed(1)} kg` : `${numericWeight} g`)
+function PackagingInfo({ urun, locale }: { urun: Urun; locale: string }) {
+    const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
+
+    // 1. Portion/slice count per individual unit (e.g. 10 slices in 1 cheesecake)
+    const dilimAdet = Number(tekniks.dilim_adedi || tekniks.porsiyon_sayisi || 0);
+
+    // 2. Units per box (e.g. 1 cheesecake per box, or 6 bottles per box)
+    const kutuIciAdet = Number(tekniks.kutu_ici_adet || 0);
+
+    // 3. Boxes per case: prefer reliable DB column, fall back to teknik_ozellikler
+    const koliIciKutu = Number(urun.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu ?? 0);
+
+    // 4. Weight: prefer direct DB column birim_agirlik_kg, fall back to teknik fields
+    const birimKg = Number(urun.birim_agirlik_kg ?? 0);
+    const weightRawG = tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj;
+    const numericG = typeof weightRawG === 'number' ? weightRawG : parseFloat(String(weightRawG || ''));
+    const weightDisplay = birimKg > 0
+        ? (birimKg < 1 ? `${Math.round(birimKg * 1000)} g` : `${birimKg % 1 === 0 ? birimKg : birimKg.toFixed(1)} kg`)
+        : (weightRawG && Number.isFinite(numericG))
+        ? (numericG >= 1000 ? `${(numericG / 1000).toFixed(1)} kg` : `${Math.round(numericG)} g`)
         : null;
 
-    const items: string[] = [];
-    if (unitsPerBox > 0) items.push(`${unitsPerBox} ${piecesSuffix(locale as any)}`);
-    if (weight) items.push(weight);
-    if (boxesPerCase > 0) items.push(`${boxesPerCase} ${locale === 'de' ? 'Kartons/Kiste' : locale === 'tr' ? 'kutu/koli' : 'boxes/case'}`);
+    // 5. Volume (syrups, drinks)
+    const volumeNum = Number(tekniks.hacim_ml ?? tekniks.hacim ?? 0);
+    const volumeDisplay = volumeNum > 0
+        ? (volumeNum >= 1000 ? `${volumeNum % 1000 === 0 ? volumeNum / 1000 : (volumeNum / 1000).toFixed(1)} L` : `${volumeNum} ml`)
+        : null;
 
-    if (items.length === 0) return null;
+    type Chip = { icon: React.ReactNode; label: string; cls: string };
+    const chips: Chip[] = [];
+
+    // Kutu chip: show slices/units per box as a combined label, e.g. "10 dilim/kutu" or "6 Stk./Ktn."
+    // If dilimAdet > 0 it means each box holds dilimAdet slices.
+    // kutuIciAdet is how many whole units are in a box (usually 1 for cakes).
+    const kutuLabel = dilimAdet > 0
+        ? (locale === 'de' ? `${dilimAdet} Sch./Ktn.` : `${dilimAdet} dilim/kutu`)
+        : kutuIciAdet > 1
+        ? (locale === 'de' ? `${kutuIciAdet} Stk./Ktn.` : `${kutuIciAdet} adet/kutu`)
+        : null;
+    if (kutuLabel) chips.push({
+        icon: <LuPackage size={10} />,
+        label: kutuLabel,
+        cls: 'bg-sky-50 text-sky-700 border-sky-200',
+    });
+
+    // Koli içi kutu — violet: bulk/case ordering
+    if (koliIciKutu > 0) chips.push({
+        icon: <LuPackage2 size={10} />,
+        label: `${koliIciKutu} ${locale === 'de' ? 'Ktn./Kiste' : 'kutu/koli'}`,
+        cls: 'bg-violet-50 text-violet-700 border-violet-200',
+    });
+
+    // Ağırlık — emerald
+    if (weightDisplay) chips.push({
+        icon: <LuWeight size={10} />,
+        label: weightDisplay,
+        cls: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    });
+
+    // Hacim — cyan (only if no weight info)
+    if (volumeDisplay && !weightDisplay) chips.push({
+        icon: <LuDroplets size={10} />,
+        label: volumeDisplay,
+        cls: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+    });
+
+    if (chips.length === 0) return null;
     return (
         <div className="flex flex-wrap gap-1.5 mt-2">
-            {items.map((item, i) => (
-                <span key={i} className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
-                    <FiBox size={9} />
-                    {item}
+            {chips.map((chip, i) => (
+                <span key={i} className={`inline-flex items-center gap-1 text-[10px] font-semibold border px-2 py-0.5 rounded-full ${chip.cls}`}>
+                    {chip.icon}
+                    {chip.label}
                 </span>
             ))}
         </div>
@@ -162,7 +215,7 @@ function CatalogCard({ urun, locale, kategoriAdlariMap }: { urun: Urun; locale: 
                 <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 group-hover:text-slate-600">
                     {name}
                 </h3>
-                <PackagingInfo tekniks={tekniks} locale={locale} />
+                <PackagingInfo urun={urun} locale={locale} />
                 <B2BBadges tekniks={tekniks} locale={locale} />
                 <div className="mt-auto pt-2.5 flex items-center justify-between">
                     <span className="text-[11px] text-slate-400">
@@ -182,13 +235,29 @@ function CatalogRow({ urun, locale, kategoriAdlariMap }: { urun: Urun; locale: s
     const name = urun.ad?.[locale] || urun.ad?.['de'] || urun.ad?.['tr'] || '';
     const stokKodu = (urun as any).stok_kodu as string | null;
     const kategoriAdi = urun.kategori_id ? kategoriAdlariMap.get(urun.kategori_id) : '';
-    const unitsPerBox = Number(tekniks.kutu_ici_adet || tekniks.dilim_adedi || 0);
-    const boxesPerCase = Number(tekniks.koli_ici_kutu_adet || tekniks.koli_ici_kutu || 0);
-    const weightRaw = tekniks.net_agirlik_gram || tekniks.net_agirlik_gr || tekniks.net_agirlik || tekniks.gramaj;
+    // Portion/slice count per unit (from teknik_ozellikler JSON)
+    const dilimAdet = Number(tekniks.dilim_adedi || tekniks.porsiyon_sayisi || 0);
+    // Units per box (only in teknik_ozellikler JSON)
+    const kutuIciAdet = Number(tekniks.kutu_ici_adet || 0);
+    // Boxes per case — direct DB column preferred
+    const koliIciKutu = Number(urun.koli_ici_kutu_adet || tekniks.koli_ici_kutu_adet || tekniks.koli_ici_kutu || 0);
+    // Weight — direct DB column preferred (birim_agirlik_kg in kg)
+    const birimKg = Number(urun.birim_agirlik_kg || 0);
+    const weightRaw = tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj;
     const numericWeight = typeof weightRaw === 'number' ? weightRaw : parseFloat(String(weightRaw || ''));
-    const weight = weightRaw && Number.isFinite(numericWeight)
-        ? (numericWeight >= 1000 ? `${(numericWeight / 1000).toFixed(1)} kg` : `${numericWeight} g`)
-        : '—';
+    const weight = birimKg > 0
+        ? (birimKg >= 1 ? `${birimKg.toFixed(birimKg === Math.floor(birimKg) ? 0 : 1)} kg` : `${Math.round(birimKg * 1000)} g`)
+        : (weightRaw && Number.isFinite(numericWeight))
+            ? (numericWeight >= 1000 ? `${(numericWeight / 1000).toFixed(1)} kg` : `${numericWeight} g`)
+            : '\u2014';
+    const unitLabel = dilimAdet > 0
+        ? `${dilimAdet} ${locale === 'de' ? 'Sch.' : 'dilim'}`
+        : kutuIciAdet > 0
+            ? `${kutuIciAdet} ${locale === 'de' ? 'Stk.' : 'adet'}`
+            : '\u2014';
+    const koliLabel = koliIciKutu > 0
+        ? `${koliIciKutu} ${locale === 'de' ? 'Kiste' : 'koli'}`
+        : '\u2014';
     const activeBadges = BADGE_DEFS.filter(b => {
         const v = tekniks[b.key];
         return v === true || v === 'true' || v === 'evet' || v === 1;
@@ -214,11 +283,11 @@ function CatalogRow({ urun, locale, kategoriAdlariMap }: { urun: Urun; locale: s
             {/* Category */}
             <span className="text-xs text-slate-500 truncate hidden md:block">{kategoriAdi}</span>
 
-            {/* Units per box */}
-            <span className="text-xs text-slate-700 text-center font-medium">{unitsPerBox > 0 ? `${unitsPerBox} ${piecesSuffix(locale as any)}` : '—'}</span>
+            {/* Units (dilim or kutu içi adet) */}
+            <span className="text-xs text-slate-700 text-center font-medium">{unitLabel}</span>
 
             {/* Boxes per case */}
-            <span className="text-xs text-slate-700 text-center font-medium">{boxesPerCase > 0 ? `${boxesPerCase}` : '—'}</span>
+            <span className="text-xs text-slate-700 text-center font-medium">{koliLabel}</span>
 
             {/* Weight */}
             <span className="text-xs text-slate-700 text-center">{weight}</span>

@@ -1,12 +1,9 @@
 import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { getDictionary } from '@/dictionaries';
 import { notFound } from 'next/navigation';
 import { cookies } from 'next/headers';
-// Korrekte Komponente importieren
 import { UrunDetayGorunumu } from '@/components/urun-detay-gorunumu';
-import { UrunReviewSection } from '@/components/UrunReviewSection';
-import { Locale } from '@/lib/utils'; // Locale aus utils holen
+import { Locale } from '@/lib/utils';
 import { Tables } from '@/lib/supabase/database.types';
 import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 import type { Metadata } from 'next';
@@ -26,12 +23,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
     const { locale, slug } = await params;
-    const dictionary = await getDictionary(locale as any);
 
     const [{ data: urun }, { data: allCategories }] = await Promise.all([
         supabase
             .from('urunler')
-            .select('urun_adi, aciklama, gorsel_url, kategoriler (id, slug, ust_kategori_id)')
+            .select('ad, aciklamalar, ana_resim_url, kategoriler (id, slug, ust_kategori_id)')
             .eq('slug', slug)
             .eq('aktif', true)
             .single(),
@@ -44,15 +40,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
     const productKategoriId = (urun as any)?.kategoriler?.id as string | undefined;
 
     if (!urun || hiddenKategoriIds.has(productKategoriId || '')) {
-        return {
-            title: 'Product Not Found | Elysion Sweets',
-        };
+        return { title: 'Product Not Found | Sweet Heaven' };
     }
 
-    const title = dictionary.seo?.productDetail?.titleTemplate?.replace('%{product}', urun.urun_adi) || `${urun.urun_adi} | Elysion Sweets`;
-    const description = dictionary.seo?.productDetail?.descriptionTemplate
-        ?.replace('%{product}', urun.urun_adi)
-        ?.replace('%{description}', urun.aciklama || '') || urun.aciklama || '';
+    const adJson = (urun as any).ad as Record<string, string> | null;
+    const urunAdi = adJson?.[locale] ?? adJson?.['de'] ?? adJson?.['tr'] ?? '';
+    const aciklamaJson = (urun as any).aciklamalar as Record<string, string> | null;
+    const aciklama = aciklamaJson?.[locale] ?? aciklamaJson?.['de'] ?? aciklamaJson?.['tr'] ?? '';
+    const title = `${urunAdi} | Sweet Heaven`;
+    const description = aciklama.slice(0, 160);
 
     return {
         title,
@@ -60,8 +56,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
         openGraph: {
             title,
             description,
-            images: urun.gorsel_url ? [urun.gorsel_url] : [],
-            locale: locale,
+            images: (urun as any).ana_resim_url ? [(urun as any).ana_resim_url] : [],
+            locale,
             type: 'website',
         },
     };
@@ -72,9 +68,8 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
     const supabase = await createSupabaseServerClient(cookieStore);
     const { locale, slug } = await params;
 
-    // Dictionary und Produkt parallel abrufen
-    const [dictionary, { data: urunData }, { data: allCategories }] = await Promise.all([
-        getDictionary(locale as any),
+    // Produkt parallel abrufen
+    const [{ data: urunData }, { data: allCategories }] = await Promise.all([
         supabase
             .from('urunler')
             // Kategorie-Daten (ust_kategori_id dahil)
@@ -94,17 +89,8 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
         return notFound();
     }
 
-    // Calculate actual review statistics from urun_degerlendirmeleri table
-    const { data: reviewStats } = await supabase
-        .from('urun_degerlendirmeleri')
-        .select('puan')
-        .eq('urun_id', urun.id)
-        .eq('onaylandi', true);
-
-    const degerlendirmeSayisi = reviewStats?.length || 0;
-    const ortalamaPuan = degerlendirmeSayisi > 0
-        ? reviewStats!.reduce((sum, r) => sum + r.puan, 0) / degerlendirmeSayisi
-        : null;
+    // Calculate actual review statistics from urun_degerlendirmeleri table - kept for potential future use
+    // Review section removed for B2B focus
 
     const kategoriId = urun.kategoriler?.id;
     const parentId = (urun.kategoriler as any)?.ust_kategori_id as string | undefined;
@@ -131,24 +117,11 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
         }
     }
 
-    // KORREKTUR: 'price'-Prop wird nicht mehr übergeben
     return (
-        <>
-            <UrunDetayGorunumu
-                urun={urun as any}
-                ozellikSablonu={ozellikSablonu as any}
-                locale={locale}
-            />
-            
-            {/* Review Section */}
-            <UrunReviewSection
-                urunId={urun.id}
-                ortalamaPuan={ortalamaPuan}
-                degerlendirmeSayisi={degerlendirmeSayisi}
-                mode="public"
-                dictionary={dictionary}
-                locale={locale}
-            />
-        </>
+        <UrunDetayGorunumu
+            urun={urun as any}
+            ozellikSablonu={ozellikSablonu as any}
+            locale={locale}
+        />
     );
 }

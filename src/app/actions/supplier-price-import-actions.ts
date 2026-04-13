@@ -476,15 +476,23 @@ function mergePackagingIntoSpecs(existing: Record<string, unknown> | null, row: 
   const packaging = normalizePackaging(row);
   const next = existing && typeof existing === 'object' ? { ...existing } : {};
 
-  next.kutu_ici_adet = packaging.unitsPerBox;
-  next.koli_ici_kutu_adet = packaging.boxesPerCase;
-  next.palet_ici_koli_adet = packaging.casesPerPallet;
-  next.koli_ici_adet = packaging.unitsPerCase;
-  next.palet_ici_kutu_adet = packaging.boxesPerPallet;
-  next.palet_ici_adet = packaging.unitsPerPallet;
-  next.dilim_sayisi = packaging.unitsPerBox;
-  next.porsiyon_sayisi = packaging.unitsPerBox;
-  next.slice_count = packaging.unitsPerBox;
+  // Only overwrite when the value was explicitly provided (non-null) in the Excel.
+  // Empty cells parse to null — never let null default to 1 and overwrite real data.
+  if (row.unitsPerBox != null) {
+    next.kutu_ici_adet = packaging.unitsPerBox;
+    next.dilim_sayisi = packaging.unitsPerBox;
+    next.porsiyon_sayisi = packaging.unitsPerBox;
+    next.slice_count = packaging.unitsPerBox;
+  }
+  if (row.boxesPerCase != null) {
+    next.koli_ici_kutu_adet = packaging.boxesPerCase;
+    next.koli_ici_adet = packaging.unitsPerCase;
+  }
+  if (row.casesPerPallet != null) {
+    next.palet_ici_koli_adet = packaging.casesPerPallet;
+    next.palet_ici_kutu_adet = packaging.boxesPerPallet;
+    next.palet_ici_adet = packaging.unitsPerPallet;
+  }
   next.alis_fiyat_seviyesi = row.purchaseLevel;
 
   return next;
@@ -1018,13 +1026,14 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
 
       const mergedSpecs = mergePackagingIntoSpecs(matchedProduct?.teknik_ozellikler || null, row);
       matchedCount += 1;
+      const packaging = normalizePackaging(row);
       const updateData: TablesUpdate<'urunler'> = {
         urun_gami: profileToProductLine(row.profile),
         teknik_ozellikler: mergedSpecs,
         alis_fiyat_seviyesi: row.purchaseLevel,
-        kutu_ici_adet: normalizePackaging(row).unitsPerBox,
-        koli_ici_kutu_adet: normalizePackaging(row).boxesPerCase,
-        palet_ici_koli_adet: normalizePackaging(row).casesPerPallet,
+        ...(row.unitsPerBox != null ? { kutu_ici_adet: packaging.unitsPerBox } : {}),
+        ...(row.boxesPerCase != null ? { koli_ici_kutu_adet: packaging.boxesPerCase } : {}),
+        ...(row.casesPerPallet != null ? { palet_ici_koli_adet: packaging.casesPerPallet } : {}),
       };
 
       if (resolvedSupplierId && !matchedProduct.tedarikci_id) {
