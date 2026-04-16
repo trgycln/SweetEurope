@@ -115,6 +115,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
             title: sidebarContent.productManagement || 'Ürün Yönetimi',
             links: [
                 { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici', 'Personel'] as UserRole[], panelKey: 'products' },
+                { name: 'Toplu Görsel Yükleme', href: '/admin/urun-yonetimi/toplu-gorsel-yukleme', icon: FiHardDrive, roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[], panelKey: 'products' },
                 { 
                     name: sidebarContent.productRequests || 'Produktanfragen', 
                     href: '/admin/urun-yonetimi/urun-talepleri', 

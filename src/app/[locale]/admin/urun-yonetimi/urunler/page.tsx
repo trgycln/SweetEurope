@@ -222,12 +222,20 @@ export default async function UrunlerListPage({
                 />
 
                 {isAdmin && (
-                    <Link href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} className="ml-auto">
-                        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-md text-sm font-semibold shadow-sm hover:bg-slate-800 whitespace-nowrap">
-                            <FiPlus size={14} />
-                            Yeni Ürün
-                        </button>
-                    </Link>
+                    <div className="ml-auto flex items-center gap-2">
+                        <Link href={`/${locale}/admin/urun-yonetimi/toplu-gorsel-yukleme`}>
+                            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-sm font-semibold shadow-sm hover:bg-slate-50 whitespace-nowrap">
+                                <FiArchive size={14} />
+                                Toplu Görsel
+                            </button>
+                        </Link>
+                        <Link href={`/${locale}/admin/urun-yonetimi/urunler/yeni`}>
+                            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-md text-sm font-semibold shadow-sm hover:bg-slate-800 whitespace-nowrap">
+                                <FiPlus size={14} />
+                                Yeni Ürün
+                            </button>
+                        </Link>
+                    </div>
                 )}
             </div>
 
