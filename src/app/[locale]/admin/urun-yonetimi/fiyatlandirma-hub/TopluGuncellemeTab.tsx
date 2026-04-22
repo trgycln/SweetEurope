@@ -163,8 +163,18 @@ export default function TopluGuncellemeTab({
       // Operasyonel gider (kutu) = Gümrüklü Maliyet x %Operasyon
       const operationalBox = costAfterCustomsBox * (operationalPct / 100);
       
-      // Nihai maliyet (Landed Cost) = Gümrüklü Maliyet + Operasyonel
-      const landedCostBox = costAfterCustomsBox + operationalBox;
+      // Net Maliyet hesaplamasını ortak fonksiyonla yap
+      const netMaliyetResult = calculateAdminPrice({
+        purchase: unitBoxCost,
+        shippingPerBox,
+        customsPct,
+        operationalPct,
+        distributorMarginPct,
+        dealerMarginPct,
+        roundStep,
+        slicesPerBox: slices,
+      });
+      const landedCostBox = netMaliyetResult.baseCost;
       const landedCostSlice = slices > 1 ? landedCostBox / slices : landedCostBox;
       
       // Müşteri satış fiyatı (net: maliyet + marj)

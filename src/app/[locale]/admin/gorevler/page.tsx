@@ -84,10 +84,16 @@ export default async function GorevlerListPage({
     // 2. Alle Firmen und Profile separat für das Mapping holen
     const [firmalarRes, profillerRes] = await Promise.all([
         supabase.from('firmalar').select('id, unvan'),
-        supabase.from('profiller').select('id, tam_ad')
+        supabase.from('profiller').select('id, tam_ad, rol')
     ]);
     const { data: firmalar, error: firmalarError } = firmalarRes;
-    const { data: profiller, error: profillerError } = profillerRes;
+    // Silinmiş profilleri filtrele
+    const { data: profillerRaw, error: profillerError } = profillerRes;
+    const profiller = (profillerRaw || [])
+        .filter(p => !!p.tam_ad &&
+            !(p.tam_ad || '').startsWith('[Silindi]') &&
+            p.rol !== 'Müşteri' &&
+            p.rol !== 'Alt Bayi');
 
     // Fehlerbehandlung
     if (gorevlerError || firmalarError || profillerError) {
