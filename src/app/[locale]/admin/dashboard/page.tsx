@@ -530,7 +530,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                                             <Link href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`} className="block group">
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div>
-                                                        <p className="font-semibold text-primary group-hover:text-accent transition-colors">{product.ad}</p>
+                                                        <p className="font-semibold text-primary group-hover:text-accent transition-colors">{typeof product.ad === 'object' && product.ad !== null ? (product.ad[locale] || product.ad.tr || product.ad.de || Object.values(product.ad).find((v: any) => typeof v === 'string' && v.trim()) || 'Ürün') : (product.ad || 'Ürün')}</p>
                                                         <p className="text-xs text-text-main/70 mt-0.5">
                                                             {product.stok_kodu || 'Kod yok'}
                                                             {product.son_gercek_inis_maliyeti_net ? ` • Reel: ${formatCurrency(product.son_gercek_inis_maliyeti_net)}` : ''}

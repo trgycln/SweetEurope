@@ -2,7 +2,6 @@
 
 import { ReactNode } from 'react';
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Playfair_Display, Lato } from "next/font/google";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import VercelAnalytics from "@/components/VercelAnalytics";
@@ -41,51 +40,13 @@ export default function RootLayout({
     <html className={`${playfair.variable} ${lato.variable}`} suppressHydrationWarning>
       <head>
         <GoogleAnalytics />
-        <Script id="strip-extension-hydration-attrs" strategy="beforeInteractive">
-          {`
-            (() => {
-              const shouldRemove = (name) =>
-                name === 'bis_skin_checked' ||
-                name === 'bis_register' ||
-                name.startsWith('__processed_');
-
-              const cleanElement = (element) => {
-                if (!element || typeof element.getAttributeNames !== 'function') return;
-                element.getAttributeNames().forEach((name) => {
-                  if (shouldRemove(name)) {
-                    element.removeAttribute(name);
-                  }
-                });
-              };
-
-              const cleanTree = (root) => {
-                cleanElement(root);
-                if (!root || typeof root.querySelectorAll !== 'function') return;
-                root.querySelectorAll('*').forEach(cleanElement);
-              };
-
-              cleanTree(document.documentElement);
-
-              new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                  if (mutation.type === 'attributes' && mutation.attributeName && shouldRemove(mutation.attributeName)) {
-                    cleanElement(mutation.target);
-                  }
-
-                  mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === 1) {
-                      cleanTree(node);
-                    }
-                  });
-                });
-              }).observe(document.documentElement, {
-                subtree: true,
-                childList: true,
-                attributes: true,
-              });
-            })();
-          `}
-        </Script>
+        {/* eslint-disable-next-line @next/next/no-before-interactive-script-component */}
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `(()=>{const s=(n)=>n==='bis_skin_checked'||n==='bis_register'||n==='bis_use'||n==='data-dynamic-id'||n.startsWith('data-bis-')||n.startsWith('__processed_');const c=(el)=>{if(!el||typeof el.getAttributeNames!=='function')return;el.getAttributeNames().forEach(n=>{if(s(n))el.removeAttribute(n);});};const t=(r)=>{c(r);if(r&&typeof r.querySelectorAll==='function')r.querySelectorAll('*').forEach(c);};t(document.documentElement);new MutationObserver(ms=>{ms.forEach(m=>{if(m.type==='attributes'&&m.attributeName&&s(m.attributeName))c(m.target);m.addedNodes.forEach(n=>{if(n.nodeType===1)t(n);});});}).observe(document.documentElement,{subtree:true,childList:true,attributes:true});})();`,
+          }}
+        />
       </head>
       <body suppressHydrationWarning>
         {children}

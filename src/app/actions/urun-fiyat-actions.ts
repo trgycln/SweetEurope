@@ -13,6 +13,7 @@ export type SavePricesPayload = {
   satis_fiyati_musteri?: number | null;
   distributor_alis_fiyati?: number | null;
   urun_gami?: string | null;
+  standart_inis_maliyeti_net?: number | null;
 };
 
 export type SavePricesResult = {
@@ -26,7 +27,8 @@ function isUnsupportedPriceColumnError(error: { code?: string; message?: string 
   return error.code === '42703'
     || error.code === 'PGRST204'
     || message.includes('urun_gami')
-    || message.includes('satis_fiyati_toptanci');
+    || message.includes('satis_fiyati_toptanci')
+    || message.includes('standart_inis_maliyeti_net');
 }
 
 function stripUnsupportedPriceFields(data: Partial<Tables<'urunler'>>): Partial<Tables<'urunler'>> {
@@ -34,8 +36,9 @@ function stripUnsupportedPriceFields(data: Partial<Tables<'urunler'>>): Partial<
     urun_gami,
     satis_fiyati_toptanci,
     ...fallbackData
-  } = data as Partial<Tables<'urunler'>> & { urun_gami?: string | null; satis_fiyati_toptanci?: number | null };
-  return fallbackData;
+  } = data as Partial<Tables<'urunler'>> & { urun_gami?: string | null; satis_fiyati_toptanci?: number | null; standart_inis_maliyeti_net?: number | null };
+  const { standart_inis_maliyeti_net: _s, ...safeData } = fallbackData as any;
+  return safeData;
 }
 
 export async function saveProductPricesAction(payload: SavePricesPayload, locale?: string): Promise<SavePricesResult> {
@@ -62,6 +65,9 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
     }
     if (Object.prototype.hasOwnProperty.call(payload, 'urun_gami')) {
       updateData.urun_gami = payload.urun_gami ?? null;
+    }
+    if (typeof payload.standart_inis_maliyeti_net === 'number' && payload.standart_inis_maliyeti_net > 0) {
+      (updateData as any).standart_inis_maliyeti_net = payload.standart_inis_maliyeti_net;
     }
 
     if (Object.keys(updateData).length === 0) {

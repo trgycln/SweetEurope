@@ -99,6 +99,13 @@ function toNumber(value: unknown, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
+// Like toNumber, but treats null/undefined as missing (returns fallback instead of 0).
+// Needed because Number(null) === 0 which is finite, so toNumber(null, default) wrongly returns 0.
+function toNumberOrDefault(value: unknown, fallback: number): number {
+  if (value === null || value === undefined) return fallback;
+  return toNumber(value, fallback);
+}
+
 function round2(value: number) {
   return Number(toNumber(value, 0).toFixed(2));
 }
@@ -312,10 +319,17 @@ function calculatePricing(params: {
   const unitCount = Math.max(1, Math.floor(toNumber(params.unitsPerBox, 1)));
   const roundStep = Math.max(0, toNumber(params.roundStep, 0));
 
+  const weightKg = Math.max(0, toNumber(params.weightKg, 0));
+  const docsPerKg = Math.max(0, toNumber(params.docsPerKg, 0));
+  const storageDaily = Math.max(0, toNumber(params.storageDaily, 0));
+  const stockDays = Math.max(0, toNumber(params.stockDays, 0));
+  const wasteRate = Math.max(0, toNumber(params.wastePct, 0)) / 100;
+
   const costBeforeCustoms = purchase + shipping;
   const customsCost = costBeforeCustoms * customsRate;
   const preOperational = costBeforeCustoms + customsCost;
   const operationalCost = preOperational * operationalRate;
+
   const landedCost = preOperational + operationalCost;
 
   const resellerNet = roundToStep(landedCost * (1 + resellerProfit), roundStep);
@@ -374,12 +388,12 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
       customsPct: toNumber(systemSettings?.pricing_customs_non_cold_percent, toNumber(systemSettings?.pricing_customs_percent, DEFAULT_NON_COLD_CUSTOMS_PCT)),
     },
   }));
-  const [operationalPct, setOperationalPct] = useState<number>(toNumber(systemSettings?.pricing_operational_percent, 10));
-  const [taxPct, setTaxPct] = useState<number>(toNumber(systemSettings?.pricing_vat_rate, 7));
-  const [roundStep, setRoundStep] = useState<number>(toNumber(systemSettings?.pricing_round_step, 0));
-  const [customerProfitPct, setCustomerProfitPct] = useState<number>(toNumber(systemSettings?.pricing_tier3_margin_percent, toNumber(systemSettings?.pricing_target_profit_percent, DEFAULT_CUSTOMER_PROFIT_PCT)));
-  const [wholesaleProfitPct, setWholesaleProfitPct] = useState<number>(toNumber(systemSettings?.pricing_tier2_margin_percent, DEFAULT_WHOLESALE_PROFIT_PCT));
-  const [resellerProfitPct, setResellerProfitPct] = useState<number>(toNumber(systemSettings?.pricing_tier1_margin_percent, toNumber(systemSettings?.pricing_reseller_profit_percent, DEFAULT_RESELLER_PROFIT_PCT)));
+  const [operationalPct, setOperationalPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_operational_percent, 15));
+  const [taxPct, setTaxPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_vat_rate, 7));
+  const [roundStep, setRoundStep] = useState<number>(toNumberOrDefault(systemSettings?.pricing_round_step, 0));
+  const [customerProfitPct, setCustomerProfitPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_tier3_margin_percent, toNumberOrDefault(systemSettings?.pricing_target_profit_percent, DEFAULT_CUSTOMER_PROFIT_PCT)));
+  const [wholesaleProfitPct, setWholesaleProfitPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_tier2_margin_percent, DEFAULT_WHOLESALE_PROFIT_PCT));
+  const [resellerProfitPct, setResellerProfitPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_tier1_margin_percent, toNumberOrDefault(systemSettings?.pricing_reseller_profit_percent, DEFAULT_RESELLER_PROFIT_PCT)));
   const boxDiscountPct = toNumber(systemSettings?.pricing_box_discount_percent, 0);
   const caseDiscountPct = toNumber(systemSettings?.pricing_case_discount_percent, 4);
   const palletDiscountPct = toNumber(systemSettings?.pricing_pallet_discount_percent, 8);
@@ -430,8 +444,8 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
         const isColdLogistics = logisticsClass === 'cold-chain' || (logisticsClass !== 'dry-load' && profile === 'cold-chain');
         const weightKg = toNumber(product.birim_agirlik_kg, getNumericMetric(product.teknik_ozellikler, ['birim_agirlik_kg', 'agirlik_kg', 'weight_kg'], 0));
         const docsPerKg = isColdLogistics ? coldDocsPerKg : dryDocsPerKg;
-        const storageDaily = toNumber(product.gunluk_depolama_maliyeti_eur, isColdLogistics ? coldStorageDaily : dryStorageDaily);
-        const stockDays = toNumber(product.ortalama_stokta_kalma_suresi, getNumericMetric(product.teknik_ozellikler, ['ortalama_stokta_kalma_suresi', 'stok_gun'], DEFAULT_STOCK_DAYS));
+        const storageDaily = toNumberOrDefault(product.gunluk_depolama_maliyeti_eur, isColdLogistics ? coldStorageDaily : dryStorageDaily);
+        const stockDays = toNumberOrDefault(product.ortalama_stokta_kalma_suresi, getNumericMetric(product.teknik_ozellikler, ['ortalama_stokta_kalma_suresi', 'stok_gun'], DEFAULT_STOCK_DAYS));
         const wastePct = toNumber(product.fire_zayiat_orani_yuzde, getNumericMetric(product.teknik_ozellikler, ['fire_zayiat_orani_yuzde', 'fire_orani'], 0));
         const calculation = calculatePricing({
           purchase,
@@ -594,6 +608,8 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
     satis_fiyati_alt_bayi: round2(row.calculation.resellerNet),
     satis_fiyati_toptanci: round2(row.calculation.wholesaleNet),
     satis_fiyati_musteri: round2(row.calculation.customerNet),
+    // Save the hub's full-model landing cost as the standard baseline for TIR variance comparison
+    standart_inis_maliyeti_net: round2(row.calculation.landedCost),
   });
 
   const handleApplySingle = (row: PricingRow) => {

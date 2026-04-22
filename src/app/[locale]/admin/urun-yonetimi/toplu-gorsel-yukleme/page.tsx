@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Locale } from '@/i18n-config';
 import { FiArrowLeft, FiLayers } from 'react-icons/fi';
 import Link from 'next/link';
-import TopluGorselYuklemeClient from './TopluGorselYuklemeClient';
+import TopluGorselYuklemeIstemci from './TopluGorselYuklemeIstemci';
 
 export const dynamic = 'force-dynamic';
 
@@ -84,7 +84,7 @@ export default async function TopluGorselYuklemePage({
       </div>
 
       {/* Ana İstemci Bileşeni */}
-      <TopluGorselYuklemeClient />
+      <TopluGorselYuklemeIstemci />
     </div>
   );
 }

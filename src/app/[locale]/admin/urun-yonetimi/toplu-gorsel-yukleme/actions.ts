@@ -197,3 +197,112 @@ export async function gorselGuncelleAction(
     return { success: false, message: msg };
   }
 }
+
+// ─── Action 4: imgi_ format dosyalarını ürünlerle otomatik eşleştir ──────────
+
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/ğ/g, 'g')
+    .replace(/ü/g, 'u')
+    .replace(/ş/g, 's')
+    .replace(/ı/g, 'i')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c');
+}
+
+export type ImgiEslestirSonucu = {
+  dosyaAdi: string;
+  eslesen: UrunEslesmeSonucu | null;
+  puan: number; // 0-1 arasında güven skoru
+};
+
+export async function sorguImgiEslestirAction(
+  dosyalar: { dosyaAdi: string; kelimeler: string[] }[]
+): Promise<{ sonuclar: ImgiEslestirSonucu[]; hata?: string }> {
+  try {
+    const auth = await ensureAdmin();
+    if ('error' in auth) return { sonuclar: [], hata: auth.error };
+    const { supabase } = auth;
+
+    if (!dosyalar.length) return { sonuclar: [] };
+
+    const { data: urunler, error: dbError } = await supabase
+      .from('urunler')
+      .select('id, stok_kodu, ad, ana_resim_url, galeri_resim_urls')
+      .limit(2000);
+
+    if (dbError) return { sonuclar: [], hata: dbError.message };
+
+    // Her ürün için kelime listesi hazırla (tüm diller birleştirilerek)
+    const urunListesi = (urunler || []).map(u => {
+      const ad = u.ad as Record<string, string> | string | null;
+      const adWords: string[] = [];
+      if (ad && typeof ad === 'object') {
+        Object.values(ad).forEach(v => {
+          if (v) normalizeText(String(v)).split(/\s+/).forEach(w => { if (w.length >= 2) adWords.push(w); });
+        });
+      } else if (typeof ad === 'string' && ad) {
+        normalizeText(ad).split(/\s+/).forEach(w => { if (w.length >= 2) adWords.push(w); });
+      }
+      const adRec = (ad && typeof ad === 'object') ? (ad as Record<string, string>) : null;
+      const stokKodu = (u.stok_kodu || '').toUpperCase();
+      return {
+        id: u.id as string,
+        stokKodu,
+        adWords,
+        isFO: stokKodu.startsWith('FO'),
+        urunAdi: adRec?.tr || adRec?.de || adRec?.en || 'İsimsiz Ürün',
+        mevcutAna: Boolean(u.ana_resim_url),
+        mevcutGaleri: Array.isArray(u.galeri_resim_urls) ? (u.galeri_resim_urls as string[]).length : 0,
+      };
+    });
+
+    const sonuclar: ImgiEslestirSonucu[] = dosyalar.map(({ dosyaAdi, kelimeler }) => {
+      if (!urunListesi.length) return { dosyaAdi, eslesen: null, puan: 0 };
+
+      const normKelimeler = kelimeler.map(k => normalizeText(k)).filter(k => k.length >= 3);
+      const normDosyaAdi = normalizeText(dosyaAdi);
+      // Dosya adında "fo" marka işareti var mı?
+      const isFoFile = /-fo-|-g-fo-|_fo_/.test(normDosyaAdi);
+
+      let bestPuan = -1;
+      let bestUrun: typeof urunListesi[number] | null = null;
+
+      for (const urun of urunListesi) {
+        let matchCount = 0;
+        for (const k of normKelimeler) {
+          // Çift yönlü prefix eşleştirme: "viskisi" ↔ "viski", "cikolata" ↔ "cikolatali"
+          const matched = urun.adWords.some(aw => aw.startsWith(k) || k.startsWith(aw));
+          if (matched) matchCount++;
+        }
+        let puan = normKelimeler.length > 0 ? matchCount / normKelimeler.length : 0;
+        // FO marka bonusu
+        if (isFoFile && urun.isFO) puan = Math.min(1, puan + 0.15);
+
+        if (puan > bestPuan) { bestPuan = puan; bestUrun = urun; }
+      }
+
+      // Hiç kelime eşleşmesi yoksa (puan=0) → eslesen null, ama bestUrun'u bilgi olarak saklama
+      if (!bestUrun || bestPuan <= 0) return { dosyaAdi, eslesen: null, puan: 0 };
+
+      return {
+        dosyaAdi,
+        puan: Math.min(1, bestPuan),
+        eslesen: {
+          stok_kodu: bestUrun.stokKodu,
+          urun_id: bestUrun.id,
+          urun_adi: bestUrun.urunAdi,
+          mevcut_ana_resim: bestUrun.mevcutAna,
+          mevcut_galeri_sayisi: bestUrun.mevcutGaleri,
+        },
+      };
+    });
+
+    return { sonuclar };
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error('sorguImgiEslestirAction beklenmedik hata:', msg);
+    return { sonuclar: [], hata: msg };
+  }
+}

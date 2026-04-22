@@ -79,6 +79,8 @@ const PANEL_ROUTE_PREFIXES: Record<AdminPanelKey, string[]> = {
   products: ['/admin/urun-yonetimi/urunler', '/admin/urun-yonetimi/kategoriler'],
   pricing: [
     '/admin/urun-yonetimi/fiyatlandirma-hub',
+    '/admin/urun-yonetimi/tir-girisi',
+    '/admin/urun-yonetimi/karlilik-raporu',
     '/admin/urun-yonetimi/fiyat-kurallari',
     '/admin/urun-yonetimi/fiyat-istisnalari',
     '/admin/urun-yonetimi/fiyat-matrisi',

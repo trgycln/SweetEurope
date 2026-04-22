@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { FiFile, FiFileText, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2 } from 'react-icons/fi';
 import { toast } from 'sonner';
@@ -1114,10 +1115,17 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                               </>
                             )}
                             {status === 'gonderildi' && (
-                              <button type="button" onClick={() => receiveOrderAndUpdateStock(record)}
-                                className="rounded border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100">
-                                Teslim Al + Stoka İşle
-                              </button>
+                              <>
+                                <Link
+                                  href={`/${locale}/admin/urun-yonetimi/tir-girisi?planId=${record.id}`}
+                                  className="rounded border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-800 hover:bg-indigo-100">
+                                  🚛 TIR Girişi Yap
+                                </Link>
+                                <button type="button" onClick={() => receiveOrderAndUpdateStock(record)}
+                                  className="rounded border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800 hover:bg-emerald-100">
+                                  Teslim Al + Stoka İşle
+                                </button>
+                              </>
                             )}
                             {(status === 'gonderildi' || status === 'teslim_alindi') && (
                               <button type="button" onClick={() => copyRecordAsTemplate(record)}

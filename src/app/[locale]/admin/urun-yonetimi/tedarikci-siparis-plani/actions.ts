@@ -443,3 +443,39 @@ export async function receiveSupplierOrderAndUpdateStockAction(
 
   return { success: true, history: nextHistory, updatedLines, totalStockAdded };
 }
+
+export async function getSupplierOrderPlanRecordByIdAction(recordId: string): Promise<{
+  success: boolean;
+  record: SavedPlanRecord | null;
+  message?: string;
+}> {
+  const { serviceSupabase, user, role } = await getAuthedClientWithRole();
+  if (!user || !canUseModule(role)) {
+    return { success: false, record: null, message: 'Yetkisiz' };
+  }
+
+  const { historyKey } = keysForUser(user.id);
+
+  const { data: row, error } = await (serviceSupabase as any)
+    .from('system_settings')
+    .select('setting_value')
+    .eq('setting_key', historyKey)
+    .maybeSingle();
+
+  if (error) {
+    return { success: false, record: null, message: error.message };
+  }
+
+  let history: SavedPlanRecord[] = [];
+  try {
+    if (row?.setting_value) {
+      const parsed = JSON.parse(row.setting_value);
+      if (Array.isArray(parsed)) history = parsed as SavedPlanRecord[];
+    }
+  } catch {
+    history = [];
+  }
+
+  const record = history.find((r) => r.id === recordId) ?? null;
+  return { success: true, record };
+}

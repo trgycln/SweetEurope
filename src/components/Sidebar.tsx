@@ -115,7 +115,6 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
             title: sidebarContent.productManagement || 'Ürün Yönetimi',
             links: [
                 { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici', 'Personel'] as UserRole[], panelKey: 'products' },
-                { name: 'Toplu Görsel Yükleme', href: '/admin/urun-yonetimi/toplu-gorsel-yukleme', icon: FiHardDrive, roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[], panelKey: 'products' },
                 { 
                     name: sidebarContent.productRequests || 'Produktanfragen', 
                     href: '/admin/urun-yonetimi/urun-talepleri', 
@@ -143,6 +142,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
             title: sidebarContent.pricing || 'Fiyatlandırma',
             links: [
                 { name: sidebarContent.pricingHub || '🏷️ Maliyet Platformu', href: '/admin/urun-yonetimi/fiyatlandirma-hub', icon: FiDollarSign, roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[], panelKey: 'pricing' },
+                { name: ' Kârlılık & Varyans Raporu', href: '/admin/urun-yonetimi/karlilik-raporu', icon: FiBarChart2, roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[], panelKey: 'pricing' },
             ],
         },
 
