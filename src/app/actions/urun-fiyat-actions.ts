@@ -150,6 +150,42 @@ export async function createPriceChangeRequestAction(payload: CreatePriceChangeR
   }
 }
 
+// ── Ürün meta alanları (referans_fiyat, tedarikci_url) ─────────────────────
+export async function saveProductMetaAction(
+  urunId: string,
+  fields: { referans_fiyat?: number | null; tedarikci_url?: string | null },
+  locale?: string
+): Promise<SavePricesResult> {
+  try {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: 'Oturum açılı değil.' };
+
+    const updateData: Record<string, unknown> = {};
+    if ('referans_fiyat' in fields) updateData.referans_fiyat = fields.referans_fiyat ?? null;
+    if ('tedarikci_url' in fields) updateData.tedarikci_url = fields.tedarikci_url ?? null;
+
+    if (Object.keys(updateData).length === 0) return { error: 'Güncellenecek alan yok.' };
+
+    const { error } = await (supabase as any)
+      .from('urunler')
+      .update(updateData)
+      .eq('id', urunId);
+
+    if (error) {
+      console.error('saveProductMetaAction hata:', error);
+      return { error: 'Veritabanı hatası.' };
+    }
+
+    revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
+    return { success: true };
+  } catch (e) {
+    console.error('saveProductMetaAction beklenmeyen hata:', e);
+    return { error: 'Sunucu hatası.' };
+  }
+}
+
 export async function approvePriceChangeRequestAction(talepId: string, onay: 'Onaylandi' | 'Reddedildi', locale?: string): Promise<SavePricesResult> {
   try {
     const cookieStore = await cookies();

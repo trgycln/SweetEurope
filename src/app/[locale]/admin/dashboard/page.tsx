@@ -214,7 +214,7 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         supabase.rpc('get_kritik_stok_count'),
         supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
         (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
-        supabase.from('gorevler').select('id, baslik, son_tarih').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(5),
+        supabase.from('gorevler').select('id, baslik, son_tarih, aciklama').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(5),
                 // FIXED: Sadece görülmemiş başvuruları say
                 applicationsResPromise,
         supabase.from('numune_talepleri').select('id', { count: 'exact' }).eq('durum', NEUE_MUSTER_STATUS),
@@ -489,6 +489,9 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
                                     <div key={task.id} className="pt-3 first:pt-0">
                                         <Link href={`/${locale}/admin/gorevler`} className="block group">
                                             <p className="font-semibold text-primary group-hover:text-accent transition-colors truncate">{task.baslik}</p>
+                                            {task.aciklama && (
+                                                <p className="text-xs text-gray-500 mt-0.5 truncate">{task.aciklama}</p>
+                                            )}
                                             <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
                                                 <FiClock size={12}/>
                                                 {operationalContent.dueDate || "Due:"} {formatDate(task.son_tarih, locale)}

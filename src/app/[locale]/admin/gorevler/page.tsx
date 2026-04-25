@@ -204,6 +204,9 @@ export default async function GorevlerListPage({
                                     <div className="flex justify-between items-start">
                                         <div className="flex-grow">
                                             <p className={`font-bold text-base ${gorev.tamamlandi ? 'line-through text-gray-500' : 'text-primary'}`}>{gorev.baslik}</p>
+                                            {gorev.aciklama && (
+                                                <p className="text-xs text-gray-500 mt-0.5 truncate">{gorev.aciklama}</p>
+                                            )}
                                             {gorev.ilgili_firma?.unvan && (
                                                 <Link href={`/${locale}/admin/crm/firmalar/${gorev.ilgili_firma_id}`} className="text-xs text-gray-500 hover:text-accent hover:underline flex items-center gap-1.5 mt-1">
                                                      <FiBriefcase size={12}/> {gorev.ilgili_firma.unvan}
@@ -266,6 +269,9 @@ export default async function GorevlerListPage({
                                         <tr key={gorev.id} className={`transition-colors duration-150 ${gorev.tamamlandi ? 'opacity-50 bg-gray-50' : 'hover:bg-gray-50/50'}`}>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">
                                                 <div className={`font-bold ${gorev.tamamlandi ? 'line-through' : ''}`}>{gorev.baslik}</div>
+                                                {gorev.aciklama && (
+                                                    <div className="text-xs text-gray-500 mt-0.5 truncate">{gorev.aciklama}</div>
+                                                )}
                                                 {gorev.ilgili_firma?.unvan && (
                                                      <Link href={`/${locale}/admin/crm/firmalar/${gorev.ilgili_firma_id}`} className="text-xs font-normal text-gray-500 hover:text-accent hover:underline flex items-center gap-1.5 mt-0.5">
                                                          <FiBriefcase size={12}/> {gorev.ilgili_firma.unvan}

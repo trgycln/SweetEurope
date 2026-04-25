@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -150,6 +150,13 @@ export type Database = {
             foreignKeyName: "alt_bayi_satis_detay_urun_id_fkey"
             columns: ["urun_id"]
             isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alt_bayi_satis_detay_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
             referencedRelation: "urunler"
             referencedColumns: ["id"]
           },
@@ -186,6 +193,13 @@ export type Database = {
             columns: ["satis_kaydi_id"]
             isOneToOne: false
             referencedRelation: "alt_bayi_satis_kayitlari"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alt_bayi_satis_detaylari_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
             referencedColumns: ["id"]
           },
           {
@@ -338,6 +352,13 @@ export type Database = {
             columns: ["sahip_id"]
             isOneToOne: false
             referencedRelation: "profiller"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alt_bayi_stoklari_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
             referencedColumns: ["id"]
           },
           {
@@ -578,6 +599,142 @@ export type Database = {
           },
         ]
       }
+      document_activity_log: {
+        Row: {
+          action: string
+          created_at: string
+          document_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          document_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_activity_log_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_folders: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          created_at: string
+          description: string | null
+          document_date: string | null
+          document_subject: string | null
+          document_type: string | null
+          downloaded_count: number
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          folder_id: string | null
+          id: string
+          owner_id: string
+          recipient: string | null
+          reference_number: string | null
+          search_vector: unknown
+          sender: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          document_date?: string | null
+          document_subject?: string | null
+          document_type?: string | null
+          downloaded_count?: number
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          folder_id?: string | null
+          id?: string
+          owner_id: string
+          recipient?: string | null
+          reference_number?: string | null
+          search_vector?: unknown
+          sender?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          document_date?: string | null
+          document_subject?: string | null
+          document_type?: string | null
+          downloaded_count?: number
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          folder_id?: string | null
+          id?: string
+          owner_id?: string
+          recipient?: string | null
+          reference_number?: string | null
+          search_vector?: unknown
+          sender?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "document_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       duyurular: {
         Row: {
           aktif: boolean
@@ -753,6 +910,13 @@ export type Database = {
             foreignKeyName: "favori_urunler_urun_id_fkey"
             columns: ["urun_id"]
             isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favori_urunler_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
             referencedRelation: "urunler"
             referencedColumns: ["id"]
           },
@@ -761,115 +925,163 @@ export type Database = {
       firmalar: {
         Row: {
           adres: string | null
-          sehir: string | null
-          ilce: string | null
-          mahalle: string | null
-          posta_kodu: string | null
-          yetkili_kisi: string | null
-          etiketler: string[] | null
-          oncelik_puani: number | null
           created_at: string
+          created_by: string | null
           email: string | null
+          etiketler: string[] | null
           facebook_url: string | null
           google_maps_url: string | null
+          goruldu: boolean | null
           iban: string | null
           id: string
+          ilce: string | null
+          inherit_facebook_url: boolean | null
+          inherit_google_maps_url: boolean | null
+          inherit_instagram_url: boolean | null
+          inherit_linkedin_url: boolean | null
+          inherit_web_url: boolean | null
           instagram_url: string | null
           iskonto_orani: number
           kategori: string | null
           kaynak: string | null
-          ticari_tip: string | null
+          linkedin_url: string | null
+          mahalle: string | null
           musteri_profil_id: string | null
           oncelik: string | null
+          oncelik_puani: number | null
+          parent_firma_id: string | null
+          posta_kodu: string | null
           referans_olarak_goster: boolean
           sahip_id: string | null
-          created_by: string | null
-          updated_by: string | null
+          sehir: string | null
           son_etkilesim_tarihi: string | null
           sorumlu_personel_id: string | null
           status: Database["public"]["Enums"]["firma_status"] | null
+          sube_sayisi: number | null
           telefon: string | null
+          ticari_tip: string | null
           unvan: string
+          updated_by: string | null
           vergi_dairesi: string | null
           vergi_no: string | null
           web_url: string | null
+          yetkili_kisi: string | null
         }
         Insert: {
           adres?: string | null
-          sehir?: string | null
-          ilce?: string | null
-          mahalle?: string | null
-          posta_kodu?: string | null
-          yetkili_kisi?: string | null
-          etiketler?: string[] | null
-          oncelik_puani?: number | null
           created_at?: string
+          created_by?: string | null
           email?: string | null
+          etiketler?: string[] | null
           facebook_url?: string | null
           google_maps_url?: string | null
+          goruldu?: boolean | null
           iban?: string | null
           id?: string
+          ilce?: string | null
+          inherit_facebook_url?: boolean | null
+          inherit_google_maps_url?: boolean | null
+          inherit_instagram_url?: boolean | null
+          inherit_linkedin_url?: boolean | null
+          inherit_web_url?: boolean | null
           instagram_url?: string | null
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
-          ticari_tip?: string | null
+          linkedin_url?: string | null
+          mahalle?: string | null
           musteri_profil_id?: string | null
           oncelik?: string | null
+          oncelik_puani?: number | null
+          parent_firma_id?: string | null
+          posta_kodu?: string | null
           referans_olarak_goster?: boolean
           sahip_id?: string | null
-          created_by?: string | null
-          updated_by?: string | null
+          sehir?: string | null
           son_etkilesim_tarihi?: string | null
           sorumlu_personel_id?: string | null
           status?: Database["public"]["Enums"]["firma_status"] | null
+          sube_sayisi?: number | null
           telefon?: string | null
+          ticari_tip?: string | null
           unvan: string
+          updated_by?: string | null
           vergi_dairesi?: string | null
           vergi_no?: string | null
           web_url?: string | null
+          yetkili_kisi?: string | null
         }
         Update: {
           adres?: string | null
-          sehir?: string | null
-          ilce?: string | null
-          mahalle?: string | null
-          posta_kodu?: string | null
-          yetkili_kisi?: string | null
-          etiketler?: string[] | null
-          oncelik_puani?: number | null
           created_at?: string
+          created_by?: string | null
           email?: string | null
+          etiketler?: string[] | null
           facebook_url?: string | null
           google_maps_url?: string | null
+          goruldu?: boolean | null
           iban?: string | null
           id?: string
+          ilce?: string | null
+          inherit_facebook_url?: boolean | null
+          inherit_google_maps_url?: boolean | null
+          inherit_instagram_url?: boolean | null
+          inherit_linkedin_url?: boolean | null
+          inherit_web_url?: boolean | null
           instagram_url?: string | null
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
-          ticari_tip?: string | null
+          linkedin_url?: string | null
+          mahalle?: string | null
           musteri_profil_id?: string | null
           oncelik?: string | null
+          oncelik_puani?: number | null
+          parent_firma_id?: string | null
+          posta_kodu?: string | null
           referans_olarak_goster?: boolean
           sahip_id?: string | null
-          created_by?: string | null
-          updated_by?: string | null
+          sehir?: string | null
           son_etkilesim_tarihi?: string | null
           sorumlu_personel_id?: string | null
           status?: Database["public"]["Enums"]["firma_status"] | null
+          sube_sayisi?: number | null
           telefon?: string | null
+          ticari_tip?: string | null
           unvan?: string
+          updated_by?: string | null
           vergi_dairesi?: string | null
           vergi_no?: string | null
           web_url?: string | null
+          yetkili_kisi?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "firmalar_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "kullanici_segment_bilgileri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "firmalar_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiller"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "firmalar_musteri_profil_id_fkey"
             columns: ["musteri_profil_id"]
             isOneToOne: false
             referencedRelation: "musteri_profilleri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "firmalar_parent_firma_id_fkey"
+            columns: ["parent_firma_id"]
+            isOneToOne: false
+            referencedRelation: "firmalar"
             referencedColumns: ["id"]
           },
           {
@@ -896,6 +1108,20 @@ export type Database = {
           {
             foreignKeyName: "firmalar_sorumlu_personel_id_fkey"
             columns: ["sorumlu_personel_id"]
+            isOneToOne: false
+            referencedRelation: "profiller"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "firmalar_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "kullanici_segment_bilgileri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "firmalar_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiller"
             referencedColumns: ["id"]
@@ -966,6 +1192,13 @@ export type Database = {
           urun_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fiyat_degisim_talepleri_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fiyat_degisim_talepleri_urun_id_fkey"
             columns: ["urun_id"]
@@ -1050,6 +1283,13 @@ export type Database = {
             columns: ["musteri_profil_id"]
             isOneToOne: false
             referencedRelation: "musteri_profilleri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiyat_kurallari_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
             referencedColumns: ["id"]
           },
           {
@@ -1332,6 +1572,144 @@ export type Database = {
           },
         ]
       }
+      ithalat_parti_kalemleri: {
+        Row: {
+          birim_alis_fiyati_orijinal: number
+          ciplak_maliyet_eur: number
+          created_at: string
+          dagitilan_gumruk_eur: number
+          dagitilan_navlun_eur: number
+          dagitilan_ozel_gider_eur: number
+          gercek_inis_maliyeti_net: number
+          id: string
+          maliyet_sapma_yuzde: number
+          miktar_adet: number
+          operasyon_ve_risk_yuku_eur: number
+          parti_id: string
+          standart_inis_maliyeti_net: number
+          toplam_agirlik_kg: number
+          urun_id: string
+        }
+        Insert: {
+          birim_alis_fiyati_orijinal?: number
+          ciplak_maliyet_eur?: number
+          created_at?: string
+          dagitilan_gumruk_eur?: number
+          dagitilan_navlun_eur?: number
+          dagitilan_ozel_gider_eur?: number
+          gercek_inis_maliyeti_net?: number
+          id?: string
+          maliyet_sapma_yuzde?: number
+          miktar_adet?: number
+          operasyon_ve_risk_yuku_eur?: number
+          parti_id: string
+          standart_inis_maliyeti_net?: number
+          toplam_agirlik_kg?: number
+          urun_id: string
+        }
+        Update: {
+          birim_alis_fiyati_orijinal?: number
+          ciplak_maliyet_eur?: number
+          created_at?: string
+          dagitilan_gumruk_eur?: number
+          dagitilan_navlun_eur?: number
+          dagitilan_ozel_gider_eur?: number
+          gercek_inis_maliyeti_net?: number
+          id?: string
+          maliyet_sapma_yuzde?: number
+          miktar_adet?: number
+          operasyon_ve_risk_yuku_eur?: number
+          parti_id?: string
+          standart_inis_maliyeti_net?: number
+          toplam_agirlik_kg?: number
+          urun_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ithalat_parti_kalemleri_parti_id_fkey"
+            columns: ["parti_id"]
+            isOneToOne: false
+            referencedRelation: "ithalat_partileri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ithalat_parti_kalemleri_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ithalat_parti_kalemleri_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "urunler"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ithalat_partileri: {
+        Row: {
+          created_at: string
+          durum: string
+          ek_notlar: string | null
+          gumruk_vergi_toplam_eur: number
+          id: string
+          kuru_kg: number
+          navlun_kuru_eur: number
+          navlun_soguk_eur: number
+          referans_kodu: string
+          soguk_kg: number
+          supplier_order_plan_record_id: string | null
+          tedarikci_id: string | null
+          traces_numune_ardiye_eur: number
+          updated_at: string
+          varis_tarihi: string | null
+        }
+        Insert: {
+          created_at?: string
+          durum?: string
+          ek_notlar?: string | null
+          gumruk_vergi_toplam_eur?: number
+          id?: string
+          kuru_kg?: number
+          navlun_kuru_eur?: number
+          navlun_soguk_eur?: number
+          referans_kodu: string
+          soguk_kg?: number
+          supplier_order_plan_record_id?: string | null
+          tedarikci_id?: string | null
+          traces_numune_ardiye_eur?: number
+          updated_at?: string
+          varis_tarihi?: string | null
+        }
+        Update: {
+          created_at?: string
+          durum?: string
+          ek_notlar?: string | null
+          gumruk_vergi_toplam_eur?: number
+          id?: string
+          kuru_kg?: number
+          navlun_kuru_eur?: number
+          navlun_soguk_eur?: number
+          referans_kodu?: string
+          soguk_kg?: number
+          supplier_order_plan_record_id?: string | null
+          tedarikci_id?: string | null
+          traces_numune_ardiye_eur?: number
+          updated_at?: string
+          varis_tarihi?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ithalat_partileri_tedarikci_id_fkey"
+            columns: ["tedarikci_id"]
+            isOneToOne: false
+            referencedRelation: "tedarikciler"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kategori_ozellik_sablonlari: {
         Row: {
           alan_adi: string
@@ -1487,6 +1865,13 @@ export type Database = {
             foreignKeyName: "numune_talepleri_urun_id_fkey"
             columns: ["urun_id"]
             isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "numune_talepleri_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
             referencedRelation: "urunler"
             referencedColumns: ["id"]
           },
@@ -1587,6 +1972,13 @@ export type Database = {
             foreignKeyName: "sample_request_items_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sample_request_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "urunler"
             referencedColumns: ["id"]
           },
@@ -1680,6 +2072,13 @@ export type Database = {
             foreignKeyName: "siparis_detay_urun_id_fkey"
             columns: ["urun_id"]
             isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "siparis_detay_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
             referencedRelation: "urunler"
             referencedColumns: ["id"]
           },
@@ -1687,12 +2086,12 @@ export type Database = {
       }
       siparisler: {
         Row: {
+          atanan_kisi_id: string | null
           created_at: string
           firma_id: string
           id: string
           kdv_orani: number
           olusturan_kullanici_id: string | null
-          atanan_kisi_id: string | null
           siparis_durumu: string
           siparis_kaynagi: Database["public"]["Enums"]["siparis_kaynagi"] | null
           siparis_tarihi: string
@@ -1701,12 +2100,12 @@ export type Database = {
           toplam_tutar_net: number
         }
         Insert: {
+          atanan_kisi_id?: string | null
           created_at?: string
           firma_id: string
           id?: string
           kdv_orani: number
           olusturan_kullanici_id?: string | null
-          atanan_kisi_id?: string | null
           siparis_durumu: string
           siparis_kaynagi?:
             | Database["public"]["Enums"]["siparis_kaynagi"]
@@ -1717,12 +2116,12 @@ export type Database = {
           toplam_tutar_net: number
         }
         Update: {
+          atanan_kisi_id?: string | null
           created_at?: string
           firma_id?: string
           id?: string
           kdv_orani?: number
           olusturan_kullanici_id?: string | null
-          atanan_kisi_id?: string | null
           siparis_durumu?: string
           siparis_kaynagi?:
             | Database["public"]["Enums"]["siparis_kaynagi"]
@@ -1733,6 +2132,20 @@ export type Database = {
           toplam_tutar_net?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "siparisler_atanan_kisi_id_fkey"
+            columns: ["atanan_kisi_id"]
+            isOneToOne: false
+            referencedRelation: "kullanici_segment_bilgileri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "siparisler_atanan_kisi_id_fkey"
+            columns: ["atanan_kisi_id"]
+            isOneToOne: false
+            referencedRelation: "profiller"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "siparisler_firma_id_fkey"
             columns: ["firma_id"]
@@ -1899,6 +2312,95 @@ export type Database = {
             foreignKeyName: "urun_degerlendirmeleri_urun_id_fkey"
             columns: ["urun_id"]
             isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "urun_degerlendirmeleri_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "urunler"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      urun_stok_hareket_loglari: {
+        Row: {
+          aciklama: string | null
+          birim: string
+          birim_miktar: number | null
+          created_at: string
+          extra: Json
+          hareket_tipi: string
+          id: string
+          kaynak: string
+          miktar: number
+          onceki_stok: number
+          referans_kayit_id: string | null
+          sonraki_stok: number
+          tedarikci_id: string | null
+          urun_id: string
+          yapan_user_adi: string | null
+          yapan_user_email: string | null
+          yapan_user_id: string | null
+        }
+        Insert: {
+          aciklama?: string | null
+          birim?: string
+          birim_miktar?: number | null
+          created_at?: string
+          extra?: Json
+          hareket_tipi: string
+          id?: string
+          kaynak: string
+          miktar: number
+          onceki_stok: number
+          referans_kayit_id?: string | null
+          sonraki_stok: number
+          tedarikci_id?: string | null
+          urun_id: string
+          yapan_user_adi?: string | null
+          yapan_user_email?: string | null
+          yapan_user_id?: string | null
+        }
+        Update: {
+          aciklama?: string | null
+          birim?: string
+          birim_miktar?: number | null
+          created_at?: string
+          extra?: Json
+          hareket_tipi?: string
+          id?: string
+          kaynak?: string
+          miktar?: number
+          onceki_stok?: number
+          referans_kayit_id?: string | null
+          sonraki_stok?: number
+          tedarikci_id?: string | null
+          urun_id?: string
+          yapan_user_adi?: string | null
+          yapan_user_email?: string | null
+          yapan_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "urun_stok_hareket_loglari_tedarikci_id_fkey"
+            columns: ["tedarikci_id"]
+            isOneToOne: false
+            referencedRelation: "tedarikciler"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "urun_stok_hareket_loglari_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "urun_stok_hareket_loglari_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
             referencedRelation: "urunler"
             referencedColumns: ["id"]
           },
@@ -1910,6 +2412,7 @@ export type Database = {
           ad: Json
           aktif: boolean
           alis_fiyat_seviyesi: string | null
+          allergene: Json | null
           almanya_kdv_orani: number | null
           ana_resim_url: string | null
           ana_satis_birimi_id: string | null
@@ -1917,40 +2420,58 @@ export type Database = {
           created_at: string
           degerlendirme_sayisi: number | null
           distributor_alis_fiyati: number
+          ean_gtin: string | null
           fire_zayiat_orani_yuzde: number | null
-          gunluk_depolama_maliyeti_eur: number | null
-          gumruk_vergi_orani_yuzde: number | null
           galeri_resim_urls: string[] | null
+          gumruk_vergi_orani_yuzde: number | null
+          gunluk_depolama_maliyeti_eur: number | null
+          haltbarkeit_monate: number | null
+          haltbarkeit_nach_oeffnen_tage: number | null
+          herkunftsland: Json | null
+          hersteller_land: string | null
+          hersteller_name: string | null
           id: string
-          kategori_id: string
+          inhaltsstoffe: Json | null
           karlilik_alarm_aktif: boolean
+          kategori_id: string
           koli_ici_adet: number | null
           koli_ici_kutu_adet: number | null
+          kutu_ici_adet: number | null
+          lagertemperatur_max_celsius: number | null
+          lagertemperatur_min_celsius: number | null
+          lieferzeit_werktage: number | null
           lojistik_sinifi: string | null
+          mindest_bestellmenge: number | null
+          mindest_bestellmenge_einheit: string | null
+          naehrwerte: Json | null
           ortalama_puan: number | null
           ortalama_stokta_kalma_suresi: number | null
           palet_ici_adet: number | null
           palet_ici_koli_adet: number | null
           palet_ici_kutu_adet: number | null
+          produktdatenblatt_url: string | null
           satis_fiyati_alt_bayi: number
           satis_fiyati_musteri: number
           satis_fiyati_toptanci: number | null
+          slug: string | null
           son_gercek_inis_maliyeti_net: number | null
           son_maliyet_sapma_yuzde: number | null
           standart_inis_maliyeti_net: number | null
-          slug: string | null
           stok_esigi: number
           stok_kodu: string | null
           stok_miktari: number
+          taric_kodu: string | null
           tedarikci_id: string | null
           teknik_ozellikler: Json | null
           urun_gami: string | null
+          zertifikate: string[] | null
         }
         Insert: {
           aciklamalar?: Json | null
           ad: Json
           aktif?: boolean
           alis_fiyat_seviyesi?: string | null
+          allergene?: Json | null
           almanya_kdv_orani?: number | null
           ana_resim_url?: string | null
           ana_satis_birimi_id?: string | null
@@ -1958,40 +2479,58 @@ export type Database = {
           created_at?: string
           degerlendirme_sayisi?: number | null
           distributor_alis_fiyati?: number
+          ean_gtin?: string | null
           fire_zayiat_orani_yuzde?: number | null
-          gunluk_depolama_maliyeti_eur?: number | null
-          gumruk_vergi_orani_yuzde?: number | null
           galeri_resim_urls?: string[] | null
+          gumruk_vergi_orani_yuzde?: number | null
+          gunluk_depolama_maliyeti_eur?: number | null
+          haltbarkeit_monate?: number | null
+          haltbarkeit_nach_oeffnen_tage?: number | null
+          herkunftsland?: Json | null
+          hersteller_land?: string | null
+          hersteller_name?: string | null
           id?: string
-          kategori_id: string
+          inhaltsstoffe?: Json | null
           karlilik_alarm_aktif?: boolean
+          kategori_id: string
           koli_ici_adet?: number | null
           koli_ici_kutu_adet?: number | null
+          kutu_ici_adet?: number | null
+          lagertemperatur_max_celsius?: number | null
+          lagertemperatur_min_celsius?: number | null
+          lieferzeit_werktage?: number | null
           lojistik_sinifi?: string | null
+          mindest_bestellmenge?: number | null
+          mindest_bestellmenge_einheit?: string | null
+          naehrwerte?: Json | null
           ortalama_puan?: number | null
           ortalama_stokta_kalma_suresi?: number | null
           palet_ici_adet?: number | null
           palet_ici_koli_adet?: number | null
           palet_ici_kutu_adet?: number | null
+          produktdatenblatt_url?: string | null
           satis_fiyati_alt_bayi?: number
           satis_fiyati_musteri?: number
           satis_fiyati_toptanci?: number | null
+          slug?: string | null
           son_gercek_inis_maliyeti_net?: number | null
           son_maliyet_sapma_yuzde?: number | null
           standart_inis_maliyeti_net?: number | null
-          slug?: string | null
           stok_esigi?: number
           stok_kodu?: string | null
           stok_miktari?: number
+          taric_kodu?: string | null
           tedarikci_id?: string | null
           teknik_ozellikler?: Json | null
           urun_gami?: string | null
+          zertifikate?: string[] | null
         }
         Update: {
           aciklamalar?: Json | null
           ad?: Json
           aktif?: boolean
           alis_fiyat_seviyesi?: string | null
+          allergene?: Json | null
           almanya_kdv_orani?: number | null
           ana_resim_url?: string | null
           ana_satis_birimi_id?: string | null
@@ -1999,34 +2538,51 @@ export type Database = {
           created_at?: string
           degerlendirme_sayisi?: number | null
           distributor_alis_fiyati?: number
+          ean_gtin?: string | null
           fire_zayiat_orani_yuzde?: number | null
-          gunluk_depolama_maliyeti_eur?: number | null
-          gumruk_vergi_orani_yuzde?: number | null
           galeri_resim_urls?: string[] | null
+          gumruk_vergi_orani_yuzde?: number | null
+          gunluk_depolama_maliyeti_eur?: number | null
+          haltbarkeit_monate?: number | null
+          haltbarkeit_nach_oeffnen_tage?: number | null
+          herkunftsland?: Json | null
+          hersteller_land?: string | null
+          hersteller_name?: string | null
           id?: string
-          kategori_id?: string
+          inhaltsstoffe?: Json | null
           karlilik_alarm_aktif?: boolean
+          kategori_id?: string
           koli_ici_adet?: number | null
           koli_ici_kutu_adet?: number | null
+          kutu_ici_adet?: number | null
+          lagertemperatur_max_celsius?: number | null
+          lagertemperatur_min_celsius?: number | null
+          lieferzeit_werktage?: number | null
           lojistik_sinifi?: string | null
+          mindest_bestellmenge?: number | null
+          mindest_bestellmenge_einheit?: string | null
+          naehrwerte?: Json | null
           ortalama_puan?: number | null
           ortalama_stokta_kalma_suresi?: number | null
           palet_ici_adet?: number | null
           palet_ici_koli_adet?: number | null
           palet_ici_kutu_adet?: number | null
+          produktdatenblatt_url?: string | null
           satis_fiyati_alt_bayi?: number
           satis_fiyati_musteri?: number
           satis_fiyati_toptanci?: number | null
+          slug?: string | null
           son_gercek_inis_maliyeti_net?: number | null
           son_maliyet_sapma_yuzde?: number | null
           standart_inis_maliyeti_net?: number | null
-          slug?: string | null
           stok_esigi?: number
           stok_kodu?: string | null
           stok_miktari?: number
+          taric_kodu?: string | null
           tedarikci_id?: string | null
           teknik_ozellikler?: Json | null
           urun_gami?: string | null
+          zertifikate?: string[] | null
         }
         Relationships: [
           {
@@ -2181,6 +2737,13 @@ export type Database = {
             foreignKeyName: "favori_urunler_urun_id_fkey"
             columns: ["urun_id"]
             isOneToOne: false
+            referencedRelation: "public_urunler_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favori_urunler_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
             referencedRelation: "urunler"
             referencedColumns: ["id"]
           },
@@ -2201,6 +2764,54 @@ export type Database = {
         }
         Relationships: []
       }
+      public_urunler_katalog: {
+        Row: {
+          aciklamalar: Json | null
+          ad: Json | null
+          allergene: Json | null
+          ana_resim_url: string | null
+          birim_agirlik_kg: number | null
+          ean_gtin: string | null
+          galeri_resim_urls: string[] | null
+          haltbarkeit_monate: number | null
+          haltbarkeit_nach_oeffnen_tage: number | null
+          herkunftsland: Json | null
+          hersteller_land: string | null
+          hersteller_name: string | null
+          id: string | null
+          inhaltsstoffe: Json | null
+          kategori_ad: Json | null
+          kategori_id: string | null
+          kategori_slug: string | null
+          koli_ici_adet: number | null
+          koli_ici_kutu_adet: number | null
+          lagertemperatur_max_celsius: number | null
+          lagertemperatur_min_celsius: number | null
+          lieferzeit_werktage: number | null
+          lojistik_sinifi: string | null
+          mindest_bestellmenge: number | null
+          mindest_bestellmenge_einheit: string | null
+          naehrwerte: Json | null
+          palet_ici_adet: number | null
+          palet_ici_koli_adet: number | null
+          palet_ici_kutu_adet: number | null
+          produktdatenblatt_url: string | null
+          slug: string | null
+          stok_kodu: string | null
+          teknik_ozellikler: Json | null
+          urun_gami: string | null
+          zertifikate: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "urunler_kategori_id_fkey"
+            columns: ["kategori_id"]
+            isOneToOne: false
+            referencedRelation: "kategoriler"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       alt_bayi_satis_olustur_ve_stok_dus: {
@@ -2210,6 +2821,23 @@ export type Database = {
           p_satis_detaylari: Database["public"]["CompositeTypes"]["satis_detay_input"][]
         }
         Returns: string
+      }
+      calculate_actual_landed_cost: {
+        Args: {
+          p_ciplak_maliyet_eur: number
+          p_fire_zayiat_orani_yuzde: number
+          p_gumruk_vergi_orani_yuzde: number
+          p_gunluk_depolama_maliyeti_eur: number
+          p_navlun_kg_basi_eur: number
+          p_ortalama_stok_gun: number
+          p_soguk_ek_gider_kg_basi_eur: number
+          p_urun_agirlik_kg: number
+        }
+        Returns: number
+      }
+      calculate_tier_price: {
+        Args: { p_marj_yuzde: number; p_standart_inis_maliyeti: number }
+        Returns: number
       }
       count_profiles_by_status: {
         Args: never
@@ -2246,6 +2874,14 @@ export type Database = {
           p_teslimat_adresi: string
         }
         Returns: string
+      }
+      evaluate_variance_alert: {
+        Args: {
+          p_esik_yuzde?: number
+          p_gercek_inis_maliyeti: number
+          p_standart_inis_maliyeti: number
+        }
+        Returns: boolean
       }
       get_critical_product_ids: {
         Args: never
@@ -2337,6 +2973,29 @@ export type Database = {
           total_quantity: number
         }[]
       }
+      search_documents: {
+        Args: {
+          p_date_from?: string
+          p_date_to?: string
+          p_folder_id?: string
+          p_owner_id: string
+          p_search_term: string
+          p_tags?: string[]
+        }
+        Returns: {
+          created_at: string
+          description: string
+          document_date: string
+          document_subject: string
+          file_name: string
+          id: string
+          recipient: string
+          reference_number: string
+          sender: string
+          similarity_rank: number
+          tags: string[]
+        }[]
+      }
       send_notification_to_firma: {
         Args: { p_firma_id: string; p_icerik: string; p_link?: string }
         Returns: number
@@ -2394,6 +3053,7 @@ export type Database = {
         | "Casual Dining"
         | "Hotel & Event"
         | "Rakip/Üretici"
+        | "Catering"
       firma_status:
         | "Aday"
         | "Takipte"
@@ -2401,15 +3061,15 @@ export type Database = {
         | "İletişimde"
         | "Müşteri"
         | "Pasif"
-        | "ADAY"
         | "ISITILIYOR"
         | "TEMAS EDİLDİ"
-        | "NUMUNE VERİLDİ"
-        | "İLETİŞİMDE"
         | "POTANSİYEL"
+        | "ADAY"
+        | "İLETİŞİMDE"
         | "MÜŞTERİ"
         | "PASİF"
         | "REDDEDİLDİ"
+        | "NUMUNE VERİLDİ"
       gider_durumu: "Taslak" | "Onaylandı"
       gorev_durumu: "Yapılacak" | "Devam Ediyor" | "Tamamlandı"
       gorev_oncelik: "Düşük" | "Orta" | "Yüksek"
@@ -2443,7 +3103,7 @@ export type Database = {
         | "Değerlendiriliyor"
         | "Onaylandı"
         | "Reddedildi"
-      user_role: "Yönetici" | "Ekip Üyesi" | "Müşteri" | "Alt Bayi"
+      user_role: "Yönetici" | "Ekip Üyesi" | "Müşteri" | "Alt Bayi" | "Personel"
       yazi_durumu: "Taslak" | "Yayınlandı"
       zahlungshaeufigkeit: "Monatlich" | "Jährlich" | "Einmalig" | "Bedarf"
     }
@@ -2584,83 +3244,96 @@ export const Constants = {
     Enums: {
       etkinlik_tipi: [
         "Not",
-        "Telefon G├Âr├╝┼ƒmesi",
-        "Toplant─▒",
+        "Telefon Görüşmesi",
+        "Toplantı",
         "E-posta",
         "Teklif",
         "Instagram DM",
         "Instagram Yorum",
-        "E-Mail G├Ânderimi",
-        "Y├╝z Y├╝ze Ziyaret",
+        "E-Mail Gönderimi",
+        "Yüz Yüze Ziyaret",
+        "Instagram Etkileşimi",
+        "DM Gönderildi",
+        "Numune İsteği",
       ],
       etkinlik_turu: [
-        "Telefon G├Âr├╝┼ƒmesi",
-        "M├╝┼ƒteri Ziyareti",
+        "Telefon Görüşmesi",
+        "Müşteri Ziyareti",
         "E-posta",
-        "Durum De─ƒi┼ƒikli─ƒi",
-        "Di─ƒer",
+        "Durum Değişikliği",
+        "Diğer",
       ],
       fatura_durumu: ["pending", "paid", "overdue", "cancelled"],
       firma_kategori: [
-        "Kafe", "Restoran", "Otel", "Alt Bayi", "Zincir Market",
-        "Shisha & Lounge", "Coffee Shop & Eiscafé", "Casual Dining", "Hotel & Event", "Catering", "Rakip/Üretici"
+        "Kafe",
+        "Restoran",
+        "Otel",
+        "Alt Bayi",
+        "Zincir Market",
+        "Shisha & Lounge",
+        "Coffee Shop & Eiscafé",
+        "Casual Dining",
+        "Hotel & Event",
+        "Rakip/Üretici",
+        "Catering",
       ],
       firma_status: [
         "Aday",
         "Takipte",
         "Temas Kuruldu",
-        "─░leti┼ƒimde",
-        "M├╝┼ƒteri",
+        "İletişimde",
+        "Müşteri",
         "Pasif",
-        "ADAY",
         "ISITILIYOR",
         "TEMAS EDİLDİ",
-        "NUMUNE VERİLDİ",
         "POTANSİYEL",
+        "ADAY",
+        "İLETİŞİMDE",
         "MÜŞTERİ",
         "PASİF",
-        "REDDEDİLDİ"
+        "REDDEDİLDİ",
+        "NUMUNE VERİLDİ",
       ],
-      gider_durumu: ["Taslak", "Onayland─▒"],
-      gorev_durumu: ["Yap─▒lacak", "Devam Ediyor", "Tamamland─▒"],
-      gorev_oncelik: ["D├╝┼ƒ├╝k", "Orta", "Y├╝ksek"],
-      hedef_rol: ["T├╝m Partnerler", "Sadece Alt Bayiler"],
+      gider_durumu: ["Taslak", "Onaylandı"],
+      gorev_durumu: ["Yapılacak", "Devam Ediyor", "Tamamlandı"],
+      gorev_oncelik: ["Düşük", "Orta", "Yüksek"],
+      hedef_rol: ["Tüm Partnerler", "Sadece Alt Bayiler"],
       materyal_kategori: [
-        "Bro┼ƒ├╝rler",
-        "├£r├╝n Foto─ƒraflar─▒",
+        "Broşürler",
+        "Ürün Fotoğrafları",
         "Sosyal Medya Kitleri",
         "Fiyat Listeleri",
-        "Di─ƒer",
+        "Diğer",
       ],
       numune_talep_durumu: [
         "Yeni Talep",
-        "Onayland─▒",
-        "Haz─▒rlan─▒yor",
-        "G├Ânderildi",
-        "─░ptal Edildi",
+        "Onaylandı",
+        "Hazırlanıyor",
+        "Gönderildi",
+        "İptal Edildi",
       ],
       siparis_durumu: [
         "Beklemede",
-        "Haz─▒rlan─▒yor",
-        "Yola ├ç─▒kt─▒",
+        "Hazırlanıyor",
+        "Yola Çıktı",
         "Teslim Edildi",
-        "─░ptal Edildi",
+        "İptal Edildi",
         "processing",
         "shipped",
         "delivered",
         "cancelled",
       ],
-      siparis_kaynagi: ["Admin Paneli", "M├╝┼ƒteri Portal─▒"],
-      urun_gorunurluk: ["Dahili", "Portal", "Herkese A├º─▒k"],
+      siparis_kaynagi: ["Admin Paneli", "Müşteri Portalı"],
+      urun_gorunurluk: ["Dahili", "Portal", "Herkese Açık"],
       urun_talep_durumu: [
         "Yeni",
-        "De─ƒerlendiriliyor",
-        "Onayland─▒",
+        "Değerlendiriliyor",
+        "Onaylandı",
         "Reddedildi",
       ],
-      user_role: ["Y├Ânetici", "Ekip ├£yesi", "M├╝┼ƒteri", "Alt Bayi", "Personel"],
-      yazi_durumu: ["Taslak", "Yay─▒nland─▒"],
-      zahlungshaeufigkeit: ["Monatlich", "J├ñhrlich", "Einmalig", "Bedarf"],
+      user_role: ["Yönetici", "Ekip Üyesi", "Müşteri", "Alt Bayi", "Personel"],
+      yazi_durumu: ["Taslak", "Yayınlandı"],
+      zahlungshaeufigkeit: ["Monatlich", "Jährlich", "Einmalig", "Bedarf"],
     },
   },
 } as const

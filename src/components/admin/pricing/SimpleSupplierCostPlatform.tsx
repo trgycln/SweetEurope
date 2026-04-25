@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, useTransition, type ReactNode } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import { toast } from 'sonner';
-import { bulkSaveProductPricesAction, saveProductPricesAction } from '@/app/actions/urun-fiyat-actions';
+import { bulkSaveProductPricesAction, saveProductPricesAction, saveProductMetaAction } from '@/app/actions/urun-fiyat-actions';
 import { importSupplierPriceListAction } from '@/app/actions/supplier-price-import-actions';
 import { savePricingDefaultsAction } from '@/app/actions/system-settings-actions';
 import {
@@ -42,6 +42,8 @@ type ProductLite = {
   son_gercek_inis_maliyeti_net?: number | null;
   son_maliyet_sapma_yuzde?: number | null;
   karlilik_alarm_aktif?: boolean | null;
+  referans_fiyat?: number | null;
+  tedarikci_url?: string | null;
 };
 
 type SupplierProfile = 'cold-chain' | 'non-cold';
@@ -52,6 +54,8 @@ type PricingRow = {
   line: ProductLineKey;
   purchase: number;
   unitsPerBox: number;
+  weightKg: number;
+  unitLabel: 'dilim' | 'adet';
   calculation: ReturnType<typeof calculatePricing>;
 };
 
@@ -150,6 +154,15 @@ function inferUnitsPerBox(raw: Record<string, unknown> | null | undefined): numb
   }
 
   return 1;
+}
+
+function getUnitLabel(raw: Record<string, unknown> | null | undefined): 'dilim' | 'adet' {
+  if (!raw) return 'adet';
+  const dilimKeys = ['dilim', 'slice', 'portion', 'porsiyon'];
+  for (const key of Object.keys(raw)) {
+    if (dilimKeys.some(k => key.toLowerCase().includes(k))) return 'dilim';
+  }
+  return 'adet';
 }
 
 function getPositiveInt(raw: Record<string, unknown> | null | undefined, keys: string[], fallback = 1) {
@@ -405,6 +418,41 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
   const smallOrderFeeEur = toNumber(systemSettings?.pricing_small_order_fee_eur, 25);
   const varianceAlertThreshold = toNumber(systemSettings?.pricing_variance_alert_threshold_percent, 5);
 
+  // ── TIR Nakliye Hesaplayıcı state ──────────────────────────────────────────
+  const [tirToplam, setTirToplam] = useState('');
+  const [tirKutu, setTirKutu] = useState('');
+
+  // Auto-apply TIR calculation to shippingPerBox when both inputs are valid
+  useEffect(() => {
+    const t = parseFloat(tirToplam);
+    const k = parseFloat(tirKutu);
+    if (t > 0 && k > 0) {
+      const perBox = round2(t / k);
+      setProfileInputs(prev => ({
+        ...prev,
+        [selectedProfile]: { ...prev[selectedProfile], shippingPerBox: perBox },
+      }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tirToplam, tirKutu, selectedProfile]);
+
+  // ── Adet override (when not found in teknik_ozellikler) ───────────────────
+  const [adetOverrides, setAdetOverrides] = useState<Record<string, number>>({});
+
+  // ── Kategori filtresi ──────────────────────────────────────────────────────
+  const [selectedCategoryId, setSelectedCategoryId] = useState('all');
+
+  // ── URL input visibility (which rows have the URL input expanded) ──────────
+  const [urlInputVisible, setUrlInputVisible] = useState<Set<string>>(new Set());
+
+  // ── Referans Fiyat & Tedarikçi URL state ───────────────────────────────────
+  const [referansFiyatlar, setReferansFiyatlar] = useState<Record<string, string>>(() =>
+    Object.fromEntries(products.map(p => [p.id, p.referans_fiyat != null ? String(p.referans_fiyat) : '']))
+  );
+  const [tedarikciUrller, setTedarikciUrller] = useState<Record<string, string>>(() =>
+    Object.fromEntries(products.map(p => [p.id, p.tedarikci_url ?? '']))
+  );
+
   const appLocale = (locale === 'de' || locale === 'en' || locale === 'tr' || locale === 'ar' ? locale : 'tr');
   const dedupedSuppliers = useMemo(() => dedupeSuppliers(suppliers), [suppliers]);
   const supplierNameById = useMemo(
@@ -439,7 +487,9 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           ? profileToProductLine(profile)
           : getStoredLine(product);
         const purchase = toNumber(productCostInputs[product.id], toNumber(product.distributor_alis_fiyati, 0));
-        const unitsPerBox = inferUnitsPerBox(product.teknik_ozellikler);
+        const inferredUnits = inferUnitsPerBox(product.teknik_ozellikler);
+        const unitsPerBox = adetOverrides[product.id] ?? inferredUnits;
+        const unitLabel = getUnitLabel(product.teknik_ozellikler);
         const logisticsClass = (product.lojistik_sinifi || String((product.teknik_ozellikler as Record<string, unknown> | null)?.lojistik_sinifi || '')).toLowerCase();
         const isColdLogistics = logisticsClass === 'cold-chain' || (logisticsClass !== 'dry-load' && profile === 'cold-chain');
         const weightKg = toNumber(product.birim_agirlik_kg, getNumericMetric(product.teknik_ozellikler, ['birim_agirlik_kg', 'agirlik_kg', 'weight_kg'], 0));
@@ -450,9 +500,9 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
         const calculation = calculatePricing({
           purchase,
           shippingPerBox: profileInputs[profile].shippingPerBox,
-          customsPct: toNumber(product.gumruk_vergi_orani_yuzde, profileInputs[profile].customsPct),
+          customsPct: toNumberOrDefault(product.gumruk_vergi_orani_yuzde, profileInputs[profile].customsPct),
           operationalPct,
-          taxPct: toNumber(product.almanya_kdv_orani, taxPct),
+          taxPct: toNumberOrDefault(product.almanya_kdv_orani, taxPct),
           customerProfitPct,
           wholesaleProfitPct,
           resellerProfitPct,
@@ -472,40 +522,55 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           line,
           purchase,
           unitsPerBox,
+          weightKg,
+          unitLabel,
           calculation,
         };
       });
-  }, [products, locale, categories, productCostInputs, productProfileOverrides, profileInputs, operationalPct, taxPct, customerProfitPct, wholesaleProfitPct, resellerProfitPct, coldDocsPerKg, dryDocsPerKg, coldStorageDaily, dryStorageDaily, roundStep]);
+  }, [products, locale, categories, productCostInputs, productProfileOverrides, profileInputs, operationalPct, taxPct, customerProfitPct, wholesaleProfitPct, resellerProfitPct, coldDocsPerKg, dryDocsPerKg, coldStorageDaily, dryStorageDaily, roundStep, adetOverrides]);
+
+  // Kategori → tüm alt kategorileri kapsayan ID seti
+  const categoryScope = useMemo(() => {
+    if (selectedCategoryId === 'all') return null;
+    const scope = new Set([selectedCategoryId]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const cat of categories) {
+        if (cat.ust_kategori_id && scope.has(cat.ust_kategori_id) && !scope.has(cat.id)) {
+          scope.add(cat.id);
+          changed = true;
+        }
+      }
+    }
+    return scope;
+  }, [selectedCategoryId, categories]);
 
   const visibleRows = useMemo(() => {
     const search = productSearch.trim().toLocaleLowerCase('tr');
-    const selectedSupplierGroupKey = selectedSupplierId !== 'all' && selectedSupplierId !== 'unassigned'
+    const selectedSupplierGroupKey = selectedSupplierId !== 'all'
       ? supplierGroupById[selectedSupplierId] || selectedSupplierId
-      : selectedSupplierId;
+      : 'all';
 
     return rows.filter((row) => {
       if (row.profile !== selectedProfile) return false;
 
-      const rowSupplierGroupKey = row.product.tedarikci_id
-        ? supplierGroupById[row.product.tedarikci_id] || row.product.tedarikci_id
-        : '';
+      if (categoryScope && !categoryScope.has(row.product.kategori_id ?? '')) return false;
 
-      const matchesSupplier = selectedSupplierId === 'all'
-        ? true
-        : selectedSupplierId === 'unassigned'
-          ? !row.product.tedarikci_id
-          : Boolean(rowSupplierGroupKey && rowSupplierGroupKey === selectedSupplierGroupKey);
+      if (selectedSupplierId !== 'all') {
+        const rowKey = row.product.tedarikci_id
+          ? supplierGroupById[row.product.tedarikci_id] || row.product.tedarikci_id
+          : '';
+        if (!rowKey || rowKey !== selectedSupplierGroupKey) return false;
+      }
 
-      if (!matchesSupplier) return false;
       if (!search) return true;
-
       const localizedName = getLocalizedText(row.product.ad, locale, 'Ürün').toLocaleLowerCase('tr');
       const stockCode = String(row.product.stok_kodu || '').toLocaleLowerCase('tr');
       const supplierName = String(row.product.tedarikci_id ? supplierNameById[row.product.tedarikci_id] || '' : '').toLocaleLowerCase('tr');
-
       return localizedName.includes(search) || stockCode.includes(search) || supplierName.includes(search);
     });
-  }, [rows, selectedProfile, selectedSupplierId, productSearch, locale, supplierNameById, supplierGroupById]);
+  }, [rows, selectedProfile, selectedSupplierId, productSearch, locale, supplierNameById, supplierGroupById, categoryScope]);
 
   const coldCount = rows.filter((row) => row.profile === 'cold-chain').length;
   const nonColdCount = rows.filter((row) => row.profile === 'non-cold').length;
@@ -611,6 +676,21 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
     // Save the hub's full-model landing cost as the standard baseline for TIR variance comparison
     standart_inis_maliyeti_net: round2(row.calculation.landedCost),
   });
+
+  // ── Meta field save handlers ────────────────────────────────────────────────
+  const handleSaveRefFiyat = async (urunId: string) => {
+    const raw = referansFiyatlar[urunId] ?? '';
+    const val = raw === '' ? null : parseFloat(raw);
+    if (val !== null && !Number.isFinite(val)) return;
+    const res = await saveProductMetaAction(urunId, { referans_fiyat: val }, locale);
+    if (res?.error) toast.error(res.error);
+  };
+
+  const handleSaveTedarikciUrl = async (urunId: string) => {
+    const val = tedarikciUrller[urunId]?.trim() || null;
+    const res = await saveProductMetaAction(urunId, { tedarikci_url: val }, locale);
+    if (res?.error) toast.error(res.error);
+  };
 
   const handleApplySingle = (row: PricingRow) => {
     if (row.purchase <= 0) {
@@ -738,56 +818,54 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
   return (
     <div className="space-y-4">
       {/* ─── Üst araç çubuğu ───────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
         {/* Profil toggle */}
         <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
-          <button
-            type="button"
-            onClick={() => setSelectedProfile('cold-chain')}
-            className={`rounded-md px-3 py-1.5 text-sm font-semibold transition ${selectedProfile === 'cold-chain' ? 'bg-white text-rose-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Donuk ({coldCount})
+          <button type="button" onClick={() => setSelectedProfile('cold-chain')}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold transition ${selectedProfile === 'cold-chain' ? 'bg-white text-rose-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            ❄️ Donuk <span className="text-xs font-normal opacity-70">({coldCount})</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setSelectedProfile('non-cold')}
-            className={`rounded-md px-3 py-1.5 text-sm font-semibold transition ${selectedProfile === 'non-cold' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            Kuru ({nonColdCount})
+          <button type="button" onClick={() => setSelectedProfile('non-cold')}
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold transition ${selectedProfile === 'non-cold' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            📦 Kuru <span className="text-xs font-normal opacity-70">({nonColdCount})</span>
           </button>
         </div>
 
-        <input
-          type="search"
-          value={productSearch}
-          onChange={(e) => setProductSearch(e.target.value)}
-          placeholder="Ürün ara..."
-          className="w-52 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
-        />
-        <select
-          value={selectedSupplierId}
-          onChange={(e) => setSelectedSupplierId(e.target.value)}
-          className="rounded-md border border-slate-200 px-3 py-1.5 text-sm"
-        >
+        <input type="search" value={productSearch} onChange={e => setProductSearch(e.target.value)}
+          placeholder="Ürün / kod ara…"
+          className="w-44 rounded-md border border-slate-200 px-3 py-1.5 text-sm" />
+
+        {/* Tedarikçi filtresi */}
+        <select value={selectedSupplierId} onChange={e => setSelectedSupplierId(e.target.value)}
+          className="rounded-md border border-slate-200 px-2.5 py-1.5 text-sm max-w-[160px]">
           <option value="all">Tüm tedarikçiler</option>
-          <option value="unassigned">Kaynaksız</option>
-          {dedupedSuppliers.map((s) => (
+          {dedupedSuppliers.map(s => (
             <option key={s.id} value={s.id}>{getCanonicalSupplierLabel(s.unvan)}</option>
           ))}
         </select>
-        {productSearch && (
-          <button type="button" onClick={() => setProductSearch('')} className="rounded-md border border-slate-200 px-2 py-1.5 text-xs text-slate-600">✕</button>
+
+        {/* Kategori filtresi */}
+        <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)}
+          className="rounded-md border border-slate-200 px-2.5 py-1.5 text-sm max-w-[160px]">
+          <option value="all">Tüm kategoriler</option>
+          {categories
+            .filter(c => !c.ust_kategori_id)
+            .map(c => {
+              const label = typeof c.ad === 'string' ? c.ad : (c.ad as any)?.tr || (c.ad as any)?.de || 'Kategori';
+              return <option key={c.id} value={c.id}>{label}</option>;
+            })}
+        </select>
+
+        {(productSearch || selectedSupplierId !== 'all' || selectedCategoryId !== 'all') && (
+          <button type="button" onClick={() => { setProductSearch(''); setSelectedSupplierId('all'); setSelectedCategoryId('all'); }}
+            className="rounded-md border border-slate-200 px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700">✕ Temizle</button>
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-xs text-slate-500">{visibleRows.length} ürün · {readyRows.length} hazır</span>
-          <button
-            type="button"
-            onClick={handleApplyVisible}
-            disabled={isSaving || readyRows.length === 0}
-            className="rounded-md bg-indigo-700 px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {isSaving ? 'Kaydediliyor...' : `Tümünü Uygula (${readyRows.length})`}
+          <span className="text-xs text-slate-400">{visibleRows.length} ürün · {readyRows.length} hazır</span>
+          <button type="button" onClick={handleApplyVisible} disabled={isSaving || readyRows.length === 0}
+            className="rounded-md bg-indigo-700 px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50">
+            {isSaving ? 'Kaydediliyor…' : `Tümünü Uygula (${readyRows.length})`}
           </button>
         </div>
       </div>
@@ -805,6 +883,36 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           <span className="hidden text-xs text-slate-400 group-open:inline">Kapat</span>
         </summary>
         <div className="border-t border-slate-100 px-4 pb-4 pt-3">
+
+          {/* ── TIR Nakliye Hesaplayıcı (kompakt, otomatik) ─────────────── */}
+          {(() => {
+            const tirT = parseFloat(tirToplam);
+            const tirK = parseFloat(tirKutu);
+            const tirHesap = tirT > 0 && tirK > 0 ? round2(tirT / tirK) : null;
+            return (
+              <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 whitespace-nowrap">TIR →</span>
+                <div className="flex items-center gap-1">
+                  <input type="number" min={0} step="1" placeholder="TIR toplam €"
+                    value={tirToplam} onChange={e => setTirToplam(e.target.value)}
+                    className="w-32 rounded border border-amber-300 bg-white px-2 py-1 text-xs"
+                  />
+                  <span className="text-slate-400 text-xs">÷</span>
+                  <input type="number" min={1} step="1" placeholder="kutu sayısı"
+                    value={tirKutu} onChange={e => setTirKutu(e.target.value)}
+                    className="w-24 rounded border border-amber-300 bg-white px-2 py-1 text-xs"
+                  />
+                </div>
+                {tirHesap !== null && (
+                  <span className="text-xs font-semibold text-amber-800">
+                    = <strong>{money(tirHesap)}</strong>/kutu
+                    <span className="ml-1.5 text-[10px] font-normal text-amber-600">(Nakliye otomatik güncellendi)</span>
+                  </span>
+                )}
+              </div>
+            );
+          })()}
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600">Nakliye/Kutu (€)</label>
@@ -880,15 +988,17 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  <th className="px-4 py-2.5">Ürün</th>
-                  <th className="px-3 py-2.5 w-32">Alış (€/kutu)</th>
-                  <th className="px-3 py-2.5 text-right w-28">Net Maliyet</th>
-                  <th className="px-3 py-2.5 text-right w-28 text-blue-700">Alt Bayi</th>
-                  <th className="px-3 py-2.5 text-right w-28 text-violet-700">Toptan</th>
-                  <th className="px-3 py-2.5 text-right w-28 text-emerald-700">Kafe</th>
-                  <th className="px-3 py-2.5 text-right w-24">Mevcut</th>
-                  <th className="px-3 py-2.5 w-28 text-right">İşlem</th>
+                <tr className="border-b border-slate-100 bg-slate-50 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                  <th className="px-4 py-2">Ürün</th>
+                  <th className="px-3 py-2 w-28">Alış/Kutu</th>
+                  <th className="px-3 py-2 text-right w-24">Net Mal.</th>
+                  <th className="px-3 py-2 text-right w-24 text-blue-600">Alt Bayi</th>
+                  <th className="px-3 py-2 text-right w-24 text-violet-600">Toptan</th>
+                  <th className="px-3 py-2 text-right w-24 text-emerald-600">Kafe</th>
+                  <th className="px-3 py-2 text-right w-32 text-slate-500">Adet Fiyatı</th>
+                  <th className="px-3 py-2 text-right w-32 text-purple-600">Pazar €/kg</th>
+                  <th className="px-3 py-2 text-right w-24">Mevcut</th>
+                  <th className="px-3 py-2 w-24 text-right">İşlem</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -896,33 +1006,133 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
                   const hasChanged = Math.abs(toNumber(productCostInputs[row.product.id], row.purchase) - toNumber(row.product.distributor_alis_fiyati, 0)) > 0.001;
                   return (
                     <tr key={row.product.id} className={`hover:bg-slate-50/60 transition ${hasChanged ? 'bg-amber-50/40' : ''}`}>
+                      {/* ── Ürün adı + tedarikçi URL ───────────────────── */}
                       <td className="px-4 py-2">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-slate-900 leading-snug">{productName(row.product)}</span>
+                          <span className="font-medium text-slate-900 leading-snug text-sm">{productName(row.product)}</span>
                           <div className="flex flex-wrap items-center gap-1 text-[11px]">
-                            {row.product.stok_kodu && <span className="text-slate-400">{row.product.stok_kodu}</span>}
-                            <span className="text-slate-400">·</span>
+                            {row.product.stok_kodu && <span className="text-slate-400 font-mono">{row.product.stok_kodu}</span>}
+                            <span className="text-slate-300">·</span>
                             <span className="text-slate-500">{productSupplierLabel(row.product)}</span>
-                            <span className={`rounded-full px-1.5 py-0.5 font-medium ${row.profile === 'cold-chain' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                              {row.profile === 'cold-chain' ? 'Donuk' : 'Kuru'}
+                            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${row.profile === 'cold-chain' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                              {row.profile === 'cold-chain' ? '❄️' : '📦'}
                             </span>
+                          </div>
+                          {/* Tedarikçi URL — sadece URL varsa ikon, yoksa "+" */}
+                          <div className="flex items-center gap-1 mt-0.5">
+                            {tedarikciUrller[row.product.id] && !urlInputVisible.has(row.product.id) ? (
+                              <>
+                                <a href={tedarikciUrller[row.product.id]} target="_blank" rel="noopener noreferrer"
+                                  className="text-[10px] text-blue-500 hover:text-blue-700 font-medium"
+                                  title={tedarikciUrller[row.product.id]}>
+                                  → Kaynak
+                                </a>
+                                <button type="button"
+                                  onClick={() => setUrlInputVisible(prev => new Set([...prev, row.product.id]))}
+                                  className="text-[10px] text-slate-300 hover:text-slate-500">✏️</button>
+                              </>
+                            ) : urlInputVisible.has(row.product.id) ? (
+                              <div className="flex items-center gap-1 w-full">
+                                <input type="url"
+                                  value={tedarikciUrller[row.product.id] ?? ''}
+                                  onChange={e => setTedarikciUrller(prev => ({ ...prev, [row.product.id]: e.target.value }))}
+                                  onBlur={async () => {
+                                    await handleSaveTedarikciUrl(row.product.id);
+                                    setUrlInputVisible(prev => { const s = new Set(prev); s.delete(row.product.id); return s; });
+                                  }}
+                                  autoFocus
+                                  placeholder="https://…"
+                                  className="flex-1 min-w-0 rounded border border-blue-300 px-1.5 py-0.5 text-[10px] focus:outline-none"
+                                />
+                              </div>
+                            ) : (
+                              <button type="button"
+                                onClick={() => setUrlInputVisible(prev => new Set([...prev, row.product.id]))}
+                                className="text-[10px] text-slate-300 hover:text-slate-500" title="Tedarikçi URL ekle">
+                                + kaynak
+                              </button>
+                            )}
                           </div>
                         </div>
                       </td>
+
+                      {/* ── Alış fiyatı + adet override ─────────────────── */}
                       <td className="px-3 py-2">
-                        <input
-                          type="number"
-                          min={0}
-                          step="0.01"
+                        <input type="number" min={0} step="0.01"
                           value={productCostInputs[row.product.id] ?? row.purchase}
-                          onChange={(e) => setProductCostInputs((prev) => ({ ...prev, [row.product.id]: toNumber(e.target.value, 0) }))}
+                          onChange={e => setProductCostInputs(prev => ({ ...prev, [row.product.id]: toNumber(e.target.value, 0) }))}
                           className={`w-full rounded-md border px-2 py-1.5 text-sm text-right ${hasChanged ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white'}`}
                         />
+                        {/* Adet sayısı: göster veya override input */}
+                        <div className="flex items-center justify-end gap-1 mt-0.5">
+                          {adetOverrides[row.product.id] !== undefined || row.unitsPerBox > 1 ? (
+                            <span className="text-[10px] text-slate-400">{row.unitsPerBox} {row.unitLabel}</span>
+                          ) : null}
+                          <input type="number" min={1} step="1"
+                            value={adetOverrides[row.product.id] ?? ''}
+                            onChange={e => {
+                              const v = parseInt(e.target.value, 10);
+                              setAdetOverrides(prev => v > 0 ? { ...prev, [row.product.id]: v } : (() => { const n = { ...prev }; delete n[row.product.id]; return n; })());
+                            }}
+                            placeholder={`${row.unitsPerBox} ${row.unitLabel}`}
+                            className="w-16 rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] text-right text-slate-500 focus:border-slate-400 focus:outline-none"
+                          />
+                        </div>
                       </td>
-                      <td className="px-3 py-2 text-right font-semibold text-slate-800">{money(row.calculation.landedCost)}</td>
-                      <td className="px-3 py-2 text-right font-semibold text-blue-800">{money(row.calculation.resellerNet)}</td>
-                      <td className="px-3 py-2 text-right font-semibold text-violet-800">{money(row.calculation.wholesaleNet)}</td>
-                      <td className="px-3 py-2 text-right font-semibold text-emerald-800">{money(row.calculation.customerNet)}</td>
+
+                      {/* ── Hesaplanan fiyatlar ──────────────────────────── */}
+                      <td className="px-3 py-2 text-right font-semibold text-slate-700 text-sm">{money(row.calculation.landedCost)}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-blue-800 text-sm">{money(row.calculation.resellerNet)}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-violet-800 text-sm">{money(row.calculation.wholesaleNet)}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-emerald-800 text-sm">{money(row.calculation.customerNet)}</td>
+
+                      {/* ── Adet/Dilim fiyatı ───────────────────────────── */}
+                      <td className="px-3 py-2 text-right">
+                        {row.unitsPerBox > 1 ? (
+                          <div className="flex flex-col items-end gap-0.5 text-[11px]">
+                            <span className="text-violet-700 font-medium">
+                              {money(row.calculation.wholesalePerUnit)}/{row.unitLabel}
+                            </span>
+                            <span className="text-emerald-700 font-medium">
+                              {money(row.calculation.customerPerUnit)}/{row.unitLabel}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-slate-300">—</span>
+                        )}
+                      </td>
+
+                      {/* ── Pazar Referans €/kg ──────────────────────────── */}
+                      <td className="px-3 py-2 text-right">
+                        {(() => {
+                          const rawVal = referansFiyatlar[row.product.id] ?? '';
+                          const refKg = rawVal !== '' ? parseFloat(rawVal) : NaN;
+                          const hasRef = Number.isFinite(refKg) && refKg > 0;
+                          const ourKgPrice = row.weightKg > 0 ? round2(row.calculation.customerNet / row.weightKg) : null;
+                          const diff = hasRef && ourKgPrice !== null ? refKg - ourKgPrice : null;
+                          return (
+                            <div className="flex flex-col items-end gap-0.5">
+                              <input type="number" min={0} step="0.01"
+                                value={rawVal}
+                                onChange={e => setReferansFiyatlar(prev => ({ ...prev, [row.product.id]: e.target.value }))}
+                                onBlur={() => handleSaveRefFiyat(row.product.id)}
+                                placeholder="€/kg"
+                                className="w-20 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-right focus:border-purple-400 focus:outline-none"
+                              />
+                              {ourKgPrice !== null && (
+                                <span className="text-[10px] text-slate-400">Biz: {money(ourKgPrice)}/kg</span>
+                              )}
+                              {diff !== null && (
+                                <span className={`text-[10px] font-semibold ${diff >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                                  {diff >= 0 ? '↑ ucuz' : '↓ pahalı'} {Math.abs(diff).toFixed(2)} €
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </td>
+
+                      {/* ── Mevcut kaydedilmiş fiyatlar ─────────────────── */}
                       <td className="px-3 py-2 text-right">
                         <span className="text-[11px] text-slate-400 leading-tight block">{money(toNumber(row.product.satis_fiyati_musteri, 0))}</span>
                         <span className="text-[11px] text-slate-300 leading-tight block">{money(toNumber(row.product.satis_fiyati_alt_bayi, 0))}</span>
