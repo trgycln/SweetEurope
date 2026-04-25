@@ -3,6 +3,22 @@ import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
+function getSiteUrl(request: Request): string {
+  // 1. Üretimde hosting panelinden setlenen ortam değişkeni (en güvenilir)
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
+  }
+  // 2. Proxy / CDN başlıkları (Vercel, Cloudflare, Nginx vb.)
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  // 3. Fallback — lokal geliştirmede çalışır
+  const { origin } = new URL(request.url);
+  return origin;
+}
+
 export async function POST(request: Request) {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
@@ -34,7 +50,8 @@ export async function POST(request: Request) {
     return new NextResponse(JSON.stringify({ error: 'E-posta adresi gerekli' }), { status: 400 });
   }
 
-  const redirectTo = new URL(`/${locale}/auth/reset-password`, request.url).toString();
+  const siteUrl = getSiteUrl(request);
+  const redirectTo = `${siteUrl}/${locale}/auth/reset-password`;
   const supabaseAdmin = createSupabaseServiceClient();
 
   const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, { redirectTo });

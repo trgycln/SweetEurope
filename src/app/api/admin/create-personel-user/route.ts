@@ -5,6 +5,19 @@ import { normalizeAllowedAdminPanels, normalizeInternalNotificationPreferences }
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
+function getSiteUrl(request: Request): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
+  }
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  const { origin } = new URL(request.url);
+  return origin;
+}
+
 const VALID_ROLES = ['Yönetici', 'Personel', 'Müşteri', 'Alt Bayi'] as const;
 type ValidRole = (typeof VALID_ROLES)[number];
 
@@ -52,7 +65,7 @@ export async function POST(request: Request) {
   const firmaId = payload.firma_id?.trim() || null;
   const sendInviteEmail = payload.sendInviteEmail === true;
   const locale = payload.locale || 'tr';
-  const redirectTo = new URL(`/${locale}/auth/reset-password`, request.url).toString();
+  const redirectTo = `${getSiteUrl(request)}/${locale}/auth/reset-password`;
   const allowedPanels = isPortalRole ? [] : normalizeAllowedAdminPanels(payload.allowedPanels);
   const notificationPreferences = isPortalRole ? null : normalizeInternalNotificationPreferences(payload.notificationPreferences);
 
