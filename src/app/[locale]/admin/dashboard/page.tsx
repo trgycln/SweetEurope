@@ -129,13 +129,25 @@ type ReportData = {
 
 // Manager Dashboard Komponente (YENİ DÜZEN)
 async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardProps) {
-    
+
     const supabase = await createSupabaseServerClient(cookieStore);
-    
+
     // Sözlük içeriklerini güvenle al
     const pageContent = (dictionary.adminDashboard && dictionary.adminDashboard.dashboardPage) ? dictionary.adminDashboard.dashboardPage : {};
     const operationalContent = dictionary.adminDashboard || {};
     const pnlContent = dictionary.pnlReportPage || {};
+
+    // ── Mevcut kullanıcı ve rol tespiti ─────────────────────────────────────
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    const isAdmin = await (async () => {
+        if (!currentUser) return false;
+        const { data: profil } = await supabase
+            .from('profiller')
+            .select('rol')
+            .eq('id', currentUser.id)
+            .maybeSingle();
+        return profil?.rol === 'Yönetici';
+    })();
 
     const now = new Date();
     const todayISO = now.toISOString();
@@ -214,7 +226,20 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
         supabase.rpc('get_kritik_stok_count'),
         supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
         (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
-        supabase.from('gorevler').select('id, baslik, son_tarih, aciklama').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(5),
+        (() => {
+            // Yönetici: tüm gecikmiş görevler; diğerleri: sadece kendine atanan
+            let q = supabase
+                .from('gorevler')
+                .select('id, baslik, son_tarih, aciklama, atanan_kisi_id, oncelik')
+                .eq('tamamlandi', false)
+                .lt('son_tarih', todayISO)
+                .order('son_tarih', { ascending: true })
+                .limit(8);
+            if (!isAdmin && currentUser?.id) {
+                q = q.eq('atanan_kisi_id', currentUser.id);
+            }
+            return q;
+        })(),
                 // FIXED: Sadece görülmemiş başvuruları say
                 applicationsResPromise,
         supabase.from('numune_talepleri').select('id', { count: 'exact' }).eq('durum', NEUE_MUSTER_STATUS),
@@ -481,27 +506,65 @@ async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardPr
 
                 {/* Rechte Spalte */}
                 <div className="space-y-6">
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                        <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).overdueTasksTitle || 'Overdue Tasks'}</h2>
+                    <div className="bg-white p-5 rounded-2xl shadow-lg border border-gray-200">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <FiClock size={18} className="text-red-500" />
+                                Gecikmiş Görevler
+                            </h2>
+                            <Link href={`/${locale}/admin/gorevler?durum=acik`}
+                                className="text-xs text-slate-400 hover:text-slate-600 font-medium transition-colors">
+                                Tümünü gör →
+                            </Link>
+                        </div>
                         {overdueTasks.length > 0 ? (
-                            <div className="space-y-3 divide-y divide-gray-100">
-                                {overdueTasks.map((task: any) => (
-                                    <div key={task.id} className="pt-3 first:pt-0">
-                                        <Link href={`/${locale}/admin/gorevler`} className="block group">
-                                            <p className="font-semibold text-primary group-hover:text-accent transition-colors truncate">{task.baslik}</p>
-                                            {task.aciklama && (
-                                                <p className="text-xs text-gray-500 mt-0.5 truncate">{task.aciklama}</p>
-                                            )}
-                                            <p className="text-xs text-red-600 font-medium flex items-center gap-1 mt-0.5">
-                                                <FiClock size={12}/>
-                                                {operationalContent.dueDate || "Due:"} {formatDate(task.son_tarih, locale)}
-                                            </p>
+                            <div className="space-y-2">
+                                {overdueTasks.map((task: any) => {
+                                    const daysLate = task.son_tarih
+                                        ? Math.ceil((new Date().getTime() - new Date(task.son_tarih).getTime()) / (1000*60*60*24))
+                                        : 0;
+                                    const prioBadge: Record<string, string> = {
+                                        'Yüksek': 'bg-red-100 text-red-700',
+                                        'Orta':   'bg-orange-100 text-orange-700',
+                                        'Düşük':  'bg-green-100 text-green-700',
+                                    };
+                                    return (
+                                        <Link
+                                            key={task.id}
+                                            href={`/${locale}/admin/gorevler`}
+                                            className="flex items-start gap-3 p-3 rounded-xl border border-red-100 bg-red-50/40 hover:bg-red-50 hover:border-red-200 transition-colors group"
+                                        >
+                                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 flex-shrink-0" />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-red-700 transition-colors">
+                                                    {task.baslik}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-0.5">
+                                                    <span className="text-xs text-red-600 font-medium">
+                                                        {daysLate === 1 ? '1 gün' : `${daysLate} gün`} geçikmiş
+                                                    </span>
+                                                    {task.oncelik && (
+                                                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${prioBadge[task.oncelik] || 'bg-slate-100 text-slate-600'}`}>
+                                                            {task.oncelik}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <span className="text-xs text-red-400 flex-shrink-0 mt-0.5">
+                                                {formatDate(task.son_tarih, locale)}
+                                            </span>
                                         </Link>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
-                            <p className="text-center text-gray-500 py-6">{operationalContent.noOverdueTasks || "No overdue tasks at the moment."}</p>
+                            <div className="text-center py-8">
+                                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <FiClipboard size={20} className="text-green-600" />
+                                </div>
+                                <p className="text-sm font-semibold text-slate-700">Harika! Gecikmiş görev yok.</p>
+                                <p className="text-xs text-slate-400 mt-0.5">Tüm görevler zamanında.</p>
+                            </div>
                         )}
                     </div>
 
