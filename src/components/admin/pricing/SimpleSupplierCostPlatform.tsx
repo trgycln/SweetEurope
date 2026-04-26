@@ -995,8 +995,9 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
                   <th className="px-3 py-2 text-right w-24 text-blue-600">Alt Bayi</th>
                   <th className="px-3 py-2 text-right w-24 text-violet-600">Toptan</th>
                   <th className="px-3 py-2 text-right w-24 text-emerald-600">Kafe</th>
-                  <th className="px-3 py-2 text-right w-32 text-slate-500">Adet Fiyatı</th>
-                  <th className="px-3 py-2 text-right w-32 text-purple-600">Pazar €/kg</th>
+                  <th className="px-3 py-2 text-right w-28 text-emerald-600">Kafe/Dilim</th>
+                  <th className="px-3 py-2 text-right w-24 text-slate-600">Bizim €/kg</th>
+                  <th className="px-3 py-2 text-right w-28 text-purple-600">Pazar €/kg</th>
                   <th className="px-3 py-2 text-right w-24">Mevcut</th>
                   <th className="px-3 py-2 w-24 text-right">İşlem</th>
                 </tr>
@@ -1086,17 +1087,23 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
                       <td className="px-3 py-2 text-right font-semibold text-violet-800 text-sm">{money(row.calculation.wholesaleNet)}</td>
                       <td className="px-3 py-2 text-right font-semibold text-emerald-800 text-sm">{money(row.calculation.customerNet)}</td>
 
-                      {/* ── Adet/Dilim fiyatı ───────────────────────────── */}
+                      {/* ── Dilim fiyatı (sadece kafe) ──────────────────── */}
                       <td className="px-3 py-2 text-right">
                         {row.unitsPerBox > 1 ? (
-                          <div className="flex flex-col items-end gap-0.5 text-[11px]">
-                            <span className="text-violet-700 font-medium">
-                              {money(row.calculation.wholesalePerUnit)}/{row.unitLabel}
-                            </span>
-                            <span className="text-emerald-700 font-medium">
-                              {money(row.calculation.customerPerUnit)}/{row.unitLabel}
-                            </span>
-                          </div>
+                          <span className="text-[12px] font-semibold text-emerald-700">
+                            {money(row.calculation.customerPerUnit)}/{row.unitLabel}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-300">—</span>
+                        )}
+                      </td>
+
+                      {/* ── Bizim €/kg ──────────────────────────────────── */}
+                      <td className="px-3 py-2 text-right">
+                        {row.weightKg > 0 ? (
+                          <span className="text-[13px] font-bold text-slate-700">
+                            {money(round2(row.calculation.customerNet / row.weightKg))}/kg
+                          </span>
                         ) : (
                           <span className="text-[10px] text-slate-300">—</span>
                         )}
@@ -1105,23 +1112,20 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
                       {/* ── Pazar Referans €/kg ──────────────────────────── */}
                       <td className="px-3 py-2 text-right">
                         {(() => {
-                          const rawVal = referansFiyatlar[row.product.id] ?? '';
-                          const refKg = rawVal !== '' ? parseFloat(rawVal) : NaN;
-                          const hasRef = Number.isFinite(refKg) && refKg > 0;
+                          const rawVal     = referansFiyatlar[row.product.id] ?? '';
+                          const refKg      = rawVal !== '' ? parseFloat(rawVal) : NaN;
+                          const hasRef     = Number.isFinite(refKg) && refKg > 0;
                           const ourKgPrice = row.weightKg > 0 ? round2(row.calculation.customerNet / row.weightKg) : null;
-                          const diff = hasRef && ourKgPrice !== null ? refKg - ourKgPrice : null;
+                          const diff       = hasRef && ourKgPrice !== null ? refKg - ourKgPrice : null;
                           return (
                             <div className="flex flex-col items-end gap-0.5">
                               <input type="number" min={0} step="0.01"
                                 value={rawVal}
                                 onChange={e => setReferansFiyatlar(prev => ({ ...prev, [row.product.id]: e.target.value }))}
                                 onBlur={() => handleSaveRefFiyat(row.product.id)}
-                                placeholder="€/kg"
-                                className="w-20 rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-right focus:border-purple-400 focus:outline-none"
+                                placeholder="€/kg gir"
+                                className="w-20 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-right text-slate-500 focus:border-purple-400 focus:outline-none"
                               />
-                              {ourKgPrice !== null && (
-                                <span className="text-[10px] text-slate-400">Biz: {money(ourKgPrice)}/kg</span>
-                              )}
                               {diff !== null && (
                                 <span className={`text-[10px] font-semibold ${diff >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                                   {diff >= 0 ? '↑ ucuz' : '↓ pahalı'} {Math.abs(diff).toFixed(2)} €

@@ -1,1437 +1,757 @@
 'use client';
 
 import Link from 'next/link';
-import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiBell, FiBriefcase, FiChevronDown, FiClipboard, FiEdit2, FiMail, FiSave, FiShield, FiTrash2, FiUserPlus, FiXCircle } from 'react-icons/fi';
+import {
+    FiBell, FiBriefcase, FiChevronDown, FiClipboard, FiEdit2, FiMail,
+    FiSave, FiShield, FiTrash2, FiUserPlus, FiX, FiRefreshCw, FiSearch,
+    FiLock, FiCheck, FiAlertTriangle, FiUser,
+} from 'react-icons/fi';
 import { toast } from 'sonner';
-
 import { DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES, INTERNAL_NOTIFICATION_OPTIONS } from '@/lib/admin/panel-access';
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type UserRole = 'Yönetici' | 'Ekip Üyesi' | 'Personel' | 'Müşteri' | 'Alt Bayi' | string;
 
 type ManagedUser = {
-  id: string;
-  tam_ad: string | null;
-  rol: UserRole;
-  email: string | null;
-  firma_id: string | null;
-  firma_unvan: string | null;
-  tercih_edilen_dil: string | null;
-  gorev_sayisi: number;
-  acik_gorev_sayisi: number;
-  gorevler: string[];
-  allowed_admin_panels: string[];
-  notification_preferences: Record<string, boolean>;
+    id: string;
+    tam_ad: string | null;
+    rol: UserRole;
+    email: string | null;
+    firma_id: string | null;
+    firma_unvan: string | null;
+    tercih_edilen_dil: string | null;
+    gorev_sayisi: number;
+    acik_gorev_sayisi: number;
+    gorevler: string[];
+    allowed_admin_panels: string[];
+    notification_preferences: Record<string, boolean>;
 };
 
-type PanelOption = {
-  key: string;
-  label: string;
-  description: string;
-};
-
-type FirmaOption = {
-  id: string;
-  unvan: string;
-  ticari_tip: string | null;
-  kategori: string | null;
-  sahip_id: string | null;
-};
+type PanelOption  = { key: string; label: string; description: string };
+type FirmaOption  = { id: string; unvan: string; ticari_tip: string | null; kategori: string | null; sahip_id: string | null };
+type NotifKey     = keyof typeof DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES;
 
 interface PersonelManagerProps {
-  initialUsers: ManagedUser[];
-  panelOptions: PanelOption[];
-  firmaOptions: FirmaOption[];
-  locale: string;
-  canManage: boolean;
-  currentUserId: string;
+    initialUsers: ManagedUser[];
+    panelOptions: PanelOption[];
+    firmaOptions: FirmaOption[];
+    locale: string;
+    canManage: boolean;
+    currentUserId: string;
 }
+
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const INTERNAL_ROLES = ['Yönetici', 'Personel'];
 const CREATE_ROLE_OPTIONS = ['Personel', 'Yönetici'];
-const MANAGED_ROLE_OPTIONS = ['Personel', 'Yönetici'];
 const PORTAL_ROLE_OPTIONS = ['Müşteri', 'Alt Bayi'];
 
-type NotificationPreferenceKey = keyof typeof DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES;
-
-function getDefaultNotificationPreferences() {
-  return { ...DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES };
-}
-
-const ROLE_BADGE_CLASSES: Record<string, string> = {
-  'Yönetici': 'bg-red-100 text-red-700',
-  'Ekip Üyesi': 'bg-amber-100 text-amber-700',
-  'Personel': 'bg-amber-100 text-amber-700',
-  'Müşteri': 'bg-green-100 text-green-700',
-  'Alt Bayi': 'bg-purple-100 text-purple-700',
-  'Tanımsız': 'bg-slate-100 text-slate-700',
+const ROLE_STYLES: Record<string, { badge: string; dot: string }> = {
+    'Yönetici':  { badge: 'bg-red-100 text-red-700 border-red-200',     dot: 'bg-red-500' },
+    'Personel':  { badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-500' },
+    'Ekip Üyesi':{ badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400' },
+    'Müşteri':   { badge: 'bg-green-100 text-green-700 border-green-200', dot: 'bg-green-500' },
+    'Alt Bayi':  { badge: 'bg-purple-100 text-purple-700 border-purple-200', dot: 'bg-purple-500' },
+    'Tanımsız':  { badge: 'bg-slate-100 text-slate-600 border-slate-200', dot: 'bg-slate-400' },
 };
 
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return 'Beklenmeyen bir hata oluştu.';
+function initials(name: string | null, email: string | null) {
+    const text = name || email || '?';
+    return text.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
-function getFirmaRoleType(firma: FirmaOption): 'Müşteri' | 'Alt Bayi' {
-  const normalized = `${firma.ticari_tip || ''} ${firma.kategori || ''}`.toLowerCase();
-  return normalized.includes('alt') && normalized.includes('bayi') ? 'Alt Bayi' : 'Müşteri';
+function getDefaultNotifPrefs() { return { ...DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES }; }
+function getErrMsg(e: unknown): string { return e instanceof Error ? e.message : 'Beklenmeyen bir hata oluştu.'; }
+function getFirmaRoleType(f: FirmaOption): 'Müşteri' | 'Alt Bayi' {
+    const s = `${f.ticari_tip || ''} ${f.kategori || ''}`.toLowerCase();
+    return s.includes('alt') && s.includes('bayi') ? 'Alt Bayi' : 'Müşteri';
 }
 
-function getFirmsForRole(role: string, firmalar: FirmaOption[]) {
-  return firmalar.filter((firma) => getFirmaRoleType(firma) === role);
-}
+// ── Sub-components ────────────────────────────────────────────────────────────
 
-type AccordionSectionKey = 'filters' | 'create-internal' | 'create-portal' | 'internal-users' | 'pending-users' | 'partner-users';
-
-type AccordionSectionProps = {
-  title: string;
-  description: string;
-  icon?: ReactNode;
-  isOpen: boolean;
-  onToggle: () => void;
-  tone?: 'default' | 'warning';
-  children: ReactNode;
-};
-
-function AccordionSection({ title, description, icon, isOpen, onToggle, tone = 'default', children }: AccordionSectionProps) {
-  const isWarning = tone === 'warning';
-
-  return (
-    <section className={`overflow-hidden rounded-xl border p-0 shadow-sm ${isWarning ? 'border-amber-200 bg-amber-50' : 'border-gray-200 bg-white'}`}>
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left"
-      >
-        <div>
-          <div className="mb-1 flex items-center gap-2">
-            {icon}
-            <h2 className={`text-lg font-semibold ${isWarning ? 'text-amber-900' : 'text-primary'}`}>{title}</h2>
-          </div>
-          <p className={`text-sm ${isWarning ? 'text-amber-800' : 'text-gray-600'}`}>{description}</p>
+function Avatar({ name, email, size = 'md' }: { name: string | null; email: string | null; size?: 'sm' | 'md' | 'lg' }) {
+    const sz = size === 'sm' ? 'w-8 h-8 text-xs' : size === 'lg' ? 'w-14 h-14 text-lg' : 'w-10 h-10 text-sm';
+    return (
+        <div className={`${sz} rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center flex-shrink-0 select-none`}>
+            {initials(name, email)}
         </div>
-        <span
-          className={`inline-flex rounded-full border p-2 transition-transform ${
-            isWarning ? 'border-amber-200 bg-amber-100 text-amber-900' : 'border-gray-200 bg-gray-50 text-gray-600'
-          } ${isOpen ? 'rotate-180' : ''}`}
-        >
-          <FiChevronDown size={16} />
+    );
+}
+
+function RoleBadge({ rol }: { rol: string }) {
+    const s = ROLE_STYLES[rol] ?? ROLE_STYLES['Tanımsız'];
+    return (
+        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${s.badge}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />{rol}
         </span>
-      </button>
-
-      {isOpen && <div className={`border-t px-5 pb-5 pt-4 ${isWarning ? 'border-amber-200' : 'border-gray-200'}`}>{children}</div>}
-    </section>
-  );
+    );
 }
 
-export default function PersonelManager({
-  initialUsers,
-  panelOptions,
-  firmaOptions,
-  locale,
-  canManage,
-  currentUserId,
-}: PersonelManagerProps) {
-  const router = useRouter();
-  const [users, setUsers] = useState<ManagedUser[]>(initialUsers);
-  const [loadingKey, setLoadingKey] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [editingUserIds, setEditingUserIds] = useState<string[]>([]);
-  const [pendingApprovalIds, setPendingApprovalIds] = useState<string[]>(
-    initialUsers.filter((user) => user.rol === 'Tanımsız').map((user) => user.id)
-  );
-  const [newUser, setNewUser] = useState({
-    tamAd: '',
-    email: '',
-    password: '',
-    rol: 'Personel',
-    allowedPanels: ['dashboard', 'orders', 'tasks'],
-    notificationPreferences: getDefaultNotificationPreferences(),
-    sendInviteEmail: false,
-  });
-  const [newPortalUser, setNewPortalUser] = useState({
-    tamAd: '',
-    email: '',
-    password: '',
-    rol: 'Müşteri',
-    firmaId: '',
-    sendInviteEmail: false,
-  });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'Tümü' | 'Yönetici' | 'Personel' | 'Müşteri' | 'Alt Bayi' | 'Tanımsız'>('Tümü');
-  const [openSection, setOpenSection] = useState<AccordionSectionKey | null>(null);
-
-  const initialUserMap = useMemo(
-    () => new Map(initialUsers.map((user) => [user.id, user] as const)),
-    [initialUsers]
-  );
-
-  useEffect(() => {
-    setUsers(initialUsers);
-    setEditingUserIds([]);
-    setPendingApprovalIds(initialUsers.filter((user) => user.rol === 'Tanımsız').map((user) => user.id));
-  }, [initialUsers]);
-
-  const isEditingUser = (userId: string) => pendingApprovalIds.includes(userId) || editingUserIds.includes(userId);
-
-  const matchesFilters = useCallback((user: ManagedUser) => {
-    const normalizedSearch = searchTerm.trim().toLocaleLowerCase('tr');
-    const haystack = [user.tam_ad, user.email, user.firma_unvan, user.rol].filter(Boolean).join(' ').toLocaleLowerCase('tr');
-    const searchMatches = normalizedSearch.length === 0 || haystack.includes(normalizedSearch);
-    const roleMatches = roleFilter === 'Tümü' || user.rol === roleFilter;
-    return searchMatches && roleMatches;
-  }, [roleFilter, searchTerm]);
-
-  const internalUsers = useMemo(
-    () => users.filter((user) => INTERNAL_ROLES.includes(user.rol) && !pendingApprovalIds.includes(user.id) && matchesFilters(user)),
-    [matchesFilters, pendingApprovalIds, users]
-  );
-
-  const pendingUsers = useMemo(
-    () => users.filter((user) => pendingApprovalIds.includes(user.id) && matchesFilters(user)),
-    [matchesFilters, pendingApprovalIds, users]
-  );
-
-  const partnerUsers = useMemo(
-    () => users.filter((user) => !INTERNAL_ROLES.includes(user.rol) && user.rol !== 'Tanımsız' && !pendingApprovalIds.includes(user.id) && matchesFilters(user)),
-    [matchesFilters, pendingApprovalIds, users]
-  );
-
-  const summary = useMemo(() => {
-    const countByRole = (role: string) =>
-      users.filter((user) => user.rol === role && !pendingApprovalIds.includes(user.id)).length;
-    return {
-      yonetici: countByRole('Yönetici'),
-      personel: countByRole('Personel'),
-      musteri: countByRole('Müşteri'),
-      altBayi: countByRole('Alt Bayi'),
-    };
-  }, [pendingApprovalIds, users]);
-
-  const firmUserCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const user of partnerUsers) {
-      if (!user.firma_id) continue;
-      counts.set(user.firma_id, (counts.get(user.firma_id) || 0) + 1);
-    }
-    return counts;
-  }, [partnerUsers]);
-
-  const portalFirmOptions = useMemo(
-    () => getFirmsForRole(newPortalUser.rol, firmaOptions),
-    [newPortalUser.rol, firmaOptions]
-  );
-
-  const updateUserState = (userId: string, patch: Partial<ManagedUser>) => {
-    setUsers((currentUsers) =>
-      currentUsers.map((user) => (user.id === userId ? { ...user, ...patch } : user))
+function StatMini({ label, value, warn }: { label: string; value: number; warn?: boolean }) {
+    return (
+        <div className="text-center">
+            <p className={`text-xl font-bold ${warn && value > 0 ? 'text-red-600' : 'text-slate-800'}`}>{value}</p>
+            <p className="text-[11px] text-slate-500">{label}</p>
+        </div>
     );
-  };
+}
 
-  const startEditingUser = (userId: string) => {
-    setEditingUserIds((current) => (current.includes(userId) ? current : [...current, userId]));
-  };
+// ── Kullanıcı Kartı ───────────────────────────────────────────────────────────
 
-  const cancelEditingUser = (userId: string) => {
-    const originalUser = initialUserMap.get(userId);
-    if (originalUser) {
-      setUsers((currentUsers) =>
-        currentUsers.map((user) => (user.id === userId ? { ...originalUser } : user))
-      );
-    }
-    setEditingUserIds((current) => current.filter((id) => id !== userId));
-  };
+function UserCard({
+    user, isEditing, panelOptions, firmaOptions, loadingKey, canManage, locale, isCurrentUser,
+    onEdit, onCancelEdit, onSave, onDelete, onPasswordReset, onUpdateUser, onTogglePanel, onToggleNotif,
+}: {
+    user: ManagedUser;
+    isEditing: boolean;
+    panelOptions: PanelOption[];
+    firmaOptions: FirmaOption[];
+    loadingKey: string | null;
+    canManage: boolean;
+    locale: string;
+    isCurrentUser: boolean;
+    onEdit: () => void;
+    onCancelEdit: () => void;
+    onSave: (u: ManagedUser) => void;
+    onDelete: (id: string) => void;
+    onPasswordReset: (email: string | null, label: string) => void;
+    onUpdateUser: (id: string, patch: Partial<ManagedUser>) => void;
+    onTogglePanel: (id: string, key: string) => void;
+    onToggleNotif: (id: string, key: NotifKey) => void;
+}) {
+    const isInternal = INTERNAL_ROLES.includes(user.rol) || user.rol === 'Tanımsız';
+    const saving  = loadingKey === user.id;
+    const deleting = loadingKey === `delete-${user.id}`;
+    const resetting = loadingKey === `reset-${user.email}`;
+    const label = user.tam_ad || user.email || 'Kullanıcı';
+    const isPending = user.rol === 'Tanımsız';
 
-  const toggleExistingPanel = (userId: string, panelKey: string) => {
-    if (panelKey === 'dashboard') {
-      return;
-    }
-
-    setUsers((currentUsers) =>
-      currentUsers.map((user) => {
-        if (user.id !== userId) return user;
-
-        const nextPanels = user.allowed_admin_panels.includes(panelKey)
-          ? user.allowed_admin_panels.filter((key) => key !== panelKey)
-          : [...user.allowed_admin_panels, panelKey];
-
-        return {
-          ...user,
-          allowed_admin_panels: Array.from(new Set(['dashboard', ...nextPanels])),
-        };
-      })
-    );
-  };
-
-  const toggleNewPanel = (panelKey: string) => {
-    if (panelKey === 'dashboard') {
-      return;
-    }
-
-    setNewUser((current) => {
-      const nextPanels = current.allowedPanels.includes(panelKey)
-        ? current.allowedPanels.filter((key) => key !== panelKey)
-        : [...current.allowedPanels, panelKey];
-
-      return {
-        ...current,
-        allowedPanels: Array.from(new Set(['dashboard', ...nextPanels])),
-      };
-    });
-  };
-
-  const toggleExistingNotificationPreference = (userId: string, preferenceKey: NotificationPreferenceKey) => {
-    setUsers((currentUsers) =>
-      currentUsers.map((user) => {
-        if (user.id !== userId) {
-          return user;
-        }
-
-        return {
-          ...user,
-          notification_preferences: {
-            ...getDefaultNotificationPreferences(),
-            ...user.notification_preferences,
-            [preferenceKey]: !user.notification_preferences?.[preferenceKey],
-          },
-        };
-      })
-    );
-  };
-
-  const toggleNewNotificationPreference = (preferenceKey: NotificationPreferenceKey) => {
-    setNewUser((current) => ({
-      ...current,
-      notificationPreferences: {
-        ...getDefaultNotificationPreferences(),
-        ...current.notificationPreferences,
-        [preferenceKey]: !current.notificationPreferences[preferenceKey],
-      },
-    }));
-  };
-
-  const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!canManage) return;
-
-    setLoadingKey('create');
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await fetch('/api/admin/create-personel-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: newUser.email,
-          password: newUser.password || undefined,
-          tam_ad: newUser.tamAd || null,
-          rol: newUser.rol,
-          allowedPanels: newUser.allowedPanels,
-          notificationPreferences: newUser.notificationPreferences,
-          sendInviteEmail: newUser.sendInviteEmail,
-          locale,
-        }),
-      });
-
-      const data = (await response.json().catch(() => null)) as { error?: string; message?: string } | null;
-      if (!response.ok) {
-        const message = data?.error || 'Kullanıcı oluşturulamadı.';
-        setError(message);
-        toast.error(message);
-        return;
-      }
-
-      const message = data?.message || (newUser.sendInviteEmail ? 'Yeni iç kullanıcı oluşturuldu ve davet maili gönderildi.' : 'Yeni iç kullanıcı oluşturuldu.');
-      setSuccess(message);
-      toast.success(message);
-      setNewUser({
-        tamAd: '',
-        email: '',
-        password: '',
-        rol: 'Personel',
-        allowedPanels: ['dashboard', 'orders', 'tasks'],
-        notificationPreferences: getDefaultNotificationPreferences(),
-        sendInviteEmail: false,
-      });
-      router.refresh();
-    } catch (createError) {
-      setError(getErrorMessage(createError));
-    } finally {
-      setLoadingKey(null);
-    }
-  };
-
-  const handlePortalCreate = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!canManage) return;
-
-    if (!newPortalUser.firmaId) {
-      setError('Lütfen mevcut firma listesinden bir kayıt seçin.');
-      return;
-    }
-
-    setLoadingKey('create-portal');
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await fetch('/api/admin/create-personel-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: newPortalUser.email,
-          password: newPortalUser.password || undefined,
-          tam_ad: newPortalUser.tamAd || null,
-          rol: newPortalUser.rol,
-          firma_id: newPortalUser.firmaId,
-          sendInviteEmail: newPortalUser.sendInviteEmail,
-          locale,
-        }),
-      });
-
-      const data = (await response.json().catch(() => null)) as { error?: string; message?: string } | null;
-      if (!response.ok) {
-        const message = data?.error || 'Portal kullanıcısı oluşturulamadı.';
-        setError(message);
-        toast.error(message);
-        return;
-      }
-
-      const message = data?.message || (newPortalUser.sendInviteEmail ? 'Portal kullanıcısı oluşturuldu, firmaya bağlandı ve davet e-postası gönderildi.' : 'Portal kullanıcısı oluşturuldu ve firma kaydına bağlandı.');
-      setSuccess(message);
-      toast.success(message);
-      setNewPortalUser({
-        tamAd: '',
-        email: '',
-        password: '',
-        rol: 'Müşteri',
-        firmaId: '',
-        sendInviteEmail: false,
-      });
-      router.refresh();
-    } catch (createError) {
-      setError(getErrorMessage(createError));
-    } finally {
-      setLoadingKey(null);
-    }
-  };
-
-  const handleSaveUser = async (user: ManagedUser) => {
-    if (!canManage) {
-      return;
-    }
-
-    const isInternalUser = INTERNAL_ROLES.includes(user.rol);
-    const isPortalUser = user.rol === 'Müşteri' || user.rol === 'Alt Bayi';
-
-    if (user.rol === 'Tanımsız') {
-      const message = 'Lütfen kaydetmeden önce kullanıcı için bir rol seçin.';
-      setError(message);
-      toast.error(message);
-      return;
-    }
-
-    if (isPortalUser && !user.firma_id) {
-      const message = 'Portal kullanıcıları mevcut bir firmaya bağlanmalıdır.';
-      setError(message);
-      toast.error(message);
-      return;
-    }
-
-    setLoadingKey(user.id);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await fetch('/api/admin/update-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          tam_ad: user.tam_ad || null,
-          rol: user.rol,
-          firma_id: isInternalUser ? null : isPortalUser ? user.firma_id : null,
-          allowedPanels: isInternalUser ? user.allowed_admin_panels : [],
-          notificationPreferences: isInternalUser ? user.notification_preferences : null,
-        }),
-      });
-
-      const data = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) {
-        const message = data?.error || 'Güncelleme yapılamadı.';
-        setError(message);
-        toast.error(message);
-        return;
-      }
-
-      const message = `${user.tam_ad || user.email || 'Kullanıcı'} güncellendi.`;
-      setSuccess(message);
-      toast.success(message);
-      setPendingApprovalIds((current) => (user.rol === 'Tanımsız' ? current : current.filter((id) => id !== user.id)));
-      setEditingUserIds((current) => current.filter((id) => id !== user.id));
-      router.refresh();
-    } catch (saveError) {
-      const message = getErrorMessage(saveError);
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoadingKey(null);
-    }
-  };
-
-  const handleDelete = async (userId: string) => {
-    if (!canManage) return;
-
-    const user = users.find((item) => item.id === userId);
-    const label = user?.tam_ad || user?.email || 'Bu kullanıcı';
-    const warnings: string[] = [];
-
-    if ((user?.gorev_sayisi || 0) > 0) {
-      warnings.push(`• ${user?.acik_gorev_sayisi || 0}/${user?.gorev_sayisi || 0} açık görev bağlantısı var.`);
-    }
-
-    if (user?.firma_unvan) {
-      warnings.push(`• Bağlı firma: ${user.firma_unvan}`);
-    }
-
-    if (user?.rol === 'Yönetici') {
-      warnings.push('• Bu kullanıcı yönetici yetkisine sahip.');
-    }
-
-    const confirmMessage = [
-      `${label} kullanıcısını silmek istediğinizden emin misiniz?`,
-      warnings.length > 0 ? '' : null,
-      warnings.length > 0 ? 'Silmeden önce dikkat edin:' : null,
-      ...warnings,
-      '',
-      'Bu işlem geri alınamaz.',
-    ]
-      .filter(Boolean)
-      .join('\n');
-
-    if (!window.confirm(confirmMessage)) return;
-
-    setLoadingKey(`delete-${userId}`);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await fetch('/api/admin/delete-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userIdToDelete: userId }),
-      });
-
-      const data = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) {
-        const message = data?.error || 'Silme işlemi başarısız oldu.';
-        setError(message);
-        toast.error(message);
-        return;
-      }
-
-      setUsers((currentUsers) => currentUsers.filter((item) => item.id !== userId));
-      setPendingApprovalIds((current) => current.filter((id) => id !== userId));
-      setEditingUserIds((current) => current.filter((id) => id !== userId));
-      setSuccess('Kullanıcı silindi.');
-      toast.success('Kullanıcı silindi.');
-      router.refresh();
-    } catch (deleteError) {
-      const message = getErrorMessage(deleteError);
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoadingKey(null);
-    }
-  };
-
-  const handleSendPasswordReset = async (email: string | null, label: string) => {
-    if (!canManage || !email) return;
-
-    setLoadingKey(`reset-${email}`);
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const response = await fetch('/api/admin/send-password-reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, locale }),
-      });
-
-      const data = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) {
-        const message = data?.error || 'Şifre kurulum e-postası gönderilemedi.';
-        setError(message);
-        toast.error(message);
-        return;
-      }
-
-      const message = `${label} için şifre kurulum / sıfırlama e-postası gönderildi.`;
-      setSuccess(message);
-      toast.success(message);
-    } catch (resetError) {
-      const message = getErrorMessage(resetError);
-      setError(message);
-      toast.error(message);
-    } finally {
-      setLoadingKey(null);
-    }
-  };
-
-  return (
-    <div className="space-y-8">
-      <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <div className="text-2xl font-bold text-red-700">{summary.yonetici}</div>
-          <div className="text-sm text-red-800">Yönetici</div>
-        </div>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <div className="text-2xl font-bold text-amber-700">{summary.personel}</div>
-          <div className="text-sm text-amber-800">Personel</div>
-        </div>
-        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-          <div className="text-2xl font-bold text-green-700">{summary.musteri}</div>
-          <div className="text-sm text-green-800">Müşteri Kullanıcısı</div>
-        </div>
-        <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
-          <div className="text-2xl font-bold text-purple-700">{summary.altBayi}</div>
-          <div className="text-sm text-purple-800">Alt Bayi Kullanıcısı</div>
-        </div>
-      </section>
-
-      {!canManage && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
-          Bu ekranı görüntüleyebilirsiniz; kullanıcı oluşturma ve yetki düzenleme sadece yönetici hesabı ile yapılabilir.
-        </div>
-      )}
-
-      <AccordionSection
-        title="Kullanıcı Arama ve Filtre"
-        description="İsim, e-posta, firma veya role göre hızlıca filtreleyin."
-        icon={<FiClipboard className="text-accent" />}
-        isOpen={openSection === 'filters'}
-        onToggle={() => setOpenSection((current) => (current === 'filters' ? null : 'filters'))}
-      >
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="İsim, e-posta veya firma ara..."
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
-            <select
-              value={roleFilter}
-              onChange={(event) => setRoleFilter(event.target.value as typeof roleFilter)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            >
-              {['Tümü', 'Yönetici', 'Personel', 'Müşteri', 'Alt Bayi', 'Tanımsız'].map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
-          </div>
-      </AccordionSection>
-
-      <AccordionSection
-        title="Yeni İç Kullanıcı Oluştur"
-        description="Yeni iç kullanıcı açın; panel erişimlerini ve bildirim tercihlerini ilk anda belirleyin."
-        icon={<FiUserPlus className="text-accent" />}
-        isOpen={openSection === 'create-internal'}
-        onToggle={() => setOpenSection((current) => (current === 'create-internal' ? null : 'create-internal'))}
-      >
-        <form onSubmit={handleCreate} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <input
-              type="text"
-              placeholder="Ad Soyad"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              value={newUser.tamAd}
-              onChange={(event) => setNewUser((current) => ({ ...current, tamAd: event.target.value }))}
-              disabled={!canManage}
-            />
-            <input
-              type="email"
-              placeholder="E-posta"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              value={newUser.email}
-              onChange={(event) => setNewUser((current) => ({ ...current, email: event.target.value }))}
-              required
-              disabled={!canManage}
-            />
-            <input
-              type="password"
-              placeholder={newUser.sendInviteEmail ? 'İsteğe bağlı geçici şifre' : 'Geçici şifre'}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              value={newUser.password}
-              onChange={(event) => setNewUser((current) => ({ ...current, password: event.target.value }))}
-              required={!newUser.sendInviteEmail}
-              disabled={!canManage}
-            />
-            <select
-              value={newUser.rol}
-              onChange={(event) => setNewUser((current) => ({ ...current, rol: event.target.value }))}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              disabled={!canManage}
-            >
-              {CREATE_ROLE_OPTIONS.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <label className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
-            <input
-              type="checkbox"
-              checked={newUser.sendInviteEmail}
-              onChange={(event) => setNewUser((current) => ({ ...current, sendInviteEmail: event.target.checked }))}
-              className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
-              disabled={!canManage}
-            />
-            Davet e-postası gönder ve şifreyi kullanıcının belirlemesine izin ver
-          </label>
-          <p className="text-xs text-gray-500">
-            Geçici şifre girerseniz kullanıcı hemen giriş yapabilir; bu seçenek açıkken ayrıca şifre kurulum maili de gider.
-          </p>
-
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
-              <FiShield className="text-accent" />
-              Görebileceği admin panelleri
-            </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {panelOptions.map((panel) => {
-                const checked = newUser.allowedPanels.includes(panel.key);
-                const disabled = !canManage || panel.key === 'dashboard';
-
-                return (
-                  <label key={panel.key} className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => toggleNewPanel(panel.key)}
-                      disabled={disabled}
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
-                    />
-                    <span>
-                      <span className="block font-semibold text-gray-800">{panel.label}</span>
-                      <span className="block text-xs text-gray-500">{panel.description}</span>
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-              <FiBell className="text-accent" />
-              İç görevlendirme bildirimleri
-            </div>
-            <p className="mb-3 text-xs text-gray-500">
-              Bu tercihler sadece iç ekip için geçerlidir; müşteri ve alt bayi hesaplarına uygulanmaz.
-            </p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {INTERNAL_NOTIFICATION_OPTIONS.map((option) => (
-                <label key={option.key} className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(newUser.notificationPreferences[option.key])}
-                    onChange={() => toggleNewNotificationPreference(option.key)}
-                    disabled={!canManage}
-                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
-                  />
-                  <span>
-                    <span className="block font-semibold text-gray-800">{option.label}</span>
-                    <span className="block text-xs text-gray-500">{option.description}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={!canManage || loadingKey === 'create'}
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <FiUserPlus />
-            {loadingKey === 'create'
-              ? 'Oluşturuluyor...'
-              : newUser.sendInviteEmail
-                ? 'Kullanıcı Oluştur ve Davet Gönder'
-                : 'Kullanıcı Oluştur'}
-          </button>
-        </form>
-      </AccordionSection>
-
-      <AccordionSection
-        title="Mevcut Firmaya Portal Girişi Bağla"
-        description="Müşteri ve alt bayi kullanıcılarını mevcut firma kaydına bağlayarak portal hesabı oluşturun."
-        icon={<FiUserPlus className="text-accent" />}
-        isOpen={openSection === 'create-portal'}
-        onToggle={() => setOpenSection((current) => (current === 'create-portal' ? null : 'create-portal'))}
-      >
-        <form onSubmit={handlePortalCreate} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <input
-              type="text"
-              placeholder="Ad Soyad"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              value={newPortalUser.tamAd}
-              onChange={(event) => setNewPortalUser((current) => ({ ...current, tamAd: event.target.value }))}
-              disabled={!canManage}
-            />
-            <input
-              type="email"
-              placeholder="Portal e-postası"
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              value={newPortalUser.email}
-              onChange={(event) => setNewPortalUser((current) => ({ ...current, email: event.target.value }))}
-              required
-              disabled={!canManage}
-            />
-            <input
-              type="password"
-              placeholder={newPortalUser.sendInviteEmail ? 'İsteğe bağlı geçici şifre' : 'Geçici şifre'}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              value={newPortalUser.password}
-              onChange={(event) => setNewPortalUser((current) => ({ ...current, password: event.target.value }))}
-              required={!newPortalUser.sendInviteEmail}
-              disabled={!canManage}
-            />
-            <select
-              value={newPortalUser.rol}
-              onChange={(event) => setNewPortalUser((current) => ({ ...current, rol: event.target.value, firmaId: '' }))}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              disabled={!canManage}
-            >
-              {PORTAL_ROLE_OPTIONS.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <label className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
-            <input
-              type="checkbox"
-              checked={newPortalUser.sendInviteEmail}
-              onChange={(event) => setNewPortalUser((current) => ({ ...current, sendInviteEmail: event.target.checked }))}
-              className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
-              disabled={!canManage}
-            />
-            Seçilen firma kullanıcısına davet e-postası gönder ve şifre kurulumunu kullanıcıya bırak
-          </label>
-          <p className="text-xs text-gray-500">
-            Geçici şifre girerseniz bu portal kullanıcısı hemen giriş yapabilir; isterseniz aynı anda şifre kurulum maili de gönderebilirsiniz.
-          </p>
-
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <label className="mb-2 block text-sm font-semibold text-gray-700">Bağlanacak firma kaydı</label>
-            <select
-              value={newPortalUser.firmaId}
-              onChange={(event) => setNewPortalUser((current) => ({ ...current, firmaId: event.target.value }))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              disabled={!canManage || portalFirmOptions.length === 0}
-              required
-            >
-              <option value="">-- Mevcut firma seçin --</option>
-              {portalFirmOptions.map((firma) => {
-                const linkedCount = firmUserCounts.get(firma.id) || 0;
-                const roleType = getFirmaRoleType(firma);
-                return (
-                  <option key={firma.id} value={firma.id}>
-                    {firma.unvan} · {roleType}
-                    {linkedCount > 0 ? ` · ${linkedCount} kullanıcı bağlı` : ''}
-                  </option>
-                );
-              })}
-            </select>
-            {portalFirmOptions.length === 0 && (
-              <p className="mt-2 text-xs text-amber-700">
-                Seçtiğiniz role uygun firma bulunamadı. Önce CRM listesinde ilgili firma kaydını oluşturun veya tipini düzeltin.
-              </p>
+    return (
+        <div className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all ${isPending ? 'border-amber-200 ring-1 ring-amber-100' : 'border-slate-200'}`}>
+            {isPending && (
+                <div className="flex items-center gap-2 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-800 border-b border-amber-200">
+                    <FiAlertTriangle size={12} /> Bekleyen kayıt — rol atanmadı
+                </div>
             )}
-          </div>
 
-          <button
-            type="submit"
-            disabled={!canManage || loadingKey === 'create-portal' || portalFirmOptions.length === 0}
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <FiUserPlus />
-            {loadingKey === 'create-portal'
-              ? 'Portal hesabı oluşturuluyor...'
-              : newPortalUser.sendInviteEmail
-                ? 'Portal Kullanıcısı Oluştur ve Davet Gönder'
-                : 'Portal Kullanıcısı Oluştur'}
-          </button>
-        </form>
-      </AccordionSection>
-
-      <AccordionSection
-        title="İç Ekip Kullanıcıları"
-        description="Personelinizin rolünü, görev yükünü, panel erişimlerini ve bildirim ayarlarını yönetin."
-        icon={<FiBriefcase className="text-accent" />}
-        isOpen={openSection === 'internal-users'}
-        onToggle={() => setOpenSection((current) => (current === 'internal-users' ? null : 'internal-users'))}
-      >
-        <div className="space-y-4">
-          {internalUsers.length === 0 && <div className="text-sm text-gray-500">Filtreye uygun iç ekip kullanıcısı bulunmuyor.</div>}
-
-          {internalUsers.map((user) => {
-            const roleBadgeClass = ROLE_BADGE_CLASSES[user.rol] || 'bg-gray-100 text-gray-700';
-            const isCurrentUser = user.id === currentUserId;
-            const isAdminUser = user.rol === 'Yönetici';
-            const isEditing = isEditingUser(user.id);
-
-            return (
-              <div key={user.id} className="rounded-xl border border-gray-200 p-4">
-                <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-base font-semibold text-primary">{user.tam_ad || user.email || 'İsimsiz kullanıcı'}</h3>
-                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${roleBadgeClass}`}>
-                        {user.rol}
-                      </span>
-                      {isCurrentUser && (
-                        <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-700">
-                          Siz
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                      <span className="inline-flex items-center gap-1.5">
-                        <FiMail size={14} /> {user.email || 'E-posta bulunamadı'}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <FiBriefcase size={14} /> {user.firma_unvan || 'Bağlı firma yok'}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <FiClipboard size={14} /> {user.acik_gorev_sayisi}/{user.gorev_sayisi} açık görev
-                      </span>
-                    </div>
-                    {(user.gorev_sayisi > 0 || user.firma_unvan) && (
-                      <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                        {user.gorev_sayisi > 0 && <div>Bu kullanıcıya bağlı görevler bulunuyor.</div>}
-                        {user.firma_unvan && <div>Firma bağlantısı: {user.firma_unvan}</div>}
-                      </div>
-                    )}
-                    <div className="flex flex-wrap gap-2">
-                      {user.gorevler.length > 0 ? (
-                        user.gorevler.map((gorev) => (
-                          <span key={`${user.id}-${gorev}`} className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700">
-                            {gorev}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-xs text-gray-500">Atanmış görev bulunmuyor.</span>
-                      )}
-                    </div>
-                    <Link
-                      href={`/${locale}/admin/gorevler?atanan=${user.id}`}
-                      className="inline-flex text-sm font-medium text-accent hover:underline"
-                    >
-                      Görevlerini filtreli görüntüle
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Ad Soyad</label>
-                    <input
-                      value={user.tam_ad || ''}
-                      onChange={(event) => updateUserState(user.id, { tam_ad: event.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                      disabled={!canManage || !isEditing}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Rol</label>
-                    <select
-                      value={user.rol}
-                      onChange={(event) => updateUserState(user.id, { rol: event.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                      disabled={!canManage || !isEditing || isCurrentUser}
-                    >
-                      {MANAGED_ROLE_OPTIONS.map((role) => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Tercih edilen dil</label>
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
-                      {user.tercih_edilen_dil || 'Belirlenmedi'}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FiShield className="text-accent" />
-                    Panel erişimleri
-                  </div>
-
-                  {isAdminUser ? (
-                    <div className="text-sm text-gray-600">Yönetici kullanıcılar tüm panellere tam erişimle çalışır.</div>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                      {panelOptions.map((panel) => {
-                        const checked = user.allowed_admin_panels.includes(panel.key);
-                        const disabled = !canManage || !isEditing || panel.key === 'dashboard';
-
-                        return (
-                          <label key={`${user.id}-${panel.key}`} className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={() => toggleExistingPanel(user.id, panel.key)}
-                              disabled={disabled}
-                              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
-                            />
-                            <span>
-                              <span className="block font-semibold text-gray-800">{panel.label}</span>
-                              <span className="block text-xs text-gray-500">{panel.description}</span>
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FiBell className="text-accent" />
-                    İç görevlendirme bildirimleri
-                  </div>
-                  <p className="mb-3 text-xs text-gray-500">
-                    Bu ayarlar sadece iç personel için kullanılır; müşteri ve alt bayi hesaplarında uygulanmaz.
-                  </p>
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    {INTERNAL_NOTIFICATION_OPTIONS.map((option) => (
-                      <label key={`${user.id}-${option.key}`} className="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(user.notification_preferences?.[option.key])}
-                          onChange={() => toggleExistingNotificationPreference(user.id, option.key)}
-                          disabled={!canManage || !isEditing}
-                          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent"
-                        />
-                        <span>
-                          <span className="block font-semibold text-gray-800">{option.label}</span>
-                          <span className="block text-xs text-gray-500">{option.description}</span>
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  {canManage && !isEditing && (
-                    <button
-                      type="button"
-                      onClick={() => startEditingUser(user.id)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                    >
-                      <FiEdit2 />
-                      Düzenle
-                    </button>
-                  )}
-
-                  {canManage && isEditing && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => handleSaveUser(user)}
-                        disabled={loadingKey === user.id}
-                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <FiSave />
-                        {loadingKey === user.id ? 'Kaydediliyor...' : 'Kaydet'}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => cancelEditingUser(user.id)}
-                        disabled={loadingKey === user.id}
-                        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700"
-                      >
-                        <FiXCircle />
-                        Vazgeç
-                      </button>
-                    </>
-                  )}
-
-                  {user.email && (
-                    <button
-                      type="button"
-                      onClick={() => handleSendPasswordReset(user.email, user.tam_ad || user.email || 'Kullanıcı')}
-                      disabled={!canManage || loadingKey === `reset-${user.email}`}
-                      className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <FiMail />
-                      {loadingKey === `reset-${user.email}` ? 'Gönderiliyor...' : 'Şifre Maili Gönder'}
-                    </button>
-                  )}
-
-                  {!isCurrentUser && (
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(user.id)}
-                      disabled={!canManage || loadingKey === `delete-${user.id}`}
-                      className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <FiTrash2 />
-                      Sil
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </AccordionSection>
-
-      <AccordionSection
-        title="Onay Bekleyen Kullanıcılar"
-        description="Rolü veya firma ataması tamamlanmamış kullanıcıları buradan onaylayın ya da silin."
-        icon={<FiClipboard className="text-amber-900" />}
-        tone="warning"
-        isOpen={openSection === 'pending-users'}
-        onToggle={() => setOpenSection((current) => (current === 'pending-users' ? null : 'pending-users'))}
-      >
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-amber-200 text-sm">
-            <thead className="bg-amber-100/70">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-amber-900">Kullanıcı</th>
-                <th className="px-4 py-3 text-left font-semibold text-amber-900">Rol Ataması</th>
-                <th className="px-4 py-3 text-left font-semibold text-amber-900">Firma</th>
-                <th className="px-4 py-3 text-left font-semibold text-amber-900">İşlem</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-amber-200 bg-white">
-              {pendingUsers.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
-                    Filtreye uygun onay bekleyen kullanıcı bulunmuyor.
-                  </td>
-                </tr>
-              )}
-
-              {pendingUsers.map((user) => {
-                const roleBadgeClass = ROLE_BADGE_CLASSES[user.rol] || 'bg-gray-100 text-gray-700';
-                const partnerFirmOptions = getFirmsForRole(user.rol, firmaOptions);
-
-                return (
-                  <tr key={user.id}>
-                    <td className="px-4 py-3 align-top">
-                      <div className="space-y-2">
-                        <input
-                          value={user.tam_ad || ''}
-                          onChange={(event) => updateUserState(user.id, { tam_ad: event.target.value })}
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                          disabled={!canManage}
-                        />
-                        <div className="text-xs text-gray-500">{user.email || user.id}</div>
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${roleBadgeClass}`}>
-                          {user.rol}
-                        </span>
-                        {(user.gorev_sayisi > 0 || user.firma_unvan) && (
-                          <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                            {user.gorev_sayisi > 0 && <div>{user.acik_gorev_sayisi}/{user.gorev_sayisi} açık görev bağlı.</div>}
-                            {user.firma_unvan && <div>Firma bağlantısı: {user.firma_unvan}</div>}
-                          </div>
+            {/* Kart başlığı */}
+            <div className="flex items-start gap-3 p-4">
+                <Avatar name={user.tam_ad} email={user.email} />
+                <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                        <p className="text-sm font-semibold text-slate-800 truncate">{label}</p>
+                        <RoleBadge rol={user.rol} />
+                        {isCurrentUser && (
+                            <span className="text-[10px] font-semibold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full border border-blue-200">Sen</span>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      <select
-                        value={user.rol}
-                        onChange={(event) => updateUserState(user.id, { rol: event.target.value, firma_id: null, firma_unvan: null })}
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                        disabled={!canManage}
-                      >
-                        <option value="Tanımsız">Tanımsız</option>
-                        {[...MANAGED_ROLE_OPTIONS, ...PORTAL_ROLE_OPTIONS].map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
+                    </div>
+                    {user.email && <p className="text-[12px] text-slate-400 flex items-center gap-1"><FiMail size={10} />{user.email}</p>}
+                    {user.firma_unvan && <p className="text-[12px] text-slate-400 flex items-center gap-1 mt-0.5"><FiBriefcase size={10} />{user.firma_unvan}</p>}
+                </div>
+
+                {/* Sağ meta */}
+                {isInternal && (
+                    <div className="flex gap-3 flex-shrink-0 text-center pr-1">
+                        <div>
+                            <p className={`text-sm font-bold ${user.acik_gorev_sayisi > 0 ? 'text-amber-600' : 'text-slate-700'}`}>{user.acik_gorev_sayisi}<span className="text-slate-400">/{user.gorev_sayisi}</span></p>
+                            <p className="text-[10px] text-slate-400">görev</p>
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-slate-700">{user.allowed_admin_panels.length}</p>
+                            <p className="text-[10px] text-slate-400">panel</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Görevler önizleme */}
+            {isInternal && user.gorevler.length > 0 && !isEditing && (
+                <div className="px-4 pb-3">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Açık Görevler</p>
+                    <div className="flex flex-wrap gap-1">
+                        {user.gorevler.slice(0, 3).map((g, i) => (
+                            <span key={i} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full truncate max-w-[150px]">{g}</span>
                         ))}
-                      </select>
-                    </td>
-                    <td className="px-4 py-3 align-top text-gray-700">
-                      {user.rol === 'Müşteri' || user.rol === 'Alt Bayi' ? (
-                        <select
-                          value={user.firma_id || ''}
-                          onChange={(event) => {
-                            const selectedFirma = firmaOptions.find((firma) => firma.id === event.target.value);
-                            updateUserState(user.id, {
-                              firma_id: event.target.value || null,
-                              firma_unvan: selectedFirma?.unvan || null,
-                            });
-                          }}
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                          disabled={!canManage}
-                        >
-                          <option value="">-- Firma seçin --</option>
-                          {partnerFirmOptions.map((firma) => (
-                            <option key={firma.id} value={firma.id}>
-                              {firma.unvan}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
-                          İç ekip kullanıcılarında firma bağlantısı gerekmez.
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      {canManage && (
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleSaveUser(user)}
-                            disabled={loadingKey === user.id}
-                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            <FiSave />
-                            {loadingKey === user.id ? 'Kaydediliyor...' : 'Kullanıcıyı Onayla'}
-                          </button>
-                          {user.email && (
-                            <button
-                              type="button"
-                              onClick={() => handleSendPasswordReset(user.email, user.tam_ad || user.email || 'Kullanıcı')}
-                              disabled={loadingKey === `reset-${user.email}`}
-                              className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              <FiMail />
-                              {loadingKey === `reset-${user.email}` ? 'Gönderiliyor...' : 'Şifre Maili'}
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(user.id)}
-                            disabled={loadingKey === `delete-${user.id}`}
-                            className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            <FiTrash2 />
-                            {loadingKey === `delete-${user.id}` ? 'Siliniyor...' : 'Sil'}
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </AccordionSection>
+                    </div>
+                </div>
+            )}
 
-      <AccordionSection
-        title="Partner Portal Kullanıcıları"
-        description="Müşteri ve alt bayi kullanıcılarını firma bağlantılarıyla birlikte yönetin."
-        icon={<FiMail className="text-accent" />}
-        isOpen={openSection === 'partner-users'}
-        onToggle={() => setOpenSection((current) => (current === 'partner-users' ? null : 'partner-users'))}
-      >
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Kullanıcı</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Rol</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Firma</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Görevler</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">İşlem</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {partnerUsers.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center text-gray-500">
-                    Filtreye uygun portal kullanıcısı bulunamadı.
-                  </td>
-                </tr>
-              )}
-
-              {partnerUsers.map((user) => {
-                const roleBadgeClass = ROLE_BADGE_CLASSES[user.rol] || 'bg-gray-100 text-gray-700';
-                const partnerFirmOptions = getFirmsForRole(user.rol, firmaOptions);
-                const roleLabel = user.rol || 'Tanımsız';
-                const isEditing = isEditingUser(user.id);
-
-                return (
-                  <tr key={user.id}>
-                    <td className="px-4 py-3 align-top">
-                      {canManage ? (
-                        <div className="space-y-2">
-                          <input
-                            value={user.tam_ad || ''}
-                            onChange={(event) => updateUserState(user.id, { tam_ad: event.target.value })}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                            disabled={!isEditing}
-                          />
-                          <div className="text-xs text-gray-500">{user.email || user.id}</div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="font-medium text-gray-900">{user.tam_ad || user.email || 'İsimsiz kullanıcı'}</div>
-                          <div className="text-xs text-gray-500">{user.email || user.id}</div>
-                        </>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      {canManage ? (
-                        <select
-                          value={user.rol}
-                          onChange={(event) => updateUserState(user.id, { rol: event.target.value, firma_id: null })}
-                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                          disabled={!isEditing}
-                        >
-                          <option value="Tanımsız">Tanımsız</option>
-                          {[...PORTAL_ROLE_OPTIONS, ...MANAGED_ROLE_OPTIONS].map((role) => (
-                            <option key={role} value={role}>
-                              {role}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${roleBadgeClass}`}>
-                          {roleLabel}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 align-top text-gray-700">
-                      {canManage ? (
-                        <div className="space-y-2">
-                          <select
-                            value={user.firma_id || ''}
-                            onChange={(event) => {
-                              const selectedFirma = firmaOptions.find((firma) => firma.id === event.target.value);
-                              updateUserState(user.id, {
-                                firma_id: event.target.value || null,
-                                firma_unvan: selectedFirma?.unvan || null,
-                              });
-                            }}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                            disabled={!isEditing || (user.rol !== 'Müşteri' && user.rol !== 'Alt Bayi')}
-                          >
-                            <option value="">-- Firma seçin --</option>
-                            {partnerFirmOptions.map((firma) => {
-                              const linkedCount = firmUserCounts.get(firma.id) || 0;
-                              return (
-                                <option key={firma.id} value={firma.id}>
-                                  {firma.unvan}{linkedCount > 0 ? ` · ${linkedCount} kullanıcı` : ''}
-                                </option>
-                              );
-                            })}
-                          </select>
-                          {user.firma_id && (
-                            <Link href={`/${locale}/admin/crm/firmalar/${user.firma_id}`} className="inline-flex text-xs text-accent hover:underline">
-                              Firma kaydını aç
-                            </Link>
-                          )}
-                        </div>
-                      ) : (
-                        user.firma_unvan || 'Bağlı firma yok'
-                      )}
-                    </td>
-                    <td className="px-4 py-3 align-top text-gray-700">
-                      <Link href={`/${locale}/admin/gorevler?atanan=${user.id}`} className="text-accent hover:underline">
-                        {user.acik_gorev_sayisi}/{user.gorev_sayisi} açık görev
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      {canManage && (
-                        <div className="flex flex-wrap gap-2">
-                          {!isEditing && (
-                            <button
-                              type="button"
-                              onClick={() => startEditingUser(user.id)}
-                              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50"
-                            >
-                              <FiEdit2 />
-                              Düzenle
-                            </button>
-                          )}
-
-                          {isEditing && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => handleSaveUser(user)}
-                                disabled={loadingKey === user.id}
-                                className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                <FiSave />
-                                {loadingKey === user.id ? 'Kaydediliyor...' : 'Kaydet'}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => cancelEditingUser(user.id)}
-                                disabled={loadingKey === user.id}
-                                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-700"
-                              >
-                                <FiXCircle />
-                                Vazgeç
-                              </button>
-                            </>
-                          )}
-                          {user.email && (
-                            <button
-                              type="button"
-                              onClick={() => handleSendPasswordReset(user.email, user.tam_ad || user.email || 'Kullanıcı')}
-                              disabled={loadingKey === `reset-${user.email}`}
-                              className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              <FiMail />
-                              {loadingKey === `reset-${user.email}` ? 'Gönderiliyor...' : 'Şifre Maili'}
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(user.id)}
-                            disabled={loadingKey === `delete-${user.id}`}
-                            className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            <FiTrash2 />
+            {/* Action butonları */}
+            {!isEditing && (
+                <div className="flex items-center gap-1.5 px-4 py-3 border-t border-slate-100 bg-slate-50/50">
+                    {canManage && (
+                        <button onClick={onEdit}
+                            className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:border-slate-300 px-2.5 py-1.5 rounded-lg transition-colors min-h-[32px]">
+                            <FiEdit2 size={12} /> Düzenle
+                        </button>
+                    )}
+                    {canManage && user.email && (
+                        <button onClick={() => onPasswordReset(user.email, label)} disabled={resetting}
+                            className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-blue-700 bg-white border border-slate-200 hover:border-blue-300 px-2.5 py-1.5 rounded-lg transition-colors min-h-[32px] disabled:opacity-50">
+                            {resetting ? <FiRefreshCw size={12} className="animate-spin" /> : <FiLock size={12} />}
+                            Şifre Linki
+                        </button>
+                    )}
+                    {canManage && !isCurrentUser && (
+                        <button onClick={() => onDelete(user.id)} disabled={deleting}
+                            className="flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-700 bg-white border border-red-200 hover:border-red-300 px-2.5 py-1.5 rounded-lg transition-colors min-h-[32px] disabled:opacity-50 ml-auto">
+                            {deleting ? <FiRefreshCw size={12} className="animate-spin" /> : <FiTrash2 size={12} />}
                             Sil
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </AccordionSection>
+                        </button>
+                    )}
+                </div>
+            )}
 
-      {error && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
-      {success && <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{success}</div>}
-    </div>
-  );
+            {/* Düzenleme paneli */}
+            {isEditing && (
+                <div className="border-t border-slate-200 p-4 bg-slate-50/50 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1 block">Ad Soyad</label>
+                            <input type="text" value={user.tam_ad ?? ''} onChange={e => onUpdateUser(user.id, { tam_ad: e.target.value })}
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-slate-300 focus:outline-none" />
+                        </div>
+                        <div>
+                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1 block">Rol</label>
+                            <select value={user.rol} onChange={e => onUpdateUser(user.id, { rol: e.target.value })}
+                                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-slate-300 focus:outline-none">
+                                {[...INTERNAL_ROLES, ...PORTAL_ROLE_OPTIONS, 'Tanımsız'].map(r => (
+                                    <option key={r} value={r}>{r}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {(user.rol === 'Müşteri' || user.rol === 'Alt Bayi') && (
+                            <div className="sm:col-span-2">
+                                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1 block">Bağlı Firma</label>
+                                <select value={user.firma_id ?? ''} onChange={e => onUpdateUser(user.id, { firma_id: e.target.value || null })}
+                                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-slate-300 focus:outline-none">
+                                    <option value="">— Firma seçin —</option>
+                                    {firmaOptions.map(f => <option key={f.id} value={f.id}>{f.unvan}</option>)}
+                                </select>
+                            </div>
+                        )}
+                    </div>
+
+                    {INTERNAL_ROLES.includes(user.rol) && (
+                        <>
+                            <div>
+                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                                    <FiShield size={11} /> Panel Erişimleri
+                                </p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    {panelOptions.map(p => {
+                                        const checked = user.allowed_admin_panels.includes(p.key);
+                                        const locked = p.key === 'dashboard';
+                                        return (
+                                            <label key={p.key} className={`flex items-center gap-2.5 p-2.5 rounded-lg border cursor-pointer text-xs transition-colors ${checked ? 'border-slate-400 bg-slate-50' : 'border-slate-200 bg-white'} ${locked ? 'opacity-60 cursor-default' : 'hover:border-slate-300'}`}>
+                                                <input type="checkbox" checked={checked} disabled={locked} onChange={() => onTogglePanel(user.id, p.key)}
+                                                    className="h-3.5 w-3.5 rounded border-slate-300 text-slate-700 flex-shrink-0" />
+                                                <span className="font-medium text-slate-700 truncate">{p.label}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div>
+                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                                    <FiBell size={11} /> Bildirimler
+                                </p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {INTERNAL_NOTIFICATION_OPTIONS.map(opt => {
+                                        const checked = Boolean(user.notification_preferences?.[opt.key]);
+                                        return (
+                                            <label key={opt.key} className="flex items-center gap-2.5 p-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer text-xs hover:border-slate-300">
+                                                <input type="checkbox" checked={checked} onChange={() => onToggleNotif(user.id, opt.key as NotifKey)}
+                                                    className="h-3.5 w-3.5 rounded border-slate-300 text-slate-700 flex-shrink-0" />
+                                                <span className="text-slate-700">{opt.label}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    <div className="flex items-center gap-2 pt-1">
+                        <button onClick={() => onSave(user)} disabled={saving}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 disabled:opacity-50 transition-colors min-h-[40px]">
+                            {saving ? <FiRefreshCw size={14} className="animate-spin" /> : <FiSave size={14} />} Kaydet
+                        </button>
+                        <button onClick={onCancelEdit}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-300 text-slate-600 text-sm font-medium hover:bg-slate-100 transition-colors min-h-[40px]">
+                            <FiX size={14} /> İptal
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ── Yeni İç Kullanıcı Formu ───────────────────────────────────────────────────
+
+function CreateInternalForm({ panelOptions, locale, canManage, loading, onSubmit }: {
+    panelOptions: PanelOption[];
+    locale: string;
+    canManage: boolean;
+    loading: boolean;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}) {
+    const [form, setForm] = useState({
+        tamAd: '', email: '', password: '', rol: 'Personel',
+        allowedPanels: ['dashboard', 'orders', 'tasks'],
+        notificationPreferences: getDefaultNotifPrefs(),
+        sendInviteEmail: false,
+    });
+
+    // expose form state to parent via hidden inputs doesn't work — we pass the form ref
+    // Actually, we'll use a different approach: the form is controlled and we pass it up via onSubmit
+
+    const togglePanel = (key: string) => {
+        if (key === 'dashboard') return;
+        setForm(p => {
+            const next = p.allowedPanels.includes(key) ? p.allowedPanels.filter(k => k !== key) : [...p.allowedPanels, key];
+            return { ...p, allowedPanels: Array.from(new Set(['dashboard', ...next])) };
+        });
+    };
+
+    const toggleNotif = (key: NotifKey) => {
+        setForm(p => ({ ...p, notificationPreferences: { ...getDefaultNotifPrefs(), ...p.notificationPreferences, [key]: !p.notificationPreferences[key] } }));
+    };
+
+    return (
+        <form onSubmit={onSubmit} className="space-y-5">
+            {/* Hidden fields to pass form state */}
+            <input type="hidden" name="_tamAd" value={form.tamAd} />
+            <input type="hidden" name="_email" value={form.email} />
+            <input type="hidden" name="_password" value={form.password} />
+            <input type="hidden" name="_rol" value={form.rol} />
+            <input type="hidden" name="_allowedPanels" value={form.allowedPanels.join(',')} />
+            <input type="hidden" name="_notifPrefs" value={JSON.stringify(form.notificationPreferences)} />
+            <input type="hidden" name="_sendInvite" value={String(form.sendInviteEmail)} />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">Ad Soyad</label>
+                    <input type="text" placeholder="Tam adı girin" value={form.tamAd} onChange={e => setForm(p => ({ ...p, tamAd: e.target.value }))} disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-slate-300 focus:outline-none" />
+                </div>
+                <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">E-posta *</label>
+                    <input type="email" placeholder="ornek@sirket.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} required disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-slate-300 focus:outline-none" />
+                </div>
+                <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">
+                        Geçici Şifre {form.sendInviteEmail ? '(isteğe bağlı)' : '*'}
+                    </label>
+                    <input type="password" placeholder={form.sendInviteEmail ? 'Boş bırakabilirsiniz' : 'Geçici şifre'} value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} required={!form.sendInviteEmail} disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-slate-300 focus:outline-none" />
+                </div>
+                <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">Rol</label>
+                    <select value={form.rol} onChange={e => setForm(p => ({ ...p, rol: e.target.value }))} disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-slate-300 focus:outline-none">
+                        {CREATE_ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                </div>
+            </div>
+
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-colors text-sm">
+                <input type="checkbox" checked={form.sendInviteEmail} onChange={e => setForm(p => ({ ...p, sendInviteEmail: e.target.checked }))} disabled={!canManage}
+                    className="h-4 w-4 rounded border-slate-300" />
+                <span className="text-slate-700">Davet e-postası gönder — kullanıcı şifresini kendisi belirlesin</span>
+            </label>
+
+            {/* Panel erişimleri */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-3 flex items-center gap-1.5"><FiShield size={11} /> Panel Erişimleri</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {panelOptions.map(p => {
+                        const checked = form.allowedPanels.includes(p.key);
+                        const locked = p.key === 'dashboard';
+                        return (
+                            <label key={p.key} className={`flex items-start gap-2 p-2.5 rounded-lg border text-xs cursor-pointer transition-colors ${checked ? 'border-slate-400 bg-slate-50' : 'border-slate-200 bg-white hover:border-slate-300'} ${locked ? 'opacity-60 cursor-default' : ''}`}>
+                                <input type="checkbox" checked={checked} disabled={locked || !canManage} onChange={() => togglePanel(p.key)}
+                                    className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 flex-shrink-0" />
+                                <span>
+                                    <span className="block font-semibold text-slate-700">{p.label}</span>
+                                    <span className="text-slate-400 leading-snug">{p.description}</span>
+                                </span>
+                            </label>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Bildirimler */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-3 flex items-center gap-1.5"><FiBell size={11} /> Bildirim Tercihleri</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {INTERNAL_NOTIFICATION_OPTIONS.map(opt => (
+                        <label key={opt.key} className="flex items-center gap-2.5 p-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer text-xs hover:border-slate-300">
+                            <input type="checkbox" checked={Boolean(form.notificationPreferences[opt.key])} disabled={!canManage} onChange={() => toggleNotif(opt.key as NotifKey)}
+                                className="h-3.5 w-3.5 rounded border-slate-300 flex-shrink-0" />
+                            <span className="text-slate-700">{opt.label}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            <button type="submit" disabled={loading || !canManage}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 disabled:opacity-50 transition-colors min-h-[44px]">
+                {loading ? <FiRefreshCw size={15} className="animate-spin" /> : <FiUserPlus size={15} />}
+                İç Kullanıcı Oluştur
+            </button>
+        </form>
+    );
+}
+
+// ── Yeni Portal Kullanıcısı Formu ─────────────────────────────────────────────
+
+function CreatePortalForm({ firmaOptions, locale, canManage, loading, onSubmit }: {
+    firmaOptions: FirmaOption[];
+    locale: string;
+    canManage: boolean;
+    loading: boolean;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}) {
+    const [form, setForm] = useState({ tamAd: '', email: '', password: '', rol: 'Müşteri', firmaId: '', sendInviteEmail: false });
+    const filteredFirmas = firmaOptions.filter(f => getFirmaRoleType(f) === form.rol);
+
+    return (
+        <form onSubmit={onSubmit} className="space-y-4">
+            <input type="hidden" name="_tamAd" value={form.tamAd} />
+            <input type="hidden" name="_email" value={form.email} />
+            <input type="hidden" name="_password" value={form.password} />
+            <input type="hidden" name="_rol" value={form.rol} />
+            <input type="hidden" name="_firmaId" value={form.firmaId} />
+            <input type="hidden" name="_sendInvite" value={String(form.sendInviteEmail)} />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">Ad Soyad</label>
+                    <input type="text" placeholder="Tam adı girin" value={form.tamAd} onChange={e => setForm(p => ({ ...p, tamAd: e.target.value }))} disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300" />
+                </div>
+                <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">E-posta *</label>
+                    <input type="email" placeholder="ornek@musteri.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} required disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300" />
+                </div>
+                <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">Şifre {form.sendInviteEmail ? '(isteğe bağlı)' : '*'}</label>
+                    <input type="password" placeholder={form.sendInviteEmail ? 'Boş bırakabilirsiniz' : 'Geçici şifre'} value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} required={!form.sendInviteEmail} disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300" />
+                </div>
+                <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">Kullanıcı Tipi</label>
+                    <select value={form.rol} onChange={e => setForm(p => ({ ...p, rol: e.target.value, firmaId: '' }))} disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300">
+                        {PORTAL_ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                </div>
+                <div className="sm:col-span-2">
+                    <label className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1 block">Bağlı Firma *</label>
+                    <select value={form.firmaId} onChange={e => setForm(p => ({ ...p, firmaId: e.target.value }))} required disabled={!canManage}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300">
+                        <option value="">— Firma seçin —</option>
+                        {filteredFirmas.map(f => <option key={f.id} value={f.id}>{f.unvan}</option>)}
+                    </select>
+                    {filteredFirmas.length === 0 && (
+                        <p className="text-xs text-amber-600 mt-1">Bu tipe uygun firma bulunamadı. Önce CRM'de firma oluşturun.</p>
+                    )}
+                </div>
+            </div>
+
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer text-sm">
+                <input type="checkbox" checked={form.sendInviteEmail} onChange={e => setForm(p => ({ ...p, sendInviteEmail: e.target.checked }))} disabled={!canManage}
+                    className="h-4 w-4 rounded border-slate-300" />
+                <span className="text-slate-700">Davet e-postası gönder</span>
+            </label>
+
+            <button type="submit" disabled={loading || !canManage}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 disabled:opacity-50 transition-colors min-h-[44px]">
+                {loading ? <FiRefreshCw size={15} className="animate-spin" /> : <FiUserPlus size={15} />}
+                Portal Kullanıcısı Oluştur
+            </button>
+        </form>
+    );
+}
+
+// ── Ana Bileşen ───────────────────────────────────────────────────────────────
+
+export default function PersonelManager({ initialUsers, panelOptions, firmaOptions, locale, canManage, currentUserId }: PersonelManagerProps) {
+    const router = useRouter();
+    const [users, setUsers] = useState<ManagedUser[]>(initialUsers);
+    const [loadingKey, setLoadingKey] = useState<string | null>(null);
+    const [editingIds, setEditingIds] = useState<string[]>([]);
+    const [pendingIds, setPendingIds] = useState<string[]>(initialUsers.filter(u => u.rol === 'Tanımsız').map(u => u.id));
+    const [searchTerm, setSearchTerm] = useState('');
+    const [activeTab, setActiveTab] = useState<'ic-ekip' | 'portal' | 'yeni-kullanici'>('ic-ekip');
+    const [createSubTab, setCreateSubTab] = useState<'ic' | 'portal'>('ic');
+
+    const initialUserMap = useMemo(() => new Map(initialUsers.map(u => [u.id, u])), [initialUsers]);
+
+    useEffect(() => {
+        setUsers(initialUsers);
+        setEditingIds([]);
+        setPendingIds(initialUsers.filter(u => u.rol === 'Tanımsız').map(u => u.id));
+    }, [initialUsers]);
+
+    const matchSearch = useCallback((u: ManagedUser) => {
+        if (!searchTerm.trim()) return true;
+        const q = searchTerm.trim().toLowerCase();
+        return [u.tam_ad, u.email, u.firma_unvan, u.rol].filter(Boolean).join(' ').toLowerCase().includes(q);
+    }, [searchTerm]);
+
+    const internalUsers = useMemo(() => users.filter(u => INTERNAL_ROLES.includes(u.rol) && !pendingIds.includes(u.id) && matchSearch(u)), [users, pendingIds, matchSearch]);
+    const pendingUsers  = useMemo(() => users.filter(u => pendingIds.includes(u.id) && matchSearch(u)), [users, pendingIds, matchSearch]);
+    const portalUsers   = useMemo(() => users.filter(u => !INTERNAL_ROLES.includes(u.rol) && u.rol !== 'Tanımsız' && !pendingIds.includes(u.id) && matchSearch(u)), [users, pendingIds, matchSearch]);
+
+    const summary = useMemo(() => ({
+        yonetici: users.filter(u => u.rol === 'Yönetici' && !pendingIds.includes(u.id)).length,
+        personel: users.filter(u => u.rol === 'Personel' && !pendingIds.includes(u.id)).length,
+        musteri:  users.filter(u => u.rol === 'Müşteri' && !pendingIds.includes(u.id)).length,
+        altBayi:  users.filter(u => u.rol === 'Alt Bayi' && !pendingIds.includes(u.id)).length,
+    }), [users, pendingIds]);
+
+    const updateUser = (id: string, patch: Partial<ManagedUser>) => setUsers(u => u.map(x => x.id === id ? { ...x, ...patch } : x));
+    const togglePanel = (id: string, key: string) => { if (key === 'dashboard') return; setUsers(u => u.map(x => x.id !== id ? x : { ...x, allowed_admin_panels: x.allowed_admin_panels.includes(key) ? x.allowed_admin_panels.filter(k => k !== key) : Array.from(new Set(['dashboard', ...x.allowed_admin_panels, key])) })); };
+    const toggleNotif = (id: string, key: NotifKey) => setUsers(u => u.map(x => x.id !== id ? x : { ...x, notification_preferences: { ...getDefaultNotifPrefs(), ...x.notification_preferences, [key]: !x.notification_preferences?.[key] } }));
+    const startEdit = (id: string) => setEditingIds(p => p.includes(id) ? p : [...p, id]);
+    const cancelEdit = (id: string) => { const orig = initialUserMap.get(id); if (orig) setUsers(u => u.map(x => x.id === id ? { ...orig } : x)); setEditingIds(p => p.filter(i => i !== id)); };
+
+    // ── Handlers ──────────────────────────────────────────────────────────────
+
+    // Internal user create — reads from hidden form fields via FormData
+    const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!canManage) return;
+        const fd = new FormData(e.currentTarget);
+        const panels = (fd.get('_allowedPanels') as string)?.split(',').filter(Boolean) ?? [];
+        const notifRaw = fd.get('_notifPrefs') as string;
+        let notifs = getDefaultNotifPrefs();
+        try { notifs = JSON.parse(notifRaw); } catch {}
+        setLoadingKey('create');
+        try {
+            const res = await fetch('/api/admin/create-personel-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: fd.get('_email'), password: fd.get('_password') || undefined, tam_ad: fd.get('_tamAd') || null, rol: fd.get('_rol'), allowedPanels: panels, notificationPreferences: notifs, sendInviteEmail: fd.get('_sendInvite') === 'true', locale }) });
+            const data = await res.json().catch(() => null);
+            if (!res.ok) { toast.error(data?.error || 'Kullanıcı oluşturulamadı.'); return; }
+            toast.success(data?.message || 'Yeni kullanıcı oluşturuldu.');
+            router.refresh();
+        } catch (err) { toast.error(getErrMsg(err)); } finally { setLoadingKey(null); }
+    };
+
+    const handlePortalCreate = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!canManage) return;
+        const fd = new FormData(e.currentTarget);
+        const firmaId = fd.get('_firmaId') as string;
+        if (!firmaId) { toast.error('Lütfen firma seçin.'); return; }
+        setLoadingKey('create-portal');
+        try {
+            const res = await fetch('/api/admin/create-personel-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: fd.get('_email'), password: fd.get('_password') || undefined, tam_ad: fd.get('_tamAd') || null, rol: fd.get('_rol'), firma_id: firmaId, sendInviteEmail: fd.get('_sendInvite') === 'true', locale }) });
+            const data = await res.json().catch(() => null);
+            if (!res.ok) { toast.error(data?.error || 'Portal kullanıcısı oluşturulamadı.'); return; }
+            toast.success(data?.message || 'Portal kullanıcısı oluşturuldu.');
+            router.refresh();
+        } catch (err) { toast.error(getErrMsg(err)); } finally { setLoadingKey(null); }
+    };
+
+    const handleSaveUser = async (user: ManagedUser) => {
+        if (!canManage) return;
+        if (user.rol === 'Tanımsız') { toast.error('Lütfen önce rol seçin.'); return; }
+        if ((user.rol === 'Müşteri' || user.rol === 'Alt Bayi') && !user.firma_id) { toast.error('Portal kullanıcıları bir firmaya bağlanmalıdır.'); return; }
+        setLoadingKey(user.id);
+        const isInternal = INTERNAL_ROLES.includes(user.rol);
+        try {
+            const res = await fetch('/api/admin/update-profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: user.id, tam_ad: user.tam_ad || null, rol: user.rol, firma_id: isInternal ? null : user.firma_id, allowedPanels: isInternal ? user.allowed_admin_panels : [], notificationPreferences: isInternal ? user.notification_preferences : null }) });
+            const data = await res.json().catch(() => null);
+            if (!res.ok) { toast.error(data?.error || 'Güncelleme yapılamadı.'); return; }
+            toast.success(`${user.tam_ad || user.email || 'Kullanıcı'} güncellendi.`);
+            setPendingIds(p => user.rol !== 'Tanımsız' ? p.filter(i => i !== user.id) : p);
+            setEditingIds(p => p.filter(i => i !== user.id));
+            router.refresh();
+        } catch (err) { toast.error(getErrMsg(err)); } finally { setLoadingKey(null); }
+    };
+
+    const handleDelete = async (userId: string) => {
+        if (!canManage) return;
+        const u = users.find(x => x.id === userId);
+        const label = u?.tam_ad || u?.email || 'Bu kullanıcı';
+        const warn = [u?.acik_gorev_sayisi ? `• ${u.acik_gorev_sayisi} açık görevi var` : null, u?.firma_unvan ? `• Bağlı firma: ${u.firma_unvan}` : null, u?.rol === 'Yönetici' ? '• Yönetici yetkisine sahip' : null].filter(Boolean).join('\n');
+        if (!window.confirm(`${label} silinsin mi?\n${warn ? '\n' + warn : ''}\n\nBu işlem geri alınamaz.`)) return;
+        setLoadingKey(`delete-${userId}`);
+        try {
+            const res = await fetch('/api/admin/delete-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userIdToDelete: userId }) });
+            const data = await res.json().catch(() => null);
+            if (!res.ok) { toast.error(data?.error || 'Silme başarısız.'); return; }
+            setUsers(p => p.filter(x => x.id !== userId));
+            setPendingIds(p => p.filter(i => i !== userId));
+            setEditingIds(p => p.filter(i => i !== userId));
+            toast.success('Kullanıcı silindi.');
+            router.refresh();
+        } catch (err) { toast.error(getErrMsg(err)); } finally { setLoadingKey(null); }
+    };
+
+    const handlePasswordReset = async (email: string | null, label: string) => {
+        if (!canManage || !email) return;
+        setLoadingKey(`reset-${email}`);
+        try {
+            const res = await fetch('/api/admin/send-password-reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, locale }) });
+            const data = await res.json().catch(() => null);
+            if (!res.ok) { toast.error(data?.error || 'Şifre maili gönderilemedi.'); return; }
+            toast.success(`${label} için şifre kurulum e-postası gönderildi.`);
+        } catch (err) { toast.error(getErrMsg(err)); } finally { setLoadingKey(null); }
+    };
+
+    // ── Render ────────────────────────────────────────────────────────────────
+
+    const TAB_BTN = 'px-4 py-2 text-sm font-semibold rounded-lg transition-all';
+    const activeTab_ = `${TAB_BTN} bg-white shadow-sm text-slate-900`;
+    const inactiveTab = `${TAB_BTN} text-slate-500 hover:text-slate-700`;
+
+    return (
+        <div className="space-y-6">
+            {/* ── Özet sayaçları ─────────────────────────────────────────────── */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                    { label: 'Yönetici',   count: summary.yonetici, bg: 'bg-red-50 border-red-200',     text: 'text-red-700' },
+                    { label: 'Personel',   count: summary.personel, bg: 'bg-amber-50 border-amber-200',  text: 'text-amber-700' },
+                    { label: 'Müşteri',    count: summary.musteri,  bg: 'bg-green-50 border-green-200',  text: 'text-green-700' },
+                    { label: 'Alt Bayi',   count: summary.altBayi,  bg: 'bg-purple-50 border-purple-200', text: 'text-purple-700' },
+                ].map(s => (
+                    <div key={s.label} className={`rounded-xl border p-4 flex items-center justify-between ${s.bg}`}>
+                        <div>
+                            <p className={`text-2xl font-bold ${s.text}`}>{s.count}</p>
+                            <p className={`text-sm font-medium ${s.text} opacity-80`}>{s.label}</p>
+                        </div>
+                        <FiUser size={20} className={`${s.text} opacity-40`} />
+                    </div>
+                ))}
+            </div>
+
+            {/* Yönetici değil uyarısı */}
+            {!canManage && (
+                <div className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                    <FiAlertTriangle size={15} className="flex-shrink-0" />
+                    Sadece görüntüleme — kullanıcı oluşturma ve yetki düzenleme yönetici hesabı gerektirir.
+                </div>
+            )}
+
+            {/* Bekleyen kayıtlar */}
+            {pendingUsers.length > 0 && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <p className="text-sm font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                        <FiAlertTriangle size={14} /> {pendingUsers.length} bekleyen kayıt — rol atanmamış
+                    </p>
+                    <div className="space-y-2">
+                        {pendingUsers.map(u => (
+                            <UserCard key={u.id} user={u} isEditing={editingIds.includes(u.id)} panelOptions={panelOptions} firmaOptions={firmaOptions}
+                                loadingKey={loadingKey} canManage={canManage} locale={locale} isCurrentUser={u.id === currentUserId}
+                                onEdit={() => startEdit(u.id)} onCancelEdit={() => cancelEdit(u.id)} onSave={handleSaveUser} onDelete={handleDelete}
+                                onPasswordReset={handlePasswordReset} onUpdateUser={updateUser} onTogglePanel={togglePanel} onToggleNotif={toggleNotif} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* ── Toolbar: Arama + Sekmeler ──────────────────────────────────── */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                {/* Arama */}
+                <div className="relative flex-1 max-w-sm">
+                    <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                    <input type="search" placeholder="İsim, e-posta veya firma ara…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-300" />
+                </div>
+
+                {/* Sekmeler */}
+                <div className="flex bg-slate-100 rounded-xl p-1 gap-1">
+                    <button type="button" onClick={() => setActiveTab('ic-ekip')} className={activeTab === 'ic-ekip' ? activeTab_ : inactiveTab}>
+                        İç Ekip <span className="ml-1 text-[11px] font-normal opacity-70">({internalUsers.length})</span>
+                    </button>
+                    <button type="button" onClick={() => setActiveTab('portal')} className={activeTab === 'portal' ? activeTab_ : inactiveTab}>
+                        Portal <span className="ml-1 text-[11px] font-normal opacity-70">({portalUsers.length})</span>
+                    </button>
+                    {canManage && (
+                        <button type="button" onClick={() => setActiveTab('yeni-kullanici')} className={`${activeTab === 'yeni-kullanici' ? activeTab_ : inactiveTab} flex items-center gap-1`}>
+                            <FiUserPlus size={13} /> Yeni
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* ── İç Ekip Sekmesi ───────────────────────────────────────────── */}
+            {activeTab === 'ic-ekip' && (
+                <div>
+                    {internalUsers.length === 0 ? (
+                        <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
+                            <FiUser size={32} className="mx-auto text-slate-300 mb-2" />
+                            <p className="text-slate-500 text-sm">{searchTerm ? 'Aramaya uyan iç ekip üyesi bulunamadı.' : 'Henüz iç ekip üyesi yok.'}</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {internalUsers.map(u => (
+                                <UserCard key={u.id} user={u} isEditing={editingIds.includes(u.id)} panelOptions={panelOptions} firmaOptions={firmaOptions}
+                                    loadingKey={loadingKey} canManage={canManage} locale={locale} isCurrentUser={u.id === currentUserId}
+                                    onEdit={() => startEdit(u.id)} onCancelEdit={() => cancelEdit(u.id)} onSave={handleSaveUser} onDelete={handleDelete}
+                                    onPasswordReset={handlePasswordReset} onUpdateUser={updateUser} onTogglePanel={togglePanel} onToggleNotif={toggleNotif} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* ── Portal Kullanıcıları Sekmesi ───────────────────────────────── */}
+            {activeTab === 'portal' && (
+                <div>
+                    {portalUsers.length === 0 ? (
+                        <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
+                            <FiBriefcase size={32} className="mx-auto text-slate-300 mb-2" />
+                            <p className="text-slate-500 text-sm">{searchTerm ? 'Aramaya uyan portal kullanıcısı bulunamadı.' : 'Henüz portal kullanıcısı yok.'}</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {portalUsers.map(u => (
+                                <UserCard key={u.id} user={u} isEditing={editingIds.includes(u.id)} panelOptions={panelOptions} firmaOptions={firmaOptions}
+                                    loadingKey={loadingKey} canManage={canManage} locale={locale} isCurrentUser={u.id === currentUserId}
+                                    onEdit={() => startEdit(u.id)} onCancelEdit={() => cancelEdit(u.id)} onSave={handleSaveUser} onDelete={handleDelete}
+                                    onPasswordReset={handlePasswordReset} onUpdateUser={updateUser} onTogglePanel={togglePanel} onToggleNotif={toggleNotif} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* ── Yeni Kullanıcı Sekmesi ─────────────────────────────────────── */}
+            {activeTab === 'yeni-kullanici' && canManage && (
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                    {/* Alt sekmeler: İç / Portal */}
+                    <div className="flex gap-2 mb-6">
+                        {[
+                            { key: 'ic' as const,     label: 'İç Ekip Kullanıcısı',   icon: <FiShield size={14} /> },
+                            { key: 'portal' as const, label: 'Portal Kullanıcısı',     icon: <FiBriefcase size={14} /> },
+                        ].map(t => (
+                            <button key={t.key} type="button" onClick={() => setCreateSubTab(t.key)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${createSubTab === t.key ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                                {t.icon} {t.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {createSubTab === 'ic' && (
+                        <CreateInternalForm panelOptions={panelOptions} locale={locale} canManage={canManage} loading={loadingKey === 'create'} onSubmit={handleCreate} />
+                    )}
+                    {createSubTab === 'portal' && (
+                        <CreatePortalForm firmaOptions={firmaOptions} locale={locale} canManage={canManage} loading={loadingKey === 'create-portal'} onSubmit={handlePortalCreate} />
+                    )}
+                </div>
+            )}
+        </div>
+    );
 }

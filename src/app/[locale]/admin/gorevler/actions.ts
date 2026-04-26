@@ -252,6 +252,153 @@ export async function gorevGuncelleAction(
     return { success: 'Görev başarıyla güncellendi.' };
 }
 
+// ── Kanban: belirli bir duruma geçiş ─────────────────────────────────────────
+
+export async function gorevDurumDegistirAction(
+    gorevId: string,
+    yeniDurum: 'Yapılacak' | 'Devam Ediyor' | 'Tamamlandı',
+    locale?: string
+): Promise<ActionResult> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const { error } = await supabase
+        .from('gorevler')
+        .update({
+            durum: yeniDurum,
+            tamamlandi: yeniDurum === 'Tamamlandı',
+        })
+        .eq('id', gorevId);
+
+    if (error) {
+        console.error('Durum değiştirme hatası:', error);
+        return { error: 'Durum güncellenemedi.' };
+    }
+
+    revalidateTaskPaths(locale);
+    return { success: `Görev "${yeniDurum}" olarak işaretlendi.` };
+}
+
+// ── Notlar ────────────────────────────────────────────────────────────────────
+
+type GorevNot = {
+    id: string;
+    not_metni: string;
+    olusturma_tarihi: string;
+    kullanici_adi: string | null;
+};
+
+type AltGorev = {
+    id: string;
+    baslik: string;
+    tamamlandi: boolean;
+    olusturma_tarihi: string;
+};
+
+export async function fetchGorevDetayAction(gorevId: string): Promise<{
+    notlar: GorevNot[];
+    altGorevler: AltGorev[];
+    error?: string;
+}> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { notlar: [], altGorevler: [], error: 'Oturum açık değil.' };
+
+    const [notlarRes, altRes] = await Promise.all([
+        (supabase as any)
+            .from('gorev_notlari')
+            .select('id, not_metni, olusturma_tarihi, profiller(tam_ad)')
+            .eq('gorev_id', gorevId)
+            .order('olusturma_tarihi', { ascending: false }),
+        (supabase as any)
+            .from('alt_gorevler')
+            .select('id, baslik, tamamlandi, olusturma_tarihi')
+            .eq('gorev_id', gorevId)
+            .order('olusturma_tarihi', { ascending: true }),
+    ]);
+
+    const notlar: GorevNot[] = (notlarRes.data || []).map((r: any) => ({
+        id: r.id,
+        not_metni: r.not_metni,
+        olusturma_tarihi: r.olusturma_tarihi,
+        kullanici_adi: r.profiller?.tam_ad ?? null,
+    }));
+
+    const altGorevler: AltGorev[] = (altRes.data || []).map((r: any) => ({
+        id: r.id,
+        baslik: r.baslik,
+        tamamlandi: r.tamamlandi,
+        olusturma_tarihi: r.olusturma_tarihi,
+    }));
+
+    return { notlar, altGorevler };
+}
+
+export async function addGorevNotuAction(
+    gorevId: string,
+    notMetni: string,
+): Promise<ActionResult> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const metin = notMetni.trim();
+    if (!metin) return { error: 'Not metni boş olamaz.' };
+
+    const { error } = await (supabase as any)
+        .from('gorev_notlari')
+        .insert({ gorev_id: gorevId, kullanici_id: user.id, not_metni: metin });
+
+    if (error) {
+        console.error('Not ekleme hatası:', error);
+        return { error: 'Not eklenemedi.' };
+    }
+
+    return { success: 'Not eklendi.' };
+}
+
+export async function addAltGorevAction(
+    gorevId: string,
+    baslik: string,
+): Promise<ActionResult & { id?: string }> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const temiz = baslik.trim();
+    if (!temiz) return { error: 'Alt görev başlığı boş olamaz.' };
+
+    const { data, error } = await (supabase as any)
+        .from('alt_gorevler')
+        .insert({ gorev_id: gorevId, baslik: temiz })
+        .select('id')
+        .single();
+
+    if (error) {
+        console.error('Alt görev ekleme hatası:', error);
+        return { error: 'Alt görev eklenemedi.' };
+    }
+
+    return { success: 'Alt görev eklendi.', id: data?.id };
+}
+
+export async function toggleAltGorevAction(
+    altGorevId: string,
+    tamamlandi: boolean,
+): Promise<ActionResult> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const { error } = await (supabase as any)
+        .from('alt_gorevler')
+        .update({ tamamlandi })
+        .eq('id', altGorevId);
+
+    if (error) {
+        console.error('Alt görev güncelleme hatası:', error);
+        return { error: 'Alt görev güncellenemedi.' };
+    }
+
+    return { success: tamamlandi ? 'Tamamlandı.' : 'Yeniden açıldı.' };
+}
+
 export async function gorevSilAction(gorevId: string, locale?: string): Promise<ActionResult> {
     const { supabase, user } = await getAuthenticatedClient();
 

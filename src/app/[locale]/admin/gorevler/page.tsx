@@ -1,9 +1,8 @@
 // src/app/[locale]/admin/gorevler/page.tsx
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Enums } from '@/lib/supabase/database.types';
 import { FiPlus, FiClipboard } from 'react-icons/fi';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
@@ -12,7 +11,7 @@ import GorevlerClient from './GorevlerClient';
 
 export const dynamic = 'force-dynamic';
 
-type GorevOncelik = Enums<'gorev_oncelik'>;
+type GorevOncelik = 'Düşük' | 'Orta' | 'Yüksek';
 
 interface GorevlerListPageProps {
     params: Promise<{ locale: Locale }>;
@@ -116,11 +115,19 @@ export default async function GorevlerListPage({ params, searchParams }: Gorevle
                     </p>
                 </div>
             ) : (
-                <GorevlerClient
-                    gorevler={gorevListe as any}
-                    profiller={profiller}
-                    locale={locale}
-                />
+                <Suspense fallback={
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="h-48 bg-slate-200 rounded-xl" />
+                        ))}
+                    </div>
+                }>
+                    <GorevlerClient
+                        gorevler={gorevListe as any}
+                        profiller={profiller}
+                        locale={locale}
+                    />
+                </Suspense>
             )}
         </main>
     );

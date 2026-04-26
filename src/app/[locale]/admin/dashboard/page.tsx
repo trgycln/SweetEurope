@@ -1,752 +1,606 @@
-// src/app/[locale]/admin/dashboard/page.tsx
-// GÜNCELLENMİŞ (Client Component dışa aktarıldı, cookieStore düzeltildi, Düzen güncellendi, Ajanda Linki Düzeltildi)
+// src/app/[locale]/admin/dashboard/page.tsx — CEO Cockpit v3
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
-import { notFound, redirect } from 'next/navigation';
 import {
-    FiDollarSign, FiTrendingUp, FiTrendingDown, FiPackage, FiAlertTriangle, FiUsers,
-    FiClipboard, FiPlus, FiBriefcase, FiUserPlus, FiGift, FiBox, FiArchive, FiClock
+    FiUsers, FiPackage, FiClipboard, FiBriefcase, FiTruck,
+    FiAlertTriangle, FiCheckCircle, FiArchive, FiBox,
+    FiExternalLink, FiAlertCircle, FiCalendar,
 } from 'react-icons/fi';
 import Link from 'next/link';
-import { Tables, Enums, Database } from '@/lib/supabase/database.types';
+import { Enums } from '@/lib/supabase/database.types';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils';
 import { formatDate } from '@/lib/utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
-import KPIBar from './KPIBar';
 import { DistributorsList } from '@/components/admin/dashboard/DistributorsList';
 import { CustomerOverview } from '@/components/admin/dashboard/CustomerOverview';
+import GorevDurumWidget from '@/components/admin/dashboard/GorevDurumWidget';
+import DashboardPeriodTabs from '@/components/admin/dashboard/DashboardPeriodTabs';
+import KasaKalanCard from '@/components/admin/dashboard/KasaKalanCard';
+import HedefTakipCard from '@/components/admin/dashboard/HedefTakipCard';
+import CollapsibleSection from '@/components/admin/dashboard/CollapsibleSection';
 
 export const dynamic = 'force-dynamic';
 
-// --- Para Formatlama (Server-side) ---
-const formatCurrency = (value: number | null | undefined) => {
-    if (value === null || value === undefined) return 'N/A';
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
-};
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-const toLocalDateString = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
+const fmt = (v: number | null | undefined) =>
+    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v ?? 0);
 
-// StatCard Komponente
-const StatCard = ({ title, value, icon, link, linkText, isNegative }: { title: string, value: string | number, icon: React.ReactNode, link?: string, linkText?: string, isNegative?: boolean }) => {
-    const valueColorClass = isNegative ? 'text-red-600' : 'text-primary';
-    const content = (
-        <>
-            <div className="flex-shrink-0">{icon}</div>
-            <div className="flex-grow min-w-0">
-                <p className="text-sm font-medium text-text-main/70 truncate">{title}</p>
-                <p className={`text-3xl font-bold ${valueColorClass} mt-1 truncate`}>{value}</p>
-                {link && linkText && (
-                    <p className="text-xs text-accent font-semibold mt-2 hover:underline">{linkText} &rarr;</p>
-                )}
-            </div>
-        </>
-    );
-    if (link) {
-        return <Link href={link} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 flex items-center gap-4 hover:bg-gray-50/50 hover:shadow-md transition-all duration-200">{content}</Link>;
-    }
-    return <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 flex items-center gap-4">{content}</div>;
-};
+const fmtNum = (v: number | null | undefined) =>
+    new Intl.NumberFormat('tr-TR').format(v ?? 0);
 
-const HealthSignalCard = ({ title, value, hint, status, href }: { title: string; value: string; hint: string; status: 'green' | 'yellow' | 'red'; href?: string }) => {
-    const styles = {
-        green: {
-            wrapper: 'border-emerald-200 bg-emerald-50',
-            dot: 'bg-emerald-500',
-            badge: 'bg-emerald-100 text-emerald-700',
-            label: 'Kontrol altında'
-        },
-        yellow: {
-            wrapper: 'border-amber-200 bg-amber-50',
-            dot: 'bg-amber-500',
-            badge: 'bg-amber-100 text-amber-700',
-            label: 'Takip edilmeli'
-        },
-        red: {
-            wrapper: 'border-rose-200 bg-rose-50',
-            dot: 'bg-rose-500',
-            badge: 'bg-rose-100 text-rose-700',
-            label: 'Acil aksiyon'
-        }
-    }[status];
-
-    const content = (
-        <div className={`rounded-2xl border p-4 ${styles.wrapper}`}>
-            <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                    <span className={`h-3 w-3 rounded-full ${styles.dot}`} />
-                    <p className="text-sm font-semibold text-slate-900">{title}</p>
-                </div>
-                <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${styles.badge}`}>{styles.label}</span>
-            </div>
-            <p className="mt-3 text-2xl font-bold text-slate-900">{value}</p>
-            <p className="mt-1 text-xs text-slate-600">{hint}</p>
-        </div>
-    );
-
-    return href ? <Link href={href} className="block">{content}</Link> : content;
-};
-
-// Schnellaktions-Button
-const QuickActionButton = ({ label, icon, href }: { label: string, icon: React.ReactNode, href: string }) => (
-     <Link href={href} className="bg-accent text-white p-3 rounded-lg flex flex-col items-center justify-center text-center font-bold text-xs hover:bg-opacity-85 transition-opacity aspect-square">
-         {icon}
-         <span className="mt-1.5">{label}</span>
-     </Link>
-);
-
-// Typ für eine Aufgabe
-type OverdueTask = Pick<Tables<'gorevler'>, 'id' | 'baslik' | 'son_tarih'>;
-
-// Relax type where needed to avoid missing type exports in next/headers version
-type ReadonlyRequestCookiesLike = any;
-
-// Props-Typ für die Unter-Dashboards
-interface DashboardProps {
-    locale: Locale;
-    dictionary: any;
-    cookieStore: ReadonlyRequestCookiesLike;
+function toLocalDate(d: Date) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Raporlama (P&L) fonksiyonundan dönecek veri tipi
+function getPeriodDates(period: string, now: Date) {
+    const y = now.getFullYear(); const mo = now.getMonth();
+    if (period === 'gecen-ay') return { start: toLocalDate(new Date(y, mo - 1, 1)), end: toLocalDate(new Date(y, mo, 0)) };
+    if (period === 'bu-yil')   return { start: toLocalDate(new Date(y, 0, 1)),       end: toLocalDate(now) };
+    return { start: toLocalDate(new Date(y, mo, 1)), end: toLocalDate(now) };
+}
+
+const PERIOD_LABEL: Record<string, string> = { 'bu-ay': 'Bu Ay (MTD)', 'gecen-ay': 'Geçen Ay', 'bu-yil': 'Bu Yıl (YTD)' };
+
+// ── Küçük yardımcı bileşenler ─────────────────────────────────────────────────
+
+function SectionLink({ href, children }: { href: string; children: React.ReactNode }) {
+    return (
+        <Link href={href} className="text-[12px] text-slate-500 hover:text-slate-700 font-medium flex items-center gap-1 whitespace-nowrap transition-colors">
+            {children} <FiExternalLink size={10} />
+        </Link>
+    );
+}
+
+function MiniCard({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
+    return (
+        <div className="bg-slate-50 rounded-xl border border-slate-200 p-3 text-center">
+            <p className={`text-xl font-bold ${warn ? 'text-red-600' : 'text-slate-800'}`}>{value}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{label}</p>
+        </div>
+    );
+}
+
+function HealthCard({ title, value, hint, tag, tagColor }: {
+    title: string; value: string; hint: string;
+    tag: string; tagColor: 'red' | 'green' | 'yellow';
+}) {
+    const tagCls = { red: 'bg-red-100 text-red-700', green: 'bg-green-100 text-green-700', yellow: 'bg-amber-100 text-amber-700' }[tagColor];
+    const borderCls = { red: 'border-red-200 bg-red-50/30', green: 'border-green-200 bg-green-50/30', yellow: 'border-amber-200 bg-amber-50/30' }[tagColor];
+    return (
+        <div className={`rounded-xl border p-4 ${borderCls}`}>
+            <div className="flex items-center justify-between mb-2">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">{title}</p>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tagCls}`}>{tag}</span>
+            </div>
+            <p className="text-2xl font-bold text-slate-800">{value}</p>
+            <p className="text-[11px] text-slate-500 mt-1">{hint}</p>
+        </div>
+    );
+}
+
 type ReportData = {
-    totalGrossRevenue: number;
-    totalRevenue: number;
-    totalCogs: number;
-    grossProfit: number;
-    totalExpenses: number;
-    netProfit: number;
-    expenseBreakdown: any[];
+    totalGrossRevenue: number; totalRevenue: number; totalCogs: number;
+    grossProfit: number; totalExpenses: number; netProfit: number;
 };
 
-// Manager Dashboard Komponente (YENİ DÜZEN)
-async function ManagerDashboard({ locale, dictionary, cookieStore }: DashboardProps) {
+// ── TeamMember Dashboard ──────────────────────────────────────────────────────
 
+async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: { userId: string; locale: string; dictionary: any; cookieStore: any }) {
     const supabase = await createSupabaseServerClient(cookieStore);
+    const { data } = await supabase.rpc('get_dashboard_summary_for_member', { p_member_id: userId }).single();
+    const safeData = (typeof data === 'object' && data && !Array.isArray(data)) ? data : {};
+    const openTasks = Number((safeData as any).openTasksCount ?? 0);
+    const newOrders = Number((safeData as any).newOrdersCount ?? 0);
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+                {[
+                    { label: 'Açık Görev', value: isNaN(openTasks) ? 0 : openTasks, href: `/${locale}/admin/gorevler`, color: 'text-blue-700' },
+                    { label: 'Yeni Sipariş', value: isNaN(newOrders) ? 0 : newOrders, href: `/${locale}/admin/operasyon/siparisler`, color: 'text-green-700' },
+                ].map(s => (
+                    <Link key={s.label} href={s.href} className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow">
+                        <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+                        <p className="text-sm text-slate-500 mt-0.5">{s.label}</p>
+                    </Link>
+                ))}
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 p-4 flex gap-4">
+                <Link href={`/${locale}/admin/crm/firmalar`} className="text-sm font-semibold text-blue-600 hover:underline">Müşterilerim →</Link>
+                <Link href={`/${locale}/admin/gorevler`}    className="text-sm font-semibold text-blue-600 hover:underline">Görevlerim →</Link>
+            </div>
+        </div>
+    );
+}
 
-    // Sözlük içeriklerini güvenle al
-    const pageContent = (dictionary.adminDashboard && dictionary.adminDashboard.dashboardPage) ? dictionary.adminDashboard.dashboardPage : {};
-    const operationalContent = dictionary.adminDashboard || {};
-    const pnlContent = dictionary.pnlReportPage || {};
+// ── Manager Dashboard ─────────────────────────────────────────────────────────
 
-    // ── Mevcut kullanıcı ve rol tespiti ─────────────────────────────────────
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    const isAdmin = await (async () => {
-        if (!currentUser) return false;
-        const { data: profil } = await supabase
-            .from('profiller')
-            .select('rol')
-            .eq('id', currentUser.id)
-            .maybeSingle();
-        return profil?.rol === 'Yönetici';
-    })();
-
+async function ManagerDashboard({ locale, period, dictionary, cookieStore, userId }: {
+    locale: string; period: string; dictionary: any; cookieStore: any; userId: string;
+}) {
+    const supabase = await createSupabaseServerClient(cookieStore);
     const now = new Date();
-    const todayISO = now.toISOString();
-    const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfTodayISO = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-    const startOfTomorrowISO = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString();
-    // Ay başlangıcı (MTD başlangıcı)
-    const mtdStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const mtdStartStr = toLocalDateString(mtdStart);
-    // Grafik için tam ay (mevcut chart bu aralığı kullanıyor)
-    const fullMonthStartStr = mtdStartStr;
-    const fullMonthEndStr = toLocalDateString(new Date(now.getFullYear(), now.getMonth() + 1, 0));
-    // MTD bitiş bugünün tarihi
-    const mtdEndStr = toLocalDateString(now);
-    // Geçen ay aynı dönem: geçen ayın ilk günü -> geçen ayın bugüne denk gelen günü
-    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonthStartStr = toLocalDateString(lastMonth);
-    const lastMonthEndSameDay = new Date(now.getFullYear(), now.getMonth(), 0); // geçen ayın son günü
-    const targetDay = now.getDate();
-    const lastMonthEnd = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), Math.min(targetDay, lastMonthEndSameDay.getDate()));
-    const lastMonthEndStr = toLocalDateString(lastMonthEnd);
+    const { start: periodStart, end: periodEnd } = getPeriodDates(period, now);
+    const todayISO          = now.toISOString();
+    const sevenDaysAgo      = new Date(now.getTime() - 7  * 86400000).toISOString();
+    const thirtyDaysAgo     = new Date(now.getTime() - 30 * 86400000).toISOString();
+    const thirtyDaysLater   = new Date(now.getTime() + 30 * 86400000).toISOString();
 
-    // Statusdefinitionen
-    const OFFENE_BESTELL_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
-    const NEUE_MUSTER_STATUS: Enums<'numune_talep_durumu'> = 'Yeni Talep';
-    const NEUE_PRODUKTANFRAGE_STATUS: Enums<'urun_talep_durumu'> = 'Yeni';
-    const ABGESCHLOSSENE_ANTRAG_STATUS: Enums<'firma_status'>[] = ['MÜŞTERİ', 'REDDEDİLDİ'];
-    const NEW_APPLICATION_STATUS: Enums<'firma_status'>[] = ['ADAY', 'TEMAS EDİLDİ', 'NUMUNE VERİLDİ'];
+    const OFFENE_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
 
-    // Parallele Datenabfragen
-    const applicationsResPromise = (async () => {
-        let res = await supabase
-            .from('firmalar')
-            .select('id', { count: 'exact' })
-            .or('ticari_tip.eq.musteri,ticari_tip.is.null')
-            .in('status', NEW_APPLICATION_STATUS)
-            .eq('goruldu', false)
-            .ilike('kaynak', '%web%');
-
-        if (res.error && res.error.message?.includes('goruldu')) {
-            // Fallback: goruldu kolonu yoksa sadece statüye göre say
-            res = await supabase
-                .from('firmalar')
-                .select('id', { count: 'exact' })
-                .or('ticari_tip.eq.musteri,ticari_tip.is.null')
-                .in('status', NEW_APPLICATION_STATUS)
-                .ilike('kaynak', '%web%');
-        }
-        return res;
-    })();
-
+    // ── Paralel sorgular ──────────────────────────────────────────────────────
     const [
-        ordersRes,
-        stockRes,
-        profitabilityAlertsRes,
-        recentBatchHistoryRes,
-        tasksRes,
-        applicationsRes,
-        sampleRequestsRes,
-        productRequestsRes,
-        plReportRes,
-        // Faz 1 KPI ek sorgular
-        plMtdRes,
-        plPrevMtdRes,
-        ordersTodayRes,
-        ordersMtdRes,
-        overdueInvoicesRes,
-        // Sipariş durum dağılımı: son 30 gün için seçili statusler
-        odBeklemede,
-        odHazirlaniyor,
-        odYolda,
-        odTeslim,
-        odIptal
+        plRes, plPrevRes,
+        stokRes, kritikStokRes,
+        aktifSiparisRes, siparisDagRes,
+        sonTirRes, yaklasenTirRes,
+        adayRes, temasRes, musteriRes, yeniTemasRes,
+        overdueRes, upcomingRes, benimRes,
+        alarmUrunlerRes,
+        settingsRes,
+        yeniMusteriRes, sipAdetRes,
+        alarmCountRes, batchHistRes,
     ] = await Promise.all([
-        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_BESTELL_STATUS),
+        supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).returns<ReportData>().single(),
+        supabase.rpc('get_pl_report', { start_date: toLocalDate(new Date(now.getFullYear(), now.getMonth() - 1, 1)), end_date: toLocalDate(new Date(now.getFullYear(), now.getMonth(), 0)) }).returns<ReportData>().single(),
+        supabase.from('urunler').select('distributor_alis_fiyati, stok_miktari').eq('aktif', true),
         supabase.rpc('get_kritik_stok_count'),
+        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_STATUS),
+        supabase.from('siparisler').select('siparis_durumu').gte('created_at', thirtyDaysAgo),
+        (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(3),
+        (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum').gte('varis_tarihi', todayISO).order('varis_tarihi', { ascending: true }).limit(1),
+        supabase.from('firmalar').select('id', { count: 'exact' }).eq('status', 'ADAY'),
+        supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']),
+        supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Müşteri', 'ALT BAYİ']),
+        supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']).gte('created_at', sevenDaysAgo),
+        supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(10),
+        supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).gte('son_tarih', todayISO).lte('son_tarih', thirtyDaysLater).order('son_tarih', { ascending: true }).limit(10),
+        supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).eq('atanan_kisi_id', userId).order('son_tarih', { ascending: true, nullsFirst: false }).limit(10),
+        supabase.from('urunler').select('id, ad, stok_kodu, son_maliyet_sapma_yuzde, son_gercek_inis_maliyeti_net').eq('karlilik_alarm_aktif', true).order('son_maliyet_sapma_yuzde', { ascending: false }).limit(4),
+        (supabase as any).from('system_settings').select('setting_key, setting_value').in('setting_key', ['kasa_bakiyesi', 'hedef_ciro', 'hedef_musteri', 'hedef_temas', 'hedef_siparis']),
+        supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'ALT BAYİ']).gte('created_at', `${periodStart}T00:00:00`),
+        supabase.from('siparisler').select('id', { count: 'exact' }).gte('created_at', `${periodStart}T00:00:00`).lte('created_at', `${periodEnd}T23:59:59`),
         supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
         (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
-        (() => {
-            // Yönetici: tüm gecikmiş görevler; diğerleri: sadece kendine atanan
-            let q = supabase
-                .from('gorevler')
-                .select('id, baslik, son_tarih, aciklama, atanan_kisi_id, oncelik')
-                .eq('tamamlandi', false)
-                .lt('son_tarih', todayISO)
-                .order('son_tarih', { ascending: true })
-                .limit(8);
-            if (!isAdmin && currentUser?.id) {
-                q = q.eq('atanan_kisi_id', currentUser.id);
-            }
-            return q;
-        })(),
-                // FIXED: Sadece görülmemiş başvuruları say
-                applicationsResPromise,
-        supabase.from('numune_talepleri').select('id', { count: 'exact' }).eq('durum', NEUE_MUSTER_STATUS),
-        supabase.from('yeni_urun_talepleri').select('id', { count: 'exact' }).eq('status', NEUE_PRODUKTANFRAGE_STATUS).then(res => res, err => ({ data: null, count: null, error: err })),
-        // Grafik için tam ay P&L
-        supabase.rpc('get_pl_report', { start_date: fullMonthStartStr, end_date: fullMonthEndStr }).returns<ReportData>().single(),
-        // KPI'lar için MTD ve geçen ay aynı dönem
-        supabase.rpc('get_pl_report', { start_date: mtdStartStr, end_date: mtdEndStr }).returns<ReportData>().single(),
-        supabase.rpc('get_pl_report', { start_date: lastMonthStartStr, end_date: lastMonthEndStr }).returns<ReportData>().single(),
-        // Bugünkü sipariş adedi
-        supabase.from('siparisler').select('id', { count: 'exact' }).gte('created_at', startOfTodayISO).lt('created_at', startOfTomorrowISO),
-        // MTD sipariş sayısı (AOV için)
-        supabase.from('siparisler').select('id', { count: 'exact' }).gte('created_at', new Date(mtdStartStr).toISOString()).lt('created_at', new Date(new Date(mtdEndStr).getTime()+24*60*60*1000).toISOString()),
-        // Overdue faturalar: durum 'overdue' olanların tutarlarını çek
-        supabase.from('faturalar').select('tutar').eq('odeme_durumu', 'overdue'),
-        // Sipariş dağılımı (son 30 gün)
-        supabase.from('siparisler').select('id', { count: 'exact' }).eq('siparis_durumu', 'Beklemede').gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
-        supabase.from('siparisler').select('id', { count: 'exact' }).eq('siparis_durumu', 'Hazırlanıyor').gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
-        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', ['Yola Çıktı','shipped']).gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
-        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', ['Teslim Edildi','delivered']).gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
-        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', ['İptal Edildi','cancelled']).gte('created_at', new Date(now.getTime()-30*24*60*60*1000).toISOString()),
     ]);
 
-    // Hata loglama
-        if (ordersRes.error && Object.keys(ordersRes.error).length > 0) {
-            console.error("Active Orders Error:", ordersRes.error);
-        }
-        if (stockRes.error && Object.keys(stockRes.error).length > 0) {
-            console.error("Critical Stock Error:", stockRes.error);
-        }
-        if (profitabilityAlertsRes.error && Object.keys(profitabilityAlertsRes.error).length > 0 && !(profitabilityAlertsRes.error.message || '').includes('karlilik_alarm_aktif')) {
-            console.error("Profitability Alerts Error:", profitabilityAlertsRes.error);
-        }
-        if (recentBatchHistoryRes.error && Object.keys(recentBatchHistoryRes.error).length > 0 && !(recentBatchHistoryRes.error.message || '').includes('ithalat_partileri')) {
-            console.error("Recent Batch History Error:", recentBatchHistoryRes.error);
-        }
-        if (tasksRes.error && Object.keys(tasksRes.error).length > 0) {
-            console.error("Overdue Tasks Error:", tasksRes.error);
-        }
-        if (applicationsRes.error && Object.keys(applicationsRes.error).length > 0) {
-            console.error("New Applications Error:", applicationsRes.error);
-        }
-        if (sampleRequestsRes.error && Object.keys(sampleRequestsRes.error).length > 0) {
-            console.error("Sample Requests Error:", sampleRequestsRes.error);
-        }
-        if (plReportRes.error && Object.keys(plReportRes.error).length > 0) {
-            console.error("P&L Report Error (Dashboard):", plReportRes.error);
-        }
-    if (productRequestsRes && productRequestsRes.error && !productRequestsRes.error?.message?.includes('relation "public.yeni_urun_talepleri" does not exist')) {
-        console.error("Product Requests Error:", productRequestsRes.error);
-    }
-    
-    // Variablen-Definitionen direkt vor return
-    const plReport = plReportRes.data;
-    const mtd: ReportData | null = ((plMtdRes as any)?.data ?? null);
-    const prevMtd: ReportData | null = ((plPrevMtdRes as any)?.data ?? null);
-    const VAT_RATE = 0.07;
-    const revenueMtdNet = mtd?.totalRevenue ?? 0;
-    const prevRevenueMtdNet = prevMtd?.totalRevenue ?? 0;
-    const deltaPct = prevRevenueMtdNet !== 0 ? Math.round(((revenueMtdNet - prevRevenueMtdNet) / prevRevenueMtdNet) * 100) : null;
-    const ordersMtd = ordersMtdRes?.count ?? 0;
-    const overdueTasks = Array.isArray(tasksRes.data) ? tasksRes.data.filter((t: any) => t.son_tarih && new Date(t.son_tarih) < new Date() && !t.tamamlandi) : [];
-    const profitabilityAlertCount = profitabilityAlertsRes.count ?? 0;
-    const criticalStockCount = Number(stockRes.data ?? 0);
-
-    let alertProductsPreview: Array<any> = [];
-    if (!profitabilityAlertsRes.error && (profitabilityAlertsRes.count ?? 0) > 0) {
-        const alertProductsRes = await (supabase as any)
-            .from('urunler')
-            .select('id, ad, stok_kodu, son_maliyet_sapma_yuzde, standart_inis_maliyeti_net, son_gercek_inis_maliyeti_net')
-            .eq('karlilik_alarm_aktif', true)
-            .order('son_maliyet_sapma_yuzde', { ascending: false })
-            .limit(6);
-
-        if (!alertProductsRes.error) {
-            alertProductsPreview = alertProductsRes.data || [];
-        } else if (!(alertProductsRes.error.message || '').includes('karlilik_alarm_aktif')) {
-            console.error('Alert Products Preview Error:', alertProductsRes.error);
-        }
-    }
-
-    let recentBatchesWithSummary: Array<any> = Array.isArray(recentBatchHistoryRes.data) ? [...recentBatchHistoryRes.data] : [];
-    if (!recentBatchHistoryRes.error && recentBatchesWithSummary.length > 0) {
-        const batchItemRes = await (supabase as any)
-            .from('ithalat_parti_kalemleri')
-            .select('parti_id, miktar_adet, maliyet_sapma_yuzde')
-            .in('parti_id', recentBatchesWithSummary.map((batch: any) => batch.id));
-
-        if (!batchItemRes.error && batchItemRes.data) {
-            const batchSummary = (batchItemRes.data as Array<any>).reduce((acc, item) => {
-                const key = item.parti_id;
-                if (!acc[key]) acc[key] = { itemCount: 0, totalQuantity: 0, alertLineCount: 0, absVarianceTotal: 0, maxAbsVariance: 0 };
-                const absVariance = Math.abs(Number(item.maliyet_sapma_yuzde || 0));
-                acc[key].itemCount += 1;
-                acc[key].totalQuantity += Number(item.miktar_adet || 0);
-                acc[key].absVarianceTotal += absVariance;
-                acc[key].maxAbsVariance = Math.max(acc[key].maxAbsVariance, absVariance);
-                if (absVariance >= 5) {
-                    acc[key].alertLineCount += 1;
-                }
-                return acc;
-            }, {} as Record<string, { itemCount: number; totalQuantity: number; alertLineCount: number; absVarianceTotal: number; maxAbsVariance: number }>);
-
-            recentBatchesWithSummary = recentBatchesWithSummary.map((batch: any) => ({
-                ...batch,
-                itemCount: batchSummary[batch.id]?.itemCount || 0,
-                totalQuantity: batchSummary[batch.id]?.totalQuantity || 0,
-                alertLineCount: batchSummary[batch.id]?.alertLineCount || 0,
-                averageAbsVariance: batchSummary[batch.id]?.itemCount ? (batchSummary[batch.id].absVarianceTotal / batchSummary[batch.id].itemCount) : 0,
-                maxAbsVariance: batchSummary[batch.id]?.maxAbsVariance || 0,
-            }));
-        } else if (batchItemRes.error && !(batchItemRes.error.message || '').includes('ithalat_parti_kalemleri')) {
-            console.error('Batch Item Summary Error:', batchItemRes.error);
-        }
-    }
-
-    const recentBatchAlertLines = recentBatchesWithSummary.reduce((sum: number, batch: any) => sum + Number(batch.alertLineCount || 0), 0);
-    const latestBatch = recentBatchesWithSummary[0] || null;
-    const latestBatchDate = latestBatch?.varis_tarihi || latestBatch?.created_at || null;
-    const latestBatchAvgVariance = Number(latestBatch?.averageAbsVariance || 0);
-    const latestBatchMaxVariance = Number(latestBatch?.maxAbsVariance || 0);
-    const daysSinceLastBatch = latestBatchDate
-        ? Math.max(0, Math.floor((Date.now() - new Date(latestBatchDate).getTime()) / (1000 * 60 * 60 * 24)))
+    // ── Veri işle ─────────────────────────────────────────────────────────────
+    const mtd     = plRes.data;
+    const prevMtd = plPrevRes.data;
+    const deltaPct = prevMtd?.totalRevenue
+        ? Math.round(((mtd?.totalRevenue ?? 0) - prevMtd.totalRevenue) / prevMtd.totalRevenue * 100)
         : null;
 
-    const alertStatus: 'green' | 'yellow' | 'red' = profitabilityAlertCount === 0 ? 'green' : profitabilityAlertCount <= 3 ? 'yellow' : 'red';
-    const batchStatus: 'green' | 'yellow' | 'red' = recentBatchAlertLines === 0 ? 'green' : recentBatchAlertLines <= 3 ? 'yellow' : 'red';
-    const freshnessStatus: 'green' | 'yellow' | 'red' = daysSinceLastBatch === null ? 'yellow' : daysSinceLastBatch <= 7 ? 'green' : daysSinceLastBatch <= 21 ? 'yellow' : 'red';
-    const stockStatus: 'green' | 'yellow' | 'red' = criticalStockCount === 0 ? 'green' : criticalStockCount <= 5 ? 'yellow' : 'red';
+    const stokDegeri    = (stokRes.data || []).reduce((s: number, u: any) => s + (Number(u.distributor_alis_fiyati || 0) * Number(u.stok_miktari || 0)), 0);
+    const urunToplamCount = stokRes.data?.length ?? 0;
+    const kritikStok    = Number(kritikStokRes.data ?? 0);
+
+    const sipDag = (siparisDagRes.data || []) as Array<{ siparis_durumu: string }>;
+    const sipCount = (statuses: string[]) => sipDag.filter(d => statuses.includes(d.siparis_durumu)).length;
+
+    const sonTir      = (sonTirRes.data || [])[0] ?? null;
+    const sonTirler   = (batchHistRes.data || []).slice(0, 3);
+    const yaklasenTir = (yaklasenTirRes.data || [])[0] ?? null;
+
+    const adayCount    = adayRes.count   ?? 0;
+    const temasTotal   = temasRes.count  ?? 0;
+    const musteriCount = musteriRes.count ?? 0;
+    const yeniTemasCount = yeniTemasRes.count ?? 0;
+    const toplamFunnel = adayCount + temasTotal + musteriCount;
+
+    const mapTask = (t: any) => ({ id: t.id, baslik: t.baslik, son_tarih: t.son_tarih, oncelik: t.oncelik ?? null, atanan_kisi_adi: null });
+    const overdueTasks  = (overdueRes.data  || []).map(mapTask);
+    const upcomingTasks = (upcomingRes.data  || []).map(mapTask);
+    const myTasks       = (benimRes.data     || []).map(mapTask);
+
+    const alarmUrunler  = alarmUrunlerRes.data  ?? [];
+    const alarmCount    = alarmCountRes.count ?? 0;
+    const alarmOrt      = alarmCount > 0 ? alarmUrunler.reduce((s: number, u: any) => s + Math.abs(Number(u.son_maliyet_sapma_yuzde || 0)), 0) / alarmUrunler.length : 0;
+
+    const settings: Record<string, number> = {};
+    for (const s of (settingsRes.data || []) as any[]) { const n = Number(s.setting_value); if (Number.isFinite(n)) settings[s.setting_key] = n; }
+    const kasaBakiyesi   = settings.kasa_bakiyesi  ?? 0;
+    const hedefCiro      = settings.hedef_ciro     ?? 50000;
+    const hedefMusteri   = settings.hedef_musteri  ?? 5;
+    const hedefTemas     = settings.hedef_temas    ?? 10;
+    const hedefSiparis   = settings.hedef_siparis  ?? 20;
+    const yeniMusteriCnt = yeniMusteriRes.count    ?? 0;
+    const sipAdetCount   = sipAdetRes.count         ?? 0;
+
+    // Sağlık sinyalleri
+    const daysSinceLast = sonTir ? Math.max(0, Math.floor((Date.now() - new Date(sonTir.varis_tarihi || sonTir.created_at).getTime()) / 86400000)) : null;
+    const latestAvgVar  = sonTir ? 0 : 0; // Variance hesabı dışarıda bırakıldı (mevcut rpc yok)
+
+    const periodLabel = PERIOD_LABEL[period] ?? 'Bu Ay';
+
+    // ── Kısa linkler ──────────────────────────────────────────────────────────
+    const L = { locale };
 
     return (
-        <div className="space-y-8">
-            {/* EN ÜSTTE: Ciro, Kar, Zarar KPI Bar */}
-            <KPIBar items={[ 
-                { label: (operationalContent as any).kpiRevenueMtd || 'Net Ciro (Bu Ay)', value: formatCurrency(revenueMtdNet), hint: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% zum Vormonat` : undefined, tone: 'accent' },
-                { label: 'Satılan Malın Maliyeti', value: formatCurrency(mtd?.totalCogs ?? 0), tone: 'default' },
-                { label: 'Toplam Gider', value: formatCurrency(mtd?.totalExpenses ?? 0), tone: 'default' },
-                { label: 'Net Kâr', value: formatCurrency(mtd?.netProfit ?? 0), hint: 'Formül: Net Ciro - COGS - Gider', tone: (mtd?.netProfit ?? 0) >= 0 ? 'positive' : 'negative' },
-                { label: 'Sipariş Adedi', value: String(ordersMtd), tone: 'default' },
-            ]} />
+        <div className="space-y-5 pb-10">
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            {/* ── Header ──────────────────────────────────────────────────── */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h1 className="text-xl font-bold text-slate-900">CEO Cockpit</h1>
+                    <p className="text-sm text-slate-500">{periodLabel} · {new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                </div>
+                <Suspense fallback={<div className="h-9 w-56 bg-slate-100 rounded-xl animate-pulse" />}>
+                    <DashboardPeriodTabs />
+                </Suspense>
+            </div>
+
+            {/* ── Quick Stats Bar (5 kart) ──────────────────────────────── */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                {[
+                    { label: 'Net Ciro',      value: fmt(mtd?.totalRevenue),   bg: 'bg-[#E6F1FB]', text: 'text-blue-800',  sub: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% geçen ay` : '' },
+                    { label: 'Brüt Kâr',      value: fmt(mtd?.grossProfit),    bg: 'bg-[#EAF3DE]', text: 'text-green-800', sub: '' },
+                    { label: 'Toplam Gider',  value: fmt(mtd?.totalExpenses),  bg: 'bg-[#FAEEDA]', text: 'text-orange-800',sub: '' },
+                    { label: 'Net Kâr',       value: fmt(mtd?.netProfit),      bg: 'bg-[#FCEBEB]', text: (mtd?.netProfit ?? 0) >= 0 ? 'text-green-800' : 'text-red-700', sub: '' },
+                    { label: 'Sipariş Adedi', value: String(sipAdetCount),     bg: 'bg-slate-100',  text: 'text-slate-800', sub: periodLabel },
+                ].map(c => (
+                    <div key={c.label} className={`rounded-xl border border-slate-200/60 px-4 py-3.5 ${c.bg}`}>
+                        <p className={`text-xl font-bold ${c.text}`}>{c.value}</p>
+                        <p className="text-[12px] font-medium text-slate-600 mt-0.5">{c.label}</p>
+                        {c.sub && <p className="text-[10px] text-slate-400 mt-0.5">{c.sub}</p>}
+                    </div>
+                ))}
+            </div>
+
+            {/* ── Nakit & Sermaye ───────────────────────────────────────── */}
+            <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Nakit &amp; Sermaye</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <KasaKalanCard initialValue={kasaBakiyesi} locale={locale} />
+                    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{periodLabel} Gider</p>
+                        <p className="text-2xl font-bold text-slate-800">{fmt(mtd?.totalExpenses)}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">SMM dahil değil</p>
+                    </div>
+                    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Depodaki Stok Değeri</p>
+                        <p className="text-2xl font-bold text-slate-800">{fmt(stokDegeri)}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">{urunToplamCount} aktif ürün · alış fiyatı</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Hızlı İşlemler ────────────────────────────────────────── */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Hızlı İşlemler</p>
+                <div className="flex flex-wrap gap-2">
+                    {[
+                        { label: 'Yeni Firma',    icon: <FiUsers size={16} />,    href: `/${locale}/admin/crm/firmalar/yeni`,                    bg: 'bg-blue-100 text-blue-700' },
+                        { label: 'Yeni Ürün',     icon: <FiArchive size={16} />,  href: `/${locale}/admin/urun-yonetimi/urunler/yeni`,            bg: 'bg-green-100 text-green-700' },
+                        { label: 'Yeni Sipariş',  icon: <FiPackage size={16} />,  href: `/${locale}/admin/operasyon/siparisler/yeni`,             bg: 'bg-orange-100 text-orange-700' },
+                        { label: 'Yeni Görev',    icon: <FiClipboard size={16} />,href: `/${locale}/admin/gorevler/ekle`,                         bg: 'bg-teal-100 text-teal-700' },
+                        { label: 'Yeni Gider',    icon: <FiBriefcase size={16} />,href: `/${locale}/admin/idari/finans/giderler`,                 bg: 'bg-purple-100 text-purple-700' },
+                    ].map(a => (
+                        <Link key={a.label} href={a.href}
+                            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all text-sm font-medium text-slate-700 group min-h-[40px]">
+                            <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${a.bg} group-hover:scale-105 transition-transform`}>{a.icon}</span>
+                            {a.label}
+                        </Link>
+                    ))}
+                </div>
+            </div>
+
+            {/* ── SEKSİYON 2: Finansal Detay & Hedef Takibi ────────────── */}
+            <CollapsibleSection dot="bg-blue-500" title="Finansal Detay & Hedef Takibi"
+                meta={`Net Kâr: ${fmt(mtd?.netProfit)}`}
+                defaultOpen
+            >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Sol: P&L */}
                     <div>
-                        <h2 className="font-serif text-2xl font-bold text-primary">{(operationalContent as any).pricingHealthTitle || 'Fiyatlandırma Sağlık Özeti'}</h2>
-                        <p className="text-sm text-text-main/70 mt-1">Bu bölüm, parti maliyet farklarını erken görmek için karar destek ekranıdır.</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        <Link href={`/${locale}/admin/urun-yonetimi/fiyatlandirma-hub`} className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">Fiyatlandırma merkezi</Link>
-                        <Link href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`} className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100">Detaylı rapor</Link>
-                    </div>
-                </div>
-
-                <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-                    Not: Bu özet satış fiyatlarını otomatik değiştirmez. Sadece maliyet farklarını görünür yapar.
-                </div>
-
-                <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <HealthSignalCard
-                        title="Marj riski olan ürün"
-                        value={`${profitabilityAlertCount} ürün`}
-                        hint={profitabilityAlertCount === 0 ? 'Şu an riskli ürün görünmüyor.' : 'Bu ürünlerde maliyet farkı satış marjını baskılıyor olabilir.'}
-                        status={alertStatus}
-                        href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
-                    />
-                    <HealthSignalCard
-                        title="Son partide maliyet farkı"
-                        value={latestBatch ? `%${latestBatchAvgVariance.toFixed(1)}` : 'Kayıt yok'}
-                        hint={latestBatch ? `Maks. fark %${latestBatchMaxVariance.toFixed(1)} · Alarm üreten ${recentBatchAlertLines} kalem` : 'Henüz parti kaydı bulunmuyor.'}
-                        status={batchStatus}
-                        href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
-                    />
-                    <HealthSignalCard
-                        title="Parti verisi güncelliği"
-                        value={daysSinceLastBatch === null ? 'Kayıt yok' : `${daysSinceLastBatch} gün`}
-                        hint={latestBatch ? `${latestBatch.referans_kodu || 'Son parti'} baz alındı.` : 'Henüz parti kaydı bulunmuyor.'}
-                        status={freshnessStatus}
-                        href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
-                    />
-                    <HealthSignalCard
-                        title="Kritik stokta ürün"
-                        value={`${criticalStockCount} ürün`}
-                        hint={criticalStockCount === 0 ? 'Kritik stok görünmüyor.' : 'Tedarik planı ve stok eşiğini gözden geçirin.'}
-                        status={stockStatus}
-                        href={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
-                    />
-                </div>
-            </div>
-
-            {/* ALTTA: Operasyonel göstergeler, sipariş durumu, ajanda, schnelle Aktionen, kritischer Lagerbestand */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Linke Spalte */}
-                <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <StatCard
-                            title={operationalContent.cardNewApplications || "New Applications"}
-                            value={applicationsRes.count ?? 0}
-                            icon={<FiUserPlus size={28} className="text-indigo-500"/>}
-                            link={`/${locale}/admin/crm/firmalar?status_not_in=${encodeURIComponent(ABGESCHLOSSENE_ANTRAG_STATUS.join(','))}`}
-                            linkText={operationalContent.viewApplications || "Review applications"}
-                        />
-                        <StatCard
-                            title={operationalContent.cardActiveOrders || "Active Orders"}
-                            value={ordersRes.count ?? 0}
-                            icon={<FiPackage size={28} className="text-yellow-500"/>}
-                            link={`/${locale}/admin/operasyon/siparisler?filter=offen`}
-                            linkText={operationalContent.viewActiveOrders || "View active orders"}
-                        />
-                        {productRequestsRes && !productRequestsRes.error?.message?.includes('relation "public.yeni_urun_talepleri" does not exist') && (
-                            <StatCard
-                                title={operationalContent.cardNewProductRequests || "New Product Requests"}
-                                value={productRequestsRes.count ?? 0}
-                                icon={<FiBox size={28} className="text-teal-500"/>}
-                                link={`/${locale}/admin/urun-yonetimi/urun-talepleri?status=${encodeURIComponent(NEUE_PRODUKTANFRAGE_STATUS)}`}
-                                linkText={operationalContent.viewProductRequests || "Review requests"}
-                            />
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Gelir &amp; Maliyet — {periodLabel}</p>
+                        <div className="space-y-0 divide-y divide-slate-100 rounded-xl border border-slate-200 overflow-hidden bg-white">
+                            {[
+                                { label: 'Net Ciro',              value: fmt(mtd?.totalRevenue),  cls: 'text-slate-800' },
+                                { label: 'Satılan Mal Maliyeti',  value: fmt(mtd?.totalCogs),     cls: 'text-red-600' },
+                                { label: 'Brüt Kâr',             value: fmt(mtd?.grossProfit),   cls: (mtd?.grossProfit ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-600', bold: true },
+                                { label: 'Operasyonel Gider',     value: fmt(mtd?.totalExpenses), cls: 'text-slate-600' },
+                                { label: 'Net Kâr',               value: fmt(mtd?.netProfit),     cls: (mtd?.netProfit ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-600', bold: true, border: true },
+                            ].map(r => (
+                                <div key={r.label} className={`flex justify-between items-center px-4 py-2.5 ${r.border ? 'bg-slate-50' : ''}`}>
+                                    <span className={`text-sm ${r.bold ? 'font-bold text-slate-700' : 'text-slate-600'}`}>{r.label}</span>
+                                    <span className={`text-sm font-bold ${r.cls}`}>{r.value}</span>
+                                </div>
+                            ))}
+                        </div>
+                        {prevMtd && deltaPct !== null && (
+                            <p className="text-[11px] text-slate-400 mt-2 px-1">
+                                Geçen ay net kâr: {fmt(prevMtd.netProfit)}
+                                <span className={`ml-1.5 font-semibold ${deltaPct >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>({deltaPct >= 0 ? '+' : ''}{deltaPct}%)</span>
+                            </p>
                         )}
                     </div>
 
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                        <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).orderBreakdownTitle || 'Sipariş Durumu Dağılımı (30 gün)'}</h2>
-                        <div className="flex flex-col gap-6">
-                            {/* Status Breakdown */}
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-                                <div>
-                                    <p className="text-xs text-gray-500">Beklemede</p>
-                                    <p className="text-lg font-bold text-primary">{odBeklemede?.count ?? 0}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500">Hazırlanıyor</p>
-                                    <p className="text-lg font-bold text-primary">{odHazirlaniyor?.count ?? 0}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500">Yolda</p>
-                                    <p className="text-lg font-bold text-primary">{odYolda?.count ?? 0}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500">Teslim</p>
-                                    <p className="text-lg font-bold text-primary">{odTeslim?.count ?? 0}</p>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500">İptal</p>
-                                    <p className="text-lg font-bold text-primary">{odIptal?.count ?? 0}</p>
-                                </div>
-                            </div>
-                            {/* Hinweis falls keine Daten */}
-                            {(odBeklemede?.count ?? 0) + (odHazirlaniyor?.count ?? 0) + (odYolda?.count ?? 0) + (odTeslim?.count ?? 0) + (odIptal?.count ?? 0) === 0 && (
-                                <p className="text-center text-gray-400 text-sm">Son 30 gün için sipariş verisi yok.</p>
-                            )}
-                            {/* Quick Actions modernisiert */}
-                            <div className="bg-white p-4 rounded-xl shadow border border-gray-100">
-                                <h2 className="font-serif text-xl font-bold text-primary mb-3">{pageContent.quickActionsTitle || "Hızlı İşlemler"}</h2>
-                                <div className="flex flex-wrap gap-3 justify-start">
-                                    <QuickActionButton label={pageContent.actionNewCompany || "Yeni Firma"} icon={<FiUsers size={20}/>} href={`/${locale}/admin/crm/firmalar/yeni`} />
-                                    <QuickActionButton label={operationalContent.actionNewProduct || "Yeni Ürün"} icon={<FiArchive size={20}/>} href={`/${locale}/admin/urun-yonetimi/urunler/yeni`} />
-                                    <QuickActionButton label={pageContent.actionNewOrder || "Yeni Sipariş"} icon={<FiPackage size={20}/>} href={`/${locale}/admin/operasyon/siparisler/yeni`} />
-                                    <QuickActionButton label={operationalContent.actionNewTask || "Yeni Görev"} icon={<FiClipboard size={20}/>} href={`/${locale}/admin/gorevler/ekle`} />
-                                    <QuickActionButton label={pageContent.actionNewExpense || "Yeni Gider"} icon={<FiBriefcase size={20}/>} href={`/${locale}/admin/idari/finans/giderler`} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Sağ: Hedef Takip */}
+                    <HedefTakipCard locale={locale} metrikler={[
+                        { key: 'hedef_ciro',    label: 'Ciro Hedefi',      gercek: mtd?.totalRevenue ?? 0, hedef: hedefCiro,    format: 'currency' },
+                        { key: 'hedef_musteri', label: 'Yeni Müşteri',     gercek: yeniMusteriCnt,          hedef: hedefMusteri, format: 'number' },
+                        { key: 'hedef_temas',   label: 'Temas Edilen',     gercek: temasTotal,               hedef: hedefTemas,   format: 'number' },
+                        { key: 'hedef_siparis', label: 'Sipariş Adedi',    gercek: sipAdetCount,             hedef: hedefSiparis, format: 'number' },
+                    ]} />
                 </div>
+            </CollapsibleSection>
 
-                {/* Rechte Spalte */}
-                <div className="space-y-6">
-                    <div className="bg-white p-5 rounded-2xl shadow-lg border border-gray-200">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <FiClock size={18} className="text-red-500" />
-                                Gecikmiş Görevler
-                            </h2>
-                            <Link href={`/${locale}/admin/gorevler?durum=acik`}
-                                className="text-xs text-slate-400 hover:text-slate-600 font-medium transition-colors">
-                                Tümünü gör →
-                            </Link>
-                        </div>
-                        {overdueTasks.length > 0 ? (
-                            <div className="space-y-2">
-                                {overdueTasks.map((task: any) => {
-                                    const daysLate = task.son_tarih
-                                        ? Math.ceil((new Date().getTime() - new Date(task.son_tarih).getTime()) / (1000*60*60*24))
-                                        : 0;
-                                    const prioBadge: Record<string, string> = {
-                                        'Yüksek': 'bg-red-100 text-red-700',
-                                        'Orta':   'bg-orange-100 text-orange-700',
-                                        'Düşük':  'bg-green-100 text-green-700',
-                                    };
-                                    return (
-                                        <Link
-                                            key={task.id}
-                                            href={`/${locale}/admin/gorevler`}
-                                            className="flex items-start gap-3 p-3 rounded-xl border border-red-100 bg-red-50/40 hover:bg-red-50 hover:border-red-200 transition-colors group"
-                                        >
-                                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 flex-shrink-0" />
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-red-700 transition-colors">
-                                                    {task.baslik}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-0.5">
-                                                    <span className="text-xs text-red-600 font-medium">
-                                                        {daysLate === 1 ? '1 gün' : `${daysLate} gün`} geçikmiş
-                                                    </span>
-                                                    {task.oncelik && (
-                                                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${prioBadge[task.oncelik] || 'bg-slate-100 text-slate-600'}`}>
-                                                            {task.oncelik}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <span className="text-xs text-red-400 flex-shrink-0 mt-0.5">
-                                                {formatDate(task.son_tarih, locale)}
-                                            </span>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div className="text-center py-8">
-                                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <FiClipboard size={20} className="text-green-600" />
-                                </div>
-                                <p className="text-sm font-semibold text-slate-700">Harika! Gecikmiş görev yok.</p>
-                                <p className="text-xs text-slate-400 mt-0.5">Tüm görevler zamanında.</p>
-                            </div>
-                        )}
-                    </div>
+            {/* ── SEKSİYON 3: Görevler & Siparişler ───────────────────── */}
+            <CollapsibleSection
+                dot="bg-orange-400"
+                title="Görevler & Siparişler"
+                meta={`${overdueTasks.length} gecikmiş · ${upcomingTasks.length} yaklaşan · ${aktifSiparisRes.count ?? 0} aktif sipariş`}
+                defaultOpen
+                links={<SectionLink href={`/${locale}/admin/gorevler`}>Tüm görevler</SectionLink>}
+            >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Sol: Görevler */}
+                    <GorevDurumWidget overdue={overdueTasks} upcoming={upcomingTasks} myTasks={myTasks} locale={locale} />
 
-                    <StatCard
-                        title={operationalContent.cardCriticalStock || "Critical Stock"}
-                        value={stockRes.data ?? 0}
-                        icon={<FiAlertTriangle size={28} className="text-red-500"/>}
-                        link={`/${locale}/admin/urun-yonetimi/urunler?filter=kritisch`}
-                        linkText={operationalContent.viewCriticalStockLink || "View critical stock"}
-                    />
-
-                    <StatCard
-                        title={(operationalContent as any).cardProfitabilityAlerts || "Karlılık Alarmları"}
-                        value={profitabilityAlertsRes.count ?? 0}
-                        icon={<FiTrendingDown size={28} className="text-rose-500"/>}
-                        link={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
-                        linkText={(operationalContent as any).viewProfitabilityAlerts || "Detaylı raporu aç"}
-                        isNegative={(profitabilityAlertsRes.count ?? 0) > 0}
-                    />
-
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                        <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).profitabilityAlertListTitle || 'Alarmdaki Ürünler'}</h2>
-                        {alertProductsPreview.length > 0 ? (
-                            <div className="space-y-3 divide-y divide-gray-100">
-                                {alertProductsPreview.map((product: any) => {
-                                    const variance = Number(product.son_maliyet_sapma_yuzde || 0);
-                                    return (
-                                        <div key={product.id} className="pt-3 first:pt-0">
-                                            <Link href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`} className="block group">
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div>
-                                                        <p className="font-semibold text-primary group-hover:text-accent transition-colors">{typeof product.ad === 'object' && product.ad !== null ? (product.ad[locale] || product.ad.tr || product.ad.de || Object.values(product.ad).find((v: any) => typeof v === 'string' && v.trim()) || 'Ürün') : (product.ad || 'Ürün')}</p>
-                                                        <p className="text-xs text-text-main/70 mt-0.5">
-                                                            {product.stok_kodu || 'Kod yok'}
-                                                            {product.son_gercek_inis_maliyeti_net ? ` • Reel: ${formatCurrency(product.son_gercek_inis_maliyeti_net)}` : ''}
-                                                        </p>
-                                                    </div>
-                                                    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${variance >= 15 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                                                        %{Math.round(variance)}
-                                                    </span>
-                                                </div>
-                                            </Link>
+                    {/* Sağ: Siparişler + TIR */}
+                    <div className="space-y-3">
+                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Aktif Siparişler (30 gün)</p>
+                            {sipDag.length === 0 ? (
+                                <p className="text-sm text-slate-400 text-center py-3">Aktif sipariş bulunmuyor.</p>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-2">
+                                    {[
+                                        { label: 'Beklemede',    val: sipCount(['Beklemede']),          cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+                                        { label: 'Hazırlanıyor', val: sipCount(['Hazırlanıyor']),        cls: 'bg-blue-50 text-blue-700 border-blue-200' },
+                                        { label: 'Yolda',        val: sipCount(['Yola Çıktı', 'shipped']),cls: 'bg-violet-50 text-violet-700 border-violet-200' },
+                                        { label: 'Teslim',       val: sipCount(['Teslim Edildi', 'delivered']), cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+                                    ].map(s => (
+                                        <div key={s.label} className={`rounded-lg border px-2.5 py-2 text-center ${s.cls}`}>
+                                            <p className="text-lg font-bold">{s.val}</p>
+                                            <p className="text-[10px] font-semibold">{s.label}</p>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <p className="text-center text-gray-500 py-4">Aktif kârlılık alarmı görünmüyor.</p>
-                        )}
-                    </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                        <h2 className="font-serif text-2xl font-bold text-primary mb-4">{(operationalContent as any).recentBatchHistoryTitle || 'Son Tır / Parti Geçmişi'}</h2>
-                        {recentBatchesWithSummary.length > 0 ? (
-                            <div className="space-y-3 divide-y divide-gray-100">
-                                {recentBatchesWithSummary.map((batch: any) => (
-                                    <div key={batch.id} className="pt-3 first:pt-0">
-                                        <Link href={`/${locale}/admin/urun-yonetimi/fiyatlandirma-hub`} className="block group">
-                                            <p className="font-semibold text-primary group-hover:text-accent transition-colors">{batch.referans_kodu}</p>
-                                            <p className="text-xs text-text-main/70 mt-0.5">{batch.varis_tarihi ? formatDate(batch.varis_tarihi, locale) : formatDate(batch.created_at, locale)} • {batch.durum || 'Taslak'}</p>
-                                            <p className="text-xs text-text-main/60 mt-1">{batch.itemCount || 0} kalem • {Number(batch.totalQuantity || 0).toLocaleString('tr-TR')} adet</p>
-                                        </Link>
+                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">Son TIR Partileri</p>
+                            {sonTirler.length === 0 ? (
+                                <p className="text-sm text-slate-400 text-center py-2">Henüz parti yok.</p>
+                            ) : (
+                                <div className="space-y-2">
+                                    {sonTirler.map((b: any) => (
+                                        <div key={b.id} className="flex items-center justify-between text-sm">
+                                            <div>
+                                                <p className="font-semibold text-slate-700">{b.referans_kodu}</p>
+                                                <p className="text-[11px] text-slate-400">{formatDate(b.varis_tarihi || b.created_at, locale)}</p>
+                                            </div>
+                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${b.durum === 'Tamamlandı' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                {b.durum || 'Taslak'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </CollapsibleSection>
+
+            {/* ── SEKSİYON 4: Stok & Satış Hunisi ─────────────────────── */}
+            <CollapsibleSection
+                dot="bg-green-500"
+                title="Stok & Satış Hunisi"
+                meta={`${urunToplamCount} ürün · ${kritikStok > 0 ? kritikStok + ' kritik' : 'Kritik stok yok'} · ${fmt(stokDegeri)} değer`}
+                defaultOpen
+            >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Sol: Stok */}
+                    <div className="space-y-3">
+                        <div className="grid grid-cols-3 gap-2">
+                            <MiniCard label="Toplam Ürün" value={fmtNum(urunToplamCount)} />
+                            <MiniCard label="Kritik Stok" value={fmtNum(kritikStok)} warn={kritikStok > 0} />
+                            <MiniCard label="Stok Değeri" value={fmt(stokDegeri)} />
+                        </div>
+                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-3.5 space-y-2.5">
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Son TIR</p>
+                                {sonTir ? (
+                                    <div className="flex items-center gap-2">
+                                        <FiTruck size={13} className="text-slate-400" />
+                                        <span className="text-sm font-semibold text-slate-700">{sonTir.referans_kodu}</span>
+                                        <span className="text-xs text-slate-400">{formatDate(sonTir.varis_tarihi || sonTir.created_at, locale)}</span>
                                     </div>
-                                ))}
+                                ) : <p className="text-sm text-slate-400">Kayıt yok</p>}
                             </div>
-                        ) : (
-                            <p className="text-center text-gray-500 py-4">Henüz kayıtlı tır / parti bulunmuyor.</p>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Sonraki TIR</p>
+                                {yaklasenTir ? (
+                                    <div className="flex items-center gap-2">
+                                        <FiCalendar size={13} className="text-blue-400" />
+                                        <span className="text-sm font-semibold text-slate-700">{yaklasenTir.referans_kodu}</span>
+                                        <span className="text-xs text-slate-400">{formatDate(yaklasenTir.varis_tarihi, locale)}</span>
+                                    </div>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-[11px] font-semibold rounded-full">Planlanmadı</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sağ: Satış Hunisi */}
+                    <div className="space-y-3">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Satış Hunisi</p>
+                        {[
+                            { label: 'Aday',    count: adayCount,    color: 'bg-slate-300' },
+                            { label: 'Temas',   count: temasTotal,   color: 'bg-blue-400' },
+                            { label: 'Müşteri', count: musteriCount, color: 'bg-emerald-500' },
+                        ].map(row => {
+                            const pct = toplamFunnel > 0 ? Math.round(row.count / toplamFunnel * 100) : 0;
+                            return (
+                                <div key={row.label}>
+                                    <div className="flex items-center justify-between text-sm mb-1">
+                                        <span className="text-slate-600 font-medium">{row.label}</span>
+                                        <span className="font-bold text-slate-800">{row.count}</span>
+                                    </div>
+                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div className={`h-full rounded-full ${row.color}`} style={{ width: `${pct}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        {yeniTemasCount > 0 && (
+                            <p className="text-[11px] text-blue-700 bg-blue-50 rounded-lg px-3 py-2">
+                                Bu hafta <strong>{yeniTemasCount} yeni temas</strong> oluşturuldu.
+                            </p>
                         )}
+                        <Link href={`/${locale}/admin/crm/firmalar`} className="text-xs text-blue-600 hover:underline">CRM → Firma listesi</Link>
                     </div>
                 </div>
-            </div>
+            </CollapsibleSection>
 
-            {/* Customer Portfolio & Distributors - Yan Yana */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Müşteri Portföyü */}
-                <CustomerOverview />
-
-                {/* Alt Bayiler */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                    <h3 className="text-lg font-bold text-primary mb-4">{(operationalContent as any).distributorsTitle || 'Alt Bayiler Müşteri Sayısı'}</h3>
-                    <DistributorsList locale={locale} dictionary={dictionary} cookieStore={cookieStore} />
+            {/* ── SEKSİYON 5: Müşteri Portföyü & Alt Bayiler (kapalı) ── */}
+            <CollapsibleSection
+                dot="bg-purple-500"
+                title="Müşteri Portföyü & Alt Bayiler"
+                meta={`${musteriCount} müşteri · ${(adayCount + temasTotal)} aday/temas`}
+                defaultOpen={false}
+            >
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <CustomerOverview />
+                    <div>
+                        <p className="text-sm font-bold text-slate-700 mb-3">Alt Bayiler</p>
+                        <DistributorsList locale={locale} dictionary={dictionary} cookieStore={cookieStore} />
+                    </div>
                 </div>
-            </div>
+            </CollapsibleSection>
+
+            {/* ── Fiyatlandırma Sağlık Özeti ────────────────────────────── */}
+            <CollapsibleSection
+                dot="bg-red-500"
+                title="Fiyatlandırma Sağlık Özeti"
+                meta={alarmCount > 0 ? `${alarmCount} ürün marj riski · Acil aksiyon gerekiyor` : 'Alarm yok'}
+                defaultOpen={false}
+                links={
+                    <div className="flex items-center gap-3">
+                        <SectionLink href={`/${locale}/admin/urun-yonetimi/fiyatlandirma-hub`}>Fiyatlandırma merkezi</SectionLink>
+                        <SectionLink href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}>Detaylı rapor</SectionLink>
+                    </div>
+                }
+            >
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <HealthCard title="Marj riski olan ürün" value={`${alarmCount} ürün`}
+                        hint={alarmCount === 0 ? 'Tüm ürünler marj eşiği içinde.' : 'Satış marjını baskılayan ürünler var.'}
+                        tag={alarmCount === 0 ? 'İyi' : 'Acil'} tagColor={alarmCount === 0 ? 'green' : 'red'} />
+                    <HealthCard title="Son partide maliyet farkı" value={sonTir ? (sonTir.referans_kodu || 'Kayıt var') : 'Kayıt yok'}
+                        hint={sonTir ? `${formatDate(sonTir.varis_tarihi || sonTir.created_at, locale)} · ${sonTir.durum || 'Taslak'}` : 'Henüz parti kaydı yok.'}
+                        tag={sonTir ? 'İyi' : 'Veri yok'} tagColor={sonTir ? 'green' : 'yellow'} />
+                    <HealthCard title="Parti verisi güncelliği" value={daysSinceLast === null ? 'Kayıt yok' : `${daysSinceLast} gün`}
+                        hint={daysSinceLast === null ? 'Henüz parti kaydı yok.' : daysSinceLast <= 7 ? 'Güncel veri mevcut.' : 'Parti verisi eskimiş olabilir.'}
+                        tag={daysSinceLast === null ? 'Veri yok' : daysSinceLast <= 7 ? 'İyi' : daysSinceLast <= 21 ? 'Dikkat' : 'Acil'}
+                        tagColor={daysSinceLast === null ? 'yellow' : daysSinceLast <= 7 ? 'green' : 'red'} />
+                    <HealthCard title="Kritik stokta ürün" value={`${kritikStok} ürün`}
+                        hint={kritikStok === 0 ? 'Kritik stok görünmüyor.' : 'Tedarik planı gözden geçirilmeli.'}
+                        tag={kritikStok === 0 ? 'İyi' : kritikStok <= 5 ? 'Dikkat' : 'Acil'}
+                        tagColor={kritikStok === 0 ? 'green' : kritikStok <= 5 ? 'yellow' : 'red'} />
+                </div>
+            </CollapsibleSection>
+
+            {/* ── Fiyat Alarmları (kapalı) ───────────────────────────────── */}
+            <CollapsibleSection
+                dot="bg-rose-500"
+                title="Fiyat Alarmları"
+                meta={alarmCount > 0 ? `${alarmCount} ürün marj riski · Ort. %${alarmOrt.toFixed(1)} sapma` : 'Aktif alarm yok'}
+                defaultOpen={false}
+                links={<SectionLink href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}>Detaylı rapor</SectionLink>}
+            >
+                {alarmCount === 0 ? (
+                    <div className="text-center py-8">
+                        <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <FiCheckCircle size={18} className="text-emerald-600" />
+                        </div>
+                        <p className="text-sm font-semibold text-slate-700">Aktif fiyat alarmı yok</p>
+                        <p className="text-xs text-slate-400 mt-0.5">Tüm ürünler marj eşiği içinde.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        <div className="mb-3 px-3 py-2.5 bg-rose-50 rounded-lg border border-rose-100">
+                            <p className="text-sm font-semibold text-rose-700">
+                                {alarmCount} ürün marj riski
+                                <span className="ml-2 font-normal text-rose-500">· Ort. sapma %{alarmOrt.toFixed(1)}</span>
+                            </p>
+                        </div>
+                        {alarmUrunler.map((p: any) => {
+                            const variance = Math.abs(Number(p.son_maliyet_sapma_yuzde || 0));
+                            const ad = typeof p.ad === 'object' ? (p.ad?.[locale] || p.ad?.de || p.ad?.tr || 'Ürün') : (p.ad || 'Ürün');
+                            return (
+                                <Link key={p.id} href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
+                                    className="flex items-center justify-between py-2.5 px-3 rounded-xl border border-slate-100 hover:bg-slate-50 group transition-colors">
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-800 group-hover:text-rose-700 transition-colors">{ad}</p>
+                                        <p className="text-xs text-slate-400">{p.stok_kodu || '—'}</p>
+                                    </div>
+                                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${variance >= 15 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                                        %{Math.round(variance)}
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                        <Link href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`} className="block text-center text-xs text-blue-600 hover:underline pt-2">
+                            + Tüm alarmları gör →
+                        </Link>
+                    </div>
+                )}
+            </CollapsibleSection>
+
         </div>
     );
 }
 
-// TeamMemberDashboard (DÜZELTİLMİŞ)
-async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: DashboardProps & { userId: string }) {
-    const supabase = await createSupabaseServerClient(cookieStore);
-    const content = (dictionary.adminDashboard && dictionary.adminDashboard.dashboardPage) ? dictionary.adminDashboard.dashboardPage : {};
+// ── Giriş noktası ─────────────────────────────────────────────────────────────
 
-    const { data, error } = await supabase.rpc('get_dashboard_summary_for_member', { p_member_id: userId }).single();
-
-    if (error) {
-        console.error("Team member dashboard error:", error);
-    return <div>{content.errorLoadingTeamDashboard || "Failed to load."}</div>
-    }
-
-    const formatValue = (value: number | null | undefined) => value ?? 0;
-    // data'nın gerçekten obje olup olmadığını kontrol et
-    const safeData = (typeof data === 'object' && data !== null && !Array.isArray(data)) ? data : {};
-
-    const safeOpenTasksCount = Number(safeData.openTasksCount);
-    const safeNewOrdersCount = Number(safeData.newOrdersCount);
-    return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <StatCard
-                      title={content.cardOpenTasks || "Open Tasks"}
-                      value={isNaN(safeOpenTasksCount) ? 0 : safeOpenTasksCount}
-                      icon={<FiClipboard size={28} className="text-blue-500"/>}
-                      link={`/${locale}/admin/gorevler`}
-                      linkText={content.linkMyTasks || "My Tasks"}
-                  />
-                  <StatCard
-                      title={content.cardNewOrdersFromClients || "New Orders (Clients)"}
-                      value={isNaN(safeNewOrdersCount) ? 0 : safeNewOrdersCount}
-                      icon={<FiPackage size={28} className="text-green-500"/>}
-                      link={`/${locale}/admin/operasyon/siparisler`}
-                      linkText={content.viewOrdersText || "View Orders"}
-                  />
-            </div>
-             <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
-                  <h2 className="font-serif text-2xl font-bold text-primary mb-4">{content.quickAccessTitle || "Quick Access"}</h2>
-                  <div className="flex gap-4">
-                      <Link href={`/${locale}/admin/crm/firmalar`} className="font-bold text-accent hover:underline">{content.linkMyClients || "My Clients"}</Link>
-                      <Link href={`/${locale}/admin/gorevler`} className="font-bold text-accent hover:underline">{content.linkMyTasks || "My Tasks"}</Link>
-                  </div>
-             </div>
-        </div>
-    );
-}
-
-
-// Hauptkomponente (DÜZELTİLMİŞ)
-export default async function AdminDashboardPage({ 
-    params
-}: { 
-    params: { locale: Locale } 
+export default async function AdminDashboardPage({
+    params,
+    searchParams,
+}: {
+    params: { locale: Locale };
+    searchParams?: { period?: string };
 }) {
-    noStore(); // Caching deaktivieren
-    const { locale } = await params;
+    noStore();
+    const locale     = await Promise.resolve(params).then(p => p.locale);
+    const period     = searchParams?.period ?? 'bu-ay';
     const dictionary = await getDictionary(locale);
-    const pageContent = (dictionary.adminDashboard && dictionary.adminDashboard.dashboardPage) ? dictionary.adminDashboard.dashboardPage : {};
 
-    // Supabase Client korrekt initialisieren
     const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
+    const supabase    = await createSupabaseServerClient(cookieStore);
 
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user || null;
-    if (!user) {
-    return <div>User not found. Please log in again.</div>;
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return <div className="p-8 text-center text-red-500">Kullanıcı bulunamadı.</div>;
 
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-    if (!profile) {
-    console.error("Profile not found for user:", user.id);
-    return <div>User profile not found. Please log in again.</div>;
-    }
-    const userRole = profile.rol;
+    if (!profile) return <div className="p-8 text-center text-red-500">Profil bulunamadı.</div>;
 
-    if (userRole !== 'Yönetici' && userRole !== 'Personel' && userRole !== 'Ekip Üyesi') {
-         console.warn(`Unauthorized access to Admin Dashboard by role: ${userRole}`);
-         return <div>Unauthorized access. Please return to the homepage.</div>;
+    const role = profile.rol;
+    if (role !== 'Yönetici' && role !== 'Personel' && role !== 'Ekip Üyesi') {
+        return <div className="p-8 text-center text-red-500">Yetkilendirme hatası.</div>;
     }
 
     return (
-        <div className="space-y-8">
-            <header>
-                <h1 className="font-serif text-4xl font-bold text-primary">
-                    {userRole === 'Yönetici' ? pageContent.managerTitle : pageContent.teamMemberTitle}
-                </h1>
-                <p className="text-text-main/80 mt-1">
-                    {userRole === 'Yönetici' ? pageContent.managerSubtitle : pageContent.teamMemberSubtitle}
-                </p>
-            </header>
-
-            {/* cookieStore wird übergeben */}
-            {userRole === 'Yönetici' && <ManagerDashboard locale={locale} dictionary={dictionary} cookieStore={cookieStore} />}
-            {(userRole === 'Personel' || userRole === 'Ekip Üyesi') && <TeamMemberDashboard userId={user.id} locale={locale} dictionary={dictionary} cookieStore={cookieStore} />}
+        <div className="space-y-4">
+            {role === 'Yönetici' && (
+                <ManagerDashboard locale={locale} period={period} dictionary={dictionary} cookieStore={cookieStore} userId={user.id} />
+            )}
+            {(role === 'Personel' || role === 'Ekip Üyesi') && (
+                <>
+                    <header>
+                        <h1 className="text-2xl font-bold text-slate-900">Hoş geldiniz</h1>
+                        <p className="text-sm text-slate-500 mt-0.5">Bugün: {new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                    </header>
+                    <TeamMemberDashboard userId={user.id} locale={locale} dictionary={dictionary} cookieStore={cookieStore} />
+                </>
+            )}
         </div>
     );
 }
