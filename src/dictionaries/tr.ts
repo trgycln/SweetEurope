@@ -385,6 +385,8 @@ export const dictionary: Partial<Dictionary> = {
     priceRequests: "Fiyat Talepleri",
     priceExceptions: "Fiyat İstisnaları", 
     priceRules: "Fiyat Kuralları",
+    // Operasyon alt menüleri
+    references: "Referanslar & İrtibatlar",
     // Ayarlar alt menüleri
     systemSettings: "Sistem Ayarları",
     profile: "Profil",

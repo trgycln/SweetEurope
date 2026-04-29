@@ -358,6 +358,7 @@ export const dictionary: Partial<Dictionary> = {
     priceRequests: "طلبات السعر",
     priceExceptions: "استثناءات السعر",
     priceRules: "قواعد السعر",
+    references: "المراجع وجهات الاتصال",
     // قوائم فرعية للإعدادات
     systemSettings: "إعدادات النظام",
     profile: "الملف الشخصي",

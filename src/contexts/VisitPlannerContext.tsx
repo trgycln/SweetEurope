@@ -12,6 +12,7 @@ interface SelectedCompany {
   posta_kodu: string | null;
   google_maps_url: string | null;
   telefon: string | null;
+  parent_firma_id: string | null;
 }
 
 interface VisitPlannerContextType {

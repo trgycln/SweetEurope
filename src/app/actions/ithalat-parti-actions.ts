@@ -184,6 +184,88 @@ export async function saveImportBatchAction(payload: SaveImportBatchPayload, loc
     revalidatePath(`/${locale}/admin/urun-yonetimi/fiyat-hesaplama`);
     revalidatePath(`/${locale}/admin/urun-yonetimi/urunler`);
 
+    // Otomatik gümrük belgesi kaydı oluştur (dosya_url boş, kullanıcı sonradan yükleyecek)
+    try {
+      await db.from('belgeler').insert({
+        ad: `TIR ${referansKodu} - Gümrük Belgesi`,
+        kategori: 'gelen_evrak',
+        alt_kategori: 'gumruk_tir',
+        iliski_tipi: 'tir',
+        iliski_id: partiId,
+        tir_id: partiId,
+        aciklama: `${payload.varisTarihi ? `Varış: ${new Date(payload.varisTarihi).toLocaleDateString('tr-TR')} • ` : ''}Gümrük vergisi: €${round4(payload.gumrukVergiToplamEur)} • Otomatik oluşturuldu`,
+        dosya_url: null,
+        otomatik_eklendi: true,
+        yukleyen_id: user.id,
+        gizli: false,
+      });
+    } catch (belgeErr) {
+      // Belge kaydı başarısız olsa da TIR kaydedildi, sessizce geç
+      console.error('Otomatik TIR belgesi kaydı hatası:', belgeErr);
+    }
+
+    // TIR maliyetlerini giderler tablosuna otomatik aktar
+    try {
+      const tirTarih = payload.varisTarihi
+        ? String(payload.varisTarihi).substring(0, 10)
+        : new Date().toISOString().substring(0, 10);
+
+      const tirKalemler = [
+        {
+          aciklama: `${referansKodu} — Navlun (Donuk)`,
+          tutar: round4(payload.navlunSogukEur),
+        },
+        {
+          aciklama: `${referansKodu} — Navlun (Kuru)`,
+          tutar: round4(payload.navlunKuruEur),
+        },
+        {
+          aciklama: `${referansKodu} — Gümrük Vergisi`,
+          tutar: round4(payload.gumrukVergiToplamEur),
+        },
+        {
+          aciklama: `${referansKodu} — TRACES / Ardiye`,
+          tutar: round4(payload.tracesNumuneArdiyeEur),
+        },
+      ].filter((k) => (k.tutar ?? 0) > 0);
+
+      for (const kalem of tirKalemler) {
+        try {
+          // Yeni kolonlarla dene
+          await db.from('giderler').insert({
+            tarih: tirTarih,
+            tutar: kalem.tutar,
+            aciklama: kalem.aciklama,
+            durum: 'Onaylandı',
+            islem_yapan_kullanici_id: user.id,
+            kaynak: 'tir',
+            tir_id: partiId,
+            otomatik_eklendi: true,
+            tekrar_tipi: 'tek_seferlik',
+          });
+        } catch {
+          // Yeni kolonlar henüz migrate edilmediyse eski yapıyla kaydet
+          try {
+            await db.from('giderler').insert({
+              tarih: tirTarih,
+              tutar: kalem.tutar,
+              aciklama: kalem.aciklama,
+              durum: 'Onaylandı',
+              islem_yapan_kullanici_id: user.id,
+            });
+          } catch (fallbackErr) {
+            console.error('TIR gider kalemi kaydı hatası (fallback):', fallbackErr);
+          }
+        }
+      }
+
+      revalidatePath(`/${locale}/admin/idari/finans/giderler`);
+      revalidatePath(`/${locale}/admin/idari/finans/raporlama`);
+      revalidatePath(`/${locale}/admin/dashboard`);
+    } catch (tirGiderErr) {
+      console.error('TIR gider aktarımı hatası:', tirGiderErr);
+    }
+
     return {
       success: true,
       partiId,

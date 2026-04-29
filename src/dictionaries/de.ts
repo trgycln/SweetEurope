@@ -394,6 +394,8 @@ export const dictionary = {
     priceRequests: "Preisanfragen",
     priceExceptions: "Preisausnahmen",
     priceRules: "Preisregeln",
+    // Operasyon
+    references: "Referenzen & Kontakte",
     // Einstellungen Untermenüs
     systemSettings: "Systemeinstellungen",
     profile: "Profil",

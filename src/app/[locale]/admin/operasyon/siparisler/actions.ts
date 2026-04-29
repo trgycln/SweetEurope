@@ -40,18 +40,53 @@ export async function statusAendernAction(
 
     if (error) {
         console.error(`Fehler bei Statusänderung für Bestellung ${siparisId}:`, error);
-        return { error: `Status konnte nicht geändert werden. DB-Fehler: ${error.message}` }; // Detailliertere Fehlermeldung
+        return { error: `Status konnte nicht geändert werden. DB-Fehler: ${error.message}` };
     }
 
-    // Cache für relevante Seiten neu validieren
-    revalidatePath('/admin/operasyon/siparisler');          // Listenseite
-    revalidatePath(`/admin/operasyon/siparisler/${siparisId}`); // Detailseite
-    // Optional: Auch CRM-Ansichten revalidieren, falls nötig
-    // const { data: orderData } = await supabase.from('siparisler').select('firma_id').eq('id', siparisId).single();
-    // if (orderData?.firma_id) {
-    //     revalidatePath(`/admin/crm/firmalar/${orderData.firma_id}/siparisler`);
-    // }
+    // Otomatik belge kaydı: sipariş "Hazırlanıyor" statüsüne geçince
+    if (neuerStatus === 'Hazırlanıyor') {
+        try {
+            const { data: siparis } = await supabase
+                .from('siparisler')
+                .select('id, firma_id, siparis_tarihi, toplam_tutar_net, firma:firmalar(unvan)')
+                .eq('id', siparisId)
+                .single();
 
+            const firmaAdi = (siparis as any)?.firma?.unvan || 'Bilinmeyen Firma';
+            const tarih = siparis?.siparis_tarihi
+                ? new Date(siparis.siparis_tarihi).toLocaleDateString('tr-TR')
+                : new Date().toLocaleDateString('tr-TR');
+
+            // Aynı sipariş için daha önce otomatik belge oluşturulmuş mu kontrol et
+            const { data: mevcutBelge } = await (supabase as any)
+                .from('belgeler')
+                .select('id')
+                .eq('iliski_tipi', 'siparis')
+                .eq('iliski_id', siparisId)
+                .eq('otomatik_eklendi', true)
+                .maybeSingle();
+
+            if (!mevcutBelge) {
+                await (supabase as any).from('belgeler').insert({
+                    ad: `Sipariş ${siparisId.slice(0, 8).toUpperCase()} - ${firmaAdi} (${tarih})`,
+                    kategori: 'gelen_evrak',
+                    alt_kategori: 'musteri_siparisleri',
+                    iliski_tipi: 'siparis',
+                    iliski_id: siparisId,
+                    firma_id: siparis?.firma_id || null,
+                    aciklama: `Tutar: €${siparis?.toplam_tutar_net?.toFixed(2) || '—'} • Otomatik oluşturuldu`,
+                    otomatik_eklendi: true,
+                    gizli: false,
+                });
+            }
+        } catch (belgeErr) {
+            // Belge kaydı başarısız olsa da sipariş durumu güncellendi, hata dönme
+            console.error('Otomatik belge kaydı hatası:', belgeErr);
+        }
+    }
+
+    revalidatePath('/admin/operasyon/siparisler');
+    revalidatePath(`/admin/operasyon/siparisler/${siparisId}`);
 
     console.log(`Status für Bestellung ${siparisId} erfolgreich auf ${neuerStatus} geändert.`);
     return { success: `Status wurde auf "${neuerStatus}" geändert.` };

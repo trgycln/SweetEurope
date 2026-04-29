@@ -2,13 +2,21 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Tables } from '@/lib/supabase/database.types';
 import { FiEdit, FiTrash2, FiSave, FiX, FiUser, FiMail, FiPhone, FiBriefcase, FiLoader } from 'react-icons/fi';
 import { guncelleKisiAction, silKisiAction } from './actions';
 import { toast } from 'sonner';
 
+type DisKontak = {
+    id: string;
+    firma_id: string | null;
+    ad_soyad: string | null;
+    unvan: string | null;
+    email: string | null;
+    telefon: string | null;
+};
+
 interface KisiKartiProps {
-    kisi: Tables<'dis_kontaklar'>;
+    kisi: DisKontak;
 }
 
 export default function KisiKarti({ kisi }: KisiKartiProps) {

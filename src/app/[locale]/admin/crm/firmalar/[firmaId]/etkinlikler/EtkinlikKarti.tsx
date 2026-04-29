@@ -1,13 +1,11 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Tables, Enums } from '@/lib/supabase/database.types';
 import { FiEdit, FiSave, FiX, FiLoader, FiMessageSquare, FiPhone, FiUsers, FiClipboard, FiFileText } from 'react-icons/fi';
 import { updateEtkinlikAction } from './actions';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 
-// İkon haritası artık bu Client Component'in içinde yer alıyor.
 const etkinlikIkonlari: Record<string, React.ElementType> = {
     'Not': FiMessageSquare,
     'Telefon Görüşmesi': FiPhone,
@@ -16,7 +14,16 @@ const etkinlikIkonlari: Record<string, React.ElementType> = {
     'Teklif': FiClipboard,
 };
 
-type Etkinlik = Tables<'etkinlikler'> & { olusturan_personel: { tam_ad: string | null } | null };
+type EtkinlikTipi = 'Not' | 'Telefon Görüşmesi' | 'Toplantı' | 'E-posta' | 'Teklif';
+type Etkinlik = {
+    id: string;
+    firma_id: string | null;
+    olusturan_personel_id: string | null;
+    etkinlik_tipi: EtkinlikTipi | null;
+    aciklama: string | null;
+    created_at: string | null;
+    olusturan_personel: { tam_ad: string | null } | null;
+};
 
 interface EtkinlikKartiProps {
     etkinlik: Etkinlik;

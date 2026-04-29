@@ -1,266 +1,169 @@
-// // GİDERLER PAGE.TSX
-// DÜZELTME: 'params' ve 'searchParams' için 'Promise' ve 'await' mantığı geri getirildi.
-// DÜZELTME (v2): Tarih filtrelemedeki (getDateRange ve dateTo) zaman dilimi (ISOString) hataları düzeltildi.
-
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
-import { GiderlerClient } from '@/components/admin/finans/GiderlerClient';
-import { Tables, Constants, Database, Enums } from '@/lib/supabase/database.types';
 import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
+import GiderlerYeniClient from './GiderlerYeniClient';
 
 export const dynamic = 'force-dynamic';
 
-export const revalidate = 0;
-// --- Typen-Definitionen ---
-export type GiderWithDetails = Tables<'giderler'> & {
-    profiller: { tam_ad: string | null } | null;
-    gider_kalemleri: {
-        id: string;
-        ad: string | null;
-        ana_kategori_id: string;
-        gider_ana_kategoriler: {
-            ad: string | null;
-        } | null;
-    } | null;
-};
-export type HauptKategorie = Tables<'gider_ana_kategoriler'> & {
-    ad_translations?: Record<string, string>;
-};
-export type GiderKalemi = Tables<'gider_kalemleri'> & {
-    ad_translations?: Record<string, string>;
-};
-// --- Ende Typen ---
+function getDateRange(period: string) {
+    const now = new Date();
+    let start: Date, end: Date;
+    switch (period) {
+        case 'last-month':
+            start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            end   = new Date(now.getFullYear(), now.getMonth(), 0);
+            break;
+        case 'this-year':
+            start = new Date(now.getFullYear(), 0, 1);
+            end   = new Date(now.getFullYear(), 11, 31);
+            break;
+        default: // this-month
+            start = new Date(now.getFullYear(), now.getMonth(), 1);
+            end   = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    }
+    const fmt = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return { start: fmt(start), end: fmt(end) };
+}
 
+interface PageProps {
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ period?: string }>;
+}
 
-// --- YENİ: Zaman dilimi sorunlarını önlemek için tarih formatlama yardımcısı ---
-const formatDateString = (date: Date): string => {
-    const year = date.getFullYear();
-    // getMonth() 0 tabanlıdır (0 = Ocak), bu yüzden +1 eklenir.
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-// --- YENİ SONU ---
+export default async function GiderlerPage({ params, searchParams }: PageProps) {
+    noStore();
+    const { locale } = await params;
+    const sp = searchParams ? await searchParams : {};
+    const currentPeriod = (sp.period as string) || 'this-month';
 
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
-// --- GÜNCELLEME: getDateRange 'toISOString()' yerine 'formatDateString' kullanıyor ---
-const getDateRange = (period: string) => {
-    const now = new Date();
-    let startDate = new Date();
-    let endDate = new Date();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return redirect(`/${locale}/login`);
 
-    switch (period) {
-        case 'last-month':
-            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            endDate = new Date(now.getFullYear(), now.getMonth(), 0); // Vormonat
-            break;
-        case 'this-year':
-            startDate = new Date(now.getFullYear(), 0, 1);
-            endDate = new Date(now.getFullYear(), 11, 31);
-            break;
-        case 'this-month':
-        default: // Standard ist "Dieser Monat"
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // aktueller Monat
-            break;
-    }
-
-    return {
-        start: formatDateString(startDate),
-        end: formatDateString(endDate),
-    };
-};
-// --- GÜNCELLEME SONU ---
-
-
-export default async function GiderlerPage({
-    params,
-    searchParams
-}: {
-    params: Promise<{ locale: Locale }>;
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-    noStore(); // Caching deaktivieren
-
-    const resolvedParams = await params;
-    const locale = resolvedParams.locale;
-    const resolvedSearchParams = await searchParams;
-
-    // --- LOGGING START ---
-    console.log('--- GiderlerPage START ---');
-    console.log('Resolved searchParams:', resolvedSearchParams);
-    // --- LOGGING ENDE ---
-
-    const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
-
-    const dictionary = await getDictionary(locale);
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return redirect(`/${locale}/login`);
-
-    const { data: profile } = await supabase
-        .from('profiller')
-        .select('rol')
-        .eq('id', user.id)
-        .single();
-
-    if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Personel' && profile?.rol !== 'Ekip Üyesi') {
-        return redirect(`/${locale}/dashboard`);
-    }
-
-    const hauptCategoryFilter = resolvedSearchParams?.haupt_kategorie as string | undefined;
-    const giderKalemiFilter = resolvedSearchParams?.gider_kalemi_id as string | undefined;
-    const currentPeriod = (resolvedSearchParams?.period as string) || 'custom';
-    let dateFrom = resolvedSearchParams?.from as string | undefined;
-    let dateTo = resolvedSearchParams?.to as string | undefined;
-
-    // --- LOGGING START ---
-    console.log('Initial Filter Values:', {
-         hauptCategoryFilter,
-         giderKalemiFilter,
-         currentPeriod,
-         dateFrom,
-         dateTo
-    });
-    // --- LOGGING ENDE ---
-
-    // Önceden tanımlı periyot seçiliyse, özel tarihleri (from/to) ez
-    if (currentPeriod !== 'custom') {
-        const { start, end } = getDateRange(currentPeriod);
-        dateFrom = start;
-        dateTo = end;
-        console.log(`Calculated Dates for Period '${currentPeriod}':`, { dateFrom, dateTo });
-    } else {
-         console.log('Using Custom Dates (if provided):', { dateFrom, dateTo });
-    }
-
-
-    // --- Dynamischer Select-String für !inner join ---
-    let selectString = `
-        *,
-        profiller(tam_ad),
-        gider_kalemleri(id,ad,ana_kategori_id,gider_ana_kategoriler(ad))
-    `;
-
-    if (hauptCategoryFilter) {
-        console.log('🔩 INNER JOIN wird für Hauptkategorie-Filter aktiviert.');
-        selectString = `
-            *,
-            profiller(tam_ad),
-            gider_kalemleri!inner(id,ad,ana_kategori_id,gider_ana_kategoriler(ad))
-        `;
-    }
-    // --- ENDE FILTER-LOGIK ---
-
-    let query = supabase
-        .from('giderler')
-        .select(selectString)
-        .order('tarih', { ascending: false });
-
-    // Filter anwenden
-    if (giderKalemiFilter) {
-        console.log(`Applying GiderKalemi Filter: ${giderKalemiFilter}`);
-        query = query.eq('gider_kalemi_id', giderKalemiFilter);
-    }
-    if (hauptCategoryFilter) {
-        console.log(`Applying HauptCategory Filter: ${hauptCategoryFilter}`);
-        query = query.eq('gider_kalemleri.ana_kategori_id', hauptCategoryFilter);
-    }
-    if (dateFrom) {
-        console.log(`Applying Date Filter (FROM): ${dateFrom}`);
-        // .gte() = 'Büyük veya eşit' (>=)
-        query = query.gte('tarih', dateFrom);
-    }
-
-    // --- GÜNCELLEME: 'dateTo' mantığı .lte() kullanacak şekilde düzeltildi ---
-    if (dateTo) {
-        // .lte() = 'Küçük veya eşit' (<=)
-        // Bu, 'dateTo' tarihinin de sorguya dahil edilmesini sağlar
-        // ve zaman dilimi hatalarını önler.
-        console.log(`Applying Date Filter (TO): ${dateTo} (Query uses <= ${dateTo})`);
-        query = query.lte('tarih', dateTo);
-    }
-    // --- GÜNCELLEME SONU ---
-
-
-    // --- Daten parallel abrufen ---
-    // Çok dilli kategoriler için RPC fonksiyonlarını kullan (fallback ile)
-    let hauptKategorien: HauptKategorie[] = [];
-    let giderKalemleri: GiderKalemi[] = [];
-    
-    // Önce RPC fonksiyonlarını dene
-    const kategorienResult = await (supabase as any).rpc('get_expense_categories_localized', { p_locale: locale });
-    const kalemleriResult = await (supabase as any).rpc('get_expense_items_localized', { p_locale: locale, p_category_id: null });
-
-    if (kategorienResult.error) {
-        // RPC yoksa normal sorgu kullan
-        console.log('⚠️ Localized categories RPC bulunamadı, fallback kullanılıyor');
-        const fallback = await supabase.from('gider_ana_kategoriler').select('*').order('ad');
-        hauptKategorien = (fallback.data as HauptKategorie[]) || [];
-    } else {
-        // Localized data'yı normal format'a dönüştür
-        hauptKategorien = (kategorienResult.data as any[])?.map((cat: any) => ({
-            id: cat.id,
-            ad: cat.ad_localized || cat.ad,
-            created_at: cat.created_at
-        })) || [];
+    const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+    if (!['Yönetici', 'Personel', 'Ekip Üyesi'].includes(profile?.rol ?? '')) {
+        return redirect(`/${locale}/admin/dashboard`);
     }
 
-    if (kalemleriResult.error) {
-        // RPC yoksa normal sorgu kullan
-        console.log('⚠️ Localized items RPC bulunamadı, fallback kullanılıyor');
-        const fallback = await supabase.from('gider_kalemleri').select('*').order('ad');
-        giderKalemleri = (fallback.data as GiderKalemi[]) || [];
-    } else {
-        // Localized data'yı normal format'a dönüştür
-        giderKalemleri = (kalemleriResult.data as any[])?.map((item: any) => ({
-            id: item.id,
-            ad: item.ad_localized || item.ad,
-            ana_kategori_id: item.ana_kategori_id,
-            created_at: item.created_at
-        })) || [];
+    const { start, end } = getDateRange(currentPeriod);
+
+    // Önceki dönem başlangıcı (karşılaştırma için)
+    const prevStart = (() => {
+        const now = new Date();
+        if (currentPeriod === 'last-month') {
+            const s = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+            const e = new Date(now.getFullYear(), now.getMonth() - 1, 0);
+            const f = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            return { start: f(s), end: f(e) };
+        }
+        const s = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const e = new Date(now.getFullYear(), now.getMonth(), 0);
+        const f = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        return { start: f(s), end: f(e) };
+    })();
+
+    const [
+        giderlerRes,
+        prevGiderlerRes,
+        tirRes,
+        sablonlarRes,
+    ] = await Promise.all([
+        supabase
+            .from('giderler')
+            .select(`
+                id, tarih, tutar, aciklama, durum, odeme_sikligi, created_at,
+                gider_kalemi_id, islem_yapan_kullanici_id,
+                profiller(tam_ad),
+                gider_kalemleri(id, ad, ana_kategori_id, gider_ana_kategoriler(ad))
+            `)
+            .gte('tarih', start)
+            .lte('tarih', end)
+            .order('tarih', { ascending: false }),
+
+        supabase
+            .from('giderler')
+            .select('tutar')
+            .gte('tarih', prevStart.start)
+            .lte('tarih', prevStart.end),
+
+        (supabase as any)
+            .from('ithalat_partileri')
+            .select('id, referans_kodu, varis_tarihi, navlun_soguk_eur, navlun_kuru_eur, gumruk_vergi_toplam_eur, traces_numune_ardiye_eur, created_at')
+            .gte('created_at', `${start}T00:00:00`)
+            .lte('created_at', `${end}T23:59:59`)
+            .order('created_at', { ascending: false })
+            .limit(20),
+
+        (supabase as any)
+            .from('gider_sablonlari')
+            .select('*')
+            .order('created_at', { ascending: false }),
+    ]);
+
+    const giderler = (giderlerRes.data ?? []) as any[];
+    const prevPeriodToplam = (prevGiderlerRes.data ?? []).reduce((s: number, g: any) => s + Number(g.tutar ?? 0), 0);
+    const tirGruplari = (tirRes.data ?? []).map((t: any) => ({
+        id: t.id,
+        referans_kodu: t.referans_kodu,
+        varis_tarihi: t.varis_tarihi,
+        navlun_soguk: Number(t.navlun_soguk_eur ?? 0),
+        navlun_kuru: Number(t.navlun_kuru_eur ?? 0),
+        gumruk: Number(t.gumruk_vergi_toplam_eur ?? 0),
+        traces: Number(t.traces_numune_ardiye_eur ?? 0),
+        toplam: Number(t.navlun_soguk_eur ?? 0) + Number(t.navlun_kuru_eur ?? 0) + Number(t.gumruk_vergi_toplam_eur ?? 0) + Number(t.traces_numune_ardiye_eur ?? 0),
+    }));
+    const sablonlar = (sablonlarRes.data ?? []) as any[];
+
+    // Stats hesapla
+    const toplam = giderler.reduce((s, g) => s + Number(g.tutar ?? 0), 0);
+    const tirToplam = giderler
+        .filter((g) => (g as any).kaynak === 'tir')
+        .reduce((s, g) => s + Number(g.tutar ?? 0), 0);
+    const sabitToplam = giderler
+        .filter((g) => (g as any).kaynak === 'sablon')
+        .reduce((s, g) => s + Number(g.tutar ?? 0), 0);
+    const manuelToplam = toplam - tirToplam - sabitToplam;
+
+    // Kategori dağılımı
+    const kategoriMap = new Map<string, number>();
+    for (const g of giderler) {
+        const kaynak = (g as any).kaynak ?? 'manuel';
+        let kat = 'Diğer';
+        if (kaynak === 'tir') {
+            const aciklama = (g.aciklama ?? '').toLowerCase();
+            if (aciklama.includes('navlun')) kat = 'Navlun (TIR)';
+            else if (aciklama.includes('gümrük')) kat = 'Gümrük Vergisi';
+            else if (aciklama.includes('traces') || aciklama.includes('ardiye')) kat = 'TRACES / Ardiye';
+            else kat = 'TIR - Diğer';
+        } else {
+            kat = (g as any).gider_kalemleri?.gider_ana_kategoriler?.ad ?? 'Diğer';
+        }
+        kategoriMap.set(kat, (kategoriMap.get(kat) ?? 0) + Number(g.tutar ?? 0));
     }
+    const kategoriDagilimi = Array.from(kategoriMap.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([kategori, tutar]) => ({
+            kategori,
+            tutar,
+            oran: toplam > 0 ? Math.round((tutar / toplam) * 100) : 0,
+        }));
 
-    // Giderler sorgusunu çalıştır
-    const { data: giderler, error } = await query;
-
-    // Fehler loggen
-    if (error) console.error('❌ Supabase Giderler Hatası:', error);
-    if (hauptKategorien.length === 0) console.log('⚠️ Keine Hauptkategorien gefunden');
-    if (giderKalemleri.length === 0) console.log('⚠️ Keine Gider Kalemleri gefunden');
-
-    // --- LOGGING START ---
-    console.log('Fetched Gider Count:', giderler?.length ?? 0);
-    console.log('--- GiderlerPage END ---');
-    // --- LOGGING ENDE ---
-
-    // Variablen für den Client vorbereiten
-    const availableFrequencies = Constants.public.Enums.zahlungshaeufigkeit || [];
-    const pnlContent = dictionary.pnlReportPage || {};
-    const datePeriods = [
-        { label: pnlContent.periodThisMonth || 'Dieser Monat', value: 'this-month' },
-        { label: pnlContent.periodLastMonth || 'Letzter Monat', value: 'last-month' },
-        { label: pnlContent.periodThisYear || 'Dieses Jahr', value: 'this-year' },
-        { label: 'Benutzerdef.', value: 'custom' },
-    ];
-
-    // Client-Komponente rendern
-    return (
-        <GiderlerClient
-            initialGiderler={giderler as GiderWithDetails[] || []}
-            hauptKategorien={hauptKategorien as HauptKategorie[] || []}
-            giderKalemleri={giderKalemleri as GiderKalemi[] || []}
-            availableFrequencies={availableFrequencies}
-            dictionary={dictionary}
-            locale={locale} // locale hier verwenden
-            datePeriods={datePeriods}
-            currentPeriod={currentPeriod} // aktuellen Zeitraum übergeben
-        />
-    );
+    return (
+        <GiderlerYeniClient
+            giderler={giderler}
+            sablonlar={sablonlar}
+            tirGruplari={tirGruplari}
+            kategoriDagilimi={kategoriDagilimi}
+            stats={{ toplam, tirToplam, sabitToplam, manuelToplam }}
+            prevPeriodToplam={prevPeriodToplam}
+            locale={locale}
+            currentPeriod={currentPeriod}
+            isAdmin={profile?.rol === 'Yönetici'}
+        />
+    );
 }

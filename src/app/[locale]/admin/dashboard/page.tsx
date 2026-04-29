@@ -135,7 +135,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
     // ── Paralel sorgular ──────────────────────────────────────────────────────
     const [
         plRes, plPrevRes,
-        stokRes, kritikStokRes,
+        stokRes, urunToplamRes,
         aktifSiparisRes, siparisDagRes,
         sonTirRes, yaklasenTirRes,
         adayRes, temasRes, musteriRes, yeniTemasRes,
@@ -147,8 +147,8 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
     ] = await Promise.all([
         supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).returns<ReportData>().single(),
         supabase.rpc('get_pl_report', { start_date: toLocalDate(new Date(now.getFullYear(), now.getMonth() - 1, 1)), end_date: toLocalDate(new Date(now.getFullYear(), now.getMonth(), 0)) }).returns<ReportData>().single(),
-        supabase.from('urunler').select('distributor_alis_fiyati, stok_miktari').eq('aktif', true),
-        supabase.rpc('get_kritik_stok_count'),
+        supabase.from('urunler').select('distributor_alis_fiyati, stok_miktari, stok_esigi').eq('aktif', true),
+        supabase.from('urunler').select('id', { count: 'exact', head: true }),
         supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_STATUS),
         supabase.from('siparisler').select('siparis_durumu').gte('created_at', thirtyDaysAgo),
         (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(3),
@@ -175,9 +175,17 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
         ? Math.round(((mtd?.totalRevenue ?? 0) - prevMtd.totalRevenue) / prevMtd.totalRevenue * 100)
         : null;
 
-    const stokDegeri    = (stokRes.data || []).reduce((s: number, u: any) => s + (Number(u.distributor_alis_fiyati || 0) * Number(u.stok_miktari || 0)), 0);
-    const urunToplamCount = stokRes.data?.length ?? 0;
-    const kritikStok    = Number(kritikStokRes.data ?? 0);
+    const stokDegeri      = (stokRes.data || []).reduce((s: number, u: any) => s + (Number(u.distributor_alis_fiyati || 0) * Number(u.stok_miktari || 0)), 0);
+    const urunToplamCount = urunToplamRes.count ?? 0;
+
+    // Kritik stok: stok > 0 VE stok_esigi altında.
+    // Stoku 0 olanlar "stok yok" kategorisi, kritik değil.
+    // stok_esigi tanımlı değilse (NULL veya 0) varsayılan 10 kabul edilir.
+    const kritikStok = (stokRes.data || []).filter((u: any) => {
+        const stok = Number(u.stok_miktari ?? 0);
+        const esik = Number(u.stok_esigi ?? 0) > 0 ? Number(u.stok_esigi) : 10;
+        return stok > 0 && stok < esik;
+    }).length;
 
     const sipDag = (siparisDagRes.data || []) as Array<{ siparis_durumu: string }>;
     const sipCount = (statuses: string[]) => sipDag.filter(d => statuses.includes(d.siparis_durumu)).length;
@@ -264,7 +272,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                     <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Depodaki Stok Değeri</p>
                         <p className="text-2xl font-bold text-slate-800">{fmt(stokDegeri)}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">{urunToplamCount} aktif ürün · alış fiyatı</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">{urunToplamCount} ürün (toplam) · alış fiyatı</p>
                     </div>
                 </div>
             </div>

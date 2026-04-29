@@ -359,6 +359,7 @@ export const dictionary: Partial<Dictionary> = {
     priceRequests: "Price Requests", 
     priceExceptions: "Price Exceptions",
     priceRules: "Price Rules",
+    references: "References & Contacts",
     // Settings sub-menus
     systemSettings: "System Settings",
     profile: "Profile",

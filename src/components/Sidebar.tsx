@@ -7,8 +7,8 @@ import React, { useState } from 'react';
 import {
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX,
     FiGift, FiLayers, FiSettings, FiChevronDown,
-    FiRss, FiPaperclip, FiHardDrive, 
-    FiDollarSign, FiBarChart2, FiUser, FiStar, FiUserCheck // Yeni eklenen ikonlar
+    FiRss, FiPaperclip, FiHardDrive, FiBook,
+    FiDollarSign, FiBarChart2, FiUser, FiStar, FiUserCheck
 } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
@@ -46,6 +46,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
         priceRequests?: string;
         priceExceptions?: string;
         priceRules?: string;
+        references?: string;
         systemSettings?: string;
         profile?: string;
         customerProfiles?: string;
@@ -97,6 +98,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                     panelKey: 'samples'
                 },
                 { name: sidebarContent.tasks, href: '/admin/gorevler', icon: FiClipboard, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[], panelKey: 'tasks' },
+                { name: sidebarContent.references || 'Referanslar & İrtibatlar', href: '/admin/operasyon/referanslar', icon: FiBook, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[] },
             ]
         },
         {

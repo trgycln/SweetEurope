@@ -17,6 +17,7 @@ import { Pagination } from './pagination';
 import EditableUrunRowClient from "./EditableUrunRowClient";
 import UrunExcelImportPanel from './UrunExcelImportPanel';
 import UrunExcelExportPanel from './UrunExcelExportPanel';
+import StokHesaplaButton from './StokHesaplaButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -223,6 +224,7 @@ export default async function UrunlerListPage({
 
                 {isAdmin && (
                     <div className="ml-auto flex items-center gap-2">
+                        <StokHesaplaButton />
                         <Link href={`/${locale}/admin/urun-yonetimi/toplu-gorsel-yukleme`}>
                             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-sm font-semibold shadow-sm hover:bg-slate-50 whitespace-nowrap">
                                 <FiArchive size={14} />
