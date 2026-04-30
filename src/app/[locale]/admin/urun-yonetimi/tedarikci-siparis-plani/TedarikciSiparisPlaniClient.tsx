@@ -82,6 +82,23 @@ function getProductName(ad: ProductRow['ad'], locale: string): string {
   return ad[locale] || ad.tr || ad.de || ad.en || ad.ar || Object.values(ad)[0] || 'Adsız Ürün';
 }
 
+/** Türkçe/Almanca karakterleri ASCII'ye düşürür — arama karşılaştırması için */
+function normalize(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[çÇ]/g, 'c').replace(/[ğĞ]/g, 'g').replace(/[ıİ]/g, 'i')
+    .replace(/[şŞ]/g, 's').replace(/[öÖ]/g, 'o').replace(/[üÜ]/g, 'u')
+    .replace(/[âÂ]/g, 'a').replace(/[äÄ]/g, 'a').replace(/[ß]/g, 'ss');
+}
+
+/** Ürünün tüm dillerdeki adlarını normalize ederek tek bir arama metni oluşturur */
+function productSearchText(ad: ProductRow['ad'], stok_kodu: string | null, ean: string | null): string {
+  const names = ad && typeof ad === 'object'
+    ? Object.values(ad as Record<string, string>).filter(Boolean)
+    : [String(ad || '')];
+  return normalize([...names, stok_kodu || '', ean || ''].join(' '));
+}
+
 function unitMultiplier(product: ProductRow, unitType: UnitType): number {
   // distributor_alis_fiyati = adet başına alış fiyatı
   // Birim maliyeti = fiyat × (o birimdeki toplam adet sayısı)
@@ -137,20 +154,21 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   }, [products]);
 
   const filteredProducts = useMemo(() => {
-    const q = search.trim().toLocaleLowerCase('tr');
+    const raw     = search.trim();
+    const q       = normalize(raw);           // normalize: ç→c, ğ→g, vb.
     if (!selectedSupplierId) return [];
 
     // 13 haneli sayı → EAN/barkod araması (tedarikçi filtresi uygulanmaz)
-    const isBarcode = /^\d{13}$/.test(search.trim());
+    const isBarcode = /^\d{13}$/.test(raw);
 
     return products
       .filter((p) => {
         if (!isBarcode && p.tedarikci_id !== selectedSupplierId) return false;
         if (!q) return true;
-        const name = getProductName(p.ad, locale).toLocaleLowerCase('tr');
-        const code = String(p.stok_kodu || '').toLocaleLowerCase('tr');
-        const ean  = String((p as any).ean_gtin || '');
-        return name.includes(q) || code.includes(q) || ean === search.trim();
+        if (isBarcode) return String(p.ean_gtin || '') === raw;
+        // Tüm diller + stok kodu normalize edilmiş metin içinde ara
+        const haystack = productSearchText(p.ad, p.stok_kodu, p.ean_gtin);
+        return haystack.includes(q);
       })
       .sort((a, b) => getProductName(a.ad, locale).localeCompare(getProductName(b.ad, locale), 'tr'));
   }, [products, locale, search, selectedSupplierId]);

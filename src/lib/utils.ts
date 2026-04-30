@@ -90,6 +90,71 @@ export const formatDate = (dateString: string | null | undefined, locale: Locale
 };
 
 
+// ─── Arama yardımcıları: Türkçe karakter bağımsız arama ──────────────────────
+
+/** Türkçe/Almanca karakterleri ASCII karşılıklarına dönüştürür (arama normalizasyonu) */
+export function normalizeForSearch(str: string): string {
+    return str
+        .toLowerCase()
+        .replace(/[çÇ]/g, 'c')
+        .replace(/[ğĞ]/g, 'g')
+        .replace(/[ıİ]/g, 'i')
+        .replace(/[şŞ]/g, 's')
+        .replace(/[öÖ]/g, 'o')
+        .replace(/[üÜ]/g, 'u')
+        .replace(/[âÂ]/g, 'a')
+        .replace(/[îÎ]/g, 'i')
+        .replace(/[ûÛ]/g, 'u')
+        .replace(/[äÄ]/g, 'a')
+        .replace(/[ëË]/g, 'e')
+        .replace(/[ïÏ]/g, 'i')
+        .replace(/[ß]/g, 'ss');
+}
+
+/**
+ * Bir ürünün JSONB `ad` alanındaki tüm dilleri birleştirerek arama metni oluşturur.
+ * Sonuç normalize edilmiş (aksansız küçük harf) biçimdedir.
+ */
+export function buildProductSearchText(ad: any): string {
+    if (!ad) return '';
+    if (typeof ad === 'string') return normalizeForSearch(ad);
+    return normalizeForSearch(
+        Object.values(ad as Record<string, string>)
+            .filter(Boolean)
+            .join(' ')
+    );
+}
+
+/**
+ * Sunucu tarafı Supabase sorgularında Türkçe karakter bağımsız arama için
+ * `or()` filtre stringi üretir. Tüm diller (tr, de, en, ar) ve stok_kodu dahildir.
+ */
+export function buildSupabaseSearchFilter(rawQuery: string): string {
+    const escaped = rawQuery.replace(/[%_]/g, (c) => `\\${c}`);  // LIKE özel karakterleri kaç
+    const normalized = normalizeForSearch(rawQuery).replace(/[%_]/g, (c) => `\\${c}`);
+
+    // ASCII karakterlerin Türkçe karşılıkları (c→ç, g→ğ, s→ş, o→ö, u→ü, i→ı)
+    const CHAR_MAP: Record<string, string> = {
+        'c': 'ç', 'g': 'ğ', 's': 'ş', 'o': 'ö', 'u': 'ü', 'i': 'ı',
+    };
+    const turkified = normalized.split('').map((c) => CHAR_MAP[c] ?? c).join('');
+
+    // En fazla 3 benzersiz pattern: orijinal, normalize, Türkçe genişletilmiş
+    const pats = [...new Set([escaped, normalized, turkified !== normalized ? turkified : null].filter(Boolean) as string[])];
+    const langs = ['tr', 'de', 'en', 'ar'];
+
+    const parts: string[] = [];
+    for (const pat of pats) {
+        for (const lang of langs) {
+            parts.push(`ad->>${lang}.ilike.%${pat}%`);
+        }
+        parts.push(`stok_kodu.ilike.%${pat}%`);
+    }
+    return parts.join(',');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * Konvertiert einen Text in ein URL-freundliches "Slug"-Format.
  * @param text Der zu konvertierende Text.

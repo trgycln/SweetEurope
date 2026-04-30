@@ -155,12 +155,10 @@ export default async function UrunlerListPage({
         query = query.gt('stok_miktari', 0);
     }
 
-    // Suchfilter anwenden (Suche in Name oder SKU)
+    // Suchfilter: alle Sprachen (tr, de, en, ar) + stok_kodu, Türkçe karakter bağımsız
     if (queryParam) {
-         const searchQuery = `%${queryParam}%`;
-         // Suche im Namen (JSONB) ODER im Stok-Code (Text)
-         // Sicherstellen, dass die Locale-Suche zuerst versucht wird
-         query = query.or(`ad->>${locale}.ilike.${searchQuery},ad->>de.ilike.${searchQuery},stok_kodu.ilike.${searchQuery}`);
+        const { buildSupabaseSearchFilter } = await import('@/lib/utils');
+        query = query.or(buildSupabaseSearchFilter(queryParam));
     }
 
     // Count total for pagination

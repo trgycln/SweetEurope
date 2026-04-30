@@ -214,16 +214,25 @@ export default function TirGirisiClient({ locale, products, suppliers, recentBat
   );
 
   const filteredProducts = useMemo(() => {
-    const term = productSearch.trim().toLowerCase();
-    if (!term) return products;
-    // 13 haneli EAN barkod araması
-    const isEAN = /^\d{13}$/.test(productSearch.trim());
+    const raw = productSearch.trim();
+    if (!raw) return products;
+    const isEAN = /^\d{13}$/.test(raw);
+    if (isEAN) return products.filter((p) => String((p as any).ean_gtin || '') === raw);
+
+    // Normalize: Türkçe karakter bağımsız, tüm diller
+    const norm = (s: string) => s.toLowerCase()
+      .replace(/[çÇ]/g, 'c').replace(/[ğĞ]/g, 'g').replace(/[ıİ]/g, 'i')
+      .replace(/[şŞ]/g, 's').replace(/[öÖ]/g, 'o').replace(/[üÜ]/g, 'u')
+      .replace(/[âÂäÄ]/g, 'a').replace(/[ß]/g, 'ss');
+
+    const q = norm(raw);
     return products.filter((p) => {
-      if (isEAN) return String((p as any).ean_gtin || '') === productSearch.trim();
-      const name = productName(p, locale).toLowerCase();
-      const code = String(p.stok_kodu || '').toLowerCase();
-      const ean  = String((p as any).ean_gtin || '').toLowerCase();
-      return name.includes(term) || code.includes(term) || ean.includes(term);
+      const ad = (p as any).ad;
+      const names: string[] = ad && typeof ad === 'object'
+        ? Object.values(ad as Record<string, string>).filter(Boolean)
+        : [productName(p, locale)];
+      const haystack = norm([...names, String(p.stok_kodu || ''), String((p as any).ean_gtin || '')].join(' '));
+      return haystack.includes(q);
     });
   }, [products, productSearch, locale]);
 
