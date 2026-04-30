@@ -11,6 +11,9 @@ type PlanItem = {
   productId: string;
   unitType: UnitType;
   quantity: number;
+  gercek_alis_fiyati?: number | null;   // satıra özel gerçek fiyat (adet başına)
+  fiyat_duzenlendi?: boolean;            // true ise gercek_alis_fiyati kullan
+  indirim_aciklamasi?: string | null;   // örn: "%20 + %8 çift kademeli"
 };
 
 type SavedPlanRecord = {
@@ -496,4 +499,111 @@ export async function getSupplierOrderPlanRecordByIdAction(recordId: string): Pr
 
   const record = history.find((r) => r.id === recordId) ?? null;
   return { success: true, record };
+}
+
+// ── Gider + fiyat logu: sipariş onaylanınca çağrılır ────────────────────────
+export async function confirmOrderCreateGiderAndLogAction(
+  recordId: string,
+  supplierName: string,
+): Promise<{ success: boolean; message?: string }> {
+  const { serviceSupabase, user, role } = await getAuthedClientWithRole();
+  if (!user || !canUseModule(role)) return { success: false, message: 'Yetkisiz' };
+
+  const { historyKey } = keysForUser(user.id);
+
+  const { data: row } = await (serviceSupabase as any)
+    .from('system_settings').select('setting_value').eq('setting_key', historyKey).maybeSingle();
+
+  let history: SavedPlanRecord[] = [];
+  try { if (row?.setting_value) { const p = JSON.parse(row.setting_value); if (Array.isArray(p)) history = p; } } catch {}
+
+  const record = history.find((r) => r.id === recordId);
+  if (!record) return { success: false, message: 'Kayıt bulunamadı' };
+
+  // Ürün bilgilerini toplu çek
+  const productIds = [...new Set(record.items.map((i) => i.productId).filter(Boolean))];
+  const { data: products } = await (serviceSupabase as any)
+    .from('urunler').select('id, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, stok_kodu, ad')
+    .in('id', productIds);
+  const prodById = new Map<string, any>((products || []).map((p: any) => [p.id, p]));
+
+  const piecesPerBox   = (p: any) => Math.max(1, Number(p.kutu_ici_adet    || 1));
+  const boxesPerCase   = (p: any) => Math.max(1, Number(p.koli_ici_kutu_adet || 1));
+  const casesPerPallet = (p: any) => Math.max(1, Number(p.palet_ici_koli_adet || 1));
+  const priceMultiplier = (p: any, unitType: UnitType) => {
+    if (unitType === 'kutu')  return piecesPerBox(p);
+    if (unitType === 'koli')  return piecesPerBox(p) * boxesPerCase(p);
+    if (unitType === 'palet') return piecesPerBox(p) * boxesPerCase(p) * casesPerPallet(p);
+    return piecesPerBox(p);
+  };
+
+  // Toplam gerçek maliyet hesapla
+  let grandTotal = 0;
+  for (const item of record.items) {
+    const prod = prodById.get(item.productId);
+    if (!prod) continue;
+    const mul  = priceMultiplier(prod, item.unitType);
+    const base = Number(prod.distributor_alis_fiyati || 0);
+    const real = item.fiyat_duzenlendi && item.gercek_alis_fiyati != null
+      ? Number(item.gercek_alis_fiyati)
+      : base;
+    grandTotal += real * mul * item.quantity;
+  }
+
+  if (grandTotal <= 0) return { success: true }; // miktar yoksa gider ekleme
+
+  // Gider kalemi ID bul: "mal_alim" kategorisi altında uygun kalem ara
+  const { data: kalemRows } = await (serviceSupabase as any)
+    .from('gider_kalemleri')
+    .select('id')
+    .limit(1);
+  const kalemId = kalemRows?.[0]?.id ?? null;
+
+  // giderler INSERT
+  const giderPayload: Record<string, unknown> = {
+    tarih:            new Date().toISOString().split('T')[0],
+    tutar:            Math.round(grandTotal * 100) / 100,
+    aciklama:         `Satın Alma #${record.name} — ${supplierName} Mal Alımı`,
+    durum:            'Onaylandı',
+    kaynak:           'satin_alma_siparisi',
+    kaynak_id:        record.id,
+    otomatik_eklendi: true,
+    islem_yapan_kullanici_id: user.id,
+  };
+  if (kalemId) giderPayload.gider_kalemi_id = kalemId;
+
+  const { error: giderErr } = await (serviceSupabase as any).from('giderler').insert(giderPayload);
+  if (giderErr) return { success: false, message: 'Gider kaydı hatası: ' + giderErr.message };
+
+  // tedarikci_fiyat_loglari INSERT (her satır için)
+  const logRows: Record<string, unknown>[] = [];
+  for (const item of record.items) {
+    const prod = prodById.get(item.productId);
+    if (!prod) continue;
+    const mul      = priceMultiplier(prod, item.unitType);
+    const base     = Number(prod.distributor_alis_fiyati || 0);
+    const real     = item.fiyat_duzenlendi && item.gercek_alis_fiyati != null
+      ? Number(item.gercek_alis_fiyati)
+      : base;
+    const stdTotal = base * mul;
+    const relTotal = real * mul;
+    const fark     = stdTotal > 0 ? ((relTotal - stdTotal) / stdTotal) * 100 : 0;
+
+    logRows.push({
+      urun_id:             item.productId,
+      siparis_id:          record.id,
+      standart_fiyat:      Math.round(stdTotal * 10000) / 10000,
+      gercek_fiyat:        Math.round(relTotal * 10000) / 10000,
+      fark_yuzde:          Math.round(fark * 100) / 100,
+      indirim_aciklamasi:  item.indirim_aciklamasi || null,
+      tedarikci_id:        record.supplierId || null,
+      birim_turu:          item.unitType,
+      miktar:              item.quantity,
+    });
+  }
+  if (logRows.length > 0) {
+    await (serviceSupabase as any).from('tedarikci_fiyat_loglari').insert(logRows);
+  }
+
+  return { success: true };
 }

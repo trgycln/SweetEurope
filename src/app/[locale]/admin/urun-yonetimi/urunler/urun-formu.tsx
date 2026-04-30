@@ -855,6 +855,15 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                         <input type="text" name="stok_kodu" id="stok_kodu" defaultValue={mevcutUrun?.stok_kodu || ''} className="w-full p-2 border rounded-md bg-gray-50 font-mono" />
                     </div>
                     <div>
+                        <label htmlFor="ean_gtin" className={labelClasses}>EAN / Barkod (GTIN-13)</label>
+                        <input type="text" name="ean_gtin" id="ean_gtin"
+                            defaultValue={(mevcutUrun as any)?.ean_gtin || ''}
+                            maxLength={14}
+                            placeholder="örn. 8690123456789"
+                            className="w-full p-2 border rounded-md bg-gray-50 font-mono" />
+                        <p className="mt-1 text-xs text-gray-400">EAN-13 barkod numarası — barkod okuyucu ile sipariş araması</p>
+                    </div>
+                    <div>
                         <label htmlFor="slug" className={labelClasses}>{L.operationsSection.slug} <span className="text-red-500">*</span></label>
                         <input type="text" name="slug" id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} className="w-full p-2 border rounded-md bg-gray-50 font-mono" required />
                     </div>

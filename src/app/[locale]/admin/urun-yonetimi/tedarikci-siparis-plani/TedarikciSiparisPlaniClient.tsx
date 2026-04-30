@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { FiFile, FiFileText, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2 } from 'react-icons/fi';
 import { toast } from 'sonner';
 import {
+  confirmOrderCreateGiderAndLogAction,
   deleteSupplierOrderPlanSnapshotAction,
   getSupplierOrderPlanStorageAction,
   receiveSupplierOrderAndUpdateStockAction,
@@ -16,6 +17,7 @@ type ProductRow = {
   id: string;
   ad: Record<string, string> | string | null;
   stok_kodu: string | null;
+  ean_gtin: string | null;
   distributor_alis_fiyati: number;
   kutu_ici_adet: number | null;
   koli_ici_kutu_adet: number | null;
@@ -36,6 +38,9 @@ type PlanItem = {
   productId: string;
   unitType: UnitType;
   quantity: number;
+  gercek_alis_fiyati?: number | null;  // satıra özel gerçek birim fiyat (adet başına)
+  fiyat_duzenlendi?: boolean;           // true → gercek_alis_fiyati kullan
+  indirim_aciklamasi?: string | null;  // örn: "%20 + %8 çift kademeli"
 };
 
 type SavedPlanRecord = {
@@ -117,7 +122,13 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   const [planHistory, setPlanHistory] = useState<SavedPlanRecord[]>([]);
   const [lastDraftSaveAt, setLastDraftSaveAt] = useState<string | null>(null);
   const [storageReady, setStorageReady] = useState(false);
-  const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
+  const [editingRecordId,    setEditingRecordId]    = useState<string | null>(null);
+
+  // ── Toplu indirim state ──────────────────────────────────────────────────
+  const [bulkDiscMode,      setBulkDiscMode]      = useState<'single' | 'double'>('single');
+  const [bulkDisc1,         setBulkDisc1]         = useState('');
+  const [bulkDisc2,         setBulkDisc2]         = useState('');
+  const [activeBulkBanner,  setActiveBulkBanner]  = useState<string | null>(null); // açıklama metni
 
   const productsById = useMemo(() => {
     const map = new Map<string, ProductRow>();
@@ -128,13 +139,18 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLocaleLowerCase('tr');
     if (!selectedSupplierId) return [];
+
+    // 13 haneli sayı → EAN/barkod araması (tedarikçi filtresi uygulanmaz)
+    const isBarcode = /^\d{13}$/.test(search.trim());
+
     return products
       .filter((p) => {
-        if (p.tedarikci_id !== selectedSupplierId) return false;
+        if (!isBarcode && p.tedarikci_id !== selectedSupplierId) return false;
         if (!q) return true;
         const name = getProductName(p.ad, locale).toLocaleLowerCase('tr');
         const code = String(p.stok_kodu || '').toLocaleLowerCase('tr');
-        return name.includes(q) || code.includes(q);
+        const ean  = String((p as any).ean_gtin || '');
+        return name.includes(q) || code.includes(q) || ean === search.trim();
       })
       .sort((a, b) => getProductName(a.ad, locale).localeCompare(getProductName(b.ad, locale), 'tr'));
   }, [products, locale, search, selectedSupplierId]);
@@ -338,18 +354,25 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         const product = productsById.get(item.productId);
         if (!product) return null;
 
-        const purchaseBoxCost = Number(product.distributor_alis_fiyati || 0); // adet başına alış fiyatı
-        const multiplier = unitMultiplier(product, item.unitType);             // seçili birimdeki toplam adet
-        const unitCost = purchaseBoxCost * multiplier;                         // birim başına maliyet (Kutu/Koli/Palet)
-        const lineTotal = unitCost * item.quantity;
+        const stdPricePerPiece = Number(product.distributor_alis_fiyati || 0); // standart adet fiyatı
+        const realPricePerPiece = item.fiyat_duzenlendi && item.gercek_alis_fiyati != null
+          ? Number(item.gercek_alis_fiyati)
+          : stdPricePerPiece;
+        const multiplier  = unitMultiplier(product, item.unitType); // seçili birimdeki toplam adet
+        const unitCost    = realPricePerPiece * multiplier;          // gerçek birim maliyet
+        const stdUnitCost = stdPricePerPiece  * multiplier;          // standart birim maliyet (tooltip için)
+        const lineTotal   = unitCost * item.quantity;
 
         return {
           ...item,
           product,
-          purchaseBoxCost,
+          purchaseBoxCost: stdPricePerPiece,  // standart adet fiyatı (tooltip/sıfırlama için)
+          realPricePerPiece,
           multiplier,
           unitCost,
+          stdUnitCost,
           lineTotal,
+          isModified: item.fiyat_duzenlendi === true,
         };
       })
       .filter((item): item is NonNullable<typeof item> => Boolean(item));
@@ -389,9 +412,12 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     return record.items.reduce((sum, item) => {
       const product = productsById.get(item.productId);
       if (!product) return sum;
-      const boxCost = Number(product.distributor_alis_fiyati || 0);
+      const stdPrice  = Number(product.distributor_alis_fiyati || 0);
+      const realPrice = item.fiyat_duzenlendi && item.gercek_alis_fiyati != null
+        ? Number(item.gercek_alis_fiyati)
+        : stdPrice;
       const multiplier = unitMultiplier(product, item.unitType);
-      return sum + boxCost * multiplier * item.quantity;
+      return sum + realPrice * multiplier * item.quantity;
     }, 0);
   };
 
@@ -512,7 +538,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       return {
         ...record,
         status,
-        sentAt: status === 'gonderildi' ? nowIso : null,
+        sentAt:     status === 'gonderildi'    ? nowIso : (record.sentAt ?? null),
         receivedAt: status === 'teslim_alindi' ? nowIso : null,
       };
     });
@@ -534,6 +560,14 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           );
         }
       });
+
+      // Gönderildi → gider + fiyat logu oluştur
+      if (status === 'gonderildi') {
+        const supName = suppliers.find((s) => s.id === target.supplierId)?.unvan || 'Tedarikçi';
+        void confirmOrderCreateGiderAndLogAction(recordId, supName).then((r) => {
+          if (!r.success) console.warn('Gider/fiyat log hatası:', r.message);
+        });
+      }
     }
   };
 
@@ -570,7 +604,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     toast.success('Gönderilen kayıt kopyalandı. Yeni şablon olarak kaydedebilirsiniz.');
   };
 
-  const updateRow = (id: string, patch: Partial<Pick<PlanItem, 'unitType' | 'quantity'>>) => {
+  const updateRow = (id: string, patch: Partial<Pick<PlanItem, 'unitType' | 'quantity' | 'gercek_alis_fiyati' | 'fiyat_duzenlendi' | 'indirim_aciklamasi'>>) => {
     setItems((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
@@ -581,6 +615,56 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         };
       })
     );
+  };
+
+  // Satır fiyatını standart değere sıfırla
+  const resetRowPrice = (id: string) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id !== id ? item : { ...item, fiyat_duzenlendi: false, gercek_alis_fiyati: null, indirim_aciklamasi: null }
+      )
+    );
+  };
+
+  // Toplu indirim uygula
+  const applyBulkDiscount = () => {
+    const r1 = parseFloat(bulkDisc1.replace(',', '.'));
+    if (!Number.isFinite(r1) || r1 <= 0 || r1 >= 100) { toast.warning('Geçerli bir indirim oranı girin (0–100).'); return; }
+    let r2 = 0;
+    if (bulkDiscMode === 'double') {
+      r2 = parseFloat(bulkDisc2.replace(',', '.'));
+      if (!Number.isFinite(r2) || r2 < 0 || r2 >= 100) { toast.warning('İkinci oran için geçerli bir değer girin.'); return; }
+    }
+    const desc = bulkDiscMode === 'double'
+      ? `%${r1} + %${r2} çift kademeli indirim`
+      : `%${r1} indirim`;
+
+    setItems((prev) =>
+      prev.map((item) => {
+        const prod = productsById.get(item.productId);
+        if (!prod) return item;
+        const std = Number(prod.distributor_alis_fiyati || 0);
+        let real = std * (1 - r1 / 100);
+        if (bulkDiscMode === 'double') real = real * (1 - r2 / 100);
+        return {
+          ...item,
+          fiyat_duzenlendi: true,
+          gercek_alis_fiyati: Math.round(real * 10000) / 10000,
+          indirim_aciklamasi: desc,
+        };
+      })
+    );
+    setActiveBulkBanner(desc);
+    toast.success('Toplu indirim uygulandı.');
+  };
+
+  // Tüm fiyat düzenlemelerini sıfırla
+  const resetAllPrices = () => {
+    setItems((prev) => prev.map((item) => ({
+      ...item, fiyat_duzenlendi: false, gercek_alis_fiyati: null, indirim_aciklamasi: null,
+    })));
+    setActiveBulkBanner(null);
+    toast.success('Tüm fiyatlar standart değerlere sıfırlandı.');
   };
 
   const exportExcel = async () => {
@@ -944,8 +1028,15 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
               <label className="mb-1 block text-xs font-medium text-slate-600">Hızlı arama</label>
               <input
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Ürün adı veya stok kodu"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  // 13 haneli barkod girilince otomatik ilk ürünü seç
+                  if (/^\d{13}$/.test(e.target.value.trim())) {
+                    const found = products.find((p) => p.ean_gtin === e.target.value.trim());
+                    if (found) { setSelectedProductId(found.id); toast.info('Barkod ile ürün bulundu: ' + getProductName(found.ad, locale)); }
+                  }
+                }}
+                placeholder="Ürün adı, stok kodu veya EAN barkod (13 hane)"
                 disabled={!selectedSupplierId}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm disabled:bg-slate-50 disabled:text-slate-400"
               />
@@ -1220,6 +1311,66 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           </div>
         </div>
 
+        {/* ── Toplu Fiyat Düzenle paneli ── */}
+        <div className="no-print mb-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">Toplu Fiyat Düzenle</span>
+            <div className="flex rounded-lg border border-slate-300 overflow-hidden text-xs">
+              <button type="button"
+                onClick={() => setBulkDiscMode('single')}
+                className={`px-3 py-1.5 font-semibold transition-colors ${bulkDiscMode === 'single' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}>
+                % indirim
+              </button>
+              <button type="button"
+                onClick={() => setBulkDiscMode('double')}
+                className={`px-3 py-1.5 font-semibold transition-colors border-l border-slate-300 ${bulkDiscMode === 'double' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}>
+                % + % kademeli
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-slate-500">%</span>
+              <input type="number" min={0} max={99} step={0.5}
+                value={bulkDisc1} onChange={(e) => setBulkDisc1(e.target.value)}
+                placeholder="örn. 20"
+                className="w-20 rounded-md border border-slate-300 px-2 py-1.5 text-sm text-right" />
+              {bulkDiscMode === 'double' && (
+                <>
+                  <span className="text-xs text-slate-400 font-bold">+</span>
+                  <span className="text-xs text-slate-500">%</span>
+                  <input type="number" min={0} max={99} step={0.5}
+                    value={bulkDisc2} onChange={(e) => setBulkDisc2(e.target.value)}
+                    placeholder="örn. 8"
+                    className="w-20 rounded-md border border-slate-300 px-2 py-1.5 text-sm text-right" />
+                </>
+              )}
+            </div>
+            {bulkDiscMode === 'double' && bulkDisc1 && bulkDisc2 && (
+              <span className="text-xs text-slate-500 font-mono">
+                örn. €{(3.82 * (1 - parseFloat(bulkDisc1||'0')/100) * (1 - parseFloat(bulkDisc2||'0')/100)).toFixed(2)}
+              </span>
+            )}
+            <button type="button" onClick={applyBulkDiscount}
+              disabled={items.length === 0}
+              className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700 disabled:opacity-50">
+              Uygula
+            </button>
+            <button type="button" onClick={resetAllPrices}
+              disabled={items.length === 0}
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 disabled:opacity-50">
+              Tüm Listeyi Sıfırla
+            </button>
+          </div>
+          {activeBulkBanner && (
+            <div className="mt-2 flex items-center gap-2 rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-xs text-blue-700">
+              <span className="font-bold">ℹ</span>
+              Toplu indirim uygulandı · {activeBulkBanner}
+              <button type="button" onClick={resetAllPrices} className="ml-auto text-blue-500 hover:text-blue-700 underline">Geri al</button>
+            </div>
+          )}
+        </div>
+
         <div className="relative z-10 mb-4 rounded-xl border border-gray-200 bg-gray-50 p-4 print:border-0 print:bg-white print:p-0">
           <div className="space-y-3">
             <div className="flex flex-wrap items-end justify-between gap-2 border-b border-gray-200 pb-2">
@@ -1264,13 +1415,20 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                 </tr>
               )}
               {enrichedItems.map((row) => (
-                <tr key={row.id} className="border-b border-gray-100 align-top">
+                <tr key={row.id}
+                  className={`border-b border-gray-100 align-top transition-colors ${row.isModified ? 'bg-orange-50' : ''}`}>
                   <td className="px-3 py-2 font-mono text-xs text-gray-600">{row.product.stok_kodu || '-'}</td>
                   <td className="px-3 py-2">
                     <p className="font-medium text-gray-900">{getProductName(row.product.ad, locale)}</p>
                     <p className="text-xs text-gray-500">
-                      Adet alış: {formatCurrency(row.purchaseBoxCost)} · Çarpan: x{formatNumber(row.multiplier)}
+                      Adet: {formatCurrency(row.purchaseBoxCost)} · Çarpan: x{formatNumber(row.multiplier)}
+                      {row.isModified && (
+                        <span className="ml-1 text-orange-600 font-semibold">· Düzenlenmiş</span>
+                      )}
                     </p>
+                    {row.isModified && row.indirim_aciklamasi && (
+                      <p className="text-xs text-orange-500 mt-0.5">{row.indirim_aciklamasi}</p>
+                    )}
                   </td>
                   <td className="px-3 py-2">
                     <select
@@ -1295,7 +1453,51 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                     />
                     <span className="print-only text-sm font-medium text-gray-800">{row.quantity}</span>
                   </td>
-                  <td className="px-3 py-2 text-right font-medium">{formatCurrency(row.unitCost)}</td>
+                  {/* Birim Maliyet — düzenlenebilir */}
+                  <td className="px-3 py-2 text-right">
+                    <div className="no-print flex items-center justify-end gap-1">
+                      <div className="relative group">
+                        <input
+                          type="number"
+                          min={0}
+                          step={0.0001}
+                          value={row.isModified && row.gercek_alis_fiyati != null
+                            ? row.gercek_alis_fiyati
+                            : row.purchaseBoxCost}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            if (!Number.isFinite(val) || val < 0) return;
+                            const isChanged = Math.abs(val - row.purchaseBoxCost) > 0.00001;
+                            updateRow(row.id, {
+                              gercek_alis_fiyati: isChanged ? val : null,
+                              fiyat_duzenlendi: isChanged,
+                              indirim_aciklamasi: isChanged ? 'Manuel düzenleme' : null,
+                            });
+                          }}
+                          className={`w-24 rounded-md border px-2 py-1 text-right text-sm font-medium transition-colors ${
+                            row.isModified
+                              ? 'border-orange-400 bg-orange-100 text-orange-800'
+                              : 'border-gray-300 bg-white text-gray-800'
+                          }`}
+                          title={row.isModified ? `Standart: ${formatCurrency(row.stdUnitCost)}` : 'Standart fiyat'}
+                        />
+                        {row.isModified && (
+                          <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-1.5 py-0.5 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                            Standart: {formatCurrency(row.stdUnitCost)}
+                          </span>
+                        )}
+                      </div>
+                      {row.isModified && (
+                        <button type="button"
+                          onClick={() => resetRowPrice(row.id)}
+                          title="Standart fiyata sıfırla"
+                          className="rounded p-1 text-orange-500 hover:bg-orange-100 hover:text-orange-700 text-sm leading-none">
+                          ↺
+                        </button>
+                      )}
+                    </div>
+                    <span className="print-only text-sm font-medium text-gray-800">{formatCurrency(row.unitCost)}</span>
+                  </td>
                   <td className="px-3 py-2 text-right font-semibold text-primary">{formatCurrency(row.lineTotal)}</td>
                   <td className="no-print px-3 py-2 text-right">
                     <button

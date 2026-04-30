@@ -216,10 +216,14 @@ export default function TirGirisiClient({ locale, products, suppliers, recentBat
   const filteredProducts = useMemo(() => {
     const term = productSearch.trim().toLowerCase();
     if (!term) return products;
+    // 13 haneli EAN barkod araması
+    const isEAN = /^\d{13}$/.test(productSearch.trim());
     return products.filter((p) => {
+      if (isEAN) return String((p as any).ean_gtin || '') === productSearch.trim();
       const name = productName(p, locale).toLowerCase();
       const code = String(p.stok_kodu || '').toLowerCase();
-      return name.includes(term) || code.includes(term);
+      const ean  = String((p as any).ean_gtin || '').toLowerCase();
+      return name.includes(term) || code.includes(term) || ean.includes(term);
     });
   }, [products, productSearch, locale]);
 
@@ -502,9 +506,16 @@ export default function TirGirisiClient({ locale, products, suppliers, recentBat
           <div className="relative w-72">
             <input
               type="search"
-              placeholder="Ürün ara ve ekle..."
+              placeholder="Ürün adı, stok kodu veya EAN barkod"
               value={productSearch}
-              onChange={(e) => setProductSearch(e.target.value)}
+              onChange={(e) => {
+                setProductSearch(e.target.value);
+                // EAN barkod → otomatik ekle
+                if (/^\d{13}$/.test(e.target.value.trim())) {
+                  const found = products.find((p) => (p as any).ean_gtin === e.target.value.trim());
+                  if (found) { addRow(found.id); setProductSearch(''); }
+                }
+              }}
               className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm"
             />
             {productSearch.trim() && (

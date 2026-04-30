@@ -78,6 +78,7 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
         kategori_id: formData.get('kategori_id') as string,
         tedarikci_id: (formData.get('tedarikci_id') as string) || null,
         stok_kodu: formData.get('stok_kodu') as string || null,
+        ean_gtin:  (formData.get('ean_gtin') as string || '').trim() || null,
         slug: formData.get('slug') as string,
         stok_miktari: parseInt(formData.get('stok_miktari') as string || '0', 10),
         stok_esigi: parseInt(formData.get('stok_esigi') as string || '0', 10),

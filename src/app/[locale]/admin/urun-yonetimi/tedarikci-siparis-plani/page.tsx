@@ -49,7 +49,7 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
   const [productsRes, suppliersRes] = await Promise.all([
     supabase
       .from('urunler')
-      .select('id, ad, stok_kodu, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, tedarikci_id, aktif')
+      .select('id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, tedarikci_id, aktif')
       .order(`ad->>${locale}`, { ascending: true })
       .limit(5000),
     supabase.from('tedarikciler').select('id, unvan').order('unvan', { ascending: true }).limit(1000),
