@@ -17,6 +17,7 @@ type SavedPlanRecord = {
   id: string;
   name: string;
   createdAt: string;
+  createdBy?: string | null;     // olusturanin adi (paylasimli gosterim icin)
   status?: 'sablon' | 'gonderildi' | 'teslim_alindi';
   sentAt?: string | null;
   receivedAt?: string | null;
@@ -67,8 +68,8 @@ function canUseModule(role: string | null) {
 
 function keysForUser(userId: string) {
   return {
-    draftKey: `supplier_order_plan_draft_${userId}`,
-    historyKey: `supplier_order_plan_history_${userId}`,
+    draftKey:   `supplier_order_plan_draft_${userId}`,   // taslak: kullanıcıya özel
+    historyKey: `supplier_order_plan_shared_history`,    // geçmiş: tüm yetkili kullanıcılarda ortak
   };
 }
 
@@ -180,9 +181,26 @@ export async function saveSupplierOrderPlanSnapshotAction(record: SavedPlanRecor
   }
 
   const existingIndex = existing.findIndex((r) => r.id === record.id);
+  const isNewRecord = existingIndex < 0;
+
+  // Yeni kayıt için oluşturanı tespit et
+  let createdByName: string | null = record.createdBy ?? null;
+  if (isNewRecord && !createdByName) {
+    const { data: prof } = await (serviceSupabase as any)
+      .from('profiller')
+      .select('tam_ad')
+      .eq('id', user.id)
+      .maybeSingle();
+    createdByName = prof?.tam_ad || user.email || null;
+  } else if (!isNewRecord) {
+    // Mevcut kaydın createdBy değerini koru
+    createdByName = existing[existingIndex].createdBy ?? createdByName;
+  }
+
   const mergedRecord: SavedPlanRecord = {
     ...record,
-    createdAt: existingIndex >= 0 ? existing[existingIndex].createdAt : record.createdAt,
+    createdAt:   isNewRecord ? record.createdAt : existing[existingIndex].createdAt,
+    createdBy:   createdByName,
   };
 
   let nextHistory: SavedPlanRecord[];

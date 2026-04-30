@@ -42,6 +42,7 @@ type SavedPlanRecord = {
   id: string;
   name: string;
   createdAt: string;
+  createdBy?: string | null;
   status?: 'sablon' | 'gonderildi' | 'teslim_alindi';
   sentAt?: string | null;
   receivedAt?: string | null;
@@ -77,12 +78,16 @@ function getProductName(ad: ProductRow['ad'], locale: string): string {
 }
 
 function unitMultiplier(product: ProductRow, unitType: UnitType): number {
-  const boxesPerCase = Math.max(1, Number(product.koli_ici_kutu_adet || 1));
-  const casesPerPallet = Math.max(1, Number(product.palet_ici_koli_adet || 1));
+  // distributor_alis_fiyati = adet başına alış fiyatı
+  // Birim maliyeti = fiyat × (o birimdeki toplam adet sayısı)
+  const piecesPerBox   = Math.max(1, Number(product.kutu_ici_adet      || 1)); // adet/kutu
+  const boxesPerCase   = Math.max(1, Number(product.koli_ici_kutu_adet || 1)); // kutu/koli
+  const casesPerPallet = Math.max(1, Number(product.palet_ici_koli_adet || 1)); // koli/palet
 
-  if (unitType === 'koli') return boxesPerCase;
-  if (unitType === 'palet') return boxesPerCase * casesPerPallet;
-  return 1;
+  if (unitType === 'kutu')  return piecesPerBox;
+  if (unitType === 'koli')  return piecesPerBox * boxesPerCase;
+  if (unitType === 'palet') return piecesPerBox * boxesPerCase * casesPerPallet;
+  return piecesPerBox;
 }
 
 const DRAFT_STORAGE_KEY = 'tedarikci-siparis-plani:draft:v1';
@@ -333,9 +338,9 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         const product = productsById.get(item.productId);
         if (!product) return null;
 
-        const purchaseBoxCost = Number(product.distributor_alis_fiyati || 0);
-        const multiplier = unitMultiplier(product, item.unitType);
-        const unitCost = purchaseBoxCost * multiplier;
+        const purchaseBoxCost = Number(product.distributor_alis_fiyati || 0); // adet başına alış fiyatı
+        const multiplier = unitMultiplier(product, item.unitType);             // seçili birimdeki toplam adet
+        const unitCost = purchaseBoxCost * multiplier;                         // birim başına maliyet (Kutu/Koli/Palet)
         const lineTotal = unitCost * item.quantity;
 
         return {
@@ -1011,7 +1016,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                       {product.stok_kodu ? `${product.stok_kodu} – ` : ''}{getProductName(product.ad, locale)}
                       {!product.aktif ? <span className="ml-1 text-xs text-rose-500">(Pasif)</span> : null}
                     </p>
-                    <p className="text-xs text-slate-500">Kutu alış: {formatCurrency(Number(product.distributor_alis_fiyati || 0))}</p>
+                    <p className="text-xs text-slate-500">Adet: {formatCurrency(Number(product.distributor_alis_fiyati || 0))} · Kutu: {formatCurrency(Number(product.distributor_alis_fiyati || 0) * Math.max(1, Number(product.kutu_ici_adet || 1)))}</p>
                   </div>
                   <button
                     type="button"
@@ -1064,7 +1069,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                   <th className="px-4 py-2">Durum</th>
                   <th className="px-4 py-2">Sipariş Adı</th>
                   <th className="px-4 py-2">Tedarikçi</th>
-                  <th className="px-4 py-2">Tarih</th>
+                  <th className="px-4 py-2">Tarih / Oluşturan</th>
                   <th className="px-4 py-2 text-right">Kalem · Toplam</th>
                   <th className="px-4 py-2 text-right">İşlem</th>
                 </tr>
@@ -1096,7 +1101,12 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                         <td className="px-4 py-2">{statusBadge}</td>
                         <td className="px-4 py-2 font-medium text-slate-900">{record.name}</td>
                         <td className="px-4 py-2 text-slate-500">{supplierName}</td>
-                        <td className="px-4 py-2 text-slate-500 whitespace-nowrap">{date}</td>
+                        <td className="px-4 py-2 whitespace-nowrap">
+                          <span className="text-slate-500">{date}</span>
+                          {record.createdBy && (
+                            <span className="ml-1.5 text-xs text-slate-400">· {record.createdBy}</span>
+                          )}
+                        </td>
                         <td className="px-4 py-2 text-right text-slate-700 whitespace-nowrap">
                           {record.items.length} kalem · {formatCurrency(calculateRecordTotal(record))}
                         </td>
@@ -1259,7 +1269,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                   <td className="px-3 py-2">
                     <p className="font-medium text-gray-900">{getProductName(row.product.ad, locale)}</p>
                     <p className="text-xs text-gray-500">
-                      Kutu alış: {formatCurrency(row.purchaseBoxCost)} · Çarpan: x{formatNumber(row.multiplier)}
+                      Adet alış: {formatCurrency(row.purchaseBoxCost)} · Çarpan: x{formatNumber(row.multiplier)}
                     </p>
                   </td>
                   <td className="px-3 py-2">
