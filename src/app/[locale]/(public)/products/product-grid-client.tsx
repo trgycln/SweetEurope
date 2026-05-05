@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
 import { FiSearch, FiPackage, FiGrid, FiList, FiChevronRight, FiDownload } from 'react-icons/fi';
-import { LuPackage, LuPackage2, LuWeight, LuDroplets, LuBarcode, LuThermometerSnowflake, LuThermometer, LuTruck, LuShieldCheck } from 'react-icons/lu';
+import { LuPackage, LuPackage2, LuWeight, LuDroplets, LuBarcode, LuThermometerSnowflake, LuThermometer, LuTruck, LuShieldCheck, LuClock } from 'react-icons/lu';
 import { getBadgeText } from '@/lib/labels';
 
 interface ProductGridClientProps {
