@@ -1,0 +1,12 @@
+
+> sweetheaven-germany@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use by process 7868, using available port 3003 instead.
+   ▲ Next.js 15.5.12
+   - Local:        http://localhost:3003
+   - Network:      http://10.162.176.71:3003
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3.7s

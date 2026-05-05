@@ -22,6 +22,8 @@ type ProductRow = {
   kutu_ici_adet: number | null;
   koli_ici_kutu_adet: number | null;
   palet_ici_koli_adet: number | null;
+  koli_ici_adet: number | null;    // FO: adet/koli
+  palet_ici_adet: number | null;   // FO: adet/palet
   tedarikci_id: string | null;
   aktif: boolean;
 };
@@ -110,6 +112,40 @@ function unitMultiplier(product: ProductRow, unitType: UnitType): number {
   if (unitType === 'koli')  return piecesPerBox * boxesPerCase;
   if (unitType === 'palet') return piecesPerBox * boxesPerCase * casesPerPallet;
   return piecesPerBox;
+}
+
+/**
+ * Bir sipariş satırının kaç palet ettiğini hesaplar.
+ * FO ürünleri için palet_ici_adet direkt kullanılır.
+ * SweetHeaven ürünleri için kutu → koli → palet zinciri hesaplanır.
+ * Sonuç kesirli olabilir (örn. 0.5 palet = yarım palet).
+ */
+function calcPallets(product: ProductRow, unitType: UnitType, quantity: number): number {
+  // FO ürünler: palet_ici_adet direkt var
+  const foAdetPerPallet = Number(product.palet_ici_adet || 0);
+  if (foAdetPerPallet > 0) {
+    const foAdetPerCase = Number(product.koli_ici_adet || 1);
+    let totalPieces = 0;
+    if (unitType === 'koli')  totalPieces = quantity * foAdetPerCase;
+    else if (unitType === 'palet') totalPieces = quantity * foAdetPerPallet;
+    else totalPieces = quantity; // adet/kutu
+    return totalPieces / foAdetPerPallet;
+  }
+
+  // SweetHeaven: kutu → koli → palet zinciri
+  const piecesPerBox   = Math.max(1, Number(product.kutu_ici_adet      || 1));
+  const boxesPerCase   = Math.max(1, Number(product.koli_ici_kutu_adet || 1));
+  const casesPerPallet = Math.max(1, Number(product.palet_ici_koli_adet || 1));
+  const piecesPerPallet = piecesPerBox * boxesPerCase * casesPerPallet;
+  const totalPieces = quantity * unitMultiplier(product, unitType);
+  return totalPieces / piecesPerPallet;
+}
+
+function formatPallets(pallets: number): string {
+  if (pallets <= 0) return '—';
+  if (pallets < 0.1) return `~${(pallets * 100).toFixed(0)}%`;
+  if (pallets < 1) return `~${pallets.toFixed(2)} palet`;
+  return `${pallets % 1 === 0 ? pallets.toFixed(0) : pallets.toFixed(2)} palet`;
 }
 
 const DRAFT_STORAGE_KEY = 'tedarikci-siparis-plani:draft:v1';
@@ -402,9 +438,10 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         acc.grandTotal += row.lineTotal;
         acc.totalLines += 1;
         acc.totalUnits += row.quantity;
+        acc.totalPallets += calcPallets(row.product, row.unitType, row.quantity);
         return acc;
       },
-      { grandTotal: 0, totalLines: 0, totalUnits: 0 }
+      { grandTotal: 0, totalLines: 0, totalUnits: 0, totalPallets: 0 }
     );
   }, [enrichedItems]);
 
@@ -1444,6 +1481,20 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                         <span className="ml-1 text-orange-600 font-semibold">· Düzenlenmiş</span>
                       )}
                     </p>
+                    {(() => {
+                      const pallets = calcPallets(row.product, row.unitType, row.quantity);
+                      if (pallets <= 0) return null;
+                      const paletPerUrun = Number(row.product.palet_ici_adet || 0);
+                      const hint = paletPerUrun > 0
+                        ? `1 palet = ${paletPerUrun} adet`
+                        : null;
+                      return (
+                        <p className="text-xs text-indigo-600 font-medium mt-0.5">
+                          🏭 {formatPallets(pallets)}
+                          {hint && <span className="ml-1 text-slate-400 font-normal">({hint})</span>}
+                        </p>
+                      );
+                    })()}
                     {row.isModified && row.indirim_aciklamasi && (
                       <p className="text-xs text-orange-500 mt-0.5">{row.indirim_aciklamasi}</p>
                     )}
@@ -1532,12 +1583,43 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             {enrichedItems.length > 0 && (
               <tfoot>
                 <tr className="bg-gray-50">
-                  <td colSpan={4} className="rounded-bl-lg px-3 py-3 text-sm text-gray-600">
+                  <td colSpan={4} className="px-3 py-3 text-sm text-gray-600">
                     {selectedSupplierName} · {totals.totalLines} kalem · {totals.totalUnits} toplam birim
                   </td>
                   <td className="px-3 py-3 text-right text-sm font-medium text-gray-700">Genel Toplam</td>
                   <td className="px-3 py-3 text-right text-lg font-bold text-primary">{formatCurrency(totals.grandTotal)}</td>
-                  <td className="rounded-br-lg px-3 py-3" />
+                  <td className="px-3 py-3" />
+                </tr>
+                {/* Palet özeti satırı */}
+                <tr className="bg-indigo-50 border-t-2 border-indigo-200">
+                  <td colSpan={7} className="rounded-b-lg px-3 py-3">
+                    <div className="flex flex-wrap items-start gap-x-6 gap-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🏭</span>
+                        <div>
+                          <span className="text-sm font-bold text-indigo-900">Toplam Palet: </span>
+                          <span className="text-lg font-extrabold text-indigo-700">
+                            {totals.totalPallets < 0.01 ? '—' : totals.totalPallets % 1 === 0
+                              ? `${totals.totalPallets.toFixed(0)} palet`
+                              : `~${totals.totalPallets.toFixed(2)} palet`}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-indigo-700">
+                        {enrichedItems.map((row) => {
+                          const pallets = calcPallets(row.product, row.unitType, row.quantity);
+                          if (pallets <= 0) return null;
+                          return (
+                            <span key={row.id} className="whitespace-nowrap">
+                              <span className="font-semibold">{row.product.stok_kodu || getProductName(row.product.ad, locale).slice(0, 20)}</span>
+                              {': '}
+                              <span className="font-bold">{formatPallets(pallets)}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </td>
                 </tr>
               </tfoot>
             )}

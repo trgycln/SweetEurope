@@ -855,13 +855,25 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                         <input type="text" name="stok_kodu" id="stok_kodu" defaultValue={mevcutUrun?.stok_kodu || ''} className="w-full p-2 border rounded-md bg-gray-50 font-mono" />
                     </div>
                     <div>
-                        <label htmlFor="ean_gtin" className={labelClasses}>EAN / Barkod (GTIN-13)</label>
-                        <input type="text" name="ean_gtin" id="ean_gtin"
-                            defaultValue={(mevcutUrun as any)?.ean_gtin || ''}
-                            maxLength={14}
-                            placeholder="örn. 8690123456789"
-                            className="w-full p-2 border rounded-md bg-gray-50 font-mono" />
-                        <p className="mt-1 text-xs text-gray-400">EAN-13 barkod numarası — barkod okuyucu ile sipariş araması</p>
+                        <label htmlFor="ean_gtin" className={labelClasses}>
+                          EAN / Barkod (GTIN-13)
+                          {seciliUrunGami === 'barista-bakery-essentials' && <span className="text-red-500">*</span>}
+                        </label>
+                        <input
+                          type="text"
+                          name="ean_gtin"
+                          id="ean_gtin"
+                          defaultValue={(mevcutUrun as any)?.ean_gtin || ''}
+                          maxLength={14}
+                          placeholder="örn. 8690123456789"
+                          required={seciliUrunGami === 'barista-bakery-essentials'}
+                          className="w-full p-2 border rounded-md bg-gray-50 font-mono"
+                        />
+                        <p className="mt-1 text-xs text-gray-400">
+                          {seciliUrunGami === 'barista-bakery-essentials'
+                            ? 'EAN-13 barkod numarası — B2B sipariş sistemi için gerekli'
+                            : 'EAN-13 barkod numarası — barkod okuyucu ile sipariş araması'}
+                        </p>
                     </div>
                     <div>
                         <label htmlFor="slug" className={labelClasses}>{L.operationsSection.slug} <span className="text-red-500">*</span></label>
@@ -902,34 +914,62 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                                <label htmlFor="alis_fiyat_seviyesi" className={labelClasses}>Alis fiyat seviyesi</label>
-                                <select
-                                    id="alis_fiyat_seviyesi"
-                                    name="alis_fiyat_seviyesi"
-                                    defaultValue={mevcutUrun?.alis_fiyat_seviyesi || (mevcutUrun?.teknik_ozellikler as any)?.alis_fiyat_seviyesi || 'kutu'}
-                                    className="w-full p-2 border rounded-md bg-white"
-                                >
-                                    <option value="adet">Tekil / adet</option>
-                                    <option value="kutu">Kutu</option>
-                                    <option value="koli">Koli</option>
-                                    <option value="palet">Palet</option>
-                                </select>
+                        {seciliUrunGami === 'barista-bakery-essentials' ? (
+                            // FO: Adet bazlı satış (koli_ici_adet, palet_ici_adet)
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label htmlFor="alis_fiyat_seviyesi" className={labelClasses}>Alis fiyat seviyesi</label>
+                                    <select
+                                        id="alis_fiyat_seviyesi"
+                                        name="alis_fiyat_seviyesi"
+                                        defaultValue={mevcutUrun?.alis_fiyat_seviyesi || (mevcutUrun?.teknik_ozellikler as any)?.alis_fiyat_seviyesi || 'adet'}
+                                        className="w-full p-2 border rounded-md bg-white"
+                                    >
+                                        <option value="adet">Tekil / adet</option>
+                                        <option value="koli">Koli</option>
+                                        <option value="palet">Palet</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="koli_ici_adet" className={labelClasses}>1 kolide kac adet? <span className="text-red-500">*</span></label>
+                                    <input type="number" min="1" step="1" name="koli_ici_adet" id="koli_ici_adet" defaultValue={mevcutUrun?.koli_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
+                                </div>
+                                <div>
+                                    <label htmlFor="palet_ici_adet" className={labelClasses}>1 palette kac adet? <span className="text-red-500">*</span></label>
+                                    <input type="number" min="1" step="1" name="palet_ici_adet" id="palet_ici_adet" defaultValue={mevcutUrun?.palet_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
+                                </div>
                             </div>
-                            <div>
-                                <label htmlFor="kutu_ici_adet" className={labelClasses}>1 kutuda kac adet?</label>
-                                <input type="number" min="1" step="1" name="kutu_ici_adet" id="kutu_ici_adet" defaultValue={mevcutUrun?.kutu_ici_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.kutu_ici_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                        ) : (
+                            // SweetHeaven: Kutu bazlı satış (kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet)
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <label htmlFor="alis_fiyat_seviyesi" className={labelClasses}>Alis fiyat seviyesi</label>
+                                    <select
+                                        id="alis_fiyat_seviyesi"
+                                        name="alis_fiyat_seviyesi"
+                                        defaultValue={mevcutUrun?.alis_fiyat_seviyesi || (mevcutUrun?.teknik_ozellikler as any)?.alis_fiyat_seviyesi || 'kutu'}
+                                        className="w-full p-2 border rounded-md bg-white"
+                                    >
+                                        <option value="adet">Tekil / adet</option>
+                                        <option value="kutu">Kutu</option>
+                                        <option value="koli">Koli</option>
+                                        <option value="palet">Palet</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label htmlFor="kutu_ici_adet" className={labelClasses}>1 kutuda kac adet?</label>
+                                    <input type="number" min="1" step="1" name="kutu_ici_adet" id="kutu_ici_adet" defaultValue={mevcutUrun?.kutu_ici_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.kutu_ici_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                                </div>
+                                <div>
+                                    <label htmlFor="koli_ici_kutu_adet" className={labelClasses}>1 kolide kac kutu?</label>
+                                    <input type="number" min="1" step="1" name="koli_ici_kutu_adet" id="koli_ici_kutu_adet" defaultValue={mevcutUrun?.koli_ici_kutu_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.koli_ici_kutu_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                                </div>
+                                <div>
+                                    <label htmlFor="palet_ici_koli_adet" className={labelClasses}>1 palette kac koli?</label>
+                                    <input type="number" min="1" step="1" name="palet_ici_koli_adet" id="palet_ici_koli_adet" defaultValue={mevcutUrun?.palet_ici_koli_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.palet_ici_koli_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
+                                </div>
                             </div>
-                            <div>
-                                <label htmlFor="koli_ici_kutu_adet" className={labelClasses}>1 kolide kac kutu?</label>
-                                <input type="number" min="1" step="1" name="koli_ici_kutu_adet" id="koli_ici_kutu_adet" defaultValue={mevcutUrun?.koli_ici_kutu_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.koli_ici_kutu_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="palet_ici_koli_adet" className={labelClasses}>1 palette kac koli?</label>
-                                <input type="number" min="1" step="1" name="palet_ici_koli_adet" id="palet_ici_koli_adet" defaultValue={mevcutUrun?.palet_ici_koli_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.palet_ici_koli_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                        </div>
+                        )}
 
                         <p className="text-xs text-slate-600">
                             Kayit sonrasi sistem koli/palet toplamlarini otomatik turetir ve fiyat motoru bunlari toplu alim hesaplarinda kullanir.
@@ -1542,6 +1582,173 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
             {/* Technische Details */}
              {isLoadingSablon ? ( <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 text-center"><FiLoader className="animate-spin inline-block text-gray-400 text-2xl" /></div> ) : aktifSablon.length > 0 && ( <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200"><h2 className="font-serif text-2xl font-bold text-primary mb-6">{L.technicalSection.title}</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{aktifSablon.map(alan => (<div key={alan.id}><label htmlFor={`teknik_${alan.alan_adi}`} className={labelClasses}>{alan.gosterim_adi?.[locale] || alan.gosterim_adi?.['tr']}</label><input type={alan.alan_tipi === 'sayı' ? 'number' : 'text'} name={`teknik_${alan.alan_adi}`} id={`teknik_${alan.alan_adi}`} /* @ts-ignore */ defaultValue={mevcutUrun?.teknik_ozellikler?.[alan.alan_adi] || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>))}</div></div> )}
 
+            {/* Produktspezifikation */}
+            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <h2 className="font-serif text-2xl font-bold text-primary mb-6">Produktspezifikation</h2>
+
+              {/* 8a. Hersteller & Herkunft */}
+              <div className="mb-8 pb-6 border-b border-gray-200">
+                <h3 className="font-semibold text-lg text-slate-800 mb-4">Hersteller & Herkunft</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="hersteller_name" className={labelClasses}>Hersteller</label>
+                    <input type="text" name="hersteller_name" id="hersteller_name" defaultValue={mevcutUrun?.hersteller_name || 'OZMER PASTACILIK A.Ş.'} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="hersteller_land" className={labelClasses}>Land</label>
+                    <input type="text" name="hersteller_land" id="hersteller_land" defaultValue={mevcutUrun?.hersteller_land || 'Türkiye'} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="herkunftsland_de" className={labelClasses}>Herkunftsland (DE)</label>
+                    <input type="text" name="herkunftsland_de" id="herkunftsland_de" defaultValue={mevcutUrun?.herkunftsland?.de || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="herkunftsland_en" className={labelClasses}>Herkunftsland (EN)</label>
+                    <input type="text" name="herkunftsland_en" id="herkunftsland_en" defaultValue={mevcutUrun?.herkunftsland?.en || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 8b. Haltbarkeit & Lagerung */}
+              <div className="mb-8 pb-6 border-b border-gray-200">
+                <h3 className="font-semibold text-lg text-slate-800 mb-4">Haltbarkeit & Lagerung</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="haltbarkeit_monate" className={labelClasses}>
+                      Haltbarkeit (Monate)
+                      {seciliUrunGami === 'barista-bakery-essentials' && <span className="text-red-500">*</span>}
+                    </label>
+                    <input
+                      type="number"
+                      name="haltbarkeit_monate"
+                      id="haltbarkeit_monate"
+                      defaultValue={mevcutUrun?.haltbarkeit_monate || ''}
+                      required={seciliUrunGami === 'barista-bakery-essentials'}
+                      className="w-full p-2 border rounded-md bg-gray-50"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="haltbarkeit_nach_oeffnen_tage" className={labelClasses}>Nach Öffnen (Tage)</label>
+                    <input type="number" name="haltbarkeit_nach_oeffnen_tage" id="haltbarkeit_nach_oeffnen_tage" defaultValue={mevcutUrun?.haltbarkeit_nach_oeffnen_tage || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="lagertemperatur_min_celsius" className={labelClasses}>Lagertemp. min (°C)</label>
+                    <input type="number" name="lagertemperatur_min_celsius" id="lagertemperatur_min_celsius" step="0.1" defaultValue={mevcutUrun?.lagertemperatur_min_celsius || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="lagertemperatur_max_celsius" className={labelClasses}>Lagertemp. max (°C)</label>
+                    <input type="number" name="lagertemperatur_max_celsius" id="lagertemperatur_max_celsius" step="0.1" defaultValue={mevcutUrun?.lagertemperatur_max_celsius || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 8c. Bestellung & Lieferung */}
+              <div className="mb-8 pb-6 border-b border-gray-200">
+                <h3 className="font-semibold text-lg text-slate-800 mb-4">Bestellung & Lieferung</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label htmlFor="mindest_bestellmenge" className={labelClasses}>MOQ</label>
+                    <input type="number" name="mindest_bestellmenge" id="mindest_bestellmenge" defaultValue={mevcutUrun?.mindest_bestellmenge || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="mindest_bestellmenge_einheit" className={labelClasses}>MOQ-Einheit</label>
+                    <select name="mindest_bestellmenge_einheit" id="mindest_bestellmenge_einheit" defaultValue={mevcutUrun?.mindest_bestellmenge_einheit || 'Karton'} className="w-full p-2 border rounded-md bg-gray-50">
+                      <option value="Karton">Karton</option>
+                      <option value="Pallet">Pallet</option>
+                      <option value="Stück">Stück</option>
+                      <option value="kg">kg</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="lieferzeit_werktage" className={labelClasses}>Lieferzeit (Tage)</label>
+                    <input type="number" name="lieferzeit_werktage" id="lieferzeit_werktage" defaultValue={mevcutUrun?.lieferzeit_werktage || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 8d. Zertifikate */}
+              <div className="mb-8 pb-6 border-b border-gray-200">
+                <h3 className="font-semibold text-lg text-slate-800 mb-4">Zertifikate</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {['BRC', 'Halal', 'IFS', 'Kosher', 'Bio', 'Vegan_Zert', 'HACCP', 'Rainforest'].map(cert => (
+                    <label key={cert} className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" name={`zertifikat_${cert}`} defaultChecked={(mevcutUrun?.zertifikate || []).includes(cert)} />
+                      <span className="text-sm text-gray-700">{cert}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* 8e. Inhaltsstoffe */}
+              <div className="mb-8 pb-6 border-b border-gray-200">
+                <h3 className="font-semibold text-lg text-slate-800 mb-4">Inhaltsstoffe</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="inhaltsstoffe_de" className={labelClasses}>DE</label>
+                    <textarea name="inhaltsstoffe_de" id="inhaltsstoffe_de" rows={4} defaultValue={mevcutUrun?.inhaltsstoffe?.de || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="inhaltsstoffe_en" className={labelClasses}>EN</label>
+                    <textarea name="inhaltsstoffe_en" id="inhaltsstoffe_en" rows={4} defaultValue={mevcutUrun?.inhaltsstoffe?.en || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 8f. Allergene (EU 14) */}
+              <div className="mb-8 pb-6 border-b border-gray-200">
+                <h3 className="font-semibold text-lg text-slate-800 mb-4">Allergene (EU 14)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">Enthält</p>
+                    {['gluten', 'krebstiere', 'eier', 'fisch', 'erdnuesse', 'soja', 'milch', 'schalen', 'sellerie', 'senf', 'sesam', 'sulfite', 'lupinen', 'weichtiere'].map(allergen => (
+                      <label key={`${allergen}-enth`} className="flex items-center gap-2 cursor-pointer mb-2">
+                        <input type="checkbox" name={`allergen_${allergen}`} defaultChecked={mevcutUrun?.allergene?.[allergen] || false} />
+                        <span className="text-sm text-gray-700 capitalize">{allergen}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">Kann Spuren enthalten</p>
+                    {['gluten', 'krebstiere', 'eier', 'fisch', 'erdnuesse', 'soja', 'milch', 'schalen', 'sellerie', 'senf', 'sesam', 'sulfite', 'lupinen', 'weichtiere'].map(allergen => (
+                      <label key={`${allergen}-spuren`} className="flex items-center gap-2 cursor-pointer mb-2">
+                        <input type="checkbox" name={`allergen_${allergen}_spuren`} defaultChecked={mevcutUrun?.allergene?.[`${allergen}_spuren`] || false} />
+                        <span className="text-sm text-gray-700 capitalize">{allergen}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* 8g. Nährwerte pro 100g */}
+              <div className="mb-8 pb-6 border-b border-gray-200">
+                <h3 className="font-semibold text-lg text-slate-800 mb-4">Nährwerte pro 100 g</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><label htmlFor="naehrwert_energie_kj" className={labelClasses}>Energie (kJ)</label><input type="number" name="naehrwert_energie_kj" id="naehrwert_energie_kj" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.energie_kj || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="naehrwert_energie_kcal" className={labelClasses}>Energie (kcal)</label><input type="number" name="naehrwert_energie_kcal" id="naehrwert_energie_kcal" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.energie_kcal || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="naehrwert_fett" className={labelClasses}>Fett (g)</label><input type="number" name="naehrwert_fett" id="naehrwert_fett" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.fett || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="naehrwert_davon_gesaettigt" className={labelClasses}>Davon gesättigt (g)</label><input type="number" name="naehrwert_davon_gesaettigt" id="naehrwert_davon_gesaettigt" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.davon_gesaettigt || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="naehrwert_kohlenhydrate" className={labelClasses}>Kohlenhydrate (g)</label><input type="number" name="naehrwert_kohlenhydrate" id="naehrwert_kohlenhydrate" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.kohlenhydrate || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="naehrwert_davon_zucker" className={labelClasses}>Davon Zucker (g)</label><input type="number" name="naehrwert_davon_zucker" id="naehrwert_davon_zucker" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.davon_zucker || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="naehrwert_ballaststoffe" className={labelClasses}>Ballaststoffe (g)</label><input type="number" name="naehrwert_ballaststoffe" id="naehrwert_ballaststoffe" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.ballaststoffe || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="naehrwert_eiweiss" className={labelClasses}>Eiweiß (g)</label><input type="number" name="naehrwert_eiweiss" id="naehrwert_eiweiss" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.eiweiss || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="naehrwert_salz" className={labelClasses}>Salz (g)</label><input type="number" name="naehrwert_salz" id="naehrwert_salz" step="0.1" defaultValue={mevcutUrun?.naehrwerte?.pro_100g?.salz || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                </div>
+              </div>
+
+              {/* 8h. Technische Spez. + Datenblatt */}
+              <div>
+                <h3 className="font-semibold text-lg text-slate-800 mb-4">Technische Spezifikation & Datenblatt</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                  <div><label htmlFor="teknik_ph" className={labelClasses}>pH</label><input type="number" name="teknik_ph" id="teknik_ph" step="0.1" defaultValue={mevcutUrun?.teknik_ozellikler?.ph || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div><label htmlFor="teknik_brix" className={labelClasses}>Brix</label><input type="number" name="teknik_brix" id="teknik_brix" step="0.1" defaultValue={mevcutUrun?.teknik_ozellikler?.brix || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
+                  <div className="flex items-end"><label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="teknik_gmo_free" defaultChecked={mevcutUrun?.teknik_ozellikler?.gmo_free || false} /><span className="text-sm text-gray-700">GMO-frei</span></label></div>
+                </div>
+                <div>
+                  <label htmlFor="produktdatenblatt_url" className={labelClasses}>Produktdatenblatt (PDF-URL)</label>
+                  <input type="text" name="produktdatenblatt_url" id="produktdatenblatt_url" placeholder="https://..." defaultValue={mevcutUrun?.produktdatenblatt_url || ''} className="w-full p-2 border rounded-md bg-gray-50" />
+                </div>
+              </div>
+            </div>
 
             {/* Buttons am Ende */}
             <div className="flex justify-end gap-4 pt-6 border-t mt-8">

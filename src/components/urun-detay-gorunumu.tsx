@@ -211,9 +211,473 @@ function AllergenRow({ present, label, icon }: { present: boolean; label: string
     );
 }
 
+// ── FO Product Detail Component ────────────────────────────────────────────────
+
+export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGorunumuProps) {
+    const lc = lx(locale);
+    const urunAdi = getLocalizedName(urun.ad, locale);
+    const aciklama = getLocalizedName(urun.aciklamalar, locale);
+    const kategorieAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, locale) : '';
+    const tekniks: Record<string, unknown> = (urun.teknik_ozellikler as any) ?? {};
+
+    const eanGtin = urun.ean_gtin ?? null;
+    const herkunft = (urun.herkunftsland as Record<string, string> | null) ?? null;
+    const moq: number = urun.mindest_bestellmenge ?? 1;
+    const moqEinheit: string = urun.mindest_bestellmenge_einheit ?? (locale === 'de' ? 'Kiste' : 'Box');
+    const tempMin = urun.lagertemperatur_min_celsius ?? null;
+    const tempMax = urun.lagertemperatur_max_celsius ?? null;
+    const haltbarkeitMonate = urun.haltbarkeit_monate ?? null;
+    const haltbarkeitNachOeffnen = urun.haltbarkeit_nach_oeffnen_tage ?? null;
+    const zertifikate: string[] = urun.zertifikate ?? [];
+    const inhaltsstoffeJson = urun.inhaltsstoffe as Record<string, string> | null;
+    const inhaltsstoffe: string | null = inhaltsstoffeJson?.[locale] ?? inhaltsstoffeJson?.de ?? null;
+    const allergene: Record<string, boolean> = (urun.allergene as Record<string, boolean>) ?? {};
+    const naehrwerte = urun.naehrwerte as {
+        pro_100g?: { energie_kj?: number; energie_kcal?: number; fett?: number; davon_gesaettigt?: number; kohlenhydrate?: number; davon_zucker?: number; ballaststoffe?: number; eiweiss?: number; salz?: number };
+        pro_portion?: { portion_gramm?: number; energie_kj?: number; energie_kcal?: number; fett?: number; davon_gesaettigt?: number; kohlenhydrate?: number; davon_zucker?: number; ballaststoffe?: number; eiweiss?: number; salz?: number };
+    } | null;
+    const lieferzeitWerktage = urun.lieferzeit_werktage ?? null;
+    const produktdatenblattUrl = urun.produktdatenblatt_url ?? null;
+    const herstellerName = urun.hersteller_name ?? null;
+    const herstellerLand = urun.hersteller_land ?? null;
+
+    // FO-specific packaging
+    const unitWeightKg = urun.birim_agirlik_kg ?? null;
+    const unitWeightG = Number(tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj ?? 0) || null;
+    const hacimMl = Number(tekniks.hacim_ml ?? 0) || null;
+    const koliIciAdet = Number(urun.koli_ici_adet ?? 0) || null;
+    const paletIciAdet = Number(urun.palet_ici_adet ?? 0) || null;
+    const paletIciKoli = Number(urun.palet_ici_koli_adet ?? 0) || null;
+
+    const koliAgirlik = (unitWeightKg && koliIciAdet)
+        ? fmtWeight(unitWeightKg * koliIciAdet, null)
+        : (unitWeightG && koliIciAdet)
+        ? fmtWeight((unitWeightG / 1000) * koliIciAdet, null)
+        : null;
+
+    const paletKoliCount = paletIciKoli ?? null;
+    const paletAgirlik = (paletKoliCount && (unitWeightKg || unitWeightG))
+        ? fmtWeight(((unitWeightKg ?? (unitWeightG! / 1000))) * paletKoliCount, null)
+        : null;
+
+    const BADGE_KEYS = ['vegan', 'vegetarisch', 'glutenfrei', 'laktosefrei', 'bio'] as const;
+    const activeBadges = BADGE_KEYS.filter(k => tekniks[k] === true || tekniks[k] === 'true');
+
+    const containsAllergens = ALLERGEN_DEFS.filter(a => allergene[a.key] === true);
+    const traceKeys = ['spuren_gluten', 'spuren_milch', 'spuren_nuesse', 'spuren_soja', 'spuren_sesam'] as const;
+    const traceAllergens = traceKeys.filter(k => allergene[k] === true);
+
+    const traceLabels: Record<string, string> = {
+        spuren_gluten: locale === 'de' ? 'Gluten' : locale === 'tr' ? 'Gluten' : 'Gluten',
+        spuren_milch: locale === 'de' ? 'Milch' : locale === 'tr' ? 'Süt' : 'Milk',
+        spuren_nuesse: locale === 'de' ? 'Schalenfrüchte' : locale === 'tr' ? 'Kuruyemiş' : 'Tree nuts',
+        spuren_soja: locale === 'de' ? 'Soja' : locale === 'tr' ? 'Soya' : 'Soy',
+        spuren_sesam: locale === 'de' ? 'Sesam' : locale === 'tr' ? 'Susam' : 'Sesame',
+    };
+
+    const specRows = ozellikSablonu
+        .map(s => {
+            const val = (tekniks as any)[s.alan_adi];
+            if (val === null || val === undefined || val === '') return null;
+            return { label: getLocalizedName(s.gosterim_adi, locale), val };
+        })
+        .filter(Boolean) as { label: string; val: unknown }[];
+
+    const allImages = [urun.ana_resim_url, ...(urun.galeri_resim_urls ?? [])].filter(Boolean) as string[];
+    const [activeImg, setActiveImg] = React.useState(allImages[0] ?? null);
+
+    const n100 = naehrwerte?.pro_100g;
+    const nPortion = naehrwerte?.pro_portion;
+    const hasNaehrwerte = n100 && (n100.energie_kcal || n100.energie_kj);
+
+    const herkunftLabel = herkunft ? (herkunft[locale] || herkunft.de || herkunft.en || Object.values(herkunft)[0]) : null;
+
+    return (
+        <div className="bg-slate-50 min-h-screen py-8 md:py-14">
+            <div className="container mx-auto px-4 max-w-6xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+
+                    {/* ── Left: Gallery ───────────────────────────────────── */}
+                    <div className="sticky top-24">
+                        {activeImg ? (
+                            <div className="aspect-square w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                <Image src={activeImg} alt={urunAdi} width={800} height={800}
+                                    className="w-full h-full object-cover" priority />
+                            </div>
+                        ) : (
+                            <div className="aspect-square w-full rounded-2xl border bg-slate-100 flex items-center justify-center">
+                                <LuPackage2 className="w-16 h-16 text-slate-300" />
+                            </div>
+                        )}
+                        {allImages.length > 1 && (
+                            <div className="mt-3 grid grid-cols-5 gap-2">
+                                {allImages.map((img, i) => (
+                                    <button key={i} onClick={() => setActiveImg(img)}
+                                        className={`aspect-square overflow-hidden rounded-xl border-2 transition ${activeImg === img ? 'border-slate-700' : 'border-transparent hover:border-slate-300'}`}>
+                                        <Image src={img} alt={`${i + 1}`} width={120} height={120} className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ── Right: Product Info ──────────────────────────────── */}
+                    <div className="flex flex-col gap-6">
+
+                        {/* Category + Title + SKU + EAN */}
+                        <div>
+                            {kategorieAdi && (
+                                <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+                                    <FiTag size={11} /> {kategorieAdi}
+                                </p>
+                            )}
+                            <h1 className="text-3xl md:text-4xl font-serif text-slate-900 leading-tight mb-3">
+                                {urunAdi}
+                            </h1>
+                            <div className="flex flex-wrap gap-3">
+                                {urun.stok_kodu && (
+                                    <p className="flex items-center gap-1.5 text-xs font-mono text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                                        <LuBarcode size={12} />
+                                        <span className="font-semibold text-slate-500">{lc.sku}:</span> {urun.stok_kodu}
+                                    </p>
+                                )}
+                                {eanGtin && (
+                                    <p className="flex items-center gap-1.5 text-xs font-mono text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                                        <LuBarcode size={12} />
+                                        <span className="font-semibold">{lc.ean}:</span> {eanGtin}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* ── Quick Info Bar ─────────────────────────────────── */}
+                        {(moq || lieferzeitWerktage || haltbarkeitMonate) && (
+                            <div className="flex flex-wrap gap-2">
+                                <InfoPill
+                                    icon={<LuPackage size={16} />}
+                                    label={lc.moq}
+                                    value={`${moq} ${moqEinheit}`}
+                                />
+                                {lieferzeitWerktage && (
+                                    <InfoPill
+                                        icon={<LuTruck size={16} />}
+                                        label={lc.delivery}
+                                        value={`${lieferzeitWerktage} ${lc.werktage}`}
+                                    />
+                                )}
+                                {haltbarkeitMonate && (
+                                    <InfoPill
+                                        icon={<LuCalendar size={16} />}
+                                        label={lc.validity}
+                                        value={`${haltbarkeitMonate} ${lc.months}`}
+                                    />
+                                )}
+                            </div>
+                        )}
+
+                        {/* ── Quality badges + Certifications ──────────────── */}
+                        {(activeBadges.length > 0 || zertifikate.length > 0) && (
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{lc.dietary}</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {/* Ohne Gentechnik — FO default */}
+                                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                        {locale === 'de' ? 'Ohne Gentechnik' : locale === 'tr' ? 'GDO-frei' : 'Non-GMO'}
+                                    </span>
+                                    {activeBadges.map(k => (
+                                        <span key={k} className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            {getBadgeText(k, locale as any)}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Certifications ──────────────────────────────── */}
+                        {zertifikate.length > 0 && (
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
+                                    <LuShieldCheck size={11} /> {lc.certifications}
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {zertifikate.map(z => {
+                                        const cfg = ZERTIFIKAT_CONFIG[z];
+                                        if (!cfg) return (
+                                            <span key={z} className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                                {z}
+                                            </span>
+                                        );
+                                        return (
+                                            <span key={z} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border ${cfg.bg}`}>
+                                                <span>{cfg.icon}</span> {cfg.label}
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Description ─────────────────────────────────── */}
+                        {aciklama && (
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{lc.description}</h3>
+                                <div className="text-sm text-slate-600 leading-relaxed"
+                                    dangerouslySetInnerHTML={{ __html: aciklama.replace(/\n/g, '<br />') }} />
+                            </div>
+                        )}
+
+                        {/* ── FO Packaging & Logistics (Stück → Kiste → Palette) ────────────────────────── */}
+                        {(koliIciAdet || paletIciAdet) && (
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
+                                    <LuWarehouse size={11} /> {lc.packaging}
+                                </h3>
+                                <div className="grid grid-cols-3 gap-2.5">
+                                    <TierCard
+                                        icon={<LuPackage size={15} />}
+                                        title={locale === 'de' ? '1 Stück' : '1 Unit'}
+                                        accent="bg-sky-50 border-sky-200 text-sky-800"
+                                        lines={[
+                                            fmtWeight(unitWeightKg, unitWeightG) ? `${fmtWeight(unitWeightKg, unitWeightG)}` : null,
+                                            hacimMl ? `${hacimMl} ml` : null,
+                                        ]}
+                                    />
+                                    <TierCard
+                                        icon={<LuPackage2 size={15} />}
+                                        title={locale === 'de' ? '1 Kiste' : '1 Case'}
+                                        accent="bg-violet-50 border-violet-200 text-violet-800"
+                                        lines={[
+                                            koliIciAdet ? (locale === 'de' ? `${koliIciAdet} Stk.` : `${koliIciAdet} units`) : null,
+                                            koliAgirlik ? `~${koliAgirlik}` : null,
+                                        ]}
+                                    />
+                                    <TierCard
+                                        icon={<LuWarehouse size={15} />}
+                                        title={locale === 'de' ? '1 Palette' : '1 Pallet'}
+                                        accent="bg-slate-100 border-slate-300 text-slate-700"
+                                        lines={[
+                                            paletIciAdet ? (locale === 'de' ? `${paletIciAdet} Stk.` : `${paletIciAdet} units`) : null,
+                                            paletAgirlik ? `~${paletAgirlik}` : null,
+                                        ]}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Bestellinformation ──────────────────────────── */}
+                        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                            <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{lc.orderInfo}</h3>
+                            </div>
+                            <div className="divide-y divide-slate-100">
+                                <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                    <span className="text-slate-500 font-medium">{lc.moq}</span>
+                                    <span className="font-semibold text-slate-800">{moq} {moqEinheit}</span>
+                                </div>
+                                {lieferzeitWerktage && (
+                                    <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                        <span className="text-slate-500 font-medium">{lc.delivery}</span>
+                                        <span className="font-semibold text-slate-800">{lieferzeitWerktage} {lc.werktage}</span>
+                                    </div>
+                                )}
+                                {haltbarkeitMonate && (
+                                    <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                        <span className="text-slate-500 font-medium">{lc.validity}</span>
+                                        <span className="font-semibold text-slate-800">{haltbarkeitMonate} {lc.months}</span>
+                                    </div>
+                                )}
+                                {herkunftLabel && (
+                                    <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                        <span className="text-slate-500 font-medium">{lc.origin}</span>
+                                        <span className="font-semibold text-slate-800">{herkunftLabel}</span>
+                                    </div>
+                                )}
+                                {herstellerName && (
+                                    <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                        <span className="text-slate-500 font-medium">{lc.manufacturer}</span>
+                                        <span className="font-semibold text-slate-800">
+                                            {herstellerName}{herstellerLand ? `, ${herstellerLand}` : ''}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            {produktdatenblattUrl && (
+                                <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
+                                    <a href={produktdatenblattUrl} target="_blank" rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">
+                                        <FiDownload size={14} /> {lc.datasheet}
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ── Zutaten & Allergene (EU LMIV) ──────────────── */}
+                        {(inhaltsstoffe || Object.keys(allergene).length > 0) && (
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
+                                    <FiAlertTriangle size={11} /> {lc.allergens}
+                                </h3>
+
+                                {inhaltsstoffe && (
+                                    <div className="mb-3 p-3.5 rounded-xl border border-slate-200 bg-white">
+                                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">{lc.ingredients}</p>
+                                        <p className="text-xs text-slate-700 leading-relaxed">{inhaltsstoffe}</p>
+                                    </div>
+                                )}
+
+                                {Object.keys(allergene).length > 0 && (
+                                    <div className="space-y-1.5">
+                                        {containsAllergens.length > 0 && (
+                                            <div>
+                                                <p className="text-[10px] font-bold text-red-600 mb-1.5 flex items-center gap-1">
+                                                    <FiAlertTriangle size={9} /> {lc.allergenContains}
+                                                </p>
+                                                <div className="grid grid-cols-2 gap-1">
+                                                    {containsAllergens.map(a => (
+                                                        <AllergenRow
+                                                            key={a.key}
+                                                            present={true}
+                                                            label={(a as any)[locale] || a.de}
+                                                            icon={a.icon}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {containsAllergens.length === 0 && Object.keys(allergene).length >= 10 && (
+                                            <div className="grid grid-cols-2 gap-1">
+                                                {ALLERGEN_DEFS.map(a => (
+                                                    <AllergenRow
+                                                        key={a.key}
+                                                        present={allergene[a.key] === true}
+                                                        label={(a as any)[locale] || a.de}
+                                                        icon={a.icon}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {containsAllergens.length === 0 && Object.keys(allergene).length < 10 && (
+                                            <p className="text-xs text-slate-500 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                                                ✓ {lc.noAllergen}
+                                            </p>
+                                        )}
+
+                                        {traceAllergens.length > 0 && (
+                                            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-start gap-2 mt-2">
+                                                <FiAlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
+                                                <span>{lc.allergenTraces} {traceAllergens.map(k => traceLabels[k]).join(', ')}</span>
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* ── Nährwertangaben (EU LMIV) ─────────────────── */}
+                        {hasNaehrwerte && (
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
+                                    <FiInfo size={11} /> {lc.nutritionTitle}
+                                </h3>
+                                <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
+                                    <div className="grid grid-cols-3 px-4 py-2 bg-slate-50 border-b border-slate-200">
+                                        <span className="text-xs text-slate-400 font-medium col-span-1" />
+                                        <span className="text-xs font-bold text-slate-700 text-right">{lc.nutritionPer100}</span>
+                                        {nPortion && (
+                                            <span className="text-xs font-bold text-slate-700 text-right">
+                                                {lc.nutritionPerPortion}
+                                                {nPortion.portion_gramm && <span className="font-normal text-slate-400 ml-1">({nPortion.portion_gramm} g)</span>}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {[
+                                        { label: lc.energy,   k100: n100?.energie_kj, kPor: nPortion?.energie_kj, unit: 'kJ', extra100: n100?.energie_kcal, extraPor: nPortion?.energie_kcal, extraUnit: 'kcal' },
+                                        { label: lc.fat,      k100: n100?.fett, kPor: nPortion?.fett, unit: 'g' },
+                                        { label: `  ${lc.saturated}`, k100: n100?.davon_gesaettigt, kPor: nPortion?.davon_gesaettigt, unit: 'g', sub: true },
+                                        { label: lc.carbs,    k100: n100?.kohlenhydrate, kPor: nPortion?.kohlenhydrate, unit: 'g' },
+                                        { label: `  ${lc.sugars}`,    k100: n100?.davon_zucker, kPor: nPortion?.davon_zucker, unit: 'g', sub: true },
+                                        { label: lc.fiber,    k100: n100?.ballaststoffe, kPor: nPortion?.ballaststoffe, unit: 'g' },
+                                        { label: lc.protein,  k100: n100?.eiweiss, kPor: nPortion?.eiweiss, unit: 'g' },
+                                        { label: lc.salt,     k100: n100?.salz, kPor: nPortion?.salz, unit: 'g' },
+                                    ].filter(r => r.k100 !== undefined && r.k100 !== null).map((row, i) => (
+                                        <div key={i} className={`grid grid-cols-3 items-center px-4 py-2 border-b border-slate-100 last:border-0 ${(row as any).sub ? 'bg-slate-50' : ''}`}>
+                                            <span className={`text-sm ${(row as any).sub ? 'text-slate-400 text-xs pl-3' : 'text-slate-700 font-medium'}`}>
+                                                {row.label.trim()}
+                                            </span>
+                                            <span className="text-sm font-semibold text-slate-800 text-right">
+                                                {(row as any).extra100
+                                                    ? `${fmtNumber(row.k100)} kJ / ${fmtNumber((row as any).extra100)} kcal`
+                                                    : `${fmtNumber(row.k100)} ${row.unit}`}
+                                            </span>
+                                            {nPortion && (
+                                                <span className="text-sm font-semibold text-slate-600 text-right">
+                                                    {(row as any).extraPor
+                                                        ? `${fmtNumber(row.kPor)} kJ / ${fmtNumber((row as any).extraPor)} kcal`
+                                                        : `${fmtNumber(row.kPor)} ${row.unit}`}
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Category template specs ──────────────────────── */}
+                        {specRows.length > 0 && (
+                            <div>
+                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
+                                    <FiInfo size={11} /> {lc.specs}
+                                </h3>
+                                <div className="divide-y divide-slate-100 rounded-xl border border-slate-200 overflow-hidden bg-white">
+                                    {specRows.map(item => (
+                                        <div key={item.label} className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                            <span className="text-slate-500 font-medium">{item.label}</span>
+                                            <span className="font-semibold text-slate-800 text-right max-w-[55%]">
+                                                {Array.isArray(item.val)
+                                                    ? (item.val as string[]).map(v => getFlavorLabel(v, locale as any)).join(', ')
+                                                    : String(item.val)}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── CTA ──────────────────────────────────────────── */}
+                        <div className="rounded-2xl bg-slate-900 text-white p-5 flex flex-col gap-3">
+                            <p className="text-xs text-slate-400">{lc.contactSub}</p>
+                            <div className="flex flex-wrap gap-2">
+                                <a href={`mailto:info@sweetheaven.de?subject=${encodeURIComponent(`${lc.contact}: ${urunAdi}${urun.stok_kodu ? ` (${urun.stok_kodu})` : ''}`)}`}
+                                    className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-slate-900 font-semibold text-sm px-5 py-3 rounded-xl hover:bg-slate-100 transition-colors min-w-[160px]">
+                                    <FiMail size={14} /> {lc.contact}
+                                </a>
+                                {produktdatenblattUrl && (
+                                    <a href={produktdatenblattUrl} target="_blank" rel="noopener noreferrer"
+                                        className="inline-flex items-center justify-center gap-2 bg-slate-800 text-white font-semibold text-sm px-4 py-3 rounded-xl hover:bg-slate-700 transition-colors border border-slate-700">
+                                        <FiDownload size={14} /> PDF
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGorunumuProps) {
+    // FO ürünlerini yönlendir
+    if (urun.kategoriler?.urun_gami === 'barista-bakery-essentials') {
+        return <FoUrunDetayGorunumu urun={urun} ozellikSablonu={ozellikSablonu} locale={locale} />;
+    }
+
+    // SweetHeaven ürünleri için mevcut bileşen
     const lc = lx(locale);
     const urunAdi = getLocalizedName(urun.ad, locale);
     const aciklama = getLocalizedName(urun.aciklamalar, locale);

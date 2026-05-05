@@ -1,11 +1,5 @@
 import Link from 'next/link';
-import { FiArrowRight, FiCoffee, FiPackage, FiStar, FiSun } from 'react-icons/fi';
-import {
-  PRODUCT_LINE_ORDER,
-  PRODUCT_LINE_META,
-  getProductLineDescription,
-  getProductLineLabel,
-} from '@/lib/product-lines';
+import { FiArrowRight, FiCoffee, FiPackage, FiStar, FiAward, FiGlobe } from 'react-icons/fi';
 
 type Category = {
   id: string;
@@ -19,185 +13,150 @@ interface ProductLineShowcaseProps {
   categories: Category[];
 }
 
-const themes = {
-  'frozen-desserts': {
-    border: 'border-rose-200',
-    surface: 'from-rose-50 via-white to-orange-50',
-    badge: 'bg-rose-600 text-white',
-    eyebrow: 'text-rose-700',
-    chip: 'border-rose-200 bg-white/90 text-slate-700',
-    cta: 'text-rose-700',
-    glow: 'from-rose-300/30 to-orange-300/30',
-    iconWrap: 'bg-rose-100 text-rose-700',
-    statLabel: { de: 'Dessert-Linie', en: 'Dessert line', tr: 'Tatlı hattı', ar: 'خط الحلويات' },
-    points: {
-      de: ['Tiefkühlkette geeignet', 'Portionssicher für HoReCa', 'Ideal für Dessertkarten'],
-      en: ['Cold-chain suitable', 'Portion-safe for HoReCa', 'Ideal for dessert menus'],
-      tr: ['Soğuk zincire uygun', 'HoReCa için porsiyon kontrollü', 'Tatlı menüleri için ideal'],
-      ar: ['مناسب لسلسلة التبريد', 'حصص ثابتة للهوريكا', 'مثالي لقوائم الحلويات'],
-    },
-  },
-  'barista-bakery-essentials': {
-    border: 'border-teal-200',
-    surface: 'from-cyan-50 via-white to-emerald-50',
-    badge: 'bg-teal-600 text-white',
-    eyebrow: 'text-teal-700',
-    chip: 'border-teal-200 bg-white/90 text-slate-700',
-    cta: 'text-teal-700',
-    glow: 'from-cyan-300/30 to-emerald-300/30',
-    iconWrap: 'bg-teal-100 text-teal-700',
-    statLabel: { de: 'Barista-Linie', en: 'Barista line', tr: 'Barista hattı', ar: 'خط الباريستا' },
-    points: {
-      de: ['Für Cafés & Hotels', 'Sirupe, Saucen & Zutaten', 'Schnell für Bar-Abläufe'],
-      en: ['For cafés & hotels', 'Syrups, sauces & ingredients', 'Fast for bar workflows'],
-      tr: ['Kafe ve oteller için', 'Şurup, sos ve hammaddeler', 'Bar operasyonuna uygun'],
-      ar: ['للمقاهي والفنادق', 'شرابات وصلصات ومكونات', 'مناسب لتدفق عمل البار'],
-    },
-  },
-} as const;
+const STATS = [
+  { label: 'Seit 1988', sub: 'Erfahrung' },
+  { label: '100+', sub: 'Exportländer' },
+  { label: '3', sub: 'F&E-Labore' },
+  { label: '4.000', sub: 'Paletten-Lager' },
+];
+
+const CERTS = ['BRC', 'Halal', 'Türk. Patent-Sieger'];
 
 export default function ProductLineShowcase({ locale, categories }: ProductLineShowcaseProps) {
+  // Show only FO (barista-bakery-essentials) categories
+  const foCategories = categories.filter((cat) =>
+    [
+      'sauces-and-ingredients', 'coffee', 'drinks',
+      'powder-drinks', 'fruit-pastes', 'topping-decor-sauces',
+      'topping-ice-cream-sauces', 'special-sauces-940g', 'fruited-sauces',
+      'premium-syrups', 'cocktail-syrups', 'silvery-syrups',
+      'iced-tea-syrup-bases', 'cafe-bar-sauces', 'cocktail-mixes',
+      'foamer', 'special-pistachio-sauce',
+    ].includes(cat.slug || '')
+  );
+  const totalFoProducts = foCategories.reduce((sum, c) => sum + (c.productCount || 0), 0);
+
+  const headline =
+    locale === 'tr'
+      ? 'FO – Barista, Şuruplar & Pastane Malzemeleri'
+      : locale === 'en'
+      ? 'FO – Barista, Syrups & Bakery Essentials'
+      : 'FO – Barista, Sirupe & Backzutaten';
+
+  const subheadline =
+    locale === 'tr'
+      ? 'Premium Şuruplar, Soslar, Toz İçecekler ve Pastane Pastaları – Kafeler, Oteller, Pastaneler ve Dondurmacılar için'
+      : locale === 'en'
+      ? 'Premium Syrups, Sauces, Powder Drinks and Patisserie Pastes – for Cafés, Hotels, Patisseries and Ice Cream Parlours'
+      : 'Premium-Sirupe, Soßen, Pulvergetränke und Konditoreipasten für Cafés, Hotels, Patisserien und Eisdielen';
+
+  const ctaLabel =
+    locale === 'tr' ? 'Ürün Gamını Gör' : locale === 'en' ? 'View Assortment' : 'Sortiment ansehen';
+
+  const productsLabel =
+    locale === 'tr'
+      ? `${totalFoProducts}+ Ürün`
+      : locale === 'en'
+      ? `${totalFoProducts}+ Products`
+      : `${totalFoProducts}+ Produkte`;
+
   return (
-    <section className="bg-gradient-to-b from-amber-50 via-white to-rose-50/40 py-12 px-6">
+    <section className="bg-gradient-to-b from-amber-50 via-white to-teal-50/30 py-12 px-6">
       <div className="container mx-auto">
+        {/* Section eyebrow */}
         <div className="mb-8 text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-accent shadow-sm ring-1 ring-accent/10">
             <FiStar className="h-3.5 w-3.5" />
             {locale === 'de'
-              ? 'Für Cafés, Hotels & Handel'
+              ? 'Für Cafés, Hotels & Gastronomie'
               : locale === 'en'
-                ? 'For cafés, hotels & retail'
-                : locale === 'ar'
-                  ? 'للمقاهي والفنادق والتجزئة'
-                  : 'Kafe, otel ve perakende için'}
+              ? 'For Cafés, Hotels & Food Service'
+              : 'Kafe, Otel ve Gastronomi için'}
           </span>
-          <h2 className="mt-4 text-3xl md:text-4xl font-serif font-bold text-slate-900">
-            {locale === 'de'
-              ? 'Für Desserts, Kaffee & HoReCa-Bedarf'
-              : locale === 'en'
-                ? 'For desserts, coffee & HoReCa supply'
-                : locale === 'ar'
-                  ? 'للحلويات والقهوة واحتياجات الهوريكا'
-                  : 'Tatlı, kahve ve HoReCa ihtiyaçları için'}
-          </h2>
-          <p className="mt-3 text-sm md:text-base text-slate-600 max-w-3xl mx-auto">
-            {locale === 'de'
-              ? 'Desserts und Barista-Lösungen greifen ineinander – wählen Sie die Linie, die zu Ihrem Betrieb passt.'
-              : locale === 'en'
-                ? 'Desserts and barista solutions work hand in hand – start with the line that fits your business best.'
-                : locale === 'ar'
-                  ? 'الحلويات وحلول الباريستا تكمل بعضها بعضًا — ابدأ بخط المنتجات الأنسب لعملك.'
-                  : 'Tatlılar ve barista çözümleri birlikte çalışır; işletmenize uygun ürün gamıyla başlayın.'}
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {PRODUCT_LINE_ORDER.map((line) => {
-            const meta = PRODUCT_LINE_META[line];
-            const theme = themes[line];
-            const lineCategories = categories.filter((category) =>
-              meta.mainCategorySlugs.includes(category.slug || '')
-            );
-            const totalProducts = lineCategories.reduce(
-              (sum, category) => sum + (category.productCount || 0),
-              0
-            );
-            const Icon = line === 'frozen-desserts' ? FiSun : FiCoffee;
-            const localizedPoints = theme.points[locale as keyof typeof theme.points] || theme.points.de;
-            const productCountLabel = locale === 'de'
-              ? `${totalProducts}+ Produkte`
-              : locale === 'en'
-                ? `${totalProducts}+ products`
-                : locale === 'ar'
-                  ? `${totalProducts}+ منتج`
-                  : `${totalProducts}+ ürün`;
+        {/* Single large FO brand card */}
+        <Link
+          href={`/${locale}/products`}
+          className="group relative overflow-hidden rounded-[28px] border border-teal-200 bg-white shadow-[0_18px_50px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_26px_60px_-28px_rgba(15,23,42,0.4)] block"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-300/20 to-emerald-300/20 opacity-70" />
+          <div className="relative bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-8 md:p-10">
+            <div className="flex flex-col lg:flex-row gap-8">
 
-            return (
-              <Link
-                key={line}
-                href={`/${locale}/products?urunGami=${line}`}
-                className={`group relative overflow-hidden rounded-[28px] border ${theme.border} bg-white shadow-[0_18px_50px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_26px_60px_-28px_rgba(15,23,42,0.4)]`}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${theme.glow} opacity-70`} />
-                <div className={`relative h-full bg-gradient-to-br ${theme.surface} p-6 md:p-7`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm ${theme.iconWrap}`}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className={`text-xs uppercase tracking-[0.25em] font-semibold ${theme.eyebrow}`}>
-                          {line === 'frozen-desserts' ? 'Sweet Heaven' : 'FO'}
-                        </p>
-                        <h3 className="mt-2 text-2xl font-bold text-slate-900 md:text-[2rem] leading-tight">
-                          {getProductLineLabel(line, locale as any)}
-                        </h3>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${theme.badge}`}>
-                        {productCountLabel}
-                      </span>
-                      <p className="mt-2 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
-                        {theme.statLabel[locale as keyof typeof theme.statLabel] || theme.statLabel.de}
-                      </p>
-                    </div>
+              {/* Left: Brand info */}
+              <div className="flex-1">
+                <div className="flex items-start gap-4 mb-5">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-100 text-teal-700 shadow-sm flex-shrink-0">
+                    <FiCoffee className="h-6 w-6" />
                   </div>
-
-                  <p className="mt-4 text-sm md:text-[15px] leading-6 text-slate-700">
-                    {getProductLineDescription(line, locale as any)}
-                  </p>
-
-                  <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-                    <FiPackage className="h-4 w-4" />
-                    <span>
-                      {locale === 'de'
-                        ? `${lineCategories.length} relevante Hauptkategorien`
-                        : locale === 'en'
-                          ? `${lineCategories.length} relevant main categories`
-                          : locale === 'ar'
-                            ? `${lineCategories.length} فئات رئيسية مرتبطة`
-                            : `${lineCategories.length} ilgili ana kategori`}
-                    </span>
-                  </div>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {lineCategories.map((category) => (
-                      <span
-                        key={category.id}
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${theme.chip}`}
-                      >
-                        {category.ad?.[locale] || category.ad?.de || category.slug}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 grid gap-2 sm:grid-cols-3">
-                    {localizedPoints.map((point) => (
-                      <div
-                        key={point}
-                        className="rounded-2xl bg-white/80 px-3 py-2 text-xs font-medium text-slate-700 shadow-sm ring-1 ring-slate-200/70"
-                      >
-                        {point}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className={`mt-6 inline-flex items-center gap-2 text-sm font-semibold ${theme.cta}`}>
-                    {locale === 'de'
-                      ? 'Produktlinie öffnen'
-                      : locale === 'en'
-                        ? 'Open product line'
-                        : locale === 'ar'
-                          ? 'افتح خط المنتجات'
-                          : 'Ürün gamını aç'}
-                    <FiArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.25em] font-semibold text-teal-700 mb-1">
+                      FO Food Products · Özmer A.Ş.
+                    </p>
+                    <h3 className="text-2xl md:text-3xl font-bold text-slate-900 leading-tight">
+                      {headline}
+                    </h3>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
-        </div>
+
+                <p className="text-sm md:text-base leading-6 text-slate-700 mb-6 max-w-2xl">
+                  {subheadline}
+                </p>
+
+                {/* Category chips */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {foCategories.slice(0, 8).map((cat) => (
+                    <span
+                      key={cat.id}
+                      className="rounded-full border border-teal-200 bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm"
+                    >
+                      {cat.ad?.[locale] || cat.ad?.de || cat.slug}
+                    </span>
+                  ))}
+                  {foCategories.length > 8 && (
+                    <span className="rounded-full border border-teal-200 bg-white/90 px-3 py-1 text-xs font-semibold text-teal-700 shadow-sm">
+                      +{foCategories.length - 8} weitere
+                    </span>
+                  )}
+                </div>
+
+                <div className="inline-flex items-center gap-2 text-sm font-semibold text-teal-700">
+                  {ctaLabel}
+                  <FiArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </div>
+              </div>
+
+              {/* Right: Stats + product count */}
+              <div className="flex flex-col gap-4 lg:w-64 flex-shrink-0">
+                <div className="bg-teal-600 text-white rounded-2xl px-5 py-4 text-center shadow-sm">
+                  <p className="text-3xl font-bold">{productsLabel}</p>
+                  <p className="text-xs font-medium uppercase tracking-widest text-teal-200 mt-1">
+                    {locale === 'de' ? 'im Sortiment' : locale === 'en' ? 'in catalog' : 'katalogda'}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {STATS.map((s) => (
+                    <div key={s.label} className="bg-white/80 rounded-2xl px-3 py-3 text-center ring-1 ring-slate-200/70">
+                      <p className="text-base font-bold text-slate-900">{s.label}</p>
+                      <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">{s.sub}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Cert badges */}
+                <div className="flex flex-wrap gap-2">
+                  {CERTS.map((c) => (
+                    <span key={c} className="inline-flex items-center gap-1 bg-white border border-teal-200 text-teal-800 text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
+                      <FiAward className="h-3 w-3" /> {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
       </div>
     </section>
   );

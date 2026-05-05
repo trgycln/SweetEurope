@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaSeedling, FaCog, FaShippingFast } from 'react-icons/fa';
+import { FaSeedling, FaCog, FaShippingFast, FaLayerGroup } from 'react-icons/fa';
 
 const QualityPromiseSection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
   const promises = [
@@ -18,6 +18,11 @@ const QualityPromiseSection: React.FC<{ dictionary: any }> = ({ dictionary }) =>
       title: dictionary.qualityPromise.item3.title,
       description: dictionary.qualityPromise.item3.description,
     },
+    {
+      icon: <FaLayerGroup className="text-accent text-4xl" />,
+      title: 'Volumenrabatte ab Palette',
+      description: 'Transparente Palettenpreise mit klarem Stückpreis-Vergleich. Kein verstecktes Pricing.',
+    },
   ];
 
   return (
@@ -26,14 +31,14 @@ const QualityPromiseSection: React.FC<{ dictionary: any }> = ({ dictionary }) =>
         <h2 className="text-4xl md:text-5xl font-serif mb-12 text-primary">
           {dictionary.qualityPromise.title}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {promises.map((promise, index) => (
             <div key={index} className="flex flex-col items-center">
               <div className="mb-4">{promise.icon}</div>
-              <h3 className="text-2xl font-serif font-bold text-primary mb-2">
+              <h3 className="text-xl font-serif font-bold text-primary mb-2">
                 {promise.title}
               </h3>
-              <p className="font-sans text-text-main leading-relaxed max-w-xs">
+              <p className="font-sans text-text-main leading-relaxed text-sm max-w-xs">
                 {promise.description}
               </p>
             </div>

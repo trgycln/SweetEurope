@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import PhilosophySection from "@/components/PhilosophySection";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import ProductLineShowcase from "@/components/ProductLineShowcase";
+import FoBrandAboutSection from "@/components/FoBrandAboutSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import QualityPromiseSection from "@/components/QualityPromiseSection";
 import CertificationsStrip from "@/components/CertificationsStrip";
@@ -133,6 +134,7 @@ export default async function Home({
                 locale={locale}
                 categories={kategorilerWithImages as any} 
             />
+            <FoBrandAboutSection locale={locale} />
             <TestimonialsSection dictionary={dictionary} />
             <QualityPromiseSection dictionary={dictionary} />
             <CertificationsStrip dictionary={dictionary} />

@@ -37,7 +37,16 @@ export const PRODUCT_LINE_META: Record<ProductLineKey, ProductLineMeta> = {
   'barista-bakery-essentials': {
     key: 'barista-bakery-essentials',
     supplierProfile: 'non-cold',
-    mainCategorySlugs: ['sauces-and-ingredients', 'coffee', 'drinks'],
+    mainCategorySlugs: [
+      // Legacy FO categories
+      'sauces-and-ingredients', 'coffee', 'drinks',
+      // New FO-specific categories (active after DB migration)
+      'powder-drinks', 'fruit-pastes', 'topping-decor-sauces',
+      'topping-ice-cream-sauces', 'special-sauces-940g', 'fruited-sauces',
+      'premium-syrups', 'cocktail-syrups', 'silvery-syrups',
+      'iced-tea-syrup-bases', 'cafe-bar-sauces', 'cocktail-mixes',
+      'foamer', 'special-pistachio-sauce',
+    ],
     labels: {
       de: 'Barista, Sirupe & Backzutaten',
       en: 'Barista & Bakery Essentials',

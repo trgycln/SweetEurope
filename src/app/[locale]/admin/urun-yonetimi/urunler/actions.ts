@@ -72,6 +72,55 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     const sonGercekInisMaliyeti = parseDecimal(formData.get('son_gercek_inis_maliyeti_net'));
     const satisFiyatiToptanci = parseDecimal(formData.get('satis_fiyati_toptanci'));
 
+    // Produktspezifikation fields
+    const haltbarkeitMonate = parseInteger(formData.get('haltbarkeit_monate'));
+    const haltbarkeitNachOeffnenTage = parseInteger(formData.get('haltbarkeit_nach_oeffnen_tage'));
+    const lagertemperaturMin = parseDecimal(formData.get('lagertemperatur_min_celsius'));
+    const lagertemperaturMax = parseDecimal(formData.get('lagertemperatur_max_celsius'));
+    const mindesbestellmenge = parseInteger(formData.get('mindest_bestellmenge'));
+    const lieferzeitWerktage = parseInteger(formData.get('lieferzeit_werktage'));
+    const produktdatenblattUrl = (formData.get('produktdatenblatt_url') as string || '').trim() || null;
+    const hersteller = (formData.get('hersteller_name') as string || '').trim() || null;
+    const herstellerLand = (formData.get('hersteller_land') as string || '').trim() || null;
+
+    // Herkunftsland as JSON
+    const herkunftslandJson: { [key: string]: string } = {};
+    herkunftslandJson.de = (formData.get('herkunftsland_de') as string) || '';
+    herkunftslandJson.en = (formData.get('herkunftsland_en') as string) || '';
+
+    // Mindest-Einheit
+    const mindestbestellungEinheit = (formData.get('mindest_bestellmenge_einheit') as string || 'Karton').trim();
+
+    // Zertifikate (string[])
+    const zertifikateArray: string[] = [];
+    const zertList = ['BRC', 'Halal', 'IFS', 'Kosher', 'Bio', 'Vegan_Zert', 'HACCP', 'Rainforest'];
+    zertList.forEach(zert => {
+      if (formData.get(`zertifikat_${zert}`) === 'on') zertifikateArray.push(zert);
+    });
+
+    // Inhaltsstoffe as JSON
+    const inhaltsstoffeJson: { [key: string]: string } = {};
+    inhaltsstoffeJson.de = (formData.get('inhaltsstoffe_de') as string) || '';
+    inhaltsstoffeJson.en = (formData.get('inhaltsstoffe_en') as string) || '';
+
+    // Allergene (28 boolean flags: 14 allergens × 2 columns)
+    const allergeneObj: { [key: string]: boolean } = {};
+    const allergenList = ['gluten', 'krebstiere', 'eier', 'fisch', 'erdnuesse', 'soja', 'milch', 'schalen', 'sellerie', 'senf', 'sesam', 'sulfite', 'lupinen', 'weichtiere'];
+    allergenList.forEach(allergen => {
+      allergeneObj[allergen] = formData.get(`allergen_${allergen}`) === 'on';
+      allergeneObj[`${allergen}_spuren`] = formData.get(`allergen_${allergen}_spuren`) === 'on';
+    });
+
+    // Nährwerte (pro 100g)
+    const naehrwerteObj: { pro_100g?: { [key: string]: number | null } } = {};
+    const naehrFields = ['energie_kj', 'energie_kcal', 'fett', 'davon_gesaettigt', 'kohlenhydrate', 'davon_zucker', 'ballaststoffe', 'eiweiss', 'salz'];
+    const pro100g: { [key: string]: number | null } = {};
+    naehrFields.forEach(field => {
+      const val = parseDecimal(formData.get(`naehrwert_${field}`));
+      pro100g[field] = val;
+    });
+    naehrwerteObj.pro_100g = pro100g;
+
     const data: TablesUpdate<'urunler'> = {
         ad: adJson,
         aciklamalar: aciklamalarJson,
@@ -105,6 +154,21 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
         standart_inis_maliyeti_net: standartInisMaliyeti,
         son_gercek_inis_maliyeti_net: sonGercekInisMaliyeti,
         karlilik_alarm_aktif: formData.get('karlilik_alarm_aktif') === 'on',
+        haltbarkeit_monate: haltbarkeitMonate,
+        haltbarkeit_nach_oeffnen_tage: haltbarkeitNachOeffnenTage,
+        lagertemperatur_min_celsius: lagertemperaturMin,
+        lagertemperatur_max_celsius: lagertemperaturMax,
+        mindest_bestellmenge: mindesbestellmenge,
+        mindest_bestellmenge_einheit: mindestbestellungEinheit,
+        lieferzeit_werktage: lieferzeitWerktage,
+        produktdatenblatt_url: produktdatenblattUrl,
+        hersteller_name: hersteller,
+        hersteller_land: herstellerLand,
+        herkunftsland: Object.keys(herkunftslandJson).some(k => herkunftslandJson[k]) ? herkunftslandJson : null,
+        zertifikate: zertifikateArray.length > 0 ? zertifikateArray : null,
+        inhaltsstoffe: Object.keys(inhaltsstoffeJson).some(k => inhaltsstoffeJson[k]) ? inhaltsstoffeJson : null,
+        allergene: Object.keys(allergeneObj).some(k => allergeneObj[k]) ? allergeneObj : null,
+        naehrwerte: Object.values(pro100g).some(v => v !== null) ? naehrwerteObj : null,
     };
     
     const teknikOzelliklerObj: { [key: string]: any } = {};
@@ -148,6 +212,13 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     if (fireZayiatYuzde !== null) teknikOzelliklerObj.fire_zayiat_orani_yuzde = fireZayiatYuzde;
     if (standartInisMaliyeti !== null) teknikOzelliklerObj.standart_inis_maliyeti_net = standartInisMaliyeti;
     if (sonGercekInisMaliyeti !== null) teknikOzelliklerObj.son_gercek_inis_maliyeti_net = sonGercekInisMaliyeti;
+
+    // Technische Spezifikation (pH, Brix, GMO-free)
+    const ph = parseDecimal(formData.get('teknik_ph'));
+    const brix = parseDecimal(formData.get('teknik_brix'));
+    if (ph !== null) teknikOzelliklerObj.ph = ph;
+    if (brix !== null) teknikOzelliklerObj.brix = brix;
+    teknikOzelliklerObj.gmo_free = formData.get('teknik_gmo_free') === 'on';
 
     // Geschmack hinzufügen (Multiple Checkboxes + Custom)
     const geschmackArray: string[] = [];

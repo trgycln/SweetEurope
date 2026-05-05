@@ -4,11 +4,42 @@ type CategoryLike = {
   ust_kategori_id?: string | null;
 };
 
-export const PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS = ['pizza-and-fast-food'] as const;
+// FO brand's 14 product categories (Barista, Sirupe & Backzutaten)
+export const FO_CATEGORY_SLUGS = [
+  'powder-drinks',
+  'fruit-pastes',
+  'topping-decor-sauces',
+  'topping-ice-cream-sauces',
+  'special-sauces-940g',
+  'fruited-sauces',
+  'premium-syrups',
+  'cocktail-syrups',
+  'silvery-syrups',
+  'iced-tea-syrup-bases',
+  'cafe-bar-sauces',
+  'cocktail-mixes',
+  'foamer',
+  'special-pistachio-sauce',
+] as const;
 
-export const PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER = [
+export type FoCategorySlug = typeof FO_CATEGORY_SLUGS[number];
+
+// Sweet Heaven categories are hidden (is_public: false, status: coming_soon)
+export const SWEET_HEAVEN_CATEGORY_SLUGS = [
   'cakes-and-tarts',
   'cookies-and-muffins',
+] as const;
+
+export const PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS = [
+  'pizza-and-fast-food',
+  'cakes-and-tarts',
+  'cookies-and-muffins',
+] as const;
+
+export const PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER = [
+  // FO-specific categories (active once DB migration runs)
+  ...FO_CATEGORY_SLUGS,
+  // Legacy FO categories kept as fallback until migration completes
   'sauces-and-ingredients',
   'coffee',
   'drinks',

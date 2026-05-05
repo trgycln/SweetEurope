@@ -73,13 +73,13 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
         supabase
             .from('urunler')
             // Kategorie-Daten (ust_kategori_id dahil)
-            .select(`*, kategoriler (id, ad, slug, ust_kategori_id)`) 
+            .select(`*, kategoriler (id, ad, slug, ust_kategori_id, urun_gami)`)
             .eq('slug', slug)
             .eq('aktif', true) // Only show active products
             .single(),
         supabase
             .from('kategoriler')
-            .select('id, slug, ust_kategori_id')
+            .select('id, slug, ust_kategori_id, urun_gami')
     ]);
     
     const urun = urunData as UrunWithKategorie | null;

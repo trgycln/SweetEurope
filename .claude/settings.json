@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\\\\src\" -Recurse -Force | Select-Object @{Name='Path';Expression={$_.FullName -replace [regex]::Escape\\(\"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\\\\\"\\), \"\"}} | Format-List Path | Out-String | Head -100)",
+      "Read(//c/Users/User/Projeler \\(Web Sayfalari\\)/sweetheaven-germany/src/app/**)",
+      "Bash(npm run *)",
+      "Read(//tmp/**)",
+      "WebFetch(domain:localhost)",
+      "Bash(npx supabase *)",
+      "Bash(node scripts/check-categories.js)",
+      "Bash(node scripts/consolidate-categories.js)",
+      "Bash(node scripts/analyze-products-to-migrate.js)",
+      "Bash(node scripts/migrate-products-execute.js)",
+      "Bash(curl -s http://localhost:3000/tr/products)",
+      "Bash(curl -s http://localhost:3000/de/products)",
+      "Bash(pkill -f \"npm run dev\")",
+      "Bash(curl -s http://localhost:3000/de/admin/urun-yonetimi/urunler)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(curl -s http://localhost:3000/tr/admin/urun-yonetimi/tedarikci-siparis-plani)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\User\\.claude\\projects\\c--Users-User-Projeler--Web-Sayfalari--sweetheaven-germany\\memory"
+    ]
+  }
+}

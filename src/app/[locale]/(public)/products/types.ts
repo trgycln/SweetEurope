@@ -41,8 +41,14 @@ export type Urun = Pick<Tables<'urunler'>,
     | 'produktdatenblatt_url'
     | 'hersteller_name'
     | 'hersteller_land'
+    // Pricing & packaging
+    | 'satis_fiyati_musteri'
+    | 'satis_fiyati_toptanci'
+    | 'koli_ici_adet'
+    | 'palet_ici_adet'
+    | 'palet_ici_koli_adet'
 > & {
-    kategoriler?: Pick<Tables<'kategoriler'>, 'ad' | 'slug'> | null;
+    kategoriler?: Pick<Tables<'kategoriler'>, 'ad' | 'slug' | 'urun_gami'> | null;
     ortalama_puan?: number | null;
     degerlendirme_sayisi?: number | null;
 };
