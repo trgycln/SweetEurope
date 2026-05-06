@@ -48,21 +48,54 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
     redirect(`/${locale}/login`);
   }
 
-  const [productsRes, suppliersRes] = await Promise.all([
-    supabase
-      .from('urunler')
-      .select('id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, koli_ici_adet, palet_ici_adet, tedarikci_id, aktif')
-      .order(`ad->>${locale}`, { ascending: true })
-      .limit(5000),
-    supabase.from('tedarikciler').select('id, unvan').order('unvan', { ascending: true }).limit(1000),
-  ]);
+  // Yeni kolonlar (koli_ici_adet, palet_ici_adet) production'da yoksa hata almamak için
+  // önce yeni kolonlarla deneyip, başarısız olursa eski kolonlarla geri düşüyoruz.
+  const PRODUCT_FIELDS_FULL = 'id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, koli_ici_adet, palet_ici_adet, tedarikci_id, aktif';
+  const PRODUCT_FIELDS_LEGACY = 'id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, tedarikci_id, aktif';
+
+  let productsRes = await supabase
+    .from('urunler')
+    .select(PRODUCT_FIELDS_FULL)
+    .order(`ad->>${locale}`, { ascending: true })
+    .limit(5000);
 
   if (productsRes.error) {
-    console.error('Tedarikçi sipariş planı için ürünler yüklenemedi:', productsRes.error);
+    console.error('Ürünler (tam alan) yüklenemedi, geriye düşülüyor:', {
+      message: productsRes.error.message,
+      code: productsRes.error.code,
+      details: productsRes.error.details,
+      hint: productsRes.error.hint,
+    });
+    // Yeni kolonlar yok varsayımıyla legacy alanlarla yeniden dene
+    productsRes = await supabase
+      .from('urunler')
+      .select(PRODUCT_FIELDS_LEGACY)
+      .order(`ad->>${locale}`, { ascending: true })
+      .limit(5000);
+  }
+
+  const suppliersRes = await supabase
+    .from('tedarikciler')
+    .select('id, unvan')
+    .order('unvan', { ascending: true })
+    .limit(1000);
+
+  if (productsRes.error) {
+    console.error('Tedarikçi sipariş planı için ürünler yüklenemedi:', {
+      message: productsRes.error.message,
+      code: productsRes.error.code,
+      details: productsRes.error.details,
+      hint: productsRes.error.hint,
+    });
   }
 
   if (suppliersRes.error) {
-    console.error('Tedarikçi sipariş planı için tedarikçiler yüklenemedi:', suppliersRes.error);
+    console.error('Tedarikçi sipariş planı için tedarikçiler yüklenemedi:', {
+      message: suppliersRes.error.message,
+      code: suppliersRes.error.code,
+      details: suppliersRes.error.details,
+      hint: suppliersRes.error.hint,
+    });
   }
 
   const products = (productsRes.data || []) as ProductRow[];
