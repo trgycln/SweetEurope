@@ -114,14 +114,22 @@ function unitMultiplier(product: ProductRow, unitType: UnitType): number {
 
 /**
  * Bir sipariş satırının kaç palet ettiğini hesaplar.
- * Toplam adet / palet_ici_adet = palet sayısı.
+ * palet_ici_adet = 1 paletteki KOLİ sayısı (adet değil).
+ * Hesap: toplam koli / koli_per_palet = palet sayısı.
  * Sonuç kesirli olabilir (örn. 0.5 palet = yarım palet).
  */
 function calcPallets(product: ProductRow, unitType: UnitType, quantity: number): number {
-  const piecesPerPallet = Number(product.palet_ici_adet || 0);
-  if (piecesPerPallet <= 0) return 0;
-  const totalPieces = quantity * unitMultiplier(product, unitType);
-  return totalPieces / piecesPerPallet;
+  const casesPerPallet = Number(product.palet_ici_adet || 0);   // palet başına koli
+  const piecesPerCase  = Math.max(1, Number(product.koli_ici_adet || 1)); // koli başına adet
+  if (casesPerPallet <= 0) return 0;
+
+  // Seçili birime göre toplam KOLİ sayısını bul
+  let totalCases: number;
+  if      (unitType === 'palet') totalCases = quantity * casesPerPallet;
+  else if (unitType === 'koli')  totalCases = quantity;
+  else                           totalCases = quantity / piecesPerCase; // 'adet' → koli
+
+  return totalCases / casesPerPallet;
 }
 
 function formatPallets(pallets: number): string {
@@ -1476,7 +1484,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                       if (pallets <= 0) return null;
                       const paletPerUrun = Number(row.product.palet_ici_adet || 0);
                       const hint = paletPerUrun > 0
-                        ? `1 palet = ${paletPerUrun} adet`
+                        ? `1 palet = ${paletPerUrun} koli`
                         : null;
                       return (
                         <p className="text-xs text-indigo-600 font-medium mt-0.5">
