@@ -13,8 +13,9 @@ type ProductRow = {
   ad: Record<string, string> | string | null;
   stok_kodu: string | null;
   distributor_alis_fiyati: number;
-  koli_ici_adet: number | null;   // 1 kolide kaç adet
-  palet_ici_adet: number | null;  // 1 palette toplam kaç adet
+  koli_ici_adet: number | null;
+  palet_ici_adet: number | null;
+  birim_agirlik_kg: number | null;
   tedarikci_id: string | null;
   aktif: boolean;
 };
@@ -48,7 +49,7 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
   const [productsRes, suppliersRes] = await Promise.all([
     supabase
       .from('urunler')
-      .select('id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, koli_ici_adet, palet_ici_adet, tedarikci_id, aktif')
+      .select('id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, koli_ici_adet, palet_ici_adet, birim_agirlik_kg, tedarikci_id, aktif')
       .order(`ad->>${locale}`, { ascending: true })
       .limit(5000),
     supabase.from('tedarikciler').select('id, unvan').order('unvan', { ascending: true }).limit(1000),

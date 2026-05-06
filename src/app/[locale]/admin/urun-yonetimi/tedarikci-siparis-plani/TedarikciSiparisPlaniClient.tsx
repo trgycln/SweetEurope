@@ -21,6 +21,7 @@ type ProductRow = {
   distributor_alis_fiyati: number;
   koli_ici_adet: number | null;    // 1 kolide kaç adet
   palet_ici_adet: number | null;   // 1 palette toplam kaç adet
+  birim_agirlik_kg: number | null; // 1 adet ürünün ağırlığı (kg)
   tedarikci_id: string | null;
   aktif: boolean;
 };
@@ -437,9 +438,15 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         acc.totalLines += 1;
         acc.totalUnits += row.quantity;
         acc.totalPallets += calcPallets(row.product, row.unitType, row.quantity);
+        // Toplam ağırlık: sipariş edilen toplam adet × birim ağırlık
+        const unitKg = Number(row.product.birim_agirlik_kg || 0);
+        if (unitKg > 0) {
+          const totalPieces = row.quantity * unitMultiplier(row.product, row.unitType);
+          acc.totalWeightKg += totalPieces * unitKg;
+        }
         return acc;
       },
-      { grandTotal: 0, totalLines: 0, totalUnits: 0, totalPallets: 0 }
+      { grandTotal: 0, totalLines: 0, totalUnits: 0, totalPallets: 0, totalWeightKg: 0 }
     );
   }, [enrichedItems]);
 
@@ -1588,10 +1595,11 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                   <td className="px-3 py-3 text-right text-lg font-bold text-primary">{formatCurrency(totals.grandTotal)}</td>
                   <td className="px-3 py-3" />
                 </tr>
-                {/* Palet özeti satırı */}
+                {/* Palet + Ağırlık özeti satırı */}
                 <tr className="bg-indigo-50 border-t-2 border-indigo-200">
                   <td colSpan={7} className="rounded-b-lg px-3 py-3">
-                    <div className="flex flex-wrap items-start gap-x-6 gap-y-2">
+                    <div className="flex flex-wrap items-start gap-x-8 gap-y-2">
+                      {/* Palet */}
                       <div className="flex items-center gap-2">
                         <span className="text-lg">🏭</span>
                         <div>
@@ -1603,15 +1611,38 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                           </span>
                         </div>
                       </div>
+                      {/* Toplam ağırlık */}
+                      {totals.totalWeightKg > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">⚖️</span>
+                          <div>
+                            <span className="text-sm font-bold text-indigo-900">Toplam Ağırlık: </span>
+                            <span className="text-lg font-extrabold text-indigo-700">
+                              {totals.totalWeightKg >= 1000
+                                ? `${(totals.totalWeightKg / 1000).toFixed(2)} t`
+                                : `${totals.totalWeightKg.toFixed(1)} kg`}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {/* Ürün bazlı palet detayı */}
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-indigo-700">
                         {enrichedItems.map((row) => {
                           const pallets = calcPallets(row.product, row.unitType, row.quantity);
                           if (pallets <= 0) return null;
+                          const unitKg = Number(row.product.birim_agirlik_kg || 0);
+                          const totalPieces = row.quantity * unitMultiplier(row.product, row.unitType);
+                          const rowKg = unitKg > 0 ? totalPieces * unitKg : 0;
                           return (
                             <span key={row.id} className="whitespace-nowrap">
                               <span className="font-semibold">{row.product.stok_kodu || getProductName(row.product.ad, locale).slice(0, 20)}</span>
                               {': '}
                               <span className="font-bold">{formatPallets(pallets)}</span>
+                              {rowKg > 0 && (
+                                <span className="text-slate-500 ml-1">
+                                  ({rowKg >= 1000 ? `${(rowKg / 1000).toFixed(2)} t` : `${rowKg.toFixed(1)} kg`})
+                                </span>
+                              )}
                             </span>
                           );
                         })}
