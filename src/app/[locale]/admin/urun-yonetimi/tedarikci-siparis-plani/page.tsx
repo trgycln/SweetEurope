@@ -13,11 +13,8 @@ type ProductRow = {
   ad: Record<string, string> | string | null;
   stok_kodu: string | null;
   distributor_alis_fiyati: number;
-  kutu_ici_adet: number | null;
-  koli_ici_kutu_adet: number | null;
-  palet_ici_koli_adet: number | null;
-  koli_ici_adet: number | null;
-  palet_ici_adet: number | null;
+  koli_ici_adet: number | null;   // 1 kolide kaç adet
+  palet_ici_adet: number | null;  // 1 palette toplam kaç adet
   tedarikci_id: string | null;
   aktif: boolean;
 };
@@ -48,50 +45,29 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
     redirect(`/${locale}/login`);
   }
 
-  // Yeni kolonlar (koli_ici_adet, palet_ici_adet) production'da yoksa hata almamak için
-  // önce yeni kolonlarla deneyip, başarısız olursa eski kolonlarla geri düşüyoruz.
-  const PRODUCT_FIELDS_FULL = 'id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, koli_ici_adet, palet_ici_adet, tedarikci_id, aktif';
-  const PRODUCT_FIELDS_LEGACY = 'id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, tedarikci_id, aktif';
-
-  // Hata teşhisi için kapsamlı dump
-  const dumpError = (label: string, res: any) => {
-    const e = res?.error;
-    console.error(`[${label}] status=${res?.status} statusText="${res?.statusText}"`);
-    console.error(`[${label}] error type=${typeof e}, keys=${e ? Object.keys(e).join(',') : 'null'}`);
-    console.error(`[${label}] error own props:`, e ? Object.getOwnPropertyNames(e) : 'null');
-    console.error(`[${label}] error JSON:`, (() => { try { return JSON.stringify(e); } catch { return 'unstringifiable'; } })());
-    console.error(`[${label}] message="${e?.message}" code="${e?.code}" details="${e?.details}" hint="${e?.hint}"`);
-    console.error(`[${label}] raw error:`, e);
-  };
-
-  let productsRes: any = await supabase
-    .from('urunler')
-    .select(PRODUCT_FIELDS_FULL)
-    .order(`ad->>${locale}`, { ascending: true })
-    .limit(5000);
-
-  if (productsRes.error) {
-    dumpError('FULL_FIELDS', productsRes);
-    // Yeni kolonlar yok varsayımıyla legacy alanlarla yeniden dene
-    productsRes = await supabase
+  const [productsRes, suppliersRes] = await Promise.all([
+    supabase
       .from('urunler')
-      .select(PRODUCT_FIELDS_LEGACY)
+      .select('id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, koli_ici_adet, palet_ici_adet, tedarikci_id, aktif')
       .order(`ad->>${locale}`, { ascending: true })
-      .limit(5000);
-  }
-
-  const suppliersRes: any = await supabase
-    .from('tedarikciler')
-    .select('id, unvan')
-    .order('unvan', { ascending: true })
-    .limit(1000);
+      .limit(5000),
+    supabase.from('tedarikciler').select('id, unvan').order('unvan', { ascending: true }).limit(1000),
+  ]);
 
   if (productsRes.error) {
-    dumpError('LEGACY_FIELDS', productsRes);
+    console.error('Tedarikçi sipariş planı için ürünler yüklenemedi:', {
+      message: productsRes.error.message,
+      code: productsRes.error.code,
+      details: productsRes.error.details,
+      hint: productsRes.error.hint,
+    });
   }
 
   if (suppliersRes.error) {
-    dumpError('SUPPLIERS', suppliersRes);
+    console.error('Tedarikçi sipariş planı için tedarikçiler yüklenemedi:', {
+      message: suppliersRes.error.message,
+      code: suppliersRes.error.code,
+    });
   }
 
   const products = (productsRes.data || []) as ProductRow[];
@@ -102,7 +78,7 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
       <header className="mb-6">
         <h1 className="font-serif text-4xl font-bold text-primary mb-2">📦 Tedarikçi Sipariş Planı</h1>
         <p className="text-gray-600">
-          Tedarikçiye verilecek sipariş listesini koli, palet veya kutu bazında oluşturun. Bu ekran yalnızca planlama
+          Tedarikçiye verilecek sipariş listesini adet, koli veya palet bazında oluşturun. Bu ekran yalnızca planlama
           içindir, stok kayıtlarını değiştirmez.
         </p>
       </header>

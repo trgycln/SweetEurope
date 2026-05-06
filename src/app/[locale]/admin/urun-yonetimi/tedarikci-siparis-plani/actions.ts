@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 
-type UnitType = 'kutu' | 'koli' | 'palet';
+type UnitType = 'adet' | 'koli' | 'palet';
 
 type PlanItem = {
   id: string;
@@ -291,15 +291,15 @@ export async function deleteSupplierOrderPlanSnapshotAction(recordId: string): P
 }
 
 function calcUnitMultiplier(
-  product: { koli_ici_kutu_adet?: number | null; palet_ici_koli_adet?: number | null },
-  unitType: UnitType
+  product: { koli_ici_adet?: number | null; palet_ici_adet?: number | null },
+  unitType: UnitType | 'kutu'
 ) {
-  const boxesPerCase = Math.max(1, Number(product.koli_ici_kutu_adet || 1));
-  const casesPerPallet = Math.max(1, Number(product.palet_ici_koli_adet || 1));
+  const piecesPerCase   = Math.max(1, Number(product.koli_ici_adet  || 1));
+  const piecesPerPallet = Math.max(1, Number(product.palet_ici_adet || 1));
 
-  if (unitType === 'koli') return boxesPerCase;
-  if (unitType === 'palet') return boxesPerCase * casesPerPallet;
-  return 1;
+  if (unitType === 'koli')  return piecesPerCase;
+  if (unitType === 'palet') return piecesPerPallet;
+  return 1; // 'adet' veya legacy 'kutu'
 }
 
 export async function receiveSupplierOrderAndUpdateStockAction(
@@ -352,14 +352,14 @@ export async function receiveSupplierOrderAndUpdateStockAction(
 
   const { data: productRows, error: productReadError } = await (serviceSupabase as any)
     .from('urunler')
-    .select('id, stok_miktari, koli_ici_kutu_adet, palet_ici_koli_adet')
+    .select('id, stok_miktari, koli_ici_adet, palet_ici_adet')
     .in('id', productIds);
 
   if (productReadError) {
     return { success: false, history: existing, message: productReadError.message };
   }
 
-  const productById = new Map<string, { id: string; stok_miktari?: number | null; koli_ici_kutu_adet?: number | null; palet_ici_koli_adet?: number | null }>();
+  const productById = new Map<string, { id: string; stok_miktari?: number | null; koli_ici_adet?: number | null; palet_ici_adet?: number | null }>();
   for (const p of productRows || []) {
     productById.set(p.id, p);
   }
@@ -406,7 +406,7 @@ export async function receiveSupplierOrderAndUpdateStockAction(
         hareket_tipi: 'stok_artisi',
         kaynak: 'supplier_order_receipt',
         miktar: stockToAdd,
-        birim: 'kutu',
+        birim: 'adet',
         birim_miktar: quantity,
         onceki_stok: currentStock,
         sonraki_stok: nextStock,
@@ -523,18 +523,16 @@ export async function confirmOrderCreateGiderAndLogAction(
   // Ürün bilgilerini toplu çek
   const productIds = [...new Set(record.items.map((i) => i.productId).filter(Boolean))];
   const { data: products } = await (serviceSupabase as any)
-    .from('urunler').select('id, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, stok_kodu, ad')
+    .from('urunler').select('id, distributor_alis_fiyati, koli_ici_adet, palet_ici_adet, stok_kodu, ad')
     .in('id', productIds);
   const prodById = new Map<string, any>((products || []).map((p: any) => [p.id, p]));
 
-  const piecesPerBox   = (p: any) => Math.max(1, Number(p.kutu_ici_adet    || 1));
-  const boxesPerCase   = (p: any) => Math.max(1, Number(p.koli_ici_kutu_adet || 1));
-  const casesPerPallet = (p: any) => Math.max(1, Number(p.palet_ici_koli_adet || 1));
-  const priceMultiplier = (p: any, unitType: UnitType) => {
-    if (unitType === 'kutu')  return piecesPerBox(p);
-    if (unitType === 'koli')  return piecesPerBox(p) * boxesPerCase(p);
-    if (unitType === 'palet') return piecesPerBox(p) * boxesPerCase(p) * casesPerPallet(p);
-    return piecesPerBox(p);
+  const piecesPerCase   = (p: any) => Math.max(1, Number(p.koli_ici_adet  || 1));
+  const piecesPerPallet = (p: any) => Math.max(1, Number(p.palet_ici_adet || 1));
+  const priceMultiplier = (p: any, unitType: UnitType | 'kutu') => {
+    if (unitType === 'koli')  return piecesPerCase(p);
+    if (unitType === 'palet') return piecesPerPallet(p);
+    return 1; // 'adet' veya legacy 'kutu'
   };
 
   // Toplam gerçek maliyet hesapla

@@ -19,13 +19,13 @@ type ProductLite = {
   lojistik_sinifi?: string | null;
   teknik_ozellikler?: Record<string, unknown> | null;
   urun_gami?: string | null;
-  koli_ici_kutu_adet?: number | null;
-  palet_ici_koli_adet?: number | null;
+  koli_ici_adet?: number | null;
+  palet_ici_adet?: number | null;
 };
 
 type PlanItemLite = {
   productId: string;
-  unitType: 'kutu' | 'koli' | 'palet';
+  unitType: 'adet' | 'koli' | 'palet' | 'kutu';
   quantity: number;
 };
 
@@ -158,12 +158,11 @@ function calculateItems(
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-// Helper: convert plan item unit to box count
+// Helper: convert plan item unit to total piece count (adet)
 function planItemToBoxCount(item: PlanItemLite, product: ProductLite): number {
-  if (item.unitType === 'kutu') return item.quantity;
-  if (item.unitType === 'koli') return item.quantity * (product.koli_ici_kutu_adet || 1);
-  if (item.unitType === 'palet')
-    return item.quantity * (product.palet_ici_koli_adet || 1) * (product.koli_ici_kutu_adet || 1);
+  if (item.unitType === 'koli')  return item.quantity * (product.koli_ici_adet || 1);
+  if (item.unitType === 'palet') return item.quantity * (product.palet_ici_adet || 1);
+  // 'adet' veya legacy 'kutu' → 1:1
   return item.quantity;
 }
 

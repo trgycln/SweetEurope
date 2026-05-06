@@ -910,69 +910,36 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                         <div>
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Ambalaj / toptanci hiyerarsisi</p>
                             <p className="mt-1 text-sm text-slate-700">
-                                Bir kutuda kac adet oldugu, bir kolide kac kutu bulundugu ve bir palette kac koli oldugu burada saklanir.
+                                Bir kolide kac adet oldugu ve bir palette toplam kac adet bulundugu burada saklanir.
                             </p>
                         </div>
 
-                        {seciliUrunGami === 'barista-bakery-essentials' ? (
-                            // FO: Adet bazlı satış (koli_ici_adet, palet_ici_adet)
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label htmlFor="alis_fiyat_seviyesi" className={labelClasses}>Alis fiyat seviyesi</label>
-                                    <select
-                                        id="alis_fiyat_seviyesi"
-                                        name="alis_fiyat_seviyesi"
-                                        defaultValue={mevcutUrun?.alis_fiyat_seviyesi || (mevcutUrun?.teknik_ozellikler as any)?.alis_fiyat_seviyesi || 'adet'}
-                                        className="w-full p-2 border rounded-md bg-white"
-                                    >
-                                        <option value="adet">Tekil / adet</option>
-                                        <option value="koli">Koli</option>
-                                        <option value="palet">Palet</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label htmlFor="koli_ici_adet" className={labelClasses}>1 kolide kac adet? <span className="text-red-500">*</span></label>
-                                    <input type="number" min="1" step="1" name="koli_ici_adet" id="koli_ici_adet" defaultValue={mevcutUrun?.koli_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
-                                </div>
-                                <div>
-                                    <label htmlFor="palet_ici_adet" className={labelClasses}>1 palette kac adet? <span className="text-red-500">*</span></label>
-                                    <input type="number" min="1" step="1" name="palet_ici_adet" id="palet_ici_adet" defaultValue={mevcutUrun?.palet_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
-                                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label htmlFor="alis_fiyat_seviyesi" className={labelClasses}>Alis fiyat seviyesi</label>
+                                <select
+                                    id="alis_fiyat_seviyesi"
+                                    name="alis_fiyat_seviyesi"
+                                    defaultValue={mevcutUrun?.alis_fiyat_seviyesi || (mevcutUrun?.teknik_ozellikler as any)?.alis_fiyat_seviyesi || 'adet'}
+                                    className="w-full p-2 border rounded-md bg-white"
+                                >
+                                    <option value="adet">Tekil / adet</option>
+                                    <option value="koli">Koli</option>
+                                    <option value="palet">Palet</option>
+                                </select>
                             </div>
-                        ) : (
-                            // SweetHeaven: Kutu bazlı satış (kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet)
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div>
-                                    <label htmlFor="alis_fiyat_seviyesi" className={labelClasses}>Alis fiyat seviyesi</label>
-                                    <select
-                                        id="alis_fiyat_seviyesi"
-                                        name="alis_fiyat_seviyesi"
-                                        defaultValue={mevcutUrun?.alis_fiyat_seviyesi || (mevcutUrun?.teknik_ozellikler as any)?.alis_fiyat_seviyesi || 'kutu'}
-                                        className="w-full p-2 border rounded-md bg-white"
-                                    >
-                                        <option value="adet">Tekil / adet</option>
-                                        <option value="kutu">Kutu</option>
-                                        <option value="koli">Koli</option>
-                                        <option value="palet">Palet</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label htmlFor="kutu_ici_adet" className={labelClasses}>1 kutuda kac adet?</label>
-                                    <input type="number" min="1" step="1" name="kutu_ici_adet" id="kutu_ici_adet" defaultValue={mevcutUrun?.kutu_ici_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.kutu_ici_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                                </div>
-                                <div>
-                                    <label htmlFor="koli_ici_kutu_adet" className={labelClasses}>1 kolide kac kutu?</label>
-                                    <input type="number" min="1" step="1" name="koli_ici_kutu_adet" id="koli_ici_kutu_adet" defaultValue={mevcutUrun?.koli_ici_kutu_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.koli_ici_kutu_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                                </div>
-                                <div>
-                                    <label htmlFor="palet_ici_koli_adet" className={labelClasses}>1 palette kac koli?</label>
-                                    <input type="number" min="1" step="1" name="palet_ici_koli_adet" id="palet_ici_koli_adet" defaultValue={mevcutUrun?.palet_ici_koli_adet ?? (mevcutUrun?.teknik_ozellikler as any)?.palet_ici_koli_adet ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                                </div>
+                            <div>
+                                <label htmlFor="koli_ici_adet" className={labelClasses}>1 kolide kac adet? <span className="text-red-500">*</span></label>
+                                <input type="number" min="1" step="1" name="koli_ici_adet" id="koli_ici_adet" defaultValue={mevcutUrun?.koli_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
                             </div>
-                        )}
+                            <div>
+                                <label htmlFor="palet_ici_adet" className={labelClasses}>1 palette toplam kac adet? <span className="text-red-500">*</span></label>
+                                <input type="number" min="1" step="1" name="palet_ici_adet" id="palet_ici_adet" defaultValue={mevcutUrun?.palet_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
+                            </div>
+                        </div>
 
                         <p className="text-xs text-slate-600">
-                            Kayit sonrasi sistem koli/palet toplamlarini otomatik turetir ve fiyat motoru bunlari toplu alim hesaplarinda kullanir.
+                            Sistem palet toplamlarini siparis hesaplarinda kullanir. Ornek: 1 kolide 6 adet, 1 palette 125 adet.
                         </p>
                     </div>
 

@@ -57,10 +57,9 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     });
     const galeriUrls = formData.has('galeri_resim_urls[]') ? formData.getAll('galeri_resim_urls[]') as string[] : [];
     const urunGami = ((formData.get('urun_gami') as string) || '').trim() || null;
-    const kutuIciAdet = parseInteger(formData.get('kutu_ici_adet'));
-    const koliIciKutuAdet = parseInteger(formData.get('koli_ici_kutu_adet'));
-    const paletIciKoliAdet = parseInteger(formData.get('palet_ici_koli_adet'));
-    const alisFiyatSeviyesi = ((formData.get('alis_fiyat_seviyesi') as string) || '').trim() || 'kutu';
+    const koliIciAdet = parseInteger(formData.get('koli_ici_adet'));
+    const paletIciAdet = parseInteger(formData.get('palet_ici_adet'));
+    const alisFiyatSeviyesi = ((formData.get('alis_fiyat_seviyesi') as string) || '').trim() || 'adet';
     const birimAgirlikKg = parseDecimal(formData.get('birim_agirlik_kg'));
     const lojistikSinifi = ((formData.get('lojistik_sinifi') as string) || '').trim() || null;
     const gumrukVergiYuzde = parseDecimal(formData.get('gumruk_vergi_orani_yuzde'));
@@ -140,9 +139,8 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
         ana_resim_url: (formData.get('ana_resim_url') as string) || null,
         galeri_resim_urls: galeriUrls,
         urun_gami: urunGami,
-        kutu_ici_adet: kutuIciAdet,
-        koli_ici_kutu_adet: koliIciKutuAdet,
-        palet_ici_koli_adet: paletIciKoliAdet,
+        koli_ici_adet: koliIciAdet,
+        palet_ici_adet: paletIciAdet,
         alis_fiyat_seviyesi: alisFiyatSeviyesi,
         birim_agirlik_kg: birimAgirlikKg,
         lojistik_sinifi: lojistikSinifi,
@@ -194,14 +192,8 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     teknikOzelliklerObj.koruyucusuz = formData.get('eigenschaft_koruyucusuz') === 'on';
     teknikOzelliklerObj.pompa_uyumlu = formData.get('eigenschaft_pompa_uyumlu') === 'on';
     
-    if (kutuIciAdet !== null) teknikOzelliklerObj.kutu_ici_adet = kutuIciAdet;
-    if (koliIciKutuAdet !== null) teknikOzelliklerObj.koli_ici_kutu_adet = koliIciKutuAdet;
-    if (paletIciKoliAdet !== null) teknikOzelliklerObj.palet_ici_koli_adet = paletIciKoliAdet;
-    if (kutuIciAdet !== null && koliIciKutuAdet !== null) teknikOzelliklerObj.koli_ici_adet = kutuIciAdet * koliIciKutuAdet;
-    if (koliIciKutuAdet !== null && paletIciKoliAdet !== null) teknikOzelliklerObj.palet_ici_kutu_adet = koliIciKutuAdet * paletIciKoliAdet;
-    if (kutuIciAdet !== null && koliIciKutuAdet !== null && paletIciKoliAdet !== null) {
-        teknikOzelliklerObj.palet_ici_adet = kutuIciAdet * koliIciKutuAdet * paletIciKoliAdet;
-    }
+    if (koliIciAdet !== null) teknikOzelliklerObj.koli_ici_adet = koliIciAdet;
+    if (paletIciAdet !== null) teknikOzelliklerObj.palet_ici_adet = paletIciAdet;
     teknikOzelliklerObj.alis_fiyat_seviyesi = alisFiyatSeviyesi;
     if (birimAgirlikKg !== null) teknikOzelliklerObj.birim_agirlik_kg = birimAgirlikKg;
     if (lojistikSinifi) teknikOzelliklerObj.lojistik_sinifi = lojistikSinifi;
@@ -257,9 +249,8 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
 function stripUnsupportedUrunColumns<T extends TablesUpdate<'urunler'>>(data: T): TablesUpdate<'urunler'> {
     const {
         urun_gami,
-        kutu_ici_adet,
-        koli_ici_kutu_adet,
-        palet_ici_koli_adet,
+        koli_ici_adet,
+        palet_ici_adet,
         alis_fiyat_seviyesi,
         birim_agirlik_kg,
         lojistik_sinifi,
@@ -425,9 +416,8 @@ export async function updateUrunAction(urunId: string, formData: FormData): Prom
         error.code === 'PGRST204'
         || error.code === '42703'
         || error.message?.includes('urun_gami')
-        || error.message?.includes('kutu_ici_adet')
-        || error.message?.includes('koli_ici_kutu_adet')
-        || error.message?.includes('palet_ici_koli_adet')
+        || error.message?.includes('koli_ici_adet')
+        || error.message?.includes('palet_ici_adet')
         || error.message?.includes('alis_fiyat_seviyesi')
     )) {
         ({ data: updatedData, error } = await supabase
@@ -478,9 +468,8 @@ export async function createUrunAction(formData: FormData): Promise<FormState> {
         error.code === 'PGRST204'
         || error.code === '42703'
         || error.message?.includes('urun_gami')
-        || error.message?.includes('kutu_ici_adet')
-        || error.message?.includes('koli_ici_kutu_adet')
-        || error.message?.includes('palet_ici_koli_adet')
+        || error.message?.includes('koli_ici_adet')
+        || error.message?.includes('palet_ici_adet')
         || error.message?.includes('alis_fiyat_seviyesi')
         || error.message?.includes('birim_agirlik_kg')
         || error.message?.includes('lojistik_sinifi')

@@ -136,7 +136,7 @@ function PackagingInfo({ urun, locale }: { urun: Urun; locale: string }) {
 
     const dilimAdet = Number(tekniks.dilim_adedi || tekniks.porsiyon_sayisi || 0);
     const kutuIciAdet = Number(tekniks.kutu_ici_adet || 0);
-    const koliIciKutu = Number(urun.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu ?? 0);
+    const koliIciKutu = Number(tekniks.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu ?? 0);
     const birimKg = Number(urun.birim_agirlik_kg ?? 0);
     const weightRawG = tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj;
     const numericG = typeof weightRawG === 'number' ? weightRawG : parseFloat(String(weightRawG || ''));
@@ -621,7 +621,7 @@ function CatalogRow({ urun, locale, kategoriAdlariMap }: {
 
     const dilimAdet = Number(tekniks.dilim_adedi || tekniks.porsiyon_sayisi || 0);
     const kutuIciAdet = Number(tekniks.kutu_ici_adet || 0);
-    const koliIciKutu = Number(urun.koli_ici_kutu_adet || tekniks.koli_ici_kutu_adet || tekniks.koli_ici_kutu || 0);
+    const koliIciKutu = Number(tekniks.koli_ici_kutu_adet || tekniks.koli_ici_kutu || 0);
     const birimKg = Number(urun.birim_agirlik_kg || 0);
     const weightRaw = tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj;
     const numericWeight = typeof weightRaw === 'number' ? weightRaw : parseFloat(String(weightRaw || ''));

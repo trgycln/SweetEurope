@@ -19,11 +19,8 @@ type ProductRow = {
   stok_kodu: string | null;
   ean_gtin: string | null;
   distributor_alis_fiyati: number;
-  kutu_ici_adet: number | null;
-  koli_ici_kutu_adet: number | null;
-  palet_ici_koli_adet: number | null;
-  koli_ici_adet: number | null;    // FO: adet/koli
-  palet_ici_adet: number | null;   // FO: adet/palet
+  koli_ici_adet: number | null;    // 1 kolide kaç adet
+  palet_ici_adet: number | null;   // 1 palette toplam kaç adet
   tedarikci_id: string | null;
   aktif: boolean;
 };
@@ -33,7 +30,7 @@ type SupplierRow = {
   unvan: string | null;
 };
 
-type UnitType = 'kutu' | 'koli' | 'palet';
+type UnitType = 'adet' | 'koli' | 'palet';
 
 type PlanItem = {
   id: string;
@@ -101,42 +98,28 @@ function productSearchText(ad: ProductRow['ad'], stok_kodu: string | null, ean: 
   return normalize([...names, stok_kodu || '', ean || ''].join(' '));
 }
 
+/**
+ * Seçili birime göre toplam adet hesaplar.
+ * distributor_alis_fiyati adet başına olduğu için fiyat × adet = satır maliyeti.
+ */
 function unitMultiplier(product: ProductRow, unitType: UnitType): number {
-  // distributor_alis_fiyati = adet başına alış fiyatı
-  // Birim maliyeti = fiyat × (o birimdeki toplam adet sayısı)
-  const piecesPerBox   = Math.max(1, Number(product.kutu_ici_adet      || 1)); // adet/kutu
-  const boxesPerCase   = Math.max(1, Number(product.koli_ici_kutu_adet || 1)); // kutu/koli
-  const casesPerPallet = Math.max(1, Number(product.palet_ici_koli_adet || 1)); // koli/palet
+  const piecesPerCase   = Math.max(1, Number(product.koli_ici_adet  || 1)); // adet/koli
+  const piecesPerPallet = Math.max(1, Number(product.palet_ici_adet || 1)); // adet/palet
 
-  if (unitType === 'kutu')  return piecesPerBox;
-  if (unitType === 'koli')  return piecesPerBox * boxesPerCase;
-  if (unitType === 'palet') return piecesPerBox * boxesPerCase * casesPerPallet;
-  return piecesPerBox;
+  if (unitType === 'adet')  return 1;
+  if (unitType === 'koli')  return piecesPerCase;
+  if (unitType === 'palet') return piecesPerPallet;
+  return 1;
 }
 
 /**
  * Bir sipariş satırının kaç palet ettiğini hesaplar.
- * FO ürünleri için palet_ici_adet direkt kullanılır.
- * SweetHeaven ürünleri için kutu → koli → palet zinciri hesaplanır.
+ * Toplam adet / palet_ici_adet = palet sayısı.
  * Sonuç kesirli olabilir (örn. 0.5 palet = yarım palet).
  */
 function calcPallets(product: ProductRow, unitType: UnitType, quantity: number): number {
-  // FO ürünler: palet_ici_adet direkt var
-  const foAdetPerPallet = Number(product.palet_ici_adet || 0);
-  if (foAdetPerPallet > 0) {
-    const foAdetPerCase = Number(product.koli_ici_adet || 1);
-    let totalPieces = 0;
-    if (unitType === 'koli')  totalPieces = quantity * foAdetPerCase;
-    else if (unitType === 'palet') totalPieces = quantity * foAdetPerPallet;
-    else totalPieces = quantity; // adet/kutu
-    return totalPieces / foAdetPerPallet;
-  }
-
-  // SweetHeaven: kutu → koli → palet zinciri
-  const piecesPerBox   = Math.max(1, Number(product.kutu_ici_adet      || 1));
-  const boxesPerCase   = Math.max(1, Number(product.koli_ici_kutu_adet || 1));
-  const casesPerPallet = Math.max(1, Number(product.palet_ici_koli_adet || 1));
-  const piecesPerPallet = piecesPerBox * boxesPerCase * casesPerPallet;
+  const piecesPerPallet = Number(product.palet_ici_adet || 0);
+  if (piecesPerPallet <= 0) return 0;
   const totalPieces = quantity * unitMultiplier(product, unitType);
   return totalPieces / piecesPerPallet;
 }
@@ -146,6 +129,13 @@ function formatPallets(pallets: number): string {
   if (pallets < 0.1) return `~${(pallets * 100).toFixed(0)}%`;
   if (pallets < 1) return `~${pallets.toFixed(2)} palet`;
   return `${pallets % 1 === 0 ? pallets.toFixed(0) : pallets.toFixed(2)} palet`;
+}
+
+/** Eski 'kutu' draftlarını yeni 'adet' birimine normalize et. */
+function normalizeUnit(u: any): UnitType {
+  if (u === 'kutu') return 'adet';
+  if (u === 'adet' || u === 'koli' || u === 'palet') return u;
+  return 'koli';
 }
 
 const DRAFT_STORAGE_KEY = 'tedarikci-siparis-plani:draft:v1';
@@ -318,9 +308,9 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           if (d.selectedSupplierId) setSelectedSupplierId(d.selectedSupplierId);
           if (typeof d.search === 'string') setSearch(d.search);
           if (d.selectedProductId) setSelectedProductId(d.selectedProductId);
-          if (d.selectedUnitType) setSelectedUnitType(d.selectedUnitType);
+          if (d.selectedUnitType) setSelectedUnitType(normalizeUnit(d.selectedUnitType));
           if (typeof d.selectedQuantity === 'number') setSelectedQuantity(d.selectedQuantity);
-          if (Array.isArray(d.items)) setItems(d.items);
+          if (Array.isArray(d.items)) setItems(d.items.map(it => ({ ...it, unitType: normalizeUnit(it.unitType) })));
           if (d.savedAt) setLastDraftSaveAt(d.savedAt);
         }
 
@@ -356,9 +346,9 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           if (localDraft.selectedSupplierId) setSelectedSupplierId(localDraft.selectedSupplierId);
           if (typeof localDraft.search === 'string') setSearch(localDraft.search);
           if (localDraft.selectedProductId) setSelectedProductId(localDraft.selectedProductId);
-          if (localDraft.selectedUnitType) setSelectedUnitType(localDraft.selectedUnitType);
+          if (localDraft.selectedUnitType) setSelectedUnitType(normalizeUnit(localDraft.selectedUnitType));
           if (typeof localDraft.selectedQuantity === 'number') setSelectedQuantity(localDraft.selectedQuantity);
-          if (Array.isArray(localDraft.items)) setItems(localDraft.items);
+          if (Array.isArray(localDraft.items)) setItems(localDraft.items.map(it => ({ ...it, unitType: normalizeUnit(it.unitType) })));
           if (localDraft.savedAt) setLastDraftSaveAt(localDraft.savedAt);
         }
         if (localHistory.length > 0) setPlanHistory(localHistory);
@@ -1122,7 +1112,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                 onChange={(e) => setSelectedUnitType(e.target.value as UnitType)}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
               >
-                <option value="kutu">Kutu</option>
+                <option value="adet">Adet</option>
                 <option value="koli">Koli</option>
                 <option value="palet">Palet</option>
               </select>
@@ -1162,7 +1152,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                       {product.stok_kodu ? `${product.stok_kodu} – ` : ''}{getProductName(product.ad, locale)}
                       {!product.aktif ? <span className="ml-1 text-xs text-rose-500">(Pasif)</span> : null}
                     </p>
-                    <p className="text-xs text-slate-500">Adet: {formatCurrency(Number(product.distributor_alis_fiyati || 0))} · Kutu: {formatCurrency(Number(product.distributor_alis_fiyati || 0) * Math.max(1, Number(product.kutu_ici_adet || 1)))}</p>
+                    <p className="text-xs text-slate-500">Adet: {formatCurrency(Number(product.distributor_alis_fiyati || 0))} · Koli: {formatCurrency(Number(product.distributor_alis_fiyati || 0) * Math.max(1, Number(product.koli_ici_adet || 1)))}</p>
                   </div>
                   <button
                     type="button"
@@ -1505,7 +1495,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                       onChange={(e) => updateRow(row.id, { unitType: e.target.value as UnitType })}
                       className="rounded-md border border-gray-300 px-2 py-1"
                     >
-                      <option value="kutu">Kutu</option>
+                      <option value="adet">Adet</option>
                       <option value="koli">Koli</option>
                       <option value="palet">Palet</option>
                     </select>

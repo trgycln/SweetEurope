@@ -717,11 +717,7 @@ function isUnsupportedColumnError(error: { code?: string; message?: string } | n
   return error.code === 'PGRST204'
     || error.code === '42703'
     || message.includes('urun_gami')
-    || message.includes('kutu_ici_adet')
-    || message.includes('koli_ici_kutu_adet')
-    || message.includes('palet_ici_koli_adet')
     || message.includes('alis_fiyat_seviyesi')
-    || message.includes('palet_ici_kutu_adet')
     || message.includes('palet_ici_adet')
     || message.includes('koli_ici_adet')
     || message.includes('satis_fiyati_toptanci');
@@ -741,11 +737,7 @@ function formatImportRowLabel(row: ParsedImportRow) {
 function stripUnsupportedProductFields(data: TablesUpdate<'urunler'> | TablesInsert<'urunler'>) {
   const {
     urun_gami,
-    kutu_ici_adet,
-    koli_ici_kutu_adet,
-    palet_ici_koli_adet,
     koli_ici_adet,
-    palet_ici_kutu_adet,
     palet_ici_adet,
     alis_fiyat_seviyesi,
     satis_fiyati_toptanci,
@@ -778,9 +770,8 @@ function buildProductPayload(row: ParsedImportRow, settings: Record<string, unkn
     stok_esigi: 0,
     teknik_ozellikler: specs,
     urun_gami: profileToProductLine(row.profile),
-    kutu_ici_adet: packaging.unitsPerBox,
-    koli_ici_kutu_adet: packaging.boxesPerCase,
-    palet_ici_koli_adet: packaging.casesPerPallet,
+    koli_ici_adet: packaging.unitsPerCase,
+    palet_ici_adet: packaging.unitsPerPallet,
     alis_fiyat_seviyesi: row.purchaseLevel,
   };
 }
@@ -1031,9 +1022,8 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
         urun_gami: profileToProductLine(row.profile),
         teknik_ozellikler: mergedSpecs,
         alis_fiyat_seviyesi: row.purchaseLevel,
-        ...(row.unitsPerBox != null ? { kutu_ici_adet: packaging.unitsPerBox } : {}),
-        ...(row.boxesPerCase != null ? { koli_ici_kutu_adet: packaging.boxesPerCase } : {}),
-        ...(row.casesPerPallet != null ? { palet_ici_koli_adet: packaging.casesPerPallet } : {}),
+        ...(row.boxesPerCase != null && packaging.unitsPerCase ? { koli_ici_adet: packaging.unitsPerCase } : {}),
+        ...(row.casesPerPallet != null && packaging.unitsPerPallet ? { palet_ici_adet: packaging.unitsPerPallet } : {}),
       };
 
       if (resolvedSupplierId && !matchedProduct.tedarikci_id) {

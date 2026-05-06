@@ -22,9 +22,9 @@ export type NaehrwerteData = {
 export type Urun = Pick<Tables<'urunler'>,
     | 'id' | 'ad' | 'slug' | 'ana_resim_url' | 'galeri_resim_urls'
     | 'kategori_id' | 'teknik_ozellikler' | 'urun_gami'
-    | 'koli_ici_kutu_adet' | 'birim_agirlik_kg'
+    | 'birim_agirlik_kg'
     | 'stok_kodu' | 'aciklamalar' | 'lojistik_sinifi'
-    // B2B Germany fields (all now in database.types.ts)
+    // B2B Germany fields
     | 'ean_gtin'
     | 'herkunftsland'
     | 'mindest_bestellmenge'
@@ -41,12 +41,11 @@ export type Urun = Pick<Tables<'urunler'>,
     | 'produktdatenblatt_url'
     | 'hersteller_name'
     | 'hersteller_land'
-    // Pricing & packaging
+    // Pricing & packaging (FO mantığı: adet bazlı)
     | 'satis_fiyati_musteri'
     | 'satis_fiyati_toptanci'
     | 'koli_ici_adet'
     | 'palet_ici_adet'
-    | 'palet_ici_koli_adet'
 > & {
     kategoriler?: Pick<Tables<'kategoriler'>, 'ad' | 'slug' | 'urun_gami'> | null;
     ortalama_puan?: number | null;

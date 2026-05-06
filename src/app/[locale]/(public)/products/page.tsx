@@ -181,7 +181,7 @@ export default async function PublicUrunlerPage({
     tumUrunler.forEach((u: any) => {
         const t = u.teknik_ozellikler || {};
         if (t.dilim_adedi) { const v = parseInt(String(t.dilim_adedi)); if (!isNaN(v)) uniquePorsiyonlar.add(v); }
-        if (t.kutu_ici_adet) { const v = parseInt(String(t.kutu_ici_adet)); if (!isNaN(v)) uniquePorsiyonlar.add(v); }
+        if (t.porsiyon_sayisi) { const v = parseInt(String(t.porsiyon_sayisi)); if (!isNaN(v)) uniquePorsiyonlar.add(v); }
         const h = t.hacim_ml || t.hacim;
         if (h) { const v = parseInt(String(h).replace(/[^\d]/g, '')); if (!isNaN(v)) uniqueHacimler.add(v); }
     });
@@ -247,7 +247,8 @@ export default async function PublicUrunlerPage({
         .select(
             `id, ad, slug, ana_resim_url, galeri_resim_urls,
              kategori_id, ortalama_puan, degerlendirme_sayisi,
-             teknik_ozellikler, aciklamalar, koli_ici_kutu_adet, birim_agirlik_kg,
+             teknik_ozellikler, aciklamalar, birim_agirlik_kg,
+             koli_ici_adet, palet_ici_adet,
              stok_kodu, ean_gtin,
              lagertemperatur_min_celsius, lagertemperatur_max_celsius,
              mindest_bestellmenge, mindest_bestellmenge_einheit,
@@ -260,7 +261,7 @@ export default async function PublicUrunlerPage({
         urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
     }
     if (porsiyonFilter) {
-        urunlerQuery = urunlerQuery.or(`teknik_ozellikler->>dilim_adedi.eq.${porsiyonFilter},teknik_ozellikler->>kutu_ici_adet.eq.${porsiyonFilter}`);
+        urunlerQuery = urunlerQuery.or(`teknik_ozellikler->>dilim_adedi.eq.${porsiyonFilter},teknik_ozellikler->>porsiyon_sayisi.eq.${porsiyonFilter}`);
     }
     if (hacimFilter) {
         urunlerQuery = urunlerQuery.or(`teknik_ozellikler->>hacim_ml.eq.${hacimFilter},teknik_ozellikler->>hacim.eq.${hacimFilter}`);

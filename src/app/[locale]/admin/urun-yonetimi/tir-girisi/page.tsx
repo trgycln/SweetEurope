@@ -39,7 +39,7 @@ export default async function TirGirisiPage({
   let productResponse = await (supabase as any)
     .from('urunler')
     .select(
-      'id, ad, stok_kodu, tedarikci_id, kategori_id, distributor_alis_fiyati, standart_inis_maliyeti_net, birim_agirlik_kg, lojistik_sinifi, teknik_ozellikler, aktif, urun_gami, koli_ici_kutu_adet, palet_ici_koli_adet',
+      'id, ad, stok_kodu, tedarikci_id, kategori_id, distributor_alis_fiyati, standart_inis_maliyeti_net, birim_agirlik_kg, lojistik_sinifi, teknik_ozellikler, aktif, urun_gami, koli_ici_adet, palet_ici_adet',
     )
     .eq('aktif', true)
     .order('ad->tr', { ascending: true })
