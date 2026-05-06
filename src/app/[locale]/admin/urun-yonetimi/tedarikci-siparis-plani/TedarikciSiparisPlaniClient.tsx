@@ -474,7 +474,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     }, 0);
   };
 
-  const addItemByProduct = (productId: string, unitType = selectedUnitType, quantity = selectedQuantity) => {
+  const addItemByProduct = (productId: string, unitType: UnitType = 'koli', quantity = selectedQuantity) => {
     if (!selectedSupplierId) {
       toast.warning('Önce tedarikçi seçmelisiniz.');
       return;
