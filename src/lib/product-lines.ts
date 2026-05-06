@@ -38,9 +38,17 @@ export const PRODUCT_LINE_META: Record<ProductLineKey, ProductLineMeta> = {
     key: 'barista-bakery-essentials',
     supplierProfile: 'non-cold',
     mainCategorySlugs: [
-      // Legacy FO categories
+      // Yeni ana kategoriler (20260506 migration)
+      'icecek-bazlari', 'soslar-toppingler', 'suruplar', 'surulebilir-ozel',
+      // Yeni alt kategoriler
+      'toz-icecek-bazlari', 'iced-tea-bazlari', 'kokteyl-karisimlari',
+      'dondurma-soslari', 'pastry-pastalari', 'dekoratif-toppingler',
+      'meyve-soslari', 'cafe-bar-soslari-pro', 'kucuk-format-siseler',
+      'premium-suruplar', 'kokteyl-suruplar', 'anadolu-efsaneleri',
+      'silvery-suruplar', 'foamer-ozel',
+      'surulebilir-kremler', 'dubai-serisi', 'bulk-formatlar',
+      // Legacy — ürün taşınana kadar korunuyor
       'sauces-and-ingredients', 'coffee', 'drinks',
-      // New FO-specific categories (active after DB migration)
       'powder-drinks', 'fruit-pastes', 'topping-decor-sauces',
       'topping-ice-cream-sauces', 'special-sauces-940g', 'fruited-sauces',
       'premium-syrups', 'cocktail-syrups', 'silvery-syrups',
