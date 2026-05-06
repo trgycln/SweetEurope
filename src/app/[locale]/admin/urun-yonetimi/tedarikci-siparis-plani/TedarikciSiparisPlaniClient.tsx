@@ -1611,20 +1611,20 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                           </span>
                         </div>
                       </div>
-                      {/* Toplam ağırlık */}
-                      {totals.totalWeightKg > 0 && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">⚖️</span>
-                          <div>
-                            <span className="text-sm font-bold text-indigo-900">Toplam Ağırlık: </span>
-                            <span className="text-lg font-extrabold text-indigo-700">
-                              {totals.totalWeightKg >= 1000
+                      {/* Toplam ağırlık — her zaman göster */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">⚖️</span>
+                        <div>
+                          <span className="text-sm font-bold text-indigo-900">Toplam Ağırlık: </span>
+                          <span className="text-lg font-extrabold text-indigo-700">
+                            {totals.totalWeightKg <= 0
+                              ? <span className="text-slate-400 text-sm font-normal">(ürünlerde birim_agirlik_kg girilmemiş)</span>
+                              : totals.totalWeightKg >= 1000
                                 ? `${(totals.totalWeightKg / 1000).toFixed(2)} t`
                                 : `${totals.totalWeightKg.toFixed(1)} kg`}
-                            </span>
-                          </div>
+                          </span>
                         </div>
-                      )}
+                      </div>
                       {/* Ürün bazlı palet detayı */}
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-indigo-700">
                         {enrichedItems.map((row) => {
