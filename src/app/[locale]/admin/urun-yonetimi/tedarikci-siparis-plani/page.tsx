@@ -53,19 +53,25 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
   const PRODUCT_FIELDS_FULL = 'id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, koli_ici_adet, palet_ici_adet, tedarikci_id, aktif';
   const PRODUCT_FIELDS_LEGACY = 'id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, kutu_ici_adet, koli_ici_kutu_adet, palet_ici_koli_adet, tedarikci_id, aktif';
 
-  let productsRes = await supabase
+  // Hata teşhisi için kapsamlı dump
+  const dumpError = (label: string, res: any) => {
+    const e = res?.error;
+    console.error(`[${label}] status=${res?.status} statusText="${res?.statusText}"`);
+    console.error(`[${label}] error type=${typeof e}, keys=${e ? Object.keys(e).join(',') : 'null'}`);
+    console.error(`[${label}] error own props:`, e ? Object.getOwnPropertyNames(e) : 'null');
+    console.error(`[${label}] error JSON:`, (() => { try { return JSON.stringify(e); } catch { return 'unstringifiable'; } })());
+    console.error(`[${label}] message="${e?.message}" code="${e?.code}" details="${e?.details}" hint="${e?.hint}"`);
+    console.error(`[${label}] raw error:`, e);
+  };
+
+  let productsRes: any = await supabase
     .from('urunler')
     .select(PRODUCT_FIELDS_FULL)
     .order(`ad->>${locale}`, { ascending: true })
     .limit(5000);
 
   if (productsRes.error) {
-    console.error('Ürünler (tam alan) yüklenemedi, geriye düşülüyor:', {
-      message: productsRes.error.message,
-      code: productsRes.error.code,
-      details: productsRes.error.details,
-      hint: productsRes.error.hint,
-    });
+    dumpError('FULL_FIELDS', productsRes);
     // Yeni kolonlar yok varsayımıyla legacy alanlarla yeniden dene
     productsRes = await supabase
       .from('urunler')
@@ -74,28 +80,18 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
       .limit(5000);
   }
 
-  const suppliersRes = await supabase
+  const suppliersRes: any = await supabase
     .from('tedarikciler')
     .select('id, unvan')
     .order('unvan', { ascending: true })
     .limit(1000);
 
   if (productsRes.error) {
-    console.error('Tedarikçi sipariş planı için ürünler yüklenemedi:', {
-      message: productsRes.error.message,
-      code: productsRes.error.code,
-      details: productsRes.error.details,
-      hint: productsRes.error.hint,
-    });
+    dumpError('LEGACY_FIELDS', productsRes);
   }
 
   if (suppliersRes.error) {
-    console.error('Tedarikçi sipariş planı için tedarikçiler yüklenemedi:', {
-      message: suppliersRes.error.message,
-      code: suppliersRes.error.code,
-      details: suppliersRes.error.details,
-      hint: suppliersRes.error.hint,
-    });
+    dumpError('SUPPLIERS', suppliersRes);
   }
 
   const products = (productsRes.data || []) as ProductRow[];
