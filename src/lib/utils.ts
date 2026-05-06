@@ -130,8 +130,12 @@ export function buildProductSearchText(ad: any): string {
  * `or()` filtre stringi üretir. Tüm diller (tr, de, en, ar) ve stok_kodu dahildir.
  */
 export function buildSupabaseSearchFilter(rawQuery: string): string {
-    const escaped = rawQuery.replace(/[%_]/g, (c) => `\\${c}`);  // LIKE özel karakterleri kaç
-    const normalized = normalizeForSearch(rawQuery).replace(/[%_]/g, (c) => `\\${c}`);
+    // PostgREST or() filter'da virgül delimiter, parantez group ayracı olarak kullanılır.
+    // Bu karakterleri LIKE wildcard'ı _ ile değiştir (herhangi bir tek karakter eşleşir).
+    const sanitizeForPostgrest = (s: string) => s.replace(/[,()]/g, '_');
+
+    const escaped = sanitizeForPostgrest(rawQuery.replace(/[%_]/g, (c) => `\\${c}`));
+    const normalized = sanitizeForPostgrest(normalizeForSearch(rawQuery).replace(/[%_]/g, (c) => `\\${c}`));
 
     // ASCII karakterlerin Türkçe karşılıkları (c→ç, g→ğ, s→ş, o→ö, u→ü, i→ı)
     const CHAR_MAP: Record<string, string> = {

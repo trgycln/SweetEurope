@@ -177,8 +177,8 @@ export default async function UrunlerListPage({
          .range(from, to);
 
     if (error) {
-        console.error("Fehler beim Laden der Produkte:", error);
-        return <div className="p-6 text-red-500 bg-red-50 rounded-lg">{content.loadError || 'Produktliste konnte nicht geladen werden. Details in Server-Logs.'}</div>;
+        console.error("Fehler beim Laden der Produkte:", error.message, error.code);
+        return <div className="p-6 text-red-500 bg-red-50 rounded-lg">{content.loadError || 'Produktliste konnte nicht geladen werden.'}</div>;
     }
 
     const urunListesi: UrunWithKategori[] = (urunler as any[]) || [];
