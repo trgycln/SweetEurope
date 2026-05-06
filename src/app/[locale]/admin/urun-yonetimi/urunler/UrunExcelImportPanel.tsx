@@ -12,17 +12,26 @@ type SupplierOption = { id: string; unvan: string | null };
 interface Props { locale: string; suppliers: SupplierOption[]; }
 
 const COLUMN_GUIDE = [
-  { col: 'Urun Kodu / Stok Kodu', desc: 'Ürünü eşleştirmek için birincil anahtar. Zorunlu değil ama önerilir.', tag: 'Eşleştirme' },
-  { col: 'urun_adi_tr / urun_adi_de / urun_adi_en / urun_adi_ar', desc: 'Dil bazlı isimler. Boş bırakılan diller eski değerini korur.', tag: 'İsim' },
-  { col: 'aciklama_tr / aciklama_de / aciklama_en / aciklama_ar', desc: 'Dil bazlı açıklamalar. Boş bırakılan diller eski değerini korur.', tag: 'Açıklama' },
-  { col: 'Distributor Alis Fiyati', desc: 'Alış fiyatı (EUR). Belirtilirse satış fiyatları otomatik hesaplanır.', tag: 'Fiyat' },
-  { col: 'satis_fiyati_musteri', desc: 'Kafe/tüketici satış fiyatını doğrudan gir. Alış fiyatından hesaplamak yerine kullanılır.', tag: 'Fiyat' },
-  { col: 'satis_fiyati_alt_bayi', desc: 'Alt bayi satış fiyatını doğrudan gir.', tag: 'Fiyat' },
-  { col: 'stok_miktari', desc: 'Mevcut stok miktarını doğrudan günceller.', tag: 'Stok' },
-  { col: 'aktif', desc: '1/true/evet = aktif, 0/false/hayir = pasif. Boş bırakılırsa değişmez.', tag: 'Durum' },
-  { col: 'Kutu Ici', desc: 'Bir kutudaki birim sayısı (adet/dilim). Fiyat seviyesi tespitinde kullanılır.', tag: 'Paketleme' },
-  { col: 'Tedarikci', desc: 'Tedarikçi adı veya marka. Otomatik eşleştirilir, boş ise değişmez.', tag: 'Tedarikçi' },
-  { col: 'Kategori / Alt Kategori', desc: 'Kategori adı. Sistem fuzzy eşleştirme yapar; eşleşme bulunamazsa mevcut kategori korunur.', tag: 'Kategori' },
+  { col: 'stok_kodu', desc: 'Birincil eşleştirme anahtarı. Aynı kod yeniden yüklenirse güncelleme yapılır, yoksa yeni ürün oluşturulur.', tag: 'Eşleştirme' },
+  { col: 'urun_adi_de / urun_adi_tr / urun_adi_en', desc: 'Dil bazlı isimler. Boş bırakılan dil eski değerini korur.', tag: 'İsim' },
+  { col: 'aciklama_de / aciklama_tr', desc: 'Dil bazlı açıklamalar. Boş bırakılırsa eski değer korunur.', tag: 'Açıklama' },
+  { col: 'distributoralisfiyati', desc: 'Alış fiyatı €/adet. Belirtilirse satış fiyatları otomatik hesaplanır.', tag: 'Fiyat' },
+  { col: 'alis_fiyat_seviyesi', desc: 'adet / koli / palet. Alış fiyatının hangi birime ait olduğunu belirtir.', tag: 'Fiyat' },
+  { col: 'satis_fiyati_musteri', desc: 'Satış fiyatını manuel gir. Boşsa alış fiyatından otomatik hesaplanır.', tag: 'Fiyat' },
+  { col: 'koli_ici_adet', desc: '1 kolide kaç adet ürün var. FO mantığı: koli_ici_adet × palet_ici_koli = palet başına toplam.', tag: 'Ambalaj' },
+  { col: 'paleticikoli', desc: '1 paletteki koli sayısı.', tag: 'Ambalaj' },
+  { col: 'ean_gtin', desc: 'EAN-13 barkod numarası. Almanya B2B sistemleri için zorunlu.', tag: 'Lojistik' },
+  { col: 'haltbarkeit_monate', desc: 'Raf ömrü (ay). FO ürünleri için zorunlu bilgi.', tag: 'Lojistik' },
+  { col: 'mindest_bestellmenge / mindest_bestellmenge_einheit', desc: 'Minimum sipariş miktarı ve birimi (Kiste, Palette, Stk.).', tag: 'Lojistik' },
+  { col: 'hersteller_name / hersteller_land', desc: 'Üretici firma adı ve ülkesi.', tag: 'Lojistik' },
+  { col: 'herkunftsland_de', desc: 'Menşei ülke Almanca. Almanya LMIV gereği.', tag: 'Lojistik' },
+  { col: 'vegan / glutenfrei / laktosefrei / bio / ohne_zucker / katkisiz / koruyucusuz / pompa_uyumlu / halal', desc: '1 = Evet, 0 = Hayır. Boş bırakılırsa eski değer korunur.', tag: 'Özellik' },
+  { col: 'inhaltsstoffe_de / inhaltsstoffe_tr', desc: 'İçindekiler listesi. Almancası LMIV (AB gıda etiketi mevzuatı) gereği zorunlu.', tag: 'Besin' },
+  { col: 'naehrwert_energie_kj / kcal / fett / kohlenhydrate / zucker / eiweiss / salz', desc: '100g başına besin değerleri. Almanya B2B için zorunlu.', tag: 'Besin' },
+  { col: 'stok_miktari', desc: 'Mevcut stok miktarını doğrudan günceller. Boşsa değişmez.', tag: 'Stok' },
+  { col: 'aktif', desc: '1 = aktif, 0 = pasif. Boşsa değişmez.', tag: 'Durum' },
+  { col: 'tedarikci', desc: 'Tedarikçi adı. Sistem fuzzy eşleştirme yapar.', tag: 'Tedarikçi' },
+  { col: 'kategori / alt_kategori', desc: 'Kategori adı. Fuzzy eşleştirme yapar; bulunamazsa mevcut kategori korunur.', tag: 'Kategori' },
 ];
 
 const TAG_COLORS: Record<string, string> = {
@@ -32,7 +41,10 @@ const TAG_COLORS: Record<string, string> = {
   'Fiyat': 'bg-emerald-100 text-emerald-800',
   'Stok': 'bg-amber-100 text-amber-800',
   'Durum': 'bg-slate-100 text-slate-700',
-  'Paketleme': 'bg-rose-100 text-rose-800',
+  'Ambalaj': 'bg-rose-100 text-rose-800',
+  'Lojistik': 'bg-orange-100 text-orange-800',
+  'Özellik': 'bg-teal-100 text-teal-800',
+  'Besin': 'bg-purple-100 text-purple-800',
   'Tedarikçi': 'bg-orange-100 text-orange-800',
   'Kategori': 'bg-indigo-100 text-indigo-800',
 };
@@ -152,13 +164,14 @@ export default function UrunExcelImportPanel({ locale, suppliers }: Props) {
             {isPending ? 'İşleniyor...' : 'İçe Aktar'}
           </button>
           <div className="flex gap-1.5">
-            <Link href="/templates/toptanci-urun-import-sablonu.xlsx" target="_blank"
-              className="flex-1 inline-flex items-center justify-center gap-1 rounded border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600">
-              <FiDownload size={11} /> XLSX
+            <Link href="/api/admin/fo-import-sablon" target="_blank"
+              className="flex-1 inline-flex items-center justify-center gap-1 rounded border border-emerald-300 bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-800"
+              title="FO ürünleri için hazır şablon (örnek verilerle + açıklama sayfası)">
+              <FiDownload size={11} /> XLSX Şablon
             </Link>
-            <Link href="/templates/toptanci-urun-import-sablonu.csv" target="_blank"
+            <Link href="/templates/fo-urun-import-sablonu.csv" target="_blank"
               className="flex-1 inline-flex items-center justify-center gap-1 rounded border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600">
-              <FiDownload size={11} /> CSV
+              <FiDownload size={11} /> CSV Şablon
             </Link>
           </div>
         </div>

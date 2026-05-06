@@ -46,14 +46,44 @@ type ParsedImportRow = {
   purchasePrice: number | null;
   purchaseLevel: PurchaseLevel;
   unitsPerBox: number | null;
-  boxesPerCase: number | null;
-  casesPerPallet: number | null;
+  boxesPerCase: number | null;   // FO: koli_ici_adet
+  casesPerPallet: number | null; // FO: palet_ici_adet (koli-per-pallet)
   profile: SupplierProfile;
   // Direct values (bypass auto-calculation when present)
   directCustomerPrice: number | null;
   directAltBayiPrice: number | null;
   directStockQty: number | null;
   directAktif: boolean | null;
+  // FO-specific fields
+  eanGtin: string | null;
+  haltbarkeitMonate: number | null;
+  mindestBestellmenge: number | null;
+  mindestBestellmengeEinheit: string | null;
+  herstellerName: string | null;
+  herstellerLand: string | null;
+  herkunftslandDe: string | null;
+  lagertemperaturMax: number | null;
+  // Quality badges (→ teknik_ozellikler)
+  isVegan: boolean | null;
+  isGlutenfrei: boolean | null;
+  isLaktosefrei: boolean | null;
+  isBio: boolean | null;
+  isOhneZucker: boolean | null;
+  isKatkisiz: boolean | null;
+  isKoruyucusuz: boolean | null;
+  isPompaUyumlu: boolean | null;
+  // Certifications (→ zertifikate array)
+  isHalal: boolean | null;
+  // Ingredients & nutrition
+  inhaltsstoffeDe: string | null;
+  inhaltsstoffeTr: string | null;
+  naehrwertEnergieKj: number | null;
+  naehrwertEnergieKcal: number | null;
+  naehrwertFett: number | null;
+  naehrwertKohlenhydrate: number | null;
+  naehrwertZucker: number | null;
+  naehrwertEiweiss: number | null;
+  naehrwertSalz: number | null;
 };
 
 type SupplierRow = {
@@ -120,6 +150,33 @@ const CUSTOMER_PRICE_HEADERS = ['satisfiyatimusteri', 'musterifiyati', 'kafefiya
 const ALT_BAYI_PRICE_HEADERS = ['satisfiyatialtbayi', 'altbayifiyati', 'resellerPrice', 'tier1price'];
 const STOCK_QTY_HEADERS = ['stokmiktari', 'stok', 'stockquantity', 'quantity', 'qty', 'miktar'];
 const AKTIF_HEADERS = ['aktif', 'active', 'durum', 'status', 'enabled'];
+// FO-specific column headers
+const EAN_HEADERS = ['ean', 'gtin', 'eangtin', 'barkod', 'barcode', 'ean13'];
+const HALTBARKEIT_HEADERS = ['haltbarkeitmonat', 'haltbarkeit', 'rafomruay', 'rafomru', 'shelflifemonths', 'mhd'];
+const MOQ_HEADERS = ['mindestbestellmenge', 'moq', 'minsiparis', 'minorder'];
+const MOQ_EINHEIT_HEADERS = ['mindestbestellmengeeinheit', 'moqunit', 'minsiparibirim', 'orderunit'];
+const HERSTELLER_HEADERS = ['herstellername', 'uretici', 'manufacturer', 'marke'];
+const HERSTELLER_LAND_HEADERS = ['herstellerland', 'ureticilke', 'manufacturercountry', 'productionland'];
+const HERKUNFT_HEADERS = ['herkunftslandde', 'herkunft', 'menseiulke', 'countryoforigin', 'ulke'];
+const MAX_TEMP_HEADERS = ['lagertemperaturmax', 'maxtemp', 'maxtemperatur', 'depolarmasicakligi'];
+const VEGAN_HEADERS = ['vegan'];
+const GLUTENFREI_HEADERS = ['glutenfrei', 'glutensiz', 'glutenfree'];
+const LAKTOSEFREI_HEADERS = ['laktosefrei', 'laktosuz', 'lactosefree'];
+const BIO_HEADERS = ['bio', 'organik', 'organic'];
+const OHNE_ZUCKER_HEADERS = ['ohnezucker', 'sekersiz', 'sugarfree'];
+const KATKISIZ_HEADERS = ['katkisiz', 'katkisizlar', 'noadditives', 'additivefree'];
+const KORUYUCUSUZ_HEADERS = ['koruyucusuz', 'preservativefree'];
+const POMPA_UYUMLU_HEADERS = ['pompauyumlu', 'pumpengeeignet', 'pumpcompatible'];
+const HALAL_HEADERS = ['halal'];
+const INHALTSSTOFFE_DE_HEADERS = ['inhaltsstoffede', 'icindekimlerde', 'ingredientsde', 'zutaten'];
+const INHALTSSTOFFE_TR_HEADERS = ['inhaltsstoffetr', 'icindekimlertr', 'ingredientstr', 'icindekiler'];
+const NAEHRWERT_KJ_HEADERS = ['naehrwertenergie', 'energiekj', 'energikj', 'kj'];
+const NAEHRWERT_KCAL_HEADERS = ['naehrwertkcal', 'energiekcal', 'enerjikcal', 'kcal', 'kalori'];
+const NAEHRWERT_FETT_HEADERS = ['naehrwertfett', 'fett', 'yag', 'fat'];
+const NAEHRWERT_KH_HEADERS = ['naehrwertkohlenhydrate', 'kohlenhydrate', 'karbonhidrat', 'carbohydrates', 'carbs'];
+const NAEHRWERT_ZUCKER_HEADERS = ['naehrwertzucker', 'zucker', 'seker', 'sugar'];
+const NAEHRWERT_EIWEISS_HEADERS = ['naehrwerteiweiss', 'eiweiss', 'protein', 'protien'];
+const NAEHRWERT_SALZ_HEADERS = ['naehrwertsalz', 'salz', 'tuz', 'salt'];
 const CATEGORY_STOP_WORDS = new Set(['ve', 'ile', 'the', 'and', 'urun', 'urunler', 'kategori', 'main', 'sub', 'ana', 'alt']);
 const CATEGORY_ALIAS_SLUGS: Record<string, string[]> = {
   purevepastalar: ['bakery-fillings', 'sauces-and-ingredients'],
@@ -324,6 +381,33 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
     altBayiPrice: findColumnIndex(header, ALT_BAYI_PRICE_HEADERS),
     stockQty: findColumnIndex(header, STOCK_QTY_HEADERS),
     aktif: findColumnIndex(header, AKTIF_HEADERS),
+    // FO-specific
+    ean: findColumnIndex(header, EAN_HEADERS),
+    haltbarkeit: findColumnIndex(header, HALTBARKEIT_HEADERS),
+    moq: findColumnIndex(header, MOQ_HEADERS),
+    moqEinheit: findColumnIndex(header, MOQ_EINHEIT_HEADERS),
+    hersteller: findColumnIndex(header, HERSTELLER_HEADERS),
+    herstellerLand: findColumnIndex(header, HERSTELLER_LAND_HEADERS),
+    herkunft: findColumnIndex(header, HERKUNFT_HEADERS),
+    maxTemp: findColumnIndex(header, MAX_TEMP_HEADERS),
+    vegan: findColumnIndex(header, VEGAN_HEADERS),
+    glutenfrei: findColumnIndex(header, GLUTENFREI_HEADERS),
+    laktosefrei: findColumnIndex(header, LAKTOSEFREI_HEADERS),
+    bio: findColumnIndex(header, BIO_HEADERS),
+    ohneZucker: findColumnIndex(header, OHNE_ZUCKER_HEADERS),
+    katkisiz: findColumnIndex(header, KATKISIZ_HEADERS),
+    koruyucusuz: findColumnIndex(header, KORUYUCUSUZ_HEADERS),
+    pompaUyumlu: findColumnIndex(header, POMPA_UYUMLU_HEADERS),
+    halal: findColumnIndex(header, HALAL_HEADERS),
+    inhaltsstoffeDe: findColumnIndex(header, INHALTSSTOFFE_DE_HEADERS),
+    inhaltsstoffeTr: findColumnIndex(header, INHALTSSTOFFE_TR_HEADERS),
+    naehrwertKj: findColumnIndex(header, NAEHRWERT_KJ_HEADERS),
+    naehrwertKcal: findColumnIndex(header, NAEHRWERT_KCAL_HEADERS),
+    naehrwertFett: findColumnIndex(header, NAEHRWERT_FETT_HEADERS),
+    naehrwertKh: findColumnIndex(header, NAEHRWERT_KH_HEADERS),
+    naehrwertZucker: findColumnIndex(header, NAEHRWERT_ZUCKER_HEADERS),
+    naehrwertEiweiss: findColumnIndex(header, NAEHRWERT_EIWEISS_HEADERS),
+    naehrwertSalz: findColumnIndex(header, NAEHRWERT_SALZ_HEADERS),
   };
 
   if (indexes.stockCode == null && indexes.productName == null && indexes.productNameTr == null) {
@@ -404,6 +488,23 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
       return null;
     })() : null;
 
+    // Helper: parse boolean flag cells (1/true/evet/yes → true, 0/false/hayir/no → false, empty → null)
+    const parseBool = (idx: number | null): boolean | null => {
+      if (idx == null) return null;
+      const raw = normalizeText(row[idx]);
+      if (!raw) return null;
+      if (['1', 'true', 'yes', 'evet', 'x', 'var', 'evet', 'aktif'].includes(raw)) return true;
+      if (['0', 'false', 'no', 'hayir', 'yok', 'pasif'].includes(raw)) return false;
+      return null;
+    };
+    const getStr = (idx: number | null): string | null =>
+      idx != null ? valueOrNull(String(row[idx] || '')) : null;
+    const getNum = (idx: number | null): number | null => {
+      if (idx == null) return null;
+      const parsed = moneyToNumber(row[idx]);
+      return parsed != null && parsed > 0 ? parsed : null;
+    };
+
     parsedRows.push({
       rowNumber: index + 1,
       stockCode,
@@ -423,6 +524,33 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
       directAltBayiPrice,
       directStockQty,
       directAktif,
+      // FO-specific
+      eanGtin: getStr(indexes.ean),
+      haltbarkeitMonate: indexes.haltbarkeit != null ? toInteger(row[indexes.haltbarkeit]) : null,
+      mindestBestellmenge: indexes.moq != null ? toInteger(row[indexes.moq]) : null,
+      mindestBestellmengeEinheit: getStr(indexes.moqEinheit),
+      herstellerName: getStr(indexes.hersteller),
+      herstellerLand: getStr(indexes.herstellerLand),
+      herkunftslandDe: getStr(indexes.herkunft),
+      lagertemperaturMax: getNum(indexes.maxTemp),
+      isVegan: parseBool(indexes.vegan),
+      isGlutenfrei: parseBool(indexes.glutenfrei),
+      isLaktosefrei: parseBool(indexes.laktosefrei),
+      isBio: parseBool(indexes.bio),
+      isOhneZucker: parseBool(indexes.ohneZucker),
+      isKatkisiz: parseBool(indexes.katkisiz),
+      isKoruyucusuz: parseBool(indexes.koruyucusuz),
+      isPompaUyumlu: parseBool(indexes.pompaUyumlu),
+      isHalal: parseBool(indexes.halal),
+      inhaltsstoffeDe: getStr(indexes.inhaltsstoffeDe),
+      inhaltsstoffeTr: getStr(indexes.inhaltsstoffeTr),
+      naehrwertEnergieKj: getNum(indexes.naehrwertKj),
+      naehrwertEnergieKcal: getNum(indexes.naehrwertKcal),
+      naehrwertFett: getNum(indexes.naehrwertFett),
+      naehrwertKohlenhydrate: getNum(indexes.naehrwertKh),
+      naehrwertZucker: getNum(indexes.naehrwertZucker),
+      naehrwertEiweiss: getNum(indexes.naehrwertEiweiss),
+      naehrwertSalz: getNum(indexes.naehrwertSalz),
     });
   }
 
@@ -473,27 +601,19 @@ function normalizePurchaseToBoxPrice(row: ParsedImportRow): number | null {
 }
 
 function mergePackagingIntoSpecs(existing: Record<string, unknown> | null, row: ParsedImportRow) {
-  const packaging = normalizePackaging(row);
   const next = existing && typeof existing === 'object' ? { ...existing } : {};
 
-  // Only overwrite when the value was explicitly provided (non-null) in the Excel.
-  // Empty cells parse to null — never let null default to 1 and overwrite real data.
-  if (row.unitsPerBox != null) {
-    next.kutu_ici_adet = packaging.unitsPerBox;
-    next.dilim_sayisi = packaging.unitsPerBox;
-    next.porsiyon_sayisi = packaging.unitsPerBox;
-    next.slice_count = packaging.unitsPerBox;
-  }
-  if (row.boxesPerCase != null) {
-    next.koli_ici_kutu_adet = packaging.boxesPerCase;
-    next.koli_ici_adet = packaging.unitsPerCase;
-  }
-  if (row.casesPerPallet != null) {
-    next.palet_ici_koli_adet = packaging.casesPerPallet;
-    next.palet_ici_kutu_adet = packaging.boxesPerPallet;
-    next.palet_ici_adet = packaging.unitsPerPallet;
-  }
   next.alis_fiyat_seviyesi = row.purchaseLevel;
+
+  // FO quality badges → teknik_ozellikler
+  if (row.isVegan != null) next.vegan = row.isVegan;
+  if (row.isGlutenfrei != null) next.glutenfrei = row.isGlutenfrei;
+  if (row.isLaktosefrei != null) next.laktosefrei = row.isLaktosefrei;
+  if (row.isBio != null) next.bio = row.isBio;
+  if (row.isOhneZucker != null) next.ohne_zucker = row.isOhneZucker;
+  if (row.isKatkisiz != null) next.katkisiz = row.isKatkisiz;
+  if (row.isKoruyucusuz != null) next.koruyucusuz = row.isKoruyucusuz;
+  if (row.isPompaUyumlu != null) next.pompa_uyumlu = row.isPompaUyumlu;
 
   return next;
 }
@@ -747,12 +867,47 @@ function stripUnsupportedProductFields(data: TablesUpdate<'urunler'> | TablesIns
   return fallbackData;
 }
 
+function buildNaehrwertePayload(row: ParsedImportRow): Record<string, unknown> | null {
+  const hasAny = row.naehrwertEnergieKj != null || row.naehrwertEnergieKcal != null
+    || row.naehrwertFett != null || row.naehrwertKohlenhydrate != null
+    || row.naehrwertZucker != null || row.naehrwertEiweiss != null || row.naehrwertSalz != null;
+  if (!hasAny) return null;
+  return {
+    pro_100g: {
+      ...(row.naehrwertEnergieKj != null ? { energie_kj: row.naehrwertEnergieKj } : {}),
+      ...(row.naehrwertEnergieKcal != null ? { energie_kcal: row.naehrwertEnergieKcal } : {}),
+      ...(row.naehrwertFett != null ? { fett: row.naehrwertFett } : {}),
+      ...(row.naehrwertKohlenhydrate != null ? { kohlenhydrate: row.naehrwertKohlenhydrate } : {}),
+      ...(row.naehrwertZucker != null ? { davon_zucker: row.naehrwertZucker } : {}),
+      ...(row.naehrwertEiweiss != null ? { eiweiss: row.naehrwertEiweiss } : {}),
+      ...(row.naehrwertSalz != null ? { salz: row.naehrwertSalz } : {}),
+    },
+  };
+}
+
+function buildZertifikatePayload(row: ParsedImportRow): string[] | null {
+  const certs: string[] = [];
+  if (row.isHalal === true) certs.push('Halal');
+  if (row.isBio === true) certs.push('Bio');
+  return certs.length > 0 ? certs : null;
+}
+
+function buildInhaltsstoffePayload(row: ParsedImportRow): Record<string, string> | null {
+  if (!row.inhaltsstoffeDe && !row.inhaltsstoffeTr) return null;
+  return {
+    ...(row.inhaltsstoffeDe ? { de: row.inhaltsstoffeDe } : {}),
+    ...(row.inhaltsstoffeTr ? { tr: row.inhaltsstoffeTr } : {}),
+  };
+}
+
 function buildProductPayload(row: ParsedImportRow, settings: Record<string, unknown>, categoryId?: string | null, supplierId?: string | null): TablesInsert<'urunler'> {
   const pricePerBox = normalizePurchaseToBoxPrice(row) ?? 0;
   const pricing = calculateNetSales(pricePerBox, row.profile, settings);
   const specs = mergePackagingIntoSpecs(null, row);
-  const packaging = normalizePackaging(row);
   const displayName = row.productName || row.stockCode || `urun-${row.rowNumber}`;
+  const naehrwerte = buildNaehrwertePayload(row);
+  const zertifikate = buildZertifikatePayload(row);
+  const inhaltsstoffe = buildInhaltsstoffePayload(row);
 
   return {
     ad: buildLocalizedNameJson(row),
@@ -770,9 +925,21 @@ function buildProductPayload(row: ParsedImportRow, settings: Record<string, unkn
     stok_esigi: 0,
     teknik_ozellikler: specs,
     urun_gami: profileToProductLine(row.profile),
-    koli_ici_adet: packaging.unitsPerCase,
-    palet_ici_adet: packaging.unitsPerPallet,
+    koli_ici_adet: row.boxesPerCase,
+    palet_ici_adet: row.casesPerPallet,
     alis_fiyat_seviyesi: row.purchaseLevel,
+    // FO-specific
+    ...(row.eanGtin ? { ean_gtin: row.eanGtin } : {}),
+    ...(row.haltbarkeitMonate != null ? { haltbarkeit_monate: row.haltbarkeitMonate } : {}),
+    ...(row.mindestBestellmenge != null ? { mindest_bestellmenge: row.mindestBestellmenge } : {}),
+    ...(row.mindestBestellmengeEinheit ? { mindest_bestellmenge_einheit: row.mindestBestellmengeEinheit } : {}),
+    ...(row.herstellerName ? { hersteller_name: row.herstellerName } : {}),
+    ...(row.herstellerLand ? { hersteller_land: row.herstellerLand } : {}),
+    ...(row.herkunftslandDe ? { herkunftsland: { de: row.herkunftslandDe } } : {}),
+    ...(row.lagertemperaturMax != null ? { lagertemperatur_max_celsius: row.lagertemperaturMax } : {}),
+    ...(naehrwerte ? { naehrwerte } : {}),
+    ...(zertifikate ? { zertifikate } : {}),
+    ...(inhaltsstoffe ? { inhaltsstoffe } : {}),
   };
 }
 
@@ -1072,6 +1239,27 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
       if (row.directAktif != null) {
         updateData.aktif = row.directAktif;
       }
+
+      // FO-specific fields (only update if non-empty in Excel)
+      if (row.eanGtin) updateData.ean_gtin = row.eanGtin;
+      if (row.haltbarkeitMonate != null) updateData.haltbarkeit_monate = row.haltbarkeitMonate;
+      if (row.mindestBestellmenge != null) updateData.mindest_bestellmenge = row.mindestBestellmenge;
+      if (row.mindestBestellmengeEinheit) updateData.mindest_bestellmenge_einheit = row.mindestBestellmengeEinheit;
+      if (row.herstellerName) updateData.hersteller_name = row.herstellerName;
+      if (row.herstellerLand) updateData.hersteller_land = row.herstellerLand;
+      if (row.herkunftslandDe) updateData.herkunftsland = { de: row.herkunftslandDe };
+      if (row.lagertemperaturMax != null) updateData.lagertemperatur_max_celsius = row.lagertemperaturMax;
+      if (row.boxesPerCase != null) updateData.koli_ici_adet = row.boxesPerCase;
+      if (row.casesPerPallet != null) updateData.palet_ici_adet = row.casesPerPallet;
+
+      const naehrwerteUpdate = buildNaehrwertePayload(row);
+      if (naehrwerteUpdate) updateData.naehrwerte = naehrwerteUpdate;
+
+      const inhaltsstoffeUpdate = buildInhaltsstoffePayload(row);
+      if (inhaltsstoffeUpdate) updateData.inhaltsstoffe = inhaltsstoffeUpdate;
+
+      const zertifikateUpdate = buildZertifikatePayload(row);
+      if (zertifikateUpdate) updateData.zertifikate = zertifikateUpdate;
 
       const effectiveUpdateData = dbSupportsExtendedProductColumns
         ? updateData
