@@ -19,7 +19,16 @@
       "Bash(pkill -f \"npm run dev\")",
       "Bash(curl -s http://localhost:3000/de/admin/urun-yonetimi/urunler)",
       "Bash(pkill -f \"next dev\")",
-      "Bash(curl -s http://localhost:3000/tr/admin/urun-yonetimi/tedarikci-siparis-plani)"
+      "Bash(curl -s http://localhost:3000/tr/admin/urun-yonetimi/tedarikci-siparis-plani)",
+      "mcp__claude_ai_Vercel__list_teams",
+      "mcp__claude_ai_Vercel__list_projects",
+      "mcp__claude_ai_Vercel__get_deployment_build_logs",
+      "mcp__claude_ai_Vercel__get_runtime_logs",
+      "Bash(git push *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git commit *)",
+      "Bash(git reset *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\.claude\\projects\\c--Users-User-Projeler--Web-Sayfalari--sweetheaven-germany\\memory"

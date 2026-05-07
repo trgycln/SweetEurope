@@ -532,7 +532,7 @@ function FilterChips({ profiller }: { profiller: Profil[] }) {
 // ── Ana Bileşen ───────────────────────────────────────────────────────────────
 
 export default function GorevlerClient({ gorevler, profiller, locale }: GorevlerClientProps) {
-    const [mode, setMode]     = useState<'grid' | 'kanban'>('grid');
+    const [mode, setMode]     = useState<'grid' | 'kanban'>('kanban');
     const [open, setOpen]     = useState<GorevRow | null>(null);
     const [localDurum, setLocalDurum] = useState<Record<string, GorevDurumu>>({});
 
