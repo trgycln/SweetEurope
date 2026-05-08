@@ -127,34 +127,43 @@ export function buildProductSearchText(ad: any): string {
 
 /**
  * Sunucu tarafı Supabase sorgularında Türkçe karakter bağımsız arama için
- * `or()` filtre stringi üretir. Tüm diller (tr, de, en, ar) ve stok_kodu dahildir.
+ * her kelime başına bir `or()` filtre string dizisi üretir.
+ * Her string, ayrı bir query.or() çağrısına geçirilir — AND semantiği doğal olarak oluşur.
  */
-export function buildSupabaseSearchFilter(rawQuery: string): string {
-    // PostgREST or() filter'da virgül delimiter, parantez group ayracı olarak kullanılır.
-    // Bu karakterleri LIKE wildcard'ı _ ile değiştir (herhangi bir tek karakter eşleşir).
+export function buildSupabaseSearchFilter(rawQuery: string): string[] {
     const sanitizeForPostgrest = (s: string) => s.replace(/[,()]/g, '_');
 
-    const escaped = sanitizeForPostgrest(rawQuery.replace(/[%_]/g, (c) => `\\${c}`));
-    const normalized = sanitizeForPostgrest(normalizeForSearch(rawQuery).replace(/[%_]/g, (c) => `\\${c}`));
-
-    // ASCII karakterlerin Türkçe karşılıkları (c→ç, g→ğ, s→ş, o→ö, u→ü, i→ı)
     const CHAR_MAP: Record<string, string> = {
         'c': 'ç', 'g': 'ğ', 's': 'ş', 'o': 'ö', 'u': 'ü', 'i': 'ı',
     };
-    const turkified = normalized.split('').map((c) => CHAR_MAP[c] ?? c).join('');
 
-    // En fazla 3 benzersiz pattern: orijinal, normalize, Türkçe genişletilmiş
-    const pats = [...new Set([escaped, normalized, turkified !== normalized ? turkified : null].filter(Boolean) as string[])];
-    const langs = ['tr', 'de', 'en', 'ar'];
+    const words = rawQuery.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return [];
 
-    const parts: string[] = [];
-    for (const pat of pats) {
-        for (const lang of langs) {
-            parts.push(`ad->>${lang}.ilike.%${pat}%`);
+    return words.map(word => {
+        const escaped = sanitizeForPostgrest(word.replace(/[%_]/g, (c) => `\\${c}`));
+        const normalized = sanitizeForPostgrest(normalizeForSearch(word).replace(/[%_]/g, (c) => `\\${c}`));
+        const turkified = normalized.split('').map((c) => CHAR_MAP[c] ?? c).join('');
+
+        const pats = [
+            ...new Set(
+                [escaped, normalized, turkified !== normalized ? turkified : null]
+                    .filter(Boolean) as string[]
+            ),
+        ];
+
+        const langs = ['tr', 'de', 'en', 'ar'];
+        const parts: string[] = [];
+        for (const pat of pats) {
+            for (const lang of langs) {
+                parts.push(`ad->>${lang}.ilike.%${pat}%`);
+            }
+            parts.push(`stok_kodu.ilike.%${pat}%`);
+            parts.push(`ean_gtin.ilike.%${pat}%`);
+            parts.push(`hersteller_name.ilike.%${pat}%`);
         }
-        parts.push(`stok_kodu.ilike.%${pat}%`);
-    }
-    return parts.join(',');
+        return parts.join(',');
+    });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

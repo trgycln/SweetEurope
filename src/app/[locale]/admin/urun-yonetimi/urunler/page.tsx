@@ -51,12 +51,16 @@ const StokDurumGostergesi = ({ miktar, esik, labels }: { miktar: number | null; 
 // Props-Typ für die Seite
 interface UrunlerListPageProps { // Props-Typ hinzugefügt
     params: Promise<{ locale: Locale }>;
-    searchParams?: Promise<{ 
+    searchParams?: Promise<{
         kategori?: string;
         durum?: string;
         stok?: string;
         q?: string;
         page?: string;
+        tedarikci?: string;
+        urun_gami?: string;
+        lojistik?: string;
+        ozellik?: string;
     }>;
 }
 
@@ -94,6 +98,10 @@ export default async function UrunlerListPage({
     const durumFilter = sp?.durum;
     const stokFilter = sp?.stok;
     const queryParam = sp?.q;
+    const tedarikciFilter = sp?.tedarikci;
+    const urunGamiFilter = sp?.urun_gami;
+    const lojistikFilter = sp?.lojistik;
+    const ozellikFilter = sp?.ozellik;
     const currentPage = Math.max(1, Number.parseInt(sp?.page || '1') || 1);
     const itemsPerPage = 50;
 
@@ -109,6 +117,20 @@ export default async function UrunlerListPage({
         .order('unvan', { ascending: true })
         .limit(1000);
 
+    const { data: urunGamiRaw } = await supabase
+        .from('urunler')
+        .select('urun_gami')
+        .not('urun_gami', 'is', null)
+        .limit(100);
+
+    const urunGamiOptions: string[] = [
+        ...new Set(
+            (urunGamiRaw ?? [])
+                .map((r) => r.urun_gami)
+                .filter((v): v is string => Boolean(v))
+        ),
+    ].sort();
+
     // Supabase-Abfrage erstellen (ohne count für Performance)
     let query = supabase
         .from('urunler')
@@ -123,6 +145,9 @@ export default async function UrunlerListPage({
             satis_fiyati_alt_bayi,
             aktif,
             kategori_id,
+            tedarikci_id,
+            urun_gami,
+            lojistik_sinifi,
             distributor_alis_fiyati,
             kategoriler ( ad )
         `, { count: 'exact' });
@@ -146,42 +171,83 @@ export default async function UrunlerListPage({
     }
 
     // Stok-Filter
+    let kritischMode = false;
     if (stokFilter === 'kritisch') {
-        // Products where stock <= threshold AND stock > 0
-        query = query.or('and(stok_miktari.lte.stok_esigi,stok_miktari.gt.0)');
+        // Phase 1: DB-Filterung für stok_miktari > 0 (Spalten-Vergleich nicht unterstützt)
+        query = query.gt('stok_miktari', 0);
+        kritischMode = true;
     } else if (stokFilter === 'aufgebraucht') {
         query = query.or('stok_miktari.lte.0,stok_miktari.is.null');
     } else if (stokFilter === 'ausreichend') {
         query = query.gt('stok_miktari', 0);
     }
 
-    // Suchfilter: alle Sprachen (tr, de, en, ar) + stok_kodu, Türkçe karakter bağımsız
+    // Neue Filter
+    if (tedarikciFilter) query = query.eq('tedarikci_id', tedarikciFilter);
+    if (urunGamiFilter) query = query.eq('urun_gami', urunGamiFilter);
+    if (lojistikFilter) query = query.eq('lojistik_sinifi', lojistikFilter);
+    if (ozellikFilter) {
+        query = query.eq(`teknik_ozellikler->>${ozellikFilter}` as any, 'true');
+    }
+
+    // Suchfilter: alle Sprachen (tr, de, en, ar) + stok_kodu + ean_gtin + hersteller_name, Türkçe karakter bağımsız
     if (queryParam) {
         const { buildSupabaseSearchFilter } = await import('@/lib/utils');
-        query = query.or(buildSupabaseSearchFilter(queryParam));
+        const filterStrings = buildSupabaseSearchFilter(queryParam);
+        for (const fs of filterStrings) {
+            query = query.or(fs);
+        }
     }
 
-    // Count total for pagination
-    const { count: totalCount } = await query;
-    const totalPages = Math.ceil((totalCount || 0) / itemsPerPage);
-    const clampedPage = Math.min(currentPage, Math.max(1, totalPages));
+    // ─── kritisch: fetch all, filter in JS, then paginate in JS ────────────────
+    let urunListesi: UrunWithKategori[] = [];
+    let totalCount: number | null = 0;
+    let totalPages: number;
+    let clampedPage: number;
 
-    // Apply pagination
-    const from = (clampedPage - 1) * itemsPerPage;
-    const to = from + itemsPerPage - 1;
+    if (kritischMode) {
+        // Phase 2: Fetch ALL matching rows (no range limit) — acceptable for admin (<1000 products)
+        const { data: allRows, error: kritischError } = await query
+            .order(`ad->>${locale}`, { ascending: true, nullsFirst: false })
+            .order(`ad->>de`, { ascending: true, nullsFirst: false });
 
-    // Sortieren und Daten abrufen
-    const { data: urunler, error } = await query
-         .order(`ad->>${locale}`, { ascending: true, nullsFirst: false })
-         .order(`ad->>de`, { ascending: true, nullsFirst: false }) // Fallback-Sortierung
-         .range(from, to);
+        if (kritischError) {
+            console.error("Fehler beim Laden der Produkte:", kritischError.message);
+            return <div className="p-6 text-red-500 bg-red-50 rounded-lg">{content.loadError || 'Produktliste konnte nicht geladen werden.'}</div>;
+        }
 
-    if (error) {
-        console.error("Fehler beim Laden der Produkte:", error.message, error.code);
-        return <div className="p-6 text-red-500 bg-red-50 rounded-lg">{content.loadError || 'Produktliste konnte nicht geladen werden.'}</div>;
+        // JS-side filter: stok_miktari <= stok_esigi (and > 0 already enforced by DB)
+        const filtered = (allRows as any[]).filter(
+            (r) => (r.stok_miktari ?? 0) <= (r.stok_esigi ?? 0)
+        );
+
+        totalCount = filtered.length;
+        totalPages = Math.ceil(totalCount / itemsPerPage);
+        clampedPage = Math.min(currentPage, Math.max(1, totalPages));
+        const fromK = (clampedPage - 1) * itemsPerPage;
+        urunListesi = filtered.slice(fromK, fromK + itemsPerPage) as UrunWithKategori[];
+    } else {
+        // Original path: DB-based count + pagination
+        const { count } = await query;
+        totalCount = count;
+        totalPages = Math.ceil((totalCount || 0) / itemsPerPage);
+        clampedPage = Math.min(currentPage, Math.max(1, totalPages));
+        const from = (clampedPage - 1) * itemsPerPage;
+        const to = from + itemsPerPage - 1;
+
+        // Sortieren und Daten abrufen
+        const { data: urunler, error } = await query
+             .order(`ad->>${locale}`, { ascending: true, nullsFirst: false })
+             .order(`ad->>de`, { ascending: true, nullsFirst: false })
+             .range(from, to);
+
+        if (error) {
+            console.error("Fehler beim Laden der Produkte:", error.message, error.code);
+            return <div className="p-6 text-red-500 bg-red-50 rounded-lg">{content.loadError || 'Produktliste konnte nicht geladen werden.'}</div>;
+        }
+
+        urunListesi = (urunler as any[]) || [];
     }
-
-    const urunListesi: UrunWithKategori[] = (urunler as any[]) || [];
 
     return (
         <div className="space-y-4">
@@ -191,12 +257,14 @@ export default async function UrunlerListPage({
                     <h1 className="text-lg font-bold text-slate-900">Ürün Yönetimi</h1>
                     <span className="text-sm text-slate-400">
                         {totalCount || 0} ürün
-                        {(kategoriFilter || durumFilter || stokFilter || queryParam) && ' (filtrelenmiş)'}
+                        {(kategoriFilter || durumFilter || stokFilter || queryParam || tedarikciFilter || urunGamiFilter || lojistikFilter || ozellikFilter) && ' (filtrelenmiş)'}
                     </span>
                 </div>
 
                 <UrunFiltre
                     kategoriler={allKategoriler || []}
+                    tedarikciler={tedarikciler || []}
+                    urunGamiOptions={urunGamiOptions}
                     locale={locale}
                     labels={{
                         searchPlaceholder: 'Ürün adı veya kodu...',
@@ -205,6 +273,10 @@ export default async function UrunlerListPage({
                         allCategories: 'Tüm kategoriler',
                         allStatuses: 'Tüm durumlar',
                         allStocks: 'Tüm stoklar',
+                        allSuppliers: 'Tüm tedarikçiler',
+                        allProductLines: 'Tüm ürün gamları',
+                        allLogistics: 'Tüm lojistik',
+                        allFeatures: 'Tüm özellikler',
                         statusActiveLabel: 'Aktif',
                         statusInactiveLabel: 'Pasif',
                         stockCriticalLabel: 'Kritik',
@@ -216,6 +288,10 @@ export default async function UrunlerListPage({
                             categoryFiltered: 'Kategori filtreli',
                             statusPrefix: 'Durum:',
                             stockPrefix: 'Stok:',
+                            supplierPrefix: 'Tedarikçi:',
+                            productLinePrefix: 'Gam:',
+                            logisticsPrefix: 'Lojistik:',
+                            featurePrefix: 'Özellik:',
                         }
                     }}
                 />
@@ -290,7 +366,7 @@ export default async function UrunlerListPage({
                 <div className="rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center shadow-sm">
                     <FiArchive className="mx-auto mb-3 text-4xl text-slate-300" />
                     <p className="text-sm text-slate-500">
-                        {(kategoriFilter || durumFilter || stokFilter || queryParam)
+                        {(kategoriFilter || durumFilter || stokFilter || queryParam || tedarikciFilter || urunGamiFilter || lojistikFilter || ozellikFilter)
                             ? 'Bu filtrelere uygun ürün bulunamadı.'
                             : 'Henüz ürün eklenmemiş.'}
                     </p>
