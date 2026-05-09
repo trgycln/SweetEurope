@@ -152,14 +152,13 @@ export default async function UrunlerListPage({
             kategoriler ( ad )
         `, { count: 'exact' });
 
-    // Kategori-Filter
+    // Kategori-Filter — collect all descendants recursively
     if (kategoriFilter) {
-        // Get subcategories of selected category
-        const subcatIds = allKategoriler
-            ?.filter(k => k.ust_kategori_id === kategoriFilter)
-            .map(k => k.id) || [];
-        
-        const allCategoryIds = [kategoriFilter, ...subcatIds];
+        const getAllDescendantIds = (parentId: string, allKats: typeof allKategoriler): string[] => {
+            const children = (allKats ?? []).filter(k => k.ust_kategori_id === parentId);
+            return children.flatMap(c => [c.id, ...getAllDescendantIds(c.id, allKats)]);
+        };
+        const allCategoryIds = [kategoriFilter, ...getAllDescendantIds(kategoriFilter, allKategoriler)];
         query = query.in('kategori_id', allCategoryIds);
     }
 

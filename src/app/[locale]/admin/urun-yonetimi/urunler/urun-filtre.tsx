@@ -94,13 +94,20 @@ export function UrunFiltre({
       value: searchQuery,
     });
   if (selectedCategory) {
-    const catName =
-      kategoriler.find((k) => k.id === selectedCategory)?.ad?.[locale] ||
-      kategoriler.find((k) => k.id === selectedCategory)?.ad?.de ||
-      selectedCategory;
+    // Build full path for the chip label
+    const buildPath = (id: string): string => {
+      const parts: string[] = [];
+      let cur = kategoriler.find((k) => k.id === id);
+      let guard = 0;
+      while (cur && guard++ < 10) {
+        parts.unshift(cur.ad?.[locale] || cur.ad?.de || '?');
+        cur = cur.ust_kategori_id ? kategoriler.find((k) => k.id === cur!.ust_kategori_id) : undefined;
+      }
+      return parts.join(' / ') || id;
+    };
     activeChips.push({
       key: 'kategori',
-      label: `${labels.active.categoryFiltered}: ${catName}`,
+      label: `${labels.active.categoryFiltered}: ${buildPath(selectedCategory)}`,
       value: selectedCategory,
     });
   }
@@ -199,7 +206,7 @@ export function UrunFiltre({
           </button>
         </form>
 
-        {/* Kategori */}
+        {/* Kategori — all levels with indentation */}
         <select
           value={selectedCategory}
           onChange={(e) => updateFilters('kategori', e.target.value)}
@@ -207,13 +214,25 @@ export function UrunFiltre({
           disabled={isPending}
         >
           <option value="">{labels.allCategories}</option>
-          {kategoriler
-            .filter((k) => !k.ust_kategori_id)
-            .map((k) => (
+          {kategoriler.map((k) => {
+            // Build depth by traversing ancestors
+            let depth = 0;
+            let cur = k;
+            let guard = 0;
+            while (cur.ust_kategori_id && guard++ < 10) {
+              const parent = kategoriler.find((c) => c.id === cur.ust_kategori_id);
+              if (!parent) break;
+              depth++;
+              cur = parent;
+            }
+            const indent = depth > 0 ? '  '.repeat(depth * 2) + '└ ' : '';
+            const name = k.ad?.[locale] || k.ad?.de || '?';
+            return (
               <option key={k.id} value={k.id}>
-                {k.ad?.[locale] || k.ad?.de || '?'}
+                {indent}{name}
               </option>
-            ))}
+            );
+          })}
         </select>
 
         {/* Durum */}
