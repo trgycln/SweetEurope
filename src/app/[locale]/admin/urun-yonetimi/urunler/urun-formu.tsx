@@ -628,50 +628,49 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                              id="kategori_id"
                              name="kategori_id"
                              value={seciliKategoriId || ""}
-                             onChange={(e) => {
-                                 const newId = e.target.value;
-                                 setAnaKategoriId(null);
-                                 setAltKategoriId(newId || null);
-                             }}
+                             onChange={(e) => setAltKategoriId(e.target.value || null)}
                              className="w-full p-2 border rounded-md bg-gray-50"
                              required
                          >
                              <option value="" disabled>{L.basicsSection.pleaseSelect}</option>
                              {kategoriler.map(k => {
-                                 // Build path from root to this category
                                  const path: string[] = [k.ad?.[locale] || Object.values(k.ad ?? {})[0] || L.basicsSection.unnamedCategory];
-                                 let current = k;
-                                 while (current.ust_kategori_id) {
-                                     const parent = kategoriler.find(c => c.id === current.ust_kategori_id);
+                                 let cur = k;
+                                 let guard = 0;
+                                 while (cur.ust_kategori_id && guard++ < 10) {
+                                     const parent = kategoriler.find(c => c.id === cur.ust_kategori_id);
                                      if (!parent) break;
-                                     path.unshift(parent.ad?.[locale] || Object.values(parent.ad ?? {})[0] || L.basicsSection.unnamedCategory);
-                                     current = parent;
+                                     path.unshift(parent.ad?.[locale] || Object.values(parent.ad ?? {})[0] || '?');
+                                     cur = parent;
                                  }
-                                 // Depth = path.length - 1 (0 for root)
                                  const depth = path.length - 1;
-                                 const indent = depth > 0 ? '→ '.repeat(depth) + ' ' : '';
+                                 const indent = '  '.repeat(depth * 2);
+                                 const prefix = depth > 0 ? '└ ' : '';
                                  return (
                                      <option key={k.id} value={k.id} title={path.join(' → ')}>
-                                         {indent}{path[path.length - 1]}
+                                         {indent}{prefix}{path[path.length - 1]}
                                      </option>
                                  );
                              })}
                          </select>
-                         {seciliKategoriId && mevcutKategori && (
-                             <p className="text-xs text-gray-500 mt-2">
-                                 {(() => {
-                                     const path: string[] = [mevcutKategori.ad?.[locale] || Object.values(mevcutKategori.ad ?? {})[0] || '?'];
-                                     let current = mevcutKategori;
-                                     while (current.ust_kategori_id) {
-                                         const parent = kategoriler.find(c => c.id === current.ust_kategori_id);
-                                         if (!parent) break;
-                                         path.unshift(parent.ad?.[locale] || Object.values(parent.ad ?? {})[0] || '?');
-                                         current = parent;
-                                     }
-                                     return <>Yol: <span className="font-medium">{path.join(' / ')}</span></>;
-                                 })()}
-                             </p>
-                         )}
+                         {(() => {
+                             const kat = seciliKategoriId ? kategoriler.find(k => k.id === seciliKategoriId) : null;
+                             if (!kat) return null;
+                             const path: string[] = [kat.ad?.[locale] || Object.values(kat.ad ?? {})[0] || '?'];
+                             let cur = kat;
+                             let guard = 0;
+                             while (cur.ust_kategori_id && guard++ < 10) {
+                                 const parent = kategoriler.find(c => c.id === cur.ust_kategori_id);
+                                 if (!parent) break;
+                                 path.unshift(parent.ad?.[locale] || Object.values(parent.ad ?? {})[0] || '?');
+                                 cur = parent;
+                             }
+                             return (
+                                 <p className="text-xs text-gray-500 mt-1">
+                                     Yol: <span className="font-medium text-gray-700">{path.join(' / ')}</span>
+                                 </p>
+                             );
+                         })()}
                          {isEditMode && <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1"><span>⚠️</span> {L.basicsSection.changeCategoryWarning}</p>}
                      </div>
 
