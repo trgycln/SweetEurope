@@ -348,28 +348,10 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
     // Andere States
     const [aktifDil, setAktifDil] = useState<Locale>(locale);
     
-    // Kategori states - hierarchical selection
-    const anaKategoriler = kategoriler.filter(k => !k.ust_kategori_id);
+    // Kategori states - single hierarchical select
     const mevcutKategori = kategoriler.find(k => k.id === mevcutUrun?.kategori_id);
-    const mevcutAnaKategoriId = mevcutKategori?.ust_kategori_id || (mevcutKategori && !mevcutKategori.ust_kategori_id ? mevcutKategori.id : null);
-    
-    const [anaKategoriId, setAnaKategoriId] = useState<string | null>(mevcutAnaKategoriId);
-    const [altKategoriId, setAltKategoriId] = useState<string | null>(
-        mevcutKategori?.ust_kategori_id ? mevcutUrun?.kategori_id || null : null
-    );
-    // If editing and provided categories do not include the saved subcategory,
-    // we fetch and store it locally so the selection appears.
-    const [selectedAltKategori, setSelectedAltKategori] = useState<Kategori | null>(
-        mevcutKategori?.ust_kategori_id ? mevcutKategori : null
-    );
-    // In case children of the chosen parent are not provided via props, fetch them.
-    const [dinamikAltKategoriler, setDinamikAltKategoriler] = useState<Kategori[]>([]);
-    
-    // Alt kategorileri filtrele
-    const altKategoriler = anaKategoriId 
-        ? kategoriler.filter(k => k.ust_kategori_id === anaKategoriId)
-        : [];
-    const gorunenAltKategoriler: Kategori[] = altKategoriler.length > 0 ? altKategoriler : dinamikAltKategoriler;
+    const [altKategoriId, setAltKategoriId] = useState<string | null>(mevcutUrun?.kategori_id || null);
+
     const supplierOptions = useMemo(() => dedupeSuppliers(tedarikciler), [tedarikciler]);
     const normalizedSupplierValue = useMemo(() => {
         if (!mevcutUrun?.tedarikci_id) return '';
@@ -386,7 +368,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
     }, [mevcutUrun?.tedarikci_id, tedarikciler, supplierOptions]);
     
     // Actual kategori_id for form submission
-    const seciliKategoriId = altKategoriId || anaKategoriId;
+    const seciliKategoriId = altKategoriId;
     const kategoriBazliUrunGami = inferProductLineFromCategoryId(kategoriler as any, seciliKategoriId);
     const [manuelUrunGami, setManuelUrunGami] = useState<ProductLineKey | 'auto'>(
         mevcutUrun?.urun_gami === 'frozen-desserts' || mevcutUrun?.urun_gami === 'barista-bakery-essentials'
@@ -423,70 +405,6 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
         customFlavors.join(', ')
     );
 
-    // Ensure initial selection is restored in edit mode even if subcategory is not in props
-    useEffect(() => {
-        (async () => {
-            if (!isEditMode || !mevcutUrun?.kategori_id) return;
-
-            // Try to resolve selected category from provided list
-            let kat: Kategori | undefined = kategoriler.find(k => k.id === mevcutUrun.kategori_id);
-
-            if (!kat) {
-                // Fetch missing category (id, ad, ust_kategori_id)
-                const { data, error } = await supabase
-                    .from('kategoriler')
-                    .select('id, ad, ust_kategori_id')
-                    .eq('id', mevcutUrun.kategori_id)
-                    .maybeSingle();
-                if (error) {
-                    console.warn('Kategori fetch error:', error.message);
-                }
-                if (data) {
-                    // Infer parent and set states
-                    kat = data as unknown as Kategori;
-                    if (kat.ust_kategori_id) {
-                        setAnaKategoriId(kat.ust_kategori_id);
-                        setAltKategoriId(kat.id);
-                        setSelectedAltKategori(kat);
-                    } else {
-                        setAnaKategoriId(kat.id);
-                        setAltKategoriId(null);
-                        setSelectedAltKategori(null);
-                    }
-                }
-            } else {
-                if (kat.ust_kategori_id) {
-                    setAnaKategoriId(kat.ust_kategori_id);
-                    setAltKategoriId(kat.id);
-                    setSelectedAltKategori(kat);
-                } else {
-                    setAnaKategoriId(kat.id);
-                    setAltKategoriId(null);
-                    setSelectedAltKategori(null);
-                }
-            }
-        })();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isEditMode, mevcutUrun?.kategori_id, JSON.stringify(kategoriler.map(k => k.id))]);
-
-    // When a parent is chosen but no children provided in props, fetch children to populate dropdown
-    useEffect(() => {
-        (async () => {
-            if (!anaKategoriId) { setDinamikAltKategoriler([]); return; }
-            // If props already contain children, prefer them
-            if (kategoriler.some(k => k.ust_kategori_id === anaKategoriId)) { setDinamikAltKategoriler([]); return; }
-            const { data, error } = await supabase
-                .from('kategoriler')
-                .select('id, ad, ust_kategori_id')
-                .eq('ust_kategori_id', anaKategoriId);
-            if (error) {
-                console.warn('Alt kategori fetch error:', error.message);
-                setDinamikAltKategoriler([]);
-            } else {
-                setDinamikAltKategoriler((data as unknown as Kategori[]) || []);
-            }
-        })();
-    }, [anaKategoriId, kategoriler, supabase]);
 
     // Sablon laden (mit Vererbung: falls Unterkategorie kein eigenes Template hat → Elternkategorie verwenden)
     useEffect(() => {
@@ -545,7 +463,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
             setIsLoadingSablon(false);
         };
         fetchSablon();
-    }, [seciliKategoriId, altKategoriId, kategoriler, supabase]);
+    }, [seciliKategoriId, kategoriler, supabase]);
 
     // Effekt für Toast/Weiterleitung
     useEffect(() => {
@@ -701,68 +619,62 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                  <h2 className="font-serif text-2xl font-bold text-primary mb-6">{L.basicsSection.title}</h2>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     {/* Ana Kategori */}
-                     <div>
-                         <label htmlFor="ana_kategori_id" className={labelClasses}>
+                     {/* Kategori - hierarchical selection */}
+                     <div className="md:col-span-2">
+                         <label htmlFor="kategori_id" className={labelClasses}>
                              {L.basicsSection.mainCategory} <span className="text-red-500">*</span>
                          </label>
-                         <select 
-                             id="ana_kategori_id" 
-                             value={anaKategoriId || ""} 
+                         <select
+                             id="kategori_id"
+                             name="kategori_id"
+                             value={seciliKategoriId || ""}
                              onChange={(e) => {
-                                 setAnaKategoriId(e.target.value);
-                                 setAltKategoriId(null); // Reset alt kategori
+                                 const newId = e.target.value;
+                                 setAnaKategoriId(null);
+                                 setAltKategoriId(newId || null);
                              }}
-                             className="w-full p-2 border rounded-md bg-gray-50" 
+                             className="w-full p-2 border rounded-md bg-gray-50"
                              required
                          >
                              <option value="" disabled>{L.basicsSection.pleaseSelect}</option>
-                             {anaKategoriler.map(k => (
-                                 <option key={k.id} value={k.id}>
-                                     {k.ad?.[locale] || Object.values(k.ad ?? {})[0] || L.basicsSection.unnamedCategory}
-                                 </option>
-                             ))}
+                             {kategoriler.map(k => {
+                                 // Build path from root to this category
+                                 const path: string[] = [k.ad?.[locale] || Object.values(k.ad ?? {})[0] || L.basicsSection.unnamedCategory];
+                                 let current = k;
+                                 while (current.ust_kategori_id) {
+                                     const parent = kategoriler.find(c => c.id === current.ust_kategori_id);
+                                     if (!parent) break;
+                                     path.unshift(parent.ad?.[locale] || Object.values(parent.ad ?? {})[0] || L.basicsSection.unnamedCategory);
+                                     current = parent;
+                                 }
+                                 // Depth = path.length - 1 (0 for root)
+                                 const depth = path.length - 1;
+                                 const indent = depth > 0 ? '→ '.repeat(depth) + ' ' : '';
+                                 return (
+                                     <option key={k.id} value={k.id} title={path.join(' → ')}>
+                                         {indent}{path[path.length - 1]}
+                                     </option>
+                                 );
+                             })}
                          </select>
-                     </div>
-
-                     {/* Alt Kategori - nur sichtbar wenn Ana Kategori gewählt */}
-                     <div>
-                         <label htmlFor="alt_kategori_id" className={labelClasses}>
-                             {L.basicsSection.subCategory} {altKategoriler.length > 0 && <span className="text-red-500">*</span>}
-                         </label>
-                         <select 
-                             id="alt_kategori_id"
-                             name="kategori_id"
-                             value={altKategoriId || ""} 
-                             onChange={(e) => setAltKategoriId(e.target.value)}
-                             className="w-full p-2 border rounded-md bg-gray-50"
-                             disabled={!anaKategoriId || gorunenAltKategoriler.length === 0}
-                             required={gorunenAltKategoriler.length > 0}
-                         >
-                             <option value="">
-                                 {!anaKategoriId ? L.basicsSection.selectMainFirst : 
-                                  gorunenAltKategoriler.length === 0 ? L.basicsSection.noSubcategories : 
-                                  L.basicsSection.pleaseSelect}
-                             </option>
-                             {gorunenAltKategoriler.map(k => (
-                                 <option key={k.id} value={k.id}>
-                                     {k.ad?.[locale] || Object.values(k.ad ?? {})[0] || L.basicsSection.unnamedCategory}
-                                 </option>
-                             ))}
-                             {/* If selected subcategory is not present in options, inject it */}
-                             {altKategoriId && selectedAltKategori && !gorunenAltKategoriler.some(k => k.id === altKategoriId) && (
-                                 <option key={selectedAltKategori.id} value={selectedAltKategori.id}>
-                                     {selectedAltKategori.ad?.[locale] || Object.values(selectedAltKategori.ad ?? {})[0] || L.basicsSection.unnamedCategory}
-                                 </option>
-                             )}
-                         </select>
+                         {seciliKategoriId && mevcutKategori && (
+                             <p className="text-xs text-gray-500 mt-2">
+                                 {(() => {
+                                     const path: string[] = [mevcutKategori.ad?.[locale] || Object.values(mevcutKategori.ad ?? {})[0] || '?'];
+                                     let current = mevcutKategori;
+                                     while (current.ust_kategori_id) {
+                                         const parent = kategoriler.find(c => c.id === current.ust_kategori_id);
+                                         if (!parent) break;
+                                         path.unshift(parent.ad?.[locale] || Object.values(parent.ad ?? {})[0] || '?');
+                                         current = parent;
+                                     }
+                                     return <>Yol: <span className="font-medium">{path.join(' / ')}</span></>;
+                                 })()}
+                             </p>
+                         )}
                          {isEditMode && <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1"><span>⚠️</span> {L.basicsSection.changeCategoryWarning}</p>}
                      </div>
 
-                     {/* Hidden input for form submission when no subcategories */}
-                     {gorunenAltKategoriler.length === 0 && anaKategoriId && (
-                         <input type="hidden" name="kategori_id" value={anaKategoriId} />
-                     )}
                      <input type="hidden" name="urun_gami" value={seciliUrunGami || ''} />
 
                      <div>
