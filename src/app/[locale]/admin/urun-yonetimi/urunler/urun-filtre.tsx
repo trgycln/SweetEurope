@@ -206,7 +206,7 @@ export function UrunFiltre({
           </button>
         </form>
 
-        {/* Kategori — all levels with indentation */}
+        {/* Kategori — depth-first tree order */}
         <select
           value={selectedCategory}
           onChange={(e) => updateFilters('kategori', e.target.value)}
@@ -214,25 +214,25 @@ export function UrunFiltre({
           disabled={isPending}
         >
           <option value="">{labels.allCategories}</option>
-          {kategoriler.map((k) => {
-            // Build depth by traversing ancestors
-            let depth = 0;
-            let cur = k;
-            let guard = 0;
-            while (cur.ust_kategori_id && guard++ < 10) {
-              const parent = kategoriler.find((c) => c.id === cur.ust_kategori_id);
-              if (!parent) break;
-              depth++;
-              cur = parent;
-            }
-            const indent = depth > 0 ? '  '.repeat(depth * 2) + '└ ' : '';
-            const name = k.ad?.[locale] || k.ad?.de || '?';
-            return (
-              <option key={k.id} value={k.id}>
-                {indent}{name}
-              </option>
-            );
-          })}
+          {(() => {
+            const opts: React.ReactElement[] = [];
+            const walk = (parentId: string | null, depth: number) => {
+              kategoriler
+                .filter((k) => (k.ust_kategori_id ?? null) === parentId)
+                .forEach((k) => {
+                  const name = k.ad?.[locale] || k.ad?.de || '?';
+                  const indent = depth > 0 ? '  '.repeat(depth * 2) + '└ ' : '';
+                  opts.push(
+                    <option key={k.id} value={k.id}>
+                      {indent}{name}
+                    </option>
+                  );
+                  walk(k.id, depth + 1);
+                });
+            };
+            walk(null, 0);
+            return opts;
+          })()}
         </select>
 
         {/* Durum */}
