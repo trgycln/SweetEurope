@@ -34,7 +34,8 @@
       "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
       "Bash(curl -s http://localhost:3000/de/admin/urun-yonetimi/urunler/yeni)",
       "Bash(pkill -f \"node.*next\")",
-      "Bash(curl -s http://localhost:3000/de/admin/dashboard)"
+      "Bash(curl -s http://localhost:3000/de/admin/dashboard)",
+      "Bash(node replace-kategori.mjs)"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\.claude\\projects\\c--Users-User-Projeler--Web-Sayfalari--sweetheaven-germany\\memory"

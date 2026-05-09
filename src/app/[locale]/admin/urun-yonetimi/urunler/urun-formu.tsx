@@ -5,7 +5,7 @@ import React, { useState, useTransition, useEffect, useMemo, ChangeEvent, FormEv
 import { Tables } from '@/lib/supabase/database.types';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiArrowLeft, FiSave, FiX, FiInfo, FiClipboard, FiDollarSign, FiLoader, FiTrash2, FiImage, FiUploadCloud } from 'react-icons/fi';
+import { FiArrowLeft, FiSave, FiX, FiInfo, FiClipboard, FiDollarSign, FiLoader, FiTrash2, FiImage, FiUploadCloud, FiSearch, FiChevronRight, FiChevronDown } from 'react-icons/fi';
 // Actions importieren
 import { createUrunAction, updateUrunAction, deleteUrunAction, uploadUrunImageAction, removeUrunImagesAction, FormState } from './actions';
 import { useRouter } from 'next/navigation';
@@ -348,9 +348,22 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
     // Andere States
     const [aktifDil, setAktifDil] = useState<Locale>(locale);
     
-    // Kategori states - single hierarchical select
+    // Kategori states - tree picker
     const mevcutKategori = kategoriler.find(k => k.id === mevcutUrun?.kategori_id);
     const [altKategoriId, setAltKategoriId] = useState<string | null>(mevcutUrun?.kategori_id || null);
+    const [kategoriBul, setKategoriBul] = useState('');
+
+    // Auto-expand ancestors of the currently selected category
+    const initialExpanded = useMemo(() => {
+        const ids = new Set<string>();
+        let cur = mevcutKategori;
+        while (cur?.ust_kategori_id) {
+            ids.add(cur.ust_kategori_id);
+            cur = kategoriler.find(k => k.id === cur!.ust_kategori_id);
+        }
+        return ids;
+    }, [mevcutKategori, kategoriler]);
+    const [expandedKategoriIds, setExpandedKategoriIds] = useState<Set<string>>(initialExpanded);
 
     const supplierOptions = useMemo(() => dedupeSuppliers(tedarikciler), [tedarikciler]);
     const normalizedSupplierValue = useMemo(() => {
@@ -619,58 +632,132 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                  <h2 className="font-serif text-2xl font-bold text-primary mb-6">{L.basicsSection.title}</h2>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     {/* Kategori - hierarchical selection */}
+                     {/* Kategori - tree picker */}
                      <div className="md:col-span-2">
-                         <label htmlFor="kategori_id" className={labelClasses}>
+                         <label className={labelClasses}>
                              {L.basicsSection.mainCategory} <span className="text-red-500">*</span>
                          </label>
-                         <select
-                             id="kategori_id"
-                             name="kategori_id"
-                             value={seciliKategoriId || ""}
-                             onChange={(e) => setAltKategoriId(e.target.value || null)}
-                             className="w-full p-2 border rounded-md bg-gray-50"
-                             required
-                         >
-                             <option value="" disabled>{L.basicsSection.pleaseSelect}</option>
-                             {kategoriler.map(k => {
-                                 const path: string[] = [k.ad?.[locale] || Object.values(k.ad ?? {})[0] || L.basicsSection.unnamedCategory];
-                                 let cur = k;
-                                 let guard = 0;
-                                 while (cur.ust_kategori_id && guard++ < 10) {
-                                     const parent = kategoriler.find(c => c.id === cur.ust_kategori_id);
-                                     if (!parent) break;
-                                     path.unshift(parent.ad?.[locale] || Object.values(parent.ad ?? {})[0] || '?');
-                                     cur = parent;
-                                 }
-                                 const depth = path.length - 1;
-                                 const indent = '  '.repeat(depth * 2);
-                                 const prefix = depth > 0 ? '└ ' : '';
-                                 return (
-                                     <option key={k.id} value={k.id} title={path.join(' → ')}>
-                                         {indent}{prefix}{path[path.length - 1]}
-                                     </option>
-                                 );
-                             })}
-                         </select>
-                         {(() => {
-                             const kat = seciliKategoriId ? kategoriler.find(k => k.id === seciliKategoriId) : null;
+
+                         {/* Hidden input for form submission */}
+                         <input type="hidden" name="kategori_id" value={seciliKategoriId || ''} />
+                         {/* Invisible required sentinel so browser validates empty state */}
+                         {!seciliKategoriId && (
+                             <input aria-hidden tabIndex={-1} required readOnly value="" style={{ opacity: 0, height: 0, position: 'absolute' }} />
+                         )}
+
+                         {/* Selected category badge */}
+                         {seciliKategoriId ? (() => {
+                             const kat = kategoriler.find(k => k.id === seciliKategoriId);
                              if (!kat) return null;
-                             const path: string[] = [kat.ad?.[locale] || Object.values(kat.ad ?? {})[0] || '?'];
-                             let cur = kat;
+                             const path: string[] = [];
+                             let cur: typeof kat | undefined = kat;
                              let guard = 0;
-                             while (cur.ust_kategori_id && guard++ < 10) {
-                                 const parent = kategoriler.find(c => c.id === cur.ust_kategori_id);
-                                 if (!parent) break;
-                                 path.unshift(parent.ad?.[locale] || Object.values(parent.ad ?? {})[0] || '?');
-                                 cur = parent;
+                             while (cur && guard++ < 10) {
+                                 path.unshift(cur.ad?.[locale] || Object.values(cur.ad ?? {})[0] || '?');
+                                 cur = cur.ust_kategori_id ? kategoriler.find(k => k.id === cur!.ust_kategori_id) : undefined;
                              }
                              return (
-                                 <p className="text-xs text-gray-500 mt-1">
-                                     Yol: <span className="font-medium text-gray-700">{path.join(' / ')}</span>
-                                 </p>
+                                 <div className="mb-2 flex items-center gap-2 px-3 py-2 bg-accent/10 rounded-lg border border-accent/30">
+                                     <span className="text-sm font-medium text-accent flex-1 truncate">{path.join(' / ')}</span>
+                                     <button type="button" onClick={() => setAltKategoriId(null)} className="text-gray-400 hover:text-red-500 shrink-0"><FiX size={14} /></button>
+                                 </div>
                              );
-                         })()}
+                         })() : (
+                             <div className="mb-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 text-sm text-gray-400 italic">
+                                 Aşağıdan bir kategori seçin
+                             </div>
+                         )}
+
+                         {/* Search bar */}
+                         <div className="relative mb-1">
+                             <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5 pointer-events-none" />
+                             <input
+                                 type="text"
+                                 value={kategoriBul}
+                                 onChange={(e) => {
+                                     setKategoriBul(e.target.value);
+                                     if (e.target.value.trim()) setExpandedKategoriIds(new Set(kategoriler.map(k => k.id)));
+                                 }}
+                                 placeholder="Kategori ara..."
+                                 className="w-full pl-8 pr-8 py-1.5 border border-gray-200 rounded-md text-sm bg-gray-50 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                             />
+                             {kategoriBul && (
+                                 <button type="button" onClick={() => setKategoriBul('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                     <FiX size={12} />
+                                 </button>
+                             )}
+                         </div>
+
+                         {/* Category tree */}
+                         <div className="border border-gray-200 rounded-lg overflow-y-auto bg-white py-1" style={{ maxHeight: 220 }}>
+                             {(() => {
+                                 const q = kategoriBul.trim().toLowerCase();
+
+                                 const matchesSearch = (k: Kategori): boolean => {
+                                     if (!q) return true;
+                                     const name = String(k.ad?.[locale] || Object.values(k.ad ?? {})[0] || '').toLowerCase();
+                                     return name.includes(q);
+                                 };
+
+                                 const hasVisibleDescendant = (id: string): boolean =>
+                                     kategoriler.filter(c => c.ust_kategori_id === id)
+                                         .some(c => matchesSearch(c) || hasVisibleDescendant(c.id));
+
+                                 const renderNode = (parentId: string | null, depth: number): React.ReactNode => {
+                                     const nodes = kategoriler
+                                         .filter(k => (k.ust_kategori_id || null) === parentId)
+                                         .filter(k => !q || matchesSearch(k) || hasVisibleDescendant(k.id));
+
+                                     if (!nodes.length) return null;
+
+                                     return nodes.map(k => {
+                                         const kids = kategoriler.filter(c => c.ust_kategori_id === k.id);
+                                         const isExpanded = expandedKategoriIds.has(k.id);
+                                         const isSelected = seciliKategoriId === k.id;
+                                         const name = k.ad?.[locale] || Object.values(k.ad ?? {})[0] || '?';
+
+                                         return (
+                                             <div key={k.id}>
+                                                 <div
+                                                     className={`flex items-center gap-0.5 rounded-md mx-1 my-0.5 transition-colors ${isSelected ? 'bg-accent/10' : 'hover:bg-gray-50'}`}
+                                                     style={{ paddingLeft: `${depth * 14 + 4}px` }}
+                                                 >
+                                                     <button
+                                                         type="button"
+                                                         onClick={() => setExpandedKategoriIds(prev => {
+                                                             const next = new Set(prev);
+                                                             next.has(k.id) ? next.delete(k.id) : next.add(k.id);
+                                                             return next;
+                                                         })}
+                                                         className={`w-5 h-6 flex items-center justify-center text-gray-400 hover:text-gray-700 shrink-0 ${kids.length === 0 ? 'invisible' : ''}`}
+                                                     >
+                                                         {isExpanded || !!q ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
+                                                     </button>
+                                                     <button
+                                                         type="button"
+                                                         onClick={() => setAltKategoriId(k.id)}
+                                                         className={`flex-1 text-left py-1 pr-2 text-sm truncate ${
+                                                             isSelected ? 'text-accent font-semibold' :
+                                                             depth === 0 ? 'font-semibold text-gray-800' :
+                                                             'text-gray-600'
+                                                         }`}
+                                                     >
+                                                         {depth > 0 && <span className="text-gray-300 mr-1">└</span>}
+                                                         {name}
+                                                         {kids.length > 0 && <span className="ml-1 text-[10px] text-gray-400 font-normal">({kids.length})</span>}
+                                                     </button>
+                                                 </div>
+                                                 {(isExpanded || !!q) && renderNode(k.id, depth + 1)}
+                                             </div>
+                                         );
+                                     });
+                                 };
+
+                                 const result = renderNode(null, 0);
+                                 return result || <p className="text-sm text-gray-400 text-center py-4">Sonuç yok</p>;
+                             })()}
+                         </div>
+
                          {isEditMode && <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1"><span>⚠️</span> {L.basicsSection.changeCategoryWarning}</p>}
                      </div>
 
