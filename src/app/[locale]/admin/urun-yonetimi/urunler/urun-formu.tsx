@@ -856,8 +856,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                     </div>
                     <div>
                         <label htmlFor="ean_gtin" className={labelClasses}>
-                          EAN / Barkod (GTIN-13)
-                          {seciliUrunGami === 'barista-bakery-essentials' && <span className="text-red-500">*</span>}
+                          EAN / Barkod (GTIN-13){!isEditMode && <span className="text-red-500">*</span>}
                         </label>
                         <input
                           type="text"
@@ -866,13 +865,11 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                           defaultValue={(mevcutUrun as any)?.ean_gtin || ''}
                           maxLength={14}
                           placeholder="örn. 8690123456789"
-                          required={seciliUrunGami === 'barista-bakery-essentials'}
+                          required={!isEditMode}
                           className="w-full p-2 border rounded-md bg-gray-50 font-mono"
                         />
                         <p className="mt-1 text-xs text-gray-400">
-                          {seciliUrunGami === 'barista-bakery-essentials'
-                            ? 'EAN-13 barkod numarası — B2B sipariş sistemi için gerekli'
-                            : 'EAN-13 barkod numarası — barkod okuyucu ile sipariş araması'}
+                          {isEditMode ? 'İsteğe bağlı. Mevcut değeri korumak için boş bırakın.' : 'EAN-13 barkod numarası — yeni ürünler için zorunlu'}
                         </p>
                     </div>
                     <div>

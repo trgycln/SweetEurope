@@ -388,6 +388,12 @@ export async function updateUrunAction(urunId: string, formData: FormData): Prom
     // if (!user) return { success: false, message: "Nicht authentifiziert." };
 
     const guncellenecekVeri = formDataToUrunObject(formData);
+
+    // Wenn EAN leer ist bei Update, nicht überschreiben (behalte existierenden Wert)
+    if (!guncellenecekVeri.ean_gtin) {
+        delete guncellenecekVeri.ean_gtin;
+    }
+
     // Kategorie-Änderung erlauben: Wenn kategori_id im Formular vorhanden ist, aktualisieren wir sie ebenfalls.
     // (Falls Backend-Policy dies beschränken soll, bitte RLS/Policies entsprechend anpassen.)
 

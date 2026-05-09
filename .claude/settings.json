@@ -29,7 +29,9 @@
       "Bash(git commit -m ' *)",
       "Bash(git commit *)",
       "Bash(git reset *)",
-      "Bash(curl -s http://localhost:3000/tr/admin/login)"
+      "Bash(curl -s http://localhost:3000/tr/admin/login)",
+      "Bash(curl -s http://localhost:3000/tr/admin/urun-yonetimi/kategoriler)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\.claude\\projects\\c--Users-User-Projeler--Web-Sayfalari--sweetheaven-germany\\memory"

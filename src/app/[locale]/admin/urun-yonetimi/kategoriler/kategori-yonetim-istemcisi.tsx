@@ -36,6 +36,29 @@ const URUN_GAMLARI = [
   { value: 'barista-bakery-essentials', label: 'Barista & Bakery Essentials / FO' },
 ];
 
+// ─── Helper Fonksiyonları ────────────────────────────────────────────────────
+const getDescendantIds = (id: string, allKats: Kategori[]): Set<string> => {
+  const result = new Set<string>();
+  const queue = [id];
+  while (queue.length > 0) {
+    const curr = queue.shift()!;
+    result.add(curr);
+    allKats.filter(k => k.ust_kategori_id === curr).forEach(k => queue.push(k.id));
+  }
+  return result;
+};
+
+const getDepth = (k: Kategori, allKats: Kategori[]): number => {
+  let depth = 0;
+  let current = k;
+  while (current.ust_kategori_id) {
+    depth++;
+    current = allKats.find(c => c.id === current.ust_kategori_id) || current;
+    if (depth > 10) break;
+  }
+  return depth;
+};
+
 const OZELLIK_PRESETLERI = [
   {
     id: 'temel', label: 'Temel Ürün', icon: '📦',
@@ -111,13 +134,29 @@ function KategoriModal({ isOpen, onClose, mevcutKategori, tumKategoriler }: {
           <div className="p-5 space-y-4 overflow-y-auto flex-1">
             <div>
               <label className="block text-sm font-bold text-gray-600 mb-1">Üst Kategori <span className="font-normal text-gray-400">(opsiyonel)</span></label>
-              <select name="ust_kategori_id" defaultValue={mevcutKategori?.ust_kategori_id || ''} className="w-full p-2 border rounded-md bg-gray-50 text-sm">
-                <option value="">Ana Kategori (üst seviye)</option>
-                {tumKategoriler
-                  .filter(k => k.id !== mevcutKategori?.id && !k.ust_kategori_id)
-                  .map(k => <option key={k.id} value={k.id}>{k.ad?.tr || k.ad?.de || 'İsimsiz'}</option>)
-                }
-              </select>
+              {(() => {
+                const excludedIds = mevcutKategori
+                  ? getDescendantIds(mevcutKategori.id, tumKategoriler)
+                  : new Set<string>();
+                const availableParents = tumKategoriler
+                  .filter(k => !excludedIds.has(k.id))
+                  .sort((a, b) => getDepth(a, tumKategoriler) - getDepth(b, tumKategoriler)
+                    || (a.ad?.tr || '').localeCompare(b.ad?.tr || ''));
+                return (
+                  <select name="ust_kategori_id" defaultValue={mevcutKategori?.ust_kategori_id || ''} className="w-full p-2 border rounded-md bg-gray-50 text-sm">
+                    <option value="">Ana Kategori (üst seviye)</option>
+                    {availableParents.map(k => {
+                      const depth = getDepth(k, tumKategoriler);
+                      const prefix = '—'.repeat(depth) + (depth > 0 ? ' ' : '');
+                      return (
+                        <option key={k.id} value={k.id}>
+                          {prefix}{k.ad?.tr || k.ad?.de || 'İsimsiz'}
+                        </option>
+                      );
+                    })}
+                  </select>
+                );
+              })()}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -275,29 +314,55 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
   }, [serverSablonlar]);
 
   const seciliKategori = serverKategoriler.find(k => k.id === seciliKategoriId) || null;
-  const ustKategori = seciliKategori?.ust_kategori_id
-    ? serverKategoriler.find(k => k.id === seciliKategori.ust_kategori_id)
-    : null;
-
-  const { kendi, miras } = useMemo(() => {
-    if (!seciliKategoriId) return { kendi: [], miras: [] };
-    const kendi = (sablonlarByKategori.get(seciliKategoriId) || []).slice().sort((a, b) => (a.sira || 0) - (b.sira || 0));
-    const miras = ustKategori
-      ? (sablonlarByKategori.get(ustKategori.id) || []).slice().sort((a, b) => (a.sira || 0) - (b.sira || 0))
-      : [];
-    return { kendi, miras };
-  }, [seciliKategoriId, sablonlarByKategori, ustKategori]);
 
   const getKategoriAdi = (k: Kategori) => {
     const ad = k.ad as Record<string, string>;
     return ad?.[locale] || ad?.tr || ad?.de || 'İsimsiz';
   };
 
+  const ancestors = useMemo(() => {
+    if (!seciliKategori) return [];
+    const result: Kategori[] = [];
+    let current: Kategori = seciliKategori;
+    while (current.ust_kategori_id) {
+      const parent = serverKategoriler.find(k => k.id === current.ust_kategori_id);
+      if (!parent) break;
+      result.unshift(parent);
+      current = parent;
+    }
+    return result;
+  }, [seciliKategori, serverKategoriler]);
+
+  const { kendi, miras } = useMemo(() => {
+    if (!seciliKategoriId) return { kendi: [], miras: [] };
+    const kendi = (sablonlarByKategori.get(seciliKategoriId) || []).slice().sort((a, b) => (a.sira || 0) - (b.sira || 0));
+
+    const miras: Array<Sablon & { _kaynakAdi: string }> = [];
+    for (const anc of ancestors) {
+      const ancSablonlar = (sablonlarByKategori.get(anc.id) || []).slice().sort((a, b) => (a.sira || 0) - (b.sira || 0));
+      for (const s of ancSablonlar) {
+        (miras as any[]).push({ ...s, _kaynakAdi: getKategoriAdi(anc) });
+      }
+    }
+    return { kendi, miras };
+  }, [seciliKategoriId, sablonlarByKategori, ancestors]);
+
   const ustKategoriler = serverKategoriler.filter(k => !k.ust_kategori_id);
 
   const handleSelectKategori = (k: Kategori) => {
     setSeciliKategoriId(k.id);
-    if (k.ust_kategori_id) setExpandedIds(prev => new Set([...prev, k.ust_kategori_id!]));
+    // Tüm ata kategorileri expand et
+    const ancestorIds: string[] = [];
+    let current = k;
+    while (current.ust_kategori_id) {
+      ancestorIds.push(current.ust_kategori_id);
+      const parent = serverKategoriler.find(c => c.id === current.ust_kategori_id);
+      if (!parent) break;
+      current = parent;
+    }
+    if (ancestorIds.length > 0) {
+      setExpandedIds(prev => new Set([...prev, ...ancestorIds]));
+    }
   };
 
   const handleToggleExpand = (id: string) => {
@@ -325,6 +390,47 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
         },
       },
       cancel: { label: 'İptal', onClick: () => {} },
+    });
+  };
+
+  const renderTree = (parentId: string | null, depth: number): JSX.Element[] => {
+    const children = serverKategoriler.filter(
+      k => (k.ust_kategori_id || null) === parentId
+    );
+    return children.map(k => {
+      const subChildren = serverKategoriler.filter(c => c.ust_kategori_id === k.id);
+      const isExpanded = expandedIds.has(k.id);
+      const isSelected = seciliKategoriId === k.id;
+      const indent = depth * 20;
+      return (
+        <div key={k.id}>
+          <div
+            style={{ paddingLeft: `${indent}px` }}
+            className={'group flex items-center rounded-lg transition-colors ' + (isSelected ? 'bg-accent/10' : 'hover:bg-gray-100')}
+          >
+            <button
+              onClick={() => subChildren.length ? handleToggleExpand(k.id) : undefined}
+              className={'p-1.5 text-gray-400 ' + (subChildren.length ? 'hover:text-gray-600 cursor-pointer' : 'invisible')}
+            >
+              {isExpanded ? <FiChevronDown size={13} /> : <FiChevronRight size={13} />}
+            </button>
+            <button
+              onClick={() => handleSelectKategori(k)}
+              className={'flex-1 text-left py-1.5 pr-1 truncate ' + (depth === 0 ? 'text-sm font-semibold ' : depth === 1 ? 'text-xs font-medium ' : 'text-xs ')
+                + (isSelected ? 'text-accent' : 'text-gray-700')}
+            >
+              {depth > 0 && <span className="text-gray-300 mr-0.5">{'└ '}</span>}
+              {getKategoriAdi(k)}
+              {subChildren.length > 0 && <span className="ml-1 text-[10px] text-gray-400">({subChildren.length})</span>}
+            </button>
+            <div className="flex gap-0.5 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+              <button onClick={() => setKategoriModal({ open: true, editing: k })} className="p-1 text-gray-400 hover:text-blue-600 rounded"><FiEdit size={11} /></button>
+              <button onClick={() => handleDeleteKategori(k)} className="p-1 text-gray-400 hover:text-red-600 rounded"><FiTrash2 size={11} /></button>
+            </div>
+          </div>
+          {isExpanded && subChildren.length > 0 && renderTree(k.id, depth + 1)}
+        </div>
+      );
     });
   };
 
@@ -390,58 +496,10 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
               </button>
             </div>
             <div className="p-2 space-y-0.5 max-h-[calc(100vh-220px)] overflow-y-auto">
-              {ustKategoriler.length === 0 && (
+              {serverKategoriler.filter(k => !k.ust_kategori_id).length === 0 && (
                 <p className="text-center text-gray-400 text-xs py-6">Henüz kategori yok</p>
               )}
-              {ustKategoriler.map(ust => {
-                const altlar = serverKategoriler.filter(k => k.ust_kategori_id === ust.id);
-                const isExpanded = expandedIds.has(ust.id);
-                const isSelected = seciliKategoriId === ust.id;
-                return (
-                  <div key={ust.id}>
-                    <div className={'group flex items-center rounded-lg transition-colors ' + (isSelected ? 'bg-accent/10' : 'hover:bg-gray-100')}>
-                      <button
-                        onClick={() => altlar.length ? handleToggleExpand(ust.id) : undefined}
-                        className={'p-1.5 text-gray-400 ' + (altlar.length ? 'hover:text-gray-600 cursor-pointer' : 'invisible')}
-                      >
-                        {isExpanded ? <FiChevronDown size={13} /> : <FiChevronRight size={13} />}
-                      </button>
-                      <button
-                        onClick={() => handleSelectKategori(ust)}
-                        className={'flex-1 text-left py-2 pr-1 text-sm font-semibold truncate ' + (isSelected ? 'text-accent' : 'text-gray-700')}
-                      >
-                        {getKategoriAdi(ust)}
-                        {altlar.length > 0 && <span className="ml-1 text-[10px] text-gray-400">({altlar.length})</span>}
-                      </button>
-                      <div className="flex gap-0.5 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                        <button onClick={() => setKategoriModal({ open: true, editing: ust })} className="p-1 text-gray-400 hover:text-blue-600 rounded"><FiEdit size={11} /></button>
-                        <button onClick={() => handleDeleteKategori(ust)} className="p-1 text-gray-400 hover:text-red-600 rounded"><FiTrash2 size={11} /></button>
-                      </div>
-                    </div>
-                    {isExpanded && altlar.length > 0 && (
-                      <div className="ml-6 space-y-0.5 mb-0.5">
-                        {altlar.map(alt => {
-                          const isAltSelected = seciliKategoriId === alt.id;
-                          return (
-                            <div key={alt.id} className={'group flex items-center rounded-lg transition-colors ' + (isAltSelected ? 'bg-accent/10' : 'hover:bg-gray-100')}>
-                              <button
-                                onClick={() => handleSelectKategori(alt)}
-                                className={'flex-1 text-left py-1.5 px-2 text-xs font-medium truncate ' + (isAltSelected ? 'text-accent' : 'text-gray-600')}
-                              >
-                                └ {getKategoriAdi(alt)}
-                              </button>
-                              <div className="flex gap-0.5 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                <button onClick={() => setKategoriModal({ open: true, editing: alt })} className="p-1 text-gray-400 hover:text-blue-600 rounded"><FiEdit size={11} /></button>
-                                <button onClick={() => handleDeleteKategori(alt)} className="p-1 text-gray-400 hover:text-red-600 rounded"><FiTrash2 size={11} /></button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {renderTree(null, 0)}
             </div>
           </div>
         </div>
@@ -460,8 +518,8 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="p-4 border-b bg-gray-50 flex flex-wrap justify-between items-center gap-3">
                   <div>
-                    {ustKategori && (
-                      <p className="text-xs text-gray-400 mb-0.5">{getKategoriAdi(ustKategori)} /</p>
+                    {ancestors.length > 0 && (
+                      <p className="text-xs text-gray-400 mb-0.5">{ancestors.map(a => getKategoriAdi(a)).join(' / ')} /</p>
                     )}
                     <h2 className="font-bold text-gray-800 text-lg leading-tight">{getKategoriAdi(seciliKategori)}</h2>
                   </div>
@@ -503,7 +561,11 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-0.5">Üst Kategori</p>
-                    <p className="text-sm text-gray-600">{ustKategori ? getKategoriAdi(ustKategori) : <span className="text-gray-400 italic text-xs">Ana kategori</span>}</p>
+                    <p className="text-sm text-gray-600">
+                      {ancestors.length > 0
+                        ? ancestors.map(a => getKategoriAdi(a)).join(' → ')
+                        : <span className="text-gray-400 italic text-xs">Ana kategori</span>}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -563,6 +625,7 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
                 <div className="divide-y">
                   {miras.map(s => {
                     const ad = (s.gosterim_adi as Record<string,string>)?.[locale] || (s.gosterim_adi as Record<string,string>)?.tr || s.alan_adi;
+                    const kaynakAdi = (s as any)._kaynakAdi || 'Üst Kategori';
                     return (
                       <div key={s.id} className="px-4 py-3 bg-blue-50/60 flex items-center gap-3">
                         <div className="w-6 text-center text-[10px] text-gray-300 font-mono">{s.sira}</div>
@@ -570,7 +633,7 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-sm font-medium text-gray-600">{ad}</p>
                             <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium shrink-0">
-                              ← {ustKategori ? getKategoriAdi(ustKategori) : 'Üst Kategori'}
+                              ← {kaynakAdi}
                             </span>
                           </div>
                           <p className="text-[11px] text-gray-400 mt-0.5">
