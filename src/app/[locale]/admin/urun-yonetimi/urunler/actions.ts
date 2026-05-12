@@ -592,11 +592,13 @@ export async function deleteUrunAction(
 
 // Hafif güncelleme action'ı - sadece belirli alanları günceller
 export async function quickUpdateUrunAction(
-    urunId: string, 
+    urunId: string,
     updates: {
         distributor_alis_fiyati?: number;
         stok_miktari?: number;
         aktif?: boolean;
+        is_bestseller?: boolean;
+        is_featured?: boolean;
     }
 ): Promise<FormState> {
     const cookieStore = await cookies();
@@ -616,6 +618,12 @@ export async function quickUpdateUrunAction(
     }
     if (updates.aktif !== undefined) {
         updateData.aktif = updates.aktif;
+    }
+    if (updates.is_bestseller !== undefined) {
+        updateData.is_bestseller = updates.is_bestseller;
+    }
+    if (updates.is_featured !== undefined) {
+        updateData.is_featured = updates.is_featured;
     }
 
     const { data, error } = await supabase

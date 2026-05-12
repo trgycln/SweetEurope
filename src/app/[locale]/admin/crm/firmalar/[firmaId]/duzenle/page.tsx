@@ -264,6 +264,28 @@ export default function FirmaDuzenlePage() {
                         )}
                     </div>
 
+                    {/* Fiyat Kademesi (Pricing Tier) */}
+                    <div>
+                        <label htmlFor="pricing_tier" className="block text-sm font-bold text-slate-700 mb-1.5">
+                            Fiyat Kademesi
+                        </label>
+                        <select
+                            id="pricing_tier"
+                            name="pricing_tier"
+                            defaultValue={(firma as any).pricing_tier || ''}
+                            className={inp}
+                        >
+                            <option value="">— Atanmamış —</option>
+                            <option value="koli_bazli">Koli Bazlı</option>
+                            <option value="cok_koli">5 Koli+</option>
+                            <option value="palet">Palet Bazlı</option>
+                            <option value="alt_bayi">Alt Bayi</option>
+                        </select>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                            Katalog sayfasında bu partner için hangi fiyat sırası vurgulanacağını belirler.
+                        </p>
+                    </div>
+
                     {/* Status */}
                     <div>
                         <label htmlFor="status" className="block text-sm font-bold text-slate-700 mb-1.5">Statü</label>

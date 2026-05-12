@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
-import { FiSearch, FiPackage, FiGrid, FiList, FiChevronRight, FiDownload } from 'react-icons/fi';
-import { LuPackage, LuPackage2, LuWeight, LuDroplets, LuBarcode, LuThermometerSnowflake, LuThermometer, LuTruck, LuShieldCheck, LuClock } from 'react-icons/lu';
+import {
+    FiSearch, FiPackage, FiGrid, FiList, FiChevronRight,
+    FiDownload, FiX, FiShoppingBag, FiPlus, FiMinus, FiSend,
+} from 'react-icons/fi';
+import { LuPackage, LuBarcode, LuThermometerSnowflake, LuThermometer } from 'react-icons/lu';
 import { getBadgeText } from '@/lib/labels';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ProductGridClientProps {
     urunler: Urun[];
@@ -14,6 +19,10 @@ interface ProductGridClientProps {
     kategoriAdlariMap: Map<string, string>;
     sablonMap: Record<string, Array<{ alan_adi: string; gosterim_adi: any; sira: number }>>;
     kategoriParentMap: Record<string, string | null>;
+    isLoggedIn?: boolean;
+    partnerTier?: string;
+    bestsellerUrunler?: Urun[];
+    loginHref?: string;
     pagination?: {
         page: number;
         perPage: number;
@@ -25,7 +34,9 @@ interface ProductGridClientProps {
     dictionary?: any;
 }
 
-// ── Quality badge definitions ────────────────────────────────────────────────
+type MerklisteItem = { urunId: string; menge: number };
+
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const BADGE_DEFS = [
     { key: 'vegan',       short: 'Vegan',    bg: 'bg-green-100 text-green-800 border-green-200' },
@@ -33,9 +44,7 @@ const BADGE_DEFS = [
     { key: 'laktosefrei', short: 'LF',        bg: 'bg-blue-100 text-blue-800 border-blue-200' },
     { key: 'bio',         short: 'Bio',       bg: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
     { key: 'ohne_zucker', short: 'Ø Zucker',  bg: 'bg-sky-100 text-sky-800 border-sky-200' },
-    { key: 'pompa_uyumlu', short: 'Pump',     bg: 'bg-orange-100 text-orange-800 border-orange-200' },
     { key: 'katkisiz',    short: 'Pure',      bg: 'bg-teal-100 text-teal-800 border-teal-200' },
-    { key: 'vegetarisch', short: 'Veg.',      bg: 'bg-lime-100 text-lime-800 border-lime-200' },
 ] as const;
 
 const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string }> = {
@@ -49,48 +58,48 @@ const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string }> = {
     'Rainforest': { label: 'Rainforest',bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
 };
 
-// ── Helper: price formatting ───────────────────────────────────────────────
+// Tier → DB field mapping
+const TIER_FIELD: Record<string, keyof Urun> = {
+    koli_bazli: 'satis_fiyati_musteri',
+    cok_koli:   'satis_fiyati_toptanci',
+    palet:      'satis_fiyati_alt_bayi',
+    alt_bayi:   'satis_fiyati_alt_bayi',
+};
 
-function formatPrice(value: number | null | undefined): string {
-    if (value === null || value === undefined) return '—';
-    return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function money(v: number | null | undefined): string {
+    if (v === null || v === undefined) return '—';
+    return new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v) + ' €';
 }
 
-function formatPriceWithCurrency(value: number | null | undefined): string {
-    if (value === null || value === undefined) return '—';
-    return `${formatPrice(value)} €`;
+function isNew(urun: Urun): boolean {
+    if (!urun.created_at) return false;
+    const created = new Date(urun.created_at);
+    const now = new Date();
+    return (now.getTime() - created.getTime()) < 60 * 24 * 60 * 60 * 1000; // 60 days
 }
-
-// ── Helper: storage type ─────────────────────────────────────────────────────
 
 function getStorageType(urun: Urun): 'tiefkuehl' | 'kuehlware' | 'ambient' {
     const tempMax = urun.lagertemperatur_max_celsius;
     const loj = (urun.lojistik_sinifi || '').toLowerCase();
-    const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
-
     if (tempMax !== null && tempMax !== undefined) {
         if (tempMax <= -10) return 'tiefkuehl';
         if (tempMax <= 10) return 'kuehlware';
         return 'ambient';
     }
-
-    if (loj.includes('tiefkühl') || loj.includes('tiefkuehl') || loj.includes('frozen') || loj.includes('dondurulmuş')) return 'tiefkuehl';
+    if (loj.includes('tiefkühl') || loj.includes('frozen')) return 'tiefkuehl';
     if (loj.includes('kühl') || loj.includes('chilled')) return 'kuehlware';
-    if (tekniks.tiefkuehl === true || tekniks.tiefkuehl === 'true') return 'tiefkuehl';
-
     return 'ambient';
 }
 
-// ── Sub-components ───────────────────────────────────────────────────────────
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
     const type = getStorageType(urun);
     const tempMax = urun.lagertemperatur_max_celsius;
-
     if (type === 'tiefkuehl') {
-        const label = tempMax !== null && tempMax !== undefined
-            ? `${tempMax}°C`
-            : (locale === 'de' ? 'Tiefkühl' : 'Frozen');
+        const label = tempMax !== null && tempMax !== undefined ? `${tempMax}°C` : (locale === 'de' ? 'Tiefkühl' : 'Frozen');
         return (
             <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-sm">
                 <LuThermometerSnowflake size={9} /> {label}
@@ -99,9 +108,7 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
     }
     if (type === 'kuehlware') {
         const tempMin = urun.lagertemperatur_min_celsius;
-        const label = (tempMin !== null && tempMin !== undefined && tempMax !== null && tempMax !== undefined)
-            ? `${tempMin}–${tempMax}°C`
-            : (locale === 'de' ? 'Kühlware' : 'Chilled');
+        const label = (tempMin != null && tempMax != null) ? `${tempMin}–${tempMax}°C` : 'Kühlware';
         return (
             <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-300">
                 <LuThermometer size={9} /> {label}
@@ -111,168 +118,375 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
     return null;
 }
 
-function ZertifikatBadges({ zertifikate, max = 3 }: { zertifikate?: string[] | null; max?: number }) {
-    if (!zertifikate || zertifikate.length === 0) return null;
-    return (
-        <div className="flex flex-wrap gap-1">
-            {zertifikate.slice(0, max).map(z => {
-                const cfg = ZERTIFIKAT_CONFIG[z];
-                if (!cfg) return null;
-                return (
-                    <span key={z} className={`inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded border ${cfg.bg}`}>
-                        <LuShieldCheck size={8} /> {cfg.label}
-                    </span>
-                );
-            })}
-            {zertifikate.length > max && (
-                <span className="text-[9px] text-slate-400">+{zertifikate.length - max}</span>
-            )}
-        </div>
-    );
-}
+// ─── Main Catalog Card ────────────────────────────────────────────────────────
 
-function PackagingInfo({ urun, locale }: { urun: Urun; locale: string }) {
+function CatalogCard({
+    urun, locale, kategoriAdlariMap, isLoggedIn, partnerTier, onAddToMerkliste, inMerkliste,
+}: {
+    urun: Urun;
+    locale: string;
+    kategoriAdlariMap: Map<string, string>;
+    isLoggedIn?: boolean;
+    partnerTier?: string;
+    onAddToMerkliste?: (id: string) => void;
+    inMerkliste?: boolean;
+}) {
     const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
+    const name = urun.ad?.[locale] || urun.ad?.['de'] || urun.ad?.['tr'] || '';
+    const kategoriAdi = urun.kategori_id ? kategoriAdlariMap.get(urun.kategori_id) : '';
 
-    const dilimAdet = Number(tekniks.dilim_adedi || tekniks.porsiyon_sayisi || 0);
-    const kutuIciAdet = Number(tekniks.kutu_ici_adet || 0);
-    const koliIciKutu = Number(tekniks.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu ?? 0);
-    const birimKg = Number(urun.birim_agirlik_kg ?? 0);
-    const weightRawG = tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj;
-    const numericG = typeof weightRawG === 'number' ? weightRawG : parseFloat(String(weightRawG || ''));
-    const weightDisplay = birimKg > 0
-        ? (birimKg < 1 ? `${Math.round(birimKg * 1000)} g` : `${birimKg % 1 === 0 ? birimKg : birimKg.toFixed(1)} kg`)
-        : (weightRawG && Number.isFinite(numericG))
-        ? (numericG >= 1000 ? `${(numericG / 1000).toFixed(1)} kg` : `${Math.round(numericG)} g`)
-        : null;
-    const volumeNum = Number(tekniks.hacim_ml ?? tekniks.hacim ?? 0);
-    const volumeDisplay = volumeNum > 0
-        ? (volumeNum >= 1000 ? `${volumeNum % 1000 === 0 ? volumeNum / 1000 : (volumeNum / 1000).toFixed(1)} L` : `${volumeNum} ml`)
-        : null;
-
-    type Chip = { icon: React.ReactNode; label: string; cls: string };
-    const chips: Chip[] = [];
-
-    const kutuLabel = dilimAdet > 0
-        ? (locale === 'de' ? `${dilimAdet} Sch./Ktn.` : `${dilimAdet} dilim/kutu`)
-        : kutuIciAdet > 1
-        ? (locale === 'de' ? `${kutuIciAdet} Stk./Ktn.` : `${kutuIciAdet} adet/kutu`)
-        : null;
-    if (kutuLabel) chips.push({ icon: <LuPackage size={10} />, label: kutuLabel, cls: 'bg-sky-50 text-sky-700 border-sky-200' });
-
-    if (koliIciKutu > 0) chips.push({
-        icon: <LuPackage2 size={10} />,
-        label: `${koliIciKutu} ${locale === 'de' ? 'Ktn./Kiste' : 'kutu/koli'}`,
-        cls: 'bg-violet-50 text-violet-700 border-violet-200',
-    });
-
-    if (weightDisplay) chips.push({ icon: <LuWeight size={10} />, label: weightDisplay, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' });
-
-    if (volumeDisplay && !weightDisplay) chips.push({ icon: <LuDroplets size={10} />, label: volumeDisplay, cls: 'bg-cyan-50 text-cyan-700 border-cyan-200' });
-
-    if (chips.length === 0) return null;
-    return (
-        <div className="flex flex-wrap gap-1 mt-1.5">
-            {chips.map((chip, i) => (
-                <span key={i} className={`inline-flex items-center gap-1 text-[10px] font-semibold border px-1.5 py-0.5 rounded-full ${chip.cls}`}>
-                    {chip.icon} {chip.label}
-                </span>
-            ))}
-        </div>
-    );
-}
-
-function B2BBadges({ tekniks, locale }: { tekniks: Record<string, unknown>; locale: string }) {
-    const active = BADGE_DEFS.filter(b => {
-        const v = tekniks[b.key];
-        return v === true || v === 'true' || v === 'evet' || v === 1;
-    });
-    if (active.length === 0) return null;
-    return (
-        <div className="flex flex-wrap gap-1 mt-1">
-            {active.map(b => (
-                <span key={b.key} title={getBadgeText(b.key as any, locale as any)}
-                    className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}>
-                    {b.short}
-                </span>
-            ))}
-        </div>
-    );
-}
-
-function PricingBlock({ urun, locale }: { urun: Urun; locale: string }) {
-    const unitPrice = urun.satis_fiyati_musteri;
-    const palettePrice = urun.satis_fiyati_toptanci;
-
-    if (!unitPrice && !palettePrice) return null;
-
-    const savingsPercent = unitPrice && palettePrice && unitPrice > 0
-        ? Math.round(((unitPrice - palettePrice) / unitPrice) * 100)
-        : null;
-
-    return (
-        <div className="bg-gradient-to-r from-slate-50 to-blue-50 border border-blue-100 rounded-lg p-2.5 space-y-1.5">
-            {unitPrice && (
-                <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-[10px] font-medium text-slate-600">
-                        {locale === 'de' ? 'Stückpreis:' : 'Unit price:'}
-                    </span>
-                    <span className="text-sm font-semibold text-slate-900">
-                        {formatPriceWithCurrency(unitPrice)}
-                    </span>
-                </div>
-            )}
-            {palettePrice && (
-                <div className="flex items-baseline justify-between gap-2 pt-1 border-t border-blue-200">
-                    <span className="text-[10px] font-medium text-slate-600">
-                        {locale === 'de' ? 'Palettenpreis:' : 'Pallet price:'}
-                    </span>
-                    <span className="text-sm font-semibold text-emerald-700">
-                        {formatPriceWithCurrency(palettePrice)}
-                    </span>
-                </div>
-            )}
-            {savingsPercent && (
-                <div className="text-[9px] text-emerald-700 font-medium">
-                    {locale === 'de' ? `${savingsPercent}% Ersparnis` : `${savingsPercent}% savings`}
-                </div>
-            )}
-            <span className="text-[8px] text-slate-500 block pt-0.5">
-                {locale === 'de' ? 'zzgl. MwSt.' : 'excl. VAT'}
-            </span>
-        </div>
-    );
-}
-
-function PackagingQuantities({ urun, locale }: { urun: Urun; locale: string }) {
     const koliIciAdet = Number(urun.koli_ici_adet ?? 0);
-    const paletIciAdet = Number(urun.palet_ici_adet ?? 0);
+    const paletIciKoliAdet = Number(urun.palet_ici_koli_adet ?? urun.palet_ici_adet ?? 0);
 
-    if (koliIciAdet === 0 && paletIciAdet === 0) return null;
+    const inStock = (urun.stok_miktari ?? 0) > 0;
+    const isNeues = isNew(urun);
+    const isBestseller = urun.is_bestseller === true;
+    const isFeatured = urun.is_featured === true;
+
+    // 3-tier pricing rows
+    const pricingRows = [
+        {
+            label: locale === 'de' ? '1 Karton' : '1 Karton',
+            price: urun.satis_fiyati_musteri,
+            tierKey: 'koli_bazli',
+        },
+        {
+            label: locale === 'de' ? 'Ab 5 Kartons' : '5 Koli+',
+            price: urun.satis_fiyati_toptanci,
+            tierKey: 'cok_koli',
+        },
+        {
+            label: paletIciKoliAdet > 0
+                ? (locale === 'de' ? `1 Palette (${paletIciKoliAdet} Ktn.)` : `1 Palet (${paletIciKoliAdet} koli)`)
+                : (locale === 'de' ? '1 Palette' : '1 Palet'),
+            price: urun.satis_fiyati_alt_bayi,
+            tierKey: 'palet',
+        },
+    ];
+
+    const hasAnyPrice = pricingRows.some(r => r.price != null && r.price > 0);
 
     return (
-        <div className="bg-slate-50 rounded-lg p-2.5 space-y-1 border border-slate-200">
-            {koliIciAdet > 0 && (
-                <div className="flex items-center justify-between text-[10px]">
-                    <span className="font-medium text-slate-700">
-                        {locale === 'de' ? '1 Kiste:' : '1 Carton:'}
-                    </span>
-                    <span className="font-semibold text-slate-900">{koliIciAdet} {locale === 'de' ? 'Stk.' : 'units'}</span>
+        <div className="group flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-400 hover:shadow-lg transition-all duration-200">
+
+            {/* Image area */}
+            <Link href={`/${locale}/products/${urun.slug}`} className="block relative h-44 sm:h-48 bg-slate-50 overflow-hidden flex-shrink-0">
+                {urun.ana_resim_url ? (
+                    <Image src={urun.ana_resim_url} alt={name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <FiPackage className="w-10 h-10 text-slate-300" />
+                    </div>
+                )}
+
+                {/* Category ribbon — bottom left */}
+                {kategoriAdi && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/55 to-transparent px-2.5 py-2.5">
+                        <span className="text-white text-[9px] font-bold tracking-widest uppercase">{kategoriAdi}</span>
+                    </div>
+                )}
+
+                {/* Status badges — top right, stacked */}
+                <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
+                    {isBestseller && (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white shadow-sm">
+                            🏆 Bestseller
+                        </span>
+                    )}
+                    {isNeues && (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm">
+                            Neu
+                        </span>
+                    )}
+                    {isFeatured && !isBestseller && (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white shadow-sm">
+                            Empfohlen
+                        </span>
+                    )}
                 </div>
-            )}
-            {paletIciAdet > 0 && (
-                <div className="flex items-center justify-between text-[10px] pt-1 border-t border-slate-200">
-                    <span className="font-medium text-slate-700">
-                        {locale === 'de' ? '1 Palette:' : '1 Pallet:'}
-                    </span>
-                    <span className="font-semibold text-slate-900">{paletIciAdet} {locale === 'de' ? 'Stk.' : 'units'}</span>
+
+                {/* Storage badge — top left */}
+                <div className="absolute top-2 left-2">
+                    <StorageBadge urun={urun} locale={locale} />
                 </div>
-            )}
+            </Link>
+
+            {/* Content */}
+            <div className="flex flex-col flex-1 p-3 gap-1.5">
+
+                {/* Art.-Nr. + stock dot */}
+                <div className="flex items-center justify-between gap-1">
+                    {urun.stok_kodu && (
+                        <span className="text-[9px] font-mono text-slate-400 flex items-center gap-1 leading-none">
+                            <LuBarcode size={9} /> {urun.stok_kodu}
+                        </span>
+                    )}
+                    <span className={`ml-auto flex items-center gap-1 text-[9px] font-medium flex-shrink-0 ${inStock ? 'text-emerald-600' : 'text-slate-400'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${inStock ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                        {inStock
+                            ? (locale === 'de' ? 'Verfügbar' : 'Mevcut')
+                            : (locale === 'de' ? 'Auf Anfrage' : 'Talep üzerine')}
+                    </span>
+                </div>
+
+                {/* Product name */}
+                <Link href={`/${locale}/products/${urun.slug}`}>
+                    <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 group-hover:text-slate-600">
+                        {name}
+                    </h3>
+                </Link>
+
+                {/* Quantity chips (ONCE only — no duplicate below) */}
+                <div className="flex flex-wrap gap-1">
+                    {koliIciAdet > 0 && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border-sky-200">
+                            <LuPackage size={9} />
+                            {koliIciAdet} {locale === 'de' ? 'Stk./Ktn.' : 'adet/koli'}
+                        </span>
+                    )}
+                    {paletIciKoliAdet > 0 && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border-violet-200">
+                            {paletIciKoliAdet} {locale === 'de' ? 'Ktn./Pal.' : 'koli/palet'}
+                        </span>
+                    )}
+                </div>
+
+                {/* Quality/cert badges row */}
+                <div className="flex flex-wrap gap-1 min-h-[16px]">
+                    {BADGE_DEFS.filter(b => {
+                        const v = tekniks[b.key];
+                        return v === true || v === 'true' || v === 'evet' || v === 1;
+                    }).slice(0, 3).map(b => (
+                        <span key={b.key} title={getBadgeText(b.key as any, locale as any)}
+                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}>
+                            {b.short}
+                        </span>
+                    ))}
+                    {urun.zertifikate?.slice(0, 2).map(z => {
+                        const cfg = ZERTIFIKAT_CONFIG[z];
+                        if (!cfg) return null;
+                        return (
+                            <span key={z} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${cfg.bg}`}>
+                                {cfg.label}
+                            </span>
+                        );
+                    })}
+                </div>
+
+                {/* Pricing area */}
+                <div className="mt-auto pt-2 border-t border-slate-100">
+                    {!isLoggedIn ? (
+                        /* Guest state */
+                        <div className="space-y-2">
+                            <p className="text-xs italic text-slate-400">
+                                {locale === 'de' ? 'Preis auf Anfrage' : 'Fiyat için giriş yapın'}
+                            </p>
+                            <Link href={`/${locale}/products/${urun.slug}`}
+                                className="flex items-center justify-center gap-1 w-full px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 hover:text-slate-800 transition-colors">
+                                Details <FiChevronRight size={11} />
+                            </Link>
+                        </div>
+                    ) : (
+                        /* Partner logged-in state */
+                        <div className="space-y-1.5">
+                            {hasAnyPrice ? (
+                                <div className="space-y-0.5">
+                                    {pricingRows.map((row, i) => {
+                                        if (!row.price || row.price <= 0) return null;
+                                        const isHighlighted = partnerTier === row.tierKey;
+                                        return (
+                                            <div key={i}
+                                                className={`flex items-center justify-between px-1.5 py-0.5 rounded text-[10px] transition-colors
+                                                    ${isHighlighted
+                                                        ? 'bg-indigo-50 border border-indigo-200 font-bold text-indigo-900'
+                                                        : 'text-slate-600'}`}>
+                                                <span className={isHighlighted ? 'text-indigo-700' : 'text-slate-500'}>{row.label}</span>
+                                                <span className={`font-semibold ${isHighlighted ? 'text-indigo-900' : 'text-slate-800'}`}>
+                                                    {money(row.price)}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                    <p className="text-[8px] text-slate-400 text-right">zzgl. MwSt.</p>
+                                </div>
+                            ) : (
+                                <p className="text-[10px] italic text-slate-400">
+                                    {locale === 'de' ? 'Preis auf Anfrage' : 'Fiyat için iletişime geçin'}
+                                </p>
+                            )}
+                            <div className="flex gap-1.5">
+                                <Link href={`/${locale}/products/${urun.slug}`}
+                                    className="flex items-center justify-center gap-1 flex-1 px-2 py-1.5 text-[10px] font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 transition-colors">
+                                    Details
+                                </Link>
+                                <button
+                                    onClick={() => onAddToMerkliste?.(urun.id)}
+                                    className={`flex items-center justify-center gap-1 flex-1 px-2 py-1.5 text-[10px] font-semibold rounded-lg transition-colors
+                                        ${inMerkliste
+                                            ? 'bg-indigo-600 text-white border border-indigo-600'
+                                            : 'bg-slate-900 text-white hover:bg-slate-700'}`}>
+                                    {inMerkliste ? '✓ Gemerkt' : '＋ Merkliste'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
 
-// ── Pagination ───────────────────────────────────────────────────────────────
+// ─── Merkliste Drawer ─────────────────────────────────────────────────────────
+
+function MerklisteDrawer({
+    items, urunler, locale, partnerTier, onClose, onRemove, onChangeMenge,
+}: {
+    items: MerklisteItem[];
+    urunler: Urun[];
+    locale: string;
+    partnerTier?: string;
+    onClose: () => void;
+    onRemove: (id: string) => void;
+    onChangeMenge: (id: string, d: number) => void;
+}) {
+    const urunMap = useMemo(() => new Map(urunler.map(u => [u.id, u])), [urunler]);
+
+    const totalValue = useMemo(() => {
+        return items.reduce((sum, item) => {
+            const u = urunMap.get(item.urunId);
+            if (!u) return sum;
+            const field = partnerTier ? TIER_FIELD[partnerTier] : 'satis_fiyati_musteri';
+            const price = Number((u as any)[field] ?? 0);
+            return sum + price * item.menge;
+        }, 0);
+    }, [items, urunMap, partnerTier]);
+
+    const buildMailBody = () => {
+        const lines = items.map(item => {
+            const u = urunMap.get(item.urunId);
+            if (!u) return '';
+            const name = u.ad?.[locale] || u.ad?.['de'] || '';
+            return `- ${name} × ${item.menge}`;
+        }).filter(Boolean).join('\n');
+        return encodeURIComponent(`Sehr geehrtes Elysion-Team,\n\nich möchte folgende Produkte anfragen:\n\n${lines}\n\nMit freundlichen Grüßen`);
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex">
+            <div className="flex-1 bg-black/40" onClick={onClose} />
+            <div className="w-full max-w-sm bg-white shadow-xl flex flex-col h-full overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                    <h2 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
+                        <FiShoppingBag size={16} />
+                        Merkliste ({items.length})
+                    </h2>
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1"><FiX size={18} /></button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+                    {items.length === 0 ? (
+                        <div className="p-6 text-center text-sm text-slate-400">
+                            {locale === 'de' ? 'Keine Produkte auf der Merkliste.' : 'Merkliste boş.'}
+                        </div>
+                    ) : items.map(item => {
+                        const u = urunMap.get(item.urunId);
+                        if (!u) return null;
+                        const name = u.ad?.[locale] || u.ad?.['de'] || '';
+                        const field = partnerTier ? TIER_FIELD[partnerTier] : 'satis_fiyati_musteri';
+                        const price = Number((u as any)[field] ?? 0);
+                        return (
+                            <div key={item.urunId} className="flex items-center gap-3 px-4 py-3">
+                                {u.ana_resim_url && (
+                                    <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
+                                        <Image src={u.ana_resim_url} alt={name} fill sizes="40px" className="object-cover" />
+                                    </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium text-slate-800 truncate">{name}</p>
+                                    {price > 0 && (
+                                        <p className="text-[10px] text-slate-500">{money(price * item.menge)}</p>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <button onClick={() => onChangeMenge(item.urunId, -1)}
+                                        className="w-6 h-6 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50">
+                                        <FiMinus size={10} />
+                                    </button>
+                                    <span className="text-xs w-5 text-center font-medium">{item.menge}</span>
+                                    <button onClick={() => onChangeMenge(item.urunId, 1)}
+                                        className="w-6 h-6 rounded border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50">
+                                        <FiPlus size={10} />
+                                    </button>
+                                </div>
+                                <button onClick={() => onRemove(item.urunId)} className="text-slate-300 hover:text-red-400 p-0.5">
+                                    <FiX size={14} />
+                                </button>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {items.length > 0 && (
+                    <div className="px-4 py-3 border-t border-slate-200 space-y-2">
+                        {totalValue > 0 && (
+                            <div className="flex justify-between text-xs text-slate-600">
+                                <span>{locale === 'de' ? 'Geschätzter Gesamtwert' : 'Tahmini toplam'}</span>
+                                <span className="font-semibold">{money(totalValue)}</span>
+                            </div>
+                        )}
+                        <a href={`mailto:info@elysonsweets.de?subject=${encodeURIComponent('Anfrage / Bestellung')}&body=${buildMailBody()}`}
+                            className="flex items-center justify-center gap-2 w-full py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition-colors">
+                            <FiSend size={14} />
+                            {locale === 'de' ? 'Anfrage senden' : 'Talep gönder'}
+                        </a>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ─── Bestseller Section ───────────────────────────────────────────────────────
+
+function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, partnerTier, onAddToMerkliste, merklisteIds }: {
+    urunler: Urun[];
+    locale: string;
+    kategoriAdlariMap: Map<string, string>;
+    isLoggedIn?: boolean;
+    partnerTier?: string;
+    onAddToMerkliste?: (id: string) => void;
+    merklisteIds: Set<string>;
+}) {
+    if (urunler.length === 0) return null;
+    return (
+        <div className="mb-8">
+            <div className="flex items-center gap-3 mb-3">
+                <h2 className="text-base font-bold text-slate-800">
+                    Unsere Bestseller 🏆
+                </h2>
+                <div className="h-px flex-1 bg-gradient-to-r from-orange-200 to-transparent" />
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+                {urunler.map(urun => (
+                    <div key={urun.id} className="w-48 flex-shrink-0">
+                        <CatalogCard
+                            urun={urun}
+                            locale={locale}
+                            kategoriAdlariMap={kategoriAdlariMap}
+                            isLoggedIn={isLoggedIn}
+                            partnerTier={partnerTier}
+                            onAddToMerkliste={onAddToMerkliste}
+                            inMerkliste={merklisteIds.has(urun.id)}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
 
 function Pagination({ pagination, locale }: { pagination: NonNullable<ProductGridClientProps['pagination']>; locale: string }) {
     const { page, perPage, total, query, basePath } = pagination;
@@ -320,440 +534,98 @@ function Pagination({ pagination, locale }: { pagination: NonNullable<ProductGri
     );
 }
 
-// ── FO Catalog Card (B2B Grid View) ─────────────────────────────────────────
+// ─── CatalogRow (list view) — unchanged structure, just remove PackagingQuantities ──
 
-function FoCatalogCard({ urun, locale, kategoriAdlariMap }: {
-    urun: Urun;
-    locale: string;
-    kategoriAdlariMap: Map<string, string>;
+function CatalogRow({ urun, locale, kategoriAdlariMap, isLoggedIn }: {
+    urun: Urun; locale: string; kategoriAdlariMap: Map<string, string>; isLoggedIn?: boolean;
 }) {
     const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
     const name = urun.ad?.[locale] || urun.ad?.['de'] || urun.ad?.['tr'] || '';
     const kategoriAdi = urun.kategori_id ? kategoriAdlariMap.get(urun.kategori_id) : '';
-    const moq = urun.mindest_bestellmenge ?? 1;
-    const moqEinheit = urun.mindest_bestellmenge_einheit
-        ?? (locale === 'de' ? 'Kiste' : locale === 'tr' ? 'Koli' : 'Case');
-
     const koliIciAdet = Number(urun.koli_ici_adet ?? 0);
     const paletIciAdet = Number(urun.palet_ici_adet ?? 0);
-    const haltbarkeitMonate = urun.haltbarkeit_monate ?? null;
-
-    // Ambalaj bilgileri
-    const birimKg = Number(urun.birim_agirlik_kg ?? 0);
-    const weightRawG = tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj;
-    const numericG = typeof weightRawG === 'number' ? weightRawG : parseFloat(String(weightRawG || ''));
-    const weightDisplay = birimKg > 0
-        ? (birimKg < 1 ? `${Math.round(birimKg * 1000)} g` : `${birimKg % 1 === 0 ? birimKg : birimKg.toFixed(1)} kg`)
-        : (weightRawG && Number.isFinite(numericG))
-        ? (numericG >= 1000 ? `${(numericG / 1000).toFixed(1)} kg` : `${Math.round(numericG)} g`)
-        : null;
-    const volumeNum = Number(tekniks.hacim_ml ?? tekniks.hacim ?? 0);
-    const volumeDisplay = volumeNum > 0
-        ? (volumeNum >= 1000 ? `${volumeNum % 1000 === 0 ? volumeNum / 1000 : (volumeNum / 1000).toFixed(1)} L` : `${volumeNum} ml`)
-        : null;
-
-    // FO alerjen durumu
-    const allergene: Record<string, boolean> = (urun.allergene as Record<string, boolean>) ?? {};
-    const hasAllergens = Object.values(allergene).some(v => v === true);
+    const activeBadges = BADGE_DEFS.filter(b => { const v = tekniks[b.key]; return v === true || v === 'true' || v === 'evet' || v === 1; });
 
     return (
         <Link href={`/${locale}/products/${urun.slug}`}
-            className="group flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-400 hover:shadow-lg transition-all duration-200">
-
-            {/* Image */}
-            <div className="relative h-48 bg-slate-50 overflow-hidden flex-shrink-0">
-                {urun.ana_resim_url ? (
-                    <Image src={urun.ana_resim_url} alt={name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <FiPackage className="w-10 h-10 text-slate-300" />
-                    </div>
-                )}
-
-                {/* Storage badge — top left (FO=Ambient) */}
-                <div className="absolute top-2 left-2">
-                    <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-800 border border-green-300">
-                        {locale === 'de' ? 'Ambient' : locale === 'tr' ? 'Oda Sıcaklığı' : 'Ambient'}
-                    </span>
-                </div>
-
-                {/* Category ribbon — bottom */}
-                {kategoriAdi && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/55 to-transparent px-2.5 py-2.5">
-                        <span className="text-white text-[9px] font-bold tracking-widest uppercase">{kategoriAdi}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Content */}
-            <div className="flex flex-col flex-1 p-3 gap-1">
-                {/* Art.-Nr. */}
-                {urun.stok_kodu && (
-                    <span className="text-[9px] font-mono text-slate-400 flex items-center gap-1 leading-none">
-                        <LuBarcode size={9} /> {urun.stok_kodu}
-                    </span>
-                )}
-
-                {/* Product name */}
-                <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 group-hover:text-slate-600">
-                    {name}
-                </h3>
-
-                {/* Packaging weight/volume chip */}
-                {(weightDisplay || volumeDisplay) && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                        {weightDisplay && (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded border bg-emerald-50 text-emerald-700 border-emerald-200">
-                                <LuWeight size={8} /> {weightDisplay}
-                            </span>
-                        )}
-                        {volumeDisplay && !weightDisplay && (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded border bg-cyan-50 text-cyan-700 border-cyan-200">
-                                <LuDroplets size={8} /> {volumeDisplay}
-                            </span>
-                        )}
-                        {haltbarkeitMonate && (
-                            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded border bg-orange-50 text-orange-700 border-orange-200">
-                                <LuClock size={8} /> {haltbarkeitMonate} {locale === 'de' ? 'Monate' : locale === 'tr' ? 'ay' : 'months'}
-                            </span>
-                        )}
-                    </div>
-                )}
-
-                {/* Quality badges */}
-                <div className="flex flex-wrap gap-1 mt-1 min-h-[18px]">
-                    {!hasAllergens && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded border bg-green-50 text-green-800 border-green-200">
-                            {locale === 'de' ? 'Keine Allergene' : locale === 'tr' ? 'Alerjen Yok' : 'No Allergens'}
-                        </span>
-                    )}
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded border bg-amber-50 text-amber-800 border-amber-200">
-                        {locale === 'de' ? 'Ohne Gentechnik' : locale === 'tr' ? 'GDO-frei' : 'Non-GMO'}
-                    </span>
-                    {urun.zertifikate?.slice(0, 1).map(z => {
-                        const cfg = ZERTIFIKAT_CONFIG[z];
-                        if (!cfg) return null;
-                        return (
-                            <span key={z} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${cfg.bg}`}>
-                                {cfg.label}
-                            </span>
-                        );
-                    })}
-                </div>
-
-                {/* Lojistik bilgisi */}
-                {(koliIciAdet > 0 || paletIciAdet > 0) && (
-                    <div className="mt-2 p-2 bg-slate-50 rounded-lg border border-slate-200 text-[9px] space-y-1">
-                        {koliIciAdet > 0 && (
-                            <div className="flex justify-between">
-                                <span className="text-slate-600 font-medium">{locale === 'de' ? '1 Kiste:' : '1 Carton:'}</span>
-                                <span className="font-bold text-slate-900">{koliIciAdet} {locale === 'de' ? 'Stk.' : 'units'}</span>
-                            </div>
-                        )}
-                        {paletIciAdet > 0 && (
-                            <div className="flex justify-between">
-                                <span className="text-slate-600 font-medium">{locale === 'de' ? '1 Palette:' : '1 Pallet:'}</span>
-                                <span className="font-bold text-slate-900">{paletIciAdet} {locale === 'de' ? 'Stk.' : 'units'}</span>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* EAN */}
-                {urun.ean_gtin && (
-                    <span className="text-[8px] font-mono text-slate-400 mt-1">EAN: {urun.ean_gtin}</span>
-                )}
-
-                {/* Footer: MOQ + Arrow */}
-                <div className="mt-auto pt-2 border-t border-slate-100">
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                            <LuPackage size={10} className="text-slate-400" />
-                            <span className="font-medium">
-                                {locale === 'de' ? `ab ${moq} ${moqEinheit}` :
-                                 locale === 'tr' ? `min. ${moq} ${moqEinheit}` :
-                                 `min. ${moq} ${moqEinheit}`}
-                            </span>
-                        </span>
-                        <span className="text-[10px] text-slate-400 flex items-center gap-0.5 group-hover:text-slate-700 transition-colors">
-                            {locale === 'de' ? 'Details' : locale === 'tr' ? 'Detay' : 'Details'}
-                            <FiChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </Link>
-    );
-}
-
-// ── Catalog Card (B2B Grid View — SweetHeaven) ─────────────────────────────────────────────
-
-function CatalogCard({ urun, locale, kategoriAdlariMap }: {
-    urun: Urun;
-    locale: string;
-    kategoriAdlariMap: Map<string, string>;
-}) {
-    const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
-    const name = urun.ad?.[locale] || urun.ad?.['de'] || urun.ad?.['tr'] || '';
-    const kategoriAdi = urun.kategori_id ? kategoriAdlariMap.get(urun.kategori_id) : '';
-    const moq = urun.mindest_bestellmenge ?? 1;
-    const moqEinheit = urun.mindest_bestellmenge_einheit
-        ?? (locale === 'de' ? 'Karton' : locale === 'tr' ? 'Karton' : 'Box');
-
-    return (
-        <Link href={`/${locale}/products/${urun.slug}`}
-            className="group flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-400 hover:shadow-lg transition-all duration-200">
-
-            {/* Image */}
-            <div className="relative h-48 bg-slate-50 overflow-hidden flex-shrink-0">
-                {urun.ana_resim_url ? (
-                    <Image src={urun.ana_resim_url} alt={name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <FiPackage className="w-10 h-10 text-slate-300" />
-                    </div>
-                )}
-
-                {/* Storage badge — top left */}
-                <div className="absolute top-2 left-2">
-                    <StorageBadge urun={urun} locale={locale} />
-                </div>
-
-                {/* Category ribbon — bottom */}
-                {kategoriAdi && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/55 to-transparent px-2.5 py-2.5">
-                        <span className="text-white text-[9px] font-bold tracking-widest uppercase">{kategoriAdi}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Content */}
-            <div className="flex flex-col flex-1 p-3 gap-1">
-                {/* Art.-Nr. */}
-                {urun.stok_kodu && (
-                    <span className="text-[9px] font-mono text-slate-400 flex items-center gap-1 leading-none">
-                        <LuBarcode size={9} /> {urun.stok_kodu}
-                    </span>
-                )}
-
-                {/* Product name */}
-                <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 group-hover:text-slate-600">
-                    {name}
-                </h3>
-
-                {/* Packaging chips */}
-                <PackagingInfo urun={urun} locale={locale} />
-
-                {/* Quality + Certifications row */}
-                <div className="flex flex-wrap gap-1 mt-1 min-h-[18px]">
-                    {BADGE_DEFS.filter(b => {
-                        const v = tekniks[b.key];
-                        return v === true || v === 'true' || v === 'evet' || v === 1;
-                    }).slice(0, 3).map(b => (
-                        <span key={b.key} title={getBadgeText(b.key as any, locale as any)}
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}>
-                            {b.short}
-                        </span>
-                    ))}
-                    {urun.zertifikate?.slice(0, 2).map(z => {
-                        const cfg = ZERTIFIKAT_CONFIG[z];
-                        if (!cfg) return null;
-                        return (
-                            <span key={z} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${cfg.bg}`}>
-                                {cfg.label}
-                            </span>
-                        );
-                    })}
-                </div>
-
-                {/* Pricing block */}
-                <div className="mt-2">
-                    <PricingBlock urun={urun} locale={locale} />
-                </div>
-
-                {/* Packaging quantities */}
-                <div className="mt-2">
-                    <PackagingQuantities urun={urun} locale={locale} />
-                </div>
-
-                {/* Footer: MOQ + Arrow + PDF */}
-                <div className="mt-auto pt-2 border-t border-slate-100 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                            <LuPackage size={10} className="text-slate-400" />
-                            <span className="font-medium">
-                                {locale === 'de' ? `ab ${moq} ${moqEinheit}` :
-                                 locale === 'tr' ? `min. ${moq} ${moqEinheit}` :
-                                 `min. ${moq} ${moqEinheit}`}
-                            </span>
-                        </span>
-                        <span className="text-[10px] text-slate-400 flex items-center gap-0.5 group-hover:text-slate-700 transition-colors">
-                            {locale === 'de' ? 'Details' : locale === 'tr' ? 'Detay' : 'Details'}
-                            <FiChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
-                        </span>
-                    </div>
-                    {urun.produktdatenblatt_url && (
-                        <a href={urun.produktdatenblatt_url} target="_blank" rel="noopener noreferrer"
-                            className="text-[10px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1.5 transition-colors"
-                            onClick={e => e.stopPropagation()}>
-                            <FiDownload size={10} />
-                            {locale === 'de' ? 'Datenblatt PDF' : locale === 'tr' ? 'Veri Sayfası' : 'Datasheet'}
-                        </a>
-                    )}
-                </div>
-            </div>
-        </Link>
-    );
-}
-
-// ── Catalog Row (B2B List View) ──────────────────────────────────────────────
-
-function CatalogRow({ urun, locale, kategoriAdlariMap }: {
-    urun: Urun;
-    locale: string;
-    kategoriAdlariMap: Map<string, string>;
-}) {
-    const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
-    const name = urun.ad?.[locale] || urun.ad?.['de'] || urun.ad?.['tr'] || '';
-    const kategoriAdi = urun.kategori_id ? kategoriAdlariMap.get(urun.kategori_id) : '';
-
-    const dilimAdet = Number(tekniks.dilim_adedi || tekniks.porsiyon_sayisi || 0);
-    const kutuIciAdet = Number(tekniks.kutu_ici_adet || 0);
-    const koliIciKutu = Number(tekniks.koli_ici_kutu_adet || tekniks.koli_ici_kutu || 0);
-    const birimKg = Number(urun.birim_agirlik_kg || 0);
-    const weightRaw = tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj;
-    const numericWeight = typeof weightRaw === 'number' ? weightRaw : parseFloat(String(weightRaw || ''));
-    const weight = birimKg > 0
-        ? (birimKg >= 1 ? `${birimKg.toFixed(birimKg === Math.floor(birimKg) ? 0 : 1)} kg` : `${Math.round(birimKg * 1000)} g`)
-        : (weightRaw && Number.isFinite(numericWeight))
-        ? (numericWeight >= 1000 ? `${(numericWeight / 1000).toFixed(1)} kg` : `${numericWeight} g`)
-        : '—';
-
-    const unitLabel = dilimAdet > 0
-        ? `${dilimAdet} ${locale === 'de' ? 'Sch.' : 'dilim'}`
-        : kutuIciAdet > 0
-        ? `${kutuIciAdet} ${locale === 'de' ? 'Stk.' : 'adet'}`
-        : '—';
-
-    const koliLabel = koliIciKutu > 0
-        ? `${koliIciKutu} ${locale === 'de' ? 'Ktn.' : 'kutu'}`
-        : '—';
-
-    const koliIciAdet = Number(urun.koli_ici_adet ?? 0);
-    const paletIciAdet = Number(urun.palet_ici_adet ?? 0);
-
-    const moq = urun.mindest_bestellmenge ?? 1;
-    const moqEinheit = urun.mindest_bestellmenge_einheit ?? (locale === 'de' ? 'Ktn.' : 'Box');
-
-    const activeBadges = BADGE_DEFS.filter(b => {
-        const v = tekniks[b.key];
-        return v === true || v === 'true' || v === 'evet' || v === 1;
-    });
-
-    return (
-        <Link href={`/${locale}/products/${urun.slug}`}
-            className="group grid grid-cols-[48px_2.5fr_1fr_90px_80px_120px_80px_80px_90px_100px_50px_auto] items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors cursor-pointer">
-
-            {/* Thumbnail */}
-            <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
-                {urun.ana_resim_url
-                    ? <Image src={urun.ana_resim_url} alt={name} fill sizes="48px" className="object-cover" />
-                    : <FiPackage className="w-5 h-5 text-slate-300 absolute inset-0 m-auto" />}
-            </div>
-
-            {/* Name + Art.-Nr. + EAN */}
+            className="group grid grid-cols-[2.5fr_1fr_80px_80px_120px_100px_40px] items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer">
             <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-slate-600">{name}</p>
-                {urun.stok_kodu && (
-                    <p className="text-[10px] font-mono text-slate-400 flex items-center gap-1">
-                        <LuBarcode size={9} /> {urun.stok_kodu}
-                    </p>
-                )}
-                {urun.ean_gtin && (
-                    <p className="text-[9px] font-mono text-slate-300">EAN: {urun.ean_gtin}</p>
-                )}
+                <div className="flex items-center gap-2 mt-0.5">
+                    {urun.stok_kodu && <span className="text-[10px] font-mono text-slate-400">{urun.stok_kodu}</span>}
+                    <span className="text-[10px] text-slate-400">{kategoriAdi}</span>
+                </div>
             </div>
-
-            {/* Category */}
-            <span className="text-xs text-slate-500 truncate hidden md:block">{kategoriAdi}</span>
-
-            {/* Storage */}
-            <div className="hidden lg:flex justify-center">
-                <StorageBadge urun={urun} locale={locale} />
-            </div>
-
-            {/* Units */}
-            <span className="text-xs text-slate-700 text-center font-medium">{unitLabel}</span>
-
-            {/* Boxes/case + Packing quantities */}
-            <div className="text-xs text-slate-700 text-center space-y-0.5">
-                {koliLabel !== '—' && <div className="font-medium">{koliLabel}</div>}
-                {koliIciAdet > 0 && <div className="text-[9px] text-slate-600">{koliIciAdet} {locale === 'de' ? 'Stk./Kiste' : 'units/carton'}</div>}
-                {paletIciAdet > 0 && <div className="text-[9px] text-slate-600">{paletIciAdet} {locale === 'de' ? 'Stk./Pal.' : 'units/pallet'}</div>}
-                {koliLabel === '—' && koliIciAdet === 0 && paletIciAdet === 0 && <div className="font-medium">—</div>}
-            </div>
-
-            {/* Weight */}
-            <span className="text-xs text-slate-700 text-center">{weight}</span>
-
-            {/* MOQ */}
-            <span className="text-xs text-slate-700 text-center font-medium hidden xl:block">
-                {moq} {moqEinheit}
-            </span>
-
-            {/* Badges + Zertifikate */}
-            <div className="flex gap-1 flex-wrap hidden lg:flex">
+            <StorageBadge urun={urun} locale={locale} />
+            <div className="text-xs text-slate-600 text-center">{koliIciAdet > 0 ? `${koliIciAdet} Stk.` : '—'}</div>
+            <div className="text-xs text-slate-600 text-center">{paletIciAdet > 0 ? `${paletIciAdet} Stk.` : '—'}</div>
+            <div className="flex gap-1 flex-wrap">
                 {activeBadges.slice(0, 2).map(b => (
-                    <span key={b.key} title={getBadgeText(b.key as any, locale as any)}
-                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}>
-                        {b.short}
-                    </span>
+                    <span key={b.key} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}>{b.short}</span>
                 ))}
-                {urun.zertifikate?.slice(0, 1).map(z => {
-                    const cfg = ZERTIFIKAT_CONFIG[z];
-                    if (!cfg) return null;
-                    return (
-                        <span key={z} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${cfg.bg}`}>
-                            {cfg.label}
-                        </span>
-                    );
-                })}
             </div>
-
-            {/* Price */}
-            <div className="text-xs text-slate-700 text-center hidden lg:block">
-                {urun.satis_fiyati_musteri
-                    ? formatPriceWithCurrency(urun.satis_fiyati_musteri)
-                    : '—'}
+            <div className="text-xs text-slate-700 text-center">
+                {isLoggedIn
+                    ? (urun.satis_fiyati_musteri ? money(urun.satis_fiyati_musteri) : '—')
+                    : <span className="italic text-slate-400 text-[10px]">Auf Anfrage</span>
+                }
             </div>
-
-            {/* PDF Link */}
-            {urun.produktdatenblatt_url ? (
-                <a href={urun.produktdatenblatt_url} target="_blank" rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-blue-600 transition-colors flex justify-center"
-                    onClick={e => e.stopPropagation()}
-                    title={locale === 'de' ? 'Datenblatt PDF' : 'Datasheet'}>
-                    <FiDownload size={14} />
-                </a>
-            ) : (
-                <span className="text-slate-200" />
-            )}
-
-            {/* Arrow */}
             <FiChevronRight size={14} className="text-slate-300 group-hover:text-slate-600 justify-self-end transition-colors" />
         </Link>
     );
 }
 
-// ── Main Export ──────────────────────────────────────────────────────────────
+// ─── Main Export ──────────────────────────────────────────────────────────────
 
 export function ProductGridClient({
-    urunler, locale, kategoriAdlariMap, sablonMap, kategoriParentMap, pagination, dictionary
+    urunler, locale, kategoriAdlariMap, sablonMap, kategoriParentMap,
+    pagination, dictionary, isLoggedIn, partnerTier, bestsellerUrunler = [], loginHref,
 }: ProductGridClientProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [merklisteItems, setMerklisteItems] = useState<MerklisteItem[]>([]);
+    const [merklisteOpen, setMerklisteOpen] = useState(false);
+    const [bannerDismissed, setBannerDismissed] = useState(false);
+
+    // Load merkliste from localStorage
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem('merkliste');
+            if (stored) setMerklisteItems(JSON.parse(stored));
+        } catch {}
+        try {
+            setBannerDismissed(sessionStorage.getItem('guest_banner_dismissed') === '1');
+        } catch {}
+    }, []);
+
+    // Persist merkliste
+    useEffect(() => {
+        try { localStorage.setItem('merkliste', JSON.stringify(merklisteItems)); } catch {}
+    }, [merklisteItems]);
+
+    const merklisteIds = useMemo(() => new Set(merklisteItems.map(i => i.urunId)), [merklisteItems]);
+
+    const addToMerkliste = useCallback((urunId: string) => {
+        setMerklisteItems(prev => {
+            if (prev.some(i => i.urunId === urunId)) return prev.filter(i => i.urunId !== urunId);
+            return [...prev, { urunId, menge: 1 }];
+        });
+    }, []);
+
+    const changeItemMenge = useCallback((urunId: string, delta: number) => {
+        setMerklisteItems(prev => prev
+            .map(i => i.urunId === urunId ? { ...i, menge: Math.max(1, i.menge + delta) } : i)
+        );
+    }, []);
+
+    const removeFromMerkliste = useCallback((urunId: string) => {
+        setMerklisteItems(prev => prev.filter(i => i.urunId !== urunId));
+    }, []);
+
+    const dismissBanner = () => {
+        setBannerDismissed(true);
+        try { sessionStorage.setItem('guest_banner_dismissed', '1'); } catch {}
+    };
 
     const filteredUrunler = useMemo(() => {
         if (!searchTerm) return urunler;
@@ -761,47 +633,74 @@ export function ProductGridClient({
         return urunler.filter(urun => {
             const sku = (urun.stok_kodu || '').toLowerCase();
             const ean = (urun.ean_gtin || '').toLowerCase();
-
-            // Tüm dillerdeki ürün adlarını ara
             const allNames = urun.ad ? Object.values(urun.ad).map(n => String(n || '').toLowerCase()) : [];
-            const nameMatches = allNames.some(name => name.includes(q));
-
-            return nameMatches || sku.includes(q) || ean.includes(q);
+            return allNames.some(n => n.includes(q)) || sku.includes(q) || ean.includes(q);
         });
-    }, [urunler, searchTerm, locale]);
+    }, [urunler, searchTerm]);
 
-    const L = {
-        searchPlaceholder: locale === 'de'
-            ? 'Produkt, Art.-Nr. oder EAN suchen…'
-            : locale === 'tr' ? 'Ürün adı, stok kodu veya EAN…'
-            : locale === 'en' ? 'Search by product, SKU or EAN…'
-            : '…',
-        noResults: locale === 'de' ? 'Keine Produkte gefunden' : locale === 'tr' ? 'Ürün bulunamadı' : 'No products found',
-        unitsCol:    locale === 'de' ? 'Stk./Ktn.' : locale === 'tr' ? 'Adet/Kutu'  : 'Units/Box',
-        boxesCol:    locale === 'de' ? 'Ktn./Kiste': locale === 'tr' ? 'Kutu/Koli'  : 'Boxes/Case',
-        weightCol:   locale === 'de' ? 'Gewicht'   : locale === 'tr' ? 'Ağırlık'    : 'Weight',
-        badgesCol:   locale === 'de' ? 'Merkmale'  : locale === 'tr' ? 'Özellikler' : 'Properties',
-        categoryCol: locale === 'de' ? 'Kategorie' : locale === 'tr' ? 'Kategori'   : 'Category',
-        productCol:  locale === 'de' ? 'Produkt'   : locale === 'tr' ? 'Ürün'       : 'Product',
-        storageCol:  locale === 'de' ? 'Lagerung'  : locale === 'tr' ? 'Depolama'   : 'Storage',
-        moqCol:      locale === 'de' ? 'MOQ'       : locale === 'tr' ? 'MOQ'        : 'MOQ',
-        priceCol:    locale === 'de' ? 'Preis'     : locale === 'tr' ? 'Fiyat'      : 'Price',
-        pdfCol:      locale === 'de' ? 'Datenblatt': locale === 'tr' ? 'Veri Sayfası' : 'Datasheet',
-        countLabel: (n: number) => locale === 'de' ? `${n} Artikel` : locale === 'tr' ? `${n} ürün` : `${n} items`,
-    };
+    const searchPlaceholder = locale === 'de'
+        ? 'Produkt, Art.-Nr. oder EAN suchen…'
+        : 'Ürün adı, stok kodu veya EAN…';
+
+    // All urunler for merkliste price lookup (page + bestsellers)
+    const allUrunler = useMemo(() => {
+        const map = new Map<string, Urun>();
+        [...urunler, ...bestsellerUrunler].forEach(u => map.set(u.id, u));
+        return Array.from(map.values());
+    }, [urunler, bestsellerUrunler]);
 
     return (
         <div className="space-y-4">
+
+            {/* Guest banner */}
+            {!isLoggedIn && !bannerDismissed && (
+                <div className="flex items-center justify-between gap-3 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
+                    <p className="text-sm text-indigo-800">
+                        <span className="font-semibold hidden sm:inline">
+                            {locale === 'de' ? 'Für Preise und Bestellungen' : 'Fiyatlar için'}
+                        </span>
+                        {' '}
+                        <span className="text-indigo-700">
+                            {locale === 'de' ? 'bitte im Partnerportal anmelden.' : 'partner portalına giriş yapın.'}
+                        </span>
+                    </p>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        {loginHref && (
+                            <Link href={loginHref}
+                                className="text-xs font-semibold px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors whitespace-nowrap">
+                                {locale === 'de' ? 'Jetzt anmelden →' : 'Giriş yap →'}
+                            </Link>
+                        )}
+                        <button onClick={dismissBanner} className="text-indigo-400 hover:text-indigo-600 p-1">
+                            <FiX size={14} />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Bestseller section */}
+            {bestsellerUrunler.length > 0 && !searchTerm && (
+                <BestsellerSection
+                    urunler={bestsellerUrunler}
+                    locale={locale}
+                    kategoriAdlariMap={kategoriAdlariMap}
+                    isLoggedIn={isLoggedIn}
+                    partnerTier={partnerTier}
+                    onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                    merklisteIds={merklisteIds}
+                />
+            )}
+
             {/* Toolbar */}
             <div className="flex items-center gap-2 flex-wrap">
                 <div className="relative flex-1 max-w-sm">
                     <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
                     <input
                         type="text"
-                        placeholder={L.searchPlaceholder}
+                        placeholder={searchPlaceholder}
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
-                        className="w-full pl-8 pr-7 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-slate-400"
+                        className="w-full pl-8 pr-7 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
                     />
                     {searchTerm && (
                         <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">✕</button>
@@ -810,12 +709,10 @@ export function ProductGridClient({
 
                 <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm ml-auto">
                     <button onClick={() => setViewMode('grid')}
-                        title={locale === 'de' ? 'Kachelansicht' : 'Grid view'}
                         className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
                         <FiGrid size={15} />
                     </button>
                     <button onClick={() => setViewMode('list')}
-                        title={locale === 'de' ? 'Listenansicht' : 'List view'}
                         className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
                         <FiList size={15} />
                     </button>
@@ -823,7 +720,7 @@ export function ProductGridClient({
 
                 {filteredUrunler.length > 0 && (
                     <span className="text-xs text-slate-400 whitespace-nowrap">
-                        {L.countLabel(filteredUrunler.length)}
+                        {locale === 'de' ? `${filteredUrunler.length} Artikel` : `${filteredUrunler.length} ürün`}
                     </span>
                 )}
             </div>
@@ -832,44 +729,69 @@ export function ProductGridClient({
             {filteredUrunler.length === 0 ? (
                 <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
                     <FiPackage className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                    <p className="text-sm font-medium text-slate-500">{L.noResults}</p>
+                    <p className="text-sm font-medium text-slate-500">
+                        {locale === 'de' ? 'Keine Produkte gefunden' : 'Ürün bulunamadı'}
+                    </p>
                 </div>
             ) : viewMode === 'grid' ? (
                 <>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-                        {filteredUrunler.map(urun => {
-                            const isFoProduct = urun.kategoriler?.urun_gami === 'barista-bakery-essentials';
-                            return isFoProduct
-                                ? <FoCatalogCard key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} />
-                                : <CatalogCard key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} />;
-                        })}
+                        {filteredUrunler.map(urun => (
+                            <CatalogCard
+                                key={urun.id}
+                                urun={urun}
+                                locale={locale}
+                                kategoriAdlariMap={kategoriAdlariMap}
+                                isLoggedIn={isLoggedIn}
+                                partnerTier={partnerTier}
+                                onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                                inMerkliste={merklisteIds.has(urun.id)}
+                            />
+                        ))}
                     </div>
                     {pagination && <Pagination pagination={pagination} locale={locale} />}
                 </>
             ) : (
                 <>
-                    {/* Table header */}
-                    <div className="hidden lg:grid grid-cols-[48px_2.5fr_1fr_90px_80px_120px_80px_80px_90px_100px_50px_auto] gap-3 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200 bg-slate-50 rounded-t-lg">
-                        <span />
-                        <span>{L.productCol}</span>
-                        <span>{L.categoryCol}</span>
-                        <span className="text-center">{L.storageCol}</span>
-                        <span className="text-center">{L.unitsCol}</span>
-                        <span className="text-center">{locale === 'de' ? 'Gebindegr.' : 'Package Info'}</span>
-                        <span className="text-center">{L.weightCol}</span>
-                        <span className="text-center">{L.moqCol}</span>
-                        <span>{L.badgesCol}</span>
-                        <span className="text-center">{locale === 'de' ? 'Preis' : 'Price'}</span>
-                        <span className="text-center">{locale === 'de' ? 'PDF' : 'PDF'}</span>
+                    <div className="hidden lg:grid grid-cols-[2.5fr_1fr_80px_80px_120px_100px_40px] gap-3 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200 bg-slate-50 rounded-t-lg">
+                        <span>{locale === 'de' ? 'Produkt' : 'Ürün'}</span>
+                        <span>{locale === 'de' ? 'Lagerung' : 'Depolama'}</span>
+                        <span className="text-center">{locale === 'de' ? 'Stk./Ktn.' : 'Adet/Koli'}</span>
+                        <span className="text-center">{locale === 'de' ? 'Stk./Pal.' : 'Adet/Palet'}</span>
+                        <span>{locale === 'de' ? 'Merkmale' : 'Özellikler'}</span>
+                        <span className="text-center">{locale === 'de' ? 'Preis' : 'Fiyat'}</span>
                         <span />
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
                         {filteredUrunler.map(urun => (
-                            <CatalogRow key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} />
+                            <CatalogRow key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
                         ))}
                     </div>
                     {pagination && <Pagination pagination={pagination} locale={locale} />}
                 </>
+            )}
+
+            {/* Merkliste floating button (logged-in only) */}
+            {isLoggedIn && merklisteItems.length > 0 && (
+                <button
+                    onClick={() => setMerklisteOpen(true)}
+                    className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-slate-900 text-white px-4 py-3 rounded-full shadow-lg hover:bg-slate-700 transition-colors">
+                    <FiShoppingBag size={18} />
+                    <span className="text-sm font-semibold">{merklisteItems.length}</span>
+                </button>
+            )}
+
+            {/* Merkliste drawer */}
+            {merklisteOpen && isLoggedIn && (
+                <MerklisteDrawer
+                    items={merklisteItems}
+                    urunler={allUrunler}
+                    locale={locale}
+                    partnerTier={partnerTier}
+                    onClose={() => setMerklisteOpen(false)}
+                    onRemove={removeFromMerkliste}
+                    onChangeMenge={changeItemMenge}
+                />
             )}
         </div>
     );

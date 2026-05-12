@@ -24,6 +24,8 @@ export type Urun = Pick<Tables<'urunler'>,
     | 'kategori_id' | 'teknik_ozellikler' | 'urun_gami'
     | 'birim_agirlik_kg'
     | 'stok_kodu' | 'aciklamalar' | 'lojistik_sinifi'
+    | 'stok_miktari'
+    | 'created_at'
     // B2B Germany fields
     | 'ean_gtin'
     | 'herkunftsland'
@@ -41,15 +43,20 @@ export type Urun = Pick<Tables<'urunler'>,
     | 'produktdatenblatt_url'
     | 'hersteller_name'
     | 'hersteller_land'
-    // Pricing & packaging (FO mantığı: adet bazlı)
+    // Pricing & packaging
     | 'satis_fiyati_musteri'
     | 'satis_fiyati_toptanci'
+    | 'satis_fiyati_alt_bayi'
     | 'koli_ici_adet'
     | 'palet_ici_adet'
+    | 'palet_ici_koli_adet'
 > & {
     kategoriler?: Pick<Tables<'kategoriler'>, 'ad' | 'slug' | 'urun_gami'> | null;
     ortalama_puan?: number | null;
     degerlendirme_sayisi?: number | null;
+    // New flags (added via migration — optional until deployed)
+    is_bestseller?: boolean | null;
+    is_featured?: boolean | null;
 };
 
 export type Kategori = Pick<Tables<'kategoriler'>, 'id' | 'ad' | 'slug' | 'ust_kategori_id' | 'urun_gami'>;

@@ -43,7 +43,9 @@
       "Bash(Get-ChildItem -Path \".\" -Name)",
       "Bash(node patch-pricing.mjs)",
       "Bash(mkdir -p \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\\\\src\\\\app\\\\[locale]\\\\admin\\\\pazarlama\\\\sosyal-medya-editoru\")",
-      "Bash(cd \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\" && rm -rf \"src/app/[locale]/admin/pazarlama/sosyal-medya-editoru\" && git add -A && git commit -m \"Remove: sosyal-medya-editoru page \\(no longer needed\\)\")"
+      "Bash(cd \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\" && rm -rf \"src/app/[locale]/admin/pazarlama/sosyal-medya-editoru\" && git add -A && git commit -m \"Remove: sosyal-medya-editoru page \\(no longer needed\\)\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\\\\src\\\\app\\\\[locale]\\\\products\" -Recurse)",
+      "Bash(Select-Object FullName)"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\.claude\\projects\\c--Users-User-Projeler--Web-Sayfalari--sweetheaven-germany\\memory",

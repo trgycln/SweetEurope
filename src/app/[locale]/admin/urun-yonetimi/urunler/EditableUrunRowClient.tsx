@@ -8,6 +8,8 @@ export default function EditableUrunRowClient({ urun, tierPrices, locale, conten
     const [alisFiyati, setAlisFiyati] = React.useState(urun.distributor_alis_fiyati ?? 0);
     const [stokMiktari, setStokMiktari] = React.useState(urun.stok_miktari ?? 0);
     const [aktif, setAktif] = React.useState(urun.aktif ?? true);
+    const [isBestseller, setIsBestseller] = React.useState(urun.is_bestseller ?? false);
+    const [isFeatured, setIsFeatured] = React.useState(urun.is_featured ?? false);
     const [loading, setLoading] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const [error, setError] = React.useState("");
@@ -100,6 +102,42 @@ export default function EditableUrunRowClient({ urun, tierPrices, locale, conten
                     <span className={`inline-flex px-2 py-0.5 text-[11px] font-semibold rounded-full ${urun.aktif ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                         {urun.aktif ? 'Aktif' : 'Pasif'}
                     </span>
+                )}
+            </td>
+
+            {/* Bestseller toggle */}
+            <td className="px-3 py-2 text-center">
+                {isAdmin ? (
+                    <button
+                        title="Bestseller"
+                        onClick={async () => {
+                            const next = !isBestseller;
+                            setIsBestseller(next);
+                            await quickUpdateUrunAction(urun.id, { is_bestseller: next });
+                        }}
+                        className={`text-lg transition ${isBestseller ? 'opacity-100' : 'opacity-25 hover:opacity-60'}`}>
+                        🏆
+                    </button>
+                ) : (
+                    <span className={isBestseller ? 'text-lg' : 'text-slate-200 text-sm'}>🏆</span>
+                )}
+            </td>
+
+            {/* Empfohlen toggle */}
+            <td className="px-3 py-2 text-center">
+                {isAdmin ? (
+                    <button
+                        title="Empfohlen"
+                        onClick={async () => {
+                            const next = !isFeatured;
+                            setIsFeatured(next);
+                            await quickUpdateUrunAction(urun.id, { is_featured: next });
+                        }}
+                        className={`text-lg transition ${isFeatured ? 'opacity-100' : 'opacity-25 hover:opacity-60'}`}>
+                        ⭐
+                    </button>
+                ) : (
+                    <span className={isFeatured ? 'text-lg' : 'text-slate-200 text-sm'}>⭐</span>
                 )}
             </td>
 

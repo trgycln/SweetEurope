@@ -177,6 +177,8 @@ export default async function UrunlerListPage({
             satis_fiyati_musteri,
             satis_fiyati_alt_bayi,
             aktif,
+            is_bestseller,
+            is_featured,
             kategori_id,
             tedarikci_id,
             urun_gami,
@@ -414,6 +416,8 @@ export default async function UrunlerListPage({
                                     <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kategori</th>
                                     <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Stok</th>
                                     <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Aktif</th>
+                                    <th className="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-orange-500" title="Bestseller">🏆</th>
+                                    <th className="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-yellow-500" title="Empfohlen">⭐</th>
                                     {canSeePurchasePrice && (
                                         <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Alış</th>
                                     )}

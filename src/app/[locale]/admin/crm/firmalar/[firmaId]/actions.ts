@@ -56,6 +56,7 @@ export async function updateFirmaAction(
     const yetkili_kisi = formData.get('yetkili_kisi') as string | null;
     const etiketler = formData.getAll('etiketler') as string[];
     const kaynak = formData.get('kaynak') as string | null;
+    const pricing_tier_raw = formData.get('pricing_tier') as string | null;
     const ticari_tip_raw = formData.get('ticari_tip') as string | null;
     const sahip_id_raw = formData.get('sahip_id') as string | null;
     const parent_firma_id = formData.get('parent_firma_id') as string | null;
@@ -104,6 +105,7 @@ export async function updateFirmaAction(
     if (posta_kodu) (updatedData as any).posta_kodu = posta_kodu; else (updatedData as any).posta_kodu = null;
     if (yetkili_kisi) (updatedData as any).yetkili_kisi = yetkili_kisi; else (updatedData as any).yetkili_kisi = null;
     if (etiketler && etiketler.length > 0) (updatedData as any).etiketler = etiketler; else (updatedData as any).etiketler = null;
+    (updatedData as any).pricing_tier = pricing_tier_raw || null;
     if (kaynak) (updatedData as any).kaynak = kaynak; else (updatedData as any).kaynak = null;
     if (kategorie) {
         (updatedData as any).ticari_tip = ticari_tip_raw || (kategorie === 'Alt Bayi' ? 'alt_bayi' : 'musteri');
