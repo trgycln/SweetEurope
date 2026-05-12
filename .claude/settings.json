@@ -42,11 +42,13 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/de/login)",
       "Bash(Get-ChildItem -Path \".\" -Name)",
       "Bash(node patch-pricing.mjs)",
-      "Bash(mkdir -p \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\\\\src\\\\app\\\\[locale]\\\\admin\\\\pazarlama\\\\sosyal-medya-editoru\")"
+      "Bash(mkdir -p \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\\\\src\\\\app\\\\[locale]\\\\admin\\\\pazarlama\\\\sosyal-medya-editoru\")",
+      "Bash(cd \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\" && rm -rf \"src/app/[locale]/admin/pazarlama/sosyal-medya-editoru\" && git add -A && git commit -m \"Remove: sosyal-medya-editoru page \\(no longer needed\\)\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\.claude\\projects\\c--Users-User-Projeler--Web-Sayfalari--sweetheaven-germany\\memory",
-      "c:\\Users\\User\\Projeler (Web Sayfalari)\\sweetheaven-germany\\src\\app\\[locale]\\admin\\pazarlama"
+      "c:\\Users\\User\\Projeler (Web Sayfalari)\\sweetheaven-germany\\src\\app\\[locale]\\admin\\pazarlama",
+      "c:\\Users\\User\\Projeler (Web Sayfalari)\\sweetheaven-germany\\src\\app\\[locale]\\admin\\pazarlama\\sosyal-medya-editoru"
     ]
   }
 }
