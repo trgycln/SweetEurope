@@ -111,6 +111,39 @@ export default async function UrunlerListPage({
         .select('id, ad, ust_kategori_id')
         .order(`ad->>${locale}`, { ascending: true });
 
+    // Fetch pricing parameters for tier price calculation
+    const { data: pricingSettingsRaw } = await supabase
+        .from('system_settings')
+        .select('setting_key, setting_value')
+        .eq('category', 'pricing');
+    const pricingSettings: Record<string, number> = {};
+    (pricingSettingsRaw || []).forEach((s: any) => {
+        const v = parseFloat(s.setting_value);
+        if (Number.isFinite(v)) pricingSettings[s.setting_key] = v;
+    });
+    const _shipFrozen = pricingSettings.pricing_shipping_frozen_per_box ?? (350 / 384);
+    const _shipDry = pricingSettings.pricing_shipping_non_cold_per_box ?? 0.45;
+    const _custFrozen = pricingSettings.pricing_customs_frozen_percent ?? pricingSettings.pricing_customs_percent ?? 15;
+    const _opPct = pricingSettings.pricing_operational_percent ?? 15;
+    const _altBayiMargin = pricingSettings.pricing_alt_bayi_margin ?? pricingSettings.pricing_tier1_margin_percent ?? 5;
+    const _koliBazliMargin = pricingSettings.pricing_koli_bazli_margin ?? pricingSettings.pricing_tier3_margin_percent ?? 50;
+    const _cokKoliMargin = pricingSettings.pricing_cok_koli_margin ?? pricingSettings.pricing_tier2_margin_percent ?? 30;
+    const _paletMargin = pricingSettings.pricing_palet_margin ?? 15;
+
+    const calcTierPrices = (alis: number | null | undefined) => {
+        const a = Number(alis) || 0;
+        if (a <= 0) return { altBayi: null, koliBazli: null, cokKoli: null, palet: null };
+        const ship = _shipFrozen;
+        const landed = (a + ship) * (1 + _custFrozen / 100) * (1 + _opPct / 100);
+        const r = (n: number) => Math.round(n * 100) / 100;
+        return {
+            altBayi: r(landed * (1 + _altBayiMargin / 100)),
+            koliBazli: r(landed * (1 + _koliBazliMargin / 100)),
+            cokKoli: r(landed * (1 + _cokKoliMargin / 100)),
+            palet: r(landed * (1 + _paletMargin / 100)),
+        };
+    };
+
     const { data: tedarikciler } = await supabase
         .from('tedarikciler')
         .select('id, unvan')
@@ -384,8 +417,10 @@ export default async function UrunlerListPage({
                                     {canSeePurchasePrice && (
                                         <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Alış</th>
                                     )}
-                                    <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-emerald-700">Kafe</th>
                                     <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-blue-700">Alt Bayi</th>
+                                    <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-violet-700">Koli Bazlı</th>
+                                    <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-emerald-700">5 Koli+</th>
+                                    <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-orange-600">Palet</th>
                                     <th className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 w-24">İşlem</th>
                                 </tr>
                             </thead>
@@ -394,6 +429,7 @@ export default async function UrunlerListPage({
                                     <EditableUrunRowClient
                                         key={urun.id}
                                         urun={urun}
+                                        tierPrices={calcTierPrices(urun.distributor_alis_fiyati)}
                                         locale={locale}
                                         content={content}
                                         isAdmin={isAdmin}

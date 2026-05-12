@@ -4,7 +4,7 @@ import Link from "next/link";
 import { formatCurrency, getLocalizedName } from "@/lib/utils";
 import { quickUpdateUrunAction } from "./actions";
 
-export default function EditableUrunRowClient({ urun, locale, content, isAdmin, canSeePurchasePrice }) {
+export default function EditableUrunRowClient({ urun, tierPrices, locale, content, isAdmin, canSeePurchasePrice }) {
     const [alisFiyati, setAlisFiyati] = React.useState(urun.distributor_alis_fiyati ?? 0);
     const [stokMiktari, setStokMiktari] = React.useState(urun.stok_miktari ?? 0);
     const [aktif, setAktif] = React.useState(urun.aktif ?? true);
@@ -121,14 +121,24 @@ export default function EditableUrunRowClient({ urun, locale, content, isAdmin, 
                 </td>
             )}
 
-            {/* Müşteri fiyatı */}
+            {/* Alt Bayi */}
             <td className="px-3 py-2 text-right">
-                <span className="text-sm font-medium text-emerald-800">{formatCurrency(urun.satis_fiyati_musteri, locale)}</span>
+                <span className="text-sm font-medium text-blue-800">{tierPrices?.altBayi != null ? formatCurrency(tierPrices.altBayi, locale) : '—'}</span>
             </td>
 
-            {/* Alt bayi fiyatı */}
+            {/* Koli Bazlı */}
             <td className="px-3 py-2 text-right">
-                <span className="text-sm font-medium text-blue-800">{formatCurrency(urun.satis_fiyati_alt_bayi, locale)}</span>
+                <span className="text-sm font-medium text-violet-800">{tierPrices?.koliBazli != null ? formatCurrency(tierPrices.koliBazli, locale) : '—'}</span>
+            </td>
+
+            {/* 5 Koli+ */}
+            <td className="px-3 py-2 text-right">
+                <span className="text-sm font-medium text-emerald-800">{tierPrices?.cokKoli != null ? formatCurrency(tierPrices.cokKoli, locale) : '—'}</span>
+            </td>
+
+            {/* Palet Bazlı */}
+            <td className="px-3 py-2 text-right">
+                <span className="text-sm font-medium text-orange-700">{tierPrices?.palet != null ? formatCurrency(tierPrices.palet, locale) : '—'}</span>
             </td>
 
             {/* Kaydet + Detay */}

@@ -309,9 +309,10 @@ function calculatePricing(params: {
   customsPct: number;
   operationalPct: number;
   taxPct: number;
-  customerProfitPct: number;
-  wholesaleProfitPct: number;
-  resellerProfitPct: number;
+  koliBazliProfitPct: number;  // Koli Bazlı (50%)
+  cokKoliProfitPct: number;    // 5 Koli+ (30%)
+  resellerProfitPct: number;   // Alt Bayi (5%)
+  paletProfitPct: number;      // Palet Bazlı (15%)
   unitsPerBox: number;
   roundStep?: number;
   weightKg?: number;
@@ -326,9 +327,10 @@ function calculatePricing(params: {
   const customsRate = Math.max(0, toNumber(params.customsPct, 0)) / 100;
   const operationalRate = Math.max(0, toNumber(params.operationalPct, 0)) / 100;
   const taxRate = Math.max(0, toNumber(params.taxPct, 0)) / 100;
-  const customerProfit = Math.max(0, toNumber(params.customerProfitPct, 0)) / 100;
-  const wholesaleProfit = Math.max(0, toNumber(params.wholesaleProfitPct, 0)) / 100;
+  const koliBazliProfit = Math.max(0, toNumber(params.koliBazliProfitPct, 0)) / 100;
+  const cokKoliProfit = Math.max(0, toNumber(params.cokKoliProfitPct, 0)) / 100;
   const resellerProfit = Math.max(0, toNumber(params.resellerProfitPct, 0)) / 100;
+  const paletProfit = Math.max(0, toNumber(params.paletProfitPct, 0)) / 100;
   const unitCount = Math.max(1, Math.floor(toNumber(params.unitsPerBox, 1)));
   const roundStep = Math.max(0, toNumber(params.roundStep, 0));
 
@@ -345,11 +347,18 @@ function calculatePricing(params: {
 
   const landedCost = preOperational + operationalCost;
 
-  const resellerNet = roundToStep(landedCost * (1 + resellerProfit), roundStep);
-  const wholesaleNet = roundToStep(landedCost * (1 + wholesaleProfit), roundStep);
-  const customerNet = roundToStep(landedCost * (1 + customerProfit), roundStep);
-  const customerTax = round2(customerNet * taxRate);
-  const customerGross = roundToStep(customerNet + customerTax, roundStep);
+  const altBayiNet = roundToStep(landedCost * (1 + resellerProfit), roundStep);
+  const koliBazliNet = roundToStep(landedCost * (1 + koliBazliProfit), roundStep);
+  const cokKoliNet = roundToStep(landedCost * (1 + cokKoliProfit), roundStep);
+  const paletNet = roundToStep(landedCost * (1 + paletProfit), roundStep);
+  const koliBazliTax = round2(koliBazliNet * taxRate);
+  const koliBazliGross = roundToStep(koliBazliNet + koliBazliTax, roundStep);
+  // Legacy aliases kept for buildSaveItem compatibility
+  const resellerNet = altBayiNet;
+  const wholesaleNet = cokKoliNet;
+  const customerNet = koliBazliNet;
+  const customerTax = koliBazliTax;
+  const customerGross = koliBazliGross;
 
   return {
     unitCount,
@@ -362,12 +371,20 @@ function calculatePricing(params: {
     operationalCost: round2(operationalCost),
     estimatedLandedCost: round2(landedCost),
     landedCost: round2(landedCost),
+    altBayiNet,
+    koliBazliNet,
+    cokKoliNet,
+    paletNet,
     resellerNet,
     wholesaleNet,
     customerNet,
     customerTax,
     customerGross,
     landedPerUnit: round2(landedCost / unitCount),
+    altBayiPerUnit: round2(altBayiNet / unitCount),
+    koliBazliPerUnit: round2(koliBazliNet / unitCount),
+    cokKoliPerUnit: round2(cokKoliNet / unitCount),
+    paletPerUnit: round2(paletNet / unitCount),
     resellerPerUnit: round2(resellerNet / unitCount),
     wholesalePerUnit: round2(wholesaleNet / unitCount),
     customerPerUnit: round2(customerNet / unitCount),
@@ -404,9 +421,19 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
   const [operationalPct, setOperationalPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_operational_percent, 15));
   const [taxPct, setTaxPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_vat_rate, 7));
   const [roundStep, setRoundStep] = useState<number>(toNumberOrDefault(systemSettings?.pricing_round_step, 0));
-  const [customerProfitPct, setCustomerProfitPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_tier3_margin_percent, toNumberOrDefault(systemSettings?.pricing_target_profit_percent, DEFAULT_CUSTOMER_PROFIT_PCT)));
-  const [wholesaleProfitPct, setWholesaleProfitPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_tier2_margin_percent, DEFAULT_WHOLESALE_PROFIT_PCT));
-  const [resellerProfitPct, setResellerProfitPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_tier1_margin_percent, toNumberOrDefault(systemSettings?.pricing_reseller_profit_percent, DEFAULT_RESELLER_PROFIT_PCT)));
+  // 4 new pricing tiers
+  const [altBayiPct, setAltBayiPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_alt_bayi_margin ?? systemSettings?.pricing_tier1_margin_percent ?? systemSettings?.pricing_reseller_profit_percent, 5));
+  const [koliBazliPct, setKoliBazliPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_koli_bazli_margin ?? systemSettings?.pricing_tier3_margin_percent, 50));
+  const [cokKoliPct, setCokKoliPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_cok_koli_margin ?? systemSettings?.pricing_tier2_margin_percent, 30));
+  const [paletPct, setPaletPct] = useState<number>(toNumberOrDefault(systemSettings?.pricing_palet_margin, 15));
+  // Minimum order quantities (in cartons)
+  const [altBayiMinKoli, setAltBayiMinKoli] = useState<number>(toNumberOrDefault(systemSettings?.pricing_alt_bayi_min_koli, 1));
+  const [koliBazliMinKoli, setKoliBazliMinKoli] = useState<number>(toNumberOrDefault(systemSettings?.pricing_koli_bazli_min_koli, 1));
+  const [cokKoliMinKoli, setCokKoliMinKoli] = useState<number>(toNumberOrDefault(systemSettings?.pricing_cok_koli_min_koli, 5));
+  // Legacy aliases for any remaining references
+  const resellerProfitPct = altBayiPct;
+  const wholesaleProfitPct = cokKoliPct;
+  const customerProfitPct = koliBazliPct;
   const boxDiscountPct = toNumber(systemSettings?.pricing_box_discount_percent, 0);
   const caseDiscountPct = toNumber(systemSettings?.pricing_case_discount_percent, 4);
   const palletDiscountPct = toNumber(systemSettings?.pricing_pallet_discount_percent, 8);
@@ -503,9 +530,10 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           customsPct: toNumberOrDefault(product.gumruk_vergi_orani_yuzde, profileInputs[profile].customsPct),
           operationalPct,
           taxPct: toNumberOrDefault(product.almanya_kdv_orani, taxPct),
-          customerProfitPct,
-          wholesaleProfitPct,
-          resellerProfitPct,
+          koliBazliProfitPct: koliBazliPct,
+          cokKoliProfitPct: cokKoliPct,
+          resellerProfitPct: altBayiPct,
+          paletProfitPct: paletPct,
           unitsPerBox,
           weightKg,
           docsPerKg,
@@ -527,7 +555,7 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           calculation,
         };
       });
-  }, [products, locale, categories, productCostInputs, productProfileOverrides, profileInputs, operationalPct, taxPct, customerProfitPct, wholesaleProfitPct, resellerProfitPct, coldDocsPerKg, dryDocsPerKg, coldStorageDaily, dryStorageDaily, roundStep, adetOverrides]);
+  }, [products, locale, categories, productCostInputs, productProfileOverrides, profileInputs, operationalPct, taxPct, altBayiPct, koliBazliPct, cokKoliPct, paletPct, coldDocsPerKg, dryDocsPerKg, coldStorageDaily, dryStorageDaily, roundStep, adetOverrides]);
 
   // Kategori → tüm alt kategorileri kapsayan ID seti
   const categoryScope = useMemo(() => {
@@ -655,14 +683,22 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
       {
         pricing_operational_percent: operationalPct,
         pricing_vat_rate: taxPct,
-        pricing_tier1_margin_percent: resellerProfitPct,
-        pricing_tier2_margin_percent: wholesaleProfitPct,
-        pricing_tier3_margin_percent: customerProfitPct,
-        pricing_target_profit_percent: customerProfitPct,
-        pricing_reseller_profit_percent: resellerProfitPct,
+        pricing_alt_bayi_margin: altBayiPct,
+        pricing_koli_bazli_margin: koliBazliPct,
+        pricing_cok_koli_margin: cokKoliPct,
+        pricing_palet_margin: paletPct,
+        pricing_alt_bayi_min_koli: altBayiMinKoli,
+        pricing_koli_bazli_min_koli: koliBazliMinKoli,
+        pricing_cok_koli_min_koli: cokKoliMinKoli,
+        // Legacy keys for backward compat
+        pricing_tier1_margin_percent: altBayiPct,
+        pricing_tier2_margin_percent: cokKoliPct,
+        pricing_tier3_margin_percent: koliBazliPct,
+        pricing_target_profit_percent: koliBazliPct,
+        pricing_reseller_profit_percent: altBayiPct,
         pricing_round_step: roundStep,
       },
-      'Kar oranlari ve gider varsayimlari kaydedildi.'
+      'Fiyat marjlari ve minimum siparis miktarlari kaydedildi.'
     );
   };
 
@@ -876,7 +912,7 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
           <div className="flex items-center gap-3 text-sm font-semibold text-slate-700">
             Hesaplama Parametreleri
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800">
-              Nakliye {money(currentShipping)}/kutu · Gümrük %{currentCustoms} · Alt bayi %{resellerProfitPct} · Müşteri %{customerProfitPct}
+              Nakliye {money(currentShipping)}/kutu · Gümrük %{currentCustoms} · Alt Bayi %{altBayiPct} · Koli %{koliBazliPct} · 5 Koli+ %{cokKoliPct} · Palet %{paletPct}
             </span>
           </div>
           <span className="text-xs text-slate-400 group-open:hidden">Aç</span>
@@ -940,15 +976,49 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600">Alt Bayi Marjı (%)</label>
-              <input type="number" min={0} step="0.1" value={resellerProfitPct}
-                onChange={(e) => setResellerProfitPct(toNumber(e.target.value, DEFAULT_RESELLER_PROFIT_PCT))}
+              <input type="number" min={0} step="0.1" value={altBayiPct}
+                onChange={(e) => setAltBayiPct(toNumber(e.target.value, 5))}
                 className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-[10px] text-slate-400">Min:</span>
+                <input type="number" min={1} step="1" value={altBayiMinKoli}
+                  onChange={(e) => setAltBayiMinKoli(toNumber(e.target.value, 1))}
+                  className="w-16 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] text-right" />
+                <span className="text-[10px] text-slate-400">koli</span>
+              </div>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-slate-600">Müşteri Marjı (%)</label>
-              <input type="number" min={0} step="0.1" value={customerProfitPct}
-                onChange={(e) => setCustomerProfitPct(toNumber(e.target.value, DEFAULT_CUSTOMER_PROFIT_PCT))}
+              <label className="mb-1 block text-xs font-medium text-slate-600">Koli Bazlı Marjı (%)</label>
+              <input type="number" min={0} step="0.1" value={koliBazliPct}
+                onChange={(e) => setKoliBazliPct(toNumber(e.target.value, 50))}
                 className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-[10px] text-slate-400">Min:</span>
+                <input type="number" min={1} step="1" value={koliBazliMinKoli}
+                  onChange={(e) => setKoliBazliMinKoli(toNumber(e.target.value, 1))}
+                  className="w-16 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] text-right" />
+                <span className="text-[10px] text-slate-400">koli</span>
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">5 Koli+ Marjı (%)</label>
+              <input type="number" min={0} step="0.1" value={cokKoliPct}
+                onChange={(e) => setCokKoliPct(toNumber(e.target.value, 30))}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-[10px] text-slate-400">Min:</span>
+                <input type="number" min={1} step="1" value={cokKoliMinKoli}
+                  onChange={(e) => setCokKoliMinKoli(toNumber(e.target.value, 5))}
+                  className="w-16 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] text-right" />
+                <span className="text-[10px] text-slate-400">koli</span>
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Palet Bazlı Marjı (%)</label>
+              <input type="number" min={0} step="0.1" value={paletPct}
+                onChange={(e) => setPaletPct(toNumber(e.target.value, 15))}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm" />
+              <p className="text-[10px] text-slate-400 mt-1">Min: ürün başına palet_ici_adet</p>
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-600">Yuvarlama</label>
@@ -973,7 +1043,7 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
             </div>
           </div>
           <p className="mt-2 text-xs text-slate-400">
-            Toptan fiyat otomatik: <strong>%{wholesaleProfitPct}</strong> · Hesap: alış + nakliye + gümrük + operasyon = net maliyet
+            Formül: (Alış + Nakliye) × (1 + Gümrük%) × (1 + Operasyonel%) = Net Maliyet → × (1 + Marj%) = Satış Fiyatı
           </p>
         </div>
       </details>
@@ -992,13 +1062,10 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
                   <th className="px-4 py-2">Ürün</th>
                   <th className="px-3 py-2 w-28">Alış/Kutu</th>
                   <th className="px-3 py-2 text-right w-24">Net Mal.</th>
-                  <th className="px-3 py-2 text-right w-24 text-blue-600">Alt Bayi</th>
-                  <th className="px-3 py-2 text-right w-24 text-violet-600">Toptan</th>
-                  <th className="px-3 py-2 text-right w-24 text-emerald-600">Kafe</th>
-                  <th className="px-3 py-2 text-right w-28 text-emerald-600">Kafe/Dilim</th>
-                  <th className="px-3 py-2 text-right w-24 text-slate-600">Bizim €/kg</th>
-                  <th className="px-3 py-2 text-right w-28 text-purple-600">Pazar €/kg</th>
-                  <th className="px-3 py-2 text-right w-24">Mevcut</th>
+                  <th className="px-3 py-2 text-right w-28 text-blue-600">Alt Bayi<br/><span className="font-normal text-[10px] text-blue-400">%{altBayiPct} · min {altBayiMinKoli} koli</span></th>
+                  <th className="px-3 py-2 text-right w-28 text-violet-600">Koli Bazlı<br/><span className="font-normal text-[10px] text-violet-400">%{koliBazliPct} · min {koliBazliMinKoli} koli</span></th>
+                  <th className="px-3 py-2 text-right w-28 text-emerald-600">5 Koli+<br/><span className="font-normal text-[10px] text-emerald-400">%{cokKoliPct} · min {cokKoliMinKoli} koli</span></th>
+                  <th className="px-3 py-2 text-right w-28 text-orange-600">Palet Bazlı<br/><span className="font-normal text-[10px] text-orange-400">%{paletPct} · ürün paletine göre</span></th>
                   <th className="px-3 py-2 w-24 text-right">İşlem</th>
                 </tr>
               </thead>
@@ -1083,9 +1150,27 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
 
                       {/* ── Hesaplanan fiyatlar ──────────────────────────── */}
                       <td className="px-3 py-2 text-right font-semibold text-slate-700 text-sm">{money(row.calculation.landedCost)}</td>
-                      <td className="px-3 py-2 text-right font-semibold text-blue-800 text-sm">{money(row.calculation.resellerNet)}</td>
-                      <td className="px-3 py-2 text-right font-semibold text-violet-800 text-sm">{money(row.calculation.wholesaleNet)}</td>
-                      <td className="px-3 py-2 text-right font-semibold text-emerald-800 text-sm">{money(row.calculation.customerNet)}</td>
+                      <td className="px-3 py-2 text-right text-sm">
+                        <div className="font-semibold text-blue-800">{money(row.calculation.altBayiNet)}</div>
+                        {(row.product.satis_fiyati_alt_bayi ?? 0) > 0 && (
+                          <div className="text-[10px] text-slate-400 mt-0.5" title="Kayıtlı fiyat">↳ {money(row.product.satis_fiyati_alt_bayi!)}</div>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm">
+                        <div className="font-semibold text-violet-800">{money(row.calculation.koliBazliNet)}</div>
+                        {(row.product.satis_fiyati_musteri ?? 0) > 0 && (
+                          <div className="text-[10px] text-slate-400 mt-0.5" title="Kayıtlı fiyat">↳ {money(row.product.satis_fiyati_musteri!)}</div>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm">
+                        <div className="font-semibold text-emerald-800">{money(row.calculation.cokKoliNet)}</div>
+                        {(row.product.satis_fiyati_toptanci ?? 0) > 0 && (
+                          <div className="text-[10px] text-slate-400 mt-0.5" title="Kayıtlı fiyat">↳ {money(row.product.satis_fiyati_toptanci!)}</div>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-right text-sm">
+                        <div className="font-semibold text-orange-700">{money(row.calculation.paletNet)}</div>
+                      </td>
 
                       {/* ── Dilim fiyatı (sadece kafe) ──────────────────── */}
                       <td className="px-3 py-2 text-right">
@@ -1335,7 +1420,7 @@ export default function SimpleSupplierCostPlatform({ locale, products, categorie
                   </div>
                 </div>
                 <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-2.5 text-xs text-violet-900">
-                  Toptan fiyat otomatik olarak <strong>%{wholesaleProfitPct}</strong> marj ile hesaplanir.
+                  4 fiyat kademesi: Alt Bayi %{altBayiPct} · Koli Bazlı %{koliBazliPct} · 5 Koli+ %{cokKoliPct} · Palet %{paletPct}
                 </div>
               </div>
             </div>
