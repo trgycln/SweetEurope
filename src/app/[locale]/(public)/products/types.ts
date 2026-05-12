@@ -49,7 +49,6 @@ export type Urun = Pick<Tables<'urunler'>,
     | 'satis_fiyati_alt_bayi'
     | 'koli_ici_adet'
     | 'palet_ici_adet'
-    | 'palet_ici_koli_adet'
 > & {
     kategoriler?: Pick<Tables<'kategoriler'>, 'ad' | 'slug' | 'urun_gami'> | null;
     ortalama_puan?: number | null;

@@ -187,7 +187,7 @@ export default async function PublicUrunlerPage({
         id, ad, slug, ana_resim_url, galeri_resim_urls,
         kategori_id, ortalama_puan, degerlendirme_sayisi,
         teknik_ozellikler, aciklamalar, birim_agirlik_kg,
-        koli_ici_adet, palet_ici_adet, palet_ici_koli_adet,
+        koli_ici_adet, palet_ici_adet,
         stok_kodu, ean_gtin, stok_miktari, created_at,
         lagertemperatur_min_celsius, lagertemperatur_max_celsius,
         mindest_bestellmenge, mindest_bestellmenge_einheit,

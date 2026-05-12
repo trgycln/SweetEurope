@@ -136,7 +136,7 @@ function CatalogCard({
     const kategoriAdi = urun.kategori_id ? kategoriAdlariMap.get(urun.kategori_id) : '';
 
     const koliIciAdet = Number(urun.koli_ici_adet ?? 0);
-    const paletIciKoliAdet = Number(urun.palet_ici_koli_adet ?? urun.palet_ici_adet ?? 0);
+    const paletIciKoliAdet = Number(urun.palet_ici_adet ?? 0);
 
     const inStock = (urun.stok_miktari ?? 0) > 0;
     const isNeues = isNew(urun);
