@@ -138,15 +138,18 @@ function KategoriModal({ isOpen, onClose, mevcutKategori, tumKategoriler }: {
                 const excludedIds = mevcutKategori
                   ? getDescendantIds(mevcutKategori.id, tumKategoriler)
                   : new Set<string>();
-                const availableParents = tumKategoriler
-                  .filter(k => !excludedIds.has(k.id))
-                  .sort((a, b) => getDepth(a, tumKategoriler) - getDepth(b, tumKategoriler)
-                    || (a.ad?.tr || '').localeCompare(b.ad?.tr || ''));
+                // Depth-first — same visual order as the sidebar tree
+                const opts: { k: typeof tumKategoriler[0]; depth: number }[] = [];
+                const walk = (parentId: string | null, depth: number) => {
+                  tumKategoriler
+                    .filter(k => (k.ust_kategori_id || null) === parentId && !excludedIds.has(k.id))
+                    .forEach(k => { opts.push({ k, depth }); walk(k.id, depth + 1); });
+                };
+                walk(null, 0);
                 return (
                   <select name="ust_kategori_id" defaultValue={mevcutKategori?.ust_kategori_id || ''} className="w-full p-2 border rounded-md bg-gray-50 text-sm">
                     <option value="">Ana Kategori (üst seviye)</option>
-                    {availableParents.map(k => {
-                      const depth = getDepth(k, tumKategoriler);
+                    {opts.map(({ k, depth }) => {
                       const prefix = '—'.repeat(depth) + (depth > 0 ? ' ' : '');
                       return (
                         <option key={k.id} value={k.id}>
@@ -347,7 +350,6 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
     return { kendi, miras };
   }, [seciliKategoriId, sablonlarByKategori, ancestors]);
 
-  const ustKategoriler = serverKategoriler.filter(k => !k.ust_kategori_id);
 
   const handleSelectKategori = (k: Kategori) => {
     setSeciliKategoriId(k.id);
