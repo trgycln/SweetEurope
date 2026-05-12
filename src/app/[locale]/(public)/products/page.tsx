@@ -74,21 +74,25 @@ export default async function PublicUrunlerPage({
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
         isLoggedIn = true;
-        // Fetch their profil and linked firma to get pricing tier
-        const { data: profil } = await supabase
-            .from('profiller')
-            .select('firma_id')
-            .eq('id', user.id)
-            .maybeSingle();
-
-        if (profil?.firma_id) {
-            partnerFirmaId = profil.firma_id;
-            const { data: firma } = await (supabase as any)
-                .from('firmalar')
-                .select('pricing_tier')
-                .eq('id', profil.firma_id)
+        try {
+            const { data: profil } = await supabase
+                .from('profiller')
+                .select('firma_id')
+                .eq('id', user.id)
                 .maybeSingle();
-            partnerTier = firma?.pricing_tier ?? undefined;
+
+            if (profil?.firma_id) {
+                partnerFirmaId = profil.firma_id;
+                // pricing_tier column may not exist yet (migration pending)
+                const { data: firma } = await (supabase as any)
+                    .from('firmalar')
+                    .select('pricing_tier, id')
+                    .eq('id', profil.firma_id)
+                    .maybeSingle();
+                partnerTier = firma?.pricing_tier ?? undefined;
+            }
+        } catch {
+            // Gracefully handle missing columns (migration not yet run)
         }
     }
 
@@ -137,15 +141,20 @@ export default async function PublicUrunlerPage({
     );
     const totalAllProducts = tumUrunler.length;
 
-    // Category product counts (includes subcategory products in parent count)
+    // Category product counts — recursively propagate to ALL ancestors
     const categoryProductCounts: Record<string, number> = {};
-    const kategoriMap = new Map(kategoriler.map(k => [k.id, k.ust_kategori_id]));
+    const kategoriParentLookup = new Map(kategoriler.map(k => [k.id, k.ust_kategori_id ?? null]));
+
     tumUrunler.forEach((u: any) => {
         const catId = u.kategori_id;
         if (!catId) return;
-        categoryProductCounts[catId] = (categoryProductCounts[catId] || 0) + 1;
-        const parentId = kategoriMap.get(catId);
-        if (parentId) categoryProductCounts[parentId] = (categoryProductCounts[parentId] || 0) + 1;
+        // Walk up the full ancestor chain
+        let current: string | null = catId;
+        let guard = 0;
+        while (current && guard++ < 10) {
+            categoryProductCounts[current] = (categoryProductCounts[current] || 0) + 1;
+            current = kategoriParentLookup.get(current) ?? null;
+        }
     });
 
     // ── Business segment → category slug mapping ─────────────────────────────
@@ -199,7 +208,22 @@ export default async function PublicUrunlerPage({
         urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
     }
 
-    const urunlerRes = await urunlerQuery.order('ad', { ascending: true });
+    let urunlerRes = await urunlerQuery.order('ad', { ascending: true });
+
+    // If query failed (e.g. missing column from pending migration), retry with minimal fields
+    if (urunlerRes.error) {
+        console.error('Product query error, retrying with minimal fields:', urunlerRes.error.message);
+        const minimalFields = `id, ad, slug, ana_resim_url, kategori_id, stok_kodu, stok_miktari,
+            koli_ici_adet, palet_ici_adet, teknik_ozellikler, lojistik_sinifi,
+            lagertemperatur_min_celsius, lagertemperatur_max_celsius, zertifikate,
+            satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
+            created_at, mindest_bestellmenge, mindest_bestellmenge_einheit, aktif`;
+        let retryQuery = supabase.from('urunler').select(minimalFields).eq('aktif', true);
+        if (filtrelenecekKategoriIdleri.length > 0) {
+            retryQuery = retryQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+        }
+        urunlerRes = await retryQuery.order('ad', { ascending: true });
+    }
 
     // Filter hidden categories
     let sortedData: any[] = (urunlerRes.data || []).filter(
@@ -384,15 +408,18 @@ export default async function PublicUrunlerPage({
                                 </Link>
 
                                 {visibleKategoriler
-                                    .filter(k => !k.ust_kategori_id)
+                                    .filter(k => !k.ust_kategori_id && (categoryProductCounts[k.id] || 0) > 0)
                                     .sort((a, b) => {
+                                        // Sort by known order first, then alphabetically
                                         const ai = visibleMainCategoryOrder.indexOf((a.slug ?? '') as any);
                                         const bi = visibleMainCategoryOrder.indexOf((b.slug ?? '') as any);
-                                        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+                                        if (ai !== -1 && bi !== -1) return ai - bi;
+                                        if (ai !== -1) return -1;
+                                        if (bi !== -1) return 1;
+                                        return getLocalizedName(a.ad, locale as any).localeCompare(getLocalizedName(b.ad, locale as any));
                                     })
                                     .map(k => {
                                         const count = categoryProductCounts[k.id] || 0;
-                                        if (!count) return null;
                                         const isSelected = seciliKategoriSlug === k.slug;
                                         const subKats = visibleKategoriler.filter(sk => sk.ust_kategori_id === k.id && (categoryProductCounts[sk.id] || 0) > 0);
                                         return (
@@ -446,7 +473,10 @@ export default async function PublicUrunlerPage({
                                 .sort((a, b) => {
                                     const ai = visibleMainCategoryOrder.indexOf((a.slug ?? '') as any);
                                     const bi = visibleMainCategoryOrder.indexOf((b.slug ?? '') as any);
-                                    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+                                    if (ai !== -1 && bi !== -1) return ai - bi;
+                                    if (ai !== -1) return -1;
+                                    if (bi !== -1) return 1;
+                                    return getLocalizedName(a.ad, locale as any).localeCompare(getLocalizedName(b.ad, locale as any));
                                 })
                                 .map(k => (
                                     <Link key={k.id}
