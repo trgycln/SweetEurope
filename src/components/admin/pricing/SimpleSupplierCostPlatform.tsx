@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { FiChevronDown, FiChevronRight, FiSave, FiRefreshCw } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { bulkSaveProductPricesAction, saveProductPricesAction } from '@/app/actions/urun-fiyat-actions';
@@ -684,8 +684,8 @@ export default function SimpleSupplierCostPlatform({
                   const paletKoliAdedi = toNum(row.product.palet_ici_adet, 0) || toNum(row.product.koli_ici_adet, 0);
 
                   return (
-                    <>
-                      <tr key={row.product.id} className={`hover:bg-slate-50/60 transition ${noPurchase ? 'opacity-50' : ''}`}>
+                    <React.Fragment key={row.product.id}>
+                      <tr className={`hover:bg-slate-50/60 transition ${noPurchase ? 'opacity-50' : ''}`}>
                         {/* Ürün */}
                         <td className="px-4 py-2.5">
                           <div className="font-medium text-slate-900 leading-snug text-sm truncate max-w-[200px]" title={pName(row.product)}>
@@ -767,7 +767,7 @@ export default function SimpleSupplierCostPlatform({
 
                       {/* Expanded detail row */}
                       {isExpanded && (
-                        <tr key={`${row.product.id}-detail`} className="bg-slate-50/60">
+                        <tr className="bg-slate-50/60">
                           <td colSpan={8} className="px-6 py-3">
                             <div className="flex flex-wrap gap-4 text-xs text-slate-600">
                               {paletKoliAdedi > 0 && (
@@ -797,7 +797,7 @@ export default function SimpleSupplierCostPlatform({
                           </td>
                         </tr>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </tbody>
