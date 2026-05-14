@@ -1014,9 +1014,9 @@ statusOptions: {
   },
   philosophy: {
     title: 'Unsere Philosophie',
-    paragraph1: 'Bei ElysonSweets glauben wir, dass wahrer Luxus in der kompromisslosen Qualität der Zutaten und der leidenschaftlichen Handwerkskunst unserer Meisterkonditoren liegt.',
-    paragraph2: 'Jede Kreation ist ein Versprechen – ein unvergessliches Geschmackserlebnis, das aus Tradition geboren und für den modernen Gaumen perfektioniert wurde.',
-    imageAlt: 'ElysonSweets tarafından özel olarak hazırlanmış, arka fonsuz bir pasta görseli',
+    paragraph1: 'ElysonSweets bringt die Premium-Produkte von FO Food Products direkt nach Deutschland. Als exklusiver Distributor sorgen wir dafür, dass Cafés, Hotels und Patisserien Zugang zu hochwertigen Spezialitäten erhalten – von Sirups über Saucen bis hin zu Barista-Essentials.',
+    paragraph2: 'FO Food Products steht für über 20 Jahre Erfahrung in der Lebensmittelproduktion und kompromisslose Qualität. Wir verbinden diese Tradition mit der Nähe zu unseren deutschen Partnern: zuverlässige Lieferung, faire Konditionen und persönliche Beratung.',
+    imageAlt: 'FO Food Products Premium-Sortiment – Sirupe, Saucen und Barista-Produkte',
   },
   categories: {
     title: 'Unsere Produktkategorien',

@@ -36,15 +36,15 @@ const PhilosophySection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
             <div className="relative aspect-square max-w-2xl mx-auto">
               <div className="absolute inset-0 bg-accent/10 rounded-full blur-3xl transform scale-90"></div>
               <Image
-                src="/philosophy-cake.jpeg"
-                alt={dictionary.philosophy.imageAlt || 'ElysonSweets kalite felsefesi'}
+                src="/categories/syrups.jpg"
+                alt={dictionary.philosophy.imageAlt || 'FO Food Products Premium-Sortiment'}
                 fill
                 className="object-cover md:object-contain transform hover:scale-105 transition-transform duration-700 ease-in-out drop-shadow-2xl relative z-10"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
                 priority
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/Logo.jpg';
+                  target.src = '/fologo.webp';
                 }}
               />
             </div>

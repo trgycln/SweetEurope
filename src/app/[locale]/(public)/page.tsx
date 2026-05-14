@@ -87,14 +87,17 @@ export default async function Home({
         });
     }
     
-    // Show only the currently public main categories in the desired order
-    const filteredKategoriler = (kategoriler || [])
-        .filter(k => PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.includes((k.slug ?? '') as any))
-        .sort(
-            (a, b) =>
-                PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((a.slug ?? '') as any) -
-                PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((b.slug ?? '') as any)
-        );
+    // Show all real root categories, sorted by known order first then alphabetically
+    const filteredKategoriler = (kategoriler || []).sort((a, b) => {
+        const ai = PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((a.slug ?? '') as any);
+        const bi = PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((b.slug ?? '') as any);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        const nameA = (a.ad as any)?.de || (a.ad as any)?.tr || '';
+        const nameB = (b.ad as any)?.de || (b.ad as any)?.tr || '';
+        return nameA.localeCompare(nameB);
+    });
 
     // Determine image_url based on file existence (prefer webp, then jpg, then jpeg/JPEG)
     const kategorilerWithImages = filteredKategoriler.map((kategori) => {
