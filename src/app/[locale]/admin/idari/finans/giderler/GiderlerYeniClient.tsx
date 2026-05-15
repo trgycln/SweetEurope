@@ -12,10 +12,12 @@ import { toast } from 'sonner';
 import {
     approveGiderler,
     deleteGiderAction,
-    toggleSablonAktifAction,
-    deleteSablonAction,
-    createGiderlerFromTemplates,
 } from '@/app/actions/gider-actions';
+import {
+    toggleSablonV2,
+    deleteSablonV2,
+    generateExpensesForMonth,
+} from '@/app/actions/gider-sablon-actions';
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 type GiderYeni = {
@@ -64,11 +66,19 @@ type SablonType = {
 
 type KategoriRow = { kategori: string; tutar: number; oran: number };
 
+type GiderKalemiOption = {
+    id: string;
+    ad: string;
+    ana_kategori_id: string;
+    gider_ana_kategoriler?: { ad: string | null } | null;
+};
+
 interface Props {
     giderler: GiderYeni[];
     sablonlar: SablonType[];
     tirGruplari: TirGrubu[];
     kategoriDagilimi: KategoriRow[];
+    giderKalemleri: GiderKalemiOption[];
     stats: { toplam: number; tirToplam: number; sabitToplam: number; manuelToplam: number };
     prevPeriodToplam: number;
     locale: string;
@@ -145,7 +155,15 @@ function StatCard({
 }
 
 /* ── Yeni Gider Modal ─────────────────────────────────────────────────────*/
-function YeniGiderModal({ onClose, locale }: { onClose: () => void; locale: string }) {
+function YeniGiderModal({
+    onClose,
+    locale,
+    giderKalemleri,
+}: {
+    onClose: () => void;
+    locale: string;
+    giderKalemleri: GiderKalemiOption[];
+}) {
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
 
@@ -156,12 +174,15 @@ function YeniGiderModal({ onClose, locale }: { onClose: () => void; locale: stri
             try {
                 const { createGiderAction } = await import('@/app/actions/gider-actions');
                 const result = await createGiderAction(undefined, fd);
-                if (result?.type === 'success' || !result?.message) {
+                if (result?.success) {
                     toast.success('Gider eklendi');
                     onClose();
                     router.refresh();
                 } else {
-                    toast.error(result.message || 'Hata oluştu');
+                    const errMsg = typeof result?.error === 'string'
+                        ? result.error
+                        : result?.message || 'Hata oluştu';
+                    toast.error(errMsg);
                 }
             } catch {
                 toast.error('Gider eklenemedi');
@@ -186,8 +207,30 @@ function YeniGiderModal({ onClose, locale }: { onClose: () => void; locale: stri
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                     </div>
                     <div>
+                        <div className="flex items-center justify-between mb-1">
+                            <label className="block text-sm font-medium text-slate-700">Kategori</label>
+                            <a href={`/${locale}/admin/idari/finans/giderler/kategoriler`} target="_blank"
+                                className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold">
+                                + Yeni Kategori
+                            </a>
+                        </div>
+                        <select name="gider_kalemi_id"
+                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
+                            <option value="">— Kategori seçmeden kaydet —</option>
+                            {giderKalemleri.length === 0 ? (
+                                <option disabled>(Henüz kategori yok - Yeni Kategori'ye tıklayın)</option>
+                            ) : (
+                                giderKalemleri.map((k) => (
+                                    <option key={k.id} value={k.id}>
+                                        {k.gider_ana_kategoriler?.ad ? `${k.gider_ana_kategoriler.ad} › ` : ''}{k.ad}
+                                    </option>
+                                ))
+                            )}
+                        </select>
+                    </div>
+                    <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Açıklama <span className="text-red-500">*</span></label>
-                        <input type="text" name="aciklama" required placeholder="Gider açıklaması..."
+                        <input type="text" name="aciklama" required minLength={3} placeholder="En az 3 karakter..."
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                     </div>
                     <div>
@@ -213,7 +256,7 @@ function YeniGiderModal({ onClose, locale }: { onClose: () => void; locale: stri
 
 /* ── Main Component ─────────────────────────────────────────────────────── */
 export default function GiderlerYeniClient({
-    giderler, sablonlar, tirGruplari, kategoriDagilimi,
+    giderler, sablonlar, tirGruplari, kategoriDagilimi, giderKalemleri,
     stats, prevPeriodToplam, locale, currentPeriod, isAdmin,
 }: Props) {
     const router = useRouter();
@@ -268,12 +311,12 @@ export default function GiderlerYeniClient({
     // Toggle sablon
     const handleToggleSablon = (id: string, aktif: boolean) => {
         startTransition(async () => {
-            try {
-                await toggleSablonAktifAction(id, !aktif);
-                toast.success(!aktif ? 'Şablon aktifleştirildi' : 'Şablon devre dışı');
+            const result = await toggleSablonV2(id, !aktif);
+            if (result.success) {
+                toast.success(result.message);
                 router.refresh();
-            } catch {
-                toast.error('İşlem başarısız');
+            } else {
+                toast.error(result.error || 'İşlem başarısız');
             }
         });
     };
@@ -282,26 +325,27 @@ export default function GiderlerYeniClient({
     const handleDeleteSablon = (id: string) => {
         if (!confirm('Bu şablonu silmek istediğinizden emin misiniz?')) return;
         startTransition(async () => {
-            try {
-                await deleteSablonAction(id);
+            const result = await deleteSablonV2(id);
+            if (result.success) {
                 toast.success('Şablon silindi');
                 router.refresh();
-            } catch {
-                toast.error('Silme başarısız');
+            } else {
+                toast.error(result.error || 'Silme başarısız');
             }
         });
     };
 
-    // Create from templates
+    // Create from templates - tüm aktif şablonlardan bu ay için gider oluştur
     const handleCreateFromTemplates = () => {
-        const month = new Date().toISOString().substring(0, 7);
+        const now = new Date();
+        const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         startTransition(async () => {
-            try {
-                await createGiderlerFromTemplates(month);
-                toast.success('Şablonlardan giderler oluşturuldu');
+            const result = await generateExpensesForMonth(month);
+            if (result.success) {
+                toast.success(result.message);
                 router.refresh();
-            } catch {
-                toast.error('Şablon giderleri oluşturulamadı');
+            } else {
+                toast.error(result.error || 'Şablon giderleri oluşturulamadı');
             }
         });
     };
@@ -319,7 +363,7 @@ export default function GiderlerYeniClient({
 
     return (
         <div className="space-y-5">
-            {modalOpen && <YeniGiderModal onClose={() => setModalOpen(false)} locale={locale} />}
+            {modalOpen && <YeniGiderModal onClose={() => setModalOpen(false)} locale={locale} giderKalemleri={giderKalemleri} />}
 
             {/* ── Header ── */}
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -339,9 +383,15 @@ export default function GiderlerYeniClient({
                             </button>
                         ))}
                     </div>
+                    {isAdmin && (
+                        <Link href={`/${locale}/admin/idari/finans/giderler/kategoriler`}
+                            className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors">
+                            <FiChevronDown size={13} /> Kategoriler
+                        </Link>
+                    )}
                     <Link href={`/${locale}/admin/idari/finans/giderler/sablonlar`}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors">
-                        <FiRepeat size={13} /> Şablon Yönetimi
+                        <FiRepeat size={13} /> Şablonlar
                     </Link>
                     <button onClick={() => setModalOpen(true)}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors">

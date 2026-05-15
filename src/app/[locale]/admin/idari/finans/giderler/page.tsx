@@ -72,6 +72,7 @@ export default async function GiderlerPage({ params, searchParams }: PageProps) 
         prevGiderlerRes,
         tirRes,
         sablonlarRes,
+        giderKalemleriRes,
     ] = await Promise.all([
         supabase
             .from('giderler')
@@ -103,6 +104,11 @@ export default async function GiderlerPage({ params, searchParams }: PageProps) 
             .from('gider_sablonlari')
             .select('*')
             .order('created_at', { ascending: false }),
+
+        supabase
+            .from('gider_kalemleri')
+            .select('id, ad, ana_kategori_id, gider_ana_kategoriler(ad)')
+            .order('ad', { ascending: true }),
     ]);
 
     const giderler = (giderlerRes.data ?? []) as any[];
@@ -118,6 +124,7 @@ export default async function GiderlerPage({ params, searchParams }: PageProps) 
         toplam: Number(t.navlun_soguk_eur ?? 0) + Number(t.navlun_kuru_eur ?? 0) + Number(t.gumruk_vergi_toplam_eur ?? 0) + Number(t.traces_numune_ardiye_eur ?? 0),
     }));
     const sablonlar = (sablonlarRes.data ?? []) as any[];
+    const giderKalemleri = (giderKalemleriRes.data ?? []) as any[];
 
     // Stats hesapla
     const toplam = giderler.reduce((s, g) => s + Number(g.tutar ?? 0), 0);
@@ -159,6 +166,7 @@ export default async function GiderlerPage({ params, searchParams }: PageProps) 
             sablonlar={sablonlar}
             tirGruplari={tirGruplari}
             kategoriDagilimi={kategoriDagilimi}
+            giderKalemleri={giderKalemleri}
             stats={{ toplam, tirToplam, sabitToplam, manuelToplam }}
             prevPeriodToplam={prevPeriodToplam}
             locale={locale}

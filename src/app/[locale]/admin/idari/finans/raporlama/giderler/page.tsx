@@ -25,6 +25,18 @@ type ExpenseData = {
 
 type MonthlyExpense = { month: string; total: number };
 
+type ForecastRow = { month: string; tahmin: number };
+
+type BitisUyari = {
+    id: string;
+    sablon_adi: string;
+    tip: string;
+    bitis_tarihi: string | null;
+    kalan_gun: number | null;
+    kalan_taksit: number | null;
+    tutar: number;
+};
+
 const COLORS = ['#C69F6B', '#2B2B2B', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#6B7280'];
 
 const fmt = (v: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
@@ -43,6 +55,8 @@ export default function ExpenseAnalysisPage({ params }: PageProps) {
     const [totalRev,   setTotalRev]   = useState(0);
     const [loading,    setLoading]    = useState(true);
     const [expanded,   setExpanded]   = useState<Set<string>>(new Set());
+    const [forecast,   setForecast]   = useState<ForecastRow[]>([]);
+    const [bitisUyarilari, setBitisUyarilari] = useState<BitisUyari[]>([]);
 
     useEffect(() => { params.then(p => setLocale(p.locale)); }, [params]);
     useEffect(() => { fetchData(); }, [period]);
@@ -147,6 +161,86 @@ export default function ExpenseAnalysisPage({ params }: PageProps) {
             setExpenses(arr);
             setTotalExp(arr.reduce((s, i) => s + i.toplam, 0));
         }
+
+        // Forecast: aktif şablonlardan sonraki 6 ay tahmini
+        const { data: sablonlar } = await (sb as any)
+            .from('gider_sablonlari')
+            .select('*')
+            .eq('aktif', true);
+
+        const today = new Date();
+        const forecastRows: ForecastRow[] = [];
+        for (let i = 0; i < 6; i++) {
+            const m = new Date(today.getFullYear(), today.getMonth() + i, 1);
+            const yyyy = m.getFullYear();
+            const mm = m.getMonth() + 1;
+            const monthStr = `${yyyy}-${String(mm).padStart(2, '0')}`;
+            let total = 0;
+
+            for (const s of (sablonlar ?? []) as any[]) {
+                const tutar = Number(s.varsayilan_tutar ?? s.tutar ?? 0);
+                if (!s.baslangic_tarihi) continue;
+
+                const startDate = new Date(s.baslangic_tarihi);
+                const monthsDiff = (yyyy - startDate.getFullYear()) * 12 + (mm - 1 - startDate.getMonth());
+                if (monthsDiff < 0) continue;
+
+                // Periyot kontrolü
+                let interval = 1;
+                if (s.tekrar_periyodu === 'ceyreklik') interval = 3;
+                else if (s.tekrar_periyodu === 'yarim_yillik') interval = 6;
+                else if (s.tekrar_periyodu === 'yillik') interval = 12;
+                if (monthsDiff % interval !== 0) continue;
+
+                // Süreli sözleşme bitti mi?
+                if (s.tip === 'sureli_sozlesme' && s.bitis_tarihi) {
+                    const lastDay = new Date(yyyy, mm, 0).toISOString().slice(0, 10);
+                    if (s.bitis_tarihi < lastDay) continue;
+                }
+
+                // Taksit doldu mu? (yaklaşık - mevcut sayıdan tahmin)
+                if (s.tip === 'taksitli' && s.taksit_sayisi) {
+                    const usedSoFar = Math.floor(monthsDiff / interval);
+                    if (usedSoFar >= s.taksit_sayisi) continue;
+                }
+
+                total += tutar;
+            }
+            forecastRows.push({ month: monthStr, tahmin: total });
+        }
+        setForecast(forecastRows);
+
+        // Bitiş uyarıları
+        const uyarilar: BitisUyari[] = [];
+        for (const s of (sablonlar ?? []) as any[]) {
+            const tutar = Number(s.varsayilan_tutar ?? s.tutar ?? 0);
+
+            if (s.tip === 'sureli_sozlesme' && s.bitis_tarihi) {
+                const bitis = new Date(s.bitis_tarihi);
+                const kalanGun = Math.ceil((bitis.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                if (kalanGun < 90 && kalanGun > -30) {
+                    uyarilar.push({
+                        id: s.id, sablon_adi: s.sablon_adi, tip: s.tip,
+                        bitis_tarihi: s.bitis_tarihi, kalan_gun: kalanGun, kalan_taksit: null, tutar,
+                    });
+                }
+            } else if (s.tip === 'taksitli' && s.taksit_sayisi && s.baslangic_tarihi) {
+                const startDate = new Date(s.baslangic_tarihi);
+                const monthsDiff = (today.getFullYear() - startDate.getFullYear()) * 12 + (today.getMonth() - startDate.getMonth());
+                let interval = 1;
+                if (s.tekrar_periyodu === 'ceyreklik') interval = 3;
+                else if (s.tekrar_periyodu === 'yillik') interval = 12;
+                const used = Math.floor(monthsDiff / interval);
+                const kalan = s.taksit_sayisi - used;
+                if (kalan > 0 && kalan <= 3) {
+                    uyarilar.push({
+                        id: s.id, sablon_adi: s.sablon_adi, tip: s.tip,
+                        bitis_tarihi: null, kalan_gun: null, kalan_taksit: kalan, tutar,
+                    });
+                }
+            }
+        }
+        setBitisUyarilari(uyarilar.sort((a, b) => (a.kalan_gun ?? a.kalan_taksit ?? 999) - (b.kalan_gun ?? b.kalan_taksit ?? 999)));
 
         // Monthly trend
         if (period === 'last-6-months' || period === 'this-year') {
@@ -275,6 +369,103 @@ export default function ExpenseAnalysisPage({ params }: PageProps) {
                                     );
                                 })}
                             </div>
+                        </div>
+                    </div>
+
+                    {/* ── Forecast & Uyarılar ── */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        {/* Gelecek 6 ay tahmini */}
+                        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-5">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                                    <FiTrendingUp size={14} className="text-blue-500" />
+                                    Sonraki 6 Ay - Sabit Gider Tahmini
+                                </h3>
+                                <span className="text-[11px] text-gray-400">Aktif şablonlardan</span>
+                            </div>
+                            {forecast.length === 0 || forecast.every(f => f.tahmin === 0) ? (
+                                <p className="text-sm text-gray-400 py-6 text-center">
+                                    Şablon yok veya öngörülen gider bulunamadı
+                                </p>
+                            ) : (
+                                <>
+                                    <ResponsiveContainer width="100%" height={180}>
+                                        <BarChart data={forecast}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                            <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                                            <YAxis tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
+                                            <Tooltip formatter={(v: number) => fmt(v)} />
+                                            <Bar dataKey="tahmin" fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                    <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100">
+                                        <div>
+                                            <p className="text-[10px] text-gray-400 uppercase">6 Ay Toplam</p>
+                                            <p className="text-sm font-bold text-gray-800">
+                                                {fmt(forecast.reduce((s, f) => s + f.tahmin, 0))}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-gray-400 uppercase">Aylık Ort.</p>
+                                            <p className="text-sm font-bold text-gray-800">
+                                                {fmt(forecast.reduce((s, f) => s + f.tahmin, 0) / forecast.length)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-gray-400 uppercase">Bu Ay</p>
+                                            <p className="text-sm font-bold text-blue-600">
+                                                {fmt(forecast[0]?.tahmin ?? 0)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Yaklaşan bitişler */}
+                        <div className="bg-white border border-gray-200 rounded-xl p-5">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                                    <FiAlertCircle size={14} className="text-orange-500" />
+                                    Yaklaşan Bitişler
+                                </h3>
+                                {bitisUyarilari.length > 0 && (
+                                    <span className="text-[10px] font-bold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
+                                        {bitisUyarilari.length}
+                                    </span>
+                                )}
+                            </div>
+                            {bitisUyarilari.length === 0 ? (
+                                <div className="py-6 text-center">
+                                    <div className="text-2xl mb-1">✓</div>
+                                    <p className="text-xs text-gray-400">Yaklaşan bitiş yok</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2 max-h-[220px] overflow-y-auto">
+                                    {bitisUyarilari.map(u => {
+                                        const acil = (u.kalan_gun !== null && u.kalan_gun <= 30) || (u.kalan_taksit !== null && u.kalan_taksit <= 1);
+                                        return (
+                                            <div key={u.id} className={`p-2.5 rounded-lg border ${acil ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100'}`}>
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-xs font-semibold text-gray-800 truncate">{u.sablon_adi}</p>
+                                                        <p className="text-[10px] text-gray-500 mt-0.5">
+                                                            {u.kalan_gun !== null ? (
+                                                                u.kalan_gun < 0
+                                                                    ? `${Math.abs(u.kalan_gun)} gün önce bitti`
+                                                                    : `${u.kalan_gun} gün kaldı`
+                                                            ) : `${u.kalan_taksit} taksit kaldı`}
+                                                        </p>
+                                                    </div>
+                                                    <span className={`text-[10px] font-bold whitespace-nowrap ${acil ? 'text-red-600' : 'text-amber-600'}`}>
+                                                        {fmt(u.tutar)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     </div>
 

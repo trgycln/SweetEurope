@@ -16,9 +16,9 @@ export type GiderFormState = {
     error?: string | ZodError<any>['formErrors'] | null;
 } | null;
 
-// Zod Schema (unverändert)
+// Zod Schema - gider_kalemi_id ist optional (DB-Spalte ist nullable; Schnellerfassung ohne Kategorie erlaubt)
 const GiderSchema = z.object({
-    gider_kalemi_id: z.string().uuid({ message: "Ungültiger Ausgabenposten." }),
+    gider_kalemi_id: z.string().uuid({ message: "Ungültiger Ausgabenposten." }).optional().nullable(),
     aciklama: z.string().min(3, { message: "Beschreibung muss mind. 3 Zeichen lang sein." }),
     tutar: z.number({ required_error: "Betrag ist erforderlich.", invalid_type_error: "Betrag muss eine Zahl sein." }).positive({ message: "Betrag muss positiv sein." }),
     tarih: z.string().refine((date) => !isNaN(Date.parse(date)), { message: "Ungültiges Datum." }),
@@ -67,7 +67,7 @@ export async function createGiderAction(
     }
 
     const rawData = {
-        gider_kalemi_id: formData.get('gider_kalemi_id'),
+        gider_kalemi_id: formData.get('gider_kalemi_id') || null,
         aciklama: formData.get('aciklama'),
         tutar: formData.get('tutar') ? parseFloat(formData.get('tutar') as string) : undefined,
         tarih: formData.get('tarih'),
@@ -82,7 +82,7 @@ export async function createGiderAction(
     }
 
     const insertData: TablesInsert<'giderler'> = {
-        gider_kalemi_id: validatedFields.data.gider_kalemi_id,
+        gider_kalemi_id: validatedFields.data.gider_kalemi_id ?? null,
         aciklama: validatedFields.data.aciklama,
         tutar: validatedFields.data.tutar,
         tarih: new Date(validatedFields.data.tarih).toISOString(),
