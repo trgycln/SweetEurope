@@ -51,12 +51,14 @@
       "Bash(grep -v \"^$\\\\|webpack\\\\|HMR\\\\|Fast\")",
       "Bash(node .next/standalone/server.js)",
       "Bash(curl -s \"http://localhost:3000/de/products\" -L -o /tmp/products_response.txt)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3003/de/products)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3003/de/products)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\User\\\\Projeler \\(Web Sayfalari\\)\\\\sweetheaven-germany\\\\src\\\\app\\\\[locale]\\\\\\(public\\)\\\\agb\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\User\\.claude\\projects\\c--Users-User-Projeler--Web-Sayfalari--sweetheaven-germany\\memory",
       "c:\\Users\\User\\Projeler (Web Sayfalari)\\sweetheaven-germany\\src\\app\\[locale]\\admin\\pazarlama",
-      "c:\\Users\\User\\Projeler (Web Sayfalari)\\sweetheaven-germany\\src\\app\\[locale]\\admin\\pazarlama\\sosyal-medya-editoru"
+      "c:\\Users\\User\\Projeler (Web Sayfalari)\\sweetheaven-germany\\src\\app\\[locale]\\admin\\pazarlama\\sosyal-medya-editoru",
+      "c:\\Users\\User\\Projeler (Web Sayfalari)\\sweetheaven-germany\\src\\app\\[locale]\\(public)"
     ]
   }
 }

@@ -2,24 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import { FaInstagram, FaLinkedin } from 'react-icons/fa';
 
+// These slugs match real categories in the database
 const FO_CATEGORY_LINKS = [
-  { slug: 'premium-syrups',           de: 'Premium-Sirupe' },
-  { slug: 'cocktail-syrups',          de: 'Cocktail-Sirupe' },
-  { slug: 'silvery-syrups',           de: 'Silvery-Sirupe' },
-  { slug: 'powder-drinks',            de: 'Pulvergetränke' },
-  { slug: 'fruit-pastes',             de: 'Frucht- & Aromapasten' },
-  { slug: 'topping-decor-sauces',     de: 'Dekor-Toppingsoßen 750 g' },
-  { slug: 'topping-ice-cream-sauces', de: 'Eis-Toppingsoßen 1 kg' },
-  { slug: 'fruited-sauces',           de: 'Fruchtsoßen 1 kg' },
-  { slug: 'cafe-bar-sauces',          de: 'Café-Bar-Soßen 2,5 kg' },
-  { slug: 'special-sauces-940g',      de: 'Spezialsoßen 940 g' },
-  { slug: 'iced-tea-syrup-bases',     de: 'Eistee- & Sirup-Basen' },
-  { slug: 'cocktail-mixes',           de: 'Cocktail-Mixes' },
-  { slug: 'foamer',                   de: 'Foamer' },
-  { slug: 'special-pistachio-sauce',  de: 'Pistachio Kadayıfı Soße' },
+  { slug: 'sauces-and-ingredients', de: 'HoReCa – Getränke & Saucen' },
+  { slug: 'coffee',                 de: 'Kaffee & Kaffeespezialitäten' },
+  { slug: 'drinks',                 de: 'Getränke & Sirup-Basen' },
 ];
 
-const Footer: React.FC<{ dictionary: any }> = ({ dictionary }) => {
+const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, locale = 'de' }) => {
   return (
     <footer className="bg-primary text-secondary border-t-2 border-accent">
 
@@ -67,7 +57,7 @@ const Footer: React.FC<{ dictionary: any }> = ({ dictionary }) => {
               {FO_CATEGORY_LINKS.map((cat) => (
                 <Link
                   key={cat.slug}
-                  href={`/de/products?kategori=${cat.slug}`}
+                  href={`/${locale}/products?kategori=${cat.slug}`}
                   className="block text-sm text-secondary/70 hover:text-accent transition-colors truncate"
                 >
                   {cat.de}
@@ -81,11 +71,11 @@ const Footer: React.FC<{ dictionary: any }> = ({ dictionary }) => {
             <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">Geschäftskunden</h4>
             <nav className="space-y-2">
               {[
-                { href: '/de/register', label: 'Partner werden' },
-                { href: '/de/contact', label: 'Probierpaket anfragen' },
-                { href: '/de/contact', label: 'Preisliste anfordern' },
-                { href: '/de/contact', label: 'Anfrage senden' },
-                { href: '/de/contact', label: 'FAQ' },
+                { href: `/${locale}/register`, label: 'Partner werden' },
+                { href: `/${locale}/contact`, label: 'Probierpaket anfragen' },
+                { href: `/${locale}/contact`, label: 'Preisliste anfordern' },
+                { href: `/${locale}/contact`, label: 'Anfrage senden' },
+                { href: `/${locale}/contact`, label: 'FAQ' },
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -103,10 +93,10 @@ const Footer: React.FC<{ dictionary: any }> = ({ dictionary }) => {
             <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">Rechtliches</h4>
             <nav className="space-y-2">
               {[
-                { href: '/de/impressum', label: 'Impressum' },
-                { href: '/de/datenschutz', label: 'Datenschutz' },
-                { href: '/de/agb', label: 'AGB (B2B)' },
-                { href: '/de/widerruf', label: 'Widerrufsbelehrung' },
+                { href: `/${locale}/impressum`, label: 'Impressum' },
+                { href: `/${locale}/datenschutz`, label: 'Datenschutz' },
+                { href: `/${locale}/agb`, label: 'AGB (B2B)' },
+                { href: `/${locale}/widerruf`, label: 'Widerrufsbelehrung' },
               ].map((item) => (
                 <Link
                   key={item.label}
