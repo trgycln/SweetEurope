@@ -77,6 +77,8 @@ type ParsedImportRow = {
   // Ingredients & nutrition
   inhaltsstoffeDe: string | null;
   inhaltsstoffeTr: string | null;
+  besinDegerleri: string | null;
+  // Legacy structured fields — populated when old-format files with 7 separate columns are uploaded
   naehrwertEnergieKj: number | null;
   naehrwertEnergieKcal: number | null;
   naehrwertFett: number | null;
@@ -170,6 +172,8 @@ const POMPA_UYUMLU_HEADERS = ['pompauyumlu', 'pumpengeeignet', 'pumpcompatible']
 const HALAL_HEADERS = ['halal'];
 const INHALTSSTOFFE_DE_HEADERS = ['inhaltsstoffede', 'icindekimlerde', 'ingredientsde', 'zutaten'];
 const INHALTSSTOFFE_TR_HEADERS = ['inhaltsstoffetr', 'icindekimlertr', 'ingredientstr', 'icindekiler'];
+const BESIN_DEGERLERI_HEADERS = ['besindegerleri', 'besinbilgisi', 'nutritionalinfo', 'nahrwertinfo', 'naehrwertinfo', 'besindegeri'];
+// Legacy structured nutrition headers — still parsed for backward compatibility with old files
 const NAEHRWERT_KJ_HEADERS = ['naehrwertenergie', 'energiekj', 'energikj', 'kj'];
 const NAEHRWERT_KCAL_HEADERS = ['naehrwertkcal', 'energiekcal', 'enerjikcal', 'kcal', 'kalori'];
 const NAEHRWERT_FETT_HEADERS = ['naehrwertfett', 'fett', 'yag', 'fat'];
@@ -401,6 +405,7 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
     halal: findColumnIndex(header, HALAL_HEADERS),
     inhaltsstoffeDe: findColumnIndex(header, INHALTSSTOFFE_DE_HEADERS),
     inhaltsstoffeTr: findColumnIndex(header, INHALTSSTOFFE_TR_HEADERS),
+    besinDegerleri: findColumnIndex(header, BESIN_DEGERLERI_HEADERS),
     naehrwertKj: findColumnIndex(header, NAEHRWERT_KJ_HEADERS),
     naehrwertKcal: findColumnIndex(header, NAEHRWERT_KCAL_HEADERS),
     naehrwertFett: findColumnIndex(header, NAEHRWERT_FETT_HEADERS),
@@ -544,6 +549,7 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
       isHalal: parseBool(indexes.halal),
       inhaltsstoffeDe: getStr(indexes.inhaltsstoffeDe),
       inhaltsstoffeTr: getStr(indexes.inhaltsstoffeTr),
+      besinDegerleri: getStr(indexes.besinDegerleri),
       naehrwertEnergieKj: getNum(indexes.naehrwertKj),
       naehrwertEnergieKcal: getNum(indexes.naehrwertKcal),
       naehrwertFett: getNum(indexes.naehrwertFett),
@@ -940,6 +946,7 @@ function buildProductPayload(row: ParsedImportRow, settings: Record<string, unkn
     ...(naehrwerte ? { naehrwerte } : {}),
     ...(zertifikate ? { zertifikate } : {}),
     ...(inhaltsstoffe ? { inhaltsstoffe } : {}),
+    ...(row.besinDegerleri ? { besin_degerleri: row.besinDegerleri } as any : {}),
   };
 }
 

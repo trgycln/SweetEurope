@@ -2,10 +2,10 @@
 
 // KORREKTUR: 'use client' entfernt. Dies ist eine Server-Komponente.
 import React from 'react';
-// KORREKTUR: Dynamischen Loader importieren
 import { getDictionary } from '@/dictionaries';
-import { Locale } from '@/lib/utils'; // Annahme: Locale ist in utils.ts
+import { Locale } from '@/lib/utils';
 import { FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import ContactFormClient from './ContactFormClient';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { locale: Locale } }): Promise<Metadata> {
@@ -65,32 +65,15 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
             </div>
 
             {/* Right Column: Contact Form */}
-            {/* HINWEIS: Dieses Formular ist ein einfaches HTML-Formular.
-                Für eine interaktive Einsendung (ohne Neuladen) wäre eine
-                Client Component mit Server Action erforderlich.
-            */}
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-              <h2 className="text-3xl font-serif text-primary mb-6">{content.formTitle}</h2>
-              <form action="#" method="POST" className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-bold font-sans text-primary mb-2">{content.formName}</label>
-                  <input type="text" id="name" name="name" required className="w-full px-4 py-3 font-sans border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent" />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-bold font-sans text-primary mb-2">{content.formEmail}</label>
-                  <input type="email" id="email" name="email" required className="w-full px-4 py-3 font-sans border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent" />
-                </div>
-                <div>
-                  <label htmlFor="message" className="block text-sm font-bold font-sans text-primary mb-2">{content.formMessage}</label>
-                  <textarea id="message" name="message" rows={5} required className="w-full px-4 py-3 font-sans border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"></textarea>
-                </div>
-                <div>
-                  <button type="submit" className="w-full bg-accent text-primary font-bold py-3 px-6 rounded-md text-lg hover:opacity-90 transition-opacity shadow-lg">
-                    {content.formButton}
-                  </button>
-                </div>
-              </form>
-            </div>
+            <ContactFormClient
+              labels={{
+                formTitle:   content.formTitle,
+                formName:    content.formName,
+                formEmail:   content.formEmail,
+                formMessage: content.formMessage,
+                formButton:  content.formButton,
+              }}
+            />
           </div>
 
           {/* Map Section (unverändert) */}

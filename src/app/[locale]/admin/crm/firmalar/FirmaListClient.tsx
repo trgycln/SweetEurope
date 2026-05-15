@@ -47,6 +47,7 @@ type SummaryStats = {
     numune: number;
     temassiz30: number;
     buHaftaYeni: number;
+    gorulmemisWebBasvuru: number;
 };
 
 interface Props {
@@ -749,6 +750,17 @@ export default function FirmaListClient({
                     <span><strong className="text-slate-700">{summary.toplam}</strong> firma</span>
                     <span className="text-green-600"><strong>{summary.musteri}</strong> müşteri</span>
                     <span className="text-purple-600"><strong>{summary.numune}</strong> numune</span>
+                    {summary.gorulmemisWebBasvuru > 0 && (
+                        <button type="button"
+                            onClick={() => {
+                                const p = new URLSearchParams(searchParams.toString());
+                                p.set('status', 'ADAY'); p.set('kaynak', 'web');
+                                router.replace(`${pathname}?${p.toString()}`);
+                            }}
+                            className="flex items-center gap-1 bg-amber-500 text-white font-bold px-2 py-0.5 rounded-full animate-pulse hover:animate-none hover:bg-amber-600 transition-colors">
+                            🆕 <strong>{summary.gorulmemisWebBasvuru}</strong> yeni başvuru
+                        </button>
+                    )}
                     {summary.temassiz30 > 0 && (
                         <button type="button"
                             onClick={() => {

@@ -100,7 +100,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     // --- Summary stats (global, unfiltered) ---
     const { data: allFirmalar } = await supabase
         .from('firmalar')
-        .select('id, status, son_etkilesim_tarihi, created_at');
+        .select('id, status, son_etkilesim_tarihi, created_at, goruldu, kaynak');
 
     const now = Date.now();
     const sevenDaysAgo = now - 7 * 86400000;
@@ -118,6 +118,11 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
             const d = f.created_at ? new Date(f.created_at).getTime() : 0;
             return d > sevenDaysAgo;
         }).length ?? 0,
+        gorulmemisWebBasvuru: allFirmalar?.filter(f =>
+            f.goruldu === false &&
+            (f.kaynak || '').toLowerCase() === 'web' &&
+            ['ADAY', 'TEMAS EDİLDİ', 'NUMUNE VERİLDİ'].includes(f.status || '')
+        ).length ?? 0,
     };
 
     // --- Main filtered query ---
@@ -126,7 +131,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
         .select(`
             id, unvan, status, kategori, sehir, ilce, posta_kodu,
             telefon, adres, son_etkilesim_tarihi, oncelik_puani, oncelik, etiketler,
-            kaynak, created_at, parent_firma_id, instagram_url, google_maps_url,
+            kaynak, goruldu, created_at, parent_firma_id, instagram_url, google_maps_url,
             yetkili_kisi,
             sorumlu_personel:profiller!firmalar_sorumlu_personel_id_fkey(tam_ad)
         `);

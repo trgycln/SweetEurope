@@ -285,30 +285,10 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       }
     };
 
-    const mergeHistory = (remoteHistory: SavedPlanRecord[], localHistory: SavedPlanRecord[]) => {
-      const mergedMap = new Map<string, SavedPlanRecord>();
-      for (const r of [...remoteHistory, ...localHistory]) {
-        const normalized: SavedPlanRecord = {
-          ...r,
-          status: r.status || 'sablon',
-          sentAt: r.sentAt || null,
-          receivedAt: r.receivedAt || null,
-        };
-        const key = normalized.id || `${normalized.name}-${normalized.createdAt}`;
-        if (!mergedMap.has(key)) mergedMap.set(key, normalized);
-      }
-
-      return Array.from(mergedMap.values())
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, 200);
-    };
-
     const loadStorage = async () => {
       const remote = await getSupplierOrderPlanStorageAction();
       const localDraft = parseLocalDraft();
-      const localHistory = parseLocalHistory();
 
-      // Cloud + local veriyi birleştirerek yükle (kayıp taslakları geri kazanmak için).
       if (mounted && remote.success) {
         const remoteDraft = remote.draft;
         const d = remoteDraft || localDraft;
@@ -323,15 +303,16 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           if (d.savedAt) setLastDraftSaveAt(d.savedAt);
         }
 
+        // Remote kayıt tek kaynak doğrusudur — localStorage ile birleştirme yapılmaz.
+        // Bu sayede bir yöneticinin sildiği kayıt diğer yöneticinin localStorage'ından geri dönmez.
         const remoteHistory = Array.isArray(remote.history) ? remote.history : [];
-        const merged = mergeHistory(remoteHistory, localHistory);
-        setPlanHistory(merged);
+        setPlanHistory(remoteHistory);
+        try { localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(remoteHistory)); } catch {}
 
-        // Eğer local'de ek kayıt varsa buluta taşı
         if (localDraft && !remoteDraft) {
           void saveSupplierOrderPlanDraftAction({
             draftName: localDraft.draftName || 'Sipariş Taslağı',
-              selectedSupplierId: localDraft.selectedSupplierId === 'all' ? '' : localDraft.selectedSupplierId || '',
+            selectedSupplierId: localDraft.selectedSupplierId === 'all' ? '' : localDraft.selectedSupplierId || '',
             search: localDraft.search || '',
             selectedProductId: localDraft.selectedProductId || '',
             selectedUnitType: localDraft.selectedUnitType || 'koli',
@@ -340,16 +321,11 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             savedAt: localDraft.savedAt || new Date().toISOString(),
           });
         }
-
-        if (merged.length > remoteHistory.length) {
-          for (const rec of merged) {
-            void saveSupplierOrderPlanSnapshotAction(rec);
-          }
-        }
       }
 
       if (mounted && !remote.success) {
         // Cloud okunamazsa local fallback
+        const localHistory = parseLocalHistory();
         if (localDraft) {
           if (localDraft.draftName) setDraftName(localDraft.draftName);
           if (localDraft.selectedSupplierId) setSelectedSupplierId(localDraft.selectedSupplierId);
@@ -555,6 +531,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     void saveSupplierOrderPlanSnapshotAction(record).then((res) => {
       if (res.success) {
         setPlanHistory(res.history);
+        try { localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(res.history)); } catch {}
         if (isEditingSentRecord) {
           setEditingRecordId(null);
           toast.success('Gönderilen kayıttan yeni şablon oluşturuldu');
@@ -586,6 +563,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     void deleteSupplierOrderPlanSnapshotAction(recordId).then((res) => {
       if (res.success) {
         setPlanHistory(res.history);
+        try { localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(res.history)); } catch {}
         toast.success('Şablon silindi');
       }
     });
@@ -611,6 +589,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       void saveSupplierOrderPlanSnapshotAction(target).then((res) => {
         if (res.success) {
           setPlanHistory(res.history);
+          try { localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(res.history)); } catch {}
           toast.success(
             status === 'gonderildi'
               ? 'Kayıt gönderildi olarak işaretlendi'
@@ -733,6 +712,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     const rows = enrichedItems.map((row) => ({
       Tedarikci: selectedSupplierName,
       'Stok Kodu': row.product.stok_kodu || '-',
+      'Barkod (EAN/GTIN)': row.product.ean_gtin || '',
       'Urun Adi': getProductName(row.product.ad, locale),
       Birim: row.unitType,
       Miktar: row.quantity,
@@ -743,6 +723,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     rows.push({
       Tedarikci: '',
       'Stok Kodu': '',
+      'Barkod (EAN/GTIN)': '',
       'Urun Adi': 'GENEL TOPLAM',
       Birim: '',
       Miktar: 0,
@@ -750,7 +731,34 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       'Satir Toplami (EUR)': Number(totals.grandTotal.toFixed(2)),
     });
 
+    const paletStr = totals.totalPallets < 0.01
+      ? '—'
+      : totals.totalPallets % 1 === 0
+        ? `${totals.totalPallets.toFixed(0)} palet`
+        : `~${totals.totalPallets.toFixed(2)} palet`;
+    const agirlikStr = totals.totalWeightKg <= 0
+      ? '—'
+      : totals.totalWeightKg >= 1000
+        ? `${(totals.totalWeightKg / 1000).toFixed(2)} t`
+        : `${totals.totalWeightKg.toFixed(1)} kg`;
+
+    const extraRows: Record<string, string | number>[] = [
+      { Tedarikci: '', 'Stok Kodu': '', 'Barkod (EAN/GTIN)': '', 'Urun Adi': 'Toplam Palet', Birim: '', Miktar: '', 'Birim Maliyet (EUR)': '', 'Satir Toplami (EUR)': paletStr },
+      { Tedarikci: '', 'Stok Kodu': '', 'Barkod (EAN/GTIN)': '', 'Urun Adi': 'Toplam Agirlik', Birim: '', Miktar: '', 'Birim Maliyet (EUR)': '', 'Satir Toplami (EUR)': agirlikStr },
+    ];
+    (rows as Record<string, string | number>[]).push(...extraRows);
+
     const ws = XLSX.utils.json_to_sheet(rows);
+    ws['!cols'] = [
+      { wch: 22 }, // Tedarikci
+      { wch: 14 }, // Stok Kodu
+      { wch: 18 }, // Barkod
+      { wch: 45 }, // Urun Adi
+      { wch: 8  }, // Birim
+      { wch: 8  }, // Miktar
+      { wch: 18 }, // Birim Maliyet
+      { wch: 18 }, // Satir Toplami
+    ];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Siparis Formu');
     XLSX.writeFile(wb, `elysonsweets-siparis-formu-${new Date().toISOString().slice(0, 10)}.xlsx`);
@@ -841,6 +849,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       margin: { left: mL, right: mR },
       head: [[
         { content: 'Stok Kodu', styles: { halign: 'left' } },
+        { content: 'Barkod', styles: { halign: 'left' } },
         { content: 'Urun Adi', styles: { halign: 'left' } },
         { content: 'Birim', styles: { halign: 'center' } },
         { content: 'Miktar', styles: { halign: 'right' } },
@@ -849,6 +858,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       ]],
       body: enrichedItems.map((row) => [
         row.product.stok_kodu || '-',
+        row.product.ean_gtin || '-',
         sp(getProductName(row.product.ad, locale)),
         row.unitType,
         String(row.quantity),
@@ -856,14 +866,15 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         formatCurrency(row.lineTotal),
       ]),
       columnStyles: {
-        0: { cellWidth: 22 },
-        1: { cellWidth: 70, overflow: 'linebreak' },
-        2: { cellWidth: 16, halign: 'center' },
-        3: { cellWidth: 16, halign: 'right' },
-        4: { cellWidth: 29, halign: 'right' },
-        5: { cellWidth: 29, halign: 'right' },
+        0: { cellWidth: 18 },
+        1: { cellWidth: 30, overflow: 'ellipsize' },
+        2: { cellWidth: 50, overflow: 'linebreak' },
+        3: { cellWidth: 14, halign: 'center' },
+        4: { cellWidth: 14, halign: 'right' },
+        5: { cellWidth: 28, halign: 'right' },
+        6: { cellWidth: 28, halign: 'right' },
       },
-      styles: { fontSize: 8.5, cellPadding: 2.5, overflow: 'linebreak' },
+      styles: { fontSize: 8.5, cellPadding: 2, overflow: 'linebreak' },
       headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
       alternateRowStyles: { fillColor: [248, 248, 248] },
       didDrawPage: (data) => {
@@ -889,6 +900,19 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     doc.setFontSize(8.5);
     doc.setTextColor(100, 100, 100);
     doc.text(`${totals.totalLines} kalem  /  ${totals.totalUnits} toplam birim`, mL, finalY + 8);
+
+    const pdfPaletStr = totals.totalPallets < 0.01
+      ? '-'
+      : totals.totalPallets % 1 === 0
+        ? `${totals.totalPallets.toFixed(0)} palet`
+        : `~${totals.totalPallets.toFixed(2)} palet`;
+    const pdfAgirlikStr = totals.totalWeightKg <= 0
+      ? '-'
+      : totals.totalWeightKg >= 1000
+        ? `${(totals.totalWeightKg / 1000).toFixed(2)} t`
+        : `${totals.totalWeightKg.toFixed(1)} kg`;
+    doc.text(`Toplam Palet: ${pdfPaletStr}`, mL, finalY + 14);
+    doc.text(`Toplam Agirlik: ${pdfAgirlikStr}`, mL, finalY + 20);
 
     doc.save(`elysonsweets-siparis-formu-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
@@ -975,23 +999,26 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       margin: { left: mL, right: mR },
       head: [[
         { content: 'Stok Kodu', styles: { halign: 'left' } },
+        { content: 'Barkod', styles: { halign: 'left' } },
         { content: 'Urun Adi', styles: { halign: 'left' } },
         { content: 'Birim', styles: { halign: 'center' } },
         { content: 'Miktar', styles: { halign: 'right' } },
       ]],
       body: enrichedItems.map((row) => [
         row.product.stok_kodu || '-',
+        row.product.ean_gtin || '-',
         sp(getProductName(row.product.ad, locale)),
         row.unitType,
         String(row.quantity),
       ]),
       columnStyles: {
-        0: { cellWidth: 24 },
-        1: { cellWidth: 98, overflow: 'linebreak' },
-        2: { cellWidth: 30, halign: 'center' },
-        3: { cellWidth: 30, halign: 'right' },
+        0: { cellWidth: 18 },
+        1: { cellWidth: 30, overflow: 'ellipsize' },
+        2: { cellWidth: 76, overflow: 'linebreak' },
+        3: { cellWidth: 29, halign: 'center' },
+        4: { cellWidth: 29, halign: 'right' },
       },
-      styles: { fontSize: 8.5, cellPadding: 2.5, overflow: 'linebreak' },
+      styles: { fontSize: 8.5, cellPadding: 2, overflow: 'linebreak' },
       headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
       alternateRowStyles: { fillColor: [248, 248, 248] },
       didDrawPage: (data) => {
@@ -1013,6 +1040,19 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);
     doc.text(`${totals.totalLines} kalem  /  ${totals.totalUnits} toplam birim`, mL, finalY + 8);
+
+    const spPaletStr = totals.totalPallets < 0.01
+      ? '-'
+      : totals.totalPallets % 1 === 0
+        ? `${totals.totalPallets.toFixed(0)} palet`
+        : `~${totals.totalPallets.toFixed(2)} palet`;
+    const spAgirlikStr = totals.totalWeightKg <= 0
+      ? '-'
+      : totals.totalWeightKg >= 1000
+        ? `${(totals.totalWeightKg / 1000).toFixed(2)} t`
+        : `${totals.totalWeightKg.toFixed(1)} kg`;
+    doc.text(`Toplam Palet: ${spPaletStr}`, mL, finalY + 14);
+    doc.text(`Toplam Agirlik: ${spAgirlikStr}`, mL, finalY + 20);
 
     doc.save(`tedarikci-talep-listesi-${sp(selectedSupplierName).replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`);
   };

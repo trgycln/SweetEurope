@@ -1,8 +1,9 @@
 import * as XLSX from 'xlsx';
 
 const HEADERS = [
-  'stok_kodu', 'urun_adi_de', 'urun_adi_tr', 'urun_adi_en',
-  'aciklama_de', 'aciklama_tr',
+  'stok_kodu',
+  'urun_adi_de', 'urun_adi_tr', 'urun_adi_en', 'urun_adi_ar',
+  'aciklama_de', 'aciklama_tr', 'aciklama_en', 'aciklama_ar',
   'kategori', 'alt_kategori', 'tedarikci',
   'distributoralisfiyati', 'alis_fiyat_seviyesi',
   'koli_ici_adet', 'paleticikoli',
@@ -12,9 +13,7 @@ const HEADERS = [
   'vegan', 'glutenfrei', 'laktosefrei', 'bio', 'ohne_zucker',
   'katkisiz', 'koruyucusuz', 'pompa_uyumlu', 'halal',
   'inhaltsstoffe_de', 'inhaltsstoffe_tr',
-  'naehrwert_energie_kj', 'naehrwert_energie_kcal',
-  'naehrwert_fett', 'naehrwert_kohlenhydrate', 'naehrwert_zucker',
-  'naehrwert_eiweiss', 'naehrwert_salz',
+  'besin_degerleri',
   'stok_miktari', 'aktif', 'satis_fiyati_musteri',
 ];
 
@@ -23,8 +22,11 @@ const HEADER_LABELS: Record<string, string> = {
   urun_adi_de: 'Ürün Adı (Almanca)',
   urun_adi_tr: 'Ürün Adı (Türkçe)',
   urun_adi_en: 'Ürün Adı (İngilizce)',
+  urun_adi_ar: 'Ürün Adı (Arapça)',
   aciklama_de: 'Açıklama (Almanca)',
   aciklama_tr: 'Açıklama (Türkçe)',
+  aciklama_en: 'Açıklama (İngilizce)',
+  aciklama_ar: 'Açıklama (Arapça)',
   kategori: 'Kategori',
   alt_kategori: 'Alt Kategori',
   tedarikci: 'Tedarikçi',
@@ -50,21 +52,16 @@ const HEADER_LABELS: Record<string, string> = {
   halal: 'Helal (1/0)',
   inhaltsstoffe_de: 'İçindekiler (Almanca - LMIV)',
   inhaltsstoffe_tr: 'İçindekiler (Türkçe)',
-  naehrwert_energie_kj: 'Enerji (kJ/100g)',
-  naehrwert_energie_kcal: 'Enerji (kcal/100g)',
-  naehrwert_fett: 'Yağ (g/100g)',
-  naehrwert_kohlenhydrate: 'Karbonhidrat (g/100g)',
-  naehrwert_zucker: 'Şeker (g/100g)',
-  naehrwert_eiweiss: 'Protein (g/100g)',
-  naehrwert_salz: 'Tuz (g/100g)',
+  besin_degerleri: 'Besin Değerleri (Serbest Metin)',
   stok_miktari: 'Stok Miktarı',
   aktif: 'Aktif (1/0)',
   satis_fiyati_musteri: 'Satış Fiyatı Müşteri (€)',
 };
 
 const EXAMPLE_ROW = [
-  'FO01110', 'Karamell Eiscreme-Sauce 1 kg', 'Karamel Dondurma Sosu 1 kg', 'Caramel Ice Cream Sauce 1 kg',
-  'Soße für Eisdesserts und Pâtisserie', 'Dondurma ve pastacılık için karamel sos',
+  'FO01110',
+  'Karamell Eiscreme-Sauce 1 kg', 'Karamel Dondurma Sosu 1 kg', 'Caramel Ice Cream Sauce 1 kg', '',
+  'Soße für Eisdesserts und Pâtisserie', 'Dondurma ve pastacılık için karamel sos', '', '',
   'Eis-Toppingsoßen 1 kg', '', 'OZMER PASTACILIK',
   '3.82', 'adet',
   '6', '120',
@@ -74,7 +71,7 @@ const EXAMPLE_ROW = [
   '0', '1', '1', '0', '0', '0', '0', '0', '1',
   'Zucker, Glukosesirup, Wasser, Karamellaroma, Verdickungsmittel (Pektin), Konservierungsstoff (Kaliumsorbat)',
   'Şeker, glikoz şurubu, su, karamel aroması, kıvamlaştırıcı (pektin), koruyucu (potasyum sorbat)',
-  '1231', '294', '0', '72.2', '58.6', '0', '0.13',
+  'Enerji: 294 kcal / 1231 kJ | Yağ: 0 g | Karbonhidrat: 72,2 g | Şeker: 58,6 g | Protein: 0 g | Tuz: 0,13 g',
   '0', '1', '',
 ];
 
@@ -90,8 +87,8 @@ export async function GET() {
 
   // Sütun genişlikleri
   ws['!cols'] = HEADERS.map(h => {
-    if (['aciklama_de', 'aciklama_tr', 'inhaltsstoffe_de', 'inhaltsstoffe_tr'].includes(h)) return { wch: 50 };
-    if (['urun_adi_de', 'urun_adi_tr'].includes(h)) return { wch: 35 };
+    if (['aciklama_de', 'aciklama_tr', 'aciklama_en', 'aciklama_ar', 'inhaltsstoffe_de', 'inhaltsstoffe_tr', 'besin_degerleri'].includes(h)) return { wch: 55 };
+    if (['urun_adi_de', 'urun_adi_tr', 'urun_adi_en', 'urun_adi_ar'].includes(h)) return { wch: 35 };
     if (['distributoralisfiyati', 'satis_fiyati_musteri', 'alis_fiyat_seviyesi'].includes(h)) return { wch: 20 };
     return { wch: 18 };
   });
@@ -104,8 +101,12 @@ export async function GET() {
     ['stok_kodu', 'Eşleştirme anahtarı. Aynı kodu tekrar yüklerseniz güncelleme yapılır.', 'Evet', 'FO01110'],
     ['urun_adi_de', 'Almanca ürün adı (müşteriye gösterilir)', 'Önerilir', 'Karamell Eiscreme-Sauce 1 kg'],
     ['urun_adi_tr', 'Türkçe ürün adı', '-', 'Karamel Dondurma Sosu'],
+    ['urun_adi_en', 'İngilizce ürün adı', '-', 'Caramel Ice Cream Sauce 1 kg'],
+    ['urun_adi_ar', 'Arapça ürün adı', '-', ''],
     ['aciklama_de', 'Almanca açıklama (ürün detay sayfasında gösterilir)', '-', 'Soße für Eisdesserts...'],
     ['aciklama_tr', 'Türkçe açıklama', '-', ''],
+    ['aciklama_en', 'İngilizce açıklama', '-', ''],
+    ['aciklama_ar', 'Arapça açıklama', '-', ''],
     ['kategori', 'Kategori adı. Fuzzy eşleştirme yapılır. Boş → mevcut kategori korunur.', '-', 'Eis-Toppingsoßen 1 kg'],
     ['alt_kategori', 'Alt kategori adı.', '-', ''],
     ['tedarikci', 'Tedarikçi adı. Eşleşme bulunamazsa boş bırakılır.', '-', 'OZMER PASTACILIK'],
@@ -123,13 +124,13 @@ export async function GET() {
     ['vegan / glutenfrei / laktosefrei / bio / ohne_zucker / katkisiz / koruyucusuz / pompa_uyumlu / halal', '1 = Evet, 0 = Hayır, boş = değişmez.', '-', '1 veya 0'],
     ['inhaltsstoffe_de', 'İçindekiler listesi (Almanca, LMIV gereği zorunlu).', 'B2B için gerekli', 'Zucker, Glukosesirup...'],
     ['inhaltsstoffe_tr', 'İçindekiler listesi (Türkçe).', '-', 'Şeker, glikoz şurubu...'],
-    ['naehrwert_energie_kj / kcal / fett / kohlenhydrate / zucker / eiweiss / salz', '100g başına besin değerleri.', 'B2B için gerekli', '294'],
+    ['besin_degerleri', 'Besin değerleri — serbest metin. Örnek formata uyun ama zorunlu değil. Boş → değişmez.', 'B2B için gerekli', 'Enerji: 294 kcal / 1231 kJ | Yağ: 0 g | Karbonhidrat: 72,2 g | Şeker: 58,6 g | Protein: 0 g | Tuz: 0,13 g'],
     ['stok_miktari', 'Mevcut stok miktarını doğrudan yazar. Boş → değişmez.', '-', '0'],
     ['aktif', '1 = aktif, 0 = pasif. Boş → değişmez.', '-', '1'],
     ['satis_fiyati_musteri', 'Satış fiyatını manuel gir. Boş → alış fiyatından otomatik hesaplanır.', '-', ''],
   ];
   const wsGuide = XLSX.utils.aoa_to_sheet(guideData);
-  wsGuide['!cols'] = [{ wch: 55 }, { wch: 55 }, { wch: 15 }, { wch: 25 }];
+  wsGuide['!cols'] = [{ wch: 55 }, { wch: 60 }, { wch: 15 }, { wch: 55 }];
   XLSX.utils.book_append_sheet(wb, wsGuide, 'Sütun Rehberi');
 
   const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'buffer' });

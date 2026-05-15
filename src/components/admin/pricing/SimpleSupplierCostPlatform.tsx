@@ -56,6 +56,8 @@ type PricingRow = {
   calculation: ReturnType<typeof calculatePricing>;
 };
 
+type TierOverride = { value: string; isManual: boolean };
+
 interface Props {
   locale: string;
   products: ProductLite[];
@@ -155,6 +157,7 @@ function calculatePricing(params: {
   const afterCustoms = beforeCustoms * (1 + customs);
   const landedCost = afterCustoms * (1 + operational);
 
+  // Sale Price (KDV hariç) = Net Cost × (1 + Mod%)
   const altBayiNet   = roundToStep(landedCost * (1 + params.altBayiPct   / 100), step);
   const koliBazliNet = roundToStep(landedCost * (1 + params.koliBazliPct / 100), step);
   const cokKoliNet   = roundToStep(landedCost * (1 + params.cokKoliPct   / 100), step);
@@ -204,18 +207,9 @@ export default function SimpleSupplierCostPlatform({
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [savingRows, setSavingRows] = useState<Set<string>>(new Set());
 
-  // Per-row tier price overrides (typed string for input control)
-  const [overrides, setOverrides] = useState<Record<string, Partial<Record<TierKey, string>>>>(() => {
-    const init: Record<string, Partial<Record<TierKey, string>>> = {};
-    products.forEach(p => {
-      const ov: Partial<Record<TierKey, string>> = {};
-      if (p.satis_fiyati_alt_bayi)  ov.altBayi   = String(p.satis_fiyati_alt_bayi);
-      if (p.satis_fiyati_musteri)   ov.koliBazli  = String(p.satis_fiyati_musteri);
-      if (p.satis_fiyati_toptanci)  ov.cokKoli    = String(p.satis_fiyati_toptanci);
-      if (Object.keys(ov).length) init[p.id] = ov;
-    });
-    return init;
-  });
+  // Per-row tier price overrides: cells are auto-calculated by default.
+  // isManual=true marks user-edited values that survive "Tümünü Uygula" recalculation.
+  const [overrides, setOverrides] = useState<Record<string, Partial<Record<TierKey, TierOverride>>>>({});
 
   // Profile-specific params (shipping + customs)
   const [profileInputs, setProfileInputs] = useState<Record<SupplierProfile, { shippingPerBox: number; customsPct: number }>>(() => ({
@@ -337,18 +331,34 @@ export default function SimpleSupplierCostPlatform({
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   const setOverride = (id: string, tier: TierKey, val: string) => {
-    setOverrides(prev => ({ ...prev, [id]: { ...prev[id], [tier]: val } }));
+    setOverrides(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [tier]: { value: val, isManual: true } },
+    }));
   };
 
-  const hasOverride = (id: string, tier: TierKey) => {
-    const v = overrides[id]?.[tier];
-    return v !== undefined && v !== '';
+  const clearOverride = (id: string, tier: TierKey) => {
+    setOverrides(prev => {
+      const entry = { ...(prev[id] ?? {}) };
+      delete entry[tier];
+      if (Object.keys(entry).length === 0) {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      }
+      return { ...prev, [id]: entry };
+    });
+  };
+
+  const hasManualOverride = (id: string, tier: TierKey): boolean => {
+    const ov = overrides[id]?.[tier];
+    return ov?.isManual === true && ov.value !== '';
   };
 
   const resolvedTierPrice = (row: PricingRow, tier: TierKey): number => {
     const ov = overrides[row.product.id]?.[tier];
-    if (ov !== undefined && ov !== '') {
-      const n = parseFloat(ov);
+    if (ov?.isManual && ov.value !== '') {
+      const n = parseFloat(ov.value);
       if (Number.isFinite(n) && n > 0) return r2(n);
     }
     return row.calculation[`${tier}Net`] as number;
@@ -357,6 +367,11 @@ export default function SimpleSupplierCostPlatform({
   // ── Save handlers ────────────────────────────────────────────────────────────
   const handleSaveRow = async (row: PricingRow) => {
     if (row.purchase <= 0) { toast.error('Alış fiyatı girilmemiş ürün kaydedilemez.'); return; }
+    const invalidTiers = TIERS.filter(tier => resolvedTierPrice(row, tier.key) <= row.calculation.landedCost);
+    if (invalidTiers.length > 0) {
+      toast.error(`Satış fiyatı Net Mal. altında: ${invalidTiers.map(t => t.label).join(', ')}. Lütfen düzeltin.`);
+      return;
+    }
     setSavingRows(prev => new Set([...prev, row.product.id]));
     try {
       const res = await saveProductPricesAction({
@@ -377,6 +392,13 @@ export default function SimpleSupplierCostPlatform({
   const [isBulkSaving, startBulkSaving] = useTransition();
   const handleApplyAll = () => {
     if (readyRows.length === 0) { toast.error('Alış fiyatı olan ürün yok.'); return; }
+    const belowCostRows = readyRows.filter(row =>
+      TIERS.some(tier => resolvedTierPrice(row, tier.key) <= row.calculation.landedCost)
+    );
+    if (belowCostRows.length > 0) {
+      toast.error(`${belowCostRows.length} üründe satış fiyatı Net Mal. altında. Kaydetmeden önce fiyatları düzeltin.`);
+      return;
+    }
     startBulkSaving(async () => {
       const items = readyRows.map(row => ({
         urunId: row.product.id,
@@ -586,7 +608,7 @@ export default function SimpleSupplierCostPlatform({
           </div>
 
           <p className="text-[11px] text-slate-400">
-            Formül: (Alış + Nakliye) × (1 + Gümrük%) × (1 + Operasyonel%) = Net Maliyet → × (1 + Marj%) = Satış Fiyatı
+            Formül: (Alış + Nakliye) × (1 + Gümrük%) × (1 + Operasyonel%) = Net Maliyet → × (1 + Marj%) = Satış Fiyatı (KDV hariç)
           </p>
         </div>
       </details>
@@ -720,23 +742,48 @@ export default function SimpleSupplierCostPlatform({
                         {/* 4 Tier editable inputs */}
                         {TIERS.map(tier => {
                           const auto = row.calculation[`${tier.key}Net`] as number;
-                          const hasOv = hasOverride(row.product.id, tier.key);
+                          const hasOv = hasManualOverride(row.product.id, tier.key);
+                          const resolvedPrice = resolvedTierPrice(row, tier.key);
+                          const belowCost = !noPurchase && resolvedPrice <= row.calculation.landedCost;
                           const colors = TIER_COLOR[tier.key];
                           return (
                             <td key={tier.key} className="px-2 py-2">
-                              <input
-                                type="number"
-                                min={0}
-                                step="0.01"
-                                placeholder={noPurchase ? '—' : auto.toFixed(2)}
-                                value={overrides[row.product.id]?.[tier.key] ?? ''}
-                                onChange={e => setOverride(row.product.id, tier.key, e.target.value)}
-                                disabled={noPurchase}
-                                className={`w-full rounded-md border px-2 py-1.5 text-sm text-right font-mono transition disabled:cursor-not-allowed
-                                  ${hasOv ? colors.inputOverride : colors.input}
-                                  focus:outline-none focus:ring-1 focus:ring-offset-0`}
-                                style={hasOv ? {} : { fontStyle: 'italic' }}
-                              />
+                              <div className="relative group">
+                                <input
+                                  type="number"
+                                  min={0}
+                                  step="0.01"
+                                  placeholder={noPurchase ? '—' : auto.toFixed(2)}
+                                  value={overrides[row.product.id]?.[tier.key]?.value ?? ''}
+                                  onChange={e => setOverride(row.product.id, tier.key, e.target.value)}
+                                  disabled={noPurchase}
+                                  className={`w-full rounded-md border px-2 py-1.5 text-sm text-right font-mono transition disabled:cursor-not-allowed
+                                    ${belowCost ? 'border-red-500 bg-red-50 text-red-700' : hasOv ? colors.inputOverride : colors.input}
+                                    focus:outline-none focus:ring-1 focus:ring-offset-0`}
+                                  style={!hasOv && !belowCost ? { fontStyle: 'italic' } : {}}
+                                />
+                                {hasOv && !noPurchase && (
+                                  <>
+                                    <span
+                                      className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-orange-400 pointer-events-none"
+                                      title="Manuel değer — otomatik hesaplamadan bağımsız"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => clearOverride(row.product.id, tier.key)}
+                                      className="absolute -top-2 -left-2 opacity-0 group-hover:opacity-100 flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-white text-[10px] shadow hover:bg-slate-700 transition"
+                                      title="Hesaplanan fiyata sıfırla"
+                                    >
+                                      ↺
+                                    </button>
+                                  </>
+                                )}
+                                {belowCost && (
+                                  <span className="absolute -bottom-4 left-0 right-0 text-[9px] text-red-500 text-center leading-none whitespace-nowrap">
+                                    ⚠ maliyet altı
+                                  </span>
+                                )}
+                              </div>
                             </td>
                           );
                         })}
@@ -784,7 +831,7 @@ export default function SimpleSupplierCostPlatform({
                                 <span className="font-medium text-slate-500">Formül:</span>
                                 <span>({money(row.purchase)} + {money(row.calculation.shippingCost)}) × {(1 + currentCustoms / 100).toFixed(3)} × {(1 + operationalPct / 100).toFixed(3)}</span>
                               </div>
-                              {Object.entries(overrides[row.product.id] || {}).length > 0 && (
+                              {TIERS.some(tier => hasManualOverride(row.product.id, tier.key)) && (
                                 <button
                                   type="button"
                                   onClick={() => setOverrides(prev => { const n = { ...prev }; delete n[row.product.id]; return n; })}
@@ -840,24 +887,38 @@ export default function SimpleSupplierCostPlatform({
               <div className="grid grid-cols-2 gap-2 px-4 py-3">
                 {TIERS.map(tier => {
                   const auto = row.calculation[`${tier.key}Net`] as number;
-                  const hasOv = hasOverride(row.product.id, tier.key);
+                  const hasOv = hasManualOverride(row.product.id, tier.key);
+                  const resolvedPrice = resolvedTierPrice(row, tier.key);
+                  const belowCost = !noPurchase && resolvedPrice <= row.calculation.landedCost;
                   const colors = TIER_COLOR[tier.key];
                   return (
                     <div key={tier.key}>
-                      <label className={`text-[11px] font-semibold block mb-1 ${colors.header}`}>{tier.label}</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-1">
+                          <label className={`text-[11px] font-semibold ${colors.header}`}>{tier.label}</label>
+                          {hasOv && <span className="h-1.5 w-1.5 rounded-full bg-orange-400" title="Manuel değer" />}
+                        </div>
+                        {hasOv && (
+                          <button type="button" onClick={() => clearOverride(row.product.id, tier.key)}
+                            className="text-[10px] text-slate-400 hover:text-red-500 leading-none" title="Sıfırla">
+                            ↺
+                          </button>
+                        )}
+                      </div>
                       <input
                         type="number"
                         min={0}
                         step="0.01"
                         placeholder={noPurchase ? '—' : auto.toFixed(2)}
-                        value={overrides[row.product.id]?.[tier.key] ?? ''}
+                        value={overrides[row.product.id]?.[tier.key]?.value ?? ''}
                         onChange={e => setOverride(row.product.id, tier.key, e.target.value)}
                         disabled={noPurchase}
                         className={`w-full rounded-md border px-2 py-2 text-sm text-right font-mono
-                          ${hasOv ? colors.inputOverride : colors.input}
+                          ${belowCost ? 'border-red-500 bg-red-50 text-red-700' : hasOv ? colors.inputOverride : colors.input}
                           focus:outline-none focus:ring-1`}
-                        style={hasOv ? {} : { fontStyle: 'italic' }}
+                        style={!hasOv && !belowCost ? { fontStyle: 'italic' } : {}}
                       />
+                      {belowCost && <p className="text-[10px] text-red-500 mt-0.5">⚠ maliyet altı</p>}
                     </div>
                   );
                 })}

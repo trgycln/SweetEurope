@@ -12,6 +12,7 @@ type ProductRow = {
   id: string;
   ad: Record<string, string> | string | null;
   stok_kodu: string | null;
+  ean_gtin: string | null;
   distributor_alis_fiyati: number;
   koli_ici_adet: number | null;
   palet_ici_adet: number | null;

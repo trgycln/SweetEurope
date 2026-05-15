@@ -13,8 +13,8 @@ interface Props { locale: string; suppliers: SupplierOption[]; }
 
 const COLUMN_GUIDE = [
   { col: 'stok_kodu', desc: 'Birincil eşleştirme anahtarı. Aynı kod yeniden yüklenirse güncelleme yapılır, yoksa yeni ürün oluşturulur.', tag: 'Eşleştirme' },
-  { col: 'urun_adi_de / urun_adi_tr / urun_adi_en', desc: 'Dil bazlı isimler. Boş bırakılan dil eski değerini korur.', tag: 'İsim' },
-  { col: 'aciklama_de / aciklama_tr', desc: 'Dil bazlı açıklamalar. Boş bırakılırsa eski değer korunur.', tag: 'Açıklama' },
+  { col: 'urun_adi_de / urun_adi_tr / urun_adi_en / urun_adi_ar', desc: 'Dil bazlı isimler. Boş bırakılan dil eski değerini korur.', tag: 'İsim' },
+  { col: 'aciklama_de / aciklama_tr / aciklama_en / aciklama_ar', desc: 'Dil bazlı açıklamalar. Boş bırakılırsa eski değer korunur.', tag: 'Açıklama' },
   { col: 'distributoralisfiyati', desc: 'Alış fiyatı €/adet. Belirtilirse satış fiyatları otomatik hesaplanır.', tag: 'Fiyat' },
   { col: 'alis_fiyat_seviyesi', desc: 'adet / koli / palet. Alış fiyatının hangi birime ait olduğunu belirtir.', tag: 'Fiyat' },
   { col: 'satis_fiyati_musteri', desc: 'Satış fiyatını manuel gir. Boşsa alış fiyatından otomatik hesaplanır.', tag: 'Fiyat' },
@@ -27,7 +27,7 @@ const COLUMN_GUIDE = [
   { col: 'herkunftsland_de', desc: 'Menşei ülke Almanca. Almanya LMIV gereği.', tag: 'Lojistik' },
   { col: 'vegan / glutenfrei / laktosefrei / bio / ohne_zucker / katkisiz / koruyucusuz / pompa_uyumlu / halal', desc: '1 = Evet, 0 = Hayır. Boş bırakılırsa eski değer korunur.', tag: 'Özellik' },
   { col: 'inhaltsstoffe_de / inhaltsstoffe_tr', desc: 'İçindekiler listesi. Almancası LMIV (AB gıda etiketi mevzuatı) gereği zorunlu.', tag: 'Besin' },
-  { col: 'naehrwert_energie_kj / kcal / fett / kohlenhydrate / zucker / eiweiss / salz', desc: '100g başına besin değerleri. Almanya B2B için zorunlu.', tag: 'Besin' },
+  { col: 'besin_degerleri', desc: 'Besin değerleri — serbest metin. Örnek: "Enerji: 294 kcal / 1231 kJ | Yağ: 0 g | Karbonhidrat: 72,2 g | Şeker: 58,6 g | Protein: 0 g | Tuz: 0,13 g". Boşsa değişmez.', tag: 'Besin' },
   { col: 'stok_miktari', desc: 'Mevcut stok miktarını doğrudan günceller. Boşsa değişmez.', tag: 'Stok' },
   { col: 'aktif', desc: '1 = aktif, 0 = pasif. Boşsa değişmez.', tag: 'Durum' },
   { col: 'tedarikci', desc: 'Tedarikçi adı. Sistem fuzzy eşleştirme yapar.', tag: 'Tedarikçi' },
