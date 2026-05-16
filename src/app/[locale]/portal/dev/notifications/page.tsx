@@ -6,8 +6,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/dictionaries";
 import { sendSelfTestNotification, markAllReadForCurrentUser, simulateFirmBroadcastToPortal } from "@/app/actions/notification-actions";
 
-export default async function PortalNotificationsTestPage({ params }: { params: { locale: string } }) {
-  const locale = params.locale;
+export default async function PortalNotificationsTestPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user } } = await supabase.auth.getUser();

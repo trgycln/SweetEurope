@@ -7,9 +7,9 @@ import { Locale } from '@/i18n-config'
 
 export const dynamic = 'force-dynamic'
 
-export default async function SatislarListPage({ params }: { params: { locale: Locale } }) {
+export default async function SatislarListPage({ params }: { params: Promise<{ locale: Locale }> }) {
   noStore()
-  const { locale } = params
+  const { locale } = await params
   const cookieStore = await cookies()
   const supabase = await createSupabaseServerClient(cookieStore)
 

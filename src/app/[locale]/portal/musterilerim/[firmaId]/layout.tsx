@@ -6,8 +6,8 @@ import { Locale } from '@/i18n-config';
 import { usePathname } from 'next/navigation';
 import MusteriTabs from './MusteriTabs';
 
-export default async function MusteriLayout({ children, params }: { children: React.ReactNode; params: { locale: Locale, firmaId: string } }) {
-  const { locale, firmaId } = params as any;
+export default async function MusteriLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: Locale, firmaId: string }> }) {
+  const { locale, firmaId } = await params;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user } } = await supabase.auth.getUser();

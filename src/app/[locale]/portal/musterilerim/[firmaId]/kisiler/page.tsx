@@ -9,14 +9,14 @@ import { Tables } from '@/lib/supabase/database.types';
 type Kisi = Tables<'dis_kontaklar'>;
 
 interface IlgiliKisilerPageProps {
-    params: {
+    params: Promise<{
         locale: Locale;
         firmaId: string;
-    };
+    }>;
 }
 
 export default async function IlgiliKisilerPage({ params }: IlgiliKisilerPageProps) {
-    const { firmaId, locale } = params;
+    const { firmaId, locale } = await params;
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);

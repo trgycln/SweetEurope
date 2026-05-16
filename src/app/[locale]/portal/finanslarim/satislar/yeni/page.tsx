@@ -12,14 +12,14 @@ export default async function YeniSatisPage({
   params,
   searchParams,
 }: {
-  params: { locale: Locale };
-  searchParams: { firmaId?: string };
+  params: Promise<{ locale: Locale }>;
+  searchParams: Promise<{ firmaId?: string }>;
 }) {
-  const { locale } = params;
-  const { firmaId: preSelectedFirmaId } = searchParams;
+  const { locale } = await params;
+  const { firmaId: preSelectedFirmaId } = await searchParams;
   const dict = await getDictionary(locale);
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const {
     data: { user },

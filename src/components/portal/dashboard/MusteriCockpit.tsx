@@ -48,6 +48,8 @@ interface Props {
 export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnvan, firmaCreatedAt }: Props) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
+    const L = getPortalLabels(locale);
+    const fmt = (v: number | null | undefined) => formatCurrency(v, locale);
 
     const now = new Date();
     const yearStart = toLocalDate(new Date(now.getFullYear(), 0, 1));
@@ -151,7 +153,7 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
     const bekleyenTalep = bekleyenTalepRes.count ?? 0;
 
     // Tier hesabı
-    const tier = calcTier(yilTotal);
+    const tier = calcTier(yilTotal, L);
     const tierProgress = tier.nextThreshold ? Math.min(100, Math.round((yilTotal / tier.nextThreshold) * 100)) : 100;
 
     // Açık bakiye tahmini: son 30 gün içindeki teslim edilmiş + bekleyen tahsilat
@@ -174,7 +176,7 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                         </div>
                         <div>
                             <p className="text-xs font-bold uppercase tracking-widest opacity-90">
-                                {mainDuyuru.tip === 'kampanya' ? '🎁 Kampanya' : '📢 Duyuru'}
+                                {mainDuyuru.tip === 'kampanya' ? `🎁 ${L.announcementCampaign}` : `📢 ${L.announcement}`}
                             </p>
                             <p className="text-base font-bold">{mainDuyuru.baslik}</p>
                             {mainDuyuru.icerik && (
@@ -184,7 +186,7 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                     </div>
                     <Link href={`/${locale}/portal/katalog`}
                         className="text-xs font-bold bg-white text-orange-700 px-4 py-2 rounded-lg hover:bg-orange-50 transition-colors flex items-center gap-1 flex-shrink-0">
-                        Hemen İncele <FiPlay size={11} />
+                        {L.promoBannerCta} <FiPlay size={11} />
                     </Link>
                 </div>
             )}
@@ -196,14 +198,14 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                         <div className="flex items-center gap-3">
                             <span className="text-3xl">{tier.emoji}</span>
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-widest opacity-90">{tier.label} Müşteri</p>
-                                <p className="text-lg font-bold">Hoşgeldiniz, {firmaUnvan}</p>
+                                <p className="text-xs font-bold uppercase tracking-widest opacity-90">{tier.label} {L.customerLabel}</p>
+                                <p className="text-lg font-bold">{L.welcome}, {firmaUnvan}</p>
                             </div>
                         </div>
                         <div className="text-right">
-                            <p className="text-[10px] opacity-80 uppercase tracking-wider">Müşterimizsiniz</p>
+                            <p className="text-[10px] opacity-80 uppercase tracking-wider">{L.customerSince}</p>
                             <p className="text-sm font-bold">
-                                {membershipYears > 0 ? `${membershipYears} yıl` : `${membershipMonths} ay`}
+                                {membershipYears > 0 ? `${membershipYears} ${L.year}` : `${membershipMonths} ${L.months}`}
                             </p>
                         </div>
                     </div>
@@ -215,7 +217,7 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                         <div className="flex items-center justify-between text-xs mb-1.5">
                             <span className="text-slate-600 flex items-center gap-1">
                                 <FiAward size={12} className="text-amber-500" />
-                                <strong>{tier.next}</strong> seviyesine
+                                <strong>{tier.next}</strong> {L.nextLevel}
                             </span>
                             <span className="text-slate-500">
                                 <strong className="text-slate-700">{fmt(yilTotal)}</strong> / {fmt(tier.nextThreshold)}
@@ -227,7 +229,7 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                                 style={{ width: `${tierProgress}%` }} />
                         </div>
                         <p className="text-[10px] text-slate-400 mt-1.5">
-                            Sonraki seviyeye <strong className="text-slate-600">{fmt(tier.nextThreshold - yilTotal)}</strong> kaldı
+                            {L.nextLevelRemaining}: <strong className="text-slate-600">{fmt(tier.nextThreshold - yilTotal)}</strong>
                         </p>
                     </div>
                 )}
@@ -237,12 +239,12 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="rounded-xl border border-blue-200/60 p-4 bg-gradient-to-br from-blue-50 to-white">
                     <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-700">Bu Yıl Toplam</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-700">{L.yearTotal}</p>
                         <FiTrendingUp size={14} className="text-blue-500" />
                     </div>
                     <p className="text-xl font-bold text-blue-800">{fmt(yilTotal)}</p>
                     <div className="flex items-center gap-1.5 mt-1">
-                        <p className="text-[11px] text-slate-500">{siparislerYil.length} sipariş</p>
+                        <p className="text-[11px] text-slate-500">{siparislerYil.length} {L.nOrders}</p>
                         {yillikDelta !== null && (
                             <span className={`text-[10px] font-bold ${yillikDelta >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                                 {yillikDelta >= 0 ? '+' : ''}{yillikDelta}%
@@ -253,38 +255,38 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
 
                 <div className="rounded-xl border border-orange-200/60 p-4 bg-gradient-to-br from-orange-50 to-white">
                     <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-orange-700">Aktif Sipariş</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-orange-700">{L.activeOrders}</p>
                         <FiPackage size={14} className="text-orange-500" />
                     </div>
                     <p className="text-xl font-bold text-orange-800">{aktifSiparisSayisi}</p>
-                    <p className="text-[11px] text-slate-500 mt-1">Süreçte olan</p>
+                    <p className="text-[11px] text-slate-500 mt-1">{L.inProgress}</p>
                 </div>
 
                 <div className="rounded-xl border border-purple-200/60 p-4 bg-gradient-to-br from-purple-50 to-white">
                     <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-purple-700">Favorilerim</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-purple-700">{L.myFavorites}</p>
                         <FiHeart size={14} className="text-purple-500" />
                     </div>
                     <p className="text-xl font-bold text-purple-800">{favoriteCount}</p>
                     <Link href={`/${locale}/portal/favoriler`} className="text-[11px] text-purple-600 hover:text-purple-800 mt-1 inline-block">
-                        Görüntüle →
+                        {L.view} →
                     </Link>
                 </div>
 
                 <div className="rounded-xl border border-emerald-200/60 p-4 bg-gradient-to-br from-emerald-50 to-white">
                     <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">Avantajlarınız</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">{L.yourBenefits}</p>
                         <FiAward size={14} className="text-emerald-500" />
                     </div>
                     {indirimOrani > 0 ? (
                         <>
-                            <p className="text-xl font-bold text-emerald-800">%{indirimOrani} indirim</p>
-                            <p className="text-[11px] text-slate-500 mt-1">{odemeVadesi} gün vade</p>
+                            <p className="text-xl font-bold text-emerald-800">%{indirimOrani} {L.discount}</p>
+                            <p className="text-[11px] text-slate-500 mt-1">{odemeVadesi} {L.days}</p>
                         </>
                     ) : (
                         <>
-                            <p className="text-xl font-bold text-emerald-800">{odemeVadesi} gün</p>
-                            <p className="text-[11px] text-slate-500 mt-1">Ödeme vadesi</p>
+                            <p className="text-xl font-bold text-emerald-800">{odemeVadesi} {L.days}</p>
+                            <p className="text-[11px] text-slate-500 mt-1">{L.paymentTerm}</p>
                         </>
                     )}
                 </div>
@@ -292,13 +294,13 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
 
             {/* ── Hızlı İşlemler ── */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Hızlı İşlemler</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">{L.quickActions}</p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                        { label: 'Yeni Sipariş', icon: <FiShoppingCart size={16} />, href: `/${locale}/portal/katalog`, bg: 'bg-blue-100 text-blue-700' },
-                        { label: 'Favorilerimden', icon: <FiHeart size={16} />, href: `/${locale}/portal/favoriler`, bg: 'bg-purple-100 text-purple-700' },
-                        { label: 'Numune Talep', icon: <FiPackage size={16} />, href: `/${locale}/portal/taleplerim`, bg: 'bg-teal-100 text-teal-700' },
-                        { label: 'İletişim', icon: <FiPhone size={16} />, href: `/${locale}/contact`, bg: 'bg-amber-100 text-amber-700' },
+                        { label: L.newOrder, icon: <FiShoppingCart size={16} />, href: `/${locale}/portal/katalog`, bg: 'bg-blue-100 text-blue-700' },
+                        { label: L.fromFavorites, icon: <FiHeart size={16} />, href: `/${locale}/portal/favoriler`, bg: 'bg-purple-100 text-purple-700' },
+                        { label: L.sampleRequest, icon: <FiPackage size={16} />, href: `/${locale}/portal/taleplerim`, bg: 'bg-teal-100 text-teal-700' },
+                        { label: L.contact, icon: <FiPhone size={16} />, href: `/${locale}/contact`, bg: 'bg-amber-100 text-amber-700' },
                     ].map(a => (
                         <Link key={a.label} href={a.href}
                             className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all text-sm font-medium text-slate-700 group">
@@ -317,11 +319,11 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                 <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                         <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                            <FiPackage size={14} className="text-orange-500" /> Aktif Siparişlerim
+                            <FiPackage size={14} className="text-orange-500" /> {L.activeOrdersTitle}
                         </h3>
                         <Link href={`/${locale}/portal/siparisler`}
                             className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5">
-                            Tümü <FiExternalLink size={9} />
+                            {L.allLink} <FiExternalLink size={9} />
                         </Link>
                     </div>
                     {aktifSiparisler.length === 0 ? (
@@ -329,10 +331,10 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                             <div className="w-12 h-12 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-3">
                                 <FiPackage size={20} className="text-slate-400" />
                             </div>
-                            <p className="text-sm text-slate-500">Şu an aktif siparişiniz yok</p>
+                            <p className="text-sm text-slate-500">{L.noActiveOrders}</p>
                             <Link href={`/${locale}/portal/katalog`}
                                 className="mt-3 inline-flex items-center gap-1 text-xs px-3 py-1.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-semibold">
-                                <FiPlus size={11} /> Yeni Sipariş Ver
+                                <FiPlus size={11} /> {L.placeNewOrder}
                             </Link>
                         </div>
                     ) : (
@@ -352,12 +354,12 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                                             </div>
                                             <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
                                                 <FiCalendar size={9} />
-                                                {new Date(s.siparis_tarihi).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                {formatLocaleDate(s.siparis_tarihi, locale)}
                                             </p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-sm font-bold text-slate-800">{fmt(s.toplam_tutar_net)}</p>
-                                            <p className="text-[10px] text-slate-400">Net</p>
+                                            <p className="text-[10px] text-slate-400">{L.net}</p>
                                         </div>
                                     </div>
                                 </Link>
@@ -370,12 +372,12 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <div className="px-4 py-3 border-b border-slate-100">
                         <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                            <FiBell size={14} className="text-amber-500" /> Duyurular & Kampanyalar
+                            <FiBell size={14} className="text-amber-500" /> {L.announcements}
                         </h3>
                     </div>
                     {otherDuyurular.length === 0 && !mainDuyuru ? (
                         <div className="p-6 text-center">
-                            <p className="text-sm text-slate-400">Yeni duyuru yok</p>
+                            <p className="text-sm text-slate-400">{L.noAnnouncements}</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-slate-50">
@@ -391,16 +393,12 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                                                 <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">{d.icerik}</p>
                                             )}
                                             <p className="text-[10px] text-slate-400 mt-1">
-                                                {new Date(d.created_at).toLocaleDateString(locale)}
+                                                {formatLocaleDate(d.created_at, locale)}
                                             </p>
                                         </div>
                                     </div>
                                 </div>
-                            )) : (
-                                <div className="px-4 py-3">
-                                    <p className="text-[11px] text-slate-400">Yukarıdaki ana duyuru aktif</p>
-                                </div>
-                            )}
+                            )) : null}
                         </div>
                     )}
                 </div>
@@ -411,12 +409,12 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                            <FiClock size={14} className="text-blue-500" /> Sık Aldığınız Ürünler
-                            <span className="text-[10px] font-normal text-slate-400">1-tıkla yeniden sipariş</span>
+                            <FiClock size={14} className="text-blue-500" /> {L.frequentProducts}
+                            <span className="text-[10px] font-normal text-slate-400">{L.oneClickReorder}</span>
                         </h3>
                         <Link href={`/${locale}/portal/katalog`}
                             className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5">
-                            Tüm Katalog <FiExternalLink size={9} />
+                            {L.fullCatalog} <FiExternalLink size={9} />
                         </Link>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -452,18 +450,18 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                            ✨ Yeni Eklenen Ürünler
-                            <span className="text-[10px] font-normal text-slate-400">Son 30 gün</span>
+                            ✨ {L.newProducts}
+                            <span className="text-[10px] font-normal text-slate-400">{L.last30Days}</span>
                         </h3>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {yeniUrunler.map((u: any) => {
-                            const urunAd = u.ad?.[locale] || u.ad?.de || u.ad?.tr || 'Ürün';
+                            const urunAd = u.ad?.[locale] || u.ad?.de || u.ad?.tr || L.customerLabel;
                             return (
                                 <Link key={u.id} href={`/${locale}/portal/katalog/${u.id}`}
                                     className="block border border-slate-100 rounded-lg overflow-hidden hover:border-emerald-300 hover:shadow-sm transition-all relative group">
                                     <span className="absolute top-2 left-2 z-10 text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full">
-                                        YENİ
+                                        {L.newBadge}
                                     </span>
                                     <div className="aspect-square bg-slate-50 relative">
                                         {u.ana_resim_url ? (
@@ -478,7 +476,7 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                                     <div className="p-2.5">
                                         <p className="text-xs font-semibold text-slate-700 truncate">{urunAd}</p>
                                         {u.koli_ici_adet > 0 && (
-                                            <p className="text-[10px] text-slate-400 mt-0.5">{u.koli_ici_adet} adet/koli</p>
+                                            <p className="text-[10px] text-slate-400 mt-0.5">{u.koli_ici_adet} {L.perBox}</p>
                                         )}
                                         <p className="text-xs font-bold text-blue-700 mt-1">{fmt(u.satis_fiyati_musteri)}</p>
                                     </div>

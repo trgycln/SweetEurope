@@ -29,7 +29,7 @@ interface CustomerGrowth {
     new_customers: number;
 }
 
-export default async function RaporlarPage({ params }: { params: { locale: Locale } }) {
+export default async function RaporlarPage({ params }: { params: Promise<{ locale: Locale }> }) {
     const { locale } = await params;
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);

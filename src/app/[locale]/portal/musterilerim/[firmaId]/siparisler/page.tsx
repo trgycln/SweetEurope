@@ -26,14 +26,14 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 interface FirmaSiparisleriPageProps {
-    params: {
+    params: Promise<{
         locale: Locale;
         firmaId: string;
-    };
+    }>;
 }
 
 export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriPageProps) {
-    const { firmaId, locale } = params;
+    const { firmaId, locale } = await params;
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);

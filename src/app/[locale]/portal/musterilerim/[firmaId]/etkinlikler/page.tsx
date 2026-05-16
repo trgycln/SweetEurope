@@ -36,14 +36,14 @@ function zamanFarkiFormatla(tarihStr: string | null): string {
 }
 
 interface EtkinliklerPageProps {
-    params: {
+    params: Promise<{
         locale: Locale;
         firmaId: string;
-    };
+    }>;
 }
 
 export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) {
-    const { firmaId, locale } = params;
+    const { firmaId, locale } = await params;
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);

@@ -132,7 +132,7 @@ export default async function PortalLayout({
     return (
         <PortalProvider value={initialContextValue}>
             <VisitPlannerProvider>
-                <PortalContainer dictionary={dictionary} locale={locale}>
+                <PortalContainer dictionary={dictionary}>
                     {children}
                 </PortalContainer>
                 {/* Sadece Alt Bayi için floating ziyaret planlayıcı paneli */}

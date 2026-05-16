@@ -20,12 +20,12 @@ import { Database, Tables, Enums } from '@/lib/supabase/database.types';
 export const dynamic = 'force-dynamic';
 
 type PageProps = {
-    params: { locale: Locale };
+    params: Promise<{ locale: Locale }>;
 };
 
-export default async function PartnerDashboardPage({ params }: PageProps) { // Korrekten Prop-Typ verwenden
+export default async function PartnerDashboardPage({ params }: PageProps) {
     noStore(); // Caching deaktivieren
-    const { locale } = params;
+    const { locale } = await params;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen

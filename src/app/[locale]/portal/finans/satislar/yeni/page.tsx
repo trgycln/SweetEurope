@@ -7,9 +7,9 @@ import AltBayiYeniSatisFormClient from '@/components/portal/finans/AltBayiYeniSa
 
 export const dynamic = 'force-dynamic'
 
-export default async function YeniSatisPage({ params }: { params: { locale: Locale } }) {
+export default async function YeniSatisPage({ params }: { params: Promise<{ locale: Locale }> }) {
   noStore()
-  const { locale } = params
+  const { locale } = await params
   const cookieStore = await cookies()
   const supabase = await createSupabaseServerClient(cookieStore)
 

@@ -8,15 +8,15 @@ import { Locale } from "@/i18n-config";
 import { ProduktImWarenkorb } from '@/contexts/PortalContext'; // Sicherstellen, dass dieser Typ ana_resim_url etc. kennt
 
 type PageProps = {
-    params: { locale: Locale };
-    searchParams: { [key: string]: string | string[] | undefined };
+    params: Promise<{ locale: Locale }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 type Kategori = { id: string; ad: any; ust_kategori_id: string | null };
 
-export default async function PartnerYeniSiparisPage({ params, searchParams }: PageProps) {
-    const locale = params.locale;
-    const cookieStore = cookies();
+export default async function PartnerYeniSiparisPage({ params }: PageProps) {
+    const { locale } = await params;
+    const cookieStore = await cookies();
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -17,14 +17,14 @@ import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Dat
 export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
 // Props-Typ für die Seite
-interface EditTalepPageProps { // Props-Typ hinzugefügt
-    params: { locale: Locale; talepId: string };
-    searchParams?: { [key: string]: string | string[] | undefined };
+interface EditTalepPageProps {
+    params: Promise<{ locale: Locale; talepId: string }>;
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function EditTalepPage({ params }: EditTalepPageProps) {
-    noStore(); // Caching deaktivieren
-    const { locale, talepId } = params;
+    noStore();
+    const { locale, talepId } = await params;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen

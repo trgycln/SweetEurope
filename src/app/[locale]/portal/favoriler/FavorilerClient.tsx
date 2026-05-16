@@ -9,6 +9,7 @@ import {
     FiPlus, FiMinus, FiSearch, FiX, FiArrowRight, FiInfo,
 } from 'react-icons/fi';
 import { toast } from 'sonner';
+import { getPortalLabels, formatCurrency } from '@/lib/portalLabels';
 
 interface Urun {
     id: string;
@@ -34,14 +35,13 @@ interface Props {
     firmaId: string;
 }
 
-const fmt = (v: number | null | undefined) =>
-    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v ?? 0);
-
 export default function FavorilerClient({ favoriler, locale, userRole, firmaId }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [search, setSearch] = useState('');
     const [secimMap, setSecimMap] = useState<Map<string, number>>(new Map());
+    const L = getPortalLabels(locale);
+    const fmt = (v: number | null | undefined) => formatCurrency(v, locale, { maximumFractionDigits: 2 });
 
     const filtered = useMemo(() => {
         const q = search.toLowerCase().trim();
@@ -78,21 +78,25 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
     const tumunuTemizle = () => setSecimMap(new Map());
 
     const handleRemoveFavorite = (urunId: string) => {
-        if (!confirm('Bu ürünü favorilerden çıkarmak istediğinize emin misiniz?')) return;
+        const confirmMsg = locale === 'de' ? 'Möchten Sie dieses Produkt wirklich aus den Favoriten entfernen?'
+            : locale === 'en' ? 'Are you sure you want to remove this product from favorites?'
+            : locale === 'ar' ? 'هل أنت متأكد من إزالة هذا المنتج من المفضلة؟'
+            : 'Bu ürünü favorilerden çıkarmak istediğinize emin misiniz?';
+        if (!confirm(confirmMsg)) return;
         startTransition(async () => {
             const { createDynamicSupabaseClient } = await import('@/lib/supabase/client');
             const supabase = createDynamicSupabaseClient(true);
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
-                toast.error('Oturum bulunamadı');
+                toast.error(locale === 'de' ? 'Keine Sitzung' : locale === 'en' ? 'No session' : locale === 'ar' ? 'لا توجد جلسة' : 'Oturum bulunamadı');
                 return;
             }
             const { error } = await supabase.from('favori_urunler')
                 .delete().eq('kullanici_id', user.id).eq('urun_id', urunId);
             if (error) {
-                toast.error('Favoriden çıkarılamadı: ' + error.message);
+                toast.error((locale === 'de' ? 'Konnte nicht entfernt werden' : locale === 'en' ? 'Could not remove' : locale === 'ar' ? 'تعذر الإزالة' : 'Favoriden çıkarılamadı') + ': ' + error.message);
             } else {
-                toast.success('Favorilerden çıkarıldı');
+                toast.success(locale === 'de' ? 'Aus Favoriten entfernt' : locale === 'en' ? 'Removed from favorites' : locale === 'ar' ? 'تمت الإزالة من المفضلة' : 'Favorilerden çıkarıldı');
                 router.refresh();
             }
         });
@@ -100,7 +104,7 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
 
     const handleSiparisOlustur = () => {
         if (seciliSayi === 0) {
-            toast.error('Önce ürün seçin');
+            toast.error(locale === 'de' ? 'Bitte zuerst Produkte auswählen' : locale === 'en' ? 'Please select products first' : locale === 'ar' ? 'يرجى اختيار المنتجات أولا' : 'Önce ürün seçin');
             return;
         }
         // Seçili ürünleri query string olarak sipariş sayfasına gönder
@@ -116,19 +120,18 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
             <div className="space-y-5">
                 <header>
                     <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        <FiHeart className="text-pink-500" /> Favorilerim
+                        <FiHeart className="text-pink-500" /> {L.favoritesTitle}
                     </h1>
                 </header>
                 <div className="bg-white border border-slate-200 rounded-xl p-12 text-center shadow-sm">
                     <FiHeart className="mx-auto text-5xl text-slate-300 mb-4" />
-                    <h2 className="text-lg font-semibold text-slate-700">Henüz favori ürününüz yok</h2>
+                    <h2 className="text-lg font-semibold text-slate-700">{L.favoritesEmpty}</h2>
                     <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">
-                        Katalog sayfasında ürünleri ❤️ ikonuna tıklayarak favorilerinize ekleyin.
-                        Buradan istediğiniz an hızlıca sipariş verebilirsiniz.
+                        {L.favoritesEmptyHint}
                     </p>
                     <Link href={`/${locale}/portal/katalog`}
                         className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors">
-                        <FiPackage size={14} /> Kataloga Git
+                        <FiPackage size={14} /> {L.goCatalog}
                     </Link>
                 </div>
             </div>
@@ -141,16 +144,16 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
             <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                        <FiHeart className="text-pink-500" /> Favorilerim
+                        <FiHeart className="text-pink-500" /> {L.favoritesTitle}
                     </h1>
                     <p className="text-sm text-slate-500 mt-0.5">
-                        {favoriler.length} ürün · Hızlıca seçim yapıp toplu sipariş oluştur
+                        {favoriler.length} · {L.favoritesSubtitle}
                     </p>
                 </div>
                 <div className="relative w-full sm:w-64">
                     <FiSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
-                        type="text" placeholder="Favori ara..."
+                        type="text" placeholder={L.searchFavorites}
                         value={search} onChange={e => setSearch(e.target.value)}
                         className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
                     />
@@ -161,8 +164,7 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
             <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-sm text-blue-800 flex items-start gap-2">
                 <FiInfo size={14} className="flex-shrink-0 mt-0.5" />
                 <div>
-                    <strong>Toplu Sipariş:</strong> İstediğiniz ürünlerden +/− ile koli sayısı belirleyin.
-                    Aşağıdaki "Toplu Sipariş Oluştur" butonu ile seçtiklerinizi sepete ekleyin.
+                    <strong>{L.bulkOrderInfo}</strong> {L.bulkOrderInfoDesc}
                 </div>
             </div>
 
@@ -193,12 +195,12 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
                                 <button onClick={() => handleRemoveFavorite(u.id)}
                                     disabled={isPending}
                                     className="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors shadow-sm"
-                                    title="Favorilerden çıkar">
+                                    title={L.removeFromFavorites}>
                                     <FiTrash2 size={13} />
                                 </button>
                                 {!inStock && (
                                     <span className="absolute top-2 left-2 text-[9px] font-bold px-2 py-0.5 bg-amber-500 text-white rounded-full">
-                                        Stoğa Bağlı
+                                        {L.stockOnRequest}
                                     </span>
                                 )}
                                 {u.kategoriler?.ad && (
@@ -226,7 +228,7 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
                                     <p className="text-base font-bold text-blue-700">{fmt(fiyat)}</p>
                                     {u.koli_ici_adet && u.koli_ici_adet > 0 && (
                                         <span className="text-[10px] text-slate-500 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
-                                            {u.koli_ici_adet} adet/koli
+                                            {u.koli_ici_adet} {L.perBox}
                                         </span>
                                     )}
                                 </div>
@@ -236,7 +238,7 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
                                     {adet === 0 ? (
                                         <button onClick={() => setAdet(u.id, 1)}
                                             className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 rounded-lg text-xs font-semibold transition-colors">
-                                            <FiPlus size={12} /> Sepete Ekle
+                                            <FiPlus size={12} /> {L.addToCart}
                                         </button>
                                     ) : (
                                         <div className="flex items-center gap-1 w-full bg-blue-50 border border-blue-200 rounded-lg p-1">
@@ -245,7 +247,7 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
                                                 <FiMinus size={13} />
                                             </button>
                                             <div className="flex-1 text-center">
-                                                <p className="text-sm font-bold text-blue-900">{adet} koli</p>
+                                                <p className="text-sm font-bold text-blue-900">{adet} {L.boxItem}</p>
                                                 <p className="text-[9px] text-blue-600">{fmt(fiyat * adet)}</p>
                                             </div>
                                             <button onClick={() => setAdet(u.id, adet + 1)}
@@ -263,7 +265,7 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
 
             {filtered.length === 0 && search && (
                 <div className="bg-white border border-slate-200 rounded-xl p-8 text-center">
-                    <p className="text-sm text-slate-500">"{search}" ile eşleşen favori bulunamadı</p>
+                    <p className="text-sm text-slate-500">"{search}"</p>
                 </div>
             )}
 
@@ -277,22 +279,22 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
                             </div>
                             <div>
                                 <p className="text-sm font-bold text-slate-800">
-                                    {seciliSayi} ürün · {toplamKoli} koli seçili
+                                    {seciliSayi} {L.selectedItems} · {toplamKoli} {L.totalBoxes}
                                 </p>
                                 <p className="text-xs text-slate-500">
-                                    Tahmini tutar: <strong className="text-blue-700">{fmt(toplamTutar)}</strong>
-                                    <span className="text-[10px] text-slate-400 ml-1">(KDV hariç)</span>
+                                    {L.estimatedTotal} <strong className="text-blue-700">{fmt(toplamTutar)}</strong>
+                                    <span className="text-[10px] text-slate-400 ml-1">{L.excludingVat}</span>
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
                             <button onClick={tumunuTemizle}
                                 className="px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1">
-                                <FiX size={12} /> Temizle
+                                <FiX size={12} /> {L.clear}
                             </button>
                             <button onClick={handleSiparisOlustur}
                                 className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-colors flex items-center gap-2 shadow-md">
-                                Sipariş Oluştur <FiArrowRight size={14} />
+                                {L.createOrder} <FiArrowRight size={14} />
                             </button>
                         </div>
                     </div>

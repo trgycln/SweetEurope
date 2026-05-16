@@ -15,8 +15,8 @@ import { FiCheckCircle, FiClock, FiEdit, FiLoader, FiPackage, FiSend, FiXCircle 
 export const dynamic = 'force-dynamic';
 
 interface PartnerTaleplerimPageProps {
-    params: { locale: Locale };
-    searchParams?: { [key: string]: string | string[] | undefined };
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 // Type definition
@@ -46,7 +46,7 @@ const UrunStatusBadge = ({ status, text }: { status: UrunStatusKey, text: string
 
 export default async function PartnerTaleplerimPage({ params }: PartnerTaleplerimPageProps) {
     noStore();
-    const locale = params.locale;
+    const { locale } = await params;
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);

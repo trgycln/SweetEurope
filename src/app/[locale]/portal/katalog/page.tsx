@@ -17,20 +17,21 @@ export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamis
 
 // Typen
 export type ProduktMitPreis = Tables<'urunler'> & { partnerPreis: number | null };
-export type Kategorie = Pick<Tables<'kategoriler'>, 'id' | 'ad' | 'ust_kategori_id'>;
+export type Kategorie = Pick<Tables<'kategoriler'>, 'id' | 'ad' | 'ust_kategori_id' | 'slug'>;
 
-// Props-Typ für die Seite
-interface KatalogPageProps { // Props-Typ hinzugefügt
-    params: { locale: Locale };
-    searchParams: { [key: string]: string | string[] | undefined };
+// Props-Typ für die Seite (Next.js 15: params/searchParams sind jetzt Promises)
+interface KatalogPageProps {
+    params: Promise<{ locale: Locale }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function KatalogPage({
     params,
     searchParams
-}: KatalogPageProps) { // Props-Typ verwenden
+}: KatalogPageProps) {
     noStore(); // Caching deaktivieren
-    const locale = params.locale;
+    const { locale } = await params;
+    const resolvedSearchParams = await searchParams;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen
@@ -57,9 +58,9 @@ export default async function KatalogPage({
     const userRole = profile.rol;
 
     // 2. Filter-Parameter
-    const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : '';
-    const categoryFilter = typeof searchParams.kategorie === 'string' ? searchParams.kategorie : '';
-    const favoritenFilter = searchParams.favoriten === 'true'; // Favoriten-Filter lesen
+    const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : '';
+    const categoryFilter = typeof resolvedSearchParams.kategorie === 'string' ? resolvedSearchParams.kategorie : '';
+    const favoritenFilter = resolvedSearchParams.favoriten === 'true'; // Favoriten-Filter lesen
 
     // 3. Daten abrufen
     let produkteQuery = supabase
@@ -71,9 +72,28 @@ export default async function KatalogPage({
     // (DB tarafında uygulamıyoruz; tüm aktif ürünler getirilir, sonra JS'de filtrelenir.
     //  Türkçe/Almanca/İngilizce/Arapça tüm ad alanları + stok_kodu içinde aranır.)
     
-    // Kategoriefilter
+    // Kategoriefilter: Wenn eine Hauptkategorie ausgewählt ist, beziehen wir auch alle Unterkategorien ein
     if (categoryFilter) {
-        produkteQuery = produkteQuery.eq('kategori_id', categoryFilter);
+        // Hauptkategorie + alle Unterkategorien sammeln
+        const { data: alleKategorien } = await supabase
+            .from('kategoriler')
+            .select('id, ust_kategori_id');
+        const relevanteIds = new Set<string>([categoryFilter]);
+        if (Array.isArray(alleKategorien)) {
+            const queue = [categoryFilter];
+            while (queue.length > 0) {
+                const current = queue.shift()!;
+                alleKategorien
+                    .filter(k => k.ust_kategori_id === current)
+                    .forEach(child => {
+                        if (!relevanteIds.has(child.id)) {
+                            relevanteIds.add(child.id);
+                            queue.push(child.id);
+                        }
+                    });
+            }
+        }
+        produkteQuery = produkteQuery.in('kategori_id', Array.from(relevanteIds));
     }
 
     // Sortierung
@@ -85,7 +105,7 @@ export default async function KatalogPage({
         // Kategorien für Hierarchie
         supabase
             .from('kategoriler')
-            .select('id, ad, ust_kategori_id')
+            .select('id, ad, ust_kategori_id, slug')
             .order('ust_kategori_id', { ascending: true, nullsFirst: true })
             .order(`ad->>${locale}`),
         // Favoriten für diesen Benutzer

@@ -21,16 +21,16 @@ const formatBytes = (bytes: number | null, decimals = 1) => {
 }
 
 // Props-Typ für die Seite
-interface MaterialienPortalPageProps { // Props-Typ hinzugefügt
-    params: { locale: Locale };
-    searchParams?: { [key: string]: string | string[] | undefined };
+interface MaterialienPortalPageProps {
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function MaterialienPortalPage({
     params
-}: MaterialienPortalPageProps) { // Props-Typ verwenden
-    noStore(); // Caching deaktivieren
-    const locale = params.locale;
+}: MaterialienPortalPageProps) {
+    noStore();
+    const { locale } = await params;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen

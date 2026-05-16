@@ -12,6 +12,10 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import { toast } from "sonner";
+import {
+    PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS,
+    PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER,
+} from "@/lib/public-category-visibility";
 
 // Interface für Props (unverändert)
 interface KatalogClientProps {
@@ -143,16 +147,86 @@ export function KatalogClient({
         handleFilterChange('favoriten', newValue); // URL aktualisieren
     };
 
-    // ++ GEFILTERTE PRODUKTE: Berücksichtigt jetzt showFavorites ++
+    // Set der relevanten Kategorie-IDs für den aktiven Filter (Hauptkategorie + alle Unterkategorien)
+    const relevanteKategorieIDs = useMemo(() => {
+        const set = new Set<string>();
+        if (!categoryFilter) return set;
+        set.add(categoryFilter);
+        if (Array.isArray(kategorien)) {
+            const queue = [categoryFilter];
+            while (queue.length > 0) {
+                const current = queue.shift()!;
+                kategorien
+                    .filter(k => k.ust_kategori_id === current)
+                    .forEach(child => {
+                        if (!set.has(child.id)) {
+                            set.add(child.id);
+                            queue.push(child.id);
+                        }
+                    });
+            }
+        }
+        return set;
+    }, [categoryFilter, kategorien]);
+
+    // ++ GEFILTERTE PRODUKTE: Berücksichtigt jetzt showFavorites + Unterkategorien ++
     const gefilterteUrunler = useMemo(() => (initialProdukte || []).filter(produkt => {
         const name = (produkt.ad as any)?.[locale]?.toLowerCase() || '';
         const sku = produkt.stok_kodu?.toLowerCase() || '';
         const passtZuSuche = name.includes(searchQuery.toLowerCase()) || sku.includes(searchQuery.toLowerCase());
         // Filtert nach Favoriten NUR wenn showFavorites aktiv ist
         const passtZuFavoriten = !showFavorites || favoriten.has(produkt.id);
-        const passtZuKategorie = !categoryFilter || produkt.kategori_id === categoryFilter;
+        const passtZuKategorie = !categoryFilter || relevanteKategorieIDs.has(produkt.kategori_id);
         return passtZuSuche && passtZuFavoriten && passtZuKategorie;
-    }), [initialProdukte, searchQuery, showFavorites, favoriten, categoryFilter, locale]);
+    }), [initialProdukte, searchQuery, showFavorites, favoriten, categoryFilter, locale, relevanteKategorieIDs]);
+
+    // Hauptkategorien für das Dropdown: nur sichtbare, FO-relevante, mit mind. einem aktiven Produkt
+    const sichtbareHauptKategorien = useMemo(() => {
+        if (!Array.isArray(kategorien)) return [];
+
+        // 1. Set aller Kategorie-IDs, die tatsächlich Produkte haben (inkl. transitiv über Unterkategorien)
+        const kategorienMitProdukten = new Set<string>();
+        (initialProdukte || []).forEach(p => {
+            if (p.kategori_id) kategorienMitProdukten.add(p.kategori_id);
+        });
+
+        // Eltern-IDs zu jeder kategorie-mit-produkten hinzufügen (Produkt in Unterkat zählt für Hauptkat)
+        const idToCategory = new Map(kategorien.map(k => [k.id, k]));
+        const hauptIDsMitProdukten = new Set<string>();
+        kategorienMitProdukten.forEach(id => {
+            let current = idToCategory.get(id);
+            const guard = new Set<string>();
+            while (current && !guard.has(current.id)) {
+                guard.add(current.id);
+                if (current.ust_kategori_id === null) {
+                    hauptIDsMitProdukten.add(current.id);
+                    break;
+                }
+                current = idToCategory.get(current.ust_kategori_id || '');
+            }
+        });
+
+        // 2. Hauptkategorien filtern: ust_kategori_id === null && nicht versteckt && hat Produkte
+        const hidden = new Set<string>(PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS as readonly string[]);
+        const filtered = kategorien.filter(k =>
+            k.ust_kategori_id === null
+            && !hidden.has(k.slug || '')
+            && hauptIDsMitProdukten.has(k.id)
+        );
+
+        // 3. Nach PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER sortieren, Rest alphabetisch nach Name
+        const orderIndex = new Map<string, number>();
+        (PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER as readonly string[]).forEach((slug, i) => orderIndex.set(slug, i));
+
+        return filtered.sort((a, b) => {
+            const ia = orderIndex.has(a.slug || '') ? orderIndex.get(a.slug || '')! : Number.MAX_SAFE_INTEGER;
+            const ib = orderIndex.has(b.slug || '') ? orderIndex.get(b.slug || '')! : Number.MAX_SAFE_INTEGER;
+            if (ia !== ib) return ia - ib;
+            const na = (a.ad as any)?.[locale] || (a.ad as any)?.de || '';
+            const nb = (b.ad as any)?.[locale] || (b.ad as any)?.de || '';
+            return String(na).localeCompare(String(nb));
+        });
+    }, [kategorien, initialProdukte, locale]);
 
     // Effekt, um den Favoritenstatus zu aktualisieren, falls er sich extern ändert (optional aber gut)
     useEffect(() => {
@@ -190,19 +264,18 @@ export function KatalogClient({
                          </button>
                      )}
                 </div>
-                {/* Kategorie-Filter (unverändert) */}
+                {/* Kategorie-Filter: nur sichtbare FO-Hauptkategorien mit Produkten */}
                 <select
                     value={categoryFilter}
                     onChange={(e) => { setCategoryFilter(e.target.value); handleFilterChange('kategorie', e.target.value); }}
                     className="border border-gray-300 rounded-md py-2 px-4 flex-shrink-0 md:w-64 bg-white shadow-sm"
                 >
                     <option value="">{content.allCategories}</option>
-                    {Array.isArray(kategorien) ? kategorien.map(kat => (
+                    {sichtbareHauptKategorien.map(kat => (
                         <option key={kat.id} value={kat.id}>
-                            {/* Sicherer Zugriff auf lokalisierten Namen */}
                             {(kat.ad as any)?.[locale] || (kat.ad as any)?.['de'] || 'Unbenannt'}
                         </option>
-                    )) : null }
+                    ))}
                 </select>
                 {/* Favoriten-Button (verwendet jetzt toggleShowFavorites) */}
                 <button onClick={toggleShowFavorites} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors border ${showFavorites ? 'bg-accent text-white border-accent' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 shadow-sm'}`}>

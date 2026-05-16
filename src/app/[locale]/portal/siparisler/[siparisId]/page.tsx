@@ -11,13 +11,13 @@ import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Dat
 
 export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
-export default async function PartnerSiparisDetayPage({ 
-    params 
-}: { 
-    params: { siparisId: string, locale: Locale } 
+export default async function PartnerSiparisDetayPage({
+    params
+}: {
+    params: Promise<{ siparisId: string, locale: Locale }>
 }) {
     noStore(); // Caching deaktivieren
-    const { locale, siparisId } = params;
+    const { locale, siparisId } = await params;
     
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen

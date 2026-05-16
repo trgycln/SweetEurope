@@ -13,13 +13,15 @@ export function PortalContainer({ children, dictionary }: { children: React.Reac
     const { firma, profile } = usePortal();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const pathname = usePathname();
+    const locale = pathname.split('/')[1] || 'de';
+    const isRTL = locale === 'ar';
 
     useEffect(() => {
         setSidebarOpen(false);
     }, [pathname]);
 
     return (
-        <div className="min-h-screen w-full bg-secondary text-text-main antialiased font-sans">
+        <div dir={isRTL ? 'rtl' : 'ltr'} className="min-h-screen w-full bg-secondary text-text-main antialiased font-sans">
             {/* DİKKAT: 'dictionary'yi Sidebar'a da gönderiyoruz */}
             <PortalSidebar
                 userRole={profile.rol}
@@ -28,7 +30,7 @@ export function PortalContainer({ children, dictionary }: { children: React.Reac
                 dictionary={dictionary}
             />
             
-            <div className="lg:ml-64">
+            <div className={isRTL ? 'lg:mr-64' : 'lg:ml-64'}>
                 {/* DİKKAT: 'dictionary'yi Header'a da gönderiyoruz */}
                 <PortalHeader
                     firmaUnvan={firma.unvan}

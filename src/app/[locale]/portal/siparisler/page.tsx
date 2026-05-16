@@ -11,14 +11,15 @@ const OFFENE_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor',
 
 // Definieren des Props-Typs außerhalb der Funktion
 type PageProps = {
-    params: { locale: Locale };
-    searchParams: { [key: string]: string | string[] | undefined };
+    params: Promise<{ locale: Locale }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 // Die Funktion muss async sein
 export default async function PartnerSiparisListPage({ params, searchParams }: PageProps) {
-    const locale = params.locale; // locale kann direkt verwendet werden
-    const cookieStore = cookies(); // Cookies holen
+    const { locale } = await params;
+    const resolvedSearchParams = await searchParams;
+    const cookieStore = await cookies(); // Cookies holen
 
     // Supabase Client korrekt initialisieren
     const supabase = createServerClient(
@@ -49,11 +50,11 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     }
     const firmaId = profile.firma_id;
 
-    // SearchParams erst HIER sicher auslesen, NACHDEM async Operationen abgeschlossen sind
-    const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
-    const status = typeof searchParams.status === 'string' ? searchParams.status as Enums<'siparis_durumu'> : undefined;
-    const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : undefined;
-    const filterParam = typeof searchParams.filter === 'string' ? searchParams.filter : undefined;
+    // SearchParams (await edilmiş resolvedSearchParams üzerinden)
+    const page = typeof resolvedSearchParams.page === 'string' ? Number(resolvedSearchParams.page) : 1;
+    const status = typeof resolvedSearchParams.status === 'string' ? resolvedSearchParams.status as Enums<'siparis_durumu'> : undefined;
+    const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : undefined;
+    const filterParam = typeof resolvedSearchParams.filter === 'string' ? resolvedSearchParams.filter : undefined;
 
     // Abfrage erstellen
     let query = supabase

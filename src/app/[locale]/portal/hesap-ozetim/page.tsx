@@ -10,15 +10,13 @@ import {
     FiPackage, FiExternalLink, FiTrendingDown,
 } from 'react-icons/fi';
 import { HesapOzetTrend } from '@/components/portal/hesap-ozetim/HesapOzetTrend';
+import { getPortalLabels, formatCurrency, formatLocaleDate } from '@/lib/portalLabels';
 
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
     params: Promise<{ locale: Locale }>;
 }
-
-const fmt = (v: number | null | undefined) =>
-    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v ?? 0);
 
 export default async function HesapOzetimPage({ params }: PageProps) {
     noStore();
@@ -39,6 +37,9 @@ export default async function HesapOzetimPage({ params }: PageProps) {
     if (!profile?.firma_id || profile.rol !== 'Müşteri') {
         return redirect(`/${locale}/portal/dashboard`);
     }
+
+    const L = getPortalLabels(locale);
+    const fmt = (v: number | null | undefined) => formatCurrency(v, locale, { maximumFractionDigits: 2 });
 
     const now = new Date();
     const yearStart = `${now.getFullYear()}-01-01`;
@@ -149,8 +150,8 @@ export default async function HesapOzetimPage({ params }: PageProps) {
         ? Math.floor((Date.now() - new Date(firma.created_at).getTime()) / 86400000)
         : 0;
     const membershipText = membershipDays >= 365
-        ? `${Math.floor(membershipDays / 365)} yıl`
-        : `${Math.floor(membershipDays / 30)} ay`;
+        ? `${Math.floor(membershipDays / 365)} ${L.year}`
+        : `${Math.floor(membershipDays / 30)} ${L.months}`;
 
     return (
         <div className="space-y-5 pb-10">
@@ -161,9 +162,9 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                     <FiArrowLeft size={20} />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Hesap Özetim</h1>
+                    <h1 className="text-2xl font-bold text-slate-800">{L.accountSummary}</h1>
                     <p className="text-sm text-slate-500 mt-0.5">
-                        {firma?.unvan} · Müşterimizsiniz: <strong>{membershipText}</strong>
+                        {firma?.unvan} · {L.customerSince}: <strong>{membershipText}</strong>
                     </p>
                 </div>
             </div>
@@ -176,15 +177,13 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                     </div>
                     <div className="flex-1">
                         <p className="text-sm font-bold text-red-900">
-                            Vadesi geçmiş ödemeniz mevcut: {fmt(gecikmisVade)}
+                            {L.overdueWarning}: {fmt(gecikmisVade)}
                         </p>
-                        <p className="text-xs text-red-700 mt-0.5">
-                            Ödeme bilgileriniz için bizimle iletişime geçebilirsiniz.
-                        </p>
+                        <p className="text-xs text-red-700 mt-0.5">{L.overduePaymentContact}</p>
                     </div>
                     <Link href={`/${locale}/contact`}
                         className="text-xs font-bold bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors flex-shrink-0">
-                        İletişim
+                        {L.contactBtn}
                     </Link>
                 </div>
             )}
@@ -196,11 +195,9 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                     </div>
                     <div className="flex-1">
                         <p className="text-sm font-bold text-amber-900">
-                            7 gün içinde vadesi gelecek: {fmt(yaklasanVade)}
+                            7 {L.upcomingPayment}: {fmt(yaklasanVade)}
                         </p>
-                        <p className="text-xs text-amber-700 mt-0.5">
-                            Vade durumlarınızı aşağıdaki tablodan takip edebilirsiniz.
-                        </p>
+                        <p className="text-xs text-amber-700 mt-0.5">{L.upcomingHint}</p>
                     </div>
                 </div>
             )}
@@ -209,12 +206,12 @@ export default async function HesapOzetimPage({ params }: PageProps) {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="rounded-xl border border-blue-200/60 p-4 bg-gradient-to-br from-blue-50 to-white">
                     <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-700">Bu Yıl Net</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-700">{L.yearNet}</p>
                         <FiTrendingUp size={14} className="text-blue-500" />
                     </div>
                     <p className="text-xl font-bold text-blue-800">{fmt(yilTotal)}</p>
                     <div className="flex items-center gap-1.5 mt-1">
-                        <p className="text-[11px] text-slate-500">{siparislerYil.length} sipariş</p>
+                        <p className="text-[11px] text-slate-500">{siparislerYil.length} {L.nOrders}</p>
                         {yillikDelta !== null && (
                             <span className={`text-[10px] font-bold ${yillikDelta >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                                 {yillikDelta >= 0 ? '+' : ''}{yillikDelta}%
@@ -225,36 +222,36 @@ export default async function HesapOzetimPage({ params }: PageProps) {
 
                 <div className="rounded-xl border border-orange-200/60 p-4 bg-gradient-to-br from-orange-50 to-white">
                     <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-orange-700">Açık Bakiye</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-orange-700">{L.pendingBalance}</p>
                         <FiDollarSign size={14} className="text-orange-500" />
                     </div>
                     <p className="text-xl font-bold text-orange-800">{fmt(acikBakiye)}</p>
-                    <p className="text-[11px] text-slate-500 mt-1">{vadelerAciklik.length} açık fatura</p>
+                    <p className="text-[11px] text-slate-500 mt-1">{vadelerAciklik.length} {L.nOpenInvoices}</p>
                 </div>
 
                 <div className="rounded-xl border border-purple-200/60 p-4 bg-gradient-to-br from-purple-50 to-white">
                     <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-purple-700">Ort. Sepet</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-purple-700">{L.avgBasket}</p>
                         <FiPackage size={14} className="text-purple-500" />
                     </div>
                     <p className="text-xl font-bold text-purple-800">{fmt(ortSiparis)}</p>
-                    <p className="text-[11px] text-slate-500 mt-1">Sipariş başına</p>
+                    <p className="text-[11px] text-slate-500 mt-1">{L.perOrder}</p>
                 </div>
 
                 <div className="rounded-xl border border-emerald-200/60 p-4 bg-gradient-to-br from-emerald-50 to-white">
                     <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">Avantajlarınız</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">{L.yourBenefits}</p>
                         <FiPercent size={14} className="text-emerald-500" />
                     </div>
                     {indirimOrani > 0 ? (
                         <>
                             <p className="text-xl font-bold text-emerald-800">%{indirimOrani}</p>
-                            <p className="text-[11px] text-slate-500 mt-1">Özel indirim + {odemeVadesi} gün vade</p>
+                            <p className="text-[11px] text-slate-500 mt-1">+{odemeVadesi} {L.days}</p>
                         </>
                     ) : (
                         <>
-                            <p className="text-xl font-bold text-emerald-800">{odemeVadesi} gün</p>
-                            <p className="text-[11px] text-slate-500 mt-1">Ödeme vadesi</p>
+                            <p className="text-xl font-bold text-emerald-800">{odemeVadesi} {L.days}</p>
+                            <p className="text-[11px] text-slate-500 mt-1">{L.paymentTerm}</p>
                         </>
                     )}
                 </div>
@@ -264,13 +261,13 @@ export default async function HesapOzetimPage({ params }: PageProps) {
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        📊 Son 12 Ay Sipariş Trendi
+                        📊 {L.last12MonthsTrend}
                     </h3>
-                    <span className="text-[11px] text-slate-400">Aylık net tutar</span>
+                    <span className="text-[11px] text-slate-400">{L.monthlyNet}</span>
                 </div>
                 {trendData.every(d => d.tutar === 0) ? (
                     <div className="py-10 text-center">
-                        <p className="text-sm text-slate-400">Son 12 ayda sipariş yok</p>
+                        <p className="text-sm text-slate-400">{L.noOrdersIn12Months}</p>
                     </div>
                 ) : (
                     <HesapOzetTrend data={trendData} />
@@ -282,17 +279,17 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                 <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                     <div className="px-4 py-3 border-b border-slate-100">
                         <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                            <FiCalendar size={14} className="text-orange-500" /> Vade Takvimi
+                            <FiCalendar size={14} className="text-orange-500" /> {L.paymentSchedule}
                         </h3>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
                             <thead className="bg-slate-50">
                                 <tr>
-                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">Sipariş</th>
-                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">Vade Tarihi</th>
-                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">Durum</th>
-                                    <th className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wide">Tutar (Brüt)</th>
+                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.order}</th>
+                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.dueDate}</th>
+                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.status}</th>
+                                    <th className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.amountGross}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -310,20 +307,20 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                                                     </Link>
                                                 </td>
                                                 <td className="px-4 py-2.5 whitespace-nowrap text-xs text-slate-600">
-                                                    {v.vadeTarihi.toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    {formatLocaleDate(v.vadeTarihi, locale)}
                                                 </td>
                                                 <td className="px-4 py-2.5 whitespace-nowrap">
                                                     {isOverdue ? (
                                                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
-                                                            {Math.abs(v.kalanGun)} gün gecikti
+                                                            {Math.abs(v.kalanGun)} {L.daysOverdue}
                                                         </span>
                                                     ) : isSoon ? (
                                                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                                                            {v.kalanGun} gün kaldı
+                                                            {v.kalanGun} {L.daysLeft}
                                                         </span>
                                                     ) : (
                                                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
-                                                            {v.kalanGun} gün
+                                                            {v.kalanGun} {L.days}
                                                         </span>
                                                     )}
                                                 </td>
@@ -336,7 +333,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                             </tbody>
                             <tfoot className="bg-slate-50">
                                 <tr>
-                                    <td colSpan={3} className="px-4 py-3 text-right text-xs font-bold text-slate-600">Toplam Açık Bakiye:</td>
+                                    <td colSpan={3} className="px-4 py-3 text-right text-xs font-bold text-slate-600">{L.totalOpen}</td>
                                     <td className="px-4 py-3 text-right text-base font-bold text-orange-700">{fmt(acikBakiye)}</td>
                                 </tr>
                             </tfoot>
@@ -349,27 +346,27 @@ export default async function HesapOzetimPage({ params }: PageProps) {
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                     <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <FiPackage size={14} className="text-blue-500" /> Yıllık Sipariş Geçmişi
+                        <FiPackage size={14} className="text-blue-500" /> {L.yearOrders}
                     </h3>
                     <Link href={`/${locale}/portal/siparisler`}
                         className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5">
-                        Tümü <FiExternalLink size={9} />
+                        {L.allLink} <FiExternalLink size={9} />
                     </Link>
                 </div>
                 {siparislerYil.length === 0 ? (
                     <div className="p-8 text-center">
-                        <p className="text-sm text-slate-400">Bu yıl henüz sipariş yok</p>
+                        <p className="text-sm text-slate-400">{L.noOrdersThisYear}</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
                             <thead className="bg-slate-50">
                                 <tr>
-                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">Sipariş</th>
-                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">Tarih</th>
-                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">Durum</th>
-                                    <th className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wide">Net</th>
-                                    <th className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wide">Brüt</th>
+                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.order}</th>
+                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.date}</th>
+                                    <th className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.status}</th>
+                                    <th className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.net}</th>
+                                    <th className="px-4 py-2.5 text-right text-[10px] font-bold text-slate-500 uppercase tracking-wide">{L.gross}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -382,7 +379,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                                             </Link>
                                         </td>
                                         <td className="px-4 py-2.5 whitespace-nowrap text-xs text-slate-600">
-                                            {new Date(s.siparis_tarihi).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: '2-digit' })}
+                                            {formatLocaleDate(s.siparis_tarihi, locale, { day: '2-digit', month: 'short', year: '2-digit' })}
                                         </td>
                                         <td className="px-4 py-2.5 whitespace-nowrap">
                                             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
@@ -401,7 +398,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                             <tfoot className="bg-slate-50">
                                 <tr>
                                     <td colSpan={3} className="px-4 py-3 text-right text-xs font-bold text-slate-600">
-                                        {siparislerYil.length} sipariş toplam:
+                                        {siparislerYil.length} {L.totalOf}:
                                     </td>
                                     <td className="px-4 py-3 text-right text-sm font-bold text-slate-700">{fmt(yilTotal)}</td>
                                     <td className="px-4 py-3 text-right text-sm font-bold text-blue-700">{fmt(yilBrutTotal)}</td>

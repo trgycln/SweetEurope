@@ -17,14 +17,14 @@ type GorevWithProfil = Tables<'gorevler'> & {
 type ProfilOption = Pick<Tables<'profiller'>, 'id' | 'tam_ad'>;
 
 interface FirmaGorevleriPageProps {
-    params: {
+    params: Promise<{
         locale: Locale;
         firmaId: string;
-    };
+    }>;
 }
 
 export default async function MusteriGorevlerPage({ params }: FirmaGorevleriPageProps) {
-    const { firmaId, locale } = params;
+    const { firmaId, locale } = await params;
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
     

@@ -6,7 +6,7 @@ import { Locale } from '@/i18n-config';
 
 export const dynamic = 'force-dynamic';
 
-export default async function StoklarimPage({ params }: { params: { locale: Locale } }) {
+export default async function StoklarimPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user } } = await supabase.auth.getUser();

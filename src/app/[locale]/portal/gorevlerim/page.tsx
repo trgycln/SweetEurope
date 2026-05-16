@@ -7,7 +7,8 @@ import { addMyTaskAction, toggleTaskAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 
-export default async function GorevlerimPage({ params }: { params: { locale: Locale } }) {
+export default async function GorevlerimPage({ params }: { params: Promise<{ locale: Locale }> }) {
+  const { locale } = await params;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user } } = await supabase.auth.getUser();
@@ -21,12 +22,12 @@ export default async function GorevlerimPage({ params }: { params: { locale: Loc
 
   async function onAddTask(fd: FormData) {
     'use server';
-    await addMyTaskAction(fd, params.locale);
+    await addMyTaskAction(fd, locale);
   }
 
   async function onToggleTask(fd: FormData) {
     'use server';
-    await toggleTaskAction(fd, params.locale);
+    await toggleTaskAction(fd, locale);
   }
 
   return (
