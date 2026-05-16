@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
-import { FiGrid, FiPackage, FiBox, FiArchive, FiBarChart2, FiX, FiPaperclip, FiUser } from 'react-icons/fi'; // FiUser importieren
+import { FiGrid, FiPackage, FiBox, FiArchive, FiBarChart2, FiX, FiPaperclip, FiUser, FiCheckSquare, FiHeart, FiDollarSign } from 'react-icons/fi';
 import { Dictionary } from '@/dictionaries'; // Dictionary importieren
 import { Enums } from '@/lib/supabase/database.types';
 
@@ -21,16 +21,20 @@ export function PortalSidebar({ userRole, isOpen, setIsOpen, dictionary }: Sideb
     // Dictionary Prop verwenden
     const content = dictionary.portal.sidebar;
 
+    const isBayi = userRole === 'Alt Bayi';
+    const isMusteri = userRole === 'Müşteri';
     const menuItems = [
       // Üstte: Genel
-      { name: content.dashboard, href: '/portal/dashboard', icon: FiGrid },
+      { name: isBayi ? 'Cockpit' : isMusteri ? 'Anasayfa' : content.dashboard, href: '/portal/dashboard', icon: FiGrid },
       // Alt Bayi temel akış
       { name: content.customers || "Müşterilerim", href: '/portal/musterilerim', icon: FiUser, roles: ['Alt Bayi'] as UserRole[] },
+      { name: isMusteri ? 'Katalog (Sipariş Ver)' : content.products, href: '/portal/katalog', icon: FiBox },
       { name: content.orders, href: '/portal/siparisler', icon: FiPackage },
+      { name: 'Favorilerim', href: '/portal/favoriler', icon: FiHeart, roles: ['Müşteri'] as UserRole[] },
+      { name: 'Görevlerim', href: '/portal/gorevlerim', icon: FiCheckSquare, roles: ['Alt Bayi'] as UserRole[] },
       { name: content.stock || "Stoklarım", href: '/portal/stoklarim', icon: FiBox, roles: ['Alt Bayi'] as UserRole[] },
       { name: content.finance || "Finanslarım", href: '/portal/finanslarim', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },
-      // Diğerleri aşağıda
-      { name: content.products, href: '/portal/katalog', icon: FiBox },
+      { name: 'Hesap Özetim', href: '/portal/hesap-ozetim', icon: FiDollarSign, roles: ['Müşteri'] as UserRole[] },
       { name: content.requests, href: '/portal/taleplerim', icon: FiArchive },
       { name: content.materials || "Materialien", href: '/portal/materialien', icon: FiPaperclip },
       { name: content.reports || "Raporlar", href: '/portal/raporlar', icon: FiBarChart2, roles: ['Alt Bayi'] as UserRole[] },

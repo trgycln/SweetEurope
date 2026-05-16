@@ -256,7 +256,9 @@ export function CustomersList({
                     <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                         <FiUsers className="mx-auto text-5xl text-gray-300 mb-4" />
                         <h2 className="font-serif text-2xl font-semibold text-primary">
-                            {searchTerm || statusFilter ? labels.noCustomersFiltered : labels.noCustomers}
+                            {(searchParams.get('q') || searchParams.get('status') || searchParams.get('city') || searchParams.get('district') || searchParams.get('posta_kodu') || searchParams.get('priority_group'))
+                                ? labels.noCustomersFiltered
+                                : labels.noCustomers}
                         </h2>
                     </div>
                 )}

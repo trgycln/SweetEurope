@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 import { KOLN_PLZ_MAP } from '@/lib/plzLookup';
 import FirmaListClient from './FirmaListClient';
+import { matchesAnyField, matchesSearch } from '@/lib/searchUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -136,10 +137,8 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
             sorumlu_personel:profiller!firmalar_sorumlu_personel_id_fkey(tam_ad)
         `);
 
-    if (searchQuery) {
-        const esc = searchQuery.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
-        query = query.or(`unvan.ilike.%${esc}%,adres.ilike.%${esc}%`);
-    }
+    // Diakritik-duyarsız arama: searchQuery & cityFilter & districtFilter
+    // (`.or()` içinde regex pattern güvensiz olduğu için client-side JS filter yapacağız - aşağıda)
     if (statusFilter) {
         const mapped = canonicalize(statusFilter);
         if (mapped) query = query.eq('status', mapped);
@@ -152,8 +151,6 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
         }
     }
     if (kategoriFilter) query = query.eq('kategori', kategoriFilter);
-    if (cityFilter) query = query.ilike('sehir', `%${cityFilter}%`);
-    if (districtFilter) query = query.ilike('ilce', `%${districtFilter}%`);
     if (plzFilter) query = query.eq('posta_kodu', plzFilter);
     if (temassizFilter) {
         const cutoff = new Date(thirtyDaysAgo).toISOString();
@@ -179,11 +176,21 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
         );
     }
 
-    const firmalar = (rawFirmalar || []).sort((a, b) => {
+    let firmalar = (rawFirmalar || []).sort((a, b) => {
         if (a.status === 'REDDEDİLDİ' && b.status !== 'REDDEDİLDİ') return 1;
         if (a.status !== 'REDDEDİLDİ' && b.status === 'REDDEDİLDİ') return -1;
         return 0;
     });
+
+    // Diakritik-duyarsız (ı/i, ş/s, ö/o, ü/u, ç/c, ğ/g, ß/ss, ä/a ...) JS-side filtreleme
+    if (searchQuery || cityFilter || districtFilter) {
+        firmalar = firmalar.filter((f: any) => {
+            if (searchQuery && !matchesAnyField([f.unvan, f.adres, f.sehir, f.ilce, f.yetkili_kisi], searchQuery)) return false;
+            if (cityFilter && !matchesSearch(f.sehir, cityFilter)) return false;
+            if (districtFilter && !matchesSearch(f.ilce, districtFilter)) return false;
+            return true;
+        });
+    }
 
     const hasLocationFilter = !!(cityFilter || districtFilter || plzFilter);
 

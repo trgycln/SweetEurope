@@ -82,6 +82,17 @@ function getProductName(ad: ProductRow['ad'], locale: string): string {
   return ad[locale] || ad.tr || ad.de || ad.en || ad.ar || Object.values(ad)[0] || 'Adsız Ürün';
 }
 
+/**
+ * Tedarikçi sipariş listesi + çıktılar için ürün adı.
+ * İngilizce öncelikli (tedarikçi tipik olarak Türk; İngilizce ortak dil).
+ * Fallback: en → de → tr → ar → ilk uygun değer.
+ */
+function getProductNameEn(ad: ProductRow['ad']): string {
+  if (!ad) return 'Unnamed Product';
+  if (typeof ad === 'string') return ad;
+  return ad.en || ad.de || ad.tr || ad.ar || Object.values(ad)[0] || 'Unnamed Product';
+}
+
 /** Türkçe/Almanca karakterleri ASCII'ye düşürür — arama karşılaştırması için */
 function normalize(str: string): string {
   return str
@@ -137,6 +148,32 @@ function formatPallets(pallets: number): string {
   if (pallets <= 0) return '—';
   if (pallets < 0.1) return `~${(pallets * 100).toFixed(0)}%`;
   if (pallets < 1) return `~${pallets.toFixed(2)} palet`;
+  return `${pallets % 1 === 0 ? pallets.toFixed(0) : pallets.toFixed(2)} palet`;
+}
+
+/**
+ * Bir sipariş satırının toplam kg ağırlığını hesaplar.
+ * birim_agirlik_kg girilmemişse 0 döner.
+ */
+function calcWeightKg(product: ProductRow, unitType: UnitType, quantity: number): number {
+  const unitKg = Number(product.birim_agirlik_kg || 0);
+  if (unitKg <= 0) return 0;
+  const totalPieces = quantity * unitMultiplier(product, unitType);
+  return totalPieces * unitKg;
+}
+
+function formatWeight(kg: number): string {
+  if (kg <= 0) return '—';
+  if (kg >= 1000) {
+    const t = kg / 1000;
+    return t % 1 === 0 ? `${t.toFixed(0)} t` : `${t.toFixed(2)} t`;
+  }
+  return `${Math.round(kg)} kg`;
+}
+
+/** Sade palet metni: sayı + 'palet' (UI sütunu için, ~ ve % olmadan) */
+function formatPalletsPlain(pallets: number): string {
+  if (pallets <= 0) return '—';
   return `${pallets % 1 === 0 ? pallets.toFixed(0) : pallets.toFixed(2)} palet`;
 }
 
@@ -709,16 +746,22 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   const exportExcel = async () => {
     const XLSX = await import('xlsx');
 
-    const rows = enrichedItems.map((row) => ({
-      Tedarikci: selectedSupplierName,
-      'Stok Kodu': row.product.stok_kodu || '-',
-      'Barkod (EAN/GTIN)': row.product.ean_gtin || '',
-      'Urun Adi': getProductName(row.product.ad, locale),
-      Birim: row.unitType,
-      Miktar: row.quantity,
-      'Birim Maliyet (EUR)': Number(row.unitCost.toFixed(2)),
-      'Satir Toplami (EUR)': Number(row.lineTotal.toFixed(2)),
-    }));
+    const rows = enrichedItems.map((row) => {
+      const pallets = calcPallets(row.product, row.unitType, row.quantity);
+      const kg = calcWeightKg(row.product, row.unitType, row.quantity);
+      return {
+        Tedarikci: selectedSupplierName,
+        'Stok Kodu': row.product.stok_kodu || '-',
+        'Barkod (EAN/GTIN)': row.product.ean_gtin || '',
+        'Urun Adi': getProductNameEn(row.product.ad),
+        Birim: row.unitType,
+        Miktar: row.quantity,
+        Palet: pallets > 0 ? Number(pallets.toFixed(2)) : 0,
+        'Agirlik (kg)': kg > 0 ? Number(kg.toFixed(2)) : 0,
+        'Birim Maliyet (EUR)': Number(row.unitCost.toFixed(2)),
+        'Satir Toplami (EUR)': Number(row.lineTotal.toFixed(2)),
+      };
+    });
 
     rows.push({
       Tedarikci: '',
@@ -727,6 +770,8 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       'Urun Adi': 'GENEL TOPLAM',
       Birim: '',
       Miktar: 0,
+      Palet: Number((totals.totalPallets || 0).toFixed(2)),
+      'Agirlik (kg)': Number((totals.totalWeightKg || 0).toFixed(2)),
       'Birim Maliyet (EUR)': 0,
       'Satir Toplami (EUR)': Number(totals.grandTotal.toFixed(2)),
     });
@@ -743,8 +788,8 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         : `${totals.totalWeightKg.toFixed(1)} kg`;
 
     const extraRows: Record<string, string | number>[] = [
-      { Tedarikci: '', 'Stok Kodu': '', 'Barkod (EAN/GTIN)': '', 'Urun Adi': 'Toplam Palet', Birim: '', Miktar: '', 'Birim Maliyet (EUR)': '', 'Satir Toplami (EUR)': paletStr },
-      { Tedarikci: '', 'Stok Kodu': '', 'Barkod (EAN/GTIN)': '', 'Urun Adi': 'Toplam Agirlik', Birim: '', Miktar: '', 'Birim Maliyet (EUR)': '', 'Satir Toplami (EUR)': agirlikStr },
+      { Tedarikci: '', 'Stok Kodu': '', 'Barkod (EAN/GTIN)': '', 'Urun Adi': 'Toplam Palet', Birim: '', Miktar: '', Palet: '', 'Agirlik (kg)': '', 'Birim Maliyet (EUR)': '', 'Satir Toplami (EUR)': paletStr },
+      { Tedarikci: '', 'Stok Kodu': '', 'Barkod (EAN/GTIN)': '', 'Urun Adi': 'Toplam Agirlik', Birim: '', Miktar: '', Palet: '', 'Agirlik (kg)': '', 'Birim Maliyet (EUR)': '', 'Satir Toplami (EUR)': agirlikStr },
     ];
     (rows as Record<string, string | number>[]).push(...extraRows);
 
@@ -756,6 +801,8 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       { wch: 45 }, // Urun Adi
       { wch: 8  }, // Birim
       { wch: 8  }, // Miktar
+      { wch: 10 }, // Palet
+      { wch: 12 }, // Agirlik (kg)
       { wch: 18 }, // Birim Maliyet
       { wch: 18 }, // Satir Toplami
     ];
@@ -853,26 +900,36 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         { content: 'Urun Adi', styles: { halign: 'left' } },
         { content: 'Birim', styles: { halign: 'center' } },
         { content: 'Miktar', styles: { halign: 'right' } },
-        { content: 'Birim Maliyet', styles: { halign: 'right' } },
-        { content: 'Satir Toplami', styles: { halign: 'right' } },
+        { content: 'Palet', styles: { halign: 'right' } },
+        { content: 'Agirlik', styles: { halign: 'right' } },
+        { content: 'B. Maliyet', styles: { halign: 'right' } },
+        { content: 'Toplam', styles: { halign: 'right' } },
       ]],
-      body: enrichedItems.map((row) => [
-        row.product.stok_kodu || '-',
-        row.product.ean_gtin || '-',
-        sp(getProductName(row.product.ad, locale)),
-        row.unitType,
-        String(row.quantity),
-        formatCurrency(row.unitCost),
-        formatCurrency(row.lineTotal),
-      ]),
+      body: enrichedItems.map((row) => {
+        const pallets = calcPallets(row.product, row.unitType, row.quantity);
+        const kg = calcWeightKg(row.product, row.unitType, row.quantity);
+        return [
+          row.product.stok_kodu || '-',
+          row.product.ean_gtin || '-',
+          sp(getProductNameEn(row.product.ad)),
+          row.unitType,
+          String(row.quantity),
+          pallets > 0 ? formatPalletsPlain(pallets).replace(' palet', '') : '-',
+          kg > 0 ? formatWeight(kg) : '-',
+          formatCurrency(row.unitCost),
+          formatCurrency(row.lineTotal),
+        ];
+      }),
       columnStyles: {
-        0: { cellWidth: 18 },
-        1: { cellWidth: 30, overflow: 'ellipsize' },
-        2: { cellWidth: 50, overflow: 'linebreak' },
-        3: { cellWidth: 14, halign: 'center' },
-        4: { cellWidth: 14, halign: 'right' },
-        5: { cellWidth: 28, halign: 'right' },
-        6: { cellWidth: 28, halign: 'right' },
+        0: { cellWidth: 18 },                                  // Stok Kodu
+        1: { cellWidth: 28, overflow: 'linebreak' },           // Barkod (EAN-13 sığsın, kısaltma yok)
+        2: { cellWidth: 38, overflow: 'linebreak' },           // Urun Adi
+        3: { cellWidth: 14, halign: 'center' },                // Birim
+        4: { cellWidth: 14, halign: 'right' },                 // Miktar
+        5: { cellWidth: 14, halign: 'right' },                 // Palet
+        6: { cellWidth: 16, halign: 'right' },                 // Agirlik
+        7: { cellWidth: 20, halign: 'right' },                 // B. Maliyet
+        8: { cellWidth: 20, halign: 'right' },                 // Toplam
       },
       styles: { fontSize: 8.5, cellPadding: 2, overflow: 'linebreak' },
       headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
@@ -1003,20 +1060,30 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         { content: 'Urun Adi', styles: { halign: 'left' } },
         { content: 'Birim', styles: { halign: 'center' } },
         { content: 'Miktar', styles: { halign: 'right' } },
+        { content: 'Palet', styles: { halign: 'right' } },
+        { content: 'Agirlik', styles: { halign: 'right' } },
       ]],
-      body: enrichedItems.map((row) => [
-        row.product.stok_kodu || '-',
-        row.product.ean_gtin || '-',
-        sp(getProductName(row.product.ad, locale)),
-        row.unitType,
-        String(row.quantity),
-      ]),
+      body: enrichedItems.map((row) => {
+        const pallets = calcPallets(row.product, row.unitType, row.quantity);
+        const kg = calcWeightKg(row.product, row.unitType, row.quantity);
+        return [
+          row.product.stok_kodu || '-',
+          row.product.ean_gtin || '-',
+          sp(getProductNameEn(row.product.ad)),
+          row.unitType,
+          String(row.quantity),
+          pallets > 0 ? formatPalletsPlain(pallets).replace(' palet', '') : '-',
+          kg > 0 ? formatWeight(kg) : '-',
+        ];
+      }),
       columnStyles: {
-        0: { cellWidth: 18 },
-        1: { cellWidth: 30, overflow: 'ellipsize' },
-        2: { cellWidth: 76, overflow: 'linebreak' },
-        3: { cellWidth: 29, halign: 'center' },
-        4: { cellWidth: 29, halign: 'right' },
+        0: { cellWidth: 20 },                                  // Stok Kodu
+        1: { cellWidth: 30, overflow: 'linebreak' },           // Barkod (EAN-13 sığsın)
+        2: { cellWidth: 58, overflow: 'linebreak' },           // Urun Adi
+        3: { cellWidth: 18, halign: 'center' },                // Birim
+        4: { cellWidth: 18, halign: 'right' },                 // Miktar
+        5: { cellWidth: 18, halign: 'right' },                 // Palet
+        6: { cellWidth: 20, halign: 'right' },                 // Agirlik
       },
       styles: { fontSize: 8.5, cellPadding: 2, overflow: 'linebreak' },
       headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
@@ -1501,6 +1568,8 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                 <th className="border-b border-gray-200 px-3 py-2">Ürün</th>
                 <th className="border-b border-gray-200 px-3 py-2">Birim</th>
                 <th className="border-b border-gray-200 px-3 py-2 text-right">Miktar</th>
+                <th className="border-b border-gray-200 px-3 py-2 text-right">Palet</th>
+                <th className="border-b border-gray-200 px-3 py-2 text-right">Ağırlık</th>
                 <th className="border-b border-gray-200 px-3 py-2 text-right">Birim Maliyet</th>
                 <th className="border-b border-gray-200 px-3 py-2 text-right">Satır Toplamı</th>
                 <th className="no-print rounded-tr-lg border-b border-gray-200 px-3 py-2 text-right">İşlem</th>
@@ -1509,7 +1578,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             <tbody>
               {enrichedItems.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-10 text-center text-gray-500">
+                  <td colSpan={9} className="px-3 py-10 text-center text-gray-500">
                     Henüz ürün eklenmedi.
                   </td>
                 </tr>
@@ -1519,27 +1588,22 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                   className={`border-b border-gray-100 align-top transition-colors ${row.isModified ? 'bg-orange-50' : ''}`}>
                   <td className="px-3 py-2 font-mono text-xs text-gray-600">{row.product.stok_kodu || '-'}</td>
                   <td className="px-3 py-2">
-                    <p className="font-medium text-gray-900">{getProductName(row.product.ad, locale)}</p>
+                    <Link
+                      href={`/${locale}/admin/urun-yonetimi/urunler/${row.product.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-gray-900 hover:text-accent hover:underline transition-colors no-print"
+                      title="Ürün kartına git (yeni sekmede)"
+                    >
+                      {getProductNameEn(row.product.ad)}
+                    </Link>
+                    <span className="print-only font-medium text-gray-900">{getProductNameEn(row.product.ad)}</span>
                     <p className="text-xs text-gray-500">
                       Adet: {formatCurrency(row.purchaseBoxCost)} · Çarpan: x{formatNumber(row.multiplier)}
                       {row.isModified && (
                         <span className="ml-1 text-orange-600 font-semibold">· Düzenlenmiş</span>
                       )}
                     </p>
-                    {(() => {
-                      const pallets = calcPallets(row.product, row.unitType, row.quantity);
-                      if (pallets <= 0) return null;
-                      const paletPerUrun = Number(row.product.palet_ici_adet || 0);
-                      const hint = paletPerUrun > 0
-                        ? `1 palet = ${paletPerUrun} koli`
-                        : null;
-                      return (
-                        <p className="text-xs text-indigo-600 font-medium mt-0.5">
-                          🏭 {formatPallets(pallets)}
-                          {hint && <span className="ml-1 text-slate-400 font-normal">({hint})</span>}
-                        </p>
-                      );
-                    })()}
                     {row.isModified && row.indirim_aciklamasi && (
                       <p className="text-xs text-orange-500 mt-0.5">{row.indirim_aciklamasi}</p>
                     )}
@@ -1566,6 +1630,40 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                       className="w-20 rounded-md border border-gray-300 px-2 py-1 text-right"
                     />
                     <span className="print-only text-sm font-medium text-gray-800">{row.quantity}</span>
+                  </td>
+                  {/* Palet sütunu */}
+                  <td className="px-3 py-2 text-right whitespace-nowrap">
+                    {(() => {
+                      const pallets = calcPallets(row.product, row.unitType, row.quantity);
+                      const paletPerUrun = Number(row.product.palet_ici_adet || 0);
+                      return (
+                        <div>
+                          <p className={`text-sm font-semibold ${pallets > 0 ? 'text-indigo-700' : 'text-gray-400'}`}>
+                            {formatPalletsPlain(pallets)}
+                          </p>
+                          {paletPerUrun > 0 && pallets > 0 && (
+                            <p className="text-[10px] text-slate-400">1 palet = {paletPerUrun} koli</p>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </td>
+                  {/* Ağırlık sütunu */}
+                  <td className="px-3 py-2 text-right whitespace-nowrap">
+                    {(() => {
+                      const kg = calcWeightKg(row.product, row.unitType, row.quantity);
+                      const unitKg = Number(row.product.birim_agirlik_kg || 0);
+                      return (
+                        <div>
+                          <p className={`text-sm font-semibold ${kg > 0 ? 'text-slate-700' : 'text-gray-400'}`}>
+                            {formatWeight(kg)}
+                          </p>
+                          {unitKg > 0 && (
+                            <p className="text-[10px] text-slate-400">{unitKg.toFixed(2)} kg/adet</p>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </td>
                   {/* Birim Maliyet — düzenlenebilir */}
                   <td className="px-3 py-2 text-right">
@@ -1628,7 +1726,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             {enrichedItems.length > 0 && (
               <tfoot>
                 <tr className="bg-gray-50">
-                  <td colSpan={4} className="px-3 py-3 text-sm text-gray-600">
+                  <td colSpan={6} className="px-3 py-3 text-sm text-gray-600">
                     {selectedSupplierName} · {totals.totalLines} kalem · {totals.totalUnits} toplam birim
                   </td>
                   <td className="px-3 py-3 text-right text-sm font-medium text-gray-700">Genel Toplam</td>
@@ -1637,7 +1735,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                 </tr>
                 {/* Palet + Ağırlık özeti satırı */}
                 <tr className="bg-indigo-50 border-t-2 border-indigo-200">
-                  <td colSpan={7} className="rounded-b-lg px-3 py-3">
+                  <td colSpan={9} className="rounded-b-lg px-3 py-3">
                     <div className="flex flex-wrap items-start gap-x-8 gap-y-2">
                       {/* Palet */}
                       <div className="flex items-center gap-2">
@@ -1651,7 +1749,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                           </span>
                         </div>
                       </div>
-                      {/* Toplam ağırlık — her zaman göster */}
+                      {/* Toplam ağırlık */}
                       <div className="flex items-center gap-2">
                         <span className="text-lg">⚖️</span>
                         <div>
@@ -1659,33 +1757,9 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                           <span className="text-lg font-extrabold text-indigo-700">
                             {totals.totalWeightKg <= 0
                               ? <span className="text-slate-400 text-sm font-normal">(ürünlerde birim_agirlik_kg girilmemiş)</span>
-                              : totals.totalWeightKg >= 1000
-                                ? `${(totals.totalWeightKg / 1000).toFixed(2)} t`
-                                : `${totals.totalWeightKg.toFixed(1)} kg`}
+                              : formatWeight(totals.totalWeightKg)}
                           </span>
                         </div>
-                      </div>
-                      {/* Ürün bazlı palet detayı */}
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-indigo-700">
-                        {enrichedItems.map((row) => {
-                          const pallets = calcPallets(row.product, row.unitType, row.quantity);
-                          if (pallets <= 0) return null;
-                          const unitKg = Number(row.product.birim_agirlik_kg || 0);
-                          const totalPieces = row.quantity * unitMultiplier(row.product, row.unitType);
-                          const rowKg = unitKg > 0 ? totalPieces * unitKg : 0;
-                          return (
-                            <span key={row.id} className="whitespace-nowrap">
-                              <span className="font-semibold">{row.product.stok_kodu || getProductName(row.product.ad, locale).slice(0, 20)}</span>
-                              {': '}
-                              <span className="font-bold">{formatPallets(pallets)}</span>
-                              {rowKg > 0 && (
-                                <span className="text-slate-500 ml-1">
-                                  ({rowKg >= 1000 ? `${(rowKg / 1000).toFixed(2)} t` : `${rowKg.toFixed(1)} kg`})
-                                </span>
-                              )}
-                            </span>
-                          );
-                        })}
                       </div>
                     </div>
                   </td>

@@ -2,8 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { FiPhone, FiMail, FiShoppingCart, FiMapPin } from 'react-icons/fi';
+import { FiPhone, FiMail, FiShoppingCart, FiMapPin, FiNavigation, FiCheck } from 'react-icons/fi';
 import { FaInstagram } from 'react-icons/fa';
+import { useVisitPlanner } from '@/contexts/VisitPlannerContext';
 
 interface Customer {
   id: string;
@@ -24,6 +25,7 @@ interface Customer {
   son_etkilesim_tarihi?: string | null;
   google_maps_url?: string | null;
   instagram_url?: string | null;
+  parent_firma_id?: string | null;
 }
 
 interface CustomerRowProps {
@@ -46,13 +48,36 @@ const KATEGORI_RENKLERI: Record<string, string> = {
   "Catering": "bg-rose-100 text-rose-800",
 };
 
-export default function CustomerRow({ 
-  customer, 
-  locale, 
+export default function CustomerRow({
+  customer,
+  locale,
   statusColors,
   isDesktop = false,
   labels
 }: CustomerRowProps) {
+
+  const { isSelected, addCompany, removeCompany } = useVisitPlanner();
+  const inVisitList = isSelected(customer.id);
+
+  const handleToggleVisit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inVisitList) {
+      removeCompany(customer.id);
+    } else {
+      addCompany({
+        id: customer.id,
+        unvan: customer.unvan,
+        adres: customer.adres ?? null,
+        sehir: customer.sehir ?? null,
+        ilce: customer.ilce ?? null,
+        posta_kodu: customer.posta_kodu ?? null,
+        google_maps_url: customer.google_maps_url ?? null,
+        telefon: customer.telefon ?? null,
+        parent_firma_id: customer.parent_firma_id ?? null,
+      });
+    }
+  };
 
   if (!isDesktop) {
     // Mobile Card View
@@ -105,14 +130,24 @@ export default function CustomerRow({
           </div>
         </Link>
 
-        <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-gray-200 flex gap-2">
           <Link
             href={`/${locale}/portal/siparisler/yeni?firmaId=${customer.id}`}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-accent text-white rounded-lg font-semibold text-sm hover:bg-opacity-90 transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-accent text-white rounded-lg font-semibold text-sm hover:bg-opacity-90 transition-colors"
           >
             <FiShoppingCart size={16} />
             {labels.createOrder}
           </Link>
+          <button
+            onClick={handleToggleVisit}
+            className={`px-3 py-2 rounded-lg font-semibold text-sm border transition-colors flex items-center gap-1.5 ${inVisitList
+              ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+              : 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50'}`}
+            title={inVisitList ? 'Ziyaret listesinden çıkar' : 'Ziyaret listesine ekle'}
+          >
+            {inVisitList ? <FiCheck size={14} /> : <FiNavigation size={14} />}
+            <span className="hidden sm:inline">{inVisitList ? 'Eklendi' : 'Ziyaret'}</span>
+          </button>
         </div>
       </div>
     );
@@ -235,11 +270,22 @@ export default function CustomerRow({
         ) : <span className="text-gray-400">-</span>}
       </td>
       
-      {/* Status */}
+      {/* Status + Action */}
       <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${statusColors[customer.status || ''] || 'bg-gray-100 text-gray-800'}`}>
-          {customer.status || '-'}
-        </span>
+        <div className="flex items-center gap-2">
+            <span className={`inline-flex px-3 py-1 text-xs font-semibold leading-5 rounded-full ${statusColors[customer.status || ''] || 'bg-gray-100 text-gray-800'}`}>
+                {customer.status || '-'}
+            </span>
+            <button
+                onClick={handleToggleVisit}
+                className={`p-1.5 rounded-md border transition-colors flex-shrink-0 ${inVisitList
+                  ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                  : 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50'}`}
+                title={inVisitList ? 'Ziyaret listesinden çıkar' : 'Ziyaret listesine ekle'}
+            >
+                {inVisitList ? <FiCheck size={13} /> : <FiNavigation size={13} />}
+            </button>
+        </div>
       </td>
     </tr>
   );

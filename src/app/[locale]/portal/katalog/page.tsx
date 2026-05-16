@@ -11,6 +11,7 @@ import { Database, Tables, Enums } from "@/lib/supabase/database.types";
 import { resolvePartnerPreis } from "@/lib/pricing";
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { matchesAnyField, extractMultilingual } from '@/lib/searchUtils';
 
 export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
@@ -66,13 +67,9 @@ export default async function KatalogPage({
         .select('*, kategoriler(ad)')
         .eq('aktif', true); // Nur aktive Produkte
 
-    // Suchfilter (JSONB-Suche in allen Sprachen + stok_kodu)
-        if (searchQuery) {
-         const searchQueryLike = `%${searchQuery}%`;
-         produkteQuery = produkteQuery.or(
-            `ad->>de.ilike.${searchQueryLike},ad->>en.ilike.${searchQueryLike},ad->>tr.ilike.${searchQueryLike},ad->>ar.ilike.${searchQueryLike},stok_kodu.ilike.${searchQueryLike}`
-         );
-    }
+    // Suchfilter: client-side, çoklu-dil + diakritik-duyarsız
+    // (DB tarafında uygulamıyoruz; tüm aktif ürünler getirilir, sonra JS'de filtrelenir.
+    //  Türkçe/Almanca/İngilizce/Arapça tüm ad alanları + stok_kodu içinde aranır.)
     
     // Kategoriefilter
     if (categoryFilter) {
@@ -107,8 +104,16 @@ export default async function KatalogPage({
         const kategorien: Kategorie[] = kategorienRes.data || [];
     const favoritenIds = new Set((favoritenRes.data || []).map(f => f.urun_id));
 
-    // Favorit filtresi uygula ve kullanıcı-özel fiyatı (kural/istisna dahil) hesapla
-    const filteredProdukte = produkte.filter(p => !favoritenFilter || favoritenIds.has(p.id));
+    // Favorit + arama (çoklu-dil ad alanları + stok_kodu) filtrelerini uygula
+    const filteredProdukte = produkte.filter(p => {
+        if (favoritenFilter && !favoritenIds.has(p.id)) return false;
+        if (searchQuery) {
+            const adFields = extractMultilingual((p as any).ad);
+            const allFields = [...adFields, (p as any).stok_kodu];
+            if (!matchesAnyField(allFields, searchQuery)) return false;
+        }
+        return true;
+    });
     const personalisierteProdukte: ProduktMitPreis[] = await Promise.all(
       filteredProdukte.map(async (produkt) => {
         try {

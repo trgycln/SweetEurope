@@ -14,7 +14,8 @@ export default function MusteriTabs({
     const pathname = usePathname();
 
     const tabs = [
-        { name: 'Genel Bilgi', href: `/${locale}/portal/musterilerim/${firmaId}` },
+        { name: 'Özet', href: `/${locale}/portal/musterilerim/${firmaId}` },
+        { name: 'Bilgiler', href: `/${locale}/portal/musterilerim/${firmaId}/bilgiler` },
         { name: 'Etkinlik Akışı', href: `/${locale}/portal/musterilerim/${firmaId}/etkinlikler` },
         { name: 'İlgili Kişiler', href: `/${locale}/portal/musterilerim/${firmaId}/kisiler` },
         { name: 'Siparişler', href: `/${locale}/portal/musterilerim/${firmaId}/siparisler` },

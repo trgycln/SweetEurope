@@ -14,6 +14,7 @@ import { formatCurrency, formatDate } from '@/lib/utils'; // utils importieren
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import OrderPageWrapper from './OrderPageWrapper';
 import OrderCheckbox from './OrderCheckbox';
+import { buildLoosePostgresRegex } from '@/lib/searchUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,12 +127,12 @@ export default async function AlleSiparislerPage({
     const isIdPrefix = !!cleanQuery && /^[0-9a-fA-F-]{3,36}$/.test(cleanQuery); // hex/uuid Fragmente
 
     if (queryParam) {
-        // 1) Firmennamen Kandidaten holen
-        const searchPattern = `%${queryParam}%`;
+        // 1) Firmennamen Kandidaten holen — diakritik-duyarsız regex (i/ı, ş/s, ö/o, ü/u, ç/c, ğ/g, ß/ss, ä/a, é/e ...)
+        const loosePattern = buildLoosePostgresRegex(queryParam);
         const { data: matchingFirmen, error: firmaSearchError } = await supabase
             .from('firmalar')
             .select('id')
-            .ilike('unvan', searchPattern);
+            .filter('unvan', '~*', loosePattern);
         if (firmaSearchError) console.error('⚠️  Fehler bei Firmensuche:', firmaSearchError);
         const matchingFirmaIds = matchingFirmen?.map(f => f.id) || [];
 

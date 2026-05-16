@@ -77,7 +77,7 @@ export default async function PublicUrunlerPage({
         try {
             const { data: profil } = await supabase
                 .from('profiller')
-                .select('firma_id')
+                .select('firma_id, rol')
                 .eq('id', user.id)
                 .maybeSingle();
 
@@ -90,6 +90,13 @@ export default async function PublicUrunlerPage({
                     .eq('id', profil.firma_id)
                     .maybeSingle();
                 partnerTier = firma?.pricing_tier ?? undefined;
+
+                // Müşteri rolünde pricing_tier yoksa default 'koli_bazli' kullan
+                // (Alt Bayi default 'palet', Toptancı 'cok_koli' olarak DB'de tutulur)
+                if (!partnerTier) {
+                    if (profil.rol === 'Müşteri') partnerTier = 'koli_bazli';
+                    else if (profil.rol === 'Alt Bayi') partnerTier = 'palet';
+                }
             }
         } catch {
             // Gracefully handle missing columns (migration not yet run)

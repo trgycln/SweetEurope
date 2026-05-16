@@ -8,6 +8,7 @@ import { CustomersPageClientWrapper } from '@/components/portal/musterilerim/Cus
 import { addMyCustomerAction } from './actions';
 import { Constants } from '@/lib/supabase/database.types';
 import { KOLN_PLZ_MAP } from '@/lib/plzLookup';
+import { matchesAnyField, matchesSearch, buildLoosePostgresRegex } from '@/lib/searchUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,25 +109,9 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
     .eq('sahip_id', user.id)
     .or('ticari_tip.eq.musteri,ticari_tip.is.null');
 
-  // Apply filters
-  if (searchQuery) {
-    // Escape special PostgREST characters in the search query
-    const escapedQuery = searchQuery
-      .replace(/\\/g, '\\\\') // Backslash first
-      .replace(/%/g, '\\%')   // % escape
-      .replace(/_/g, '\\_')   // _ escape
-      .replace(/"/g, '\\"');  // Double quotes
-    
-    query = query.or(`unvan.ilike.%${escapedQuery}%,adres.ilike.%${escapedQuery}%`);
-  }
+  // Yalnızca kesin eşleşmeleri DB tarafında filtrele (statü/pkz/öncelik)
   if (statusFilter) {
     query = query.eq('status', statusFilter);
-  }
-  if (cityFilter) {
-    query = query.ilike('sehir', `%${cityFilter}%`);
-  }
-  if (districtFilter) {
-    query = query.ilike('ilce', `%${districtFilter}%`);
   }
   if (zipCodeFilter) {
     query = query.eq('posta_kodu', zipCodeFilter);
@@ -141,11 +126,21 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
     }
   }
 
-  const { data: customers, error } = await query.order('created_at', { ascending: false });
+  let { data: customers, error } = await query.order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error loading customers:', error);
     return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Error loading customers.</div>;
+  }
+
+  // Türkçe/Almanca karakter duyarsız arama + şehir/ilçe filtresi (server-side JS)
+  if (customers && (searchQuery || cityFilter || districtFilter)) {
+    customers = customers.filter((c: any) => {
+      if (searchQuery && !matchesAnyField([c.unvan, c.adres, c.sehir, c.ilce], searchQuery)) return false;
+      if (cityFilter && !matchesSearch(c.sehir, cityFilter)) return false;
+      if (districtFilter && !matchesSearch(c.ilce, districtFilter)) return false;
+      return true;
+    });
   }
 
   const statusOptions = [...Constants.public.Enums.firma_status];

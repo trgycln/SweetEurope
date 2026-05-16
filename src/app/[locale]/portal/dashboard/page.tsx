@@ -11,6 +11,8 @@ import { HizliSiparisClient } from '@/components/portal/dashboard/HizliSiparisCl
 import { MarketingMaterialsWidget } from '@/components/portal/dashboard/MarketingMaterialsWidget';
 import { QuickActionsCard } from '@/components/portal/dashboard/QuickActionsCard';
 import { MiniStatsBar } from '@/components/portal/dashboard/MiniStatsBar';
+import BayiCockpit from '@/components/portal/dashboard/BayiCockpit';
+import MusteriCockpit from '@/components/portal/dashboard/MusteriCockpit';
 import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
 import { Database, Tables, Enums } from '@/lib/supabase/database.types';
@@ -70,6 +72,36 @@ export default async function PartnerDashboardPage({ params }: PageProps) { // K
 
     const firmaId = profile.firma_id;
     const userId = user.id; // Benutzer-ID für Favoriten
+
+    // ── Alt Bayi için CEO Cockpit Lite göster ──────────────────────────
+    if (profile.rol === 'Alt Bayi') {
+        const { data: firmaInfo } = await supabase
+            .from('firmalar').select('unvan').eq('id', firmaId).single();
+        return (
+            <BayiCockpit
+                userId={userId}
+                firmaId={firmaId}
+                locale={locale}
+                firmaUnvan={firmaInfo?.unvan || 'Bayi'}
+            />
+        );
+    }
+
+    // ── Müşteri için profesyonel Cockpit ──────────────────────────────
+    if (profile.rol === 'Müşteri') {
+        const { data: firmaInfo } = await supabase
+            .from('firmalar').select('unvan, created_at').eq('id', firmaId).single();
+        return (
+            <MusteriCockpit
+                userId={userId}
+                firmaId={firmaId}
+                locale={locale}
+                firmaUnvan={firmaInfo?.unvan || 'Müşteri'}
+                firmaCreatedAt={firmaInfo?.created_at || null}
+            />
+        );
+    }
+    // ── Diğer roller için aşağıdaki mevcut basit dashboard ────────────
 
     // Daten parallel abrufen
     const [

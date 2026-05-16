@@ -4,6 +4,8 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { PortalProvider } from '@/contexts/PortalContext';
+import { VisitPlannerProvider } from '@/contexts/VisitPlannerContext';
+import VisitPlannerPanel from '@/components/VisitPlannerPanel';
 import { PortalContainer } from '@/components/portal/PortalContainer';
 import { Toaster } from 'sonner';
 import { Database, Tables } from '@/lib/supabase/database.types';
@@ -129,10 +131,14 @@ export default async function PortalLayout({
 
     return (
         <PortalProvider value={initialContextValue}>
-            <PortalContainer dictionary={dictionary} locale={locale}>
-                {children}
-            </PortalContainer>
-            <Toaster position="top-right" richColors />
+            <VisitPlannerProvider>
+                <PortalContainer dictionary={dictionary} locale={locale}>
+                    {children}
+                </PortalContainer>
+                {/* Sadece Alt Bayi için floating ziyaret planlayıcı paneli */}
+                {profile.rol === 'Alt Bayi' && <VisitPlannerPanel />}
+                <Toaster position="top-right" richColors />
+            </VisitPlannerProvider>
         </PortalProvider>
     );
 }
