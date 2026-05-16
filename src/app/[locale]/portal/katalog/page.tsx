@@ -15,9 +15,8 @@ import { matchesAnyField, extractMultilingual } from '@/lib/searchUtils';
 
 export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
-// Typen
-export type ProduktMitPreis = Tables<'urunler'> & { partnerPreis: number | null };
-export type Kategorie = Pick<Tables<'kategoriler'>, 'id' | 'ad' | 'ust_kategori_id' | 'slug'>;
+// Types imported from separate file to avoid circular dependencies
+import { ProduktMitPreis, Kategorie } from './types';
 
 // Props-Typ für die Seite (Next.js 15: params/searchParams sind jetzt Promises)
 interface KatalogPageProps {

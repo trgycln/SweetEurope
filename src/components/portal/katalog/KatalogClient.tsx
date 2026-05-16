@@ -7,7 +7,7 @@ import { FiHeart, FiSearch, FiX, FiImage } from "react-icons/fi"; // FiImage hin
 import { toggleFavoriteAction } from "@/app/actions/favoriten-actions";
 import { Locale } from "@/i18n-config";
 import { Dictionary } from "@/dictionaries";
-import { ProduktMitPreis, Kategorie } from "@/app/[locale]/portal/katalog/page"; // Pfad ggf. anpassen
+import { ProduktMitPreis, Kategorie } from "@/app/[locale]/portal/katalog/types";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
