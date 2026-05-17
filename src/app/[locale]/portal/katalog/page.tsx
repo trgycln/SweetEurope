@@ -133,22 +133,30 @@ export default async function KatalogPage({
         }
         return true;
     });
-    const personalisierteProdukte: ProduktMitPreis[] = await Promise.all(
-      filteredProdukte.map(async (produkt) => {
-        try {
-          const partnerPreis = await resolvePartnerPreis({
-            supabase,
-            urun: produkt as Tables<'urunler'>,
-            userRole: profile.rol as Enums['user_role'],
-            firmaId: (profile.firma_id as string) || '',
-            qty: 1,
-          });
-          return { ...produkt, partnerPreis };
-        } catch {
-          return { ...produkt, partnerPreis: null };
-        }
-      })
-    );
+    // Limit concurrent price resolution to prevent stack overflow
+    const BATCH_SIZE = 20;
+    const personalisierteProdukte: ProduktMitPreis[] = [];
+
+    for (let i = 0; i < filteredProdukte.length; i += BATCH_SIZE) {
+      const batch = filteredProdukte.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.all(
+        batch.map(async (produkt) => {
+          try {
+            const partnerPreis = await resolvePartnerPreis({
+              supabase,
+              urun: produkt as Tables<'urunler'>,
+              userRole: profile.rol as Enums['user_role'],
+              firmaId: (profile.firma_id as string) || '',
+              qty: 1,
+            });
+            return { ...produkt, partnerPreis };
+          } catch {
+            return { ...produkt, partnerPreis: null };
+          }
+        })
+      );
+      personalisierteProdukte.push(...batchResults);
+    }
 
     // 5. An Client übergeben
     return (
