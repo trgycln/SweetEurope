@@ -168,6 +168,7 @@ export default async function KatalogPage({
             dictionary={dictionary}
             initialSearchQuery={searchQuery}
             initialCategoryFilter={categoryFilter}
+            userRole={userRole}
         />
     );
 }

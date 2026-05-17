@@ -62,6 +62,7 @@ interface Props {
     currentPlz: string;
     temassizActive: boolean;
     hasLocationFilter: boolean;
+    kaynakFilter: string;
     cityOptions: string[];
     districtOptions: string[];
     zipCodeOptions: string[];
@@ -493,7 +494,7 @@ function CompactSelect({ value, options, placeholder, onChange, renderOption }: 
 export default function FirmaListClient({
     firmalar, summary, locale, isAltBayiList,
     currentStatus, currentKategori, currentCity, currentDistrict, currentPlz,
-    temassizActive, hasLocationFilter,
+    temassizActive, hasLocationFilter, kaynakFilter,
     cityOptions, districtOptions, zipCodeOptions, zipCodeLabels, categoryOptions,
 }: Props) {
     const [viewMode, setViewMode] = useState<'card' | 'list'>('list');
@@ -751,14 +752,27 @@ export default function FirmaListClient({
                     <span className="text-green-600"><strong>{summary.musteri}</strong> müşteri</span>
                     <span className="text-purple-600"><strong>{summary.numune}</strong> numune</span>
                     {summary.gorulmemisWebBasvuru > 0 && (
-                        <button type="button"
+                        <button
+                            type="button"
                             onClick={() => {
                                 const p = new URLSearchParams(searchParams.toString());
-                                p.set('status', 'ADAY'); p.set('kaynak', 'web');
+                                if (kaynakFilter === 'web') {
+                                    p.delete('kaynak');
+                                    p.delete('status');
+                                } else {
+                                    p.set('kaynak', 'web');
+                                    p.delete('status');
+                                }
                                 router.replace(`${pathname}?${p.toString()}`);
                             }}
-                            className="flex items-center gap-1 bg-amber-500 text-white font-bold px-2 py-0.5 rounded-full animate-pulse hover:animate-none hover:bg-amber-600 transition-colors">
+                            className={`flex items-center gap-1 font-bold px-2 py-0.5 rounded-full transition-colors ${
+                                kaynakFilter === 'web'
+                                    ? 'bg-amber-600 text-white'
+                                    : 'bg-amber-500 text-white animate-pulse hover:animate-none hover:bg-amber-600'
+                            }`}
+                        >
                             🆕 <strong>{summary.gorulmemisWebBasvuru}</strong> yeni başvuru
+                            {kaynakFilter === 'web' && ' ×'}
                         </button>
                     )}
                     {summary.temassiz30 > 0 && (
@@ -844,6 +858,26 @@ export default function FirmaListClient({
                     </button>
                 )}
             </div>
+
+            {/* ── Kaynak (Web başvurusu) bilgi bandı ── */}
+            {kaynakFilter === 'web' && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-amber-800 flex items-center gap-1.5">
+                        🆕 Görülmemiş web başvuruları gösteriliyor ({firmalar.length})
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const p = new URLSearchParams(searchParams.toString());
+                            p.delete('kaynak');
+                            router.replace(`${pathname}?${p.toString()}`);
+                        }}
+                        className="text-[11px] text-amber-700 hover:text-amber-900 font-semibold"
+                    >
+                        × Kaldır
+                    </button>
+                </div>
+            )}
 
             {/* ── Temassız bilgi bandı ── */}
             {temassizActive && (

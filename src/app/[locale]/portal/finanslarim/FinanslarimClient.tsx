@@ -9,7 +9,7 @@ import {
     FiBarChart2, FiPieChart, FiAlertCircle, FiExternalLink,
 } from 'react-icons/fi';
 import { toast } from 'sonner';
-import { addGiderAction, updateGiderAction, deleteGiderAction } from './actions';
+import { addGiderAction, updateGiderAction, deleteGiderAction, addKategoriAction } from './actions';
 import { FinanslarimTrendChart } from '@/components/portal/finanslarim/FinanslarimTrendChart';
 import { FinanslarimKategoriChart } from '@/components/portal/finanslarim/FinanslarimKategoriChart';
 
@@ -55,6 +55,7 @@ interface Props {
     kategoriDagilimi: KategoriRow[];
     topMusteriler: TopMusteri[];
     stats: Stats;
+    customKategoriler: string[];
     period: string;
     locale: string;
 }
@@ -82,7 +83,7 @@ const PERIOD_LABELS: Record<string, string> = {
 
 /* ── Main Component ────────────────────────────────────────── */
 export default function FinanslarimClient({
-    satislar, giderler, trendData, kategoriDagilimi, topMusteriler, stats, period, locale,
+    satislar, giderler, trendData, kategoriDagilimi, topMusteriler, stats, customKategoriler, period, locale,
 }: Props) {
     const router = useRouter();
     const pathname = usePathname();
@@ -426,6 +427,7 @@ export default function FinanslarimClient({
                     gider={editingGider}
                     onClose={() => { setModalOpen(false); setEditingGider(null); }}
                     locale={locale}
+                    customKategoriler={customKategoriler}
                     onSuccess={() => { router.refresh(); setModalOpen(false); setEditingGider(null); }}
                 />
             )}
@@ -435,15 +437,40 @@ export default function FinanslarimClient({
 
 /* ── Gider Modal ───────────────────────────────────────────── */
 function GiderModal({
-    gider, onClose, locale, onSuccess,
+    gider, onClose, locale, customKategoriler, onSuccess,
 }: {
     gider: Gider | null;
     onClose: () => void;
     locale: string;
+    customKategoriler: string[];
     onSuccess: () => void;
 }) {
     const isEdit = !!gider;
     const [isPending, startTransition] = useTransition();
+    const [showNewCategory, setShowNewCategory] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+
+    const handleAddCategory = () => {
+        if (!newCategoryName.trim()) {
+            toast.error('Kategori adı gereklidir');
+            return;
+        }
+        if (customKategoriler.includes(newCategoryName.trim())) {
+            toast.error('Bu kategori zaten mevcut');
+            return;
+        }
+        startTransition(async () => {
+            const result = await addKategoriAction(newCategoryName, locale);
+            if (result.success) {
+                toast.success('Kategori eklendi');
+                setNewCategoryName('');
+                setShowNewCategory(false);
+                setTimeout(() => window.location.reload(), 500);
+            } else {
+                toast.error(result.error || 'Hata oluştu');
+            }
+        });
+    };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -482,11 +509,40 @@ function GiderModal({
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
-                        <select name="gider_kategori" defaultValue={gider?.kategori || 'Diğer'}
-                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
-                            {GIDER_KATEGORILERI.map(k => <option key={k} value={k}>{k}</option>)}
-                        </select>
+                        <div className="flex items-center justify-between mb-1">
+                            <label className="block text-sm font-medium text-slate-700">Kategori</label>
+                            <button type="button" onClick={() => setShowNewCategory(!showNewCategory)}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-semibold">
+                                + Yeni Kategori
+                            </button>
+                        </div>
+                        {showNewCategory ? (
+                            <div className="flex gap-2">
+                                <input type="text" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)}
+                                    placeholder="Kategori adı..."
+                                    className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                                <button type="button" onClick={handleAddCategory} disabled={isPending || !newCategoryName.trim()}
+                                    className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                                    Ekle
+                                </button>
+                                <button type="button" onClick={() => { setShowNewCategory(false); setNewCategoryName(''); }}
+                                    className="px-3 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-300 transition-colors">
+                                    İptal
+                                </button>
+                            </div>
+                        ) : (
+                            <select name="gider_kategori" defaultValue={gider?.kategori || 'Diğer'}
+                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
+                                <optgroup label="Varsayılan Kategoriler">
+                                    {GIDER_KATEGORILERI.map(k => <option key={k} value={k}>{k}</option>)}
+                                </optgroup>
+                                {customKategoriler.length > 0 && (
+                                    <optgroup label="Özel Kategoriler">
+                                        {customKategoriler.map(k => <option key={k} value={k}>{k}</option>)}
+                                    </optgroup>
+                                )}
+                            </select>
+                        )}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Açıklama</label>

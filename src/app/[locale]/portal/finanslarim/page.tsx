@@ -83,6 +83,7 @@ export default async function FinanslarimPage({ params, searchParams }: PageProp
         prevGiderlerRes,
         trendSatislarRes,
         trendGiderlerRes,
+        kategorilerRes,
     ] = await Promise.all([
         (supabase as any).from('alt_bayi_satislar')
             .select('id, created_at, durum, toplam_net, toplam_brut, musteri_id, firmalar:musteri_id(unvan)')
@@ -119,6 +120,11 @@ export default async function FinanslarimPage({ params, searchParams }: PageProp
             .select('tarih, tutar, kategori')
             .eq('sahip_id', user.id)
             .gte('tarih', sixMonthsStart),
+
+        supabase.from('alt_bayi_gider_kategorileri')
+            .select('ad')
+            .eq('sahip_id', user.id)
+            .order('olusturulma_tarihi', { ascending: true }),
     ]);
 
     const satislar = (satislarRes.data ?? []) as any[];
@@ -127,6 +133,9 @@ export default async function FinanslarimPage({ params, searchParams }: PageProp
     const prevGiderler = (prevGiderlerRes.data ?? []) as any[];
     const trendSatislar = (trendSatislarRes.data ?? []) as any[];
     const trendGiderler = (trendGiderlerRes.data ?? []) as any[];
+    const customKategoriler = (kategorilerRes.data && !kategorilerRes.error)
+        ? (kategorilerRes.data ?? []).map((k: any) => k.ad) as string[]
+        : [] as string[];
 
     // Aylık trend hesapla
     const trendMap = new Map<string, { gelir: number; gider: number }>();
@@ -207,6 +216,7 @@ export default async function FinanslarimPage({ params, searchParams }: PageProp
                 prevGelir, prevGider, prevNet,
                 gelirDelta, giderDelta, netDelta,
             }}
+            customKategoriler={customKategoriler}
             period={period}
             locale={locale}
         />

@@ -334,3 +334,58 @@ export async function iptalSiparisAction(formData: FormData): Promise<ActionResu
         return { error: 'Serverfehler beim Stornieren der Bestellung.' };
     }
 }
+
+// === İPTAL TALEBİ GÖNDER ===
+export async function iptalTalebiGonderAction(
+    siparisId: string,
+    siparisNo: string,
+    sebep: string,
+    firmaId: string,
+) {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'Oturum bulunamadı.' };
+
+    // 1. Sipariş durumunu güncelle
+    const { error: siparisError } = await supabase
+        .from('siparisler')
+        .update({ siparis_durumu: 'iptal_talep_edildi' })
+        .eq('id', siparisId);
+
+    if (siparisError) return { success: false, error: siparisError.message };
+
+    // 2. Yöneticilere görev oluştur
+    const { data: yoneticiler } = await supabase
+        .from('profiller')
+        .select('id')
+        .eq('rol', 'Yönetici');
+
+    if (yoneticiler && yoneticiler.length > 0) {
+        const gorevler = yoneticiler.map(y => ({
+            atanan_kisi_id: y.id,
+            olusturan_kisi_id: user.id,
+            baslik: `İptal Talebi: Sipariş #${siparisNo.slice(0, 8).toUpperCase()}`,
+            aciklama: `Sipariş iptal talebi geldi.\n\nSebep: ${sebep}\n\nSipariş ID: ${siparisId}`,
+            oncelik: 'yuksek',
+            tamamlandi: false,
+            ilgili_firma_id: firmaId,
+        }));
+
+        await supabase.from('gorevler').insert(gorevler);
+
+        // 3. Yöneticilere bildirim gönder
+        const bildirimler = yoneticiler.map(y => ({
+            alici_id: y.id,
+            icerik: `⚠️ Sipariş #${siparisNo.slice(0, 8).toUpperCase()} için iptal talebi: ${sebep}`,
+            link: `/portal/siparisler/${siparisId}`,
+            okundu_mu: false,
+        }));
+
+        await supabase.from('bildirimler').insert(bildirimler);
+    }
+
+    revalidatePath(`/portal/siparisler/${siparisId}`);
+    return { success: true };
+}

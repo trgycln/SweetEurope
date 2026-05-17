@@ -11,11 +11,19 @@ import {
     FiBox, FiClipboard, FiMaximize, FiPackage, FiCheckCircle,
     FiAlertTriangle, FiXCircle, FiShoppingCart, FiPlus, FiMinus
 } from 'react-icons/fi';
+import { LuBarcode } from 'react-icons/lu';
 import { usePortal, ProduktImWarenkorb } from '@/contexts/PortalContext'; // NEU: Context importieren
 import { toast } from 'sonner'; // NEU: toast importieren
 
 // Typen (unverändert)
-type Urun = Tables<'urunler'> & { kategoriler: Pick<Tables<'kategoriler'>, 'ad'> | null };
+type Urun = Tables<'urunler'> & {
+    kategoriler: Pick<Tables<'kategoriler'>, 'ad'> | null;
+    ean_gtin?: string | null;
+    mindest_bestellmenge?: number | null;
+    mindest_bestellmenge_einheit?: string | null;
+    lieferzeit_werktage?: number | null;
+    hersteller_name?: string | null;
+};
 
 interface PortalUrunDetayProps {
     urun: Urun;
@@ -145,7 +153,20 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                          <div>
                             {kategorieAdi && <p className="font-sans text-sm text-gray-500 mb-1 uppercase tracking-wider">{kategorieAdi}</p>}
                             <h1 className="text-3xl lg:text-4xl font-serif text-primary">{urunAdi}</h1>
-                            {urun.stok_kodu && <p className="text-xs text-gray-400 font-mono mt-1">Art.-Nr.: {urun.stok_kodu}</p>}
+                            <div className="flex flex-wrap gap-3 mt-1">
+                                {urun.stok_kodu && (
+                                    <span className="text-xs text-gray-400 font-mono flex items-center gap-1">
+                                        <FiClipboard size={11} />
+                                        Art.-Nr.: {urun.stok_kodu}
+                                    </span>
+                                )}
+                                {(urun as any).ean_gtin && (
+                                    <span className="text-xs text-gray-400 font-mono flex items-center gap-1">
+                                        <LuBarcode size={11} />
+                                        EAN: {(urun as any).ean_gtin}
+                                    </span>
+                                )}
+                            </div>
                          </div>
 
                          {/* Preis und Lager (unverändert) */}
@@ -204,7 +225,7 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
 
 
                          {/* Beschreibung (unverändert) */}
-                         {aciklama && (
+                         {aciklama && typeof aciklama === 'string' && aciklama !== 'Unbenannt' && aciklama.trim() !== '' && (
                             <div className="prose prose-sm max-w-none text-text-main" dangerouslySetInnerHTML={{ __html: aciklama.replace(/\n/g, '<br />') }} />
                          )}
 
@@ -219,6 +240,70 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                                              <span className="font-semibold text-primary">{item.value}{item.suffix || ''}</span>
                                          </div>
                                      ))}
+                                 </div>
+                             </div>
+                         )}
+
+                         {/* Sabit lojistik bilgiler */}
+                         {((urun as any).koli_ici_adet || (urun as any).palet_ici_adet || (urun as any).birim_agirlik_kg ||
+                           (urun as any).mindest_bestellmenge || (urun as any).lieferzeit_werktage || (urun as any).hersteller_name) && (
+                             <div className="border-t pt-6 mt-2">
+                                 <h3 className="font-bold font-sans tracking-wider uppercase mb-3 text-primary text-sm">
+                                     {locale === 'de' ? 'Logistik & Lieferung' : 'Lojistik & Teslimat'}
+                                 </h3>
+                                 <div className="space-y-1">
+                                     {(urun as any).koli_ici_adet && (
+                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
+                                             <span className="text-text-main/70">
+                                                 {locale === 'de' ? 'Stück/Karton' : 'Adet/Koli'}
+                                             </span>
+                                             <span className="font-semibold text-primary">{(urun as any).koli_ici_adet}</span>
+                                         </div>
+                                     )}
+                                     {(urun as any).palet_ici_adet && (
+                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
+                                             <span className="text-text-main/70">
+                                                 {locale === 'de' ? 'Kartons/Palette' : 'Koli/Palet'}
+                                             </span>
+                                             <span className="font-semibold text-primary">{(urun as any).palet_ici_adet}</span>
+                                         </div>
+                                     )}
+                                     {(urun as any).birim_agirlik_kg && (
+                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
+                                             <span className="text-text-main/70">
+                                                 {locale === 'de' ? 'Gewicht/Einheit' : 'Birim Ağırlık'}
+                                             </span>
+                                             <span className="font-semibold text-primary">{(urun as any).birim_agirlik_kg} kg</span>
+                                         </div>
+                                     )}
+                                     {(urun as any).mindest_bestellmenge && (
+                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
+                                             <span className="text-text-main/70">
+                                                 {locale === 'de' ? 'Mindestbestellmenge' : 'Min. Sipariş Miktarı'}
+                                             </span>
+                                             <span className="font-semibold text-primary">
+                                                 {(urun as any).mindest_bestellmenge} {(urun as any).mindest_bestellmenge_einheit || ''}
+                                             </span>
+                                         </div>
+                                     )}
+                                     {(urun as any).lieferzeit_werktage && (
+                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
+                                             <span className="text-text-main/70">
+                                                 {locale === 'de' ? 'Lieferzeit' : 'Teslimat Süresi'}
+                                             </span>
+                                             <span className="font-semibold text-primary">
+                                                 {(urun as any).lieferzeit_werktage} {locale === 'de' ? 'Werktage' : 'iş günü'}
+                                             </span>
+                                         </div>
+                                     )}
+                                     {(urun as any).hersteller_name && (
+                                         <div className="flex justify-between items-center py-1.5 text-sm">
+                                             <span className="text-text-main/70">
+                                                 {locale === 'de' ? 'Hersteller' : 'Üretici'}
+                                             </span>
+                                             <span className="font-semibold text-primary">{(urun as any).hersteller_name}</span>
+                                         </div>
+                                     )}
                                  </div>
                              </div>
                          )}

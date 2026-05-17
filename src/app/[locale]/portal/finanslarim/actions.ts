@@ -71,6 +71,49 @@ export async function deleteGiderAction(giderId: string, locale: string) {
   return { success: true };
 }
 
+export async function addKategoriAction(ad: string, locale: string) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Oturum bulunamadı.' };
+
+  if (!ad || ad.trim().length === 0) {
+    return { success: false, error: 'Kategori adı gereklidir.' };
+  }
+
+  const { error } = await supabase
+    .from('alt_bayi_gider_kategorileri')
+    .insert({ sahip_id: user.id, ad: ad.trim() })
+    .single();
+
+  if (error) {
+    if (error.message.includes('duplicate')) {
+      return { success: false, error: 'Bu kategori zaten mevcut.' };
+    }
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath(`/${locale}/portal/finanslarim`);
+  return { success: true };
+}
+
+export async function getKategorilerAction() {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Oturum bulunamadı.', kategoriler: [] };
+
+  const { data, error } = await supabase
+    .from('alt_bayi_gider_kategorileri')
+    .select('ad')
+    .eq('sahip_id', user.id)
+    .order('olusturulma_tarihi', { ascending: true });
+
+  if (error) return { success: false, error: error.message, kategoriler: [] };
+
+  return { success: true, kategoriler: (data || []).map(k => k.ad) };
+}
+
 type AddSatisPayload = {
   bayiFirmaId: string;
   musteriId: string;

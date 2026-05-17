@@ -1,7 +1,6 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
-import { Enums, TablesInsert } from '@/lib/supabase/database.types';
 import { revalidatePath } from 'next/cache';
 import { sendAdminEmail } from '@/lib/email';
 
@@ -11,7 +10,10 @@ export type PartnerApplicationPayload = {
   email: string;
   telefon?: string | null;
   adres?: string | null;
-  vatId?: string | null;
+  kategori?: string | null;
+  sehir?: string | null;
+  ustIdNr?: string | null;
+  steuernummer?: string | null;
   message?: string | null;
   locale?: string;
 };
@@ -29,26 +31,32 @@ export async function submitPartnerApplication(formData: FormData): Promise<{ su
     const supabase = serviceClient();
 
     const unvan         = (formData.get('unvan')          || '').toString().trim();
-    const contact_person= (formData.get('contact_person') || '').toString().trim();
-    const email         = (formData.get('email')          || '').toString().trim();
-    const telefon       = (formData.get('telefon')        || '').toString().trim();
-    const adres         = (formData.get('adres')          || '').toString().trim();
-    const vatId         = (formData.get('vatId')          || '').toString().trim();
-    const message       = (formData.get('message')        || '').toString().trim();
+    const contact_person = (formData.get('contact_person') || '').toString().trim();
+    const email          = (formData.get('email')          || '').toString().trim();
+    const telefon        = (formData.get('telefon')        || '').toString().trim();
+    const adres          = (formData.get('adres')          || '').toString().trim();
+    const kategori       = (formData.get('kategori')       || '').toString().trim();
+    const sehir          = (formData.get('sehir')          || '').toString().trim();
+    const ustIdNr        = (formData.get('ustIdNr')        || '').toString().trim();
+    const steuernummer   = (formData.get('steuernummer')   || '').toString().trim();
+    const message        = (formData.get('message')        || '').toString().trim();
 
-    if (!unvan || !email) {
-      return { success: false, error: 'Zorunlu alanlar eksik.' };
+    if (!unvan || !email || !telefon || !contact_person || !kategori || !sehir) {
+      return { success: false, error: 'Pflichtfelder fehlen.' };
     }
 
-    const insertData: TablesInsert<'firmalar'> = {
+    const insertData = {
       unvan,
       email,
-      telefon:              telefon  || null,
-      adres:                adres    || null,
-      vergi_no:             vatId    || null,
-      status:               'ADAY' as Enums<'firma_status'>,
-      kaynak:               'Web',
-      goruldu:              false,
+      telefon:                telefon   || null,
+      adres:                  adres     || null,
+      yetkili_kisi:           contact_person || null,
+      kategori:               kategori  || null,
+      sehir:                  sehir     || null,
+      vergi_no:               steuernummer || ustIdNr || null,
+      status:                 'ADAY' as any,
+      kaynak:                 'Web',
+      goruldu:                false,
       referans_olarak_goster: false,
     } as any;
 
@@ -90,12 +98,15 @@ export async function submitPartnerApplication(formData: FormData): Promise<{ su
   <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:10px;padding:32px;border:1px solid #e5e7eb">
     <h2 style="margin:0 0 16px;color:#1a1a1a;font-size:20px">🆕 Yeni Web Başvurusu</h2>
     <table style="width:100%;border-collapse:collapse;font-size:14px">
-      <tr><td style="padding:6px 0;font-weight:bold;width:130px">Firma:</td><td>${unvan}</td></tr>
+      <tr><td style="padding:6px 0;font-weight:bold;width:140px">Firma:</td><td>${unvan}</td></tr>
       <tr><td style="padding:6px 0;font-weight:bold">Yetkili Kişi:</td><td>${contact_person || '—'}</td></tr>
       <tr><td style="padding:6px 0;font-weight:bold">E-posta:</td><td><a href="mailto:${email}">${email}</a></td></tr>
       <tr><td style="padding:6px 0;font-weight:bold">Telefon:</td><td>${telefon || '—'}</td></tr>
-      <tr><td style="padding:6px 0;font-weight:bold">Adres:</td><td>${adres || '—'}</td></tr>
-      <tr><td style="padding:6px 0;font-weight:bold">Vergi No:</td><td>${vatId || '—'}</td></tr>
+      <tr><td style="padding:6px 0;font-weight:bold">Betriebsart:</td><td>${kategori || '—'}</td></tr>
+      <tr><td style="padding:6px 0;font-weight:bold">Stadt:</td><td>${sehir || '—'}</td></tr>
+      <tr><td style="padding:6px 0;font-weight:bold">Adresse:</td><td>${adres || '—'}</td></tr>
+      <tr><td style="padding:6px 0;font-weight:bold">USt-IdNr.:</td><td>${ustIdNr || '—'}</td></tr>
+      <tr><td style="padding:6px 0;font-weight:bold">Steuernummer:</td><td>${steuernummer || '—'}</td></tr>
       ${message ? `<tr><td style="padding:6px 0;font-weight:bold;vertical-align:top">Mesaj:</td><td>${message.replace(/\n/g, '<br>')}</td></tr>` : ''}
     </table>
     <div style="margin-top:24px">

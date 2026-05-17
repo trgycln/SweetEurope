@@ -16,6 +16,7 @@ import EtkinlikEkleForm from './etkinlikler/EtkinlikEkleForm';
 import { getDictionary } from '@/dictionaries';
 import { FirmaOzetGrafik } from '@/components/admin/crm/FirmaOzetGrafik';
 import { FirmaSiparisDurumChart } from '@/components/admin/crm/FirmaSiparisDurumChart';
+import { PortalErigimiVerButton } from '@/components/admin/crm/PortalErigimiVerButton';
 
 interface PageProps {
     params: Promise<{ firmaId: string; locale: Locale }>;
@@ -175,6 +176,15 @@ export default async function FirmaOzetPage({ params }: PageProps) {
     const siparisDetay = (siparisDetayRes.data ?? []) as any[];
     const acikGorevler = (gorevAcikRes.data ?? []) as any[];
     const tamamlananGorevSayisi = gorevGecenRes.count ?? 0;
+
+    // Auto-mark as seen when admin views the firm
+    if (firma.goruldu === false && firma.kaynak === 'Web') {
+        supabase
+            .from('firmalar')
+            .update({ goruldu: true })
+            .eq('id', firmaId)
+            .then(() => {});  // fire and forget
+    }
 
     // ── Hesaplamalar ───────────────────────────────────────────────
     const lifetimeCiro = siparislerTum.reduce((s, o) => s + Number(o.toplam_tutar_net || 0), 0);
@@ -420,6 +430,19 @@ export default async function FirmaOzetPage({ params }: PageProps) {
                     </p>
                 </div>
             </div>
+
+            {/* ── Portal Erişimi Ver ── */}
+            {!isCustomer && (
+                <div className="flex justify-end">
+                    <PortalErigimiVerButton
+                        firmaId={firmaId}
+                        firmaUnvan={firma.unvan}
+                        firmaEmail={firma.email}
+                        yetkiliKisi={firma.yetkili_kisi}
+                        locale={locale}
+                    />
+                </div>
+            )}
 
             {/* ── Hızlı İşlemler ── */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3">

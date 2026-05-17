@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { FiArrowLeft, FiUser, FiTruck, FiRefreshCw, FiXCircle, FiLoader, FiPackage, FiImage } from 'react-icons/fi';
+import { FiArrowLeft, FiUser, FiTruck, FiRefreshCw, FiXCircle, FiLoader, FiPackage, FiImage, FiAlertTriangle } from 'react-icons/fi';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -11,6 +11,7 @@ import { Dictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 import { getLocalizedName, formatCurrency, formatDate } from '@/lib/utils';
 import { iptalSiparisAction } from '@/app/actions/siparis-actions';
+import { IptalTalebiModal } from './IptalTalebiModal';
 
 // Typ-Definition bleibt unverändert
 export type SiparisDetay = {
@@ -60,6 +61,10 @@ const getStatusChipClass = (status: string) => {
 export function SiparisDetayClient({ siparis, dictionary, locale }: SiparisDetayClientProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const [iptalModalAcik, setIptalModalAcik] = useState(false);
+    const [iptalEdildi, setIptalEdildi] = useState(
+        siparis.siparis_durumu === 'iptal_talep_edildi'
+    );
 
     // === Lokalisierung ===
     // Texte aus dem Wörterbuch holen
@@ -131,15 +136,20 @@ export function SiparisDetayClient({ siparis, dictionary, locale }: SiparisDetay
                         <button onClick={handleReorder} className="flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-primary rounded-lg shadow-sm hover:bg-bg-subtle transition-all font-bold text-sm">
                             <FiRefreshCw /> {buttonTexts.reorder}
                         </button>
-                        <button
-                            onClick={handleCancelOrder}
-                            disabled={!isCancellable || isPending}
-                            className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg shadow-sm hover:bg-red-700 transition-all font-bold text-sm disabled:bg-red-300 disabled:cursor-not-allowed"
-                            title={!isCancellable ? 'Stornierung nur bei Status "Ausstehend" möglich' : ''} // Tooltip hinzufügen
-                        >
-                            {isPending ? <FiLoader className="animate-spin" /> : <FiXCircle />}
-                            {isPending ? buttonTexts.cancelling : buttonTexts.cancel}
-                        </button>
+                        {!iptalEdildi ? (
+                            <button
+                                onClick={() => setIptalModalAcik(true)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-semibold hover:bg-red-50 transition-colors"
+                            >
+                                <FiXCircle size={16} />
+                                {locale === 'de' ? 'Stornierung anfragen' : 'İptal Talebi'}
+                            </button>
+                        ) : (
+                            <span className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-sm font-semibold">
+                                <FiAlertTriangle size={16} />
+                                {locale === 'de' ? 'Stornierung beantragt' : 'İptal Talep Edildi'}
+                            </span>
+                        )}
                     </div>
                 </div>
             </header>
@@ -198,6 +208,17 @@ export function SiparisDetayClient({ siparis, dictionary, locale }: SiparisDetay
                     </div>
                 </div>
             </div>
+
+            {iptalModalAcik && (
+                <IptalTalebiModal
+                    siparisId={siparis.id}
+                    siparisNo={siparis.id}
+                    firmaId={siparis.firmalar?.unvan || ''}
+                    locale={locale}
+                    onClose={() => setIptalModalAcik(false)}
+                    onSuccess={() => setIptalEdildi(true)}
+                />
+            )}
         </div>
     );
 }

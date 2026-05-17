@@ -3,6 +3,7 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { HedefDuzenleButton } from './HedefDuzenleButton';
 import {
     FiUsers, FiPackage, FiClipboard, FiTrendingUp, FiTrendingDown,
     FiTarget, FiCheckCircle, FiAlertCircle, FiPlus, FiDollarSign,
@@ -29,6 +30,22 @@ const STATUS_CHIP: Record<string, string> = {
     'processing': 'bg-cyan-50 text-cyan-700 border-cyan-200',
     'İptal Edildi': 'bg-red-50 text-red-700 border-red-200',
     'cancelled': 'bg-red-50 text-red-700 border-red-200',
+    'iptal_talep_edildi': 'bg-amber-50 text-amber-700 border-amber-200',
+    'İptal Talep Edildi': 'bg-amber-50 text-amber-700 border-amber-200',
+};
+
+const STATUS_LABEL: Record<string, string> = {
+    'Beklemede': 'Beklemede',
+    'Hazırlanıyor': 'Hazırlanıyor',
+    'Yola Çıktı': 'Yolda',
+    'shipped': 'Yolda',
+    'Teslim Edildi': 'Teslim',
+    'delivered': 'Teslim',
+    'processing': 'İşlemde',
+    'İptal Edildi': 'İptal',
+    'cancelled': 'İptal',
+    'iptal_talep_edildi': 'İptal Talep',
+    'İptal Talep Edildi': 'İptal Talep',
 };
 
 interface Props {
@@ -79,6 +96,7 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
         gorevGecikenRes,            // Geciken görevlerim
         gorevYaklasanRes,           // Yaklaşan görevlerim
         bekleyenTalepRes,           // Bekleyen numune/fiyat talepleri
+        hedeflerRes,                // Hedefler (system_settings)
     ] = await Promise.all([
         supabase.from('siparisler')
             .select('id', { count: 'exact', head: true })
@@ -116,13 +134,14 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
                 .limit(5)
             : Promise.resolve({ data: [], error: null }),
 
-        supabase.from('gorevler').select('id', { count: 'exact', head: true })
-            .eq('atanan_kisi_id', userId)
+        supabase.from('gorevler')
+            .select('id', { count: 'exact', head: true })
+            .or(`atanan_kisi_id.eq.${userId},sahip_id.eq.${userId},olusturan_kisi_id.eq.${userId}`)
             .eq('tamamlandi', false),
 
         supabase.from('gorevler')
             .select('id, baslik, son_tarih, oncelik')
-            .eq('atanan_kisi_id', userId)
+            .or(`atanan_kisi_id.eq.${userId},sahip_id.eq.${userId},olusturan_kisi_id.eq.${userId}`)
             .eq('tamamlandi', false)
             .lt('son_tarih', todayISO)
             .order('son_tarih', { ascending: true })
@@ -130,7 +149,7 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
 
         supabase.from('gorevler')
             .select('id, baslik, son_tarih, oncelik')
-            .eq('atanan_kisi_id', userId)
+            .or(`atanan_kisi_id.eq.${userId},sahip_id.eq.${userId},olusturan_kisi_id.eq.${userId}`)
             .eq('tamamlandi', false)
             .gte('son_tarih', todayISO)
             .lte('son_tarih', thirtyDaysLater)
@@ -141,6 +160,11 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
             .select('id', { count: 'exact', head: true })
             .eq('firma_id', firmaId)
             .in('status', ['Beklemede', 'pending', 'İncelemede']),
+
+        (supabase as any).from('bayi_hedefleri')
+            .select('hedef_ciro, hedef_musteri, hedef_siparis')
+            .eq('firma_id', firmaId)
+            .maybeSingle(),
     ]);
 
     // ── Hesaplamalar
@@ -163,10 +187,11 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
     const bekleyenTalep = bekleyenTalepRes.count ?? 0;
     const sonSiparisler = (gecenSiparislerimRes.data ?? []) as any[];
 
-    // Hedefler (default - sistemde ayar varsa onları kullanabiliriz)
-    const hedefCiro = 10000;
-    const hedefMusteri = 3;
-    const hedefSiparis = 10;
+    // Hedefleri bayi_hedefleri tablosundan oku, yoksa default
+    const hedeflerRow = (hedeflerRes as any)?.data ?? null;
+    const hedefCiro = Number(hedeflerRow?.hedef_ciro ?? 10000);
+    const hedefMusteri = Number(hedeflerRow?.hedef_musteri ?? 3);
+    const hedefSiparis = Number(hedeflerRow?.hedef_siparis ?? 10);
 
     const ciroPct = Math.min(100, Math.round((buAyCiro / hedefCiro) * 100));
     const musteriPct = Math.min(100, Math.round((yeniMusteriBuAy / hedefMusteri) * 100));
@@ -202,20 +227,25 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
                         label: 'Bu Ay Satışlar', value: fmt(buAyCiro), bg: 'bg-[#E6F1FB]', text: 'text-blue-800',
                         sub: ciroDelta !== null ? `${ciroDelta > 0 ? '+' : ''}${ciroDelta}% geçen ay` : 'Geçen ay verisi yok',
                         icon: ciroDelta !== null && ciroDelta > 0 ? <FiTrendingUp size={13} /> : ciroDelta !== null && ciroDelta < 0 ? <FiTrendingDown size={13} /> : null,
+                        href: `/${locale}/portal/raporlar`,
                     },
-                    { label: 'Sipariş Adedi', value: String(buAySiparisAdedi), bg: 'bg-[#EAF3DE]', text: 'text-green-800', sub: 'Bu ay müşteri sipariş', icon: <FiPackage size={13} /> },
-                    { label: 'Aktif Müşteri', value: String(aktifMusteri), bg: 'bg-[#FAEEDA]', text: 'text-orange-800', sub: `${toplamFunnel} toplam temas`, icon: <FiUsers size={13} /> },
-                    { label: 'Açık Görev', value: String(gorevAcik), bg: 'bg-[#FCEBEB]', text: gecikenGorevler.length > 0 ? 'text-red-700' : 'text-slate-800', sub: gecikenGorevler.length > 0 ? `${gecikenGorevler.length} geciken` : 'Görev sayım', icon: <FiClipboard size={13} /> },
-                    { label: 'Bekleyen Talep', value: String(bekleyenTalep + kendiAcikSiparis), bg: 'bg-slate-100', text: 'text-slate-800', sub: 'Numune + bekleyen', icon: <FiAlertCircle size={13} /> },
+                    { label: 'Sipariş Adedi', value: String(buAySiparisAdedi), bg: 'bg-[#EAF3DE]', text: 'text-green-800', sub: 'Bu ay müşteri sipariş', icon: <FiPackage size={13} />, href: `/${locale}/portal/siparisler` },
+                    { label: 'Aktif Müşteri', value: String(aktifMusteri), bg: 'bg-[#FAEEDA]', text: 'text-orange-800', sub: `${toplamFunnel} toplam temas`, icon: <FiUsers size={13} />, href: `/${locale}/portal/musterilerim` },
+                    { label: 'Açık Görev', value: String(gorevAcik), bg: 'bg-[#FCEBEB]', text: gecikenGorevler.length > 0 ? 'text-red-700' : 'text-slate-800', sub: gecikenGorevler.length > 0 ? `${gecikenGorevler.length} geciken` : 'Görev sayım', icon: <FiClipboard size={13} />, href: `/${locale}/portal/gorevlerim` },
+                    { label: 'Bekleyen Talep', value: String(bekleyenTalep + kendiAcikSiparis), bg: 'bg-slate-100', text: 'text-slate-800', sub: 'Numune + bekleyen', icon: <FiAlertCircle size={13} />, href: `/${locale}/portal/taleplerim` },
                 ].map(c => (
-                    <div key={c.label} className={`rounded-xl border border-slate-200/60 px-4 py-3.5 ${c.bg}`}>
+                    <Link
+                        key={c.label}
+                        href={c.href}
+                        className={`rounded-xl border border-slate-200/60 px-4 py-3.5 ${c.bg} hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer block`}
+                    >
                         <div className="flex items-center justify-between">
                             <p className={`text-xl font-bold ${c.text}`}>{c.value}</p>
                             {c.icon && <span className={`${c.text} opacity-60`}>{c.icon}</span>}
                         </div>
                         <p className="text-[12px] font-medium text-slate-600 mt-0.5">{c.label}</p>
                         {c.sub && <p className="text-[10px] text-slate-400 mt-0.5">{c.sub}</p>}
-                    </div>
+                    </Link>
                 ))}
             </div>
 
@@ -247,7 +277,13 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
                         <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
                             <FiTarget size={14} className="text-blue-500" /> Aylık Hedef Takibi
                         </p>
-                        <span className="text-[10px] text-slate-400">Bu Ay</span>
+                        <HedefDuzenleButton
+                            firmaId={firmaId}
+                            locale={locale}
+                            hedefCiro={hedefCiro}
+                            hedefMusteri={hedefMusteri}
+                            hedefSiparis={hedefSiparis}
+                        />
                     </div>
                     <div className="space-y-4">
                         {[
@@ -368,7 +404,7 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
                                             </div>
                                             <div className="flex items-center gap-2 flex-shrink-0">
                                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${STATUS_CHIP[s.siparis_durumu] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
-                                                    {s.siparis_durumu}
+                                                    {STATUS_LABEL[s.siparis_durumu] ?? s.siparis_durumu}
                                                 </span>
                                                 <span className="font-bold text-slate-700">{fmt(s.toplam_tutar_net)}</span>
                                             </div>

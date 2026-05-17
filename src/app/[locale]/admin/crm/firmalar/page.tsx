@@ -23,6 +23,7 @@ interface PageProps {
         posta_kodu?: string;
         ticari_tip?: string;
         temassiz?: string;
+        kaynak?: string;
     }>;
 }
 
@@ -64,6 +65,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     const districtFilter = sp.district || '';
     const plzFilter = sp.posta_kodu || '';
     const temassizFilter = sp.temassiz === '1';
+    const kaynakFilter = sp.kaynak || '';
 
     // --- Location options for dropdowns ---
     let locationQuery = supabase
@@ -156,13 +158,16 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
         const cutoff = new Date(thirtyDaysAgo).toISOString();
         query = query.or(`son_etkilesim_tarihi.is.null,son_etkilesim_tarihi.lt.${cutoff}`);
     }
+    if (kaynakFilter === 'web') {
+        query = query.eq('kaynak', 'Web').eq('goruldu', false);
+    }
 
     if (ticariTipFilter) {
         query = query.eq('ticari_tip', ticariTipFilter);
     } else {
         query = query
             .or('ticari_tip.eq.musteri,ticari_tip.is.null')
-            .not('kategori', 'eq', 'Alt Bayi')
+            .or('kategori.neq.Alt Bayi,kategori.is.null')
             .is('sahip_id', null);
     }
 
@@ -218,6 +223,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
                     currentPlz={plzFilter}
                     temassizActive={temassizFilter}
                     hasLocationFilter={hasLocationFilter}
+                    kaynakFilter={kaynakFilter}
                     cityOptions={uniqueCities}
                     districtOptions={uniqueDistricts}
                     zipCodeOptions={uniqueZipCodes}

@@ -24,7 +24,7 @@ export async function submitContactForm(
     const { sendNotification } = await import('@/lib/notificationUtils');
     await sendNotification({
       aliciRol: ['Yönetici', 'Ekip Üyesi'] as any,
-      icerik: `💬 İletişim formu mesajı: ${name} (${email})`,
+      icerik: `💬 ${name} (${email}): "${message.length > 100 ? message.slice(0, 100) + '...' : message}"`,
       supabaseClient: supabase as any,
     });
   } catch (notifErr) {

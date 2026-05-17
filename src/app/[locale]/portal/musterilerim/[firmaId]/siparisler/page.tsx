@@ -181,7 +181,7 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
                                         <tr key={siparis.id} className="hover:bg-gray-50/50 transition-colors">
                                             <td className="px-4 py-4 whitespace-nowrap">
                                                 <Link
-                                                    href={`/${locale}/portal/siparislerim/${siparis.id}`}
+                                                    href={`/${locale}/portal/siparisler/${siparis.id}`}
                                                     className="font-bold text-accent hover:underline"
                                                 >
                                                     #{siparis.id.substring(0, 8).toUpperCase()}

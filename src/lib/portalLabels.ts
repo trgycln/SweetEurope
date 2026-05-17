@@ -626,14 +626,15 @@ export function formatLocaleDate(d: Date | string, locale: string, opts?: Intl.D
 /**
  * Para birimi formatı. Locale'a göre.
  */
-export function formatCurrency(v: number | null | undefined, locale: string, opts?: { maximumFractionDigits?: number }): string {
+export function formatCurrency(v: number | null | undefined, locale: string, opts?: { maximumFractionDigits?: number; minimumFractionDigits?: number }): string {
     const localeMap: Record<string, string> = {
         de: 'de-DE', en: 'en-US', tr: 'tr-TR', ar: 'ar-EG',
     };
     return new Intl.NumberFormat(localeMap[locale] || 'de-DE', {
         style: 'currency',
         currency: 'EUR',
-        maximumFractionDigits: opts?.maximumFractionDigits ?? 0,
+        minimumFractionDigits: opts?.minimumFractionDigits ?? 2,
+        maximumFractionDigits: opts?.maximumFractionDigits ?? 2,
     }).format(v ?? 0);
 }
 

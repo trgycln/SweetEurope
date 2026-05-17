@@ -31,11 +31,11 @@ export async function sendAdminEmail({
 
   try {
     await resend.emails.send({
-      from: 'ElysonSweets Bildirim <onboarding@resend.dev>',
+      from: 'ElysonSweets <info@elysonsweets.de>',
       to: ADMIN_EMAIL,
       subject,
       html,
-      ...(replyTo ? { reply_to: replyTo } : {}),
+      reply_to: replyTo || 'elysonsweets@gmail.com',
     });
   } catch (err) {
     console.error('[email] Gönderim hatası:', err);
