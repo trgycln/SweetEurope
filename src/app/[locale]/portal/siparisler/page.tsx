@@ -1,109 +1,114 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'; // Korrekter Import für SSR
-import { cookies } from 'next/headers'; // Cookies importieren
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 import { SiparislerClient } from '@/components/portal/siparisler/SiparislerClient';
 import { Enums } from '@/lib/supabase/database.types';
+import { unstable_noStore as noStore } from 'next/cache';
 
 const ORDERS_PER_PAGE = 20;
-const OFFENE_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
 
-// Definieren des Props-Typs außerhalb der Funktion
 type PageProps = {
     params: Promise<{ locale: Locale }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-// Die Funktion muss async sein
+export const dynamic = 'force-dynamic';
+
 export default async function PartnerSiparisListPage({ params, searchParams }: PageProps) {
+    noStore();
     const { locale } = await params;
     const resolvedSearchParams = await searchParams;
-    const cookieStore = await cookies(); // Cookies holen
 
-    // Supabase Client korrekt initialisieren
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return cookieStore.get(name)?.value; },
-            },
-        }
-    );
-
-    // Dictionary und User holen (mit await)
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
     const dictionary = await getDictionary(locale);
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return redirect(`/${locale}/login`);
 
-    if (userError || !user) {
-        console.error("Fehler beim Abrufen des Benutzers:", userError);
-        return redirect(`/${locale}/login`);
-    }
+    const { data: profile, error: profileError } = await supabase
+        .from('profiller')
+        .select('firma_id, rol')
+        .eq('id', user.id)
+        .single();
 
-    // Profil holen (mit await)
-    const { data: profile, error: profileError } = await supabase.from('profiller').select('firma_id').eq('id', user.id).single();
+    if (profileError || !profile?.firma_id) return notFound();
 
-    if (profileError || !profile || !profile.firma_id) {
-        console.error("Fehler beim Abrufen des Profils:", profileError);
-        return notFound(); // Oder redirect zum Login mit Fehlermeldung
-    }
     const firmaId = profile.firma_id;
+    const isAltBayi = profile.rol === 'Alt Bayi';
 
-    // SearchParams (await edilmiş resolvedSearchParams üzerinden)
     const page = typeof resolvedSearchParams.page === 'string' ? Number(resolvedSearchParams.page) : 1;
-    const status = typeof resolvedSearchParams.status === 'string' ? resolvedSearchParams.status as Enums<'siparis_durumu'> : undefined;
+    const status = typeof resolvedSearchParams.status === 'string'
+        ? resolvedSearchParams.status as Enums<'siparis_durumu'>
+        : undefined;
     const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : undefined;
-    const filterParam = typeof resolvedSearchParams.filter === 'string' ? resolvedSearchParams.filter : undefined;
+    const tab = typeof resolvedSearchParams.tab === 'string' ? resolvedSearchParams.tab : 'kendi';
 
-    // Abfrage erstellen
-    let query = supabase
-        .from('siparisler')
-        .select('id, siparis_tarihi, toplam_tutar_net, siparis_durumu', { count: 'exact' })
-        .eq('firma_id', firmaId); // firmaId hier verwenden
-
-    // Filter anwenden
-    if (filterParam === 'offen') {
-        query = query.in('siparis_durumu', OFFENE_STATUS);
-    } else if (status) {
-        const validStatuses = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'Teslim Edildi', 'İptal Edildi', 'processing'];
-        if (validStatuses.includes(status)) {
-             query = query.eq('siparis_durumu', status);
-        } else {
-             console.warn(`Ungültiger Statusfilter erhalten: ${status}`);
-        }
-    }
-
-    // ID-Suche mit Text-Casting
-    if (searchQuery) {
-        query = query.like('id::text', `${searchQuery}%`);
-    }
-
-    // Sortierung und Paginierung
     const from = (page - 1) * ORDERS_PER_PAGE;
     const to = from + ORDERS_PER_PAGE - 1;
-    query = query.order('siparis_tarihi', { ascending: false }).range(from, to);
 
-    // Abfrage ausführen (mit await)
-    const { data: siparisler, error, count } = await query;
+    let siparisler: any[] = [];
+    let count = 0;
+    let musteriSiparisler: any[] = [];
+    let musteriCount = 0;
 
-    if (error) {
-        console.error("Partner siparişleri çekilirken hata:", error.message || error);
-        // Hier könnte man den Fehler an eine Fehlerkomponente übergeben
-        // return <ErrorMessage message={error.message} />;
+    // ── Kendi siparişleri ──────────────────────────────────────
+    let kendiQuery = supabase
+        .from('siparisler')
+        .select('id, siparis_tarihi, toplam_tutar_net, siparis_durumu', { count: 'exact' })
+        .eq('firma_id', firmaId);
+
+    if (status) kendiQuery = kendiQuery.eq('siparis_durumu', status);
+    if (searchQuery) kendiQuery = (kendiQuery as any).like('id::text', `${searchQuery}%`);
+    kendiQuery = kendiQuery.order('siparis_tarihi', { ascending: false }).range(from, to);
+
+    const kendiRes = await kendiQuery;
+    siparisler = kendiRes.data || [];
+    count = kendiRes.count || 0;
+
+    // ── Alt bayi müşteri siparişleri ───────────────────────────
+    if (isAltBayi) {
+        const { data: musteriler } = await supabase
+            .from('firmalar')
+            .select('id')
+            .eq('ust_bayi_firma_id', firmaId);
+
+        const musteriIds = (musteriler ?? []).map((m: any) => m.id);
+
+        if (musteriIds.length > 0) {
+            let musteriQuery = supabase
+                .from('siparisler')
+                .select(`
+                    id, siparis_tarihi, toplam_tutar_net, siparis_durumu,
+                    firmalar(unvan)
+                `, { count: 'exact' })
+                .in('firma_id', musteriIds);
+
+            if (status) musteriQuery = musteriQuery.eq('siparis_durumu', status);
+            musteriQuery = musteriQuery.order('siparis_tarihi', { ascending: false }).range(from, to);
+
+            const musteriRes = await musteriQuery;
+            musteriSiparisler = musteriRes.data || [];
+            musteriCount = musteriRes.count || 0;
+        }
     }
 
-    const pageCount = count ? Math.ceil(count / ORDERS_PER_PAGE) : 0;
+    const pageCount = Math.ceil((tab === 'musteri' ? musteriCount : count) / ORDERS_PER_PAGE);
 
-    // Daten an den Client übergeben
     return (
         <SiparislerClient
-            initialSiparisler={siparisler || []}
-            totalCount={count || 0}
+            initialSiparisler={tab === 'musteri' ? musteriSiparisler : siparisler}
+            totalCount={tab === 'musteri' ? musteriCount : count}
             pageCount={pageCount}
             currentPage={page}
             dictionary={dictionary}
             locale={locale}
+            isAltBayi={isAltBayi}
+            activeTab={tab}
+            kendiCount={count}
+            musteriCount={musteriCount}
         />
     );
 }

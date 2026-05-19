@@ -10,13 +10,18 @@ import Link from "next/link";
 import { FiArrowLeft, FiSlash } from "react-icons/fi";
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
-import { Tables, Database, Enums } from "@/lib/supabase/database.types"; // Enums eklendi
+import { Tables, Enums } from "@/lib/supabase/database.types";
 import { unstable_noStore as noStore } from 'next/cache'; // noStore eklendi
 
 export const dynamic = 'force-dynamic'; // Dinamik render zorunlu
 
 // Tipler
-type ProductOption = Pick<Tables<'urunler'>, 'id' | 'ad' | 'satis_fiyati_musteri' | 'satis_fiyati_alt_bayi' | 'stok_miktari'>;
+type ProductOption = Pick<Tables<'urunler'>,
+    'id' | 'ad' | 'stok_kodu' | 'ana_resim_url' |
+    'satis_fiyati_musteri' | 'satis_fiyati_toptanci' |
+    'satis_fiyati_alt_bayi' | 'stok_miktari' |
+    'koli_ici_adet' | 'palet_ici_adet'
+>;
 type FirmaWithFinanz = Tables<'firmalar'> & { firmalar_finansal: Tables<'firmalar_finansal'> | null };
 type FirmaOption = Pick<Tables<'firmalar'>, 'id' | 'unvan'>;
 type UserProfile = Pick<Tables<'profiller'>, 'id' | 'rol'> | null;
@@ -50,7 +55,7 @@ export default async function YeniSiparisPage({ params, searchParams }: YeniSipa
     // --- BİTTİ ---
 
     // Kullanıcı Doğrulama
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         const redirectUrl = `/admin/operasyon/siparisler/yeni${firmaId ? `?firmaId=${firmaId}` : ''}`;
         console.log('Kullanıcı bulunamadı, login sayfasına yönlendiriliyor:', redirectUrl);
@@ -58,46 +63,23 @@ export default async function YeniSiparisPage({ params, searchParams }: YeniSipa
     }
 
     // Paralel Veri Çekme İşlemleri
-    const promises = [];
-    let firmaPromise;
+    const firmaPromise = firmaId
+        ? supabase.from('firmalar').select('*, firmalar_finansal(*)').eq('id', firmaId).single()
+        : supabase.from('firmalar').select('id, unvan').not('status', 'eq', 'Pasif').order('unvan');
 
-    if (firmaId) {
-        // Belirli bir firma ve finansal bilgilerini çek
-        firmaPromise = supabase.from('firmalar')
-            .select('*, firmalar_finansal(*)')
-            .eq('id', firmaId)
-            .single();
-    } else {
-        // firmaId yoksa, dropdown için aktif firmaların listesini çek
-        firmaPromise = supabase.from('firmalar')
-            .select('id, unvan')
-            .not('status', 'eq', 'Pasif')
-            .order('unvan')
-            .then(res => ({ data: res.data, error: res.error })); // Tutarlılık için
-    }
-    promises.push(firmaPromise);
+    const urunlerPromise = supabase.from('urunler')
+        .select(`
+            id, ad, stok_kodu, ana_resim_url,
+            satis_fiyati_musteri, satis_fiyati_toptanci,
+            satis_fiyati_alt_bayi, stok_miktari,
+            koli_ici_adet, palet_ici_adet
+        `)
+        .eq('aktif', true)
+        .order(`ad->>${locale}`, { ascending: true, nullsFirst: false });
 
+    const profilPromise = supabase.from('profiller').select('id, rol').eq('id', user.id).single();
 
-    // Aktif ve stokta olan ürünleri çek
-    promises.push(
-        supabase.from('urunler')
-            .select('id, ad, satis_fiyati_musteri, satis_fiyati_alt_bayi, stok_miktari') // stok_miktari eklendi
-            .eq('aktif', true)
-            .gt('stok_miktari', 0)
-            .order(`ad->>${locale}`, { ascending: true, nullsFirst: false })
-            .order(`ad->>de`, { ascending: true, nullsFirst: false }) // Fallback
-    );
-
-    // Kullanıcı profilini (rol için) çek
-    promises.push(
-        supabase.from('profiller')
-            .select('id, rol')
-            .eq('id', user.id)
-            .single()
-    );
-
-    // Tüm sorguları paralel çalıştır
-    const [firmaRes, urunlerRes, profilRes] = await Promise.all(promises);
+    const [firmaRes, urunlerRes, profilRes] = await Promise.all([firmaPromise, urunlerPromise, profilPromise]);
 
     // Sonuçları ve Hataları Ayıkla (Daha detaylı hata loglama ile)
     const firmaResult = firmaRes as { data: FirmaWithFinanz | FirmaOption[] | null, error: any };

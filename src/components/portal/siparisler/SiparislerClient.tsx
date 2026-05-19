@@ -1,8 +1,11 @@
 'use client';
 
+import { useState, useTransition } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FiPackage, FiPlus, FiSearch, FiChevronRight,
-         FiAlertCircle, FiClock, FiCheck, FiTruck, FiX } from 'react-icons/fi';
+         FiAlertCircle, FiClock, FiCheck, FiTruck, FiX,
+         FiArrowRight, FiLoader } from 'react-icons/fi';
+import { siparisDurumGuncelleAction } from '@/app/actions/siparis-actions';
 import Link from 'next/link';
 import { Tables } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
@@ -16,6 +19,10 @@ type SiparislerClientProps = {
     totalCount: number;
     dictionary: Dictionary;
     locale: Locale;
+    isAltBayi?: boolean;
+    activeTab?: string;
+    kendiCount?: number;
+    musteriCount?: number;
 };
 
 const STATUS_CONFIG: Record<string, {
@@ -65,9 +72,60 @@ function formatDate(tarih: string, locale: string) {
     );
 }
 
+const DURUM_AKISI: Record<string, {
+    next: string;
+    label: string;
+    color: string;
+}> = {
+    'Beklemede':    { next: 'Hazırlanıyor',  label: 'Hazırla →',   color: 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200'       },
+    'processing':   { next: 'Hazırlanıyor',  label: 'Hazırla →',   color: 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200'       },
+    'Hazırlanıyor': { next: 'Yola Çıktı',    label: 'Yola Çıkt →', color: 'bg-violet-100 text-violet-700 hover:bg-violet-200 border-violet-200' },
+    'Yola Çıktı':   { next: 'Teslim Edildi', label: 'Teslim Et →', color: 'bg-green-100 text-green-700 hover:bg-green-200 border-green-200'    },
+};
+
+function HizliDurumButonu({
+    siparisId,
+    durum,
+    onUpdate,
+}: {
+    siparisId: string;
+    durum: string;
+    onUpdate: (siparisId: string, yeniDurum: string) => void;
+}) {
+    const [isPending, startTransition] = useTransition();
+    const sonrakiAdim = DURUM_AKISI[durum];
+
+    if (!sonrakiAdim) return null;
+
+    return (
+        <button
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startTransition(async () => {
+                    const result = await siparisDurumGuncelleAction(
+                        siparisId,
+                        sonrakiAdim.next as any
+                    );
+                    if (result.success) {
+                        onUpdate(siparisId, sonrakiAdim.next);
+                    }
+                });
+            }}
+            disabled={isPending}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors flex-shrink-0 ${sonrakiAdim.color} disabled:opacity-50`}
+        >
+            {isPending
+                ? <FiLoader size={11} className="animate-spin" />
+                : sonrakiAdim.label
+            }
+        </button>
+    );
+}
+
 export function SiparislerClient({
     initialSiparisler, pageCount, currentPage,
-    totalCount, dictionary, locale
+    totalCount, locale, isAltBayi, activeTab = 'kendi', kendiCount, musteriCount,
 }: SiparislerClientProps) {
     const router = useRouter();
     const pathname = usePathname();
@@ -87,6 +145,15 @@ export function SiparislerClient({
 
     const activeFilter = searchParams.get('status') || '';
     const hasFilters = searchParams.has('q') || searchParams.has('status');
+
+    // Anlık durum takibi (liste üzerinde güncelleme için)
+    const [durumlar, setDurumlar] = useState<Record<string, string>>(
+        Object.fromEntries(initialSiparisler.map(s => [s.id, s.siparis_durumu]))
+    );
+
+    const handleDurumUpdate = (siparisId: string, yeniDurum: string) => {
+        setDurumlar(prev => ({ ...prev, [siparisId]: yeniDurum }));
+    };
 
     const STATUS_FILTER_OPTIONS = [
         { value: '', label: { de: 'Alle Status', tr: 'Tüm Durumlar' } },
@@ -117,14 +184,63 @@ export function SiparislerClient({
                         }
                     </p>
                 </div>
-                <Link
-                    href={`/${locale}/portal/katalog`}
-                    className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-accent text-white rounded-xl font-bold text-sm hover:bg-accent/90 transition-colors shadow-sm"
-                >
-                    <FiPlus size={16} />
-                    {locale === 'de' ? 'Neue Bestellung' : 'Yeni Sipariş'}
-                </Link>
+                {isAltBayi ? (
+                    activeTab === 'musteri' ? (
+                        <Link
+                            href={`/${locale}/portal/musteri-siparis`}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-bold transition-colors"
+                        >
+                            <FiPlus size={14} />
+                            {locale === 'de' ? 'Kundenbestellung' : 'Müşteri Adına Sipariş'}
+                        </Link>
+                    ) : (
+                        <Link
+                            href={`/${locale}/portal/siparisler/yeni`}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-lg text-sm font-bold transition-colors"
+                        >
+                            <FiPlus size={14} />
+                            {locale === 'de' ? 'Bestellung aufgeben' : 'Tedarikçiye Sipariş Ver'}
+                        </Link>
+                    )
+                ) : (
+                    <Link
+                        href={`/${locale}/portal/siparisler/yeni`}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent/90 text-white rounded-lg text-sm font-bold transition-colors"
+                    >
+                        <FiPlus size={14} />
+                        {locale === 'de' ? 'Neue Bestellung' : 'Yeni Sipariş'}
+                    </Link>
+                )}
             </div>
+
+            {/* Alt bayi tab seçimi */}
+            {isAltBayi && (
+                <div className="flex gap-2 border-b border-gray-100 pb-0">
+                    {[
+                        { key: 'kendi', label: locale === 'de' ? 'Meine Bestellungen' : 'Kendi Siparişlerim', count: kendiCount ?? 0 },
+                        { key: 'musteri', label: locale === 'de' ? 'Kundenbestellungen' : 'Müşteri Siparişleri', count: musteriCount ?? 0 },
+                    ].map(t => (
+                        <a
+                            key={t.key}
+                            href={`?tab=${t.key}`}
+                            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+                                activeTab === t.key
+                                    ? 'border-accent text-accent'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                            }`}
+                        >
+                            {t.label}
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                                activeTab === t.key
+                                    ? 'bg-accent/10 text-accent'
+                                    : 'bg-gray-100 text-gray-500'
+                            }`}>
+                                {t.count}
+                            </span>
+                        </a>
+                    ))}
+                </div>
+            )}
 
             {/* Filtreler */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
@@ -163,7 +279,9 @@ export function SiparislerClient({
             {/* Sipariş listesi */}
             <div className="space-y-2">
                 {initialSiparisler.length > 0 ? (
-                    initialSiparisler.map(siparis => (
+                    initialSiparisler.map(siparis => {
+                        const mevcutDurum = durumlar[siparis.id] ?? siparis.siparis_durumu;
+                        return (
                         <Link
                             key={siparis.id}
                             href={`/${locale}/portal/siparisler/${siparis.id}`}
@@ -172,10 +290,10 @@ export function SiparislerClient({
                             <div className="flex items-center gap-4 p-4">
                                 {/* Sol: Status ikonu */}
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                    STATUS_CONFIG[siparis.siparis_durumu]?.bg || 'bg-gray-100'
+                                    STATUS_CONFIG[mevcutDurum]?.bg || 'bg-gray-100'
                                 }`}>
-                                    <span className={STATUS_CONFIG[siparis.siparis_durumu]?.text || 'text-gray-500'}>
-                                        {STATUS_CONFIG[siparis.siparis_durumu]?.icon || <FiPackage size={16} />}
+                                    <span className={STATUS_CONFIG[mevcutDurum]?.text || 'text-gray-500'}>
+                                        {STATUS_CONFIG[mevcutDurum]?.icon || <FiPackage size={16} />}
                                     </span>
                                 </div>
 
@@ -185,15 +303,52 @@ export function SiparislerClient({
                                         <span className="font-mono text-sm font-bold text-gray-800">
                                             #{siparis.id.substring(0, 8).toUpperCase()}
                                         </span>
-                                        <StatusChip status={siparis.siparis_durumu} locale={locale} />
+                                        <StatusChip status={mevcutDurum} locale={locale} />
                                     </div>
+                                    {/* Mini progress indicator */}
+                                    {(() => {
+                                        const steps: Record<string, number> = {
+                                            'Beklemede': 1, 'Hazırlanıyor': 2, 'processing': 2,
+                                            'Yola Çıktı': 3, 'shipped': 3,
+                                            'Teslim Edildi': 4, 'delivered': 4,
+                                        };
+                                        const step = steps[mevcutDurum] ?? 0;
+                                        if (step === 0) return null;
+                                        return (
+                                            <div className="flex items-center gap-0.5 mt-2">
+                                                {[1, 2, 3, 4].map(i => (
+                                                    <div key={i} className={`h-1 flex-1 rounded-full transition-all ${
+                                                        i <= step
+                                                            ? i === 4 ? 'bg-green-500'
+                                                                : i === 3 ? 'bg-violet-500'
+                                                                : i === 2 ? 'bg-blue-500'
+                                                                : 'bg-amber-400'
+                                                            : 'bg-gray-100'
+                                                    }`} />
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
                                     <p className="text-xs text-gray-400 mt-0.5">
                                         {formatDate(siparis.siparis_tarihi, locale)}
                                     </p>
+                                    {(siparis as any).firmalar?.unvan && (
+                                        <span className="text-[11px] text-gray-400 mt-0.5 block">
+                                            📦 {(siparis as any).firmalar.unvan}
+                                        </span>
+                                    )}
                                 </div>
 
                                 {/* Sağ: Tutar + ok */}
                                 <div className="flex items-center gap-3 flex-shrink-0">
+                                    {/* Hızlı durum güncelleme — sadece alt bayi müşteri siparişlerinde */}
+                                    {isAltBayi && activeTab === 'musteri' && (
+                                        <HizliDurumButonu
+                                            siparisId={siparis.id}
+                                            durum={mevcutDurum}
+                                            onUpdate={handleDurumUpdate}
+                                        />
+                                    )}
                                     <div className="text-right">
                                         <p className="font-bold text-gray-800 text-sm">
                                             {formatFiyat(siparis.toplam_tutar_net, locale)}
@@ -209,7 +364,8 @@ export function SiparislerClient({
                                 </div>
                             </div>
                         </Link>
-                    ))
+                        );
+                    })
                 ) : (
                     /* Boş durum */
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">

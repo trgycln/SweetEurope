@@ -1,85 +1,97 @@
-// src/app/[locale]/portal/siparisler/[siparisId]/page.tsx
-// KORRIGIERTE VERSION (await cookies + await createClient)
-
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import { getDictionary } from "@/dictionaries";
 import { Locale } from "@/i18n-config";
 import { SiparisDetayClient, SiparisDetay } from "@/components/portal/siparisler/SiparisDetayClient";
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { cookies } from 'next/headers';
+import { unstable_noStore as noStore } from 'next/cache';
 
-export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
+export const dynamic = 'force-dynamic';
 
 export default async function PartnerSiparisDetayPage({
     params
 }: {
-    params: Promise<{ siparisId: string, locale: Locale }>
+    params: Promise<{ siparisId: string; locale: Locale }>
 }) {
-    noStore(); // Caching deaktivieren
+    noStore();
     const { locale, siparisId } = await params;
-    
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
 
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
     const dictionary = await getDictionary(locale);
 
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
-    if (!user) {
-        return redirect(`/${locale}/login`);
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase
         .from('profiller')
-        .select('firma_id')
+        .select('firma_id, rol')
         .eq('id', user.id)
         .single();
-        
-    // Profil oder Firma-ID-Prüfung
-    if (!profile || !profile.firma_id) {
-        console.error(`Profil oder Firma-ID nicht gefunden für Benutzer ${user.id} auf Portal-Bestelldetailseite.`);
+
+    if (!profile?.firma_id) {
+        console.error(`Profil bulunamadı: ${user.id}`);
         return notFound();
     }
 
-    // Bestellung abrufen
-    // Stellt sicher, dass die Bestellung existiert UND zur Firma des Benutzers gehört
+    // Siparişi getir (firma_id kontrolü olmadan)
     const { data: siparis, error } = await supabase
         .from('siparisler')
         .select(`
             id,
+            firma_id,
             siparis_tarihi,
             toplam_tutar_net,
             toplam_tutar_brut,
             kdv_orani,
             siparis_durumu,
             teslimat_adresi,
-            firmalar ( unvan, adres ), 
+            firmalar ( unvan, adres ),
             siparis_detay (
                 id,
-                urun_id, 
-                miktar, 
+                urun_id,
+                miktar,
                 birim_fiyat,
                 toplam_fiyat,
                 urunler ( ad, stok_kodu, ana_resim_url )
             )
         `)
         .eq('id', siparisId)
-        .eq('firma_id', profile.firma_id) // WICHTIGE Sicherheitsprüfung (RLS sollte dies auch tun)
-        .single(); // Erwartet genau ein Ergebnis
-    
+        .single();
+
     if (error || !siparis) {
-        console.error(`Fehler beim Laden der Bestelldetails ${siparisId} für Firma ${profile.firma_id}:`, error);
-        return notFound(); // Zeigt 404, wenn Bestellung nicht gefunden oder nicht zur Firma gehört
+        console.error(`Sipariş bulunamadı: ${siparisId}`, error);
+        return notFound();
     }
-    
+
+    // Güvenlik kontrolü
+    const kendiSiparisi = siparis.firma_id === profile.firma_id;
+
+    let yetkili = kendiSiparisi;
+
+    // Alt bayi kendi müşterisinin siparişini görebilir
+    if (!yetkili && profile.rol === 'Alt Bayi') {
+        const { data: musteriData } = await (supabase as any)
+            .from('firmalar')
+            .select('ust_bayi_firma_id')
+            .eq('id', siparis.firma_id)
+            .single();
+
+        yetkili = (musteriData as any)?.ust_bayi_firma_id === profile.firma_id;
+    }
+
+    if (!yetkili) {
+        console.error(`Yetkisiz erişim: ${user.id} → ${siparisId}`);
+        return notFound();
+    }
+
     return (
         <SiparisDetayClient
-            // Verwende den korrekten Typ aus der Client-Komponente
-            siparis={siparis as unknown as SiparisDetay} 
+            siparis={siparis as unknown as SiparisDetay}
             dictionary={dictionary}
             locale={locale}
+            userRole={profile.rol}
+            bayiSiparisi={profile.rol === 'Alt Bayi' && siparis.firma_id !== profile.firma_id}
         />
     );
 }

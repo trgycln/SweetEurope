@@ -11,6 +11,16 @@ export async function addMyCustomerAction(formData: FormData, locale: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
+  // Kullanıcının profil ve firma bilgisini al
+  const { data: profile } = await supabase
+      .from('profiller')
+      .select('rol, firma_id')
+      .eq('id', user.id)
+      .single();
+
+  const isAltBayi = profile?.rol === 'Alt Bayi';
+  const bayiFirmaId = profile?.firma_id ?? null;
+
   const unvan = (formData.get('unvan') || '').toString().trim();
   const telefon = (formData.get('telefon') || '').toString().trim() || null;
   const email = (formData.get('email') || '').toString().trim() || null;
@@ -85,7 +95,8 @@ export async function addMyCustomerAction(formData: FormData, locale: string) {
       status: 'ADAY',
       oncelik_puani: score,
       ticari_tip: 'musteri',
-      goruldu: true
+      goruldu: true,
+      ust_bayi_firma_id: isAltBayi ? bayiFirmaId : null,
     });
 
   if (error) {

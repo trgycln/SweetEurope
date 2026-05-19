@@ -16,7 +16,8 @@ export type ProduktImWarenkorb = Tables<'urunler'> & {
 };
 export type SepetUrunu = {
     produkt: ProduktImWarenkorb;
-    menge: number;
+    menge: number;       // koli modunda: koli sayısı, adet modunda: adet sayısı
+    birim: 'koli' | 'adet' | 'palet';  // varsayılan: 'koli'
 };
 
 // --- Context Typ erweitern ---
@@ -31,9 +32,10 @@ interface PortalContextType {
     warenkorb: SepetUrunu[];
 
     // Warenkorb-Funktionen
-    addToWarenkorb: (produkt: ProduktImWarenkorb, menge?: number) => void;
+    addToWarenkorb: (produkt: ProduktImWarenkorb, menge?: number, birim?: 'koli' | 'adet' | 'palet') => void;
     removeFromWarenkorb: (produktId: string) => void;
     updateWarenkorbMenge: (produktId: string, neueMenge: number) => void;
+    updateWarenkorbBirim: (produktId: string, birim: 'koli' | 'adet' | 'palet') => void;
     clearWarenkorb: () => void;
     getGesamtMengeImWarenkorb: () => number;
     // ++ NEUE FUNKTION ++
@@ -43,11 +45,11 @@ interface PortalContextType {
 const PortalContext = createContext<PortalContextType | null>(null);
 
 // --- Provider Implementierung ---
-export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb'> }) {
+export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb'> }) {
     const [warenkorb, setWarenkorb] = useState<SepetUrunu[]>([]);
 
     // addToWarenkorb (Logik für bestehende Artikel bleibt additiv)
-     const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1) => {
+     const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1, birim: 'koli' | 'adet' | 'palet' = 'koli') => {
          setWarenkorb(prevWarenkorb => {
              const existingItemIndex = prevWarenkorb.findIndex(item => item.produkt.id === produkt.id);
              let angeforderteMenge = menge; // Menge, die hinzugefügt werden soll
@@ -72,11 +74,11 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
 
                  // Warenkorb aktualisieren
                  const updatedWarenkorb = [...prevWarenkorb];
-                 updatedWarenkorb[existingItemIndex] = { ...updatedWarenkorb[existingItemIndex], menge: neueGesamtMenge };
+                 updatedWarenkorb[existingItemIndex] = { ...updatedWarenkorb[existingItemIndex], menge: neueGesamtMenge, birim };
                  return updatedWarenkorb;
              } else {
                  // Produkt ist neu, hinzufügen (angeforderteMenge wurde bereits geprüft)
-                 return [...prevWarenkorb, { produkt, menge: angeforderteMenge }];
+                 return [...prevWarenkorb, { produkt, menge: angeforderteMenge, birim }];
              }
          });
      }, []);
@@ -114,6 +116,16 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
         });
     }, []);
 
+    const updateWarenkorbBirim = useCallback((produktId: string, birim: 'koli' | 'adet' | 'palet') => {
+        setWarenkorb(prevWarenkorb =>
+            prevWarenkorb.map(item =>
+                item.produkt.id === produktId
+                    ? { ...item, birim, menge: 1 }
+                    : item
+            )
+        );
+    }, []);
+
     // Funktion zum Leeren des Warenkorbs
     const clearWarenkorb = useCallback(() => {
         setWarenkorb([]);
@@ -137,6 +149,7 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
         addToWarenkorb,
         removeFromWarenkorb,
         updateWarenkorbMenge,
+        updateWarenkorbBirim,
         clearWarenkorb,
         getGesamtMengeImWarenkorb,
         setInitialWarenkorb, // Neue Funktion hinzufügen

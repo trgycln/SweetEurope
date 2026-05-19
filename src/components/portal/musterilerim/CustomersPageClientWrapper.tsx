@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { FiPlus } from 'react-icons/fi';
 import { CustomersPageClient } from './CustomersPageClient';
 import { CustomerFormModal } from './CustomerFormModal';
@@ -29,6 +30,8 @@ interface CustomersPageClientWrapperProps {
     districtOptions?: string[];
     zipCodeOptions?: string[];
     zipCodeLabels?: Record<string, string>;
+    bayiFirmaId?: string;
+    isAltBayi?: boolean;
 }
 
 export function CustomersPageClientWrapper({
@@ -41,7 +44,9 @@ export function CustomersPageClientWrapper({
     cityOptions,
     districtOptions,
     zipCodeOptions,
-    zipCodeLabels
+    zipCodeLabels,
+    bayiFirmaId,
+    isAltBayi,
 }: CustomersPageClientWrapperProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -53,13 +58,23 @@ export function CustomersPageClientWrapper({
                     <h1 className="font-serif text-4xl font-bold text-primary">{labels.title}</h1>
                     <p className="text-text-main/80 mt-1">{customers.length} {labels.totalCustomers}</p>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto"
-                >
-                    <FiPlus size={18} />
-                    {labels.addCustomerButton}
-                </button>
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    {isAltBayi && (
+                        <Link
+                            href={`/${locale}/portal/musteri-siparis`}
+                            className="flex items-center justify-center gap-2 px-5 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-all font-bold text-sm"
+                        >
+                            🛒 Müşteri Adına Sipariş
+                        </Link>
+                    )}
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm w-full sm:w-auto"
+                    >
+                        <FiPlus size={18} />
+                        {labels.addCustomerButton}
+                    </button>
+                </div>
             </header>
 
             {/* Customers List */}
@@ -80,6 +95,8 @@ export function CustomersPageClientWrapper({
                 districtOptions={districtOptions}
                 zipCodeOptions={zipCodeOptions}
                 zipCodeLabels={zipCodeLabels}
+                bayiFirmaId={bayiFirmaId}
+                isAltBayi={isAltBayi}
             />
 
             {/* Add Customer Modal */}

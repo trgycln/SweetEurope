@@ -52,6 +52,16 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return redirect(`/${locale}/login`);
 
+  const { data: profile } = await supabase
+    .from('profiller')
+    .select('rol, firma_id')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile?.firma_id) return redirect(`/${locale}/portal/dashboard`);
+  const bayiFirmaId = profile.firma_id;
+  const isAltBayi = profile.rol === 'Alt Bayi';
+
   // Extract filter values
   const searchQuery = searchParamsResolved.q || '';
   const statusFilter = searchParamsResolved.status || '';
@@ -64,7 +74,7 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
   const { data: locationData } = await supabase
     .from('firmalar')
     .select('sehir, ilce, posta_kodu')
-    .eq('sahip_id', user.id);
+    .eq(isAltBayi ? 'ust_bayi_firma_id' : 'sahip_id', isAltBayi ? bayiFirmaId : user.id);
 
   const uniqueCities = Array.from(new Set(locationData?.map(f => f.sehir?.trim()).filter(Boolean))).sort() as string[];
   const uniqueDistricts = Array.from(new Set(locationData?.map(f => f.ilce?.trim()).filter(Boolean))).sort() as string[];
@@ -87,27 +97,34 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
   let query = supabase
     .from('firmalar')
     .select(`
-      id, 
-      unvan, 
-      telefon, 
-      email, 
-      kategori, 
-      status, 
-      created_at,
-      adres,
-      sehir,
-      ilce,
-      posta_kodu,
-      kaynak,
-      oncelik,
-      oncelik_puani,
-      etiketler,
-      son_etkilesim_tarihi,
-      google_maps_url,
-      instagram_url
+        id,
+        unvan,
+        telefon,
+        email,
+        kategori,
+        status,
+        created_at,
+        adres,
+        sehir,
+        ilce,
+        posta_kodu,
+        kaynak,
+        oncelik,
+        oncelik_puani,
+        etiketler,
+        son_etkilesim_tarihi,
+        google_maps_url,
+        instagram_url,
+        ust_bayi_firma_id
     `)
-    .eq('sahip_id', user.id)
-    .or('ticari_tip.eq.musteri,ticari_tip.is.null');
+    .eq(
+      isAltBayi ? 'ust_bayi_firma_id' : 'sahip_id',
+      isAltBayi ? bayiFirmaId : user.id
+    );
+
+  if (!isAltBayi) {
+    query = (query as any).or('ticari_tip.eq.musteri,ticari_tip.is.null');
+  }
 
   // Yalnızca kesin eşleşmeleri DB tarafında filtrele (statü/pkz/öncelik)
   if (statusFilter) {
@@ -163,6 +180,8 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
       districtOptions={uniqueDistricts}
       zipCodeOptions={uniqueZipCodes}
       zipCodeLabels={zipCodeLabels}
+      bayiFirmaId={bayiFirmaId}
+      isAltBayi={isAltBayi}
     />
   );
 }

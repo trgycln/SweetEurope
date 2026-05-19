@@ -11,6 +11,8 @@ interface CustomersPageClientProps {
     districtOptions?: string[];
     zipCodeOptions?: string[];
     zipCodeLabels?: Record<string, string>;
+    bayiFirmaId?: string;
+    isAltBayi?: boolean;
 }
 
 export function CustomersPageClient({
@@ -21,7 +23,9 @@ export function CustomersPageClient({
     cityOptions,
     districtOptions,
     zipCodeOptions,
-    zipCodeLabels
+    zipCodeLabels,
+    bayiFirmaId,
+    isAltBayi,
 }: CustomersPageClientProps) {
     return (
         <CustomersList

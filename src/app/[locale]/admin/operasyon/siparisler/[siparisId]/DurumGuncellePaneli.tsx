@@ -1,55 +1,82 @@
-// src/app/admin/operasyon/siparisler/[siparisId]/DurumGuncellePaneli.tsx
 'use client';
 
-import { useTransition } from 'react';
-import { siparisDurumGuncelleAction } from '@/app/actions/siparis-actions'; // Merkezi action'ı kullanıyoruz
+import { useState, useTransition } from 'react';
+import { siparisDurumGuncelleAction } from '@/app/actions/siparis-actions';
 import { toast } from 'sonner';
-import { FiLoader } from 'react-icons/fi';
+import { FiLoader, FiCheck, FiTruck, FiPackage, FiX } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
 
 type SiparisDurumu = Enums<'siparis_durumu'>;
 
 interface Props {
     siparisId: string;
-    mevcutDurum: SiparisDurumu;
+    mevcutDurum: SiparisDurumu | string;
+    locale?: string;
 }
+
+const DURUM_BUTONLARI: {
+    durum: SiparisDurumu;
+    label: string;
+    icon: React.ReactNode;
+    color: string;
+}[] = [
+    { durum: 'Hazırlanıyor', label: 'Hazırlanıyor', icon: <FiPackage size={14} />, color: 'bg-blue-600 hover:bg-blue-700 text-white' },
+    { durum: 'Yola Çıktı',   label: 'Yola Çıktı',  icon: <FiTruck size={14} />,   color: 'bg-violet-600 hover:bg-violet-700 text-white' },
+    { durum: 'Teslim Edildi',label: 'Teslim Edildi',icon: <FiCheck size={14} />,   color: 'bg-green-600 hover:bg-green-700 text-white' },
+    { durum: 'İptal Edildi', label: 'İptal Edildi', icon: <FiX size={14} />,       color: 'bg-red-600 hover:bg-red-700 text-white' },
+];
 
 export default function DurumGuncellePaneli({ siparisId, mevcutDurum }: Props) {
     const [isPending, startTransition] = useTransition();
-    
-    // Değiştirilebilecek durum seçenekleri
-    const durumSecenekleri: SiparisDurumu[] = ['Hazırlanıyor', 'Yola Çıktı', 'Teslim Edildi', 'İptal Edildi'];
+    const [aktifDurum, setAktifDurum] = useState<string>(mevcutDurum);
 
-    const handleDurumDegistir = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const yeniDurum = e.target.value as SiparisDurumu;
-        if (yeniDurum === mevcutDurum) return;
+    const isFinished = aktifDurum === 'Teslim Edildi' || aktifDurum === 'İptal Edildi' || aktifDurum === 'cancelled';
+
+    const handleDurumDegistir = (yeniDurum: SiparisDurumu) => {
+        if (yeniDurum === aktifDurum || isFinished) return;
 
         startTransition(async () => {
             const result = await siparisDurumGuncelleAction(siparisId, yeniDurum);
             if (result.success) {
-                toast.success(result.success);
-            } else if (result.error) {
-                toast.error(result.error);
+                setAktifDurum(yeniDurum);
+                toast.success(`Durum "${yeniDurum}" olarak güncellendi`);
+            } else {
+                toast.error(result.error || 'Hata oluştu');
             }
         });
     };
 
-    // 'Teslim Edildi' veya 'İptal Edildi' durumlarında dropdown'ı devre dışı bırak
-    const isDisabled = mevcutDurum === 'Teslim Edildi' || mevcutDurum === 'İptal Edildi';
+    if (isFinished) {
+        return (
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${
+                aktifDurum === 'Teslim Edildi'
+                    ? 'bg-green-50 border border-green-200 text-green-700'
+                    : 'bg-red-50 border border-red-200 text-red-700'
+            }`}>
+                {aktifDurum === 'Teslim Edildi' ? <FiCheck size={14} /> : <FiX size={14} />}
+                {aktifDurum} — Güncelleme yapılamaz
+            </div>
+        );
+    }
 
     return (
-        <div className="flex items-center gap-2">
-            <select
-                value={mevcutDurum}
-                onChange={handleDurumDegistir}
-                disabled={isPending || isDisabled}
-                className="font-bold text-primary bg-secondary border border-bg-subtle rounded-lg p-3 text-sm focus:ring-2 focus:ring-accent disabled:opacity-70"
-            >
-                {durumSecenekleri.map(durum => (
-                    <option key={durum} value={durum}>{durum}</option>
-                ))}
-            </select>
-            {isPending && <FiLoader className="animate-spin text-accent" />}
+        <div className="flex flex-wrap gap-2">
+            {DURUM_BUTONLARI.map(btn => (
+                <button
+                    key={btn.durum}
+                    onClick={() => handleDurumDegistir(btn.durum)}
+                    disabled={isPending || btn.durum === aktifDurum}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-colors border disabled:cursor-not-allowed ${
+                        btn.durum === aktifDurum
+                            ? `${btn.color} opacity-100 ring-2 ring-offset-1 ring-current`
+                            : `${btn.color} opacity-70 hover:opacity-100 border-transparent`
+                    }`}
+                >
+                    {isPending ? <FiLoader className="animate-spin" size={14} /> : btn.icon}
+                    {btn.label}
+                    {btn.durum === aktifDurum && <FiCheck size={11} className="ml-1" />}
+                </button>
+            ))}
         </div>
     );
 }

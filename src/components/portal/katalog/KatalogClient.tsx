@@ -64,6 +64,25 @@ const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string }> = {
     'Halal': { label: 'Halal', bg: 'bg-teal-50 text-teal-800 border-teal-300' },
 };
 
+type Birim = 'adet' | 'koli' | 'palet';
+
+function getBirimFiyatKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number): number {
+    if (birim === 'palet') {
+        return Number((produkt as any).satis_fiyati_alt_bayi ?? produkt.satis_fiyati_musteri ?? 0);
+    }
+    if (birim === 'koli' && miktar >= 5) {
+        return Number((produkt as any).satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri ?? 0);
+    }
+    return Number(produkt.satis_fiyati_musteri ?? produkt.partnerPreis ?? 0);
+}
+
+function getToplamAdetKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number): number {
+    const koliAdet = Number((produkt as any).koli_ici_adet ?? 1);
+    if (birim === 'palet') return Number((produkt as any).palet_ici_adet ?? koliAdet) * miktar;
+    if (birim === 'koli') return koliAdet * miktar;
+    return miktar;
+}
+
 const formatCurrency = (amount: number | null) => {
     if (amount === null || amount === undefined) return '—';
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
@@ -74,6 +93,176 @@ const getLocalizedName = (adObj: any, locale: Locale, fallback = 'Unbenannt') =>
     if (typeof adObj === 'string') return adObj;
     return adObj[locale] || adObj['de'] || Object.values(adObj)[0] as string || fallback;
 };
+
+// ─── Sepete Ekle Modal ────────────────────────────────────────────────────
+function SepeteEkleModal({
+    produkt,
+    locale,
+    onClose,
+    onAdd,
+}: {
+    produkt: ProduktMitPreis;
+    locale: string;
+    onClose: () => void;
+    onAdd: (miktar: number, birim: Birim) => void;
+}) {
+    const [birim, setBirim] = useState<Birim>('koli');
+    const [miktar, setMiktar] = useState(1);
+
+    const koliAdet = Number((produkt as any).koli_ici_adet ?? 1);
+    const paletAdet = Number((produkt as any).palet_ici_adet ?? 0);
+    const toplamAdet = getToplamAdetKatalog(produkt, birim, miktar);
+    const adetFiyat = getBirimFiyatKatalog(produkt, birim, miktar);
+    const toplamFiyat = toplamAdet * adetFiyat;
+    const produktName = getLocalizedName(produkt.ad, locale as Locale);
+
+    const birimOptions: { key: Birim; labelDe: string; labelTr: string; sub: string }[] = [
+        { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliAdet} adet` },
+        { key: 'adet', labelDe: 'Stück', labelTr: 'Adet', sub: locale === 'de' ? 'Einzeln' : 'Tekli' },
+        ...(paletAdet > 0 ? [{
+            key: 'palet' as Birim,
+            labelDe: 'Palette', labelTr: 'Palet',
+            sub: `${paletAdet} adet`
+        }] : []),
+    ];
+
+    const fiyatKademe = birim === 'palet'
+        ? { label: locale === 'de' ? 'Palettenpreis' : 'Palet fiyatı', color: 'text-purple-700' }
+        : birim === 'koli' && miktar >= 5
+            ? { label: locale === 'de' ? 'Mengenrabatt aktiv ✓' : '5+ koli indirimi ✓', color: 'text-green-600' }
+            : birim === 'koli' && miktar < 5
+                ? { label: locale === 'de' ? `Ab 5 Kartons günstiger` : `5 koli alınca indirim`, color: 'text-amber-600' }
+                : null;
+
+    return (
+        <>
+            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden pointer-events-auto">
+                    {/* Header */}
+                    <div className="flex items-center gap-3 p-4 border-b">
+                        {produkt.ana_resim_url ? (
+                            <Image
+                                src={produkt.ana_resim_url}
+                                alt={produktName}
+                                width={48} height={48}
+                                className="rounded-lg object-cover flex-shrink-0"
+                            />
+                        ) : (
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <FiImage size={20} className="text-gray-300" />
+                            </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                            <p className="font-bold text-sm text-gray-800 line-clamp-2 leading-tight">
+                                {produktName}
+                            </p>
+                            <p className="text-[11px] text-gray-400 font-mono">{produkt.stok_kodu}</p>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 flex-shrink-0"
+                        >
+                            <FiX size={18} />
+                        </button>
+                    </div>
+
+                    <div className="p-4 space-y-4">
+                        {/* Birim seçimi */}
+                        <div>
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">
+                                {locale === 'de' ? 'Einheit wählen' : 'Birim Seçin'}
+                            </p>
+                            <div className={`grid gap-2 ${birimOptions.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                                {birimOptions.map(opt => (
+                                    <button
+                                        key={opt.key}
+                                        onClick={() => { setBirim(opt.key); setMiktar(1); }}
+                                        className={`flex flex-col items-center p-2.5 rounded-xl border-2 transition-all ${
+                                            birim === opt.key
+                                                ? 'border-accent bg-accent/5'
+                                                : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                    >
+                                        <span className={`text-sm font-bold ${birim === opt.key ? 'text-accent' : 'text-gray-700'}`}>
+                                            {locale === 'de' ? opt.labelDe : opt.labelTr}
+                                        </span>
+                                        <span className="text-[10px] text-gray-400 mt-0.5">{opt.sub}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Miktar */}
+                        <div>
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">
+                                {locale === 'de' ? 'Menge' : 'Miktar'}
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => setMiktar(m => Math.max(1, m - 1))}
+                                    className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 font-bold text-lg"
+                                >
+                                    −
+                                </button>
+                                <input
+                                    type="number"
+                                    value={miktar}
+                                    onChange={e => setMiktar(Math.max(1, parseInt(e.target.value) || 1))}
+                                    className="flex-1 text-center text-lg font-bold border-2 border-gray-200 rounded-xl py-2 focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                                    min="1"
+                                />
+                                <button
+                                    onClick={() => setMiktar(m => m + 1)}
+                                    className="w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 font-bold text-lg"
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <p className="text-xs text-gray-400 text-center mt-1.5">
+                                = {toplamAdet} {locale === 'de' ? 'Stück gesamt' : 'adet toplam'}
+                            </p>
+                        </div>
+
+                        {/* Fiyat özeti */}
+                        <div className="bg-gray-50 rounded-xl p-3 space-y-1.5">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-500">
+                                    {locale === 'de' ? 'Stückpreis' : 'Adet fiyatı'}
+                                </span>
+                                <span className="font-semibold text-gray-700">
+                                    {formatCurrency(adetFiyat)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-baseline">
+                                <span className="text-sm text-gray-500">
+                                    {toplamAdet} × {formatCurrency(adetFiyat)}
+                                </span>
+                                <span className="font-bold text-gray-800 text-lg">
+                                    {formatCurrency(toplamFiyat)}
+                                </span>
+                            </div>
+                            {fiyatKademe && (
+                                <p className={`text-[11px] font-semibold ${fiyatKademe.color}`}>
+                                    {fiyatKademe.label}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Sepete ekle */}
+                        <button
+                            onClick={() => onAdd(miktar, birim)}
+                            className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-bold text-sm hover:bg-accent/90 transition-colors"
+                        >
+                            <FiShoppingCart size={16} />
+                            {locale === 'de' ? 'In den Warenkorb' : 'Sepete Ekle'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+}
 
 // ─── Grid Card View ────────────────────────────────────────────────────────
 function ProduktGridCard({
@@ -514,6 +703,9 @@ export function KatalogClient({
     const [badgeFilters, setBadgeFilters] = useState<Set<string>>(new Set());
     const [zertifikatFilters, setZertifikatFilters] = useState<Set<string>>(new Set());
     const [tatFilters, setTatFilters] = useState<Set<string>>(new Set());
+    const [modalProdukt, setModalProdukt] = useState<ProduktMitPreis | null>(null);
+
+    const { addToWarenkorb } = usePortal();
 
     // localStorage für viewMode Preference
     useEffect(() => {
@@ -692,11 +884,30 @@ export function KatalogClient({
         setShowFavorites(searchParams.get('favoriten') === 'true');
     }, [searchParams]);
 
+    const handleModalAdd = (miktar: number, birim: Birim) => {
+        if (!modalProdukt) return;
+        const adetFiyat = getBirimFiyatKatalog(modalProdukt, birim, miktar);
+
+        addToWarenkorb(
+            { ...modalProdukt, partnerPreis: adetFiyat },
+            miktar,
+            birim as any
+        );
+
+        const birimLabel = locale === 'de'
+            ? birim === 'koli' ? 'Karton' : birim === 'palet' ? 'Palette' : 'Stück'
+            : birim === 'koli' ? 'koli' : birim === 'palet' ? 'palet' : 'adet';
+
+        toast.success(
+            `${miktar} ${birimLabel} → ${getLocalizedName(modalProdukt.ad, locale)}`
+        );
+        setModalProdukt(null);
+    };
+
     // ProduktKarte wrapper mit Favoriten-Toggle und Quick Add
     const ProduktKarteWithFavorite = ({ produkt }: { produkt: ProduktMitPreis }) => {
         const [isPending, startTransition] = useTransition();
         const isFavorit = favoriten.has(produkt.id);
-        const { addToWarenkorb } = usePortal();
 
         const handleToggleFavorite = (e: React.MouseEvent) => {
             e.preventDefault();
@@ -723,12 +934,7 @@ export function KatalogClient({
         const handleQuickAdd = (e: React.MouseEvent) => {
             e.preventDefault();
             e.stopPropagation();
-            if (!produkt.partnerPreis) {
-                toast.error(locale === 'de' ? 'Kein Preis verfügbar.' : 'Fiyat bulunamadı.');
-                return;
-            }
-            addToWarenkorb({ ...produkt, partnerPreis: produkt.partnerPreis }, 1);
-            toast.success(`1 × ${getLocalizedName(produkt.ad, locale)} ${locale === 'de' ? 'zum Warenkorb hinzugefügt' : 'sepete eklendi'}`);
+            setModalProdukt(produkt);
         };
 
         if (viewMode === 'list') {
@@ -1094,6 +1300,16 @@ export function KatalogClient({
                         </div>
                     )}
                 </>
+            )}
+
+            {/* Sepete Ekle Modal */}
+            {modalProdukt && (
+                <SepeteEkleModal
+                    produkt={modalProdukt}
+                    locale={locale}
+                    onClose={() => setModalProdukt(null)}
+                    onAdd={handleModalAdd}
+                />
             )}
         </div>
     );

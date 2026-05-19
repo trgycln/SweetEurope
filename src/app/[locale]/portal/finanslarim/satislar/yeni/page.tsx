@@ -1,87 +1,77 @@
-// src/app/[locale]/portal/finanslarim/satislar/yeni/page.tsx
 import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Locale } from '@/i18n-config';
 import { redirect } from 'next/navigation';
-import YeniSatisFormu from './YeniSatisFormu';
 import { getDictionary } from '@/dictionaries';
+import { MusteriSiparisClient } from '@/app/[locale]/portal/musteri-siparis/MusteriSiparisClient';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
 export default async function YeniSatisPage({
-  params,
-  searchParams,
+    params,
+    searchParams,
 }: {
-  params: Promise<{ locale: Locale }>;
-  searchParams: Promise<{ firmaId?: string }>;
+    params: Promise<{ locale: Locale }>;
+    searchParams: Promise<{ firmaId?: string; musteriId?: string }>;
 }) {
-  const { locale } = await params;
-  const { firmaId: preSelectedFirmaId } = await searchParams;
-  const dict = await getDictionary(locale);
+    noStore();
+    const { locale } = await params;
+    const { firmaId: preSelectedFirmaId, musteriId } = await searchParams;
 
-  const cookieStore = await cookies();
-  const supabase = await createSupabaseServerClient(cookieStore);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
-  if (!user) {
-    return redirect(`/${locale}/giris`);
-  }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return redirect(`/${locale}/login`);
 
-  // Bayinin kendi firmaId'sini profilinden al
-  const { data: profil, error: profilError } = await supabase
-    .from('profiller')
-    .select('firma_id')
-    .eq('id', user.id)
-    .single();
+    const { data: profile } = await supabase
+        .from('profiller')
+        .select('rol, firma_id')
+        .eq('id', user.id)
+        .single();
 
-  if (profilError || !profil?.firma_id) {
-    console.error('Hata: Bayi profili veya firma ID bulunamadı.', profilError);
-    return <div>{dict.satis.profil_yuklenemedi}</div>;
-  }
-  const bayiFirmaId = profil.firma_id;
+    if (!profile?.firma_id || profile.rol !== 'Alt Bayi') {
+        return redirect(`/${locale}/portal/dashboard`);
+    }
 
-  // Bayinin müşteri firmalarının listesini al
-  const { data: firmalar, error: firmalarError } = await supabase
-    .from('firmalar')
-    .select('id, unvan')
-    .eq('sahip_id', user.id)
-    .order('unvan', { ascending: true });
+    const bayiFirmaId = profile.firma_id;
 
-  if (firmalarError) {
-    console.error('Hata: Müşteri firmalar alınamadı.', firmalarError);
-  }
+    // Alt bayinin müşterilerini getir
+    const { data: musteriler } = await supabase
+        .from('firmalar')
+        .select('id, unvan, adres, email, telefon, sehir')
+        .eq('ust_bayi_firma_id', bayiFirmaId)
+        .order('unvan');
 
-  // Bayinin satabileceği stoktaki ürünleri al
-  const { data: stoklar, error: stoklarError } = await supabase
-    .from('alt_bayi_stoklari')
-    .select('urun_id, miktar, urun:urunler(id, ad, satis_fiyati_alt_bayi)')
-    .eq('sahip_id', user.id)
-    .gt('miktar', 0);
+    // Tüm aktif ürünleri getir (stok kontrolü yok)
+    const { data: urunler } = await supabase
+        .from('urunler')
+        .select(`
+            id, ad, stok_kodu, ana_resim_url,
+            satis_fiyati_musteri, satis_fiyati_toptanci,
+            satis_fiyati_alt_bayi, stok_miktari,
+            koli_ici_adet, palet_ici_adet
+        `)
+        .eq('aktif', true)
+        .order(`ad->>${locale}`);
 
-  if (stoklarError) {
-    console.error('Hata: Bayi stokları alınamadı.', stoklarError);
-  }
+    // preSelectedFirmaId veya musteriId ile müşteri seç
+    const seciliMusteriId = musteriId || preSelectedFirmaId;
+    const seciliMusteri = seciliMusteriId
+        ? (musteriler ?? []).find((m: any) => m.id === seciliMusteriId) ?? null
+        : null;
 
-  // Gelen veriyi client component'in beklediği formata dönüştür
-  const urunler = (stoklar || [])
-    .filter(s => s.urun) // urun bilgisi olmayan stokları filtrele
-    .map(s => ({
-      id: s.urun!.id,
-      ad: s.urun!.ad,
-      satis_fiyati_alt_bayi: s.urun!.satis_fiyati_alt_bayi || 0,
-      mevcut_stok: s.miktar || 0,
-    }));
+    const dictionary = await getDictionary(locale);
 
-  return (
-    <YeniSatisFormu
-      locale={locale}
-      dict={dict}
-      bayiFirmaId={bayiFirmaId}
-      firmalar={firmalar || []}
-      urunler={urunler}
-      preSelectedFirmaId={preSelectedFirmaId}
-    />
-  );
+    return (
+        <MusteriSiparisClient
+            musteriler={musteriler ?? []}
+            urunler={urunler ?? []}
+            seciliMusteri={seciliMusteri}
+            bayiFirmaId={bayiFirmaId}
+            locale={locale}
+            dictionary={dictionary}
+        />
+    );
 }
