@@ -31,22 +31,20 @@ const PhilosophySection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
             </p>
           </div>
 
-          {/* Image Content - Daha büyük ve etkileyici */}
+          {/* Image Content */}
           <div className="relative w-full order-1 lg:order-2">
-            <div className="relative aspect-square max-w-2xl mx-auto">
-              <div className="absolute inset-0 bg-accent/10 rounded-full blur-3xl transform scale-90"></div>
-              <Image
-                src="/categories/syrups.jpg"
-                alt={dictionary.philosophy.imageAlt || 'FO Food Products Premium-Sortiment'}
-                fill
-                className="object-cover md:object-contain transform hover:scale-105 transition-transform duration-700 ease-in-out drop-shadow-2xl relative z-10"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                priority
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/fologo.webp';
-                }}
-              />
+            <div className="relative max-w-2xl mx-auto">
+              <div className="absolute -inset-4 bg-accent/15 rounded-3xl blur-2xl"></div>
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-accent/20 aspect-[4/3]">
+                <Image
+                  src="/unsere_philosophie.png"
+                  alt={dictionary.philosophy.imageAlt || 'FO Food Products Premium-Sortiment'}
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                  priority
+                />
+              </div>
             </div>
           </div>
         </div>

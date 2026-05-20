@@ -2,8 +2,6 @@
 
 import HeroSection from "@/components/HeroSection";
 import PhilosophySection from "@/components/PhilosophySection";
-import CategoryShowcase from "@/components/CategoryShowcase";
-import ProductLineShowcase from "@/components/ProductLineShowcase";
 import FoBrandAboutSection from "@/components/FoBrandAboutSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import QualityPromiseSection from "@/components/QualityPromiseSection";
@@ -59,7 +57,7 @@ export default async function Home({
     // Tüm kategorileri çek (ana + alt) - parent bilgisi için
     const { data: tumKategoriler } = await supabase
         .from('kategoriler')
-        .select('id, ust_kategori_id');
+        .select('id, slug, ad, ust_kategori_id');
 
     // Sadece aktif ürünleri çek
     const { data: urunler } = await supabase
@@ -127,17 +125,25 @@ export default async function Home({
         };
     });
 
+    // Alt kategorileri hesapla
+    const altKategorilerMap: Record<string, { id: string; slug: string | null; ad: any; productCount: number }[]> = {};
+    (tumKategoriler || []).forEach(k => {
+        if (k.ust_kategori_id) {
+            if (!altKategorilerMap[k.ust_kategori_id]) {
+                altKategorilerMap[k.ust_kategori_id] = [];
+            }
+            altKategorilerMap[k.ust_kategori_id].push({
+                ...k,
+                productCount: categoryProductCounts[k.id] || 0,
+            });
+        }
+    });
+
     return (
         <>
             <HeroSection dictionary={dictionary} locale={locale} />
             <PhilosophySection dictionary={dictionary} />
-            <ProductLineShowcase locale={locale} categories={kategorilerWithImages as any} />
-            <CategoryShowcase 
-                dictionary={dictionary} 
-                locale={locale}
-                categories={kategorilerWithImages as any} 
-            />
-            <FoBrandAboutSection locale={locale} />
+            <FoBrandAboutSection locale={locale} altKategorilerMap={altKategorilerMap} />
             <TestimonialsSection dictionary={dictionary} />
             <QualityPromiseSection dictionary={dictionary} />
             <CertificationsStrip dictionary={dictionary} />

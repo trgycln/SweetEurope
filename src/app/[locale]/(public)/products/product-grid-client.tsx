@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
@@ -22,6 +23,10 @@ interface ProductGridClientProps {
     isLoggedIn?: boolean;
     partnerTier?: string;
     bestsellerUrunler?: Urun[];
+    featuredUrunler?: Urun[];
+    searchQuery?: string;
+    geschmackCounts?: Record<string, number>;
+    geschmackFilter?: string;
     loginHref?: string;
     pagination?: {
         page: number;
@@ -46,6 +51,26 @@ const BADGE_DEFS = [
     { key: 'ohne_zucker', short: 'Ø Zucker',  bg: 'bg-sky-100 text-sky-800 border-sky-200' },
     { key: 'katkisiz',    short: 'Pure',      bg: 'bg-teal-100 text-teal-800 border-teal-200' },
 ] as const;
+
+const TAT_CONFIG: Record<string, { emoji: string; de: string; tr: string }> = {
+    'karamell':        { emoji: '🍮', de: 'Karamell',          tr: 'Karamel' },
+    'schokolade':      { emoji: '🍫', de: 'Schokolade',        tr: 'Çikolata' },
+    'nuss':            { emoji: '🌰', de: 'Nuss',              tr: 'Fındık' },
+    'zitrone':         { emoji: '🍋', de: 'Zitrone',           tr: 'Limon' },
+    'mango':           { emoji: '🥭', de: 'Mango',             tr: 'Mango' },
+    'erdbeere':        { emoji: '🍓', de: 'Erdbeere',          tr: 'Çilek' },
+    'himbeere':        { emoji: '🫐', de: 'Himbeere',          tr: 'Ahududu' },
+    'vanille':         { emoji: '🌿', de: 'Vanille',           tr: 'Vanilya' },
+    'pfirsich':        { emoji: '🍑', de: 'Pfirsich',          tr: 'Şeftali' },
+    'blaubeere':       { emoji: '🫐', de: 'Blaubeere',         tr: 'Yaban Mersini' },
+    'apfel':           { emoji: '🍏', de: 'Apfel',             tr: 'Elma' },
+    'hindistancevizi': { emoji: '🥥', de: 'Kokos',             tr: 'Hindistan Cevizi' },
+    'banane':          { emoji: '🍌', de: 'Banane',            tr: 'Muz' },
+    'kaffee':          { emoji: '☕', de: 'Kaffee',             tr: 'Kahve' },
+    'kirsche':         { emoji: '🍒', de: 'Kirsche',           tr: 'Kiraz' },
+    'brombeere':       { emoji: '🍇', de: 'Brombeere',         tr: 'Böğürtlen' },
+    'ananas':          { emoji: '🍍', de: 'Ananas',            tr: 'Ananas' },
+};
 
 const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string }> = {
     'Halal':      { label: 'Halal',     bg: 'bg-teal-50 text-teal-800 border-teal-300' },
@@ -579,13 +604,30 @@ function CatalogRow({ urun, locale, kategoriAdlariMap, isLoggedIn }: {
 
 export function ProductGridClient({
     urunler, locale, kategoriAdlariMap, sablonMap, kategoriParentMap,
-    pagination, dictionary, isLoggedIn, partnerTier, bestsellerUrunler = [], loginHref,
+    pagination, dictionary, isLoggedIn, partnerTier, bestsellerUrunler = [], featuredUrunler = [], searchQuery = '', geschmackCounts = {}, geschmackFilter = '', loginHref,
 }: ProductGridClientProps) {
-    const [searchTerm, setSearchTerm] = useState('');
+    const router = useRouter();
+    const pathname = usePathname();
+    const [searchTerm, setSearchTerm] = useState(searchQuery);
+    const [searchDebounce, setSearchDebounce] = useState<ReturnType<typeof setTimeout> | null>(null);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [merklisteItems, setMerklisteItems] = useState<MerklisteItem[]>([]);
     const [merklisteOpen, setMerklisteOpen] = useState(false);
     const [bannerDismissed, setBannerDismissed] = useState(false);
+
+    const handleSearch = useCallback((value: string) => {
+        setSearchTerm(value);
+
+        if (searchDebounce) clearTimeout(searchDebounce);
+        const timeout = setTimeout(() => {
+            const params = new URLSearchParams();
+            if (value.trim()) params.set('q', value.trim());
+            if (pagination?.query?.kategori) params.set('kategori', pagination.query.kategori);
+            if (pagination?.query?.geschmack) params.set('geschmack', pagination.query.geschmack as string);
+            router.push(`${pathname}?${params.toString()}`);
+        }, 400);
+        setSearchDebounce(timeout);
+    }, [searchDebounce, pagination, pathname, router]);
 
     // Load merkliste from localStorage
     useEffect(() => {
@@ -627,16 +669,8 @@ export function ProductGridClient({
         try { sessionStorage.setItem('guest_banner_dismissed', '1'); } catch {}
     };
 
-    const filteredUrunler = useMemo(() => {
-        if (!searchTerm) return urunler;
-        const q = searchTerm.toLowerCase();
-        return urunler.filter(urun => {
-            const sku = (urun.stok_kodu || '').toLowerCase();
-            const ean = (urun.ean_gtin || '').toLowerCase();
-            const allNames = urun.ad ? Object.values(urun.ad).map(n => String(n || '').toLowerCase()) : [];
-            return allNames.some(n => n.includes(q)) || sku.includes(q) || ean.includes(q);
-        });
-    }, [urunler, searchTerm]);
+    // Server-side arama — filteredUrunler = urunler (server zaten filtredi)
+    const filteredUrunler = urunler;
 
     const searchPlaceholder = locale === 'de'
         ? 'Produkt, Art.-Nr. oder EAN suchen…'
@@ -645,7 +679,7 @@ export function ProductGridClient({
     // All urunler for merkliste price lookup (page + bestsellers)
     const allUrunler = useMemo(() => {
         const map = new Map<string, Urun>();
-        [...urunler, ...bestsellerUrunler].forEach(u => map.set(u.id, u));
+        [...urunler, ...bestsellerUrunler, ...featuredUrunler].forEach(u => map.set(u.id, u));
         return Array.from(map.values());
     }, [urunler, bestsellerUrunler]);
 
@@ -678,6 +712,35 @@ export function ProductGridClient({
                 </div>
             )}
 
+            {/* ElysonSweets Empfiehlt */}
+            {featuredUrunler.length > 0 && !searchQuery && !geschmackFilter && (
+                <div className="mb-5 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="text-sm font-bold text-amber-900">
+                            ⭐ {locale === 'de' ? 'ElysonSweets empfiehlt' : 'ElysonSweets Öneriyor'}
+                        </span>
+                        <span className="text-xs text-amber-600">
+                            {locale === 'de' ? '– persönlich ausgewählt' : '– özenle seçildi'}
+                        </span>
+                    </div>
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+                        {featuredUrunler.map(urun => (
+                            <div key={urun.id} className="w-40 flex-shrink-0">
+                                <CatalogCard
+                                    urun={urun}
+                                    locale={locale}
+                                    kategoriAdlariMap={kategoriAdlariMap}
+                                    isLoggedIn={isLoggedIn}
+                                    partnerTier={partnerTier}
+                                    onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                                    inMerkliste={merklisteIds.has(urun.id)}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Bestseller section */}
             {bestsellerUrunler.length > 0 && !searchTerm && (
                 <BestsellerSection
@@ -691,19 +754,108 @@ export function ProductGridClient({
                 />
             )}
 
+            {/* Arama sonucu bilgisi */}
+            {searchQuery && (
+                <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5">
+                    <FiSearch size={14} className="text-slate-400 flex-shrink-0" />
+                    <span>
+                        <strong>"{searchQuery}"</strong>
+                        {' '}
+                        {locale === 'de'
+                            ? `— ${urunler.length} Ergebnisse`
+                            : `— ${urunler.length} sonuç`}
+                    </span>
+                    <a href={pathname}
+                        className="ml-auto text-xs text-red-500 hover:text-red-700 flex items-center gap-1 flex-shrink-0">
+                        <FiX size={12} />
+                        {locale === 'de' ? 'Suche löschen' : 'Aramayı temizle'}
+                    </a>
+                </div>
+            )}
+
+            {/* Özellik filtreleri + Aroma chip'leri */}
+            {true && (
+                <div className="space-y-2">
+                    {/* DEBUG: */}
+                    {process.env.NODE_ENV === 'development' && (
+                        <p className="text-xs text-red-500">
+                            geschmackCounts keys: {Object.keys(geschmackCounts).length} |
+                            sample: {Object.entries(geschmackCounts).slice(0,3).map(([k,v]) => `${k}:${v}`).join(', ')}
+                        </p>
+                    )}
+                    {/* Özellik filtreleri — Vegan, GF, LF vs */}
+                    <div className="flex gap-2 flex-wrap">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 self-center">
+                            {locale === 'de' ? 'Merkmale:' : 'Özellikler:'}
+                        </span>
+                        {[
+                            { key: 'vegan',       label: 'Vegan',       emoji: '🌱' },
+                            { key: 'glutenfrei',  label: 'Glutenfrei',  emoji: '🌾' },
+                            { key: 'laktosefrei', label: 'Laktosefrei', emoji: '🥛' },
+                            { key: 'ohne_zucker', label: 'Zuckerfrei',  emoji: '🍬' },
+                            { key: 'bio',         label: 'Bio',          emoji: '♻️' },
+                            { key: 'halal',       label: 'Halal',        emoji: '✓' },
+                        ].map(f => (
+                            <span key={f.key}
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border bg-white text-slate-500 border-slate-200 opacity-50 cursor-not-allowed"
+                                title={locale === 'de' ? 'Demnächst verfügbar' : 'Yakında aktif'}>
+                                {f.emoji} {f.label}
+                            </span>
+                        ))}
+                    </div>
+
+                    {/* Aroma chip'leri */}
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 self-center flex-shrink-0 mr-1">
+                            {locale === 'de' ? 'Aroma:' : 'Aroma:'}
+                        </span>
+                        {geschmackFilter && (
+                            <a href={`${pathname}${pagination?.query?.kategori ? `?kategori=${pagination.query.kategori}` : ''}`}
+                                className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-orange-500 text-white border border-orange-500 shadow-sm">
+                                {TAT_CONFIG[geschmackFilter]?.emoji} {locale === 'de' ? TAT_CONFIG[geschmackFilter]?.de : TAT_CONFIG[geschmackFilter]?.tr}
+                                <span className="ml-0.5">✕</span>
+                            </a>
+                        )}
+                        {Object.entries(geschmackCounts)
+                            .filter(([key]) => TAT_CONFIG[key] && key !== geschmackFilter)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 12)
+                            .map(([key, count]) => {
+                                const cfg = TAT_CONFIG[key];
+                                const params = new URLSearchParams();
+                                params.set('geschmack', key);
+                                if (pagination?.query?.kategori) params.set('kategori', pagination.query.kategori as string);
+                                return (
+                                    <a key={key}
+                                        href={`${pathname}?${params.toString()}`}
+                                        className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border bg-white text-slate-600 border-slate-200 hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50 transition-all"
+                                    >
+                                        <span>{cfg.emoji}</span>
+                                        {locale === 'de' ? cfg.de : cfg.tr}
+                                        <span className="text-slate-400">({count})</span>
+                                    </a>
+                                );
+                            })}
+                    </div>
+                </div>
+            )}
+
             {/* Toolbar */}
             <div className="flex items-center gap-2 flex-wrap">
-                <div className="relative flex-1 max-w-sm">
+                <div className="relative flex-1 max-w-lg">
                     <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
                     <input
                         type="text"
                         placeholder={searchPlaceholder}
                         value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        className="w-full pl-8 pr-7 py-1.5 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
+                        onChange={e => handleSearch(e.target.value)}
+                        className="w-full pl-9 pr-8 py-2.5 text-sm border-2 border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 shadow-sm placeholder:text-slate-400"
                     />
                     {searchTerm && (
-                        <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">✕</button>
+                        <button onClick={() => handleSearch('')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                            ✕
+                        </button>
                     )}
                 </div>
 

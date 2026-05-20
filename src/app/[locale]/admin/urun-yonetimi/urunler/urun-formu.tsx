@@ -890,6 +890,76 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                  </div>
              </div>
 
+            {/* Öne Çıkarma & Vitrinde Göster */}
+            <div className="bg-white p-6 rounded-lg shadow-md border border-amber-200">
+                <h2 className="font-serif text-2xl font-bold text-primary mb-2 flex items-center gap-2">
+                    ⭐ Vitrin & Öne Çıkarma
+                </h2>
+                <p className="text-sm text-slate-500 mb-6">
+                    Bu ürünü ana sayfada veya ürünler sayfasında öne çıkarmak için işaretleyin.
+                    Sıralama numarası küçük olan ürünler önce gösterilir.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* is_featured */}
+                    <div className="flex flex-col gap-2 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                id="is_featured"
+                                name="is_featured"
+                                defaultChecked={(mevcutUrun as any)?.is_featured ?? false}
+                                className="h-5 w-5 rounded border-gray-300 text-amber-500 focus:ring-amber-400"
+                            />
+                            <label htmlFor="is_featured" className="text-sm font-bold text-amber-900 cursor-pointer">
+                                ⭐ ElysonSweets Empfiehlt
+                            </label>
+                        </div>
+                        <p className="text-xs text-amber-700 ml-8">
+                            Ana sayfada "Bizim Önerimiz" bölümünde gösterilir.
+                        </p>
+                    </div>
+
+                    {/* is_bestseller */}
+                    <div className="flex flex-col gap-2 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                id="is_bestseller"
+                                name="is_bestseller"
+                                defaultChecked={(mevcutUrun as any)?.is_bestseller ?? false}
+                                className="h-5 w-5 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
+                            />
+                            <label htmlFor="is_bestseller" className="text-sm font-bold text-orange-900 cursor-pointer">
+                                🔥 Bestseller
+                            </label>
+                        </div>
+                        <p className="text-xs text-orange-700 ml-8">
+                            "En Çok Satanlar" bölümünde öncelikli gösterilir.
+                        </p>
+                    </div>
+
+                    {/* featured_sira */}
+                    <div className="flex flex-col gap-2 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                        <label htmlFor="featured_sira" className="text-sm font-bold text-slate-700">
+                            📊 Vitrin Sırası
+                        </label>
+                        <input
+                            type="number"
+                            id="featured_sira"
+                            name="featured_sira"
+                            min="0"
+                            max="999"
+                            defaultValue={(mevcutUrun as any)?.featured_sira ?? 0}
+                            className="w-full p-2 border border-slate-200 rounded-md bg-white text-sm"
+                        />
+                        <p className="text-xs text-slate-500">
+                            0 = en önce. Küçük sayı → daha önce gösterilir.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             {/* Preis & Lager */}
              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                 <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiDollarSign />{L.pricingStockSection.title}</h2>

@@ -1,153 +1,221 @@
 import React from 'react';
 import Link from 'next/link';
 
-const STATS = [
-  {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-    value: 'Seit 1988',
-    label: 'Erfahrung',
-  },
-  {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    value: '100+',
-    label: 'Exportländer',
-  },
-  {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-      </svg>
-    ),
-    value: '3',
-    label: 'F&E-Labore',
-  },
-  {
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-      </svg>
-    ),
-    value: '4.000',
-    label: 'Paletten-Lager',
-  },
+const ADVANTAGES = [
+    {
+        icon: '🚚',
+        title: { de: 'Schnelle Lieferung', tr: 'Hızlı Teslimat', en: 'Fast Delivery' },
+        desc: {
+            de: 'Lagerbestand in Deutschland – kurze Lieferzeiten für ganz Deutschland',
+            tr: 'Almanya\'da stok – tüm Almanya\'ya kısa teslimat süreleri',
+            en: 'Stock in Germany – short delivery times across Germany',
+        },
+    },
+    {
+        icon: '🏆',
+        title: { de: 'Premium-Sortiment', tr: 'Premium Ürün Yelpazesi', en: 'Premium Assortment' },
+        desc: {
+            de: '246+ sorgfältig ausgewählte Produkte für Cafés, Hotels & Gastronomie',
+            tr: 'Kafeler, oteller ve gastronomi için özenle seçilmiş 246+ ürün',
+            en: '246+ carefully selected products for cafés, hotels & foodservice',
+        },
+    },
+    {
+        icon: '🤝',
+        title: { de: 'Persönlicher Service', tr: 'Kişisel Hizmet', en: 'Personal Service' },
+        desc: {
+            de: 'Direkter Ansprechpartner – keine langen Warteschleifen',
+            tr: 'Direkt muhatap – uzun bekleme süreleri yok',
+            en: 'Direct contact person – no long waiting queues',
+        },
+    },
+    {
+        icon: '📦',
+        title: { de: 'Flexible Bestellmengen', tr: 'Esnek Sipariş Miktarları', en: 'Flexible Order Quantities' },
+        desc: {
+            de: 'Von einzelnen Kartons bis zur Palette – für jeden Bedarf',
+            tr: 'Tek koliden palete – her ihtiyaç için',
+            en: 'From single cartons to pallets – for every need',
+        },
+    },
 ];
 
 const CERTIFICATIONS = [
-  { label: 'BRC-zertifiziert', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-  { label: 'Halal', color: 'bg-green-100 text-green-800 border-green-200' },
-  { label: 'Türk. Patent-Sieger', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    { label: 'Halal-zertifiziert', color: 'bg-green-100 text-green-800 border-green-200' },
+    { label: 'BRC-zertifiziert', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    { label: 'Türk. Patent-Sieger', color: 'bg-amber-100 text-amber-800 border-amber-200' },
 ];
 
-export default function FoBrandAboutSection({ locale }: { locale: string }) {
-  return (
-    <section className="bg-white py-20 px-6">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+type AltKategori = {
+    id: string;
+    slug: string | null;
+    ad: any;
+    productCount: number;
+};
 
-          {/* Left: Text content */}
-          <div>
-            <span className="inline-block text-xs font-bold uppercase tracking-[0.22em] text-teal-600 mb-3">
-              Über FO Food Products
-            </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-slate-900 mb-4 leading-tight">
-              {locale === 'tr'
-                ? '1988\'den Beri Premium Kalite'
-                : locale === 'en'
-                ? 'Premium Quality Since 1988'
-                : 'Über FO – Premium-Qualität seit 1988'}
-            </h2>
-            <p className="text-base text-slate-500 font-medium mb-5">
-              {locale === 'tr'
-                ? 'Türk başarı hikayesi. 100\'den fazla ihracat ülkesi. Üç araştırma laboratuvarı. Tek hedef: Premium.'
-                : locale === 'en'
-                ? 'A Turkish success story. Over 100 export countries. Three research labs. One standard: Premium.'
-                : 'Eine türkische Erfolgsgeschichte. Über 100 Exportländer. Drei Forschungslabore. Ein Anspruch: Premium.'}
-            </p>
-            <p className="text-base leading-7 text-slate-600 mb-8">
-              {locale === 'tr'
-                ? 'FO Food Products, 1988 yılında Türkiye\'de kurulan Özmer A.Ş.\'nin bir markasıdır. Üç kendi Ar-Ge laboratuvarı, 4.000 palet kapasiteli depo ve 100\'den fazla ülkeye ihracat ile FO; kafeler, oteller, pastaneler ve dondurmacıları premium şurup, sos, toz içecek ve pastane pastaları içeren en geniş ürün yelpazelerinden biriyle tedarik etmektedir. Tutarlı seri kalitesi, özenle seçilmiş hammaddeler ve sürekli inovasyon, FO\'yu talep sahibi gastronomi işletmeleri için ilk tercih haline getirmektedir.'
-                : locale === 'en'
-                ? 'FO Food Products is a brand of Özmer A.Ş., founded in 1988 in Turkey. With three in-house R&D laboratories, a 4,000-pallet warehouse and exports to over 100 countries, FO supplies cafés, hotels, patisseries and ice cream parlours with one of the widest premium assortments of syrups, sauces, powder drinks and patisserie pastes. Consistent serial quality, carefully selected raw materials and continuous innovation make FO the first choice for demanding foodservice operators.'
-                : 'FO Food Products ist eine Marke der Özmer A.Ş., gegründet 1988 in der Türkei. Mit drei eigenen F&E-Laboren, einem 4.000-Paletten-Lager und Exporten in über 100 Länder beliefert FO Cafés, Hotels, Patisserien und Eisdielen mit einem der breitesten Premium-Sortimente für Sirupe, Soßen, Pulvergetränke und Konditoreipasten. Konstante Serienqualität, sorgfältig ausgewählte Rohstoffe und kontinuierliche Innovation machen FO zur ersten Wahl für anspruchsvolle Gastronomiebetriebe.'}
-            </p>
+interface Props {
+    locale: string;
+    altKategorilerMap?: Record<string, AltKategori[]>;
+}
 
-            {/* Stat strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-              {STATS.map((stat) => (
-                <div key={stat.label} className="text-center bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <div className="flex justify-center mb-2 text-teal-600">{stat.icon}</div>
-                  <p className="text-xl font-bold text-slate-900">{stat.value}</p>
-                  <p className="text-[11px] text-slate-500 uppercase tracking-wider mt-0.5">{stat.label}</p>
+export default function FoBrandAboutSection({ locale, altKategorilerMap = {} }: Props) {
+    const t = (obj: Record<string, string>) => obj[locale] || obj.de;
+
+    return (
+        <section className="bg-gradient-to-b from-slate-50 to-white py-20 px-6">
+            <div className="container mx-auto">
+
+                {/* Header */}
+                <div className="text-center mb-14">
+                    <span className="inline-block text-xs font-bold uppercase tracking-[0.22em] text-teal-600 mb-3">
+                        {locale === 'tr' ? 'Neden ElysonSweets?'
+                            : locale === 'en' ? 'Why ElysonSweets?'
+                            : 'Warum ElysonSweets?'}
+                    </span>
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-slate-900 mb-4 leading-tight">
+                        {locale === 'tr' ? 'Almanya\'nın HoReCa Uzmanı'
+                            : locale === 'en' ? 'Germany\'s HoReCa Specialist'
+                            : 'Ihr HoReCa-Spezialist in Deutschland'}
+                    </h2>
+                    <p className="text-base text-slate-500 max-w-2xl mx-auto">
+                        {locale === 'tr'
+                            ? 'Kafeler, oteller ve restoranlar için özenle seçilmiş premium ürünler. Hızlı teslimat, esnek sipariş miktarları ve kişisel hizmet.'
+                            : locale === 'en'
+                            ? 'Premium products carefully selected for cafés, hotels and restaurants. Fast delivery, flexible order quantities and personal service.'
+                            : 'Sorgfältig ausgewählte Premium-Produkte für Cafés, Hotels und Restaurants. Schnelle Lieferung, flexible Bestellmengen und persönlicher Service.'}
+                    </p>
                 </div>
-              ))}
-            </div>
 
-            {/* Cert badges */}
-            <div className="flex flex-wrap gap-2 mb-8">
-              {CERTIFICATIONS.map((cert) => (
-                <span
-                  key={cert.label}
-                  className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${cert.color}`}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                  {cert.label}
-                </span>
-              ))}
-            </div>
-
-            <Link
-              href={`/${locale}/products`}
-              className="inline-flex items-center gap-2 bg-slate-900 text-white font-semibold px-6 py-3 rounded-xl hover:bg-slate-800 transition-colors shadow-sm text-sm"
-            >
-              {locale === 'tr'
-                ? 'Tüm FO Sortimentini Gör'
-                : locale === 'en'
-                ? 'View Complete FO Assortment'
-                : 'Komplettes FO-Sortiment ansehen'}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-
-          {/* Right: Image mosaic */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2 rounded-2xl overflow-hidden aspect-video bg-gradient-to-br from-teal-100 to-emerald-50 flex items-center justify-center shadow-sm border border-slate-100">
-              <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
-                <div className="text-teal-400 opacity-60">
-                  <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                  </svg>
+                {/* Avantajlar */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
+                    {ADVANTAGES.map((adv, i) => (
+                        <div key={i} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="text-3xl mb-3">{adv.icon}</div>
+                            <h3 className="font-bold text-slate-800 text-sm mb-2">{t(adv.title)}</h3>
+                            <p className="text-xs text-slate-500 leading-relaxed">{t(adv.desc)}</p>
+                        </div>
+                    ))}
                 </div>
-                <p className="text-teal-600 font-semibold text-sm">FO Sortiment</p>
-                <p className="text-teal-400 text-xs">Sirupe · Soßen · Pasten · Pulvergetränke</p>
-              </div>
+
+                {/* Alt kategoriler + CTA */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+
+                    {/* Sol: Alt kategori listesi */}
+                    {/* Sol: Kategori listesi — ana + alt */}
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
+                            {locale === 'tr' ? 'Ürün Kategorileri'
+                                : locale === 'en' ? 'Product Categories'
+                                : 'Produktkategorien'}
+                        </p>
+
+                        <div className="space-y-4">
+                            {Object.entries(altKategorilerMap)
+                                .filter(([_, alts]) => alts.some(a => a.productCount > 0))
+                                .map(([anaId, alts]) => {
+                                    const aktifAlts = alts
+                                        .filter(a => a.productCount > 0)
+                                        .sort((a, b) => b.productCount - a.productCount);
+                                    if (aktifAlts.length === 0) return null;
+                                    return (
+                                        <div key={anaId}>
+                                            <div className="grid grid-cols-2 gap-1.5">
+                                                {aktifAlts.slice(0, 8).map((kat) => {
+                                                    const name = kat.ad?.[locale] || kat.ad?.de || kat.slug || '—';
+                                                    return (
+                                                        <Link
+                                                            key={kat.id}
+                                                            href={`/${locale}/products?kategori=${kat.slug || kat.id}`}
+                                                            className="flex items-center justify-between bg-white border border-slate-100 rounded-xl px-3 py-2.5 hover:border-teal-200 hover:bg-teal-50/30 transition-all group shadow-sm"
+                                                        >
+                                                            <span className="text-xs font-semibold text-slate-700 group-hover:text-teal-700 truncate">
+                                                                {name}
+                                                            </span>
+                                                            <span className="text-[10px] text-slate-400 font-mono flex-shrink-0 ml-2">
+                                                                {kat.productCount}
+                                                            </span>
+                                                        </Link>
+                                                    );
+                                                })}
+                                            </div>
+                                            {aktifAlts.length > 8 && (
+                                                <Link
+                                                    href={`/${locale}/products`}
+                                                    className="mt-1.5 inline-block text-[11px] text-teal-600 hover:text-teal-800 font-semibold"
+                                                >
+                                                    +{aktifAlts.length - 8} {locale === 'de' ? 'weitere' : 'daha'} →
+                                                </Link>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                        </div>
+
+                        {/* Sertifikalar */}
+                        <div className="flex flex-wrap gap-2 mt-5">
+                            {CERTIFICATIONS.map((cert) => (
+                                <span
+                                    key={cert.label}
+                                    className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${cert.color}`}
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                    </svg>
+                                    {cert.label}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Sağ: CTA kutusu */}
+                    <div className="bg-gradient-to-br from-teal-600 to-emerald-700 rounded-3xl p-8 text-white shadow-xl">
+                        <h3 className="text-2xl font-serif font-bold mb-3">
+                            {locale === 'tr' ? 'Partner Portalına Katılın'
+                                : locale === 'en' ? 'Join the Partner Portal'
+                                : 'Jetzt Partner werden'}
+                        </h3>
+                        <p className="text-teal-100 text-sm leading-relaxed mb-6">
+                            {locale === 'tr'
+                                ? 'Özel fiyatlar, hızlı sipariş ve kişisel hesap yönetimi ile işinizi büyütün.'
+                                : locale === 'en'
+                                ? 'Grow your business with exclusive prices, fast ordering and personal account management.'
+                                : 'Wachsen Sie mit exklusiven Preisen, schneller Bestellung und persönlichem Account-Management.'}
+                        </p>
+                        <ul className="space-y-2 mb-7">
+                            {[
+                                { de: 'Exklusive Partnerpreise', tr: 'Özel partner fiyatları', en: 'Exclusive partner prices' },
+                                { de: 'Online-Bestellung 24/7', tr: '7/24 online sipariş', en: 'Online ordering 24/7' },
+                                { de: 'Persönlicher Ansprechpartner', tr: 'Kişisel müşteri temsilcisi', en: 'Personal contact person' },
+                            ].map((item, i) => (
+                                <li key={i} className="flex items-center gap-2.5 text-sm text-teal-50">
+                                    <svg className="w-4 h-4 text-emerald-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    {t(item)}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Link
+                                href={`/${locale}/register`}
+                                className="flex-1 text-center bg-white text-teal-700 font-bold px-5 py-3 rounded-xl hover:bg-teal-50 transition-colors text-sm shadow-sm"
+                            >
+                                {locale === 'tr' ? 'Ücretsiz Kayıt'
+                                    : locale === 'en' ? 'Register Free'
+                                    : 'Kostenlos registrieren'}
+                            </Link>
+                            <Link
+                                href={`/${locale}/products`}
+                                className="flex-1 text-center bg-teal-500/30 text-white font-semibold px-5 py-3 rounded-xl hover:bg-teal-500/50 transition-colors text-sm border border-teal-400/40"
+                            >
+                                {locale === 'tr' ? 'Kataloğu İncele'
+                                    : locale === 'en' ? 'Browse Catalog'
+                                    : 'Sortiment ansehen'}
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div className="rounded-2xl overflow-hidden aspect-square bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center shadow-sm border border-slate-100">
-              <div className="text-center p-4">
-                <p className="text-4xl font-bold text-amber-600">1988</p>
-                <p className="text-xs text-amber-500 font-medium mt-1">Gegründet</p>
-              </div>
-            </div>
-            <div className="rounded-2xl overflow-hidden aspect-square bg-gradient-to-br from-teal-50 to-cyan-50 flex items-center justify-center shadow-sm border border-slate-100">
-              <div className="text-center p-4">
-                <p className="text-4xl font-bold text-teal-600">100+</p>
-                <p className="text-xs text-teal-500 font-medium mt-1">Länder</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+        </section>
+    );
 }

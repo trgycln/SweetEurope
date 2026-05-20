@@ -44,6 +44,7 @@ export default async function PublicUrunlerPage({
     searchParams: Promise<{
         kategori?: string;
         altKategori?: string;
+        geschmack?: string;
         q?: string;
         page?: string;
         limit?: string;
@@ -59,6 +60,8 @@ export default async function PublicUrunlerPage({
     const perPage = Math.min(48, Math.max(12, Number.parseInt(sp.limit || '24') || 24));
 
     const altKategoriFilter = sp.altKategori;
+    const geschmackFilter = sp.geschmack;
+    const searchQuery = sp.q?.trim() || '';
     const segmentFilter = sp.segment; // 'cafe' | 'hotel' | 'patisserie' | 'dessertbar'
 
     let seciliKategoriSlug: string | undefined;
@@ -203,65 +206,107 @@ export default async function PublicUrunlerPage({
         produktdatenblatt_url
     `;
 
-    let urunlerQuery = (supabase as any)
-        .from('urunler')
-        .select(productSelectFields, { count: 'exact' })
-        .eq('aktif', true);
+    let sortedData: any[] = [];
+    let totalCount = 0;
 
-    // Try to fetch is_bestseller/is_featured (may not exist yet)
-    // We handle this gracefully — if missing, defaults to false
+    if (searchQuery) {
+        // Server-side full-text search via RPC
+        const { data: searchResults } = await (supabase as any).rpc(
+            'search_urunler',
+            { p_query: searchQuery, p_locale: locale }
+        );
 
-    if (filtrelenecekKategoriIdleri.length > 0) {
-        urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
-    }
+        const searchIds = (searchResults || []).map((r: any) => r.id);
 
-    let urunlerRes = await urunlerQuery.order('ad', { ascending: true });
+        if (searchIds.length === 0) {
+            sortedData = [];
+            totalCount = 0;
+        } else {
+            const { data: searchUrunler } = await (supabase as any)
+                .from('urunler')
+                .select(productSelectFields)
+                .in('id', searchIds)
+                .eq('aktif', true);
 
-    // If query failed (e.g. missing column from pending migration), retry with minimal fields
-    if (urunlerRes.error) {
-        console.error('Product query error, retrying with minimal fields:', urunlerRes.error.message);
-        const minimalFields = `id, ad, slug, ana_resim_url, kategori_id, stok_kodu, stok_miktari,
-            koli_ici_adet, palet_ici_adet, teknik_ozellikler, lojistik_sinifi,
-            lagertemperatur_min_celsius, lagertemperatur_max_celsius, zertifikate,
-            satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
-            created_at, mindest_bestellmenge, mindest_bestellmenge_einheit, aktif`;
-        let retryQuery = supabase.from('urunler').select(minimalFields).eq('aktif', true);
-        if (filtrelenecekKategoriIdleri.length > 0) {
-            retryQuery = retryQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+            // Relevanz sırasına göre sırala
+            const relevanzMap = new Map(
+                (searchResults || []).map((r: any) => [r.id, r.relevanz])
+            );
+            sortedData = (searchUrunler || [])
+                .filter((u: any) => !hiddenKategoriIds.has(u.kategori_id ?? ''))
+                .sort((a: any, b: any) =>
+                    (relevanzMap.get(b.id) || 0) - (relevanzMap.get(a.id) || 0)
+                );
+            totalCount = sortedData.length;
         }
-        urunlerRes = await retryQuery.order('ad', { ascending: true });
-    }
+    } else {
+        // Normal sorgu — mevcut mantık
+        let urunlerQuery = (supabase as any)
+            .from('urunler')
+            .select(productSelectFields, { count: 'exact' })
+            .eq('aktif', true);
 
-    // Filter hidden categories
-    let sortedData: any[] = (urunlerRes.data || []).filter(
-        (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
-    );
+        if (filtrelenecekKategoriIdleri.length > 0) {
+            urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+        }
 
-    // Sort: category order → rating → name
-    const kategoriById = new Map(kategoriler.map(k => [k.id, k]));
-    const getRootSlug = (catId?: string | null) => {
-        let cur = catId ? kategoriById.get(catId) : null;
-        let guard = 0;
-        while (cur?.ust_kategori_id && guard < 10) { cur = kategoriById.get(cur.ust_kategori_id) || null; guard++; }
-        return cur?.slug || null;
-    };
+        if (geschmackFilter) {
+            urunlerQuery = urunlerQuery.contains(
+                'teknik_ozellikler->geschmack',
+                JSON.stringify([geschmackFilter])
+            );
+        }
 
-    if (sortedData.length > 0) {
-        sortedData = [...sortedData].sort((a: any, b: any) => {
-            const ai = visibleMainCategoryOrder.indexOf(getRootSlug(a.kategori_id) as any);
-            const bi = visibleMainCategoryOrder.indexOf(getRootSlug(b.kategori_id) as any);
-            const sa = ai === -1 ? 999 : ai;
-            const sb = bi === -1 ? 999 : bi;
-            if (sa !== sb) return sa - sb;
-            const pa = a.ortalama_puan || 0, pb = b.ortalama_puan || 0;
-            if (pa !== pb) return pb - pa;
-            return String(a.ad?.[locale] || a.ad?.de || '').localeCompare(String(b.ad?.[locale] || b.ad?.de || ''));
-        });
+        let urunlerRes = await urunlerQuery.order('ad', { ascending: true });
+
+        if (urunlerRes.error) {
+            console.error('Product query error, retrying:', urunlerRes.error.message);
+            const minimalFields = `id, ad, slug, ana_resim_url, kategori_id, stok_kodu, stok_miktari,
+                koli_ici_adet, palet_ici_adet, teknik_ozellikler, lojistik_sinifi,
+                lagertemperatur_min_celsius, lagertemperatur_max_celsius, zertifikate,
+                satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
+                created_at, mindest_bestellmenge, mindest_bestellmenge_einheit, aktif`;
+            let retryQuery = supabase.from('urunler').select(minimalFields).eq('aktif', true);
+            if (filtrelenecekKategoriIdleri.length > 0) {
+                retryQuery = retryQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+            }
+            urunlerRes = await retryQuery.order('ad', { ascending: true });
+        }
+
+        sortedData = (urunlerRes.data || []).filter(
+            (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
+        );
+        totalCount = sortedData.length;
+
+        // Sort by category order
+        const kategoriById = new Map(kategoriler.map(k => [k.id, k]));
+        const getRootSlug = (catId?: string | null) => {
+            let cur = catId ? kategoriById.get(catId) : null;
+            let guard = 0;
+            while (cur?.ust_kategori_id && guard < 10) {
+                cur = kategoriById.get(cur.ust_kategori_id) || null;
+                guard++;
+            }
+            return cur?.slug || null;
+        };
+
+        if (sortedData.length > 0) {
+            sortedData = [...sortedData].sort((a: any, b: any) => {
+                const ai = visibleMainCategoryOrder.indexOf(getRootSlug(a.kategori_id) as any);
+                const bi = visibleMainCategoryOrder.indexOf(getRootSlug(b.kategori_id) as any);
+                const sa = ai === -1 ? 999 : ai;
+                const sb = bi === -1 ? 999 : bi;
+                if (sa !== sb) return sa - sb;
+                const pa = a.ortalama_puan || 0, pb = b.ortalama_puan || 0;
+                if (pa !== pb) return pb - pa;
+                return String(a.ad?.[locale] || a.ad?.de || '')
+                    .localeCompare(String(b.ad?.[locale] || b.ad?.de || ''));
+            });
+        }
     }
 
     const from = (page - 1) * perPage;
     const paginatedData = sortedData.slice(from, from + perPage);
-    const totalCount = sortedData.length;
     const urunler: Urun[] = paginatedData as unknown as Urun[];
     const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
     const clampedPage = Math.min(page, totalPages);
@@ -283,6 +328,43 @@ export default async function PublicUrunlerPage({
         bestsellerUrunler = [];
     }
 
+    let featuredUrunler: Urun[] = [];
+    try {
+        const { data: featuredData } = await (supabase as any)
+            .from('urunler')
+            .select(productSelectFields)
+            .eq('aktif', true)
+            .eq('is_featured', true)
+            .order('featured_sira', { ascending: true })
+            .limit(6);
+        featuredUrunler = (featuredData || []).filter(
+            (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
+        ) as unknown as Urun[];
+    } catch {
+        featuredUrunler = [];
+    }
+
+    // Aroma sayılarını hesapla — tüm aktif ürünlerden
+    const geschmackCounts: Record<string, number> = {};
+    try {
+        const { data: allTeknik } = await supabase
+            .from('urunler')
+            .select('teknik_ozellikler')
+            .eq('aktif', true);
+
+        (allTeknik || []).forEach((u: any) => {
+            const g = u.teknik_ozellikler?.geschmack;
+            if (!g) return;
+            const arr = Array.isArray(g) ? g :
+                (typeof g === 'string' ? (() => {
+                    try { return JSON.parse(g); } catch { return []; }
+                })() : []);
+            arr.forEach((tat: string) => {
+                if (tat) geschmackCounts[tat] = (geschmackCounts[tat] || 0) + 1;
+            });
+        });
+    } catch {}
+
     let seciliKategoriAdi = 'Alle Produkte';
     if (seciliKategoriSlug) {
         const sk = kategoriler.find(k => k.slug === seciliKategoriSlug);
@@ -299,6 +381,8 @@ export default async function PublicUrunlerPage({
     const currentQuery = {
         kategori: seciliKategoriSlug,
         altKategori: sp.altKategori,
+        geschmack: geschmackFilter,
+        q: searchQuery || undefined,
     };
 
     const activeFilterCount = [seciliKategoriSlug, sp.altKategori].filter(Boolean).length;
@@ -337,60 +421,6 @@ export default async function PublicUrunlerPage({
                         </div>
                     </div>
 
-                    {/* ── Business Segment Quick Filters ────────────────────── */}
-                    <div className="mt-4 pt-4 border-t border-slate-100">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">
-                            {locale === 'de' ? 'Für Ihr Geschäft' : 'İşletmenize Göre'}
-                        </p>
-                        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                            {[
-                                {
-                                    icon: '☕',
-                                    label: { de: 'Café & Bistro', tr: 'Kafe & Bistro' },
-                                    desc:  { de: 'Sirupe, Kaffee, Torten', tr: 'Şurup, kahve, pasta' },
-                                    href: buildProductsHref({ kategori: 'ho-re-ca-icecekler-soslar' }),
-                                    active: seciliKategoriSlug === 'ho-re-ca-icecekler-soslar',
-                                },
-                                {
-                                    icon: '🏨',
-                                    label: { de: 'Hotel & Catering', tr: 'Otel & Catering' },
-                                    desc:  { de: 'Portionsdesserts & Premium', tr: 'Porsiyon tatlılar' },
-                                    href: buildProductsHref({ kategori: 'dondurmacılık' }),
-                                    active: seciliKategoriSlug === 'dondurmacılık',
-                                },
-                                {
-                                    icon: '🎂',
-                                    label: { de: 'Konditorei & Bäckerei', tr: 'Pastane & Fırın' },
-                                    desc:  { de: 'Cheesecakes, Backzutaten', tr: 'Cheesecake, pastane' },
-                                    href: buildProductsHref({ kategori: 'pastalar-kekler' }),
-                                    active: seciliKategoriSlug === 'pastalar-kekler',
-                                },
-                                {
-                                    icon: '🍦',
-                                    label: { de: 'Dessert-Bar', tr: 'Dessert Bar' },
-                                    desc:  { de: 'Portionsdesserts & Eis', tr: 'Porsiyon tatlı, dondurma' },
-                                    href: buildProductsHref({ kategori: 'kurabiyeler-muffinler' }),
-                                    active: seciliKategoriSlug === 'kurabiyeler-muffinler',
-                                },
-                            ].map(seg => (
-                                <Link key={seg.icon} href={seg.href}
-                                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left transition-all flex-shrink-0
-                                        ${seg.active
-                                            ? 'bg-slate-900 border-slate-900 text-white shadow-sm'
-                                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400 hover:shadow-sm'}`}>
-                                    <span className="text-lg leading-none">{seg.icon}</span>
-                                    <div>
-                                        <p className={`text-xs font-semibold leading-tight ${seg.active ? 'text-white' : 'text-slate-800'}`}>
-                                            {(seg.label as any)[locale] || seg.label.de}
-                                        </p>
-                                        <p className={`text-[10px] leading-tight mt-0.5 hidden sm:block ${seg.active ? 'text-slate-300' : 'text-slate-400'}`}>
-                                            {(seg.desc as any)[locale] || seg.desc.de}
-                                        </p>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -437,7 +467,7 @@ export default async function PublicUrunlerPage({
                                                     <span className="truncate">{getLocalizedName(k.ad, locale as any)}</span>
                                                     <span className="text-[10px] text-slate-400 ml-1 flex-shrink-0">{count}</span>
                                                 </Link>
-                                                {isSelected && subKats.length > 0 && (
+                                                {subKats.length > 0 && (
                                                     <div className="ml-3 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
                                                         {subKats.map(sk => (
                                                             <Link key={sk.id}
@@ -530,7 +560,11 @@ export default async function PublicUrunlerPage({
                                 sablonMap={sablonMap}
                                 isLoggedIn={isLoggedIn}
                                 partnerTier={partnerTier}
-                                bestsellerUrunler={!seciliKategoriSlug && !sp.altKategori ? bestsellerUrunler : []}
+                                bestsellerUrunler={!seciliKategoriSlug && !sp.altKategori && !searchQuery ? bestsellerUrunler : []}
+                                featuredUrunler={!seciliKategoriSlug && !sp.altKategori && !searchQuery ? featuredUrunler : []}
+                                searchQuery={searchQuery}
+                                geschmackCounts={geschmackCounts}
+                                geschmackFilter={geschmackFilter}
                                 loginHref={`/${locale}/login`}
                                 pagination={{
                                     page: clampedPage,

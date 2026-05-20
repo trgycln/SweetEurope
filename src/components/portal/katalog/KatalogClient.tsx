@@ -446,11 +446,12 @@ function ProduktGridCard({
 
                 {/* Pricing */}
                 <div className="border-t border-gray-100 pt-2 space-y-1">
-                    {pricingRows.map((row, i) =>
-                        row.price ? (
+                    {pricingRows.map((row, i) => {
+                        const mobileHidden = i > 0;
+                        return row.price ? (
                             <div key={i} className={`flex items-center justify-between px-1 py-0.5 rounded text-[10px] ${
                                 row.highlight ? 'bg-blue-50 border border-blue-100' : ''
-                            }`}>
+                            } ${mobileHidden ? 'hidden sm:flex' : ''}`}>
                                 <div className="flex flex-col">
                                     <span className={`font-semibold ${row.highlight ? 'text-blue-800' : 'text-gray-600'}`}>
                                         {row.label}
@@ -461,8 +462,8 @@ function ProduktGridCard({
                                     {formatCurrency(row.price)}
                                 </span>
                             </div>
-                        ) : null
-                    )}
+                        ) : null;
+                    })}
                     {showIhrPreis && (
                         <div className="flex justify-between items-center px-1 py-0.5 bg-indigo-50 border border-indigo-200 rounded text-[10px] text-indigo-900 font-bold">
                             <span>{locale === 'de' ? 'Ihr Preis' : 'Size Özel'}</span>
@@ -549,7 +550,7 @@ function ProduktListRow({
     return (
         <Link
             href={`/${locale}/portal/katalog/${produkt.id}`}
-            className="flex items-center gap-4 px-4 py-3 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow group"
+            className="flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-3 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow group"
         >
             {/* Thumbnail */}
             <div className="relative w-14 h-14 bg-gray-50 rounded-md flex-shrink-0 overflow-hidden">
@@ -620,13 +621,13 @@ function ProduktListRow({
             </div>
 
             {/* Sağ: Fiyat kolonu */}
-            <div className="flex-shrink-0 w-40 space-y-0.5">
+            <div className="flex-shrink-0 w-28 sm:w-40 space-y-0.5">
                 {pricingRows.map((row, i) =>
                     row.price ? (
                         <div key={i} className={`flex items-center justify-between px-1.5 py-0.5 rounded text-[10px] ${
                             row.highlight ? 'bg-blue-50 border border-blue-100' : ''
                         }`}>
-                            <span className={`${row.highlight ? 'text-blue-700 font-semibold' : 'text-gray-400'}`}>
+                            <span className={`hidden sm:inline ${row.highlight ? 'text-blue-700 font-semibold' : 'text-gray-400'}`}>
                                 {row.label}
                             </span>
                             <span className={`font-bold ${row.highlight ? 'text-blue-700' : 'text-gray-700'}`}>
@@ -967,7 +968,7 @@ export function KatalogClient({
     return (
         <div className="space-y-8">
             <header>
-                <h1 className="font-serif text-4xl font-bold text-primary">{content.title}</h1>
+                <h1 className="font-serif text-2xl sm:text-4xl font-bold text-primary">{content.title}</h1>
                 <p className="text-text-main/80 mt-1">{content.description}</p>
             </header>
 
@@ -1039,7 +1040,8 @@ export function KatalogClient({
                 </div>
 
                 {/* Row 2: Quick filters */}
-                <div className="flex flex-wrap gap-2 px-4 py-3">
+                <div className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-none">
+                    <div className="flex gap-2 flex-shrink-0">
                     {/* Sadece favoriler */}
                     <button
                         onClick={toggleShowFavorites}
@@ -1110,8 +1112,9 @@ export function KatalogClient({
                         );
                     })}
 
+                    </div>
                     {/* View mode + aktif filtre temizle */}
-                    <div className="ml-auto flex items-center gap-2">
+                    <div className="flex items-center gap-2 ml-auto flex-shrink-0">
                         {(searchQuery || categoryFilter || showFavorites || stokFilter ||
                           badgeFilters.size > 0 || zertifikatFilters.size > 0 || tatFilters.size > 0) && (
                             <button
@@ -1147,8 +1150,8 @@ export function KatalogClient({
                 </div>
 
                 {/* Row 3: Tat/Aroma filtreleri */}
-                <div className="flex flex-wrap gap-2 px-4 py-3">
-                    <span className="text-xs font-semibold text-gray-400 self-center mr-1">
+                <div className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-none">
+                    <span className="text-xs font-semibold text-gray-400 self-center mr-1 flex-shrink-0">
                         {locale === 'de' ? 'Geschmack:' : 'Aroma:'}
                     </span>
                     {Object.entries(TAT_CONFIG).map(([key, cfg]) => {
@@ -1172,7 +1175,7 @@ export function KatalogClient({
                                     else next.add(key);
                                     return next;
                                 })}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors flex-shrink-0 ${
                                     tatFilters.has(key)
                                         ? 'bg-orange-100 text-orange-800 border-orange-300'
                                         : 'bg-white text-gray-600 border-gray-200 hover:border-orange-200 hover:text-orange-700'
