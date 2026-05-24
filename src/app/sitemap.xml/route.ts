@@ -9,26 +9,63 @@ const locales = ['de', 'en', 'tr', 'ar'];
 const baseUrl = 'https://www.elysonsweets.de';
 
 export async function GET() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { persistSession: false },
-  });
+  const diag: string[] = [];
+  diag.push(`supabaseUrl=${supabaseUrl ? 'set' : 'MISSING'}`);
+  diag.push(`supabaseServiceKey=${supabaseServiceKey ? `set(len=${supabaseServiceKey.length})` : 'MISSING'}`);
 
-  const [{ data: products }, { data: categories }] = await Promise.all([
-    supabase.from('urunler').select('slug, updated_at, kategori_id').eq('aktif', true),
-    supabase.from('kategoriler').select('id, slug, updated_at, ust_kategori_id'),
-  ]);
+  console.log('[sitemap]', diag.join(' | '));
 
-  const hiddenIds = buildHiddenPublicCategoryIds((categories || []) as any[]);
+  let products: any[] = [];
+  let categories: any[] = [];
 
-  const visibleProducts = (products || []).filter(
+  if (supabaseUrl && supabaseServiceKey) {
+    try {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+        auth: { persistSession: false },
+      });
+
+      const [productsRes, categoriesRes] = await Promise.all([
+        supabase.from('urunler').select('slug, updated_at, kategori_id').eq('aktif', true),
+        supabase.from('kategoriler').select('id, slug, updated_at, ust_kategori_id'),
+      ]);
+
+      if (productsRes.error) {
+        console.error('[sitemap] products error:', productsRes.error);
+        diag.push(`productsError=${productsRes.error.message}`);
+      }
+      if (categoriesRes.error) {
+        console.error('[sitemap] categories error:', categoriesRes.error);
+        diag.push(`categoriesError=${categoriesRes.error.message}`);
+      }
+
+      products = productsRes.data ?? [];
+      categories = categoriesRes.data ?? [];
+
+      diag.push(`productsRaw=${products.length}`);
+      diag.push(`categoriesRaw=${categories.length}`);
+      console.log('[sitemap] productsRaw:', products.length, 'categoriesRaw:', categories.length);
+    } catch (err: any) {
+      console.error('[sitemap] exception:', err);
+      diag.push(`exception=${err?.message ?? String(err)}`);
+    }
+  }
+
+  const hiddenIds = buildHiddenPublicCategoryIds(categories as any[]);
+  diag.push(`hiddenIds=${hiddenIds.size}`);
+
+  const visibleProducts = products.filter(
     (p) => p.slug && !hiddenIds.has(p.kategori_id ?? '')
   );
-  const visibleCategories = (categories || []).filter(
+  const visibleCategories = categories.filter(
     (c) => c.slug && !hiddenIds.has(c.id)
   );
+
+  diag.push(`visibleProducts=${visibleProducts.length}`);
+  diag.push(`visibleCategories=${visibleCategories.length}`);
+  console.log('[sitemap] visibleProducts:', visibleProducts.length, 'visibleCategories:', visibleCategories.length);
 
   const urls: string[] = [];
 
@@ -70,6 +107,7 @@ export async function GET() {
   });
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!-- diag: ${diag.join(' | ')} -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('')}
 </urlset>`;
