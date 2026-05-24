@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
@@ -27,6 +27,7 @@ interface ProductGridClientProps {
     searchQuery?: string;
     geschmackCounts?: Record<string, number>;
     geschmackFilter?: string;
+    aktiveMerkmale?: string[];
     loginHref?: string;
     pagination?: {
         page: number;
@@ -604,10 +605,11 @@ function CatalogRow({ urun, locale, kategoriAdlariMap, isLoggedIn }: {
 
 export function ProductGridClient({
     urunler, locale, kategoriAdlariMap, sablonMap, kategoriParentMap,
-    pagination, dictionary, isLoggedIn, partnerTier, bestsellerUrunler = [], featuredUrunler = [], searchQuery = '', geschmackCounts = {}, geschmackFilter = '', loginHref,
+    pagination, dictionary, isLoggedIn, partnerTier, bestsellerUrunler = [], featuredUrunler = [], searchQuery = '', geschmackCounts = {}, geschmackFilter = '', aktiveMerkmale = [], loginHref,
 }: ProductGridClientProps) {
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [searchTerm, setSearchTerm] = useState(searchQuery);
     const [searchDebounce, setSearchDebounce] = useState<ReturnType<typeof setTimeout> | null>(null);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -620,14 +622,14 @@ export function ProductGridClient({
 
         if (searchDebounce) clearTimeout(searchDebounce);
         const timeout = setTimeout(() => {
-            const params = new URLSearchParams();
+            const params = new URLSearchParams(searchParams.toString());
             if (value.trim()) params.set('q', value.trim());
-            if (pagination?.query?.kategori) params.set('kategori', pagination.query.kategori);
-            if (pagination?.query?.geschmack) params.set('geschmack', pagination.query.geschmack as string);
+            else params.delete('q');
+            params.delete('page');
             router.push(`${pathname}?${params.toString()}`);
         }, 400);
         setSearchDebounce(timeout);
-    }, [searchDebounce, pagination, pathname, router]);
+    }, [searchDebounce, searchParams, pathname, router]);
 
     // Load merkliste from localStorage
     useEffect(() => {
@@ -757,13 +759,29 @@ export function ProductGridClient({
                             { key: 'ohne_zucker', label: 'Zuckerfrei',  emoji: '🍬' },
                             { key: 'bio',         label: 'Bio',          emoji: '♻️' },
                             { key: 'halal',       label: 'Halal',        emoji: '✓' },
-                        ].map(f => (
-                            <span key={f.key}
-                                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border bg-white text-slate-500 border-slate-200 opacity-50 cursor-not-allowed"
-                                title={locale === 'de' ? 'Demnächst verfügbar' : 'Yakında aktif'}>
-                                {f.emoji} {f.label}
-                            </span>
-                        ))}
+                        ].map(f => {
+                            const isActive = aktiveMerkmale.includes(f.key);
+                            const newParams = new URLSearchParams(searchParams.toString());
+                            if (isActive) {
+                                const updated = aktiveMerkmale.filter(m => m !== f.key);
+                                if (updated.length > 0) newParams.set('merkmal', updated.join(','));
+                                else newParams.delete('merkmal');
+                            } else {
+                                newParams.set('merkmal', [...aktiveMerkmale, f.key].join(','));
+                            }
+                            newParams.delete('page');
+                            return (
+                                <a key={f.key}
+                                    href={`${pathname}?${newParams.toString()}`}
+                                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all
+                                        ${isActive
+                                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                                            : 'bg-white text-slate-500 border-slate-200 hover:border-emerald-300 hover:text-emerald-700 hover:bg-emerald-50'}`}>
+                                    {f.emoji} {f.label}
+                                    {isActive && <span className="ml-0.5 opacity-80">✕</span>}
+                                </a>
+                            );
+                        })}
                     </div>
 
                     {/* Aroma chip'leri */}
@@ -772,7 +790,13 @@ export function ProductGridClient({
                             {locale === 'de' ? 'Aroma:' : 'Aroma:'}
                         </span>
                         {geschmackFilter && (
-                            <a href={`${pathname}${pagination?.query?.kategori ? `?kategori=${pagination.query.kategori}` : ''}`}
+                            <a href={(() => {
+                                    const p = new URLSearchParams(searchParams.toString());
+                                    p.delete('geschmack');
+                                    p.delete('page');
+                                    const qs = p.toString();
+                                    return `${pathname}${qs ? `?${qs}` : ''}`;
+                                })()}
                                 className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-orange-500 text-white border border-orange-500 shadow-sm">
                                 {TAT_CONFIG[geschmackFilter]?.emoji} {locale === 'de' ? TAT_CONFIG[geschmackFilter]?.de : TAT_CONFIG[geschmackFilter]?.tr}
                                 <span className="ml-0.5">✕</span>
@@ -784,12 +808,12 @@ export function ProductGridClient({
                             .slice(0, 12)
                             .map(([key, count]) => {
                                 const cfg = TAT_CONFIG[key];
-                                const params = new URLSearchParams();
-                                params.set('geschmack', key);
-                                if (pagination?.query?.kategori) params.set('kategori', pagination.query.kategori as string);
+                                const newParams = new URLSearchParams(searchParams.toString());
+                                newParams.set('geschmack', key);
+                                newParams.delete('page');
                                 return (
                                     <a key={key}
-                                        href={`${pathname}?${params.toString()}`}
+                                        href={`${pathname}?${newParams.toString()}`}
                                         className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border bg-white text-slate-600 border-slate-200 hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50 transition-all"
                                     >
                                         <span>{cfg.emoji}</span>

@@ -68,6 +68,7 @@ export default async function PublicUrunlerPage({
         kategori?: string;
         altKategori?: string;
         geschmack?: string;
+        merkmal?: string;
         q?: string;
         page?: string;
         limit?: string;
@@ -86,6 +87,7 @@ export default async function PublicUrunlerPage({
     const geschmackFilter = sp.geschmack;
     const searchQuery = sp.q?.trim() || '';
     const segmentFilter = sp.segment; // 'cafe' | 'hotel' | 'patisserie' | 'dessertbar'
+    const aktifMerkmale = sp.merkmal ? sp.merkmal.split(',').filter(Boolean) : [];
 
     let seciliKategoriSlug: string | undefined;
     if (sp.kategori && sp.kategori.toLowerCase() !== 'null' && !isPublicCategorySlugHidden(sp.kategori)) {
@@ -280,6 +282,10 @@ export default async function PublicUrunlerPage({
             );
         }
 
+        for (const merkmal of aktifMerkmale) {
+            urunlerQuery = (urunlerQuery as any).contains('teknik_ozellikler', { [merkmal]: true });
+        }
+
         let urunlerRes = await urunlerQuery.order('ad', { ascending: true });
 
         if (urunlerRes.error) {
@@ -394,9 +400,12 @@ export default async function PublicUrunlerPage({
         if (sk) seciliKategoriAdi = sk.ad?.[locale] || sk.ad?.['de'] || seciliKategoriAdi;
     }
 
+    // Aktif geschmack ve merkmal filtreleri her zaman korunur, p ile override edilebilir
     const buildProductsHref = (p: Record<string, string | undefined>) => {
         const q = new URLSearchParams();
-        Object.entries(p).forEach(([k, v]) => { if (v) q.set(k, v); });
+        if (geschmackFilter && !('geschmack' in p)) q.set('geschmack', geschmackFilter);
+        if (sp.merkmal && !('merkmal' in p)) q.set('merkmal', sp.merkmal);
+        Object.entries(p).forEach(([k, v]) => { if (v) q.set(k, v); else q.delete(k); });
         const qs = q.toString();
         return `/${locale}/products${qs ? `?${qs}` : ''}`;
     };
@@ -405,6 +414,7 @@ export default async function PublicUrunlerPage({
         kategori: seciliKategoriSlug,
         altKategori: sp.altKategori,
         geschmack: geschmackFilter,
+        merkmal: sp.merkmal || undefined,
         q: searchQuery || undefined,
     };
 
@@ -588,6 +598,7 @@ export default async function PublicUrunlerPage({
                                 searchQuery={searchQuery}
                                 geschmackCounts={geschmackCounts}
                                 geschmackFilter={geschmackFilter}
+                                aktiveMerkmale={aktifMerkmale}
                                 loginHref={`/${locale}/login`}
                                 pagination={{
                                     page: clampedPage,
