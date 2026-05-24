@@ -2,6 +2,53 @@
 import type { Dictionary } from './index';
 
 export const dictionary: Partial<Dictionary> = {
+  gamLabels: {
+    barista: 'Barista & Bar',
+    dondurma: 'Ice Cream & Gelato',
+    pastaci: 'Pastry & Bakery',
+    icecek: 'Beverages',
+    allSeries: 'All Series',
+    seriesLabel: 'Product Series',
+  },
+
+  isletmeBilgileri: {
+    sectionTitle: 'Business Information',
+    profilTitle: 'Business Profile',
+    tur: 'Type',
+    kapasite: 'Capacity',
+    koltukBirimi: 'seats',
+    odeme: 'Payment',
+    gun: 'days',
+    rakip: 'Competitor',
+    gam: 'Series',
+    isletmeTipi: 'Business Type',
+    isletmeTipiKafe: 'Café',
+    isletmeTipiRestoran: 'Restaurant',
+    isletmeTipiPastane: 'Patisserie',
+    isletmeTipiDondurma: 'Ice Cream Shop',
+    isletmeTipiOtel: 'Hotel',
+    isletmeTipiCatering: 'Catering',
+    isletmeTipiBufe: 'Snack Bar / Kiosk',
+    isletmeTipiDiger: 'Other',
+    koltukSayisi: 'Seating Capacity',
+    koltukSayisiPh: 'e.g. 40',
+    tercihliUrunGami: 'Preferred Product Series',
+    odemeYontemi: 'Payment Method',
+    odemeYontemiNakit: 'Cash',
+    odemeYontemiBanka: 'Bank Transfer',
+    odemeYontemiSepa: 'SEPA Direct Debit',
+    odemeVadesiGun: 'Payment Terms (Days)',
+    odemeVadesiPesin: '0 days (immediate)',
+    siparisPeriyoduGun: 'Order Frequency (Days)',
+    siparisPeriyoduPh: 'e.g. 14',
+    siparisPeriyoduAciklama: 'Average days between orders',
+    rakipKullaniyorMu: 'Uses competitor product',
+    rakipMarka: 'Competitor Brand',
+    rakipMarkaPh: 'Which brand is being used?',
+    notlar: 'General Notes',
+    notlarPh: 'Other notes about this business...',
+  },
+
   // SEO Metadata
   seo: {
     home: {

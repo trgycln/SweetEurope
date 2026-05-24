@@ -69,6 +69,17 @@ export async function updateFirmaAction(
     const inherit_facebook_url = formData.get('inherit_facebook_url') === 'on';
     const inherit_google_maps_url = formData.get('inherit_google_maps_url') === 'on';
 
+    // İşletme Bilgileri (teknik_ozellikler JSONB alanı için)
+    const isletme_tipi = formData.get('isletme_tipi') as string | null;
+    const koltuk_sayisi_raw = formData.get('koltuk_sayisi') as string | null;
+    const tercihli_urun_gami = formData.getAll('tercihli_urun_gami') as string[];
+    const odeme_yontemi = formData.get('odeme_yontemi') as string | null;
+    const odeme_vadesi_gun_raw = formData.get('odeme_vadesi_gun') as string | null;
+    const siparis_periyodu_gun_raw = formData.get('siparis_periyodu_gun') as string | null;
+    const rakip_kullaniyor_mu = formData.get('rakip_kullaniyor_mu') === 'on';
+    const rakip_marka = formData.get('rakip_marka') as string | null;
+    const isletme_notlar = formData.get('isletme_notlar') as string | null;
+
     // Einfache Validierung (Beispiel)
     if (!unvan) { // Status ist oft optional oder wird nicht immer geändert
         return { success: false, error: "Firmenname darf nicht leer sein." };
@@ -151,6 +162,26 @@ export async function updateFirmaAction(
     // Checkbox-Wert immer setzen (true oder false)
     updatedData.referans_olarak_goster = referans_olarak_goster;
     (updatedData as any).updated_by = user.id;
+
+    // teknik_ozellikler: mevcut değerlerle merge et
+    const { data: mevcutFirmaData } = await supabase
+        .from('firmalar')
+        .select('teknik_ozellikler')
+        .eq('id', firmaId)
+        .single();
+    const mevcutTeknikOzellikler = (mevcutFirmaData as any)?.teknik_ozellikler || {};
+    (updatedData as any).teknik_ozellikler = {
+        ...mevcutTeknikOzellikler,
+        isletme_tipi: isletme_tipi || null,
+        koltuk_sayisi: koltuk_sayisi_raw ? parseInt(koltuk_sayisi_raw, 10) : null,
+        tercihli_urun_gami: tercihli_urun_gami.length > 0 ? tercihli_urun_gami : [],
+        odeme_yontemi: odeme_yontemi || null,
+        odeme_vadesi_gun: odeme_vadesi_gun_raw !== null && odeme_vadesi_gun_raw !== '' ? parseInt(odeme_vadesi_gun_raw, 10) : null,
+        siparis_periyodu_gun: siparis_periyodu_gun_raw ? parseInt(siparis_periyodu_gun_raw, 10) : null,
+        rakip_kullaniyor_mu,
+        rakip_marka: rakip_kullaniyor_mu ? (rakip_marka || null) : null,
+        notlar: isletme_notlar || null,
+    };
 
     // --- Ab hier Logik für Update, Statusänderung und Benachrichtigung ---
     const promises = [];

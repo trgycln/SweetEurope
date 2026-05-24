@@ -761,14 +761,29 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                          {isEditMode && <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1"><span>⚠️</span> {L.basicsSection.changeCategoryWarning}</p>}
                      </div>
 
-                     <input type="hidden" name="urun_gami" value={seciliUrunGami || ''} />
-
                      <div>
                          <label htmlFor="tedarikci_id" className={labelClasses}>{L.supplierSection.supplier}</label>
                          <select id="tedarikci_id" name="tedarikci_id" defaultValue={normalizedSupplierValue} className="w-full p-2 border rounded-md bg-gray-50">
                              <option value="">{L.supplierSection.none}</option>
                              {supplierOptions.map(t => <option key={t.id} value={t.id}>{getCanonicalSupplierLabel(t.unvan)}</option>)}
                          </select>
+                     </div>
+
+                     <div>
+                         <label htmlFor="urun_gami_select" className={labelClasses}>Ürün Serisi / Gam</label>
+                         <select
+                             id="urun_gami_select"
+                             name="urun_gami"
+                             defaultValue={['barista', 'dondurma', 'pastaci', 'icecek'].includes(mevcutUrun?.urun_gami ?? '') ? (mevcutUrun?.urun_gami ?? '') : ''}
+                             className="w-full p-2 border rounded-md bg-gray-50"
+                         >
+                             <option value="">— Seçiniz (isteğe bağlı) —</option>
+                             <option value="barista">Barista &amp; Bar</option>
+                             <option value="dondurma">Eis &amp; Gelato / Dondurma</option>
+                             <option value="pastaci">Konditorei &amp; Bäckerei / Pastacılık</option>
+                             <option value="icecek">Getränke / İçecekler</option>
+                         </select>
+                         <p className="text-xs text-gray-400 mt-1">Hedef müşteri segmenti — kafeler, dondurma dükkanları, pastaneler, içecek büfeleri</p>
                      </div>
 
                      <div className="md:col-span-2 rounded-lg border border-dashed border-amber-200 bg-amber-50/70 p-4 space-y-3">

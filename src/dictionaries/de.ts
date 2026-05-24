@@ -1455,6 +1455,53 @@ statusOptions: {
     }
   },
   
+  gamLabels: {
+    barista: 'Barista & Bar',
+    dondurma: 'Eis & Gelato',
+    pastaci: 'Konditorei & Bäckerei',
+    icecek: 'Getränke',
+    allSeries: 'Alle Serien',
+    seriesLabel: 'Produktserie',
+  },
+
+  isletmeBilgileri: {
+    sectionTitle: 'Betriebsinformationen',
+    profilTitle: 'Betriebsprofil',
+    tur: 'Art',
+    kapasite: 'Kapazität',
+    koltukBirimi: 'Sitzplätze',
+    odeme: 'Zahlung',
+    gun: 'Tage',
+    rakip: 'Konkurrenz',
+    gam: 'Sortiment',
+    isletmeTipi: 'Betriebsart',
+    isletmeTipiKafe: 'Café',
+    isletmeTipiRestoran: 'Restaurant',
+    isletmeTipiPastane: 'Konditorei',
+    isletmeTipiDondurma: 'Eisdiele',
+    isletmeTipiOtel: 'Hotel',
+    isletmeTipiCatering: 'Catering',
+    isletmeTipiBufe: 'Büfett / Imbiss',
+    isletmeTipiDiger: 'Sonstiges',
+    koltukSayisi: 'Sitzplatzkapazität',
+    koltukSayisiPh: 'z. B. 40',
+    tercihliUrunGami: 'Bevorzugte Produktserie',
+    odemeYontemi: 'Zahlungsart',
+    odemeYontemiNakit: 'Bar',
+    odemeYontemiBanka: 'Banküberweisung',
+    odemeYontemiSepa: 'SEPA-Lastschrift',
+    odemeVadesiGun: 'Zahlungsziel (Tage)',
+    odemeVadesiPesin: '0 Tage (sofort)',
+    siparisPeriyoduGun: 'Bestellrhythmus (Tage)',
+    siparisPeriyoduPh: 'z. B. 14',
+    siparisPeriyoduAciklama: 'Durchschnittlicher Bestellrhythmus in Tagen',
+    rakipKullaniyorMu: 'Konkurrenzprodukt im Einsatz',
+    rakipMarka: 'Konkurrenzmarke',
+    rakipMarkaPh: 'Welche Marke wird verwendet?',
+    notlar: 'Allgemeine Notizen',
+    notlarPh: 'Sonstige Hinweise zum Betrieb...',
+  },
+
   // SEO Metadata
   seo: {
     home: {

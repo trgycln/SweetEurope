@@ -144,12 +144,19 @@ export function UrunFiltre({
       value: selectedTedarikci,
     });
   }
-  if (selectedUrunGami)
+  if (selectedUrunGami) {
+    const gamDisplayLabels: Record<string, string> = {
+      barista: 'Barista & Bar',
+      dondurma: 'Eis & Gelato',
+      pastaci: 'Konditorei & Bäckerei',
+      icecek: 'Getränke',
+    };
     activeChips.push({
       key: 'urun_gami',
-      label: `${labels.active.productLinePrefix} ${selectedUrunGami}`,
+      label: `${labels.active.productLinePrefix} ${gamDisplayLabels[selectedUrunGami] ?? selectedUrunGami}`,
       value: selectedUrunGami,
     });
+  }
   if (selectedLojistik) {
     let logLabel = selectedLojistik;
     if (selectedLojistik === 'tiefkühl') logLabel = 'Tiefkühl';
@@ -276,21 +283,23 @@ export function UrunFiltre({
         </select>
 
         {/* Ürün Gamı */}
-        {urunGamiOptions.length > 0 && (
-          <select
-            value={selectedUrunGami}
-            onChange={(e) => updateFilters('urun_gami', e.target.value)}
-            className="rounded-md border border-slate-200 px-2 py-1.5 text-sm"
-            disabled={isPending}
-          >
-            <option value="">{labels.allProductLines}</option>
-            {urunGamiOptions.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
+        <select
+          value={selectedUrunGami}
+          onChange={(e) => updateFilters('urun_gami', e.target.value)}
+          className="rounded-md border border-slate-200 px-2 py-1.5 text-sm"
+          disabled={isPending}
+        >
+          <option value="">{labels.allProductLines}</option>
+          <option value="barista">Barista &amp; Bar</option>
+          <option value="dondurma">Eis &amp; Gelato</option>
+          <option value="pastaci">Konditorei &amp; Bäckerei</option>
+          <option value="icecek">Getränke</option>
+          {urunGamiOptions
+            .filter((g) => !['barista', 'dondurma', 'pastaci', 'icecek'].includes(g))
+            .map((g) => (
+              <option key={g} value={g}>{g}</option>
             ))}
-          </select>
-        )}
+        </select>
 
         {/* Lojistik Sınıfı */}
         <select

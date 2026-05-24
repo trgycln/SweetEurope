@@ -73,6 +73,7 @@ export default async function PublicUrunlerPage({
         page?: string;
         limit?: string;
         segment?: string;
+        gam?: string;
     }>;
 }) {
     const cookieStore = await cookies();
@@ -88,6 +89,7 @@ export default async function PublicUrunlerPage({
     const searchQuery = sp.q?.trim() || '';
     const segmentFilter = sp.segment; // 'cafe' | 'hotel' | 'patisserie' | 'dessertbar'
     const aktifMerkmale = sp.merkmal ? sp.merkmal.split(',').filter(Boolean) : [];
+    const gamFilter = ['barista', 'dondurma', 'pastaci', 'icecek'].includes(sp.gam ?? '') ? sp.gam : undefined;
 
     let seciliKategoriSlug: string | undefined;
     if (sp.kategori && sp.kategori.toLowerCase() !== 'null' && !isPublicCategorySlugHidden(sp.kategori)) {
@@ -275,6 +277,10 @@ export default async function PublicUrunlerPage({
             urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
         }
 
+        if (gamFilter) {
+            urunlerQuery = urunlerQuery.eq('urun_gami', gamFilter);
+        }
+
         if (geschmackFilter) {
             urunlerQuery = urunlerQuery.contains(
                 'teknik_ozellikler->geschmack',
@@ -400,11 +406,12 @@ export default async function PublicUrunlerPage({
         if (sk) seciliKategoriAdi = sk.ad?.[locale] || sk.ad?.['de'] || seciliKategoriAdi;
     }
 
-    // Aktif geschmack ve merkmal filtreleri her zaman korunur, p ile override edilebilir
+    // Aktif geschmack, merkmal ve gam filtreleri her zaman korunur, p ile override edilebilir
     const buildProductsHref = (p: Record<string, string | undefined>) => {
         const q = new URLSearchParams();
         if (geschmackFilter && !('geschmack' in p)) q.set('geschmack', geschmackFilter);
         if (sp.merkmal && !('merkmal' in p)) q.set('merkmal', sp.merkmal);
+        if (gamFilter && !('gam' in p)) q.set('gam', gamFilter);
         Object.entries(p).forEach(([k, v]) => { if (v) q.set(k, v); else q.delete(k); });
         const qs = q.toString();
         return `/${locale}/products${qs ? `?${qs}` : ''}`;
@@ -418,7 +425,7 @@ export default async function PublicUrunlerPage({
         q: searchQuery || undefined,
     };
 
-    const activeFilterCount = [seciliKategoriSlug, sp.altKategori].filter(Boolean).length;
+    const activeFilterCount = [seciliKategoriSlug, sp.altKategori, gamFilter].filter(Boolean).length;
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -519,8 +526,37 @@ export default async function PublicUrunlerPage({
                             </div>
                         </div>
 
+                        {/* Ürün Serisi / Gam Filter */}
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                                {dictionary.gamLabels?.seriesLabel || (locale === 'de' ? 'Produktserie' : 'Ürün Serisi')}
+                            </p>
+                            <div className="space-y-0.5">
+                                {[
+                                    { key: 'barista', emoji: '☕' },
+                                    { key: 'dondurma', emoji: '🍦' },
+                                    { key: 'pastaci', emoji: '🥐' },
+                                    { key: 'icecek', emoji: '🥤' },
+                                ].map(({ key, emoji }) => {
+                                    const label = dictionary.gamLabels?.[key] || key;
+                                    const isActive = gamFilter === key;
+                                    return (
+                                        <Link
+                                            key={key}
+                                            href={buildProductsHref({ gam: isActive ? undefined : key, page: undefined })}
+                                            className={`flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
+                                                ${isActive ? 'bg-indigo-50 text-indigo-900 font-semibold border border-indigo-200' : 'text-slate-600 hover:bg-slate-100'}`}
+                                        >
+                                            <span>{emoji}</span>
+                                            <span className="truncate">{label}</span>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         {/* Filter zurücksetzen */}
-                        {activeFilterCount > 0 && (
+                        {(activeFilterCount > 0 || gamFilter) && (
                             <Link href={`/${locale}/products`}
                                 className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-500 hover:border-red-300 hover:text-red-500 transition-colors">
                                 ✕ {locale === 'de' ? 'Filter zurücksetzen' : 'Filtreleri temizle'}
@@ -566,6 +602,12 @@ export default async function PublicUrunlerPage({
                                     <Link href={buildProductsHref({ ...currentQuery, kategori: undefined, altKategori: undefined })}
                                         className="inline-flex items-center gap-1 bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium hover:bg-slate-300">
                                         {seciliKategoriAdi} ✕
+                                    </Link>
+                                )}
+                                {gamFilter && (
+                                    <Link href={buildProductsHref({ gam: undefined })}
+                                        className="inline-flex items-center gap-1 bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-medium hover:bg-indigo-200">
+                                        {dictionary.gamLabels?.[gamFilter] || gamFilter} ✕
                                     </Link>
                                 )}
                                 <Link href={`/${locale}/products`} className="text-slate-400 hover:text-slate-600 underline ml-1">

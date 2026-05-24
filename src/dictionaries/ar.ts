@@ -2,6 +2,53 @@
 import type { Dictionary } from './index';
 
 export const dictionary: Partial<Dictionary> = {
+  gamLabels: {
+    barista: 'باريستا وبار',
+    dondurma: 'آيس كريم',
+    pastaci: 'المعجنات',
+    icecek: 'المشروبات',
+    allSeries: 'جميع السلاسل',
+    seriesLabel: 'سلسلة المنتجات',
+  },
+
+  isletmeBilgileri: {
+    sectionTitle: 'معلومات المشروع',
+    profilTitle: 'ملف المشروع',
+    tur: 'النوع',
+    kapasite: 'السعة',
+    koltukBirimi: 'مقعد',
+    odeme: 'الدفع',
+    gun: 'يوم',
+    rakip: 'المنافس',
+    gam: 'السلسلة',
+    isletmeTipi: 'نوع المشروع',
+    isletmeTipiKafe: 'مقهى',
+    isletmeTipiRestoran: 'مطعم',
+    isletmeTipiPastane: 'محل حلويات',
+    isletmeTipiDondurma: 'محل آيس كريم',
+    isletmeTipiOtel: 'فندق',
+    isletmeTipiCatering: 'تموين',
+    isletmeTipiBufe: 'بوفيه',
+    isletmeTipiDiger: 'أخرى',
+    koltukSayisi: 'سعة الجلوس',
+    koltukSayisiPh: 'مثال: 40',
+    tercihliUrunGami: 'سلسلة المنتجات المفضلة',
+    odemeYontemi: 'طريقة الدفع',
+    odemeYontemiNakit: 'نقداً',
+    odemeYontemiBanka: 'تحويل بنكي',
+    odemeYontemiSepa: 'خصم مباشر SEPA',
+    odemeVadesiGun: 'أجل الدفع (أيام)',
+    odemeVadesiPesin: '0 يوم (فوري)',
+    siparisPeriyoduGun: 'دورة الطلبات (أيام)',
+    siparisPeriyoduPh: 'مثال: 14',
+    siparisPeriyoduAciklama: 'متوسط عدد الأيام بين الطلبات',
+    rakipKullaniyorMu: 'يستخدم منتج منافس',
+    rakipMarka: 'العلامة المنافسة',
+    rakipMarkaPh: 'أي علامة تجارية يستخدم؟',
+    notlar: 'ملاحظات عامة',
+    notlarPh: 'ملاحظات أخرى حول المشروع...',
+  },
+
   // SEO Metadata
   seo: {
     home: {

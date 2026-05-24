@@ -431,6 +431,93 @@ export default async function FirmaOzetPage({ params }: PageProps) {
                 </div>
             </div>
 
+            {/* ── İşletme Profili ── */}
+            {(() => {
+                const tekOz = (firma.teknik_ozellikler as any) || {};
+                const hasData = !!(
+                    tekOz.isletme_tipi ||
+                    (Array.isArray(tekOz.tercihli_urun_gami) && tekOz.tercihli_urun_gami.length > 0) ||
+                    tekOz.odeme_yontemi ||
+                    tekOz.rakip_kullaniyor_mu ||
+                    tekOz.koltuk_sayisi != null ||
+                    tekOz.notlar
+                );
+                if (!hasData) return null;
+
+                const ISLETME_TIPI: Record<string, string> = {
+                    kafe: 'Kafe', restoran: 'Restoran', pastane: 'Pastane',
+                    dondurma: 'Dondurma Dükkanı', otel: 'Otel', catering: 'Catering',
+                    bufe: 'Büfe', diger: 'Diğer',
+                };
+                const ODEME_YONTEMI: Record<string, string> = {
+                    nakit: 'Nakit', banka_transferi: 'Banka Transferi', sepa: 'SEPA',
+                };
+                const GAM_LABEL: Record<string, string> = {
+                    barista: 'Barista & Bar', dondurma: 'Eis & Gelato',
+                    pastaci: 'Konditorei', icecek: 'Getränke',
+                };
+                const GAM_COLOR: Record<string, string> = {
+                    barista: 'bg-amber-50 text-amber-700 border border-amber-200',
+                    dondurma: 'bg-blue-50 text-blue-700 border border-blue-200',
+                    pastaci: 'bg-pink-50 text-pink-700 border border-pink-200',
+                    icecek: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                };
+
+                return (
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4">
+                        <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">İşletme Profili</h3>
+                        <div className="flex flex-wrap gap-x-6 gap-y-2.5 items-center">
+                            {tekOz.isletme_tipi && (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] font-semibold text-slate-400 uppercase">Tür</span>
+                                    <span className="text-sm font-medium text-slate-700">
+                                        {ISLETME_TIPI[tekOz.isletme_tipi] ?? tekOz.isletme_tipi}
+                                    </span>
+                                </div>
+                            )}
+                            {tekOz.koltuk_sayisi != null && (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] font-semibold text-slate-400 uppercase">Kapasite</span>
+                                    <span className="text-sm font-medium text-slate-700">{tekOz.koltuk_sayisi} koltuk</span>
+                                </div>
+                            )}
+                            {tekOz.odeme_yontemi && (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] font-semibold text-slate-400 uppercase">Ödeme</span>
+                                    <span className="text-sm font-medium text-slate-700">
+                                        {ODEME_YONTEMI[tekOz.odeme_yontemi] ?? tekOz.odeme_yontemi}
+                                        {tekOz.odeme_vadesi_gun != null && (
+                                            <span className="text-slate-400"> · {tekOz.odeme_vadesi_gun} gün</span>
+                                        )}
+                                    </span>
+                                </div>
+                            )}
+                            {tekOz.rakip_kullaniyor_mu && (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] font-semibold text-slate-400 uppercase">Rakip</span>
+                                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                        {tekOz.rakip_marka || 'Evet'}
+                                    </span>
+                                </div>
+                            )}
+                            {Array.isArray(tekOz.tercihli_urun_gami) && tekOz.tercihli_urun_gami.length > 0 && (
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="text-[10px] font-semibold text-slate-400 uppercase">Gam</span>
+                                    {tekOz.tercihli_urun_gami.map((g: string) => (
+                                        <span key={g} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${GAM_COLOR[g] ?? 'bg-slate-100 text-slate-600'}`}>
+                                            {GAM_LABEL[g] ?? g}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        {tekOz.notlar && (
+                            <p className="mt-2.5 text-xs text-slate-500 italic border-t border-slate-100 pt-2.5">{tekOz.notlar}</p>
+                        )}
+                    </div>
+                );
+            })()}
+
             {/* ── Portal Erişimi Ver ── */}
             {!isCustomer && (
                 <div className="flex justify-end">

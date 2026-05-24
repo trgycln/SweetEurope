@@ -2,6 +2,53 @@
 import type { Dictionary } from './index';
 
 export const dictionary: Partial<Dictionary> = {
+  gamLabels: {
+    barista: 'Barista & Bar',
+    dondurma: 'Dondurma',
+    pastaci: 'Pastacılık',
+    icecek: 'İçecekler',
+    allSeries: 'Tüm Seriler',
+    seriesLabel: 'Ürün Serisi',
+  },
+
+  isletmeBilgileri: {
+    sectionTitle: 'İşletme Bilgileri',
+    profilTitle: 'İşletme Profili',
+    tur: 'Tür',
+    kapasite: 'Kapasite',
+    koltukBirimi: 'koltuk',
+    odeme: 'Ödeme',
+    gun: 'gün',
+    rakip: 'Rakip',
+    gam: 'Gam',
+    isletmeTipi: 'İşletme Tipi',
+    isletmeTipiKafe: 'Kafe',
+    isletmeTipiRestoran: 'Restoran',
+    isletmeTipiPastane: 'Pastane',
+    isletmeTipiDondurma: 'Dondurma Dükkanı',
+    isletmeTipiOtel: 'Otel',
+    isletmeTipiCatering: 'Catering',
+    isletmeTipiBufe: 'Büfe',
+    isletmeTipiDiger: 'Diğer',
+    koltukSayisi: 'Koltuk Sayısı',
+    koltukSayisiPh: 'örn. 40',
+    tercihliUrunGami: 'Tercih Ettiği Ürün Gamı',
+    odemeYontemi: 'Ödeme Yöntemi',
+    odemeYontemiNakit: 'Nakit',
+    odemeYontemiBanka: 'Banka Transferi',
+    odemeYontemiSepa: 'SEPA',
+    odemeVadesiGun: 'Ödeme Vadesi (Gün)',
+    odemeVadesiPesin: '0 gün (peşin)',
+    siparisPeriyoduGun: 'Sipariş Periyodu (Gün)',
+    siparisPeriyoduPh: 'örn. 14',
+    siparisPeriyoduAciklama: 'Ortalama kaç günde bir sipariş veriyor?',
+    rakipKullaniyorMu: 'Rakip ürün kullanıyor',
+    rakipMarka: 'Rakip Marka',
+    rakipMarkaPh: 'Hangi rakip ürün kullanıyor?',
+    notlar: 'Genel Notlar',
+    notlarPh: 'İşletme hakkında genel notlar...',
+  },
+
   // SEO Metadata
   seo: {
     home: {

@@ -58,6 +58,7 @@ export default function FirmaDuzenlePage() {
     const [parentFirmaOptions, setParentFirmaOptions] = useState<Array<{ id: string; unvan: string }>>([]);
     const [branches, setBranches] = useState<Array<{ id: string; unvan: string }>>([]);
     const [isPending, startTransition] = useTransition();
+    const [rakipKullaniyor, setRakipKullaniyor] = useState(false);
 
     useEffect(() => {
         const fetchFirma = async () => {
@@ -74,6 +75,7 @@ export default function FirmaDuzenlePage() {
                 router.push(`/${locale}/admin/crm/firmalar`);
             } else {
                 setFirma(data);
+                setRakipKullaniyor(!!((data as any).teknik_ozellikler?.rakip_kullaniyor_mu));
                 if (data.created_by) {
                     const { data: creator } = await supabase
                         .from('profiller')
@@ -143,6 +145,7 @@ export default function FirmaDuzenlePage() {
     if (!firma) return <div className="p-6 text-red-500">Firma yüklenemedi.</div>;
 
     const inp = 'w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-700 focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder:text-slate-400 disabled:bg-slate-100 disabled:cursor-not-allowed';
+    const tekOz = (firma as any)?.teknik_ozellikler || {};
 
     return (
         <div className="space-y-6 max-w-3xl">
@@ -424,6 +427,141 @@ export default function FirmaDuzenlePage() {
                         <label htmlFor="referans_olarak_goster" className="text-sm font-medium text-slate-700">
                             Ana sayfada referans olarak göster
                         </label>
+                    </div>
+
+                    {/* İşletme Bilgileri */}
+                    <div className="md:col-span-2 pt-2 border-t border-slate-100">
+                        <h3 className="text-sm font-bold text-slate-700 mb-4">İşletme Bilgileri</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                            {/* İşletme Tipi */}
+                            <div>
+                                <label htmlFor="isletme_tipi" className="block text-xs font-bold text-slate-500 mb-1">İşletme Tipi</label>
+                                <select id="isletme_tipi" name="isletme_tipi" defaultValue={tekOz.isletme_tipi || ''} className={inp}>
+                                    <option value="">-- Seçin --</option>
+                                    <option value="kafe">Kafe</option>
+                                    <option value="restoran">Restoran</option>
+                                    <option value="pastane">Pastane</option>
+                                    <option value="dondurma">Dondurma Dükkanı</option>
+                                    <option value="otel">Otel</option>
+                                    <option value="catering">Catering</option>
+                                    <option value="bufe">Büfe</option>
+                                    <option value="diger">Diğer</option>
+                                </select>
+                            </div>
+
+                            {/* Koltuk Sayısı */}
+                            <div>
+                                <label htmlFor="koltuk_sayisi" className="block text-xs font-bold text-slate-500 mb-1">Koltuk Sayısı (Mekan Kapasitesi)</label>
+                                <input
+                                    type="number" id="koltuk_sayisi" name="koltuk_sayisi"
+                                    min="0"
+                                    defaultValue={tekOz.koltuk_sayisi ?? ''}
+                                    placeholder="örn. 40"
+                                    className={inp}
+                                />
+                            </div>
+
+                            {/* Tercihli Ürün Gamı */}
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-slate-500 mb-2">Tercih Ettiği Ürün Gamı</label>
+                                <div className="flex flex-wrap gap-3">
+                                    {[
+                                        { value: 'barista', label: 'Barista & Bar' },
+                                        { value: 'dondurma', label: 'Eis & Gelato' },
+                                        { value: 'pastaci', label: 'Konditorei & Bäckerei' },
+                                        { value: 'icecek', label: 'Getränke' },
+                                    ].map(({ value, label }) => (
+                                        <label key={value} className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-indigo-50 rounded-full cursor-pointer transition">
+                                            <input
+                                                type="checkbox"
+                                                name="tercihli_urun_gami"
+                                                value={value}
+                                                defaultChecked={Array.isArray(tekOz.tercihli_urun_gami) && tekOz.tercihli_urun_gami.includes(value)}
+                                                className="rounded text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            <span className="text-xs font-medium text-slate-600">{label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Ödeme Yöntemi */}
+                            <div>
+                                <label htmlFor="odeme_yontemi" className="block text-xs font-bold text-slate-500 mb-1">Ödeme Yöntemi</label>
+                                <select id="odeme_yontemi" name="odeme_yontemi" defaultValue={tekOz.odeme_yontemi || ''} className={inp}>
+                                    <option value="">-- Seçin --</option>
+                                    <option value="nakit">Nakit</option>
+                                    <option value="banka_transferi">Banka Transferi</option>
+                                    <option value="sepa">SEPA</option>
+                                </select>
+                            </div>
+
+                            {/* Ödeme Vadesi */}
+                            <div>
+                                <label htmlFor="odeme_vadesi_gun" className="block text-xs font-bold text-slate-500 mb-1">Ödeme Vadesi (Gün)</label>
+                                <select id="odeme_vadesi_gun" name="odeme_vadesi_gun" defaultValue={tekOz.odeme_vadesi_gun ?? ''} className={inp}>
+                                    <option value="">-- Seçin --</option>
+                                    <option value="0">0 gün (peşin)</option>
+                                    <option value="7">7 gün</option>
+                                    <option value="14">14 gün</option>
+                                    <option value="30">30 gün</option>
+                                </select>
+                            </div>
+
+                            {/* Sipariş Periyodu */}
+                            <div>
+                                <label htmlFor="siparis_periyodu_gun" className="block text-xs font-bold text-slate-500 mb-1">Sipariş Periyodu (Gün)</label>
+                                <input
+                                    type="number" id="siparis_periyodu_gun" name="siparis_periyodu_gun"
+                                    min="1"
+                                    defaultValue={tekOz.siparis_periyodu_gun ?? ''}
+                                    placeholder="örn. 14"
+                                    className={inp}
+                                />
+                                <p className="text-[11px] text-slate-400 mt-1">Ortalama kaç günde bir sipariş veriyor?</p>
+                            </div>
+
+                            {/* Rakip Kullanıyor mu */}
+                            <div className="flex items-center gap-3 pt-1">
+                                <input
+                                    id="rakip_kullaniyor_mu"
+                                    name="rakip_kullaniyor_mu"
+                                    type="checkbox"
+                                    checked={rakipKullaniyor}
+                                    onChange={e => setRakipKullaniyor(e.target.checked)}
+                                    className="h-4 w-4 rounded text-red-600 focus:ring-red-500 border-slate-300"
+                                />
+                                <label htmlFor="rakip_kullaniyor_mu" className="text-xs font-bold text-slate-500 cursor-pointer">
+                                    Rakip ürün kullanıyor
+                                </label>
+                            </div>
+
+                            {/* Rakip Marka (sadece rakip kullanıyorsa görünür) */}
+                            {rakipKullaniyor && (
+                                <div>
+                                    <label htmlFor="rakip_marka" className="block text-xs font-bold text-slate-500 mb-1">Rakip Marka</label>
+                                    <input
+                                        type="text" id="rakip_marka" name="rakip_marka"
+                                        defaultValue={tekOz.rakip_marka || ''}
+                                        placeholder="Hangi rakip ürün kullanıyor?"
+                                        className={inp}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Genel Notlar */}
+                            <div className="md:col-span-2">
+                                <label htmlFor="isletme_notlar" className="block text-xs font-bold text-slate-500 mb-1">Genel Notlar</label>
+                                <textarea
+                                    id="isletme_notlar" name="isletme_notlar"
+                                    rows={3}
+                                    defaultValue={tekOz.notlar || ''}
+                                    placeholder="İşletme hakkında genel notlar..."
+                                    className={inp}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Sosyal Medya & URL'ler */}
