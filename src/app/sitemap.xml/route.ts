@@ -28,8 +28,8 @@ export async function GET() {
       });
 
       const [productsRes, categoriesRes] = await Promise.all([
-        supabase.from('urunler').select('slug, updated_at, kategori_id').eq('aktif', true),
-        supabase.from('kategoriler').select('id, slug, updated_at, ust_kategori_id'),
+        supabase.from('urunler').select('slug, created_at, kategori_id').eq('aktif', true),
+        supabase.from('kategoriler').select('id, slug, created_at, ust_kategori_id'),
       ]);
 
       if (productsRes.error) {
@@ -87,7 +87,7 @@ export async function GET() {
       urls.push(`
   <url>
     <loc>${baseUrl}/${locale}/products/${product.slug}</loc>
-    <lastmod>${product.updated_at ? new Date(product.updated_at).toISOString() : new Date().toISOString()}</lastmod>
+    <lastmod>${product.created_at ? new Date(product.created_at).toISOString() : new Date().toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`);
@@ -99,7 +99,7 @@ export async function GET() {
       urls.push(`
   <url>
     <loc>${baseUrl}/${locale}/products?kategori=${category.slug}</loc>
-    <lastmod>${category.updated_at ? new Date(category.updated_at).toISOString() : new Date().toISOString()}</lastmod>
+    <lastmod>${category.created_at ? new Date(category.created_at).toISOString() : new Date().toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>`);
