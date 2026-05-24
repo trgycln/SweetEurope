@@ -1,20 +1,49 @@
-// app/[locale]/layout.tsx (SADELEŞTİRİLMİŞ DİL LAYOUT'U)
-
 import { ReactNode } from 'react';
+import type { Metadata } from 'next';
 
-export default function LocaleLayout({
+const locales = ['de', 'en', 'tr', 'ar'];
+const baseUrl = 'https://www.elysonsweets.de';
+
+const localeNames: Record<string, string> = {
+  de: 'de-DE',
+  en: 'en-US',
+  tr: 'tr-TR',
+  ar: 'ar-SA',
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+
+  const alternates: Record<string, string> = {};
+  locales.forEach((l) => {
+    alternates[l] = `${baseUrl}/${l}`;
+  });
+
+  return {
+    alternates: {
+      canonical: `${baseUrl}/${locale}`,
+      languages: alternates,
+    },
+  };
+}
+
+export default async function LocaleLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  // Bu layout'un içeriği değişti, ancak Kök Layout'a (app/layout.tsx)
-  // lang attribute'ünü dinamik olarak ekleyemediğimiz için bu dosyayı şimdilik
-  // sadece bir "geçirgen" olarak kullanacağız.
-  // Gelecekte Next.js bu konuda daha iyi çözümler sunabilir.
-  
-  // ÖNEMLİ: Bu layout artık <html> veya <body> etiketleri İÇERMEZ.
-  // Onlar bir üst katmandaki app/layout.tsx tarafından sağlanır.
-  return <>{children}</>;
+  const { locale } = await params;
+  const htmlLang = localeNames[locale] || locale;
+
+  return (
+    <html lang={htmlLang}>
+      <body>{children}</body>
+    </html>
+  );
 }

@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
     const [{ data: urun }, { data: allCategories }] = await Promise.all([
         supabase
             .from('urunler')
-            .select('ad, aciklamalar, ana_resim_url, kategoriler (id, slug, ust_kategori_id)')
+            .select('ad, aciklamalar, seo_meta, ana_resim_url, kategoriler (id, slug, ust_kategori_id)')
             .eq('slug', slug)
             .eq('aktif', true)
             .single(),
@@ -43,12 +43,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
         return { title: 'Product Not Found | Sweet Heaven' };
     }
 
+    const seoMeta = (urun as any).seo_meta as { title?: Record<string, string>; description?: Record<string, string> } | null;
+
     const adJson = (urun as any).ad as Record<string, string> | null;
     const urunAdi = adJson?.[locale] ?? adJson?.['de'] ?? adJson?.['tr'] ?? '';
     const aciklamaJson = (urun as any).aciklamalar as Record<string, string> | null;
     const aciklama = aciklamaJson?.[locale] ?? aciklamaJson?.['de'] ?? aciklamaJson?.['tr'] ?? '';
-    const title = `${urunAdi} | Sweet Heaven`;
-    const description = aciklama.slice(0, 160);
+
+    const title = seoMeta?.title?.[locale] ?? seoMeta?.title?.['de'] ?? `${urunAdi} | ElysonSweets`;
+    const description = seoMeta?.description?.[locale] ?? seoMeta?.description?.['de'] ?? aciklama.slice(0, 160);
 
     return {
         title,

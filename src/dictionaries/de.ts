@@ -1458,36 +1458,36 @@ statusOptions: {
   // SEO Metadata
   seo: {
     home: {
-      title: "Elysion Sweets: Premium Tiefkühltorten & Desserts für Gastronomie | B2B Großhandel",
-      description: "Professioneller B2B-Lieferant für hochwertige Tiefkühltorten, Cheesecakes & Desserts in Köln, NRW. Halal & BRC-zertifiziert. Schnelle Lieferung für HoReCa, Cafés & Restaurants."
+      title: "ElysonSweets | B2B Großhandel – Sirupe, Saucen & HoReCa-Zutaten",
+      description: "ElysonSweets – Ihr B2B-Großhändler für FO Food Products in Deutschland. Über 400 Premium-Sirupe, Saucen, Dessertbasen & Barista-Zutaten. Halal & BRC-zertifiziert. Lieferung deutschlandweit."
     },
     products: {
-      title: "Premium Tiefkühlkuchen & Torten für Gastronomie | Elysion Sweets B2B",
-      description: "Entdecken Sie über 100 Premium-Desserts: San Sebastian Cheesecake, Belgische Schokoladentorten, vegane & glutenfreie Optionen. Perfekt für Cafés, Restaurants & Catering."
+      title: "B2B Produktkatalog – Sirupe, Saucen & Desserts | ElysonSweets",
+      description: "Über 400 Produkte für Cafés, Hotels & Patisserien: Premium-Sirupe, Fruchtsoßen, Dondurma-Mischungen, Backzutaten. FO Food Products – Halal-zertifiziert, schnelle Lieferung."
     },
     productsCategory: {
-      titleTemplate: "%{category} - Premium B2B Großhandel | Elysion Sweets",
-      descriptionTemplate: "Hochwertige %{category} für die Gastronomie. Tiefgekühlt, einfach zuzubereiten, kein Backen erforderlich. Halal-zertifiziert. Lieferung in NRW."
+      titleTemplate: "%{category} – B2B Großhandel für Gastronomie | ElysonSweets",
+      descriptionTemplate: "Premium %{category} für Cafés, Restaurants & Patisserien. Professionelle Qualität von FO Food Products. B2B-Bestellung bei ElysonSweets."
     },
     productDetail: {
-      titleTemplate: "%{product} - B2B Gastronomie | Elysion Sweets",
-      descriptionTemplate: "%{product} in Premium-Qualität. %{description}"
+      titleTemplate: "%{product} | ElysonSweets B2B",
+      descriptionTemplate: "%{product} – %{description}"
     },
     about: {
-      title: "Über Elysion Sweets - Ihr zuverlässiger Partner für Premium-Desserts | B2B",
-      description: "Erfahren Sie mehr über Elysion Sweets: Qualität, Innovation und Service für die Gastronomie. BRC & Halal-zertifiziert. Ihr vertrauenswürdiger Dessert-Lieferant seit Jahren."
+      title: "Über ElysonSweets – FO Food Products Distributor in Deutschland",
+      description: "ElysonSweets bringt Premium-HoReCa-Produkte von FO Food Products nach Deutschland. Über 400 Artikel, Halal & BRC-zertifiziert, zuverlässige Lieferung für Cafés, Hotels & Patisserien."
     },
     contact: {
-      title: "Kontakt - Elysion Sweets B2B Dessert-Lieferant | Köln, NRW",
-      description: "Kontaktieren Sie Elysion Sweets für Premium-Tiefkühldesserts. Standort: Köln. E-Mail: info@elysonsweets.de. Wir beliefern Restaurants, Cafés, Hotels in ganz NRW."
+      title: "Kontakt – ElysonSweets B2B Großhandel | Köln",
+      description: "Kontaktieren Sie ElysonSweets für B2B-Bestellungen und Preisanfragen. Standort: Köln. E-Mail: info@elysonsweets.de. Ihr Partner für FO Food Products in Deutschland."
     },
     impressum: {
-      title: "Impressum - Elysion Sweets GmbH",
-      description: "Rechtliche Informationen und Impressum von Elysion Sweets GmbH."
+      title: "Impressum – ElysonSweets",
+      description: "Rechtliche Informationen und Impressum von ElysonSweets."
     },
     datenschutz: {
-      title: "Datenschutzerklärung - Elysion Sweets GmbH",
-      description: "Datenschutzerklärung und Informationen zum Umgang mit Ihren Daten bei Elysion Sweets."
+      title: "Datenschutzerklärung – ElysonSweets",
+      description: "Datenschutzerklärung und Informationen zum Umgang mit Ihren Daten bei ElysonSweets."
     }
   }
 }; // <-- DIESE KLAMMER IST DIE LETZTE.

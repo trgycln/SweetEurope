@@ -17,21 +17,44 @@ import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
+const baseUrl = 'https://www.elysonsweets.de';
+const locales = ['de', 'en', 'tr', 'ar'];
+
 export async function generateMetadata({
-    params
+    params,
+    searchParams,
 }: {
     params: Promise<{ locale: string }>;
+    searchParams: Promise<{ kategori?: string }>;
 }): Promise<Metadata> {
     const { locale } = await params;
+    const { kategori } = await searchParams;
     const dictionary = await getDictionary(locale as any);
+
+    const canonicalPath = kategori
+        ? `${baseUrl}/${locale}/products?kategori=${kategori}`
+        : `${baseUrl}/${locale}/products`;
+
+    const alternates: Record<string, string> = {};
+    locales.forEach((l) => {
+        alternates[l] = kategori
+            ? `${baseUrl}/${l}/products?kategori=${kategori}`
+            : `${baseUrl}/${l}/products`;
+    });
+
     return {
-        title: dictionary.seo?.products?.title || 'B2B Produktkatalog | Elysion Sweets',
+        title: dictionary.seo?.products?.title || 'B2B Produktkatalog | ElysonSweets',
         description: dictionary.seo?.products?.description || '',
+        alternates: {
+            canonical: canonicalPath,
+            languages: alternates,
+        },
         openGraph: {
-            title: dictionary.seo?.products?.title || 'B2B Produktkatalog | Elysion Sweets',
+            title: dictionary.seo?.products?.title || 'B2B Produktkatalog | ElysonSweets',
             description: dictionary.seo?.products?.description || '',
             locale,
             type: 'website',
+            url: canonicalPath,
         },
     };
 }

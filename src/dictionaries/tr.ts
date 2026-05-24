@@ -5,36 +5,36 @@ export const dictionary: Partial<Dictionary> = {
   // SEO Metadata
   seo: {
     home: {
-      title: "Elysion Sweets: Gastronomi için Premium Dondurulmuş Pasta & Tatlılar | B2B Toptan",
-      description: "Köln, NRW'de premium dondurulmuş pastalar, cheesecake'ler ve tatlılar için profesyonel B2B tedarikçi. Helal & BRC sertifikalı. HoReCa, kafeler ve restoranlar için hızlı teslimat."
+      title: "ElysonSweets | B2B Toptan – Şuruplar, Soslar & HoReCa Ürünleri",
+      description: "ElysonSweets – Almanya'da FO Food Products B2B toptancısı. 400'den fazla premium şurup, sos, dondurma bazı ve barista malzemesi. Helal & BRC sertifikalı. Almanya geneli teslimat."
     },
     products: {
-      title: "Gastronomi için Premium Dondurulmuş Kek & Pastalar | Elysion Sweets B2B",
-      description: "100+ premium tatlı keşfedin: San Sebastian Cheesecake, Belçika Çikolatalı Pastalar, vegan ve glutensiz seçenekler. Kafeler, restoranlar ve catering için mükemmel."
+      title: "B2B Ürün Kataloğu – Şuruplar, Soslar & Tatlılar | ElysonSweets",
+      description: "Kafeler, oteller ve pastaneler için 400'den fazla ürün: premium şuruplar, meyve sosları, dondurma karışımları, pastane malzemeleri. FO Food Products – Helal sertifikalı."
     },
     productsCategory: {
-      titleTemplate: "%{category} - Premium B2B Toptan | Elysion Sweets",
-      descriptionTemplate: "Gastronomi için premium %{category}. Dondurulmuş, hazırlaması kolay, pişirme gerektirmez. Helal sertifikalı. NRW'de teslimat."
+      titleTemplate: "%{category} – HoReCa için B2B Toptan | ElysonSweets",
+      descriptionTemplate: "Kafeler, restoranlar ve pastaneler için premium %{category}. FO Food Products profesyonel kalitesi. ElysonSweets'te B2B sipariş."
     },
     productDetail: {
-      titleTemplate: "%{product} - B2B Gastronomi | Elysion Sweets",
-      descriptionTemplate: "Premium kalitede %{product}. %{description}"
+      titleTemplate: "%{product} | ElysonSweets B2B",
+      descriptionTemplate: "%{product} – %{description}"
     },
     about: {
-      title: "Elysion Sweets Hakkında - Premium Tatlılar İçin Güvenilir Partneriniz | B2B",
-      description: "Elysion Sweets hakkında daha fazla bilgi: Gastronomi için kalite, inovasyon ve hizmet. BRC & Helal sertifikalı. Yıllardır güvenilir tatlı tedarikçiniz."
+      title: "Hakkımızda – ElysonSweets Almanya'da FO Food Products Distribütörü",
+      description: "ElysonSweets, FO Food Products'ın premium HoReCa ürünlerini Almanya'ya taşıyor. 400'den fazla ürün, Helal & BRC sertifikalı, kafeler, oteller ve pastanelere güvenilir teslimat."
     },
     contact: {
-      title: "İletişim - Elysion Sweets B2B Tatlı Tedarikçisi | Köln, NRW",
-      description: "Premium dondurulmuş tatlılar için Elysion Sweets ile iletişime geçin. Konum: Köln. E-posta: info@elysonsweets.de. NRW genelinde restoranlar, kafeler, otellere tedarik."
+      title: "İletişim – ElysonSweets B2B Toptan | Köln",
+      description: "B2B siparişler ve fiyat teklifleri için ElysonSweets ile iletişime geçin. Konum: Köln. E-posta: info@elysonsweets.de. Almanya'da FO Food Products ortağınız."
     },
     impressum: {
-      title: "Künye - Elysion Sweets GmbH",
-      description: "Elysion Sweets GmbH'nin yasal bilgileri ve künyesi."
+      title: "Künyemiz – ElysonSweets",
+      description: "ElysonSweets yasal bilgileri ve künyesi."
     },
     datenschutz: {
-      title: "Gizlilik Politikası - Elysion Sweets GmbH",
-      description: "Elysion Sweets'te verilerinizi nasıl kullandığımıza dair gizlilik politikası ve bilgiler."
+      title: "Gizlilik Politikası – ElysonSweets",
+      description: "ElysonSweets'in verilerinizi nasıl işlediğine dair gizlilik politikası."
     }
   },
   

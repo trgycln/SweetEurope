@@ -7,12 +7,17 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: '/',
         disallow: [
-          '/admin/',
-          '/partner-portal/',
           '/api/',
+          '/admin/',
+          '/_next/',
+          '/tr/admin',
+          '/de/admin',
+          '/en/admin',
+          '/ar/admin',
         ],
       },
     ],
     sitemap: 'https://www.elysonsweets.de/sitemap.xml',
+    host: 'https://www.elysonsweets.de',
   };
 }

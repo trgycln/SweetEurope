@@ -5,36 +5,36 @@ export const dictionary: Partial<Dictionary> = {
   // SEO Metadata
   seo: {
     home: {
-      title: "Elysion Sweets: كعك وحلويات مجمدة فاخرة للمطاعم | بيع بالجملة B2B",
-      description: "مورد محترف B2B للكعك المجمد الفاخر والتشيز كيك والحلويات في كولونيا، NRW. معتمد حلال و BRC. توصيل سريع للمطاعم والمقاهي والفنادق."
+      title: "ElysonSweets | تجارة الجملة B2B – شراب، صلصة ومكونات HoReCa",
+      description: "ElysonSweets – موزع منتجات FO Food Products في ألمانيا. أكثر من 400 منتج: شراب، صلصة، قواعد الآيس كريم ومكونات الباريستا. شهادة حلال و BRC. توصيل في جميع أنحاء ألمانيا."
     },
     products: {
-      title: "كعك وتورتات مجمدة فاخرة للمطاعم | Elysion Sweets B2B",
-      description: "اكتشف أكثر من 100 حلوى فاخرة: سان سيباستيان تشيز كيك، تورتات الشوكولاتة البلجيكية، خيارات نباتية وخالية من الغلوتين. مثالية للمقاهي والمطاعم والكيتيرينج."
+      title: "كتالوج منتجات B2B – شراب، صلصة وحلويات | ElysonSweets",
+      description: "أكثر من 400 منتج للمقاهي والفنادق والمعجنات: شراب فاخر، صلصة فواكه، خلطات آيس كريم. FO Food Products – شهادة حلال، توصيل سريع."
     },
     productsCategory: {
-      titleTemplate: "%{category} - بيع بالجملة B2B فاخر | Elysion Sweets",
-      descriptionTemplate: "%{category} فاخرة للمطاعم. مجمدة، سهلة التحضير، لا تحتاج إلى خبز. معتمدة حلال. التوصيل في NRW."
+      titleTemplate: "%{category} – تجارة الجملة B2B لـ HoReCa | ElysonSweets",
+      descriptionTemplate: "%{category} الفاخرة للمقاهي والمطاعم والمعجنات. جودة احترافية من FO Food Products. طلب B2B في ElysonSweets."
     },
     productDetail: {
-      titleTemplate: "%{product} - B2B للمطاعم | Elysion Sweets",
-      descriptionTemplate: "%{product} بجودة فاخرة. %{description}"
+      titleTemplate: "%{product} | ElysonSweets B2B",
+      descriptionTemplate: "%{product} – %{description}"
     },
     about: {
-      title: "عن Elysion Sweets - شريكك الموثوق للحلويات الفاخرة | B2B",
-      description: "تعرف على المزيد عن Elysion Sweets: الجودة والابتكار والخدمة للمطاعم. معتمد BRC وحلال. مورد الحلويات الموثوق لسنوات."
+      title: "عن ElysonSweets – موزع FO Food Products في ألمانيا",
+      description: "ElysonSweets تجلب منتجات HoReCa الفاخرة من FO Food Products إلى ألمانيا. أكثر من 400 منتج، شهادة حلال و BRC، توصيل موثوق للمقاهي والفنادق والمعجنات."
     },
     contact: {
-      title: "اتصل بنا - Elysion Sweets مورد حلويات B2B | كولونيا، NRW",
-      description: "اتصل بـ Elysion Sweets للحصول على حلويات مجمدة فاخرة. الموقع: كولونيا. البريد الإلكتروني: info@elysonsweets.de. نوفر للمطاعم والمقاهي والفنادق في جميع أنحاء NRW."
+      title: "اتصل بنا – ElysonSweets تجارة الجملة B2B | كولونيا",
+      description: "تواصل مع ElysonSweets للطلبات B2B واستفسارات الأسعار. الموقع: كولونيا. البريد الإلكتروني: info@elysonsweets.de."
     },
     impressum: {
-      title: "بيانات الناشر - Elysion Sweets GmbH",
-      description: "المعلومات القانونية وبيانات الناشر لشركة Elysion Sweets GmbH."
+      title: "البيانات القانونية – ElysonSweets",
+      description: "المعلومات القانونية لـ ElysonSweets."
     },
     datenschutz: {
-      title: "سياسة الخصوصية - Elysion Sweets GmbH",
-      description: "سياسة الخصوصية ومعلومات حول كيفية تعاملنا مع بياناتك في Elysion Sweets."
+      title: "سياسة الخصوصية – ElysonSweets",
+      description: "سياسة الخصوصية ومعلومات حول كيفية تعامل ElysonSweets مع بياناتك."
     }
   },
   

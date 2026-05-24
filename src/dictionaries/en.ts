@@ -5,36 +5,36 @@ export const dictionary: Partial<Dictionary> = {
   // SEO Metadata
   seo: {
     home: {
-      title: "Elysion Sweets: Premium Frozen Cakes & Desserts for Gastronomy | B2B Wholesale",
-      description: "Professional B2B supplier of premium frozen cakes, cheesecakes & desserts in Cologne, NRW. Halal & BRC certified. Fast delivery for HoReCa, cafés & restaurants."
+      title: "ElysonSweets | B2B Wholesale – Syrups, Sauces & HoReCa Ingredients",
+      description: "ElysonSweets – Your B2B wholesaler for FO Food Products in Germany. 400+ premium syrups, sauces, dessert bases & barista ingredients. Halal & BRC certified. Nationwide delivery."
     },
     products: {
-      title: "Premium Frozen Cakes & Tarts for Gastronomy | Elysion Sweets B2B",
-      description: "Discover 100+ premium desserts: San Sebastian Cheesecake, Belgian Chocolate Cakes, vegan & gluten-free options. Perfect for cafés, restaurants & catering."
+      title: "B2B Product Catalog – Syrups, Sauces & Desserts | ElysonSweets",
+      description: "400+ products for cafés, hotels & patisseries: premium syrups, fruit sauces, ice cream mixes, baking ingredients. FO Food Products – Halal certified, fast delivery."
     },
     productsCategory: {
-      titleTemplate: "%{category} - Premium B2B Wholesale | Elysion Sweets",
-      descriptionTemplate: "Premium %{category} for gastronomy. Frozen, easy to prepare, no baking required. Halal certified. Delivery in NRW."
+      titleTemplate: "%{category} – B2B Wholesale for HoReCa | ElysonSweets",
+      descriptionTemplate: "Premium %{category} for cafés, restaurants & patisseries. Professional quality from FO Food Products. B2B orders at ElysonSweets."
     },
     productDetail: {
-      titleTemplate: "%{product} - B2B Gastronomy | Elysion Sweets",
-      descriptionTemplate: "%{product} in premium quality. %{description}"
+      titleTemplate: "%{product} | ElysonSweets B2B",
+      descriptionTemplate: "%{product} – %{description}"
     },
     about: {
-      title: "About Elysion Sweets - Your Reliable Partner for Premium Desserts | B2B",
-      description: "Learn more about Elysion Sweets: Quality, innovation and service for gastronomy. BRC & Halal certified. Your trusted dessert supplier for years."
+      title: "About ElysonSweets – FO Food Products Distributor in Germany",
+      description: "ElysonSweets brings premium HoReCa products from FO Food Products to Germany. 400+ items, Halal & BRC certified, reliable delivery for cafés, hotels & patisseries."
     },
     contact: {
-      title: "Contact - Elysion Sweets B2B Dessert Supplier | Cologne, NRW",
-      description: "Contact Elysion Sweets for premium frozen desserts. Location: Cologne. Email: info@elysonsweets.de. We supply restaurants, cafés, hotels throughout NRW."
+      title: "Contact – ElysonSweets B2B Wholesale | Cologne",
+      description: "Contact ElysonSweets for B2B orders and price inquiries. Location: Cologne. Email: info@elysonsweets.de. Your partner for FO Food Products in Germany."
     },
     impressum: {
-      title: "Imprint - Elysion Sweets GmbH",
-      description: "Legal information and imprint of Elysion Sweets GmbH."
+      title: "Legal Notice – ElysonSweets",
+      description: "Legal information and notice for ElysonSweets."
     },
     datenschutz: {
-      title: "Privacy Policy - Elysion Sweets GmbH",
-      description: "Privacy policy and information on how we handle your data at Elysion Sweets."
+      title: "Privacy Policy – ElysonSweets",
+      description: "Privacy policy and information on how ElysonSweets handles your data."
     }
   },
   

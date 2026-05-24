@@ -21,12 +21,19 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "ElysonSweets",
-  description: "Yönetim ve Partner Portalı",
+  title: {
+    default: "ElysonSweets | B2B Großhandel HoReCa",
+    template: "%s | ElysonSweets",
+  },
+  description: "B2B Großhandel für Cafés, Hotels und Patisserien. Sirupe, Saucen, Desserts und Backzutaten von FO Food Products.",
+  metadataBase: new URL("https://www.elysonsweets.de"),
   icons: {
     icon: "/favicon.png",
     apple: "/favicon.png",
     shortcut: "/favicon.png",
+  },
+  verification: {
+    google: "", // Google Search Console doğrulama kodu buraya
   },
 };
 
