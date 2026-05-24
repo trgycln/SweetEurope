@@ -9,9 +9,14 @@ const locales = ['de', 'en', 'tr', 'ar'];
 const baseUrl = 'https://www.elysonsweets.de';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  console.log('[sitemap] supabaseUrl:', supabaseUrl ? 'defined' : 'MISSING');
+  console.log('[sitemap] supabaseServiceKey:', supabaseServiceKey ? 'defined' : 'MISSING');
 
-  const [{ data: products }, { data: categories }] = await Promise.all([
+  const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { persistSession: false },
+  });
+
+  const [productsRes, categoriesRes] = await Promise.all([
     supabase
       .from('urunler')
       .select('slug, updated_at, kategori_id')
@@ -21,15 +26,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .select('id, slug, updated_at, ust_kategori_id'),
   ]);
 
-  const hiddenKategoriIds = buildHiddenPublicCategoryIds((categories || []) as any[]);
+  if (productsRes.error) {
+    console.error('[sitemap] products query error:', productsRes.error.message);
+  }
+  if (categoriesRes.error) {
+    console.error('[sitemap] categories query error:', categoriesRes.error.message);
+  }
 
-  const visibleProducts = (products || []).filter(
+  console.log('[sitemap] products count:', productsRes.data?.length ?? 0);
+  console.log('[sitemap] categories count:', categoriesRes.data?.length ?? 0);
+
+  const products = productsRes.data ?? [];
+  const categories = categoriesRes.data ?? [];
+
+  const hiddenKategoriIds = buildHiddenPublicCategoryIds(categories as any[]);
+
+  const visibleProducts = products.filter(
     (p) => p.slug && !hiddenKategoriIds.has(p.kategori_id ?? '')
   );
 
-  const visibleCategories = (categories || []).filter(
+  const visibleCategories = categories.filter(
     (c) => c.slug && !hiddenKategoriIds.has(c.id)
   );
+
+  console.log('[sitemap] visibleProducts:', visibleProducts.length);
+  console.log('[sitemap] visibleCategories:', visibleCategories.length);
 
   const sitemap: MetadataRoute.Sitemap = [];
 
