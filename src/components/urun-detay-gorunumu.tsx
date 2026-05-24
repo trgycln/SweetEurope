@@ -13,7 +13,7 @@ import { getBadgeText, getFlavorLabel } from '@/lib/labels';
 // All B2B fields are now in Tables<'urunler'> after database.types.ts regeneration
 
 type Urun = Tables<'urunler'> & {
-    kategoriler?: Pick<Tables<'kategoriler'>, 'ad'> | null;
+    kategoriler?: Pick<Tables<'kategoriler'>, 'ad' | 'urun_gami' | 'id' | 'slug' | 'ust_kategori_id'> | null;
 };
 
 type Sablon = Pick<Tables<'kategori_ozellik_sablonlari'>, 'alan_adi' | 'gosterim_adi'>;
@@ -216,7 +216,8 @@ function AllergenRow({ present, label, icon }: { present: boolean; label: string
 export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGorunumuProps) {
     const lc = lx(locale);
     const urunAdi = getLocalizedName(urun.ad, locale);
-    const aciklama = getLocalizedName(urun.aciklamalar, locale);
+const aciklamaRaw = (urun.aciklamalar as Record<string, string> | null) ?? {};
+const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] || aciklamaRaw['tr'] || '';
     const kategorieAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, locale) : '';
     const tekniks: Record<string, unknown> = (urun.teknik_ozellikler as any) ?? {};
 
@@ -231,11 +232,24 @@ export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayG
     const zertifikate: string[] = urun.zertifikate ?? [];
     const inhaltsstoffeJson = urun.inhaltsstoffe as Record<string, string> | null;
     const inhaltsstoffe: string | null = inhaltsstoffeJson?.[locale] ?? inhaltsstoffeJson?.de ?? null;
-    const allergene: Record<string, boolean> = (urun.allergene as Record<string, boolean>) ?? {};
-    const naehrwerte = urun.naehrwerte as {
-        pro_100g?: { energie_kj?: number; energie_kcal?: number; fett?: number; davon_gesaettigt?: number; kohlenhydrate?: number; davon_zucker?: number; ballaststoffe?: number; eiweiss?: number; salz?: number };
-        pro_portion?: { portion_gramm?: number; energie_kj?: number; energie_kcal?: number; fett?: number; davon_gesaettigt?: number; kohlenhydrate?: number; davon_zucker?: number; ballaststoffe?: number; eiweiss?: number; salz?: number };
-    } | null;
+    const allergeneRaw = (urun.allergene as any) ?? {};
+    const allergene: Record<string, boolean> = (() => {
+        if (allergeneRaw.allergen_free === true) return {};
+        if (allergeneRaw.contains_en) {
+            const contains = (allergeneRaw.contains_en as string).toLowerCase();
+            return {
+                gluten: contains.includes('gluten'),
+                milch: contains.includes('milk') || contains.includes('dairy'),
+                soja: contains.includes('soy'),
+                nuesse: contains.includes('hazelnut') || contains.includes('nut') || contains.includes('almond') || contains.includes('walnut') || contains.includes('pistachio'),
+                eier: contains.includes('egg'),
+                erdnuesse: contains.includes('peanut'),
+                sesam: contains.includes('sesame'),
+            };
+        }
+        return allergeneRaw;
+    })();
+    const isAllergenFree = allergeneRaw.allergen_free === true;
     const lieferzeitWerktage = urun.lieferzeit_werktage ?? null;
     const produktdatenblattUrl = urun.produktdatenblatt_url ?? null;
     const herstellerName = urun.hersteller_name ?? null;
@@ -286,8 +300,19 @@ export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayG
     const allImages = [urun.ana_resim_url, ...(urun.galeri_resim_urls ?? [])].filter(Boolean) as string[];
     const [activeImg, setActiveImg] = React.useState(allImages[0] ?? null);
 
-    const n100 = naehrwerte?.pro_100g;
-    const nPortion = naehrwerte?.pro_portion;
+    const naehrwerteRaw = urun.naehrwerte as any;
+    const n100 = naehrwerteRaw?.pro_100g ?? (naehrwerteRaw?.energy_kj ? {
+        energie_kj: naehrwerteRaw.energy_kj,
+        energie_kcal: naehrwerteRaw.energy_kcal,
+        fett: naehrwerteRaw.fat_g,
+        davon_gesaettigt: naehrwerteRaw.saturated_fat_g,
+        kohlenhydrate: naehrwerteRaw.carbohydrates_g,
+        davon_zucker: naehrwerteRaw.sugar_g,
+        ballaststoffe: naehrwerteRaw.dietary_fibre_g,
+        eiweiss: naehrwerteRaw.protein_g,
+        salz: naehrwerteRaw.salt_g,
+    } : null);
+    const nPortion = naehrwerteRaw?.pro_portion ?? null;
     const hasNaehrwerte = n100 && (n100.energie_kcal || n100.energie_kj);
 
     const herkunftLabel = herkunft ? (herkunft[locale] || herkunft.de || herkunft.en || Object.values(herkunft)[0]) : null;
@@ -512,7 +537,7 @@ export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayG
                         </div>
 
                         {/* ── Zutaten & Allergene (EU LMIV) ──────────────── */}
-                        {(inhaltsstoffe || Object.keys(allergene).length > 0) && (
+                        {(inhaltsstoffe || Object.keys(allergene).length > 0 || isAllergenFree) && (
                             <div>
                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
                                     <FiAlertTriangle size={11} /> {lc.allergens}
@@ -525,7 +550,7 @@ export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayG
                                     </div>
                                 )}
 
-                                {Object.keys(allergene).length > 0 && (
+                                {(Object.keys(allergene).length > 0 || isAllergenFree) && (
                                     <div className="space-y-1.5">
                                         {containsAllergens.length > 0 && (
                                             <div>
@@ -558,7 +583,7 @@ export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayG
                                             </div>
                                         )}
 
-                                        {containsAllergens.length === 0 && Object.keys(allergene).length < 10 && (
+                                        {(isAllergenFree || (containsAllergens.length === 0 && Object.keys(allergene).length < 10)) && (
                                             <p className="text-xs text-slate-500 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
                                                 ✓ {lc.noAllergen}
                                             </p>
@@ -680,7 +705,8 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGor
     // SweetHeaven ürünleri için mevcut bileşen
     const lc = lx(locale);
     const urunAdi = getLocalizedName(urun.ad, locale);
-    const aciklama = getLocalizedName(urun.aciklamalar, locale);
+const aciklamaRaw = (urun.aciklamalar as Record<string, string> | null) ?? {};
+const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] || aciklamaRaw['tr'] || '';
     const kategorieAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, locale) : '';
     const tekniks: Record<string, unknown> = (urun.teknik_ozellikler as any) ?? {};
 
@@ -696,11 +722,25 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGor
     const zertifikate: string[] = urun.zertifikate ?? [];
     const inhaltsstoffeJson = urun.inhaltsstoffe as Record<string, string> | null;
     const inhaltsstoffe: string | null = inhaltsstoffeJson?.[locale] ?? inhaltsstoffeJson?.de ?? null;
-    const allergene: Record<string, boolean> = (urun.allergene as Record<string, boolean>) ?? {};
-    const naehrwerte = urun.naehrwerte as {
-        pro_100g?: { energie_kj?: number; energie_kcal?: number; fett?: number; davon_gesaettigt?: number; kohlenhydrate?: number; davon_zucker?: number; ballaststoffe?: number; eiweiss?: number; salz?: number };
-        pro_portion?: { portion_gramm?: number; energie_kj?: number; energie_kcal?: number; fett?: number; davon_gesaettigt?: number; kohlenhydrate?: number; davon_zucker?: number; ballaststoffe?: number; eiweiss?: number; salz?: number };
-    } | null;
+const allergeneRaw = (urun.allergene as any) ?? {};
+// Yeni format: {allergen_free, contains_en} → eski format: {gluten, milch...} dönüştür
+const allergene: Record<string, boolean> = (() => {
+    if (allergeneRaw.allergen_free === true) return {};
+    if (allergeneRaw.contains_en) {
+        const contains = (allergeneRaw.contains_en as string).toLowerCase();
+        return {
+            gluten: contains.includes('gluten'),
+            milch: contains.includes('milk') || contains.includes('dairy'),
+            soja: contains.includes('soy'),
+            nuesse: contains.includes('hazelnut') || contains.includes('nut') || contains.includes('almond') || contains.includes('walnut') || contains.includes('pistachio'),
+            eier: contains.includes('egg'),
+            erdnuesse: contains.includes('peanut'),
+            sesam: contains.includes('sesame'),
+        };
+    }
+    return allergeneRaw;
+})();
+const isAllergenFree = allergeneRaw.allergen_free === true;
     const lieferzeitWerktage = urun.lieferzeit_werktage ?? null;
     const produktdatenblattUrl = urun.produktdatenblatt_url ?? null;
     const herstellerName = urun.hersteller_name ?? null;
@@ -781,8 +821,19 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGor
     const allImages = [urun.ana_resim_url, ...(urun.galeri_resim_urls ?? [])].filter(Boolean) as string[];
     const [activeImg, setActiveImg] = React.useState(allImages[0] ?? null);
 
-    const n100 = naehrwerte?.pro_100g;
-    const nPortion = naehrwerte?.pro_portion;
+    const naehrwerteRaw = urun.naehrwerte as any;
+    const n100 = naehrwerteRaw?.pro_100g ?? (naehrwerteRaw?.energy_kj ? {
+        energie_kj: naehrwerteRaw.energy_kj,
+        energie_kcal: naehrwerteRaw.energy_kcal,
+        fett: naehrwerteRaw.fat_g,
+        davon_gesaettigt: naehrwerteRaw.saturated_fat_g,
+        kohlenhydrate: naehrwerteRaw.carbohydrates_g,
+        davon_zucker: naehrwerteRaw.sugar_g,
+        ballaststoffe: naehrwerteRaw.dietary_fibre_g,
+        eiweiss: naehrwerteRaw.protein_g,
+        salz: naehrwerteRaw.salt_g,
+    } : null);
+    const nPortion = naehrwerteRaw?.pro_portion ?? null;
     const hasNaehrwerte = n100 && (n100.energie_kcal || n100.energie_kj);
 
     const herkunftLabel = herkunft ? (herkunft[locale] || herkunft.de || herkunft.en || Object.values(herkunft)[0]) : null;
@@ -1044,7 +1095,7 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGor
                         </div>
 
                         {/* ── Zutaten & Allergene (EU LMIV) ──────────────── */}
-                        {(inhaltsstoffe || Object.keys(allergene).length > 0) && (
+                        {(inhaltsstoffe || Object.keys(allergene).length > 0 || isAllergenFree) && (
                             <div>
                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
                                     <FiAlertTriangle size={11} /> {lc.allergens}
@@ -1092,7 +1143,7 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGor
                                             </div>
                                         )}
 
-                                        {containsAllergens.length === 0 && Object.keys(allergene).length < 10 && (
+                                        {(isAllergenFree || (containsAllergens.length === 0 && Object.keys(allergene).length < 10)) && (
                                             <p className="text-xs text-slate-500 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
                                                 ✓ {lc.noAllergen}
                                             </p>

@@ -151,15 +151,14 @@ export async function siparisDurumGuncelleAction(
         return { error: "Nicht authentifiziert." };
     }
 
-    // RPC-Funktion aufrufen
-    const { error: rpcError } = await supabase.rpc('update_order_status_and_log_activity', {
-        p_siparis_id: siparisId,
-        p_yeni_status: yeniDurum,
-        p_kullanici_id: user.id
-    });
+    // Durum güncelle (direkt tablo update — DB trigger'ları çalıştırır)
+    const { error: rpcError } = await supabase
+        .from('siparisler')
+        .update({ siparis_durumu: yeniDurum })
+        .eq('id', siparisId);
 
     if (rpcError) {
-        console.error("Fehler beim RPC-Aufruf 'update_order_status...':", rpcError);
+        console.error("Sipariş durum güncelleme hatası:", rpcError);
         return { error: "Datenbankfehler beim Aktualisieren des Status." };
     }
 

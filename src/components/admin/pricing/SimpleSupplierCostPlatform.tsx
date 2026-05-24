@@ -128,6 +128,35 @@ function getLocalizedText(raw: unknown, locale: string, fallback = 'Ürün') {
   return fallback;
 }
 
+function normalizeSearch(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/ç/g, 'c').replace(/Ç/g, 'c')
+    .replace(/ş/g, 's').replace(/Ş/g, 's')
+    .replace(/ğ/g, 'g').replace(/Ğ/g, 'g')
+    .replace(/ı/g, 'i').replace(/İ/g, 'i')
+    .replace(/ö/g, 'o').replace(/Ö/g, 'o')
+    .replace(/ü/g, 'u').replace(/Ü/g, 'u')
+    .replace(/â/g, 'a').replace(/î/g, 'i')
+    .replace(/û/g, 'u');
+}
+
+function searchMatch(query: string, product: ProductLite, locale: string): boolean {
+  if (!query.trim()) return true;
+  const q = normalizeSearch(query);
+
+  if (normalizeSearch(product.stok_kodu || '').includes(q)) return true;
+
+  const ad = product.ad;
+  if (ad && typeof ad === 'object') {
+    for (const val of Object.values(ad)) {
+      if (val && normalizeSearch(String(val)).includes(q)) return true;
+    }
+  } else if (typeof ad === 'string' && normalizeSearch(ad).includes(q)) return true;
+
+  return false;
+}
+
 function profileToProductLine(profile: SupplierProfile): ProductLineKey {
   return profile === 'cold-chain' ? 'frozen-desserts' : 'barista-bakery-essentials';
 }
@@ -203,6 +232,7 @@ export default function SimpleSupplierCostPlatform({
   const [selectedSupplierId, setSelectedSupplierId] = useState('all');
   const [productSearch, setProductSearch] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
+  const [selectedAnaKatId, setSelectedAnaKatId] = useState('all');
   const [productProfileOverrides, setProductProfileOverrides] = useState<Record<string, SupplierProfile>>({});
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [savingRows, setSavingRows] = useState<Set<string>>(new Set());
@@ -309,7 +339,6 @@ export default function SimpleSupplierCostPlatform({
   }, [selectedCategoryId, categories]);
 
   const visibleRows = useMemo(() => {
-    const q = productSearch.trim().toLocaleLowerCase('tr');
     const supplierGroup = selectedSupplierId !== 'all' ? (supplierGroupById[selectedSupplierId] || selectedSupplierId) : 'all';
     return rows.filter(row => {
       if (row.profile !== selectedProfile) return false;
@@ -318,12 +347,9 @@ export default function SimpleSupplierCostPlatform({
         const rg = row.product.tedarikci_id ? (supplierGroupById[row.product.tedarikci_id] || row.product.tedarikci_id) : '';
         if (!rg || rg !== supplierGroup) return false;
       }
-      if (!q) return true;
-      const n = pName(row.product).toLocaleLowerCase('tr');
-      const c = String(row.product.stok_kodu || '').toLocaleLowerCase('tr');
-      return n.includes(q) || c.includes(q);
+      return searchMatch(productSearch, row.product, locale);
     });
-  }, [rows, selectedProfile, selectedSupplierId, productSearch, supplierGroupById, categoryScope]);
+  }, [rows, selectedProfile, selectedSupplierId, productSearch, supplierGroupById, categoryScope, locale]);
 
   const coldCount    = rows.filter(r => r.profile === 'cold-chain').length;
   const nonColdCount = rows.filter(r => r.profile === 'non-cold').length;
@@ -639,17 +665,44 @@ export default function SimpleSupplierCostPlatform({
           ))}
         </select>
 
-        <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)}
+        {/* Ana kategori */}
+        <select
+          value={selectedAnaKatId}
+          onChange={e => {
+            setSelectedAnaKatId(e.target.value);
+            setSelectedCategoryId(e.target.value);
+          }}
           className="rounded-md border border-slate-200 px-2.5 py-1.5 text-sm max-w-[160px]">
           <option value="all">Tüm kategoriler</option>
-          {categories.filter(c => !c.ust_kategori_id).map(c => {
-            const label = typeof c.ad === 'string' ? c.ad : (c.ad as any)?.tr || (c.ad as any)?.de || 'Kategori';
-            return <option key={c.id} value={c.id}>{label}</option>;
-          })}
+          {categories
+            .filter(c => !c.ust_kategori_id)
+            .map(c => {
+              const label = typeof c.ad === 'string' ? c.ad : (c.ad as any)?.tr || (c.ad as any)?.de || 'Kategori';
+              return <option key={c.id} value={c.id}>{label}</option>;
+            })}
         </select>
 
+        {/* Alt kategori — sadece ana kategori seçiliyse görünür */}
+        {selectedAnaKatId !== 'all' && (() => {
+          const altKats = categories.filter(c => c.ust_kategori_id === selectedAnaKatId);
+          if (altKats.length === 0) return null;
+          const getLabel = (cat: typeof categories[0]) =>
+            typeof cat.ad === 'string' ? cat.ad : (cat.ad as any)?.tr || (cat.ad as any)?.de || 'Alt Kategori';
+          return (
+            <select
+              value={selectedCategoryId}
+              onChange={e => setSelectedCategoryId(e.target.value)}
+              className="rounded-md border border-slate-200 px-2.5 py-1.5 text-sm max-w-[160px]">
+              <option value={selectedAnaKatId}>Tüm alt kategoriler</option>
+              {altKats.map(alt => (
+                <option key={alt.id} value={alt.id}>{getLabel(alt)}</option>
+              ))}
+            </select>
+          );
+        })()}
+
         {(productSearch || selectedSupplierId !== 'all' || selectedCategoryId !== 'all') && (
-          <button type="button" onClick={() => { setProductSearch(''); setSelectedSupplierId('all'); setSelectedCategoryId('all'); }}
+          <button type="button" onClick={() => { setProductSearch(''); setSelectedSupplierId('all'); setSelectedCategoryId('all'); setSelectedAnaKatId('all'); }}
             className="rounded-md border border-slate-200 px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700">
             ✕ Temizle
           </button>

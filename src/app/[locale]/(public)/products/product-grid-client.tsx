@@ -712,77 +712,39 @@ export function ProductGridClient({
                 </div>
             )}
 
-            {/* ElysonSweets Empfiehlt */}
-            {featuredUrunler.length > 0 && !searchQuery && !geschmackFilter && (
-                <div className="mb-5 bg-amber-50 border border-amber-100 rounded-2xl p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                        <span className="text-sm font-bold text-amber-900">
-                            ⭐ {locale === 'de' ? 'ElysonSweets empfiehlt' : 'ElysonSweets Öneriyor'}
-                        </span>
-                        <span className="text-xs text-amber-600">
-                            {locale === 'de' ? '– persönlich ausgewählt' : '– özenle seçildi'}
-                        </span>
+            {/* Özellik filtreleri + Arama + Aroma chip'leri */}
+            <div className="space-y-2">
+                    {/* Arama kutusu + Görünüm toggle */}
+                    <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                            <input
+                                type="text"
+                                placeholder={searchPlaceholder}
+                                value={searchTerm}
+                                onChange={e => handleSearch(e.target.value)}
+                                className="w-full pl-9 pr-8 py-2.5 text-sm border-2 border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 shadow-sm placeholder:text-slate-400"
+                            />
+                            {searchTerm && (
+                                <button onClick={() => handleSearch('')}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm flex-shrink-0">
+                            <button onClick={() => setViewMode('grid')}
+                                title={locale === 'de' ? 'Gitteransicht' : 'Izgara görünümü'}
+                                className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                <FiGrid size={15} />
+                            </button>
+                            <button onClick={() => setViewMode('list')}
+                                title={locale === 'de' ? 'Listenansicht' : 'Liste görünümü'}
+                                className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                <FiList size={15} />
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-                        {featuredUrunler.map(urun => (
-                            <div key={urun.id} className="w-40 flex-shrink-0">
-                                <CatalogCard
-                                    urun={urun}
-                                    locale={locale}
-                                    kategoriAdlariMap={kategoriAdlariMap}
-                                    isLoggedIn={isLoggedIn}
-                                    partnerTier={partnerTier}
-                                    onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
-                                    inMerkliste={merklisteIds.has(urun.id)}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Bestseller section */}
-            {bestsellerUrunler.length > 0 && !searchTerm && (
-                <BestsellerSection
-                    urunler={bestsellerUrunler}
-                    locale={locale}
-                    kategoriAdlariMap={kategoriAdlariMap}
-                    isLoggedIn={isLoggedIn}
-                    partnerTier={partnerTier}
-                    onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
-                    merklisteIds={merklisteIds}
-                />
-            )}
-
-            {/* Arama sonucu bilgisi */}
-            {searchQuery && (
-                <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5">
-                    <FiSearch size={14} className="text-slate-400 flex-shrink-0" />
-                    <span>
-                        <strong>"{searchQuery}"</strong>
-                        {' '}
-                        {locale === 'de'
-                            ? `— ${urunler.length} Ergebnisse`
-                            : `— ${urunler.length} sonuç`}
-                    </span>
-                    <a href={pathname}
-                        className="ml-auto text-xs text-red-500 hover:text-red-700 flex items-center gap-1 flex-shrink-0">
-                        <FiX size={12} />
-                        {locale === 'de' ? 'Suche löschen' : 'Aramayı temizle'}
-                    </a>
-                </div>
-            )}
-
-            {/* Özellik filtreleri + Aroma chip'leri */}
-            {true && (
-                <div className="space-y-2">
-                    {/* DEBUG: */}
-                    {process.env.NODE_ENV === 'development' && (
-                        <p className="text-xs text-red-500">
-                            geschmackCounts keys: {Object.keys(geschmackCounts).length} |
-                            sample: {Object.entries(geschmackCounts).slice(0,3).map(([k,v]) => `${k}:${v}`).join(', ')}
-                        </p>
-                    )}
                     {/* Özellik filtreleri — Vegan, GF, LF vs */}
                     <div className="flex gap-2 flex-wrap">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 self-center">
@@ -838,44 +800,97 @@ export function ProductGridClient({
                             })}
                     </div>
                 </div>
-            )}
 
-            {/* Toolbar */}
-            <div className="flex items-center gap-2 flex-wrap">
-                <div className="relative flex-1 max-w-lg">
-                    <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
-                    <input
-                        type="text"
-                        placeholder={searchPlaceholder}
-                        value={searchTerm}
-                        onChange={e => handleSearch(e.target.value)}
-                        className="w-full pl-9 pr-8 py-2.5 text-sm border-2 border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 shadow-sm placeholder:text-slate-400"
-                    />
-                    {searchTerm && (
-                        <button onClick={() => handleSearch('')}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
-                            ✕
-                        </button>
+            {/* ElysonSweets Empfiehlt */}
+            {featuredUrunler.length > 0 && !searchQuery && !geschmackFilter && (
+                <div className={viewMode === 'grid' ? 'bg-amber-50 border border-amber-100 rounded-2xl p-4' : 'border border-amber-100 rounded-xl overflow-hidden'}>
+                    <div className={`flex items-center gap-2 ${viewMode === 'grid' ? 'mb-3' : 'px-3 py-2 bg-amber-50'}`}>
+                        <span className="text-sm font-bold text-amber-900">
+                            ⭐ {locale === 'de' ? 'ElysonSweets empfiehlt' : 'ElysonSweets Öneriyor'}
+                        </span>
+                        <span className="text-xs text-amber-600">
+                            {locale === 'de' ? '– persönlich ausgewählt' : '– özenle seçildi'}
+                        </span>
+                    </div>
+                    {viewMode === 'grid' ? (
+                        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+                            {featuredUrunler.map(urun => (
+                                <div key={urun.id} className="w-40 flex-shrink-0">
+                                    <CatalogCard
+                                        urun={urun}
+                                        locale={locale}
+                                        kategoriAdlariMap={kategoriAdlariMap}
+                                        isLoggedIn={isLoggedIn}
+                                        partnerTier={partnerTier}
+                                        onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                                        inMerkliste={merklisteIds.has(urun.id)}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="bg-white divide-y divide-slate-100">
+                            {featuredUrunler.map(urun => (
+                                <CatalogRow key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                            ))}
+                        </div>
                     )}
                 </div>
+            )}
 
-                <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm ml-auto">
-                    <button onClick={() => setViewMode('grid')}
-                        className={`p-2 transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
-                        <FiGrid size={15} />
-                    </button>
-                    <button onClick={() => setViewMode('list')}
-                        className={`p-2 transition-colors ${viewMode === 'list' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
-                        <FiList size={15} />
-                    </button>
-                </div>
+            {/* Bestseller section */}
+            {bestsellerUrunler.length > 0 && !searchTerm && (
+                viewMode === 'grid' ? (
+                    <BestsellerSection
+                        urunler={bestsellerUrunler}
+                        locale={locale}
+                        kategoriAdlariMap={kategoriAdlariMap}
+                        isLoggedIn={isLoggedIn}
+                        partnerTier={partnerTier}
+                        onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                        merklisteIds={merklisteIds}
+                    />
+                ) : (
+                    <div className="border border-orange-100 rounded-xl overflow-hidden">
+                        <div className="flex items-center gap-2 px-3 py-2 bg-orange-50">
+                            <span className="text-sm font-bold text-orange-900">
+                                🏆 {locale === 'de' ? 'Unsere Bestseller' : 'En Çok Satanlar'}
+                            </span>
+                        </div>
+                        <div className="bg-white divide-y divide-slate-100">
+                            {bestsellerUrunler.map(urun => (
+                                <CatalogRow key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                            ))}
+                        </div>
+                    </div>
+                )
+            )}
 
-                {filteredUrunler.length > 0 && (
-                    <span className="text-xs text-slate-400 whitespace-nowrap">
-                        {locale === 'de' ? `${filteredUrunler.length} Artikel` : `${filteredUrunler.length} ürün`}
+            {/* Arama sonucu bilgisi */}
+            {searchQuery && (
+                <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5">
+                    <FiSearch size={14} className="text-slate-400 flex-shrink-0" />
+                    <span>
+                        <strong>"{searchQuery}"</strong>
+                        {' '}
+                        {locale === 'de'
+                            ? `— ${urunler.length} Ergebnisse`
+                            : `— ${urunler.length} sonuç`}
                     </span>
-                )}
-            </div>
+                    <a href={pathname}
+                        className="ml-auto text-xs text-red-500 hover:text-red-700 flex items-center gap-1 flex-shrink-0">
+                        <FiX size={12} />
+                        {locale === 'de' ? 'Suche löschen' : 'Aramayı temizle'}
+                    </a>
+                </div>
+            )}
+
+            {/* Ürün sayısı */}
+            {filteredUrunler.length > 0 && (
+                <p className="text-xs text-slate-400">
+                    {locale === 'de' ? `${filteredUrunler.length} Artikel` : `${filteredUrunler.length} ürün`}
+                </p>
+            )}
 
             {/* Content */}
             {filteredUrunler.length === 0 ? (

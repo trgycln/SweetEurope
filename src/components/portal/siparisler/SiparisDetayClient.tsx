@@ -172,8 +172,8 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
                             {locale === 'de' ? 'Erneut bestellen' : 'Tekrar Sipariş'}
                         </button>
 
-                        {/* Durum güncelleme — alt bayi siparişleri için */}
-                        {(bayiSiparisi || userRole === 'Alt Bayi') && sonrakiAdim && mevcutDurum !== 'Teslim Edildi' && (
+                        {/* Durum güncelleme — yalnızca alt bayinin müşteri siparişlerinde */}
+                        {bayiSiparisi && sonrakiAdim && mevcutDurum !== 'Teslim Edildi' && (
                             <button
                                 onClick={() => handleDurumGuncelle(sonrakiAdim.next)}
                                 disabled={durumGuncelleniyor}
