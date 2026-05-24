@@ -2,6 +2,9 @@ import { MetadataRoute } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // 1 saatte bir yenile
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
