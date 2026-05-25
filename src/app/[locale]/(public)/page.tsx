@@ -3,7 +3,6 @@
 import HeroSection from "@/components/HeroSection";
 import PhilosophySection from "@/components/PhilosophySection";
 import FoBrandAboutSection from "@/components/FoBrandAboutSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
 import QualityPromiseSection from "@/components/QualityPromiseSection";
 import CertificationsStrip from "@/components/CertificationsStrip";
 import CtaSection from "@/components/CtaSection";
@@ -144,7 +143,7 @@ export default async function Home({
             <HeroSection dictionary={dictionary} locale={locale} />
             <PhilosophySection dictionary={dictionary} />
             <FoBrandAboutSection locale={locale} altKategorilerMap={altKategorilerMap} />
-            <TestimonialsSection dictionary={dictionary} />
+            {/* <TestimonialsSection dictionary={dictionary} /> */}
             <QualityPromiseSection dictionary={dictionary} />
             <CertificationsStrip dictionary={dictionary} />
             <CtaSection dictionary={dictionary} locale={locale} />

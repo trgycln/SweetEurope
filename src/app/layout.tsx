@@ -3,9 +3,17 @@
 import { ReactNode } from 'react';
 import type { Metadata } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
+import { headers } from "next/headers";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import VercelAnalytics from "@/components/VercelAnalytics";
 import "./globals.css";
+
+const localeNames: Record<string, string> = {
+  de: 'de-DE',
+  en: 'en-US',
+  tr: 'tr-TR',
+  ar: 'ar-SA',
+};
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -37,14 +45,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const headersList = await headers();
+  const locale = headersList.get('x-locale') || 'de';
+  const htmlLang = localeNames[locale] || 'de-DE';
+
   return (
-    // DİKKAT: Burada 'lang' attribute'ü YOKTUR. Dil, [locale]/layout.tsx içinde eklenecek.
-    <html className={`${playfair.variable} ${lato.variable}`} suppressHydrationWarning>
+    <html lang={htmlLang} className={`${playfair.variable} ${lato.variable}`} suppressHydrationWarning>
       <head>
         <GoogleAnalytics />
         {/* eslint-disable-next-line @next/next/no-before-interactive-script-component */}

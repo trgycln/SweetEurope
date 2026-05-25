@@ -365,11 +365,15 @@ export default async function PublicUrunlerPage({
 
     let featuredUrunler: Urun[] = [];
     try {
-        const { data: featuredData } = await (supabase as any)
+        let featuredQuery = (supabase as any)
             .from('urunler')
             .select(productSelectFields)
             .eq('aktif', true)
-            .eq('is_featured', true)
+            .eq('is_featured', true);
+        if (gamFilter) {
+            featuredQuery = featuredQuery.eq('urun_gami', gamFilter);
+        }
+        const { data: featuredData } = await featuredQuery
             .order('featured_sira', { ascending: true })
             .limit(6);
         featuredUrunler = (featuredData || []).filter(

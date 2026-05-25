@@ -6,9 +6,9 @@ const ADVANTAGES = [
         icon: '🚚',
         title: { de: 'Schnelle Lieferung', tr: 'Hızlı Teslimat', en: 'Fast Delivery' },
         desc: {
-            de: 'Lagerbestand in Deutschland – kurze Lieferzeiten für ganz Deutschland',
-            tr: 'Almanya\'da stok – tüm Almanya\'ya kısa teslimat süreleri',
-            en: 'Stock in Germany – short delivery times across Germany',
+            de: 'Lagerbestand in Deutschland – zuverlässige Lieferung in der Region',
+            tr: 'Almanya\'da stok – bölgeye güvenilir teslimat',
+            en: 'Stock in Germany – reliable regional delivery',
         },
     },
     {

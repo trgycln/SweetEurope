@@ -20,8 +20,8 @@ const QualityPromiseSection: React.FC<{ dictionary: any }> = ({ dictionary }) =>
     },
     {
       icon: <FaLayerGroup className="text-accent text-4xl" />,
-      title: 'Volumenrabatte ab Palette',
-      description: 'Transparente Palettenpreise mit klarem Stückpreis-Vergleich. Kein verstecktes Pricing.',
+      title: dictionary.qualityPromise.item4?.title,
+      description: dictionary.qualityPromise.item4?.description,
     },
   ];
 

@@ -100,7 +100,7 @@ export default async function GorevEklemeSayfasi({ params: { locale } }: GorevEk
 
   const profilOptions: ProfilOption[] = profillerRes.data || [];
   const firmaOptions: FirmaOption[] = firmalarRes.data || [];
-  const oncelikOptions: GorevOncelik[] = ['Düşük', 'Orta', 'Yüksek']; // Aus Enum
+  const oncelikOptions: GorevOncelik[] = ['Düşük', 'Orta', 'Yüksek', 'Acil']; // Aus Enum
 
   // Styling für Inputs
   const inputBaseClasses = "w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-sm text-gray-700 focus:ring-2 focus:ring-accent focus:border-transparent transition-colors duration-200 placeholder:text-gray-400"; // Styling angepasst
@@ -114,73 +114,72 @@ export default async function GorevEklemeSayfasi({ params: { locale } }: GorevEk
         {/* Link zur sprachspezifischen Liste */}
         <Link href={`/${locale}/admin/gorevler`} className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-accent transition-colors mb-4">
           <FiArrowLeft />
-          Zurück zur Aufgabenliste
+          Görev Listesine Dön
         </Link>
-        <h1 className="font-serif text-4xl font-bold text-primary">Neue Aufgabe erstellen</h1>
-        <p className="text-text-main/80 mt-1">Füllen Sie die Details aus, um eine neue Aufgabe zuzuweisen.</p>
+        <h1 className="font-serif text-4xl font-bold text-primary">Yeni Görev Oluştur</h1>
+        <p className="text-text-main/80 mt-1">Yeni bir görev oluşturmak için aşağıdaki alanları doldurun.</p>
       </header>
 
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-lg border border-gray-200">
         <form action={gorevEkleActionWithLocale} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
 
-            {/* Titel */}
+            {/* Başlık */}
             <div className="md:col-span-2">
-              <label htmlFor="baslik" className="block text-sm font-bold text-gray-700 mb-2">Titel <span className="text-red-500">*</span></label>
-              <input type="text" id="baslik" name="baslik" required className={inputBaseClasses} placeholder="z.B. Kampagnen-Visuals vorbereiten"/>
+              <label htmlFor="baslik" className="block text-sm font-bold text-gray-700 mb-2">Başlık <span className="text-red-500">*</span></label>
+              <input type="text" id="baslik" name="baslik" required className={inputBaseClasses} placeholder="ör. Kampanya görselleri hazırla"/>
             </div>
 
-            {/* Beschreibung */}
+            {/* Açıklama */}
             <div className="md:col-span-2">
-              <label htmlFor="aciklama" className="block text-sm font-bold text-gray-700 mb-2">Beschreibung</label>
-              <textarea id="aciklama" name="aciklama" rows={4} className={inputBaseClasses} placeholder="Details und Anforderungen der Aufgabe..."/>
+              <label htmlFor="aciklama" className="block text-sm font-bold text-gray-700 mb-2">Açıklama</label>
+              <textarea id="aciklama" name="aciklama" rows={4} className={inputBaseClasses} placeholder="Görevin detayları ve gereksinimleri..."/>
             </div>
 
-            {/* Zugewiesen an */}
+            {/* Atanan Kişi */}
             <div>
-              <label htmlFor="atanan_kisi_id" className="block text-sm font-bold text-gray-700 mb-2">Zugewiesen an <span className="text-red-500">*</span></label>
+              <label htmlFor="atanan_kisi_id" className="block text-sm font-bold text-gray-700 mb-2">Atanan Kişi <span className="text-red-500">*</span></label>
               <select id="atanan_kisi_id" name="atanan_kisi_id" required className={inputBaseClasses}>
-                <option value="">-- Person auswählen --</option>
+                <option value="">-- Kişi seçin --</option>
                 {profilOptions.map(p => (
                   <option key={p.id} value={p.id}>{p.tam_ad}</option>
                 ))}
               </select>
             </div>
 
-            {/* Zugehörige Firma */}
+            {/* İlgili Firma */}
             <div>
-              <label htmlFor="ilgili_firma_id" className="block text-sm font-bold text-gray-700 mb-2">Zugehörige Firma (Optional)</label>
+              <label htmlFor="ilgili_firma_id" className="block text-sm font-bold text-gray-700 mb-2">İlgili Firma (İsteğe Bağlı)</label>
               <select id="ilgili_firma_id" name="ilgili_firma_id" className={inputBaseClasses}>
-                <option value="">-- Firma auswählen --</option>
+                <option value="">-- Firma seçin --</option>
                 {firmaOptions.map(f => (
                   <option key={f.id} value={f.id}>{f.unvan}</option>
                 ))}
               </select>
             </div>
 
-            {/* Priorität */}
+            {/* Öncelik */}
             <div>
-              <label htmlFor="oncelik" className="block text-sm font-bold text-gray-700 mb-2">Priorität</label>
+              <label htmlFor="oncelik" className="block text-sm font-bold text-gray-700 mb-2">Öncelik</label>
               <select id="oncelik" name="oncelik" required defaultValue="Orta" className={inputBaseClasses}>
                 {oncelikOptions.map(o => (
-                  // Übersetzungen (optional)
-                  <option key={o} value={o}>{o === 'Düşük' ? 'Niedrig' : o === 'Orta' ? 'Mittel' : 'Hoch'}</option>
+                  <option key={o} value={o}>{o}</option>
                 ))}
               </select>
             </div>
 
-            {/* Fällig am */}
+            {/* Son Tarih */}
             <div>
-              <label htmlFor="son_tarih" className="block text-sm font-bold text-gray-700 mb-2">Fällig am</label>
+              <label htmlFor="son_tarih" className="block text-sm font-bold text-gray-700 mb-2">Son Tarih</label>
               <input type="date" id="son_tarih" name="son_tarih" className={inputBaseClasses} />
             </div>
           </div>
 
-          {/* Absenden-Button */}
+          {/* Kaydet Butonu */}
           <div className="pt-6 border-t border-gray-200 flex justify-end">
             <button type="submit" className="flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm">
               <FiSave size={18} />
-              Aufgabe speichern
+              Görevi Kaydet
             </button>
           </div>
         </form>

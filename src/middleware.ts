@@ -211,6 +211,12 @@ export async function middleware(req: NextRequest) {
     // Öffentliche Routen (nicht protected): Keine erzwungene Umschaltung auf Profil-Locale.
     // Header-Auswahl (manueller Wechsel) bleibt wirksam, weil wir hier keine Redirects mehr auslösen.
 
+    // x-locale header: root layout html lang attribute icin
+    const localeFromPath = pathname.split('/')[1];
+    if (locales.includes(localeFromPath)) {
+        res.headers.set('x-locale', localeFromPath);
+    }
+
     console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
     // Wichtig: Immer 'res' (die Response von updateSession) zurückgeben, wenn keine andere Aktion erfolgt
     return res;

@@ -4,13 +4,6 @@ import type { Metadata } from 'next';
 const locales = ['de', 'en', 'tr', 'ar'];
 const baseUrl = 'https://www.elysonsweets.de';
 
-const localeNames: Record<string, string> = {
-  de: 'de-DE',
-  en: 'en-US',
-  tr: 'tr-TR',
-  ar: 'ar-SA',
-};
-
 export async function generateMetadata({
   params,
 }: {
@@ -33,17 +26,9 @@ export async function generateMetadata({
 
 export default async function LocaleLayout({
   children,
-  params,
 }: {
   children: ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
-  const htmlLang = localeNames[locale] || locale;
-
-  return (
-    <html lang={htmlLang}>
-      <body>{children}</body>
-    </html>
-  );
+  return <>{children}</>;
 }

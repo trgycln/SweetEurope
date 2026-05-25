@@ -193,36 +193,25 @@ function CatalogCard({
     const hasAnyPrice = pricingRows.some(r => r.price != null && r.price > 0);
 
     return (
-        <div className="group flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-400 hover:shadow-lg transition-all duration-200">
+        <div className="group flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-400 hover:shadow-lg transition-all duration-200 will-change-transform">
 
             {/* Image area */}
-            <Link href={`/${locale}/products/${urun.slug}`} className="block relative h-44 sm:h-48 bg-slate-50 overflow-hidden flex-shrink-0">
+            <Link href={`/${locale}/products/${urun.slug}`} className="block relative h-36 bg-slate-50 overflow-hidden flex-shrink-0 will-change-transform">
                 {urun.ana_resim_url ? (
                     <Image src={urun.ana_resim_url} alt={name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        className="object-contain p-1 group-hover:scale-105 transition-transform duration-300" />
                 ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <FiPackage className="w-10 h-10 text-slate-300" />
                     </div>
                 )}
 
-                {/* Category ribbon — bottom left */}
-                {kategoriAdi && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/55 to-transparent px-2.5 py-2.5">
-                        <span className="text-white text-[9px] font-bold tracking-widest uppercase">{kategoriAdi}</span>
-                    </div>
-                )}
 
                 {/* Status badges — top right, stacked */}
                 <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
                     {isBestseller && (
                         <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white shadow-sm">
                             🏆 Bestseller
-                        </span>
-                    )}
-                    {isNeues && (
-                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm">
-                            Neu
                         </span>
                     )}
                     {isFeatured && !isBestseller && (
@@ -239,13 +228,13 @@ function CatalogCard({
             </Link>
 
             {/* Content */}
-            <div className="flex flex-col flex-1 p-3 gap-1.5">
+            <div className="flex flex-col flex-1 p-2.5 gap-1">
 
-                {/* Art.-Nr. + stock dot */}
+                {/* Kategori + stok */}
                 <div className="flex items-center justify-between gap-1">
-                    {urun.stok_kodu && (
-                        <span className="text-[9px] font-mono text-slate-400 flex items-center gap-1 leading-none">
-                            <LuBarcode size={9} /> {urun.stok_kodu}
+                    {kategoriAdi && (
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 truncate">
+                            {kategoriAdi}
                         </span>
                     )}
                     <span className={`ml-auto flex items-center gap-1 text-[9px] font-medium flex-shrink-0 ${inStock ? 'text-emerald-600' : 'text-slate-400'}`}>
@@ -255,6 +244,13 @@ function CatalogCard({
                             : (locale === 'de' ? 'Auf Anfrage' : 'Talep üzerine')}
                     </span>
                 </div>
+
+                {/* EAN */}
+                {urun.ean_gtin && (
+                    <span className="text-[9px] font-mono text-slate-400 flex items-center gap-1 leading-none">
+                        <LuBarcode size={9} /> {urun.ean_gtin}
+                    </span>
+                )}
 
                 {/* Product name */}
                 <Link href={`/${locale}/products/${urun.slug}`}>
@@ -289,7 +285,7 @@ function CatalogCard({
                             {b.short}
                         </span>
                     ))}
-                    {urun.zertifikate?.slice(0, 2).map(z => {
+                    {urun.zertifikate?.filter(z => z !== 'BRC' && z !== 'Halal').slice(0, 2).map(z => {
                         const cfg = ZERTIFIKAT_CONFIG[z];
                         if (!cfg) return null;
                         return (
@@ -574,11 +570,20 @@ function CatalogRow({ urun, locale, kategoriAdlariMap, isLoggedIn }: {
 
     return (
         <Link href={`/${locale}/products/${urun.slug}`}
-            className="group grid grid-cols-[2.5fr_1fr_80px_80px_120px_100px_40px] items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer">
+            className="group grid grid-cols-[40px_2.5fr_1fr_80px_80px_120px_100px_40px] items-center gap-3 px-4 py-2 hover:bg-slate-50 transition-colors cursor-pointer">
+            <div className="relative w-10 h-10 rounded-md overflow-hidden bg-slate-50 flex-shrink-0 will-change-transform">
+                {urun.ana_resim_url ? (
+                    <Image src={urun.ana_resim_url} alt={name} fill sizes="40px" className="object-contain p-0.5" />
+                ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <FiPackage className="w-4 h-4 text-slate-300" />
+                    </div>
+                )}
+            </div>
             <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-slate-600">{name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                    {urun.stok_kodu && <span className="text-[10px] font-mono text-slate-400">{urun.stok_kodu}</span>}
+                    {urun.ean_gtin && <span className="text-[10px] font-mono text-slate-400">{urun.ean_gtin}</span>}
                     <span className="text-[10px] text-slate-400">{kategoriAdi}</span>
                 </div>
             </div>
@@ -926,7 +931,7 @@ export function ProductGridClient({
                 </div>
             ) : viewMode === 'grid' ? (
                 <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
                         {filteredUrunler.map(urun => (
                             <CatalogCard
                                 key={urun.id}
@@ -944,7 +949,8 @@ export function ProductGridClient({
                 </>
             ) : (
                 <>
-                    <div className="hidden lg:grid grid-cols-[2.5fr_1fr_80px_80px_120px_100px_40px] gap-3 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200 bg-slate-50 rounded-t-lg">
+                    <div className="hidden lg:grid grid-cols-[40px_2.5fr_1fr_80px_80px_120px_100px_40px] gap-3 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200 bg-slate-50 rounded-t-lg">
+                        <span />
                         <span>{locale === 'de' ? 'Produkt' : 'Ürün'}</span>
                         <span>{locale === 'de' ? 'Lagerung' : 'Depolama'}</span>
                         <span className="text-center">{locale === 'de' ? 'Stk./Ktn.' : 'Adet/Koli'}</span>

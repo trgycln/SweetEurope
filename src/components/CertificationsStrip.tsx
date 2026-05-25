@@ -15,18 +15,18 @@ const CertificationsStrip: React.FC<{ dictionary: any }> = ({ dictionary }) => {
     },
     {
       icon: <FaTrophy className="w-6 h-6" />,
-      label: 'Türkischer Patent-Sieger',
-      description: 'Mehrfach ausgezeichnet für Innovationsleistung im Bereich Sirup- und Soßenherstellung.',
+      label: dictionary.certifications.item3?.label,
+      description: dictionary.certifications.item3?.description,
     },
     {
       icon: <FaSearch className="w-6 h-6" />,
-      label: 'Online-Qualitätskontrolle',
-      description: 'Lückenlose Online-Qualitätsprüfung über die gesamte Produktionskette.',
+      label: dictionary.certifications.item4?.label,
+      description: dictionary.certifications.item4?.description,
     },
     {
       icon: <FaTag className="w-6 h-6" />,
-      label: 'EU-konforme Etikettierung',
-      description: 'Alle Etiketten und Spezifikationen entsprechen EU-Lebensmittelverordnungen.',
+      label: dictionary.certifications.item5?.label,
+      description: dictionary.certifications.item5?.description,
     },
   ];
 

@@ -2,28 +2,30 @@ import React from 'react';
 import Link from 'next/link';
 import { FaInstagram, FaLinkedin } from 'react-icons/fa';
 
-// These slugs match real categories in the database
-const FO_CATEGORY_LINKS = [
-  { slug: 'sauces-and-ingredients', de: 'HoReCa – Getränke & Saucen' },
-  { slug: 'coffee',                 de: 'Kaffee & Kaffeespezialitäten' },
-  { slug: 'drinks',                 de: 'Getränke & Sirup-Basen' },
-];
+const FO_CATEGORY_SLUGS = [
+  { slug: 'sauces-and-ingredients', key: 'catSaucesLabel' },
+  { slug: 'coffee',                 key: 'catCoffeeLabel' },
+  { slug: 'drinks',                 key: 'catDrinksLabel' },
+] as const;
 
 const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, locale = 'de' }) => {
+  const f = dictionary.footer;
+  const isRtl = locale === 'ar';
+
   return (
-    <footer className="bg-primary text-secondary border-t-2 border-accent">
+    <footer className="bg-primary text-secondary border-t-2 border-accent" dir={isRtl ? 'rtl' : 'ltr'}>
 
       {/* B2B Notice Bar */}
       <div className="bg-accent/10 border-b border-accent/20 px-6 py-3">
         <p className="text-center text-xs text-secondary/70 font-medium max-w-4xl mx-auto">
-          Verkauf ausschließlich an Gewerbetreibende gem. §14 BGB. Alle Preise verstehen sich netto, zzgl. gesetzlicher MwSt., zzgl. Versand.
+          {f.b2bNotice}
         </p>
       </div>
 
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
 
-          {/* Column 1: ElysonSweets */}
+          {/* Column 1: Company info */}
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-accent/40 bg-white/10 flex-shrink-0">
@@ -32,10 +34,10 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
               <h3 className="text-xl font-serif font-bold text-white tracking-wide">ElysonSweets</h3>
             </div>
             <p className="text-sm text-secondary/70 leading-relaxed mb-4">
-              Ihr B2B-Partner für FO-Markensortiment – Premium-Sirupe, Soßen und Backzutaten für Cafés, Hotels und Patisserien in Deutschland und der EU.
+              {f.description}
             </p>
             <div className="text-sm text-secondary/60 space-y-1">
-              <p>📍 Köln, Deutschland</p>
+              <p>📍 {f.location}</p>
               <a href="mailto:info@elysonsweets.de" className="block hover:text-accent transition-colors">
                 ✉ info@elysonsweets.de
               </a>
@@ -50,32 +52,32 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
             </div>
           </div>
 
-          {/* Column 2: Sortiment */}
+          {/* Column 2: Assortment */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">Sortiment</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">{f.sortimentTitle}</h4>
             <nav className="space-y-1.5">
-              {FO_CATEGORY_LINKS.map((cat) => (
+              {FO_CATEGORY_SLUGS.map((cat) => (
                 <Link
                   key={cat.slug}
                   href={`/${locale}/products?kategori=${cat.slug}`}
                   className="block text-sm text-secondary/70 hover:text-accent transition-colors truncate"
                 >
-                  {cat.de}
+                  {f[cat.key]}
                 </Link>
               ))}
             </nav>
           </div>
 
-          {/* Column 3: Geschäftskunden */}
+          {/* Column 3: Business customers */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">Geschäftskunden</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">{f.businessTitle}</h4>
             <nav className="space-y-2">
               {[
-                { href: `/${locale}/register`, label: 'Partner werden' },
-                { href: `/${locale}/contact`, label: 'Probierpaket anfragen' },
-                { href: `/${locale}/contact`, label: 'Preisliste anfordern' },
-                { href: `/${locale}/contact`, label: 'Anfrage senden' },
-                { href: `/${locale}/contact`, label: 'FAQ' },
+                { href: `/${locale}/register`, label: f.linkPartner },
+                { href: `/${locale}/contact`,  label: f.linkTrial },
+                { href: `/${locale}/contact`,  label: f.linkPricelist },
+                { href: `/${locale}/contact`,  label: f.linkContact },
+                { href: `/${locale}/contact`,  label: f.linkFaq },
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -88,18 +90,18 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
             </nav>
           </div>
 
-          {/* Column 4: Rechtliches */}
+          {/* Column 4: Legal */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">Rechtliches</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">{f.legal}</h4>
             <nav className="space-y-2">
               {[
-                { href: `/${locale}/impressum`, label: 'Impressum' },
-                { href: `/${locale}/datenschutz`, label: 'Datenschutz' },
-                { href: `/${locale}/agb`, label: 'AGB (B2B)' },
-                { href: `/${locale}/widerruf`, label: 'Widerrufsbelehrung' },
+                { href: `/${locale}/impressum`,  label: f.impressum },
+                { href: `/${locale}/datenschutz`, label: f.datenschutz },
+                { href: `/${locale}/agb`,        label: f.linkAgb },
+                { href: `/${locale}/widerruf`,   label: f.linkWiderruf },
               ].map((item) => (
                 <Link
-                  key={item.label}
+                  key={item.href}
                   href={item.href}
                   className="block text-sm text-secondary/70 hover:text-accent transition-colors"
                 >
@@ -108,19 +110,19 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
               ))}
             </nav>
             <p className="text-[11px] text-secondary/40 mt-4 leading-relaxed">
-              Widerrufsbelehrung: Für Käufe durch Gewerbetreibende i.S.v. §14 BGB gelten abweichende Regelungen.
+              {f.b2bLegalNote}
             </p>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm">
-          <p className="opacity-60 text-xs">{dictionary.footer.copyright}</p>
+          <p className="opacity-60 text-xs">{f.copyright}</p>
           <div className="flex flex-wrap items-center gap-3 text-xs text-secondary/50">
-            <span className="border border-secondary/20 rounded px-2 py-0.5">Vorkasse</span>
-            <span className="border border-secondary/20 rounded px-2 py-0.5">Rechnung 14 Tage netto</span>
-            <span className="border border-secondary/20 rounded px-2 py-0.5">DHL / UPS</span>
-            <span className="border border-secondary/20 rounded px-2 py-0.5">EU-Versand</span>
+            <span className="border border-secondary/20 rounded px-2 py-0.5">{f.badgePrepayment}</span>
+            <span className="border border-secondary/20 rounded px-2 py-0.5">{f.badgeInvoice}</span>
+            <span className="border border-secondary/20 rounded px-2 py-0.5">HACCP</span>
+            <span className="border border-secondary/20 rounded px-2 py-0.5">BRC · Halal</span>
           </div>
         </div>
       </div>
