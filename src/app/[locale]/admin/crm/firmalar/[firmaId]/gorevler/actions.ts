@@ -16,7 +16,7 @@ type ActionResult = {
 
 // Typ für Priorität Enum
 type GorevOncelik = Enums<'gorev_oncelik'>;
-const validPriorities: ReadonlyArray<GorevOncelik> = ['Düşük', 'Orta', 'Yüksek'];
+const validPriorities: ReadonlyArray<string> = ['Düşük', 'Orta', 'Yüksek', 'Acil'];
 
 // Fügt eine neue Aufgabe für eine spezifische Firma hinzu
 export async function firmaIcinGorevEkleAction(
@@ -38,9 +38,10 @@ export async function firmaIcinGorevEkleAction(
     // Formulardaten abrufen und validieren
     const baslik = formData.get('baslik') as string | null;
     const atanan_kisi_id = formData.get('atanan_kisi_id') as string | null;
-    const son_tarih = formData.get('son_tarih') as string | null; // Kann leer sein
-    const oncelik_raw = formData.get('oncelik');
-    const oncelik = (validPriorities.includes(oncelik_raw as GorevOncelik) ? oncelik_raw : 'Orta') as GorevOncelik; // Standard 'Orta'
+    const son_tarih = formData.get('son_tarih') as string | null;
+    const oncelik_raw = formData.get('oncelik') as string | null;
+    const oncelik = (validPriorities.includes(oncelik_raw ?? '') ? oncelik_raw : 'Orta') as GorevOncelik;
+    const aciklama = formData.get('aciklama') as string | null;
 
     if (!baslik) {
         return { error: "Aufgabentitel ist erforderlich." }; // Angepasst
@@ -53,13 +54,12 @@ export async function firmaIcinGorevEkleAction(
     const insertData: Partial<Tables<'gorevler'>> = {
         ilgili_firma_id: firmaId,
         baslik: baslik,
-        // son_tarih nur setzen, wenn ein gültiges Datum eingegeben wurde
         son_tarih: son_tarih && !isNaN(Date.parse(son_tarih)) ? new Date(son_tarih).toISOString() : null,
         atanan_kisi_id: atanan_kisi_id,
         oncelik: oncelik,
-        olusturan_kisi_id: user.id, // ID des Erstellers
-        tamamlandi: false, // Neue Aufgaben sind nicht abgeschlossen
-        // 'durum' Spalte wird hier nicht gesetzt, da 'tamamlandi' verwendet wird?
+        aciklama: aciklama || null,
+        olusturan_kisi_id: user.id,
+        tamamlandi: false,
     };
 
     // In Datenbank einfügen

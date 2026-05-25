@@ -79,6 +79,11 @@ export async function updateFirmaAction(
     const rakip_kullaniyor_mu = formData.get('rakip_kullaniyor_mu') === 'on';
     const rakip_marka = formData.get('rakip_marka') as string | null;
     const isletme_notlar = formData.get('isletme_notlar') as string | null;
+    const satis_stratejisi = formData.get('satis_stratejisi') as string | null;
+    const tahmini_aylik_potansiyel_eur_raw = formData.get('tahmini_aylik_potansiyel_eur') as string | null;
+    const crosssell_firsati = formData.get('crosssell_firsati') as string | null;
+    const churn_riski = formData.get('churn_riski') === 'on';
+    const churn_neden = formData.get('churn_neden') as string | null;
 
     // Einfache Validierung (Beispiel)
     if (!unvan) { // Status ist oft optional oder wird nicht immer geändert
@@ -181,6 +186,11 @@ export async function updateFirmaAction(
         rakip_kullaniyor_mu,
         rakip_marka: rakip_kullaniyor_mu ? (rakip_marka || null) : null,
         notlar: isletme_notlar || null,
+        satis_stratejisi: satis_stratejisi || null,
+        tahmini_aylik_potansiyel_eur: tahmini_aylik_potansiyel_eur_raw ? parseFloat(tahmini_aylik_potansiyel_eur_raw) : null,
+        crosssell_firsati: crosssell_firsati || null,
+        churn_riski,
+        churn_neden: churn_riski ? (churn_neden || null) : null,
     };
 
     // --- Ab hier Logik für Update, Statusänderung und Benachrichtigung ---

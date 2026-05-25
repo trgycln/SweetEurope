@@ -518,6 +518,103 @@ export default async function FirmaOzetPage({ params }: PageProps) {
                 );
             })()}
 
+            {/* ── Satış / Büyüme Fırsatı Kartı ── */}
+            {(() => {
+                const tekOz = (firma.teknik_ozellikler as any) || {};
+                const isPipeline = ['ADAY', 'TEMAS EDİLDİ', 'NUMUNE VERİLDİ'].includes(status);
+                const isMusteriStatus = ['MÜŞTERİ', 'Müşteri'].includes(status);
+
+                if (isPipeline) {
+                    const hasData = !!(
+                        tekOz.satis_stratejisi ||
+                        tekOz.tahmini_aylik_potansiyel_eur ||
+                        (Array.isArray(tekOz.tercihli_urun_gami) && tekOz.tercihli_urun_gami.length > 0) ||
+                        firma.oncelik_puani
+                    );
+                    if (!hasData) return null;
+
+                    const GAM_LABEL: Record<string, string> = {
+                        barista: 'Barista & Bar', dondurma: 'Eis & Gelato',
+                        pastaci: 'Konditorei', icecek: 'Getränke',
+                    };
+                    const GAM_COLOR: Record<string, string> = {
+                        barista: 'bg-amber-50 text-amber-700 border border-amber-200',
+                        dondurma: 'bg-blue-50 text-blue-700 border border-blue-200',
+                        pastaci: 'bg-pink-50 text-pink-700 border border-pink-200',
+                        icecek: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                    };
+
+                    return (
+                        <div className="bg-amber-50 rounded-xl border border-amber-200 shadow-sm px-5 py-4">
+                            <h3 className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-3">🎯 Satış Fırsatı</h3>
+                            {tekOz.satis_stratejisi && (
+                                <p className="text-sm text-slate-700 leading-snug mb-3">{tekOz.satis_stratejisi}</p>
+                            )}
+                            <div className="flex flex-wrap gap-2 items-center">
+                                {tekOz.tahmini_aylik_potansiyel_eur && (
+                                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                                        ~{new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(tekOz.tahmini_aylik_potansiyel_eur)}/ay
+                                    </span>
+                                )}
+                                {Array.isArray(tekOz.tercihli_urun_gami) && tekOz.tercihli_urun_gami.map((g: string) => (
+                                    <span key={g} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${GAM_COLOR[g] ?? 'bg-slate-100 text-slate-600'}`}>
+                                        {GAM_LABEL[g] ?? g}
+                                    </span>
+                                ))}
+                                {firma.oncelik_puani && (
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
+                                        Öncelik {firma.oncelik_puani}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    );
+                }
+
+                if (isMusteriStatus) {
+                    const hasData = !!(
+                        tekOz.crosssell_firsati ||
+                        tekOz.churn_riski ||
+                        tekOz.tahmini_aylik_potansiyel_eur
+                    );
+                    if (!hasData) return null;
+
+                    return (
+                        <div className="bg-emerald-50 rounded-xl border border-emerald-200 shadow-sm px-5 py-4">
+                            <h3 className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-3">🌱 Büyüme Fırsatı</h3>
+                            <div className="flex flex-wrap gap-x-6 gap-y-3 items-start">
+                                {tekOz.crosssell_firsati && (
+                                    <div className="flex-1 min-w-[180px]">
+                                        <span className="text-[10px] font-semibold text-slate-400 uppercase block mb-1">Cross-sell</span>
+                                        <p className="text-sm text-slate-700 leading-snug">{tekOz.crosssell_firsati}</p>
+                                    </div>
+                                )}
+                                <div className="flex flex-wrap gap-2 items-start">
+                                    {tekOz.tahmini_aylik_potansiyel_eur && (
+                                        <div>
+                                            <span className="text-[10px] font-semibold text-slate-400 uppercase block mb-1">Potansiyel</span>
+                                            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                ~{new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(tekOz.tahmini_aylik_potansiyel_eur)}/ay
+                                            </span>
+                                        </div>
+                                    )}
+                                    {tekOz.churn_riski && (
+                                        <div>
+                                            <span className="text-[10px] font-semibold text-slate-400 uppercase block mb-1">Risk</span>
+                                            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700 border border-red-200">
+                                                ⚠ {tekOz.churn_neden || 'Churn Riski'}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+
+                return null;
+            })()}
+
             {/* ── Portal Erişimi Ver ── */}
             {!isCustomer && (
                 <div className="flex justify-end">

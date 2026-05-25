@@ -27,10 +27,10 @@ type FirmaStatus = 'ADAY' | 'TEMAS EDİLDİ' | 'NUMUNE VERİLDİ' | 'MÜŞTERİ'
 const kategoriOptions: FirmaKategori[] = ['A', 'B', 'C', 'D'];
 
 const kategoriLabels: Record<string, string> = {
-    'A': '🔥 A - HACİM KRALLARI (80-100 puan) | Düğün/Otel/Catering/Kantin',
-    'B': '💰 B - GÜNLÜK NAKİT AKIŞI (60-79 puan) | Kafeler/Pastaneler',
-    'C': '⭐ C - NİŞ PAZARLAR (40-59 puan) | Shisha/Restoran/Oyun Park',
-    'D': '📦 D - PERAKENDE & RAF ÜRÜNLERİ (1-39 puan) | Market/Kiosk',
+    'A': 'A - HACİM MÜŞTERİ | Otel, Catering, Zincir Kafe (80-100 puan)',
+    'B': 'B - AKTİF MÜŞTERİ | Kafe, Pastane, Dondurma Dükkanı (50-79 puan)',
+    'C': 'C - GELİŞEN MÜŞTERİ | Küçük ama Potansiyelli İşletme (20-49 puan)',
+    'D': 'D - ADAY MÜŞTERİ | Henüz Sipariş Yok (1-19 puan)',
 };
 
 const statusOptions: FirmaStatus[] = ['ADAY', 'TEMAS EDİLDİ', 'NUMUNE VERİLDİ', 'MÜŞTERİ', 'REDDEDİLDİ'];
@@ -59,6 +59,7 @@ export default function FirmaDuzenlePage() {
     const [branches, setBranches] = useState<Array<{ id: string; unvan: string }>>([]);
     const [isPending, startTransition] = useTransition();
     const [rakipKullaniyor, setRakipKullaniyor] = useState(false);
+    const [churnRiski, setChurnRiski] = useState(false);
 
     useEffect(() => {
         const fetchFirma = async () => {
@@ -76,6 +77,7 @@ export default function FirmaDuzenlePage() {
             } else {
                 setFirma(data);
                 setRakipKullaniyor(!!((data as any).teknik_ozellikler?.rakip_kullaniyor_mu));
+                setChurnRiski(!!((data as any).teknik_ozellikler?.churn_riski));
                 if (data.created_by) {
                     const { data: creator } = await supabase
                         .from('profiller')
@@ -561,6 +563,77 @@ export default function FirmaDuzenlePage() {
                                     className={inp}
                                 />
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Satış & Büyüme Fırsatı */}
+                    <div className="md:col-span-2 pt-2 border-t border-slate-100">
+                        <h3 className="text-sm font-bold text-slate-700 mb-4">Satış & Büyüme Fırsatı</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                            {/* Satış Stratejisi */}
+                            <div className="md:col-span-2">
+                                <label htmlFor="satis_stratejisi" className="block text-xs font-bold text-slate-500 mb-1">Satış Stratejisi / Giriş Noktası</label>
+                                <textarea
+                                    id="satis_stratejisi" name="satis_stratejisi"
+                                    rows={3}
+                                    defaultValue={tekOz.satis_stratejisi || ''}
+                                    placeholder="Bu firmaya nasıl girilecek? Güçlü yönler, zayıf noktalar..."
+                                    className={inp}
+                                />
+                            </div>
+
+                            {/* Tahmini Aylık Potansiyel */}
+                            <div>
+                                <label htmlFor="tahmini_aylik_potansiyel_eur" className="block text-xs font-bold text-slate-500 mb-1">Tahmini Aylık Potansiyel (€)</label>
+                                <input
+                                    type="number" id="tahmini_aylik_potansiyel_eur" name="tahmini_aylik_potansiyel_eur"
+                                    min="0" step="50"
+                                    defaultValue={tekOz.tahmini_aylik_potansiyel_eur ?? ''}
+                                    placeholder="örn. 500"
+                                    className={inp}
+                                />
+                            </div>
+
+                            {/* Cross-sell Fırsatı */}
+                            <div className="md:col-span-2">
+                                <label htmlFor="crosssell_firsati" className="block text-xs font-bold text-slate-500 mb-1">Cross-sell Fırsatı</label>
+                                <textarea
+                                    id="crosssell_firsati" name="crosssell_firsati"
+                                    rows={2}
+                                    defaultValue={tekOz.crosssell_firsati || ''}
+                                    placeholder="Hangi ürün gruplarını ekleyebilir? Upsell fırsatları..."
+                                    className={inp}
+                                />
+                            </div>
+
+                            {/* Churn Riski */}
+                            <div className="flex items-center gap-3 pt-1">
+                                <input
+                                    id="churn_riski"
+                                    name="churn_riski"
+                                    type="checkbox"
+                                    checked={churnRiski}
+                                    onChange={e => setChurnRiski(e.target.checked)}
+                                    className="h-4 w-4 rounded text-red-600 focus:ring-red-500 border-slate-300"
+                                />
+                                <label htmlFor="churn_riski" className="text-xs font-bold text-slate-500 cursor-pointer">
+                                    Churn riski var
+                                </label>
+                            </div>
+
+                            {/* Churn Nedeni (sadece churn_riski true ise görünür) */}
+                            {churnRiski && (
+                                <div>
+                                    <label htmlFor="churn_neden" className="block text-xs font-bold text-slate-500 mb-1">Churn Nedeni</label>
+                                    <input
+                                        type="text" id="churn_neden" name="churn_neden"
+                                        defaultValue={tekOz.churn_neden || ''}
+                                        placeholder="Neden churn riski var?"
+                                        className={inp}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 

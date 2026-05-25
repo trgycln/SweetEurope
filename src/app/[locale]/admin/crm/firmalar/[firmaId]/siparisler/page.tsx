@@ -101,13 +101,13 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
         <div>
             {/* Header mit "Neue Bestellung" Button */}
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 pb-4 border-b border-gray-200">
-                <h2 className="font-serif text-2xl font-bold text-primary">Bestellhistorie</h2>
+                <h2 className="font-serif text-2xl font-bold text-primary">Sipariş Geçmişi</h2>
                 <Link
-                    href={`/${locale}/admin/operasyon/siparisler/yeni?firmaId=${firmaId}`}
+                    href={`/${locale}/admin/crm/firmalar/${firmaId}/siparisler/yeni`}
                     className="flex items-center justify-center gap-2 px-4 py-2 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 font-bold text-sm w-full sm:w-auto transition"
                 >
                     <FiPlus />
-                    Neue Bestellung erstellen
+                    Yeni Sipariş Oluştur
                 </Link>
             </div>
 
@@ -117,10 +117,10 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Bestell-Nr.</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Datum</th>
-                                <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Betrag (Brutto)</th>
-                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Sipariş No</th>
+                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tarih</th>
+                                <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Tutar (Brüt)</th>
+                                <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Durum</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -162,7 +162,7 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
             ) : (
                 <div className="text-center p-8 border-2 border-dashed border-gray-200 rounded-lg bg-white">
                     <FiPackage className="mx-auto text-5xl text-gray-300 mb-4" />
-                    <p className="text-gray-500">Für diese Firma existieren noch keine Bestellungen.</p>
+                    <p className="text-gray-500">Bu firma için henüz sipariş yok.</p>
                 </div>
             )}
         </div>
