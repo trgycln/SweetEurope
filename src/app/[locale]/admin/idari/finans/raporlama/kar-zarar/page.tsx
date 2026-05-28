@@ -11,6 +11,8 @@ import { Locale } from '@/lib/utils';
 import { redirect } from 'next/navigation';
 import PNLReportClient from './PNLReportClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // ReportData Typ
 type ExpenseDetail = {
     id: string;
@@ -104,7 +106,7 @@ export default async function PNLDetailPage({
     const dictionary = await getDictionary(locale);
 
     // Benutzerprüfung
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user!.id).single();

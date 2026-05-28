@@ -6,6 +6,8 @@ import { GiderSablonlariClientNew } from '@/components/admin/finans/GiderSablonl
 import { Tables } from '@/lib/supabase/database.types';
 import { cookies } from 'next/headers';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -41,7 +43,7 @@ export default async function GiderSablonlariPage({
 
     const {
         data: { user },
-    } = await supabase.auth.getUser();
+    } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase

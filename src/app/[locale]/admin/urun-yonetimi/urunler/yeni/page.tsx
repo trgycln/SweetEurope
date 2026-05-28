@@ -11,6 +11,8 @@ import { Locale } from '@/i18n-config'; // Locale importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 import { getDictionary } from '@/dictionaries';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typdefinitionen
 type Kategori = Tables<'kategoriler'>;
 type Tedarikci = Pick<Tables<'tedarikciler'>, 'id' | 'unvan'>;
@@ -31,7 +33,7 @@ export default async function YeniUrunSayfasi({ params }: YeniUrunSayfasiProps) 
     // --- ENDE KORREKTUR ---
 
     // Sicherheit: Benutzerprüfung
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         return redirect(`/${locale}/login`);
     }

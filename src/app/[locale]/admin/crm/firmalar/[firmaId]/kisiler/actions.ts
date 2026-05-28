@@ -8,6 +8,8 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Tables } from '@/lib/supabase/database.types'; // Import für Typisierung
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typ für Rückgabewert definieren
 type ActionResult = {
     success: boolean;
@@ -29,7 +31,7 @@ export async function yeniKisiEkleAction(
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung, falls nur Admins/Teammitglieder hinzufügen dürfen
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) { return { success: false, message: '', error: "Nicht authentifiziert." }; }
 
     // Formulardaten abrufen und validieren
@@ -74,7 +76,7 @@ export async function guncelleKisiAction(
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) { return { success: false, message: '', error: "Nicht authentifiziert." }; }
 
     // Formulardaten abrufen und validieren
@@ -123,7 +125,7 @@ export async function silKisiAction(
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) { return { success: false, message: '', error: "Nicht authentifiziert." }; }
 
     // Kontakt löschen

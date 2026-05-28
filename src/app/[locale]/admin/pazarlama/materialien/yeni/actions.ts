@@ -11,6 +11,8 @@ import { sendNotification } from '@/lib/notificationUtils';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importiert
 import { SupabaseClient } from '@supabase/supabase-js'; // Typ importieren
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export type UploadFormState = {
     success: boolean;
     message: string;
@@ -27,7 +29,7 @@ export async function uploadMaterialAction(
     const supabase = await createSupabaseServerClient(cookieStore);
     // --- ENDE ---
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
         return { success: false, message: 'Nicht authentifiziert.' };
     }

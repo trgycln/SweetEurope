@@ -9,6 +9,8 @@ import { redirect } from 'next/navigation'; // Importiert, falls benötigt
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Database } from '@/lib/supabase/database.types'; // Import für Typisierung
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typ für Rückgabewert
 type ActionResult = {
     success: boolean;
@@ -29,7 +31,7 @@ export async function deleteMaterialAction(
     const supabase = await createSupabaseServerClient(cookieStore);
     // --- ENDE KORREKTUR ---
 
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         return { success: false, message: 'Nicht authentifiziert.' };
     }

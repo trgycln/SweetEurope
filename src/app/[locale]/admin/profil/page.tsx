@@ -6,6 +6,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 export default async function ProfilPage({
@@ -24,7 +26,7 @@ export default async function ProfilPage({
   const {
     data: { user },
     error: authError,
-  } = await supabase.auth.getUser();
+  } = await getGlobalCachedUser();
 
   if (authError || !user) {
     console.error('Auth error:', authError);

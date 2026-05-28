@@ -3,13 +3,15 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import FiyatlandirmaHubClient from './FiyatlandirmaHubClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export default async function FiyatlandirmaHubPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return redirect(`/${locale}/login`);
   
   const { data: profil } = await (supabase as any)

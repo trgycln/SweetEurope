@@ -5,6 +5,8 @@ import { Locale } from '@/i18n-config';
 import { getDictionary } from '@/dictionaries';
 import PriceMatrixClient from './PriceMatrixClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 interface PageProps {
     params: Promise<{ locale: Locale }>;
 }
@@ -16,7 +18,7 @@ export default async function FiyatMatrisiPage({ params }: PageProps) {
     const dictionary = await getDictionary(locale);
 
     // Check authentication
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await getGlobalCachedUser();
     if (!user || userError) {
         redirect(`/${locale}/login?next=/admin/urun-yonetimi/fiyat-matrisi`);
     }

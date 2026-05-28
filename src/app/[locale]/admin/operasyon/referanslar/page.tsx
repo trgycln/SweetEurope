@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation';
 import { Locale } from '@/lib/utils';
 import ReferanslarClient from './ReferanslarClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export default async function ReferanslarPage({
     params,
 }: {
@@ -15,7 +17,7 @@ export default async function ReferanslarPage({
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase

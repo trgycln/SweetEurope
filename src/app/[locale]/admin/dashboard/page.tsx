@@ -22,6 +22,11 @@ import DashboardPeriodTabs from '@/components/admin/dashboard/DashboardPeriodTab
 import KasaKalanCard from '@/components/admin/dashboard/KasaKalanCard';
 import HedefTakipCard from '@/components/admin/dashboard/HedefTakipCard';
 import CollapsibleSection from '@/components/admin/dashboard/CollapsibleSection';
+import { AnimatedDashboardContainer, AnimatedCard } from '@/components/admin/dashboard/AnimatedDashboardWrapper';
+import { AnimatedNumber } from '@/components/admin/dashboard/AnimatedNumber';
+import { getCachedDashboardData } from '@/lib/admin/cache-utils';
+
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,50 +131,27 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
     const now = new Date();
     const { start: periodStart, end: periodEnd } = getPeriodDates(period, now);
     const todayISO          = now.toISOString();
-    const sevenDaysAgo      = new Date(now.getTime() - 7  * 86400000).toISOString();
-    const thirtyDaysAgo     = new Date(now.getTime() - 30 * 86400000).toISOString();
-    const thirtyDaysLater   = new Date(now.getTime() + 30 * 86400000).toISOString();
 
-    const OFFENE_STATUS: Enums<'siparis_durumu'>[] = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
+    // ── Paralel sorgular (Önbellekten) ──────────────────────────────────────────────
+    const dashboardData = await getCachedDashboardData(period);
 
-    // ── Paralel sorgular ──────────────────────────────────────────────────────
     const [
-        plRes, plPrevRes,
-        stokRes, urunToplamRes,
-        aktifSiparisRes, siparisDagRes,
-        sonTirRes, yaklasenTirRes,
-        adayRes, temasRes, musteriRes, yeniTemasRes,
-        overdueRes, upcomingRes, benimRes,
-        alarmUrunlerRes,
-        settingsRes,
-        yeniMusteriRes, sipAdetRes,
-        alarmCountRes, batchHistRes,
+        benimRes,
+        overdueRes,
+        upcomingRes
     ] = await Promise.all([
-        supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).returns<ReportData>().single(),
-        supabase.rpc('get_pl_report', { start_date: toLocalDate(new Date(now.getFullYear(), now.getMonth() - 1, 1)), end_date: toLocalDate(new Date(now.getFullYear(), now.getMonth(), 0)) }).returns<ReportData>().single(),
-        supabase.from('urunler').select('distributor_alis_fiyati, stok_miktari, stok_esigi').eq('aktif', true),
-        supabase.from('urunler').select('id', { count: 'exact', head: true }),
-        supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_STATUS),
-        supabase.from('siparisler').select('siparis_durumu').gte('created_at', thirtyDaysAgo),
-        (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(3),
-        (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum').gte('varis_tarihi', todayISO).order('varis_tarihi', { ascending: true }).limit(1),
-        supabase.from('firmalar').select('id', { count: 'exact' }).eq('status', 'ADAY'),
-        supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']),
-        supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Müşteri', 'ALT BAYİ']),
-        supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']).gte('created_at', sevenDaysAgo),
-        supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(10),
-        supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).gte('son_tarih', todayISO).lte('son_tarih', thirtyDaysLater).order('son_tarih', { ascending: true }).limit(10),
         supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).eq('atanan_kisi_id', userId).order('son_tarih', { ascending: true, nullsFirst: false }).limit(10),
-        supabase.from('urunler').select('id, ad, stok_kodu, son_maliyet_sapma_yuzde, son_gercek_inis_maliyeti_net').eq('karlilik_alarm_aktif', true).order('son_maliyet_sapma_yuzde', { ascending: false }).limit(4),
-        (supabase as any).from('system_settings').select('setting_key, setting_value').in('setting_key', ['kasa_bakiyesi', 'hedef_ciro', 'hedef_musteri', 'hedef_temas', 'hedef_siparis']),
-        supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'ALT BAYİ']).gte('created_at', `${periodStart}T00:00:00`),
-        supabase.from('siparisler')
-            .select('siparis_durumu')
-            .gte('siparis_tarihi', periodStart)
-            .lte('siparis_tarihi', periodEnd),
-        supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
-        (supabase as any).from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
+        supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(10),
+        supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).gte('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(10), // simplified
     ]);
+
+    const {
+        plRes, plPrevRes, stokRes, urunToplamRes, 
+        aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
+        adayRes, temasRes, musteriRes, yeniTemasRes, 
+        alarmUrunlerRes, settingsRes, yeniMusteriRes, 
+        sipAdetRes, alarmCountRes, batchHistRes
+    } = dashboardData;
 
     // ── Veri işle ─────────────────────────────────────────────────────────────
     const mtd     = plRes.data;
@@ -243,8 +225,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
     const L = { locale };
 
     return (
-        <div className="space-y-5 pb-10">
-
+        <AnimatedDashboardContainer>
             {/* ── Header ──────────────────────────────────────────────────── */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
@@ -259,10 +240,10 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
             {/* ── Quick Stats Bar (6 kart) ──────────────────────────────── */}
             <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
                 {[
-                    { label: 'Net Ciro',      value: fmt(mtd?.totalRevenue),   bg: 'bg-[#E6F1FB]', text: 'text-blue-800',  sub: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% geçen ay` : '', href: null },
-                    { label: 'Brüt Kâr',      value: fmt(mtd?.grossProfit),    bg: 'bg-[#EAF3DE]', text: 'text-green-800', sub: '', href: null },
-                    { label: 'Toplam Gider',  value: fmt(mtd?.totalExpenses),  bg: 'bg-[#FAEEDA]', text: 'text-orange-800',sub: '', href: null },
-                    { label: 'Net Kâr',       value: fmt(mtd?.netProfit),      bg: 'bg-[#FCEBEB]', text: (mtd?.netProfit ?? 0) >= 0 ? 'text-green-800' : 'text-red-700', sub: '', href: null },
+                    { label: 'Net Ciro',      value: <AnimatedNumber value={mtd?.totalRevenue ?? 0} format="currency" />,   bg: 'bg-gradient-to-br from-blue-50 to-blue-100/50', text: 'text-blue-800',  sub: deltaPct !== null ? `${deltaPct > 0 ? '+' : ''}${deltaPct}% geçen ay` : '', href: null },
+                    { label: 'Brüt Kâr',      value: <AnimatedNumber value={mtd?.grossProfit ?? 0} format="currency" />,    bg: 'bg-gradient-to-br from-emerald-50 to-emerald-100/50', text: 'text-green-800', sub: '', href: null },
+                    { label: 'Toplam Gider',  value: <AnimatedNumber value={mtd?.totalExpenses ?? 0} format="currency" />,  bg: 'bg-gradient-to-br from-orange-50 to-amber-100/50', text: 'text-orange-800',sub: '', href: null },
+                    { label: 'Net Kâr',       value: <AnimatedNumber value={mtd?.netProfit ?? 0} format="currency" />,      bg: 'bg-gradient-to-br from-rose-50 to-red-100/50', text: (mtd?.netProfit ?? 0) >= 0 ? 'text-green-800' : 'text-red-700', sub: '', href: null },
                     {
                         label: 'Teslim Edilen',
                         value: String(teslimEdilenCount),
@@ -273,23 +254,24 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                     },
                     {
                         label: 'Aktif Sipariş',
-                        value: String(aktifSiparisCount),
-                        bg: 'bg-slate-100',
+                        value: <AnimatedNumber value={aktifSiparisCount} />,
+                        bg: 'bg-gradient-to-br from-slate-50 to-slate-100',
                         text: aktifSiparisCount > 0 ? 'text-blue-700' : 'text-slate-800',
                         sub: `${beklemeydeCount} bekl. · ${hazirlaniyorCount} hazır · ${yoldaCount} yolda`,
                         href: `/${locale}/admin/operasyon/siparisler`,
                     },
-                ].map(c => (
-                    <Link
-                        key={c.label}
-                        href={c.href ?? '#'}
-                        className={`rounded-xl border border-slate-200/60 px-4 py-3.5 ${c.bg}
-                            hover:shadow-md hover:-translate-y-0.5 transition-all block`}
-                    >
-                        <p className={`text-xl font-bold ${c.text}`}>{c.value}</p>
-                        <p className="text-[12px] font-medium text-slate-600 mt-0.5">{c.label}</p>
-                        {c.sub && <p className="text-[10px] text-slate-400 mt-0.5">{c.sub}</p>}
-                    </Link>
+                ].map((c, i) => (
+                    <AnimatedCard key={c.label}>
+                        <Link
+                            href={c.href ?? '#'}
+                            className={`rounded-2xl border border-slate-200/50 px-4 py-3.5 ${c.bg} backdrop-blur-sm
+                                hover:shadow-lg transition-all block h-full`}
+                        >
+                            <p className={`text-xl font-bold ${c.text}`}>{c.value}</p>
+                            <p className="text-[12px] font-medium text-slate-600 mt-0.5">{c.label}</p>
+                            {c.sub && <p className="text-[10px] text-slate-400 mt-0.5">{c.sub}</p>}
+                        </Link>
+                    </AnimatedCard>
                 ))}
             </div>
 
@@ -331,15 +313,15 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Nakit &amp; Sermaye</p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <KasaKalanCard initialValue={kasaBakiyesi} locale={locale} />
-                    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">{periodLabel} Gider</p>
-                        <p className="text-2xl font-bold text-slate-800">{fmt(mtd?.totalExpenses)}</p>
+                        <p className="text-2xl font-bold text-slate-800"><AnimatedNumber value={mtd?.totalExpenses ?? 0} format="currency" /></p>
                         <p className="text-[11px] text-slate-400 mt-0.5">SMM dahil değil</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Depodaki Stok Değeri</p>
-                        <p className="text-2xl font-bold text-slate-800">{fmt(stokDegeri)}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">{urunToplamCount} ürün (toplam) · alış fiyatı</p>
+                        <p className="text-2xl font-bold text-slate-800"><AnimatedNumber value={stokDegeri ?? 0} format="currency" /></p>
+                        <p className="text-[11px] text-slate-400 mt-0.5"><AnimatedNumber value={urunToplamCount} /> ürün (toplam) · alış fiyatı</p>
                     </div>
                 </div>
             </div>
@@ -663,7 +645,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                 )}
             </CollapsibleSection>
 
-        </div>
+        </AnimatedDashboardContainer>
     );
 }
 
@@ -684,7 +666,7 @@ export default async function AdminDashboardPage({
     const cookieStore = await cookies();
     const supabase    = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return <div className="p-8 text-center text-red-500">Kullanıcı bulunamadı.</div>;
 
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();

@@ -10,6 +10,8 @@ import { sendNotification } from '@/lib/notificationUtils'; // Importieren
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { puanOnerisi, PUANLAMA_ARALIK, ANA_KATEGORILER } from "@/lib/crm/kategoriYonetimi"; // YENİ: Import kategori yönetimi
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type FirmaStatus = Enums<'firma_status'>;
 type FirmaKategorie = Enums<'firma_kategori'>;
 
@@ -33,7 +35,7 @@ export async function updateFirmaAction(
     // --- ENDE KORREKTUR ---
 
     // Benutzerprüfung
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) return { success: false, error: "Nicht authentifiziert." }; // Fehlermeldung angepasst
 
     // --- Formulardaten sicher auslesen ---
@@ -283,7 +285,7 @@ export async function deleteFirmaAction(
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return { success: false, error: 'Nicht authentifiziert.' };
 
     // Silme işlemi (RLS: sahibi olan kullanıcı silebilir; admin için ayrı politika gereklidir)

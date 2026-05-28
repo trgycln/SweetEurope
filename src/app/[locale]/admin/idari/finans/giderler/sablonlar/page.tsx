@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
 import SablonlarV2Client from './SablonlarV2Client';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -18,7 +20,7 @@ export default async function SablonlarPage({ params }: PageProps) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();

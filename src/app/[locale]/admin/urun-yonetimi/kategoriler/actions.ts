@@ -10,6 +10,8 @@ import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { redirect } from 'next/navigation'; // Redirect importieren
 import { slugify } from '@/lib/utils';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 const diller = ['de', 'en', 'tr', 'ar']; // Dill listesi
 const revalidatePage = () => revalidatePath('/admin/urun-yonetimi/kategoriler'); // Revalidate fonksiyonu
 
@@ -29,7 +31,7 @@ export async function createKategoriAction(formData: FormData): Promise<ActionRe
     // --- ENDE KORREKTUR ---
 
     // Kullanıcı kontrolü
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
         return { success: false, message: "Yetkisiz işlem.", error: "Nicht authentifiziert." };
     }
@@ -87,7 +89,7 @@ export async function updateKategoriAction(kategoriId: string, formData: FormDat
     // --- ENDE KORREKTUR ---
 
     // Kullanıcı kontrolü
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
         return { success: false, message: "Yetkisiz işlem.", error: "Nicht authentifiziert." };
     }
@@ -148,7 +150,7 @@ export async function deleteKategoriAction(kategoriId: string): Promise<ActionRe
     // --- ENDE KORREKTUR ---
 
     // Kullanıcı kontrolü
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
         return { success: false, message: "Yetkisiz işlem.", error: "Nicht authentifiziert." };
     }

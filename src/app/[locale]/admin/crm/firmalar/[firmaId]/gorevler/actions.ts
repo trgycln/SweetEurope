@@ -8,6 +8,8 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Tables, Enums } from '@/lib/supabase/database.types'; // Import für Typisierung
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typ für Rückgabewerte
 type ActionResult = {
     success?: string; // Erfolgsmeldung
@@ -30,7 +32,7 @@ export async function firmaIcinGorevEkleAction(
     // --- ENDE KORREKTUR ---
 
     // Benutzerprüfung
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         return { error: "Nicht authentifiziert." }; // Angepasst
     }
@@ -90,7 +92,7 @@ export async function gorevDurumGuncelleAction(
     // --- ENDE KORREKTUR ---
 
     // Benutzerprüfung
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         return { error: "Nicht authentifiziert." }; // Angepasst
     }

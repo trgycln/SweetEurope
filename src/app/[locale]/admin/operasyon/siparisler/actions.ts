@@ -8,6 +8,8 @@ import { revalidatePath } from 'next/cache';
 import { Enums } from '@/lib/supabase/database.types';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typ für Rückgabewert definieren (optional, aber gut)
 type ActionResult = {
     success?: string; // Erfolgsmeldung
@@ -25,7 +27,7 @@ export async function statusAendernAction(
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung (wer darf Status ändern?)
-    // const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    // const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     // if (!user) { return { error: "Nicht authentifiziert." }; }
     // const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
     // if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') {
@@ -101,7 +103,7 @@ export async function assignSiparisPersonelAction(formData: FormData): Promise<A
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await getGlobalCachedUser();
     if (userError || !user) return { error: 'Yetkisiz işlem.' };
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
     const isManager = profile?.rol === 'Yönetici' || profile?.rol === 'Personel' || profile?.rol === 'Ekip Üyesi';

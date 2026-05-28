@@ -10,6 +10,8 @@ import { sendNotification } from '@/lib/notificationUtils';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { SupabaseClient } from '@supabase/supabase-js'; // Typ importieren
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export type FormState = {
     success: boolean;
     message: string;
@@ -26,7 +28,7 @@ export async function createDuyuruAction(
     const supabase = await createSupabaseServerClient(cookieStore);
     // --- ENDE KORREKTUR ---
 
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         return { success: false, message: 'Nicht authentifiziert.' };
     }

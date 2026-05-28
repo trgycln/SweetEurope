@@ -3,11 +3,13 @@ import { redirect } from 'next/navigation';
 import { Tables } from '@/lib/supabase/database.types';
 import { AnaFiyatListesiClient } from '@/components/ana-fiyat-listesi-client';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export default async function AnaFiyatListesiPage() {
     const supabase = await createSupabaseServerClient();
 
     // Sicherheitsprüfung: Benutzer und Rolle überprüfen
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
         return redirect('/login');
     }

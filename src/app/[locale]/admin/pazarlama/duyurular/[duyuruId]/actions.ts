@@ -9,6 +9,8 @@ import { redirect } from 'next/navigation';
 import { TablesUpdate, Enums } from '@/lib/supabase/database.types'; // Enums importieren
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typ für den Rückgabewert
 export type UpdateFormState = {
     success: boolean;
@@ -27,7 +29,7 @@ export async function updateDuyuruAction(
     const supabase = await createSupabaseServerClient(cookieStore);
     // --- ENDE KORREKTUR ---
 
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         return { success: false, message: 'Nicht authentifiziert.' };
     }
@@ -83,7 +85,7 @@ export async function deleteDuyuruAction(
     const supabase = await createSupabaseServerClient(cookieStore);
     // --- ENDE KORREKTUR ---
 
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         return { success: false, message: 'Nicht authentifiziert.' };
     }

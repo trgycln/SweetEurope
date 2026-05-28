@@ -13,6 +13,8 @@ import { Locale } from '@/i18n-config';
 import { Tables, Enums } from "@/lib/supabase/database.types";
 import { unstable_noStore as noStore } from 'next/cache'; // noStore eklendi
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic'; // Dinamik render zorunlu
 
 // Tipler
@@ -55,7 +57,7 @@ export default async function YeniSiparisPage({ params, searchParams }: YeniSipa
     // --- BİTTİ ---
 
     // Kullanıcı Doğrulama
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
         const redirectUrl = `/admin/operasyon/siparisler/yeni${firmaId ? `?firmaId=${firmaId}` : ''}`;
         console.log('Kullanıcı bulunamadı, login sayfasına yönlendiriliyor:', redirectUrl);

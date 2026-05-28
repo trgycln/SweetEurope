@@ -14,6 +14,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Status-Definitionen
 type UrunStatusKey = Enums<'urun_talep_durumu'>;
 const STATUS_ICONS: Record<string, React.ElementType> = { 'Yeni': FiClock, 'Değerlendiriliyor': FiPackage, 'Onaylandı': FiCheckCircle, 'Reddedildi': FiXCircle };
@@ -48,7 +50,7 @@ export default async function UrunTalepleriPage({
     // --- ENDE ---
 
     // Optional: Benutzerprüfung
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) { return redirect(`/${locale}/login`); }
     // ... Rollenprüfung ...
 

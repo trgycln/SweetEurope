@@ -8,6 +8,8 @@ import { ADMIN_PANEL_OPTIONS, getEffectiveAdminPanels, normalizeInternalNotifica
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -44,7 +46,7 @@ export default async function PersonelPage({ params }: PageProps) {
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await getGlobalCachedUser();
   if (!user) return redirect(`/${locale}/login?next=/${locale}/admin/idari/personel`);
 
   const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();

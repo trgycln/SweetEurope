@@ -11,6 +11,8 @@ import { Locale } from '@/i18n-config'; // Importiere Locale
 import { redirect } from 'next/navigation'; // Import für Redirect
 import { Tables } from '@/lib/supabase/database.types'; // Import Tables für Typisierung
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typ für Props definieren
 interface IlgiliKisilerPageProps {
     params: {
@@ -32,7 +34,7 @@ export default async function IlgiliKisilerPage({ params }: IlgiliKisilerPagePro
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung, falls nur eingeloggte Admins/Teammitglieder zugreifen dürfen
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) { return redirect(`/${locale}/login`); }
     // const { data: profile } = await supabase.from('profiller')...
     // if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') { /* redirect */ }

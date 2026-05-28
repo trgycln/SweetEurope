@@ -6,12 +6,14 @@ import { KontaklarClient } from '@/components/kontaklar-client';
 import { FiSlash } from 'react-icons/fi';
 import { redirect } from 'next/navigation'; // Wichtig: redirect importieren, falls es benötigt wird
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export default async function KontaklarPage() {
     // ## KORREKTUR: 'await' wurde hier hinzugefügt ##
     const supabase = await createSupabaseServerClient();
 
     // Güvenlik: Sayfaya sadece 'Yönetici' erişebilir.
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     // Wichtig: Wenn kein Benutzer vorhanden ist, sofort umleiten, um Fehler in der nächsten Zeile zu vermeiden.
     if (!user) {
         return redirect('/login');

@@ -6,6 +6,8 @@ import { Locale } from '@/i18n-config';
 import { unstable_noStore as noStore } from 'next/cache';
 import BelgeYonetimClient from './BelgeYonetimClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -18,7 +20,7 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await getGlobalCachedUser();
     if (authError || !user) redirect(`/${locale}/login`);
 
     // Fetch belgeler (gracefully handle missing table)

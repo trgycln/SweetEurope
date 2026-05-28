@@ -16,6 +16,8 @@ import OrderPageWrapper from './OrderPageWrapper';
 import OrderCheckbox from './OrderCheckbox';
 import { buildLoosePostgresRegex } from '@/lib/searchUtils';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 // Typ für die erweiterten Siparis-Daten mit Firma
@@ -71,7 +73,7 @@ export default async function AlleSiparislerPage({
     const orderStatusTranslations = (dictionary as any).orderStatuses || {}; // Pfad zu Status-Übersetzungen anpassen!
 
     // Benutzer prüfen
-    const { data: { user }, error: userAuthError } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user }, error: userAuthError } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         console.log("Kein Benutzer gefunden in AlleSiparislerPage, redirect zu Login.");
         return redirect(`/${locale}/login?next=/admin/operasyon/siparisler`);

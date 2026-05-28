@@ -11,6 +11,7 @@ import { cookies } from 'next/headers'; // Wichtig
 import { VisitPlannerProvider } from '@/contexts/VisitPlannerContext';
 import VisitPlannerPanel from '@/components/VisitPlannerPanel';
 import { normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
+import { getGlobalCachedUser, getCachedProfile, getCachedUnreadNotificationsCount } from '@/lib/admin/cache-utils';
 
 // Typ für Benachrichtigungen
 type Bildirim = Tables<'bildirimler'>;
@@ -33,51 +34,34 @@ export default async function AdminLayout({
     const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
     // --- ENDE ---
 
-    // Benutzer abrufen
-    const {
-        data: { user },
-        error: userError,
-    } = await supabase.auth.getUser();
+    // Benutzer abrufen (Global Cached)
+    const { data: { user }, error: userError } = await getGlobalCachedUser();
 
     if (userError) {
-        // Loggen Sie den spezifischen Fehler beim Abrufen des Benutzers
         console.error('Fehler beim Abrufen des Benutzers im Layout:', userError);
-        // Ziehen Sie einen Redirect in Betracht, wenn der Benutzer nicht abgerufen werden kann
-        // return redirect(`/${locale}/login?error=auth_error`);
     }
 
     if (!user) {
-        // Wenn kein Benutzer vorhanden ist, zum Login weiterleiten
         console.log('Kein Benutzer im Layout gefunden, redirect zu Login.');
         return redirect(`/${locale}/login`);
     }
 
-    // Profil und Benachrichtigungen parallel abrufen
-    const [profileRes, notificationsRes, unreadCountRes] = await Promise.all([
-        supabase
-            .from('profiller')
-            .select('rol, tercih_edilen_dil')
-            .eq('id', user.id)
-            .single(),
-        supabase
-            .from('bildirimler')
-            .select('*')
-            .eq('alici_id', user.id)
-            .eq('okundu_mu', false)
-            .order('created_at', { ascending: false })
-            .limit(10),
-        supabase
-            .from('bildirimler')
-            .select('*', { count: 'exact', head: true }) // Fordert nur den Count an
-            .eq('alici_id', user.id)
-            .eq('okundu_mu', false),
-    ]);
+    // Profil ve Bildirimler
+    const { profile: profileData } = await getCachedProfile(supabase, user.id);
+    const { count: unreadCount, error: unreadCountError } = await getCachedUnreadNotificationsCount(supabase, user.id);
+    
+    // Bildirim listesi (cached olmasina gerek yok, dinamik veya son eylemlere bagli, zaten 10 limitli)
+    const { data: notificationsResData, error: notificationsError } = await supabase
+        .from('bildirimler')
+        .select('*')
+        .eq('alici_id', user.id)
+        .eq('okundu_mu', false)
+        .order('created_at', { ascending: false })
+        .limit(10);
 
     // Profil prüfen
-    const profileData = profileRes.data;
     if (!profileData) {
         console.error('Kullanıcı profili bulunamadı für Benutzer:', user.id);
-        // Zum Login weiterleiten, da das Profil essenziell ist
         return redirect(`/${locale}/login?error=profile_not_found`);
     }
 
@@ -98,22 +82,17 @@ export default async function AdminLayout({
     let initialNotifications: Bildirim[] = [];
     let unreadNotificationCount: number = 0;
 
-    if (notificationsRes.error) {
-         // Loggen Sie den spezifischen Fehler, auch wenn er leer ist
-        console.error('Fehler beim Laden der Benachrichtigungen:', notificationsRes.error);
-        // Optional: Zeigen Sie dem Benutzer eine Meldung oder verwenden Sie Standardwerte
+    if (notificationsError) {
+        console.error('Fehler beim Laden der Benachrichtigungen:', notificationsError);
     } else {
-        initialNotifications = notificationsRes.data || [];
+        initialNotifications = notificationsResData || [];
     }
 
-    if (unreadCountRes.error) {
-        // Loggen Sie den spezifischen Fehler, auch wenn er leer ist
-        console.error('Fehler beim Zählen der Benachrichtigungen:', unreadCountRes.error);
-        // Setzen Sie count auf 0 oder einen anderen Fallback-Wert
+    if (unreadCountError) {
+        console.error('Fehler beim Zählen der Benachrichtigungen:', unreadCountError);
         unreadNotificationCount = 0;
     } else {
-        // Verwenden Sie den count nur, wenn kein Fehler aufgetreten ist
-        unreadNotificationCount = unreadCountRes.count ?? 0;
+        unreadNotificationCount = unreadCount ?? 0;
     }
 
     // Layout rendern

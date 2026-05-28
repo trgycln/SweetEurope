@@ -6,6 +6,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import TirGirisiClient from './TirGirisiClient';
 import { getSupplierOrderPlanRecordByIdAction } from '@/app/[locale]/admin/urun-yonetimi/tedarikci-siparis-plani/actions';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export default async function TirGirisiPage({
   params,
   searchParams,
@@ -20,7 +22,7 @@ export default async function TirGirisiPage({
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await getGlobalCachedUser();
   if (!user) return redirect(`/${locale}/login`);
 
   const { data: profil } = await (supabase as any)

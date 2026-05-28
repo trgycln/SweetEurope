@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { Locale } from '@/i18n-config';
 import TedarikciSiparisPlaniClient from './TedarikciSiparisPlaniClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 interface PageProps {
   params: Promise<{ locale: Locale }>;
 }
@@ -34,7 +36,7 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
   const {
     data: { user },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await getGlobalCachedUser();
 
   if (!user || userError) {
     redirect(`/${locale}/login?next=/admin/urun-yonetimi/tedarikci-siparis-plani`);

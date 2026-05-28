@@ -6,6 +6,8 @@ import { FiArrowLeft, FiLayers } from 'react-icons/fi';
 import Link from 'next/link';
 import TopluGorselYuklemeIstemci from './TopluGorselYuklemeIstemci';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 export default async function TopluGorselYuklemePage({
@@ -18,7 +20,7 @@ export default async function TopluGorselYuklemePage({
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) redirect(`/${locale}/login`);
 
   const { data: profile } = await supabase

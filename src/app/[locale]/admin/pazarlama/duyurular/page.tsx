@@ -12,6 +12,8 @@ import { Locale } from '@/i18n-config'; // Importiere Locale
 import { redirect } from 'next/navigation'; // Import für Redirect
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
 
 // Typ für die Zeile in der Tabelle
@@ -52,7 +54,7 @@ export default async function DuyurularListPage({
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung
-    // const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    // const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     // if (!user) { return redirect(`/${locale}/login`); }
     // ... Rollenprüfung ...
 

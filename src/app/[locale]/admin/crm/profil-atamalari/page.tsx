@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import ProfilAtamalariTab from '@/app/[locale]/admin/urun-yonetimi/fiyatlandirma-hub/ProfilAtamalariTab';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type FirmaItem = {
   id: string;
   unvan: string;
@@ -26,7 +28,7 @@ export default async function CustomerProfileAssignmentPage({ params }: { params
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return redirect(`/${locale}/login`);
 
   const { data: profil } = await supabase

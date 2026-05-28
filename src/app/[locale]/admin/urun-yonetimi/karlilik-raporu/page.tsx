@@ -14,6 +14,8 @@ import {
 } from 'react-icons/fi';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type LocalizedText = Record<string, string> | string | null | undefined;
 
 type AlertProduct = {
@@ -156,7 +158,7 @@ export default async function KarlilikRaporuPage({
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await getGlobalCachedUser();
 
   if (!user) {
     return redirect(`/${locale}/login`);

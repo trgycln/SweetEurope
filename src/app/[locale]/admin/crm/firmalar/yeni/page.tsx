@@ -14,6 +14,8 @@ import { Locale } from '@/i18n-config'; // Importiere Locale
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 import AddressAutofill from '@/components/AddressAutofill'; // Import AddressAutofill
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Tip Tanımları
 type ProfilOption = Pick<Tables<'profiller'>, 'id' | 'tam_ad'>;
 type UserRole = Enums<'user_role'>;
@@ -72,7 +74,7 @@ async function yeniFirmaEkleAction(
   // --- ENDE KORREKTUR ---
 
   // 3. Oturum açmış kullanıcıyı ve rolünü al
-  const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+  const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
   if (!user) return redirect(`/${locale}/login`); // Sprachspezifischer Redirect
 
   const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
@@ -246,7 +248,7 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
   const supabase = await createSupabaseServerClient(cookieStore);
   // --- ENDE KORREKTUR ---
 
-  const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+  const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
   if (!user) return redirect(`/${locale}/login`); // Sprachspezifischer Redirect
 
   const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();

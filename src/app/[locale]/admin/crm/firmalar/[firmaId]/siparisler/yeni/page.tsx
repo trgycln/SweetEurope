@@ -10,6 +10,8 @@ import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Importiere Locale
 import { Tables } from "@/lib/supabase/database.types"; // Import für Typisierung
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typ für die Produktliste im Formular definieren
 type ProductOption = Pick<Tables<'urunler'>, 'id' | 'ad' | 'satis_fiyati_musteri'>;
 
@@ -34,7 +36,7 @@ export default async function YeniSiparisPage({ params, searchParams }: YeniSipa
     // --- ENDE KORREKTUR ---
 
     // Benutzerprüfung (wichtig, wer darf Bestellungen anlegen?)
-    const { data: { user }, error: userError } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user }, error: userError } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         // Redirect zum Login mit Rückkehr-URL
         const redirectUrl = `/admin/operasyon/siparisler/yeni${firmaId ? `?firmaId=${firmaId}` : ''}`;

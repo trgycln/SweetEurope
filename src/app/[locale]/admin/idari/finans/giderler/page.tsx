@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
 import GiderlerYeniClient from './GiderlerYeniClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 function getDateRange(period: string) {
@@ -42,7 +44,7 @@ export default async function GiderlerPage({ params, searchParams }: PageProps) 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();

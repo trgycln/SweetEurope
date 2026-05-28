@@ -6,11 +6,13 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDictionary } from "@/dictionaries";
 import { sendSelfTestNotification, markAllReadForCurrentUser, simulateAdminBroadcast } from "@/app/actions/notification-actions";
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export default async function AdminNotificationsTestPage({ params }: { params: { locale: string } }) {
   const locale = params.locale;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return redirect(`/${locale}/login`);
 
   const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();

@@ -7,6 +7,8 @@ import { cookies } from 'next/headers';
 import { Enums, TablesUpdate } from '@/lib/supabase/database.types';
 import { sendNotification } from '@/lib/notificationUtils';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type ActionResult = {
     success?: string;
     error?: string;
@@ -21,7 +23,7 @@ async function getAuthenticatedClient() {
     const supabase = await createSupabaseServerClient(cookieStore);
     const {
         data: { user },
-    } = await supabase.auth.getUser();
+    } = await getGlobalCachedUser();
 
     return { supabase, user };
 }

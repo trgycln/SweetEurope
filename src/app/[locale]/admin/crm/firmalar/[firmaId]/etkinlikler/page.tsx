@@ -13,6 +13,8 @@ import { Locale } from '@/i18n-config'; // Importiere Locale, falls benötigt
 import { redirect } from 'next/navigation'; // Import für Redirect
 import { getDictionary } from '@/dictionaries';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type EtkinlikTipi = Enums<'etkinlik_tipi'>;
 
 // Typ für Etkinlik mit Profilinformationen
@@ -65,7 +67,7 @@ export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) 
     // --- ENDE KORREKTUR ---
 
     // Benutzer abrufen (wichtig für Berechtigungen und Zuordnung)
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await getGlobalCachedUser();
 
     // Fehler beim Abrufen des Benutzers oder kein Benutzer -> Redirect zum Login
     if (userError || !user) {

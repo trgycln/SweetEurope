@@ -9,6 +9,8 @@ import { KOLN_PLZ_MAP } from '@/lib/plzLookup';
 import FirmaListClient from './FirmaListClient';
 import { matchesAnyField, matchesSearch } from '@/lib/searchUtils';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -52,7 +54,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const ticariTipFilter = sp.ticari_tip || '';

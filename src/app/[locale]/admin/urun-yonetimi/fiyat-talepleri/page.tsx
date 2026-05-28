@@ -3,13 +3,15 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { approvePriceChangeRequestAction } from '@/app/actions/urun-fiyat-actions';
 import { redirect } from 'next/navigation';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export default async function FiyatTalepleriPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
   // Kullanıcı ve rol
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return redirect(`/${locale}/login`);
   const { data: profil } = await (supabase as any)
     .from('profiller')

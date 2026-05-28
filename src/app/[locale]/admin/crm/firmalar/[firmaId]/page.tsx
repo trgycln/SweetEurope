@@ -18,6 +18,8 @@ import { FirmaOzetGrafik } from '@/components/admin/crm/FirmaOzetGrafik';
 import { FirmaSiparisDurumChart } from '@/components/admin/crm/FirmaSiparisDurumChart';
 import { PortalErigimiVerButton } from '@/components/admin/crm/PortalErigimiVerButton';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 interface PageProps {
     params: Promise<{ firmaId: string; locale: Locale }>;
 }
@@ -92,7 +94,7 @@ export default async function FirmaOzetPage({ params }: PageProps) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) notFound();
 
     const dict = await getDictionary(locale);

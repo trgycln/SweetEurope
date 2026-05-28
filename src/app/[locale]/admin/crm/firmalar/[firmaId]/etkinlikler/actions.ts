@@ -9,6 +9,8 @@ import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Enums, Tables } from '@/lib/supabase/database.types'; // Tables importieren für Typisierung
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typen definieren (optional, aber empfohlen)
 type EtkinlikTipi = Enums<'etkinlik_tipi'>;
 type EtkinlikInsert = Tables<'etkinlikler'>; // Korrekter Typ für Insert-Daten
@@ -38,7 +40,7 @@ export async function yeniEtkinlikEkleAction(
     // --- ENDE KORREKTUR ---
 
     // 1. Benutzer abrufen
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await getGlobalCachedUser();
     if (!user) {
         console.error("Nicht authentifiziert in yeniEtkinlikEkleAction:", userError);
         // Redirect ist hier weniger sinnvoll, besser Fehler zurückgeben
@@ -100,7 +102,7 @@ export async function updateEtkinlikAction(
     // --- ENDE KORREKTUR ---
 
     // Benutzer abrufen
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
          return { success: false, error: "Nicht authentifiziert." };
     }

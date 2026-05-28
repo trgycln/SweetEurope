@@ -9,6 +9,8 @@ import { Tables, TablesInsert, TablesUpdate } from '@/lib/supabase/database.type
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { redirect } from 'next/navigation'; // Importieren, falls benötigt
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 const diller = ['de', 'en', 'tr', 'ar'];
 const revalidatePage = () => {
     revalidatePath('/admin/ayarlar/sablonlar');
@@ -38,7 +40,7 @@ export async function createSablonAction(formData: FormData): Promise<ActionResu
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) return { success: false, message: "Nicht authentifiziert.", error: "Nicht authentifiziert." };
     // ... Rollenprüfung ...
 
@@ -86,7 +88,7 @@ export async function updateSablonAction(sablonId: string, formData: FormData): 
     // --- ENDE KORREKTUR ---
     
     // Optional: Benutzerprüfung
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) return { success: false, message: "Nicht authentifiziert.", error: "Nicht authentifiziert." };
     // ... Rollenprüfung ...
 
@@ -129,7 +131,7 @@ export async function deleteSablonAction(sablonId: string): Promise<ActionResult
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) return { success: false, message: "Nicht authentifiziert.", error: "Nicht authentifiziert." };
     // ... Rollenprüfung ...
 

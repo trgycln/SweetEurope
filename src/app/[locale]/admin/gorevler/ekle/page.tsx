@@ -12,6 +12,8 @@ import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { Locale } from '@/i18n-config'; // Importiere Locale
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typen
 type ProfilOption = Pick<Tables<'profiller'>, 'id' | 'tam_ad'>;
 type FirmaOption = Pick<Tables<'firmalar'>, 'id' | 'unvan'>;
@@ -26,7 +28,7 @@ async function gorevEkleAction(locale: Locale, formData: FormData) { // Locale �
   const supabase = await createSupabaseServerClient(cookieStore);
   // --- ENDE KORREKTUR ---
 
-  const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+  const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
   if (!user) {
     // Leite zur sprachspezifischen Login-Seite weiter
     return redirect(`/${locale}/login?next=/admin/gorevler/ekle`);
@@ -89,7 +91,7 @@ export default async function GorevEklemeSayfasi({ params: { locale } }: GorevEk
   // --- ENDE KORREKTUR ---
 
   // Benutzerprüfung (optional, aber empfohlen, da Layout es vielleicht schon macht)
-  // const { data: { user } } = await supabase.auth.getUser();
+  // const { data: { user } } = await getGlobalCachedUser();
   // if (!user) { return redirect(`/${locale}/login`); }
 
   // Parallele Abfragen für Dropdowns

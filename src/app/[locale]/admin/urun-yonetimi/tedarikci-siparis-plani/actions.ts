@@ -4,6 +4,8 @@ import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type UnitType = 'adet' | 'koli' | 'palet';
 
 type PlanItem = {
@@ -50,7 +52,7 @@ async function getAuthedClientWithRole() {
   const {
     data: { user },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await getGlobalCachedUser();
 
   if (!user || userError) {
     return { supabase, serviceSupabase, user: null, role: null };

@@ -40,8 +40,21 @@ export const metadata: Metadata = {
     apple: "/favicon.png",
     shortcut: "/favicon.png",
   },
+  openGraph: {
+    title: "ElysonSweets | Premium B2B Großhandel",
+    description: "B2B Großhandel für Cafés, Hotels und Patisserien. Sirupe, Saucen, Desserts und Backzutaten.",
+    url: "https://www.elysonsweets.de",
+    siteName: "ElysonSweets",
+    locale: "de_DE",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ElysonSweets | B2B Großhandel",
+    description: "Premium B2B Großhandel für Cafés, Hotels und Patisserien.",
+  },
   verification: {
-    google: "", // Google Search Console doğrulama kodu buraya
+    google: "", // Google Search Console doğrulama kodu buraya eklenecek
   },
 };
 
@@ -58,6 +71,27 @@ export default async function RootLayout({
     <html lang={htmlLang} className={`${playfair.variable} ${lato.variable}`} suppressHydrationWarning>
       <head>
         <GoogleAnalytics />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "ElysonSweets",
+              "url": "https://www.elysonsweets.de",
+              "logo": "https://www.elysonsweets.de/favicon.png",
+              "description": "Premium B2B Großhandel für Cafés, Hotels und Patisserien in Deutschland.",
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "DE"
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service"
+              }
+            })
+          }}
+        />
         {/* eslint-disable-next-line @next/next/no-before-interactive-script-component */}
         <script
           suppressHydrationWarning

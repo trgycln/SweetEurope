@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { FiEdit, FiPlus, FiSlash } from 'react-icons/fi';
 import Link from 'next/link';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Yazı durumuna göre renk döndüren obje
 const DURUM_RENKLERI: Record<string, string> = {
     'Taslak': "bg-yellow-100 text-yellow-800",
@@ -13,7 +15,7 @@ export default async function BlogYonetimPage() {
     const supabase = createSupabaseServerClient();
 
     // Güvenlik: Sayfaya sadece 'Yönetici' erişebilir.
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user!.id).single();
     if (profile?.rol !== 'Yönetici') {
         return (

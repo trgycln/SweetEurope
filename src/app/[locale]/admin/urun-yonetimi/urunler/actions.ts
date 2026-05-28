@@ -11,6 +11,8 @@ import { redirect } from 'next/navigation';
 import { slugify } from '@/lib/utils';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 const diller = ['de', 'en', 'tr', 'ar'];
 const PRODUCT_IMAGE_BUCKET = 'urun-gorselleri';
 const PRODUCT_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
@@ -285,7 +287,7 @@ type UploadImageResult = {
 async function ensureUrunImageAccess() {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
 
     if (!user) {
         return { error: 'Nicht authentifiziert.' };
@@ -387,7 +389,7 @@ export async function updateUrunAction(urunId: string, formData: FormData): Prom
     // --- ENDE KORREKTUR ---
 
     // Optional: Benutzerprüfung
-    // const { data: { user } } = await supabase.auth.getUser();
+    // const { data: { user } } = await getGlobalCachedUser();
     // if (!user) return { success: false, message: "Nicht authentifiziert." };
 
     const guncellenecekVeri = formDataToUrunObject(formData);
@@ -608,7 +610,7 @@ export async function quickUpdateUrunAction(
     const supabase = await createSupabaseServerClient(cookieStore);
 
     // Kullanıcı kontrolü
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return { success: false, message: "Nicht authentifiziert." };
 
     // Sadece gönderilen alanları güncelle

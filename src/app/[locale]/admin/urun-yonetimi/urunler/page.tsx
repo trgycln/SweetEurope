@@ -18,6 +18,7 @@ import EditableUrunRowClient from "./EditableUrunRowClient";
 import UrunExcelImportPanel from './UrunExcelImportPanel';
 import UrunExcelExportPanel from './UrunExcelExportPanel';
 import StokHesaplaButton from './StokHesaplaButton';
+import { getGlobalCachedUser, getCachedProfile, getCachedCategories, getCachedSuppliers, getCachedPricingSettings } from '@/lib/admin/cache-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,13 +81,13 @@ export default async function UrunlerListPage({
     const dictionary = await getDictionary(locale);
     const content = (dictionary as any).adminDashboard?.productsPage || {};
 
-    // Benutzer prüfen
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    // Benutzer prüfen (Cached)
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
         return redirect(`/${locale}/login`);
     }
-     // Rollenprüfung
-    const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+    // Rollenprüfung (Cached)
+    const { profile } = await getCachedProfile(supabase, user.id);
     const isAdmin = profile?.rol === 'Yönetici';
     const canImportProducts = profile?.rol === 'Yönetici' || profile?.rol === 'Personel' || profile?.rol === 'Ekip Üyesi';
     const canSeePurchasePrice = profile?.rol !== 'Personel';
@@ -105,22 +106,11 @@ export default async function UrunlerListPage({
     const currentPage = Math.max(1, Number.parseInt(sp?.page || '1') || 1);
     const itemsPerPage = 50;
 
-    // Get all categories for filter
-    const { data: allKategoriler } = await supabase
-        .from('kategoriler')
-        .select('id, ad, ust_kategori_id')
-        .order(`ad->>${locale}`, { ascending: true });
+    // Get all categories for filter (Cached)
+    const allKategoriler = await getCachedCategories();
 
-    // Fetch pricing parameters for tier price calculation
-    const { data: pricingSettingsRaw } = await supabase
-        .from('system_settings')
-        .select('setting_key, setting_value')
-        .eq('category', 'pricing');
-    const pricingSettings: Record<string, number> = {};
-    (pricingSettingsRaw || []).forEach((s: any) => {
-        const v = parseFloat(s.setting_value);
-        if (Number.isFinite(v)) pricingSettings[s.setting_key] = v;
-    });
+    // Fetch pricing parameters for tier price calculation (Cached)
+    const pricingSettings = await getCachedPricingSettings();
     const _shipFrozen = pricingSettings.pricing_shipping_frozen_per_box ?? (350 / 384);
     const _shipDry = pricingSettings.pricing_shipping_non_cold_per_box ?? 0.45;
     const _custFrozen = pricingSettings.pricing_customs_frozen_percent ?? pricingSettings.pricing_customs_percent ?? 15;
@@ -144,11 +134,7 @@ export default async function UrunlerListPage({
         };
     };
 
-    const { data: tedarikciler } = await supabase
-        .from('tedarikciler')
-        .select('id, unvan')
-        .order('unvan', { ascending: true })
-        .limit(1000);
+    const tedarikciler = await getCachedSuppliers();
 
     const { data: urunGamiRaw } = await supabase
         .from('urunler')

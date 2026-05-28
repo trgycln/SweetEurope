@@ -16,6 +16,8 @@ import { Tables, Database, Enums } from '@/lib/supabase/database.types';
 import { unstable_noStore as noStore } from 'next/cache';
 import { formatCurrency, formatLocaleDate } from '@/lib/portalLabels';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 const getProductName = (ad: any, locale: string): string => {
@@ -58,7 +60,7 @@ export default async function OperasyonSiparisDetayPage({ params, searchParams }
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: myProfile } = await supabase

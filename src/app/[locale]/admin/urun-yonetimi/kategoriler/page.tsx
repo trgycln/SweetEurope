@@ -7,6 +7,8 @@ import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { unstable_noStore as noStore } from 'next/cache';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface KategoriYonetimPageProps {
@@ -20,7 +22,7 @@ export default async function KategoriYonetimPage({ params }: KategoriYonetimPag
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) {
     return redirect('/' + locale + '/login?next=/admin/urun-yonetimi/kategoriler');
   }

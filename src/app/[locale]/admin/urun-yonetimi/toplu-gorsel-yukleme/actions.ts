@@ -6,6 +6,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { slugify } from '@/lib/utils';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 const BUCKET = 'urun-gorselleri';
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
@@ -15,7 +17,7 @@ const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 async function ensureAdmin() {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await getGlobalCachedUser();
   if (authError || !user) return { error: 'Yetkisiz erişim.' as const };
 
   const { data: profile } = await supabase

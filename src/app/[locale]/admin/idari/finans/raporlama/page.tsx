@@ -15,6 +15,8 @@ import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils';
 import { redirect } from 'next/navigation';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type QuickStats = {
     totalGrossRevenue: number;
     totalRevenue: number;
@@ -43,7 +45,7 @@ export default async function FinancialReportsDashboard({
     const supabase = await createSupabaseServerClient(cookieStore);
     await getDictionary(locale);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase
