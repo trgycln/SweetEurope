@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary, locale }) => {
   const [videoHasError, setVideoHasError] = useState(false);
@@ -44,31 +45,41 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
         </div>
       </div>
 
-      <div className="relative z-20 text-white px-4 max-w-5xl mx-auto py-20">
+      <div className="relative z-20 text-white px-4 max-w-5xl mx-auto py-20 flex flex-col items-center">
         {/* Company Name */}
-        <h1 className="text-6xl md:text-8xl font-serif font-bold mb-6 drop-shadow-2xl tracking-wide" style={{ color: '#FFD700' }}>
+        <motion.h1 
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 1, 0.5, 1] }}
+          className="text-6xl md:text-8xl font-serif font-bold mb-6 drop-shadow-2xl tracking-wide" style={{ color: '#FFD700', willChange: 'transform, opacity' }}>
           ElysonSweets
-        </h1>
+        </motion.h1>
 
         {/* Main Headline */}
-        <h2 className="text-3xl md:text-5xl font-bold text-accent mb-6 drop-shadow-lg">
+        <motion.h2 
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 1, 0.5, 1] }}
+          className="text-3xl md:text-5xl font-bold text-accent mb-6 drop-shadow-lg text-center" style={{ willChange: 'transform, opacity' }}>
           {dictionary.hero.mainHeadline}
-        </h2>
+        </motion.h2>
 
         {/* Subheadline */}
-        <p className="text-xl md:text-2xl text-white mb-8 max-w-4xl mx-auto drop-shadow-md leading-relaxed">
+        <motion.p 
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 1, 0.5, 1] }}
+          className="text-xl md:text-2xl text-white mb-8 max-w-4xl mx-auto drop-shadow-md leading-relaxed text-center" style={{ willChange: 'transform, opacity' }}>
           {dictionary.hero.subHeadline}
-        </p>
+        </motion.p>
 
         {/* Value Proposition */}
-        <div className="bg-white/15 backdrop-blur-md border-2 border-accent/60 rounded-2xl p-6 md:p-8 max-w-3xl mx-auto shadow-2xl mb-8">
-          <p className="text-lg md:text-xl text-white font-semibold leading-relaxed">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.7, ease: [0.25, 1, 0.5, 1] }}
+          className="bg-white/15 backdrop-blur-md border-2 border-accent/60 rounded-2xl p-6 md:p-8 max-w-3xl mx-auto shadow-2xl mb-8" style={{ willChange: 'transform, opacity' }}>
+          <p className="text-lg md:text-xl text-white font-semibold leading-relaxed text-center">
             {dictionary.hero.valueProposition}
           </p>
-        </div>
+        </motion.div>
 
         {/* B2B Info Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.9, ease: [0.25, 1, 0.5, 1] }}
+          className="flex flex-wrap items-center justify-center gap-3 mb-8" style={{ willChange: 'transform, opacity' }}>
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-accent/40 rounded-lg px-4 py-2">
             <svg className="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -79,43 +90,45 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
             <svg className="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
             </svg>
-            <span className="text-sm font-semibold text-white/90">Mindestbestellung: 1 Karton (MOQ)</span>
+            <span className="text-sm font-semibold text-white/90">{dictionary.hero.badgeMoq || 'Mindestbestellung: 1 Karton (MOQ)'}</span>
           </div>
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-accent/40 rounded-lg px-4 py-2">
             <svg className="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
             </svg>
-            <span className="text-sm font-semibold text-white/90">Palettenrabatt verfügbar</span>
+            <span className="text-sm font-semibold text-white/90">{dictionary.hero.badgePalette || 'Palettenrabatt verfügbar'}</span>
           </div>
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-accent/40 rounded-lg px-4 py-2">
             <svg className="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <span className="text-sm font-semibold text-white/90">Versand DE / EU</span>
+            <span className="text-sm font-semibold text-white/90">{dictionary.hero.badgeShipping || 'Versand DE / EU'}</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.1, ease: [0.25, 1, 0.5, 1] }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4" style={{ willChange: 'transform, opacity' }}>
           <Link
             href={`/${locale}/products`}
-            className="bg-accent text-primary font-bold py-4 px-10 rounded-xl transition-all duration-300 hover:scale-105 shadow-2xl inline-block text-lg"
+            className="bg-accent text-primary font-bold py-4 px-10 rounded-xl transition-all duration-300 hover:scale-105 shadow-2xl hover:shadow-[0_0_20px_rgba(255,215,0,0.5)] inline-block text-lg"
           >
-            Produkte entdecken
+            {dictionary.hero.btnProducts || 'Produkte entdecken'}
           </Link>
           <Link
             href={`/${locale}/contact`}
-            className="bg-white/15 backdrop-blur-sm text-white font-bold py-4 px-8 rounded-xl border-2 border-white/40 transition-all duration-300 hover:bg-white/25 shadow-xl inline-block text-base"
+            className="bg-white/15 backdrop-blur-sm text-white font-bold py-4 px-8 rounded-xl border-2 border-white/40 transition-all duration-300 hover:bg-white/30 hover:scale-105 shadow-xl inline-block text-base"
           >
-            Probierpaket anfragen
+            {dictionary.hero.btnTrial || 'Probierpaket anfragen'}
           </Link>
           <Link
             href={`/${locale}/contact`}
-            className="bg-transparent text-white/80 font-semibold py-4 px-6 rounded-xl border border-white/20 transition-all duration-300 hover:border-accent/60 hover:text-white text-sm inline-block"
+            className="bg-transparent text-white/80 font-semibold py-4 px-6 rounded-xl border border-white/20 transition-all duration-300 hover:border-accent/80 hover:text-white hover:bg-white/5 text-sm inline-block"
           >
-            Preisliste anfordern (PDF)
+            {dictionary.hero.btnPricelist || 'Preisliste anfordern (PDF)'}
           </Link>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

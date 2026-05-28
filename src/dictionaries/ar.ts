@@ -970,6 +970,8 @@ export const dictionary: Partial<Dictionary> = {
     title: 'هل أنت مستعد للارتقاء بعروضك؟',
     subtitle: 'كن جزءًا من شبكة شركائنا الحصرية واحصل على منتجات فاخرة ستسعد عملاءك.',
     button: 'كن شريكاً الآن',
+    btnPrimary: 'افتح حساب أعمال واحصل على قائمة الأسعار',
+    btnSecondary: 'اطلب حزمة عينات مجانية',
   },
   socials: {
     instagram: 'تابعنا على انستجرام',
@@ -987,6 +989,12 @@ export const dictionary: Partial<Dictionary> = {
     subHeadline: 'نحضر جودة ElysonSweets الحصرية إلى مقهاك.',
     valueProposition: 'اطلب الآن حزمة عيناتك المجانية وشاهد جودتنا بنفسك.',
     ctaButton: 'اكتشف المنتجات',
+    badgeMoq: 'الحد الأدنى للطلب: ١ كرتون (MOQ)',
+    badgePalette: 'خصم منصة نقالة متاح',
+    badgeShipping: 'الشحن لألمانيا / الاتحاد الأوروبي',
+    btnProducts: 'اكتشف المنتجات',
+    btnTrial: 'طلب حزمة عينات',
+    btnPricelist: 'طلب قائمة الأسعار (PDF)',
   },
   productReviews: {
     noReviews: 'لا توجد تقييمات بعد',
@@ -1415,4 +1423,48 @@ export const dictionary: Partial<Dictionary> = {
       }
     }
   },
+  foBrandAboutSection: {
+    whyElyson: "لماذا إيليسون سويتس؟",
+    horecaSpecialist: "متخصصو قطاع الضيافة في ألمانيا",
+    description: "منتجات فاخرة مختارة بعناية للمقاهي والفنادق والمطاعم. توصيل سريع، كميات طلب مرنة، وخدمة شخصية.",
+    advantages: {
+      adv1Title: "توصيل سريع",
+      adv1Desc: "مخزون في ألمانيا - توصيل إقليمي موثوق",
+      adv2Title: "تشكيلة فاخرة",
+      adv2Desc: "أكثر من 246 منتجاً مختاراً بعناية للمقاهي والفنادق وخدمات الطعام",
+      adv3Title: "خدمة شخصية",
+      adv3Desc: "جهة اتصال مباشرة - لا توجد طوابير انتظار طويلة",
+      adv4Title: "كميات طلب مرنة",
+      adv4Desc: "من كرتون واحد إلى المنصات - لكل الاحتياجات"
+    },
+    productCategories: "فئات المنتجات",
+    more: "المزيد",
+    joinPartnerPortal: "انضم إلى بوابة الشركاء",
+    portalDesc: "نمِّ عملك بأسعار حصرية، طلب سريع، وإدارة حساب شخصية.",
+    portalBenefits: {
+      benefit1: "أسعار حصرية للشركاء",
+      benefit2: "طلب عبر الإنترنت على مدار الساعة",
+      benefit3: "جهة اتصال شخصية"
+    },
+    registerFree: "تسجيل مجاني",
+    browseCatalog: "تصفح الكتالوج"
+  },
+  productLine: {
+    eyebrow: "للمقاهي والفنادق وخدمات الطعام",
+    headline: "FO - باريستا، شراب ومستلزمات المخابز",
+    subheadline: "شراب ممتاز، صلصات، مشروبات مسحوقة ومعاجين الحلويات - للمقاهي، الفنادق، محلات الحلويات ومحلات الآيس كريم",
+    ctaLabel: "عرض التشكيلة",
+    productsInCatalog: "في الكتالوج",
+    more: "المزيد",
+    stats: {
+      expLabel: "منذ عام 1988",
+      expSub: "خبرة",
+      countriesLabel: "+100",
+      countriesSub: "دول التصدير",
+      labsLabel: "3",
+      labsSub: "مختبرات بحث وتطوير",
+      palletsLabel: "4,000",
+      palletsSub: "تخزين منصات"
+    }
+  }
 };

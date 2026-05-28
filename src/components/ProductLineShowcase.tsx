@@ -10,19 +10,13 @@ type Category = {
 
 interface ProductLineShowcaseProps {
   locale: string;
+  dictionary: any;
   categories: Category[];
 }
 
-const STATS = [
-  { label: 'Seit 1988', sub: 'Erfahrung' },
-  { label: '100+', sub: 'Exportländer' },
-  { label: '3', sub: 'F&E-Labore' },
-  { label: '4.000', sub: 'Paletten-Lager' },
-];
-
 const CERTS = ['BRC', 'Halal', 'Türk. Patent-Sieger'];
 
-export default function ProductLineShowcase({ locale, categories }: ProductLineShowcaseProps) {
+export default function ProductLineShowcase({ locale, dictionary, categories }: ProductLineShowcaseProps) {
   // Show only FO (barista-bakery-essentials) categories
   const foCategories = categories.filter((cat) =>
     [
@@ -36,29 +30,10 @@ export default function ProductLineShowcase({ locale, categories }: ProductLineS
   );
   const totalFoProducts = foCategories.reduce((sum, c) => sum + (c.productCount || 0), 0);
 
-  const headline =
-    locale === 'tr'
-      ? 'FO – Barista, Şuruplar & Pastane Malzemeleri'
-      : locale === 'en'
-      ? 'FO – Barista, Syrups & Bakery Essentials'
-      : 'FO – Barista, Sirupe & Backzutaten';
-
-  const subheadline =
-    locale === 'tr'
-      ? 'Premium Şuruplar, Soslar, Toz İçecekler ve Pastane Pastaları – Kafeler, Oteller, Pastaneler ve Dondurmacılar için'
-      : locale === 'en'
-      ? 'Premium Syrups, Sauces, Powder Drinks and Patisserie Pastes – for Cafés, Hotels, Patisseries and Ice Cream Parlours'
-      : 'Premium-Sirupe, Soßen, Pulvergetränke und Konditoreipasten für Cafés, Hotels, Patisserien und Eisdielen';
-
-  const ctaLabel =
-    locale === 'tr' ? 'Ürün Gamını Gör' : locale === 'en' ? 'View Assortment' : 'Sortiment ansehen';
-
-  const productsLabel =
-    locale === 'tr'
-      ? `${totalFoProducts}+ Ürün`
-      : locale === 'en'
-      ? `${totalFoProducts}+ Products`
-      : `${totalFoProducts}+ Produkte`;
+  const headline = dictionary.productLine.headline;
+  const subheadline = dictionary.productLine.subheadline;
+  const ctaLabel = dictionary.productLine.ctaLabel;
+  const productsLabel = `${totalFoProducts}+`;
 
   return (
     <section className="bg-gradient-to-b from-amber-50 via-white to-teal-50/30 py-12 px-6">
@@ -67,11 +42,7 @@ export default function ProductLineShowcase({ locale, categories }: ProductLineS
         <div className="mb-8 text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-accent shadow-sm ring-1 ring-accent/10">
             <FiStar className="h-3.5 w-3.5" />
-            {locale === 'de'
-              ? 'Für Cafés, Hotels & Gastronomie'
-              : locale === 'en'
-              ? 'For Cafés, Hotels & Food Service'
-              : 'Kafe, Otel ve Gastronomi için'}
+            {dictionary.productLine.eyebrow}
           </span>
         </div>
 
@@ -116,7 +87,7 @@ export default function ProductLineShowcase({ locale, categories }: ProductLineS
                   ))}
                   {foCategories.length > 8 && (
                     <span className="rounded-full border border-teal-200 bg-white/90 px-3 py-1 text-xs font-semibold text-teal-700 shadow-sm">
-                      +{foCategories.length - 8} weitere
+                      +{foCategories.length - 8} {dictionary.productLine.more}
                     </span>
                   )}
                 </div>
@@ -132,12 +103,17 @@ export default function ProductLineShowcase({ locale, categories }: ProductLineS
                 <div className="bg-teal-600 text-white rounded-2xl px-5 py-4 text-center shadow-sm">
                   <p className="text-3xl font-bold">{productsLabel}</p>
                   <p className="text-xs font-medium uppercase tracking-widest text-teal-200 mt-1">
-                    {locale === 'de' ? 'im Sortiment' : locale === 'en' ? 'in catalog' : 'katalogda'}
+                    {dictionary.productLine.productsInCatalog}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  {STATS.map((s) => (
+                  {[
+                    { label: dictionary.productLine.stats.expLabel, sub: dictionary.productLine.stats.expSub },
+                    { label: dictionary.productLine.stats.countriesLabel, sub: dictionary.productLine.stats.countriesSub },
+                    { label: dictionary.productLine.stats.labsLabel, sub: dictionary.productLine.stats.labsSub },
+                    { label: dictionary.productLine.stats.palletsLabel, sub: dictionary.productLine.stats.palletsSub },
+                  ].map((s) => (
                     <div key={s.label} className="bg-white/80 rounded-2xl px-3 py-3 text-center ring-1 ring-slate-200/70">
                       <p className="text-base font-bold text-slate-900">{s.label}</p>
                       <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">{s.sub}</p>

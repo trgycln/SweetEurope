@@ -116,7 +116,7 @@ export default async function Home({
     <>
             <HeroSection dictionary={dictionary} locale={locale} />
             <PhilosophySection dictionary={dictionary} />
-            <ProductLineShowcase locale={locale} categories={kategorilerWithImages as any} />
+            <ProductLineShowcase locale={locale} dictionary={dictionary} categories={kategorilerWithImages as any} />
             <CategoryShowcase 
                 dictionary={dictionary} 
                 locale={locale}

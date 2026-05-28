@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Tables } from '@/lib/supabase/database.types';
 import { getLocalizedName, Locale } from '@/lib/utils';
 import { FiTag, FiInfo, FiMail, FiDownload, FiAlertTriangle } from 'react-icons/fi';
@@ -22,6 +23,15 @@ interface UrunDetayGorunumuProps {
     urun: Urun;
     ozellikSablonu: Sablon[];
     locale: Locale;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function t(locale: Locale, de: string, en: string, tr: string, ar: string) {
+    if (locale === 'de') return de;
+    if (locale === 'en') return en;
+    if (locale === 'tr') return tr;
+    if (locale === 'ar') return ar;
+    return de;
 }
 
 // ── EU 14 Major Allergens (LMIV Anhang II) ──────────────────────────────────
@@ -224,7 +234,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const eanGtin = urun.ean_gtin ?? null;
     const herkunft = (urun.herkunftsland as Record<string, string> | null) ?? null;
     const moq: number = urun.mindest_bestellmenge ?? 1;
-    const moqEinheit: string = urun.mindest_bestellmenge_einheit ?? (locale === 'de' ? 'Kiste' : 'Box');
+    const moqEinheit: string = urun.mindest_bestellmenge_einheit ?? t(locale, 'Kiste', 'Case', 'Koli', 'صندوق');
     const tempMin = urun.lagertemperatur_min_celsius ?? null;
     const tempMax = urun.lagertemperatur_max_celsius ?? null;
     const haltbarkeitMonate = urun.haltbarkeit_monate ?? null;
@@ -282,11 +292,11 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const traceAllergens = traceKeys.filter(k => allergene[k] === true);
 
     const traceLabels: Record<string, string> = {
-        spuren_gluten: locale === 'de' ? 'Gluten' : locale === 'tr' ? 'Gluten' : 'Gluten',
-        spuren_milch: locale === 'de' ? 'Milch' : locale === 'tr' ? 'Süt' : 'Milk',
-        spuren_nuesse: locale === 'de' ? 'Schalenfrüchte' : locale === 'tr' ? 'Kuruyemiş' : 'Tree nuts',
-        spuren_soja: locale === 'de' ? 'Soja' : locale === 'tr' ? 'Soya' : 'Soy',
-        spuren_sesam: locale === 'de' ? 'Sesam' : locale === 'tr' ? 'Susam' : 'Sesame',
+        spuren_gluten: t(locale, 'Gluten', 'Gluten', 'Gluten', 'غلوتين'),
+        spuren_milch: t(locale, 'Milch', 'Milk', 'Süt', 'حليب'),
+        spuren_nuesse: t(locale, 'Schalenfrüchte', 'Tree nuts', 'Kuruyemiş', 'مكسرات'),
+        spuren_soja: t(locale, 'Soja', 'Soy', 'Soya', 'صويا'),
+        spuren_sesam: t(locale, 'Sesam', 'Sesame', 'Susam', 'سمسم'),
     };
 
     const specRows = ozellikSablonu
@@ -318,17 +328,29 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const herkunftLabel = herkunft ? (herkunft[locale] || herkunft.de || herkunft.en || Object.values(herkunft)[0]) : null;
 
     return (
-        <div className="bg-slate-50 min-h-screen py-8 md:py-14">
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-slate-50 min-h-screen py-8 md:py-14">
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
                     {/* ── Left: Gallery ───────────────────────────────────── */}
-                    <div className="sticky top-24">
+                    <div>
                         {activeImg ? (
-                            <div className="aspect-square w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                                <Image src={activeImg} alt={urunAdi} width={800} height={800}
-                                    className="w-full h-full object-cover" priority />
-                            </div>
+                            <AnimatePresence mode="wait">
+                                <motion.div 
+                                    key={activeImg}
+                                    initial={{ opacity: 0, scale: 0.98 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.98 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="aspect-square w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm relative group">
+                                    <Image src={activeImg} alt={urunAdi} width={800} height={800}
+                                        className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" priority />
+                                </motion.div>
+                            </AnimatePresence>
                         ) : (
                             <div className="aspect-square w-full rounded-2xl border bg-slate-100 flex items-center justify-center">
                                 <LuPackage2 className="w-16 h-16 text-slate-300" />
@@ -338,8 +360,8 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                             <div className="mt-3 grid grid-cols-5 gap-2">
                                 {allImages.map((img, i) => (
                                     <button key={i} onClick={() => setActiveImg(img)}
-                                        className={`aspect-square overflow-hidden rounded-xl border-2 transition ${activeImg === img ? 'border-slate-700' : 'border-transparent hover:border-slate-300'}`}>
-                                        <Image src={img} alt={`${i + 1}`} width={120} height={120} className="w-full h-full object-cover" />
+                                        className={`aspect-square overflow-hidden rounded-xl border-2 transition-all duration-300 ${activeImg === img ? 'border-slate-700 opacity-100 scale-95' : 'border-transparent opacity-70 hover:opacity-100 hover:border-slate-300 hover:scale-105'}`}>
+                                        <Image src={img} alt={`${i + 1}`} width={120} height={120} className="w-full h-full object-contain" />
                                     </button>
                                 ))}
                             </div>
@@ -407,7 +429,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                 <div className="flex flex-wrap gap-2">
                                     {/* Ohne Gentechnik — FO default */}
                                     <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                        {locale === 'de' ? 'Ohne Gentechnik' : locale === 'tr' ? 'GDO-frei' : 'Non-GMO'}
+                                        {t(locale, 'Ohne Gentechnik', 'Non-GMO', 'GDO-suz', 'غير معدل وراثيا')}
                                     </span>
                                     {activeBadges.map(k => (
                                         <span key={k} className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -460,7 +482,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                 <div className="grid grid-cols-3 gap-2.5">
                                     <TierCard
                                         icon={<LuPackage size={15} />}
-                                        title={locale === 'de' ? '1 Stück' : '1 Unit'}
+                                        title={t(locale, '1 Stück', '1 Unit', '1 Adet', '١ وحدة')}
                                         accent="bg-sky-50 border-sky-200 text-sky-800"
                                         lines={[
                                             fmtWeight(unitWeightKg, unitWeightG) ? `${fmtWeight(unitWeightKg, unitWeightG)}` : null,
@@ -690,7 +712,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                     </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
 
@@ -801,11 +823,11 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
     const traceAllergens = traceKeys.filter(k => allergene[k] === true);
 
     const traceLabels: Record<string, string> = {
-        spuren_gluten: locale === 'de' ? 'Gluten' : locale === 'tr' ? 'Gluten' : 'Gluten',
-        spuren_milch: locale === 'de' ? 'Milch' : locale === 'tr' ? 'Süt' : 'Milk',
-        spuren_nuesse: locale === 'de' ? 'Schalenfrüchte' : locale === 'tr' ? 'Kuruyemiş' : 'Tree nuts',
-        spuren_soja: locale === 'de' ? 'Soja' : locale === 'tr' ? 'Soya' : 'Soy',
-        spuren_sesam: locale === 'de' ? 'Sesam' : locale === 'tr' ? 'Susam' : 'Sesame',
+        spuren_gluten: t(locale, 'Gluten', 'Gluten', 'Gluten', 'غلوتين'),
+        spuren_milch: t(locale, 'Milch', 'Milk', 'Süt', 'حليب'),
+        spuren_nuesse: t(locale, 'Schalenfrüchte', 'Tree nuts', 'Kuruyemiş', 'مكسرات'),
+        spuren_soja: t(locale, 'Soja', 'Soy', 'Soya', 'صويا'),
+        spuren_sesam: t(locale, 'Sesam', 'Sesame', 'Susam', 'سمسم'),
     };
 
     // ── Specs from category template ──
@@ -844,11 +866,11 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
                     {/* ── Left: Gallery ───────────────────────────────────── */}
-                    <div className="sticky top-24">
+                    <div>
                         {activeImg ? (
                             <div className="aspect-square w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm relative">
                                 <Image src={activeImg} alt={urunAdi} width={800} height={800}
-                                    className="w-full h-full object-cover" priority />
+                                    className="w-full h-full object-contain p-4" priority />
                                 {/* Storage badge overlay on image */}
                                 {storageLabel && (
                                     <div className="absolute top-3 left-3">
@@ -870,7 +892,7 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                 {allImages.map((img, i) => (
                                     <button key={i} onClick={() => setActiveImg(img)}
                                         className={`aspect-square overflow-hidden rounded-xl border-2 transition ${activeImg === img ? 'border-slate-700' : 'border-transparent hover:border-slate-300'}`}>
-                                        <Image src={img} alt={`${i + 1}`} width={120} height={120} className="w-full h-full object-cover" />
+                                        <Image src={img} alt={`${i + 1}`} width={120} height={120} className="w-full h-full object-contain p-1" />
                                     </button>
                                 ))}
                             </div>
@@ -1010,9 +1032,9 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                         title={lc.box}
                                         accent="bg-sky-50 border-sky-200 text-sky-800"
                                         lines={[
-                                            dilimAdet > 0 ? (locale === 'de' ? `${dilimAdet} Scheiben` : locale === 'tr' ? `${dilimAdet} dilim` : `${dilimAdet} slices`) : null,
-                                            kutuIciAdet > 0 && dilimAdet === 0 ? (locale === 'de' ? `${kutuIciAdet} Stk.` : `${kutuIciAdet} adet`) : null,
-                                            fmtWeight(unitWeightKg, unitWeightG) ? `${locale === 'de' ? 'Gewicht' : locale === 'tr' ? 'Ağırlık' : 'Weight'}: ${fmtWeight(unitWeightKg, unitWeightG)}` : null,
+                                            dilimAdet > 0 ? t(locale, `${dilimAdet} Scheiben`, `${dilimAdet} slices`, `${dilimAdet} dilim`, `${dilimAdet} شرائح`) : null,
+                                            kutuIciAdet > 0 && dilimAdet === 0 ? t(locale, `${kutuIciAdet} Stk.`, `${kutuIciAdet} units`, `${kutuIciAdet} adet`, `${kutuIciAdet} وحدة`) : null,
+                                            fmtWeight(unitWeightKg, unitWeightG) ? `${t(locale, 'Gewicht', 'Weight', 'Ağırlık', 'الوزن')}: ${fmtWeight(unitWeightKg, unitWeightG)}` : null,
                                             hacimMl && !unitWeightKg && !unitWeightG ? `${hacimMl} ml` : null,
                                         ]}
                                     />
@@ -1021,8 +1043,8 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                         title={lc.case}
                                         accent="bg-violet-50 border-violet-200 text-violet-800"
                                         lines={[
-                                            koliIciKutu ? (locale === 'de' ? `${koliIciKutu} Karton` : locale === 'tr' ? `${koliIciKutu} Kutu` : `${koliIciKutu} boxes`) : null,
-                                            koliIciAdet && !koliIciKutu ? (locale === 'de' ? `${koliIciAdet} Stk.` : `${koliIciAdet} adet`) : null,
+                                            koliIciKutu ? t(locale, `${koliIciKutu} Karton`, `${koliIciKutu} boxes`, `${koliIciKutu} Kutu`, `${koliIciKutu} علب`) : null,
+                                            koliIciAdet && !koliIciKutu ? t(locale, `${koliIciAdet} Stk.`, `${koliIciAdet} units`, `${koliIciAdet} adet`, `${koliIciAdet} وحدة`) : null,
                                             koliAgirlik ? `~${koliAgirlik}` : null,
                                         ]}
                                     />
@@ -1031,9 +1053,9 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                         title={lc.pallet}
                                         accent="bg-slate-100 border-slate-300 text-slate-700"
                                         lines={[
-                                            paletIciKoli ? (locale === 'de' ? `${paletIciKoli} Kisten` : locale === 'tr' ? `${paletIciKoli} Koli` : `${paletIciKoli} cases`) : null,
-                                            paletIciKutu && !paletIciKoli ? (locale === 'de' ? `${paletIciKutu} Karton` : `${paletIciKutu} kutu`) : null,
-                                            paletIciAdet && !paletIciKoli && !paletIciKutu ? (locale === 'de' ? `${paletIciAdet} Stk.` : `${paletIciAdet} adet`) : null,
+                                            paletIciKoli ? t(locale, `${paletIciKoli} Kisten`, `${paletIciKoli} cases`, `${paletIciKoli} Koli`, `${paletIciKoli} صناديق`) : null,
+                                            paletIciKutu && !paletIciKoli ? t(locale, `${paletIciKutu} Karton`, `${paletIciKutu} boxes`, `${paletIciKutu} kutu`, `${paletIciKutu} علب`) : null,
+                                            paletIciAdet && !paletIciKoli && !paletIciKutu ? t(locale, `${paletIciAdet} Stk.`, `${paletIciAdet} units`, `${paletIciAdet} adet`, `${paletIciAdet} وحدة`) : null,
                                             paletAgirlik ? `~${paletAgirlik}` : null,
                                         ]}
                                     />

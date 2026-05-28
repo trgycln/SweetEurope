@@ -1,50 +1,43 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 const ADVANTAGES = [
-    {
-        icon: '🚚',
-        title: { de: 'Schnelle Lieferung', tr: 'Hızlı Teslimat', en: 'Fast Delivery' },
-        desc: {
-            de: 'Lagerbestand in Deutschland – zuverlässige Lieferung in der Region',
-            tr: 'Almanya\'da stok – bölgeye güvenilir teslimat',
-            en: 'Stock in Germany – reliable regional delivery',
-        },
-    },
-    {
-        icon: '🏆',
-        title: { de: 'Premium-Sortiment', tr: 'Premium Ürün Yelpazesi', en: 'Premium Assortment' },
-        desc: {
-            de: '246+ sorgfältig ausgewählte Produkte für Cafés, Hotels & Gastronomie',
-            tr: 'Kafeler, oteller ve gastronomi için özenle seçilmiş 246+ ürün',
-            en: '246+ carefully selected products for cafés, hotels & foodservice',
-        },
-    },
-    {
-        icon: '🤝',
-        title: { de: 'Persönlicher Service', tr: 'Kişisel Hizmet', en: 'Personal Service' },
-        desc: {
-            de: 'Direkter Ansprechpartner – keine langen Warteschleifen',
-            tr: 'Direkt muhatap – uzun bekleme süreleri yok',
-            en: 'Direct contact person – no long waiting queues',
-        },
-    },
-    {
-        icon: '📦',
-        title: { de: 'Flexible Bestellmengen', tr: 'Esnek Sipariş Miktarları', en: 'Flexible Order Quantities' },
-        desc: {
-            de: 'Von einzelnen Kartons bis zur Palette – für jeden Bedarf',
-            tr: 'Tek koliden palete – her ihtiyaç için',
-            en: 'From single cartons to pallets – for every need',
-        },
-    },
+    { icon: '🚚', id: 1 },
+    { icon: '🏆', id: 2 },
+    { icon: '🤝', id: 3 },
+    { icon: '📦', id: 4 },
 ];
 
 const CERTIFICATIONS = [
-    { label: 'Halal-zertifiziert', color: 'bg-green-100 text-green-800 border-green-200' },
-    { label: 'BRC-zertifiziert', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-    { label: 'Türk. Patent-Sieger', color: 'bg-amber-100 text-amber-800 border-amber-200' },
+    { key: 'halal', color: 'bg-green-100 text-green-800 border-green-200' },
+    { key: 'brc', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    { key: 'patent', color: 'bg-amber-100 text-amber-800 border-amber-200' },
 ];
+
+function getCertLabel(key: string, locale: string) {
+    if (key === 'halal') {
+        if (locale === 'tr') return 'Helal Sertifikalı';
+        if (locale === 'en') return 'Halal Certified';
+        if (locale === 'ar') return 'حلال معتمد';
+        return 'Halal-zertifiziert';
+    }
+    if (key === 'brc') {
+        if (locale === 'tr') return 'BRC Sertifikalı';
+        if (locale === 'en') return 'BRC Certified';
+        if (locale === 'ar') return 'BRC معتمد';
+        return 'BRC-zertifiziert';
+    }
+    if (key === 'patent') {
+        if (locale === 'tr') return 'Türk Patent Ödüllü';
+        if (locale === 'en') return 'Turkish Patent Winner';
+        if (locale === 'ar') return 'حائز على براءة اختراع تركية';
+        return 'Türk. Patent-Sieger';
+    }
+    return '';
+}
 
 type AltKategori = {
     id: string;
@@ -55,11 +48,11 @@ type AltKategori = {
 
 interface Props {
     locale: string;
+    dictionary: any;
     altKategorilerMap?: Record<string, AltKategori[]>;
 }
 
-export default function FoBrandAboutSection({ locale, altKategorilerMap = {} }: Props) {
-    const t = (obj: Record<string, string>) => obj[locale] || obj.de;
+export default function FoBrandAboutSection({ locale, dictionary, altKategorilerMap = {} }: Props) {
 
     return (
         <section className="bg-gradient-to-b from-slate-50 to-white py-20 px-6">
@@ -68,32 +61,30 @@ export default function FoBrandAboutSection({ locale, altKategorilerMap = {} }: 
                 {/* Header */}
                 <div className="text-center mb-14">
                     <span className="inline-block text-xs font-bold uppercase tracking-[0.22em] text-teal-600 mb-3">
-                        {locale === 'tr' ? 'Neden ElysonSweets?'
-                            : locale === 'en' ? 'Why ElysonSweets?'
-                            : 'Warum ElysonSweets?'}
+                        {dictionary.foBrandAboutSection.whyElyson}
                     </span>
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-slate-900 mb-4 leading-tight">
-                        {locale === 'tr' ? 'Almanya\'nın HoReCa Uzmanı'
-                            : locale === 'en' ? 'Germany\'s HoReCa Specialist'
-                            : 'Ihr HoReCa-Spezialist in Deutschland'}
+                        {dictionary.foBrandAboutSection.horecaSpecialist}
                     </h2>
                     <p className="text-base text-slate-500 max-w-2xl mx-auto">
-                        {locale === 'tr'
-                            ? 'Kafeler, oteller ve restoranlar için özenle seçilmiş premium ürünler. Hızlı teslimat, esnek sipariş miktarları ve kişisel hizmet.'
-                            : locale === 'en'
-                            ? 'Premium products carefully selected for cafés, hotels and restaurants. Fast delivery, flexible order quantities and personal service.'
-                            : 'Sorgfältig ausgewählte Premium-Produkte für Cafés, Hotels und Restaurants. Schnelle Lieferung, flexible Bestellmengen und persönlicher Service.'}
+                        {dictionary.foBrandAboutSection.description}
                     </p>
                 </div>
 
                 {/* Avantajlar */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
                     {ADVANTAGES.map((adv, i) => (
-                        <div key={i} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        <motion.div 
+                            key={i} 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: i * 0.1 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                             <div className="text-3xl mb-3">{adv.icon}</div>
-                            <h3 className="font-bold text-slate-800 text-sm mb-2">{t(adv.title)}</h3>
-                            <p className="text-xs text-slate-500 leading-relaxed">{t(adv.desc)}</p>
-                        </div>
+                            <h3 className="font-bold text-slate-800 text-sm mb-2">{dictionary.foBrandAboutSection.advantages[`adv${adv.id}Title`]}</h3>
+                            <p className="text-xs text-slate-500 leading-relaxed">{dictionary.foBrandAboutSection.advantages[`adv${adv.id}Desc`]}</p>
+                        </motion.div>
                     ))}
                 </div>
 
@@ -104,9 +95,7 @@ export default function FoBrandAboutSection({ locale, altKategorilerMap = {} }: 
                     {/* Sol: Kategori listesi — ana + alt */}
                     <div>
                         <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-                            {locale === 'tr' ? 'Ürün Kategorileri'
-                                : locale === 'en' ? 'Product Categories'
-                                : 'Produktkategorien'}
+                            {dictionary.foBrandAboutSection.productCategories}
                         </p>
 
                         <div className="space-y-4">
@@ -143,7 +132,7 @@ export default function FoBrandAboutSection({ locale, altKategorilerMap = {} }: 
                                                     href={`/${locale}/products`}
                                                     className="mt-1.5 inline-block text-[11px] text-teal-600 hover:text-teal-800 font-semibold"
                                                 >
-                                                    +{aktifAlts.length - 8} {locale === 'de' ? 'weitere' : 'daha'} →
+                                                    +{aktifAlts.length - 8} {dictionary.foBrandAboutSection.more} →
                                                 </Link>
                                             )}
                                         </div>
@@ -155,43 +144,38 @@ export default function FoBrandAboutSection({ locale, altKategorilerMap = {} }: 
                         <div className="flex flex-wrap gap-2 mt-5">
                             {CERTIFICATIONS.map((cert) => (
                                 <span
-                                    key={cert.label}
+                                    key={cert.key}
                                     className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${cert.color}`}
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                                     </svg>
-                                    {cert.label}
+                                    {getCertLabel(cert.key, locale)}
                                 </span>
                             ))}
                         </div>
                     </div>
 
                     {/* Sağ: CTA kutusu */}
-                    <div className="bg-gradient-to-br from-teal-600 to-emerald-700 rounded-3xl p-8 text-white shadow-xl">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.6 }}
+                        viewport={{ once: true }}
+                        className="bg-gradient-to-br from-teal-600 to-emerald-700 rounded-3xl p-8 text-white shadow-2xl hover:shadow-3xl transition-shadow duration-500">
                         <h3 className="text-2xl font-serif font-bold mb-3">
-                            {locale === 'tr' ? 'Partner Portalına Katılın'
-                                : locale === 'en' ? 'Join the Partner Portal'
-                                : 'Jetzt Partner werden'}
+                            {dictionary.foBrandAboutSection.joinPartnerPortal}
                         </h3>
                         <p className="text-teal-100 text-sm leading-relaxed mb-6">
-                            {locale === 'tr'
-                                ? 'Özel fiyatlar, hızlı sipariş ve kişisel hesap yönetimi ile işinizi büyütün.'
-                                : locale === 'en'
-                                ? 'Grow your business with exclusive prices, fast ordering and personal account management.'
-                                : 'Wachsen Sie mit exklusiven Preisen, schneller Bestellung und persönlichem Account-Management.'}
+                            {dictionary.foBrandAboutSection.portalDesc}
                         </p>
                         <ul className="space-y-2 mb-7">
-                            {[
-                                { de: 'Exklusive Partnerpreise', tr: 'Özel partner fiyatları', en: 'Exclusive partner prices' },
-                                { de: 'Online-Bestellung 24/7', tr: '7/24 online sipariş', en: 'Online ordering 24/7' },
-                                { de: 'Persönlicher Ansprechpartner', tr: 'Kişisel müşteri temsilcisi', en: 'Personal contact person' },
-                            ].map((item, i) => (
+                            {[1, 2, 3].map((i) => (
                                 <li key={i} className="flex items-center gap-2.5 text-sm text-teal-50">
                                     <svg className="w-4 h-4 text-emerald-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    {t(item)}
+                                    {dictionary.foBrandAboutSection.portalBenefits[`benefit${i}`]}
                                 </li>
                             ))}
                         </ul>
@@ -200,20 +184,16 @@ export default function FoBrandAboutSection({ locale, altKategorilerMap = {} }: 
                                 href={`/${locale}/register`}
                                 className="flex-1 text-center bg-white text-teal-700 font-bold px-5 py-3 rounded-xl hover:bg-teal-50 transition-colors text-sm shadow-sm"
                             >
-                                {locale === 'tr' ? 'Ücretsiz Kayıt'
-                                    : locale === 'en' ? 'Register Free'
-                                    : 'Kostenlos registrieren'}
+                                {dictionary.foBrandAboutSection.registerFree}
                             </Link>
                             <Link
                                 href={`/${locale}/products`}
                                 className="flex-1 text-center bg-teal-500/30 text-white font-semibold px-5 py-3 rounded-xl hover:bg-teal-500/50 transition-colors text-sm border border-teal-400/40"
                             >
-                                {locale === 'tr' ? 'Kataloğu İncele'
-                                    : locale === 'en' ? 'Browse Catalog'
-                                    : 'Sortiment ansehen'}
+                                {dictionary.foBrandAboutSection.browseCatalog}
                             </Link>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </section>

@@ -976,6 +976,8 @@ export const dictionary: Partial<Dictionary> = {
     title: 'Ready to elevate your offerings?',
     subtitle: 'Become part of our exclusive partner network and gain access to premium products that will delight your customers.',
     button: 'Become a Partner Now',
+    btnPrimary: 'Open Business Account & Get Pricelist',
+    btnSecondary: 'Request Free Sample Package',
   },
   socials: {
     instagram: 'Follow us on Instagram',
@@ -993,6 +995,12 @@ export const dictionary: Partial<Dictionary> = {
     subHeadline: 'We bring exclusive ElysonSweets quality to your café.',
     valueProposition: 'Request your free sample package now and see our quality for yourself.',
     ctaButton: 'Discover Products',
+    badgeMoq: 'Min. Order: 1 Case (MOQ)',
+    badgePalette: 'Pallet discount available',
+    badgeShipping: 'Shipping DE / EU',
+    btnProducts: 'Discover Products',
+    btnTrial: 'Request Trial Package',
+    btnPricelist: 'Request Pricelist (PDF)',
   },
   productReviews: {
     noReviews: 'No reviews yet',
@@ -1425,4 +1433,48 @@ export const dictionary: Partial<Dictionary> = {
       }
     }
   },
+  foBrandAboutSection: {
+    whyElyson: "Why ElysonSweets?",
+    horecaSpecialist: "Germany's HoReCa Specialist",
+    description: "Premium products carefully selected for cafés, hotels and restaurants. Fast delivery, flexible order quantities and personal service.",
+    advantages: {
+      adv1Title: "Fast Delivery",
+      adv1Desc: "Stock in Germany – reliable regional delivery",
+      adv2Title: "Premium Assortment",
+      adv2Desc: "246+ carefully selected products for cafés, hotels & foodservice",
+      adv3Title: "Personal Service",
+      adv3Desc: "Direct contact person – no long waiting queues",
+      adv4Title: "Flexible Order Quantities",
+      adv4Desc: "From single cartons to pallets – for every need"
+    },
+    productCategories: "Product Categories",
+    more: "more",
+    joinPartnerPortal: "Join the Partner Portal",
+    portalDesc: "Grow your business with exclusive prices, fast ordering and personal account management.",
+    portalBenefits: {
+      benefit1: "Exclusive partner prices",
+      benefit2: "Online ordering 24/7",
+      benefit3: "Personal contact person"
+    },
+    registerFree: "Register Free",
+    browseCatalog: "Browse Catalog"
+  },
+  productLine: {
+    eyebrow: "For Cafés, Hotels & Food Service",
+    headline: "FO – Barista, Syrups & Bakery Essentials",
+    subheadline: "Premium Syrups, Sauces, Powder Drinks and Patisserie Pastes – for Cafés, Hotels, Patisseries and Ice Cream Parlours",
+    ctaLabel: "View Assortment",
+    productsInCatalog: "in catalog",
+    more: "more",
+    stats: {
+      expLabel: "Since 1988",
+      expSub: "Experience",
+      countriesLabel: "100+",
+      countriesSub: "Export Countries",
+      labsLabel: "3",
+      labsSub: "R&D Labs",
+      palletsLabel: "4,000",
+      palletsSub: "Pallet Storage"
+    }
+  }
 };

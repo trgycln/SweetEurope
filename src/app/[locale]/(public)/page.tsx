@@ -142,7 +142,7 @@ export default async function Home({
         <>
             <HeroSection dictionary={dictionary} locale={locale} />
             <PhilosophySection dictionary={dictionary} />
-            <FoBrandAboutSection locale={locale} altKategorilerMap={altKategorilerMap} />
+            <FoBrandAboutSection locale={locale} dictionary={dictionary} altKategorilerMap={altKategorilerMap} />
             {/* <TestimonialsSection dictionary={dictionary} /> */}
             <QualityPromiseSection dictionary={dictionary} />
             <CertificationsStrip dictionary={dictionary} />

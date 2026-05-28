@@ -26,13 +26,13 @@ const CtaSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary,
             href={`/${locale}/register`}
             className="bg-accent text-primary font-bold py-3 px-8 rounded-md text-base hover:opacity-90 transition-opacity inline-block shadow-lg"
           >
-            Geschäftskonto eröffnen &amp; Preisliste erhalten
+            {dictionary.cta?.btnPrimary || 'Geschäftskonto eröffnen & Preisliste erhalten'}
           </Link>
           <Link
             href={`/${locale}/contact`}
             className="bg-white/10 text-white font-semibold py-3 px-7 rounded-md text-base border border-white/30 hover:bg-white/20 transition-colors inline-block"
           >
-            Kostenloses Probierpaket anfragen
+            {dictionary.cta?.btnSecondary || 'Kostenloses Probierpaket anfragen'}
           </Link>
         </div>
       </div>

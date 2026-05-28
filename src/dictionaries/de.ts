@@ -1066,7 +1066,7 @@ statusOptions: {
     ctaButton: 'Produkte entdecken',
     badgeMoq: 'Mindestbestellung: 1 Karton (MOQ)',
     badgePalette: 'Palettenrabatt verfügbar',
-    badgeShipping: 'Regionale Lieferung – Köln & Umgebung',
+    badgeShipping: 'Versand DE / EU',
     btnProducts: 'Produkte entdecken',
     btnTrial: 'Probierpaket anfragen',
     btnPricelist: 'Preisliste anfordern (PDF)',
@@ -1568,7 +1568,6 @@ statusOptions: {
     kategoriD: 'D - INTERESSENT | Noch keine Bestellung (1–19 Punkte)',
   },
 
-  // SEO Metadata
   seo: {
     home: {
       title: "ElysonSweets | B2B Großhandel – Sirupe, Saucen & HoReCa-Zutaten",
@@ -1601,6 +1600,50 @@ statusOptions: {
     datenschutz: {
       title: "Datenschutzerklärung – ElysonSweets",
       description: "Datenschutzerklärung und Informationen zum Umgang mit Ihren Daten bei ElysonSweets."
+    }
+  },
+  foBrandAboutSection: {
+    whyElyson: "Warum ElysonSweets?",
+    horecaSpecialist: "Ihr HoReCa-Spezialist in Deutschland",
+    description: "Sorgfältig ausgewählte Premium-Produkte für Cafés, Hotels und Restaurants. Schnelle Lieferung, flexible Bestellmengen und persönlicher Service.",
+    advantages: {
+      adv1Title: "Schnelle Lieferung",
+      adv1Desc: "Lagerbestand in Deutschland – zuverlässige Lieferung in der Region",
+      adv2Title: "Premium-Sortiment",
+      adv2Desc: "246+ sorgfältig ausgewählte Produkte für Cafés, Hotels & Gastronomie",
+      adv3Title: "Persönlicher Service",
+      adv3Desc: "Direkter Ansprechpartner – keine langen Warteschleifen",
+      adv4Title: "Flexible Bestellmengen",
+      adv4Desc: "Von einzelnen Kartons bis zur Palette – für jeden Bedarf"
+    },
+    productCategories: "Produktkategorien",
+    more: "weitere",
+    joinPartnerPortal: "Jetzt Partner werden",
+    portalDesc: "Wachsen Sie mit exklusiven Preisen, schneller Bestellung und persönlichem Account-Management.",
+    portalBenefits: {
+      benefit1: "Exklusive Partnerpreise",
+      benefit2: "Online-Bestellung 24/7",
+      benefit3: "Persönlicher Ansprechpartner"
+    },
+    registerFree: "Kostenlos registrieren",
+    browseCatalog: "Sortiment ansehen"
+  },
+  productLine: {
+    eyebrow: "Für Cafés, Hotels & Gastronomie",
+    headline: "FO – Barista, Sirupe & Backzutaten",
+    subheadline: "Premium-Sirupe, Soßen, Pulvergetränke und Konditoreipasten für Cafés, Hotels, Patisserien und Eisdielen",
+    ctaLabel: "Sortiment ansehen",
+    productsInCatalog: "im Sortiment",
+    more: "weitere",
+    stats: {
+      expLabel: "Seit 1988",
+      expSub: "Erfahrung",
+      countriesLabel: "100+",
+      countriesSub: "Exportländer",
+      labsLabel: "3",
+      labsSub: "F&E-Labore",
+      palletsLabel: "4.000",
+      palletsSub: "Paletten-Lager"
     }
   }
 }; // <-- DIESE KLAMMER IST DIE LETZTE.

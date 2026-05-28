@@ -120,11 +120,48 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
         }
     }
 
+    // Google Rich Snippets (Schema.org / JSON-LD)
+    const adJson = (urun as any).ad as Record<string, string> | null;
+    const urunAdi = adJson?.[locale] ?? adJson?.['de'] ?? adJson?.['tr'] ?? '';
+    const aciklamaJson = (urun as any).aciklamalar as Record<string, string> | null;
+    const aciklama = aciklamaJson?.[locale] ?? aciklamaJson?.['de'] ?? aciklamaJson?.['tr'] ?? '';
+
+    const productSchema = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": urunAdi,
+        "image": (urun as any).ana_resim_url ? [(urun as any).ana_resim_url] : [],
+        "description": aciklama,
+        "brand": {
+            "@type": "Brand",
+            "name": "ElysonSweets"
+        },
+        "offers": {
+            "@type": "Offer",
+            "availability": "https://schema.org/InStock",
+            "priceCurrency": "EUR",
+            "price": "0", // Gizli B2B fiyati
+            "url": `https://sweetheaven.de/${locale}/products/${slug}`
+        }
+    };
+    if ((urun as any).stok_kodu) {
+        (productSchema as any).sku = (urun as any).stok_kodu;
+    }
+    if ((urun as any).ean_gtin) {
+        (productSchema as any).gtin13 = (urun as any).ean_gtin;
+    }
+
     return (
-        <UrunDetayGorunumu
-            urun={urun as any}
-            ozellikSablonu={ozellikSablonu as any}
-            locale={locale}
-        />
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+            />
+            <UrunDetayGorunumu
+                urun={urun as any}
+                ozellikSablonu={ozellikSablonu as any}
+                locale={locale}
+            />
+        </>
     );
 }

@@ -977,6 +977,8 @@ export const dictionary: Partial<Dictionary> = {
     title: 'Menünüzü zenginleştirmeye hazır mısınız?',
     subtitle: 'Özel partner ağımızın bir parçası olun ve müşterilerinizi memnun edecek premium ürünlere erişim kazanın.',
     button: 'Hemen Partner Olun',
+    btnPrimary: 'Ticari Hesap Açın ve Fiyat Listesini Alın',
+    btnSecondary: 'Ücretsiz Deneme Paketi İste',
   },
   socials: {
     instagram: 'Bizi Instagram\'da takip edin',
@@ -994,6 +996,12 @@ export const dictionary: Partial<Dictionary> = {
     subHeadline: 'Mükemmel ElysonSweets kalitesini kafenize taşıyoruz.',
     valueProposition: 'Hemen ücretsiz deneme paketinizi talep edin ve kalitemizi kendiniz görün.',
     ctaButton: 'Ürünleri Keşfedin',
+    badgeMoq: 'Min. Sipariş: 1 Koli (MOQ)',
+    badgePalette: 'Palet indirimi mevcut',
+    badgeShipping: 'Teslimat: DE / AB',
+    btnProducts: 'Ürünleri Keşfet',
+    btnTrial: 'Deneme Paketi İste',
+    btnPricelist: 'Fiyat Listesi İste (PDF)',
   },
   productReviews: {
     noReviews: 'Henüz değerlendirme yok',
@@ -1428,4 +1436,48 @@ export const dictionary: Partial<Dictionary> = {
       }
     }
   },
+  foBrandAboutSection: {
+    whyElyson: "Neden ElysonSweets?",
+    horecaSpecialist: "Almanya'nın HoReCa Uzmanı",
+    description: "Kafeler, oteller ve restoranlar için özenle seçilmiş premium ürünler. Hızlı teslimat, esnek sipariş miktarları ve kişisel hizmet.",
+    advantages: {
+      adv1Title: "Hızlı Teslimat",
+      adv1Desc: "Almanya'da stok – bölgeye güvenilir teslimat",
+      adv2Title: "Premium Ürün Yelpazesi",
+      adv2Desc: "Kafeler, oteller ve gastronomi için özenle seçilmiş 246+ ürün",
+      adv3Title: "Kişisel Hizmet",
+      adv3Desc: "Direkt muhatap – uzun bekleme süreleri yok",
+      adv4Title: "Esnek Sipariş Miktarları",
+      adv4Desc: "Tek koliden palete – her ihtiyaç için"
+    },
+    productCategories: "Ürün Kategorileri",
+    more: "daha",
+    joinPartnerPortal: "Partner Portalına Katılın",
+    portalDesc: "Özel fiyatlar, hızlı sipariş ve kişisel hesap yönetimi ile işinizi büyütün.",
+    portalBenefits: {
+      benefit1: "Özel partner fiyatları",
+      benefit2: "7/24 online sipariş",
+      benefit3: "Kişisel müşteri temsilcisi"
+    },
+    registerFree: "Ücretsiz Kayıt",
+    browseCatalog: "Kataloğu İncele"
+  },
+  productLine: {
+    eyebrow: "Kafe, Otel ve Gastronomi için",
+    headline: "FO – Barista, Şuruplar & Pastane Malzemeleri",
+    subheadline: "Premium Şuruplar, Soslar, Toz İçecekler ve Pastane Pastaları – Kafeler, Oteller, Pastaneler ve Dondurmacılar için",
+    ctaLabel: "Ürün Gamını Gör",
+    productsInCatalog: "katalogda",
+    more: "daha",
+    stats: {
+      expLabel: "1988'den beri",
+      expSub: "Deneyim",
+      countriesLabel: "100+",
+      countriesSub: "İhracat Ülkesi",
+      labsLabel: "3",
+      labsSub: "Ar-Ge Laboratuvarı",
+      palletsLabel: "4.000",
+      palletsSub: "Palet Depo Alanı"
+    }
+  }
 };

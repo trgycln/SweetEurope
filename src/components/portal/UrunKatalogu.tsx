@@ -12,6 +12,15 @@ import {
 } from 'react-icons/fi';
 import { toast } from 'sonner';
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function t(locale: Locale, de: string, en: string, tr: string, ar: string) {
+    if (locale === 'de') return de;
+    if (locale === 'en') return en;
+    if (locale === 'tr') return tr;
+    if (locale === 'ar') return ar;
+    return de;
+}
+
 type Urun = ProduktImWarenkorb;
 type Kategori = { id: string; ad: any; ust_kategori_id: string | null };
 type Birim = 'adet' | 'koli' | 'palet';
@@ -66,16 +75,16 @@ function SepeteEkleModal({
 
     const birimOptions: { key: Birim; labelDe: string; labelTr: string; sub: string }[] = [
         { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliAdet} Stk./${koliAdet} adet` },
-        { key: 'adet', labelDe: 'Stück', labelTr: 'Adet', sub: locale === 'de' ? 'Einzeln' : 'Tekli' },
+        { key: 'adet', labelDe: 'Stück', labelTr: 'Adet', sub: t(locale, 'Einzeln', 'Single', 'Tekli', 'مفرد') },
         ...(paletAdet > 0 ? [{ key: 'palet' as Birim, labelDe: 'Palette', labelTr: 'Palet', sub: `${paletAdet} Stk./${paletAdet} adet` }] : []),
     ];
 
     const fiyatKademe = birim === 'palet'
-        ? { label: locale === 'de' ? 'Palettenpreis' : 'Palet fiyatı', color: 'text-blue-700' }
+        ? { label: t(locale, 'Palettenpreis', 'Pallet price', 'Palet fiyatı', 'سعر المنصة'), color: 'text-blue-700' }
         : birim === 'koli' && miktar >= 5
-            ? { label: locale === 'de' ? 'Mengenrabatt aktiv ✓' : '5+ koli indirimi ✓', color: 'text-green-600' }
+            ? { label: t(locale, 'Mengenrabatt aktiv ✓', 'Volume discount active ✓', '5+ koli indirimi ✓', 'خصم الكمية نشط ✓'), color: 'text-green-600' }
             : birim === 'koli' && miktar < 5
-                ? { label: locale === 'de' ? `Ab 5 Kartons günstiger` : `5+ koli alınca indirim`, color: 'text-amber-600' }
+                ? { label: t(locale, `Ab 5 Kartons günstiger`, `Cheaper from 5 cases`, `5+ koli alınca indirim`, `أرخص من 5 كراتين`), color: 'text-amber-600' }
                 : null;
 
     return (
@@ -112,7 +121,7 @@ function SepeteEkleModal({
                         {/* Birim seçimi */}
                         <div>
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">
-                                {locale === 'de' ? 'Einheit' : 'Birim'}
+                                {t(locale, 'Einheit', 'Unit', 'Birim', 'وحدة')}
                             </p>
                             <div className="grid grid-cols-3 gap-2">
                                 {birimOptions.map(opt => (
@@ -137,7 +146,7 @@ function SepeteEkleModal({
                         {/* Miktar */}
                         <div>
                             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">
-                                {locale === 'de' ? 'Menge' : 'Miktar'}
+                                {t(locale, 'Menge', 'Quantity', 'Miktar', 'الكمية')}
                             </p>
                             <div className="flex items-center gap-3">
                                 <button
@@ -161,7 +170,7 @@ function SepeteEkleModal({
                                 </button>
                             </div>
                             <p className="text-xs text-gray-400 text-center mt-1.5">
-                                = {toplamAdet} {locale === 'de' ? 'Stück gesamt' : 'adet toplam'}
+                                = {toplamAdet} {t(locale, 'Stück gesamt', 'total units', 'adet toplam', 'إجمالي الوحدات')}
                             </p>
                         </div>
 
@@ -169,7 +178,7 @@ function SepeteEkleModal({
                         <div className="bg-gray-50 rounded-xl p-3 space-y-1.5">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500">
-                                    {locale === 'de' ? 'Stückpreis' : 'Adet fiyatı'}
+                                    {t(locale, 'Stückpreis', 'Unit price', 'Adet fiyatı', 'سعر الوحدة')}
                                 </span>
                                 <span className="font-semibold text-gray-700">
                                     {formatCurrency(adetFiyat, locale)}
@@ -196,7 +205,7 @@ function SepeteEkleModal({
                             className="w-full flex items-center justify-center gap-2 py-3 bg-accent text-white rounded-xl font-bold text-sm hover:bg-accent/90 transition-colors"
                         >
                             <FiShoppingCart size={16} />
-                            {locale === 'de' ? 'In den Warenkorb' : 'Sepete Ekle'}
+                            {t(locale, 'In den Warenkorb', 'Add to Cart', 'Sepete Ekle', 'أضف إلى السلة')}
                         </button>
                     </div>
                 </div>
@@ -259,9 +268,12 @@ export function UrunKatalogu({
             birim
         );
 
-        const birimLabel = locale === 'de'
-            ? birim === 'koli' ? 'Karton' : birim === 'palet' ? 'Palette' : 'Stück'
-            : birim === 'koli' ? 'koli' : birim === 'palet' ? 'palet' : 'adet';
+        const birimLabel = t(locale,
+            birim === 'koli' ? 'Karton' : birim === 'palet' ? 'Palette' : 'Stück',
+            birim === 'koli' ? 'case' : birim === 'palet' ? 'pallet' : 'unit',
+            birim === 'koli' ? 'koli' : birim === 'palet' ? 'palet' : 'adet',
+            birim === 'koli' ? 'كرتون' : birim === 'palet' ? 'منصة' : 'وحدة'
+        );
 
         toast.success(`${miktar} ${birimLabel} → ${getLocalizedName(urun.ad, locale)}`);
         setModalUrun(null);
@@ -273,7 +285,7 @@ export function UrunKatalogu({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <input
                     type="text"
-                    placeholder={content.searchPlaceholder || (locale === 'de' ? 'Produkt suchen...' : 'Ürün ara...')}
+                    placeholder={content.searchPlaceholder || t(locale, 'Produkt suchen...', 'Search product...', 'Ürün ara...', 'البحث عن منتج...')}
                     value={aramaMetni}
                     onChange={e => setAramaMetni(e.target.value)}
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent"
@@ -283,7 +295,7 @@ export function UrunKatalogu({
                     onChange={e => setSeciliKategori(e.target.value)}
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-accent/30 focus:border-accent"
                 >
-                    <option value="">{locale === 'de' ? 'Alle Kategorien' : 'Tüm Kategoriler'}</option>
+                    <option value="">{t(locale, 'Alle Kategorien', 'All Categories', 'Tüm Kategoriler', 'جميع الفئات')}</option>
                     {kategorieHiyerarsisi.map(ana => (
                         <optgroup key={ana.id} label={getLocalizedName(ana.ad, locale)}>
                             {ana.altKategoriler.map(alt => (
@@ -303,16 +315,16 @@ export function UrunKatalogu({
                         <tr>
                             <th className="px-3 py-3 text-left text-[11px] font-bold text-gray-400 uppercase w-14" />
                             <th className="px-3 py-3 text-left text-[11px] font-bold text-gray-400 uppercase">
-                                {locale === 'de' ? 'Produkt' : 'Ürün'}
+                                {t(locale, 'Produkt', 'Product', 'Ürün', 'المنتج')}
                             </th>
                             <th className="px-3 py-3 text-right text-[11px] font-bold text-gray-400 uppercase">
-                                {locale === 'de' ? '1 Ktn.' : '1 Koli'}
+                                {t(locale, '1 Ktn.', '1 Case', '1 Koli', '١ كرتون')}
                             </th>
                             <th className="px-3 py-3 text-right text-[11px] font-bold text-gray-400 uppercase">
-                                {locale === 'de' ? '5+ Ktn.' : '5+ Koli'}
+                                {t(locale, '5+ Ktn.', '5+ Cases', '5+ Koli', '٥+ كرتون')}
                             </th>
                             <th className="px-3 py-3 text-right text-[11px] font-bold text-gray-400 uppercase">
-                                {locale === 'de' ? 'Palette' : 'Palet'}
+                                {t(locale, 'Palette', 'Pallet', 'Palet', 'منصة')}
                             </th>
                             <th className="px-3 py-3 text-center text-[11px] font-bold text-gray-400 uppercase w-32" />
                         </tr>
@@ -355,13 +367,13 @@ export function UrunKatalogu({
                                             {urun.stok_kodu}
                                             {koliAdet > 1 && (
                                                 <span className="ml-1.5 text-gray-300">
-                                                    · {koliAdet} {locale === 'de' ? 'Stk/Ktn' : 'adet/koli'}
+                                                    · {koliAdet} {t(locale, 'Stk/Ktn', 'units/case', 'adet/koli', 'وحدة/كرتون')}
                                                 </span>
                                             )}
                                         </p>
                                         {isOutOfStock && (
                                             <span className="text-[10px] text-red-500 font-semibold">
-                                                {locale === 'de' ? 'Ausverkauft' : 'Stok yok'}
+                                                {t(locale, 'Ausverkauft', 'Out of stock', 'Stok yok', 'نفد المخزون')}
                                             </span>
                                         )}
                                     </td>
@@ -397,16 +409,18 @@ export function UrunKatalogu({
                                             <div className="flex flex-col items-center gap-0.5">
                                                 <div className="flex items-center gap-1 text-green-600 font-semibold text-[11px] bg-green-50 border border-green-200 rounded-full px-2 py-1">
                                                     <FiCheck size={11} />
-                                                    {sepetItem.menge} {locale === 'de'
-                                                        ? sepetItem.birim === 'koli' ? 'Ktn.' : sepetItem.birim === 'palet' ? 'Pal.' : 'Stk.'
-                                                        : sepetItem.birim === 'koli' ? 'koli' : sepetItem.birim === 'palet' ? 'palet' : 'adet'
-                                                    }
+                                                    {sepetItem.menge} {t(locale,
+                                                        sepetItem.birim === 'koli' ? 'Ktn.' : sepetItem.birim === 'palet' ? 'Pal.' : 'Stk.',
+                                                        sepetItem.birim === 'koli' ? 'cases' : sepetItem.birim === 'palet' ? 'pallets' : 'units',
+                                                        sepetItem.birim === 'koli' ? 'koli' : sepetItem.birim === 'palet' ? 'palet' : 'adet',
+                                                        sepetItem.birim === 'koli' ? 'كرتون' : sepetItem.birim === 'palet' ? 'منصة' : 'وحدة'
+                                                    )}
                                                 </div>
                                                 <button
                                                     onClick={() => setModalUrun(urun)}
                                                     className="text-[10px] text-gray-400 hover:text-accent"
                                                 >
-                                                    {locale === 'de' ? 'ändern' : 'değiştir'}
+                                                    {t(locale, 'ändern', 'change', 'değiştir', 'تغيير')}
                                                 </button>
                                             </div>
                                         ) : (
@@ -420,7 +434,7 @@ export function UrunKatalogu({
                                                 }`}
                                             >
                                                 <FiPlus size={13} />
-                                                {locale === 'de' ? 'Hinzufügen' : 'Ekle'}
+                                                {t(locale, 'Hinzufügen', 'Add', 'Ekle', 'إضافة')}
                                             </button>
                                         )}
                                     </td>
@@ -429,7 +443,7 @@ export function UrunKatalogu({
                         }) : (
                             <tr>
                                 <td colSpan={6} className="px-4 py-12 text-center text-gray-400 text-sm">
-                                    {content.noProductsFound || (locale === 'de' ? 'Keine Produkte gefunden.' : 'Ürün bulunamadı.')}
+                                    {content.noProductsFound || t(locale, 'Keine Produkte gefunden.', 'No products found.', 'Ürün bulunamadı.', 'لم يتم العثور على منتجات.')}
                                 </td>
                             </tr>
                         )}
