@@ -6,6 +6,8 @@ import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { Tables, Enums } from '@/lib/supabase/database.types';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type SiparisStatusKey = Enums<'siparis_durumu'> | string;
 type Siparis = Tables<'siparisler'>;
 
@@ -38,7 +40,7 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return <div className="p-6 text-red-500">Oturum bulunamadı.</div>;
 
     // Kullanıcının bayi firma kimliği

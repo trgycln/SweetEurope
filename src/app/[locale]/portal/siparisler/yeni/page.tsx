@@ -7,6 +7,8 @@ import { getDictionary } from "@/dictionaries";
 import { Locale } from "@/i18n-config";
 import { ProduktImWarenkorb } from '@/contexts/PortalContext'; // Sicherstellen, dass dieser Typ ana_resim_url etc. kennt
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type PageProps = {
     params: Promise<{ locale: Locale }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -30,7 +32,7 @@ export default async function PartnerYeniSiparisPage({ params }: PageProps) {
 
     const dictionary = await getDictionary(locale);
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await getGlobalCachedUser();
 
     if (userError || !user) {
         console.error("Fehler beim Abrufen des Benutzers:", userError);

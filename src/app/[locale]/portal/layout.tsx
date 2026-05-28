@@ -14,6 +14,8 @@ import { Locale } from '@/i18n-config';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Typen
 type ProfileWithFirma = Tables<'profiller'> & {
     firmalar: (Tables<'firmalar'> & {
@@ -41,7 +43,7 @@ export default async function PortalLayout({
     const dictionary = await getDictionary(locale);
 
     // 1. Benutzerdaten abrufen
-    const { data: { user }, error: userError } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user }, error: userError } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (userError || !user) {
         console.error("Fehler beim Abrufen des Benutzers (Portal-Layout):", userError);
         return redirect(`/${locale}/login`);

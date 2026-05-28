@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { FiBarChart2, FiSlash, FiStar } from "react-icons/fi";
 import { SalesTrendChart, TopCategoriesChart } from "@/components/portal/analiz-charts";
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Hilfsfunktion für Datumsbereich
 const getDateRange = () => {
     const endDate = new Date();
@@ -19,7 +21,7 @@ const getDateRange = () => {
 export default async function AnalysePage() {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return notFound();
 
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();

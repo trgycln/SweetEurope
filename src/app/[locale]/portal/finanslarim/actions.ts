@@ -4,10 +4,12 @@ import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export async function addGiderAction(formData: FormData, locale: string) {
   const cookieStore = cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   const tarih = formData.get('gider_tarih')?.toString() || '';
@@ -31,7 +33,7 @@ export async function addGiderAction(formData: FormData, locale: string) {
 export async function updateGiderAction(giderId: string, formData: FormData, locale: string) {
   const cookieStore = cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   const tarih = formData.get('gider_tarih')?.toString() || '';
@@ -56,7 +58,7 @@ export async function updateGiderAction(giderId: string, formData: FormData, loc
 export async function deleteGiderAction(giderId: string, locale: string) {
   const cookieStore = cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   const { error } = await supabase
@@ -74,7 +76,7 @@ export async function deleteGiderAction(giderId: string, locale: string) {
 export async function addKategoriAction(ad: string, locale: string) {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   if (!ad || ad.trim().length === 0) {
@@ -100,7 +102,7 @@ export async function addKategoriAction(ad: string, locale: string) {
 export async function getKategorilerAction() {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.', kategoriler: [] };
 
   const { data, error } = await supabase
@@ -130,7 +132,7 @@ export async function addSatisAction(payload: AddSatisPayload) {
   
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   if (!bayiFirmaId || !musteriId || !items || items.length === 0) {

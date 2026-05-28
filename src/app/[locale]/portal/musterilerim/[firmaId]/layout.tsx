@@ -6,11 +6,13 @@ import { Locale } from '@/i18n-config';
 import { usePathname } from 'next/navigation';
 import MusteriTabs from './MusteriTabs';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export default async function MusteriLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: Locale, firmaId: string }> }) {
   const { locale, firmaId } = await params;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return null;
 
   const { data: firma } = await supabase.from('firmalar').select('id, unvan').eq('id', firmaId).eq('sahip_id', user.id).single();

@@ -6,6 +6,8 @@ import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { Tables } from '@/lib/supabase/database.types';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type Kisi = Tables<'dis_kontaklar'>;
 
 interface IlgiliKisilerPageProps {
@@ -20,7 +22,7 @@ export default async function IlgiliKisilerPage({ params }: IlgiliKisilerPagePro
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return <div className="p-6 text-red-500">Oturum bulunamadı.</div>;
 
     const { data: kisilerData, error } = await supabase

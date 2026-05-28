@@ -4,12 +4,14 @@ import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Locale } from '@/i18n-config';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 export default async function StoklarimPage({ params }: { params: Promise<{ locale: Locale }> }) {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return <div className="p-6 text-red-500">Oturum bulunamadı.</div>;
 
   // alt_bayi_stoklari + urunler join

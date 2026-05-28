@@ -8,6 +8,8 @@ import { FiDownload, FiPaperclip, FiTag, FiUsers } from 'react-icons/fi';
 import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type Material = Tables<'pazarlama_materyalleri'>;
 
 const formatBytes = (bytes: number | null, decimals = 1) => {
@@ -46,7 +48,7 @@ export default async function MaterialienPortalPage({
     };
 
     // Benutzer prüfen (RLS kümmert sich um die Filterung der Materialien)
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) {
         return redirect(`/${locale}/login`);
     }

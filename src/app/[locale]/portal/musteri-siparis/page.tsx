@@ -6,6 +6,8 @@ import { Locale } from '@/i18n-config';
 import { getDictionary } from '@/dictionaries';
 import { MusteriSiparisClient } from './MusteriSiparisClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -21,7 +23,7 @@ export default async function MusteriSiparisPage({ params, searchParams }: PageP
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase

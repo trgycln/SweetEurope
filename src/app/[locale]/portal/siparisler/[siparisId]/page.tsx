@@ -6,6 +6,8 @@ import { SiparisDetayClient, SiparisDetay } from "@/components/portal/siparisler
 import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 export default async function PartnerSiparisDetayPage({
@@ -20,7 +22,7 @@ export default async function PartnerSiparisDetayPage({
     const supabase = await createSupabaseServerClient(cookieStore);
     const dictionary = await getDictionary(locale);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase

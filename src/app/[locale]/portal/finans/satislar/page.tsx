@@ -5,6 +5,8 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { Locale } from '@/i18n-config'
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic'
 
 export default async function SatislarListPage({ params }: { params: Promise<{ locale: Locale }> }) {
@@ -13,7 +15,7 @@ export default async function SatislarListPage({ params }: { params: Promise<{ l
   const cookieStore = await cookies()
   const supabase = await createSupabaseServerClient(cookieStore)
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await getGlobalCachedUser()
   if (!user) {
     return (
       <div className="p-6">Giriş gerekli</div>

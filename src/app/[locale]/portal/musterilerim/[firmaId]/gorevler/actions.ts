@@ -4,6 +4,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type ActionResult = {
     success?: string;
     error?: string;
@@ -17,7 +19,7 @@ export async function gorevDurumGuncelleAction(
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return { error: 'Oturum bulunamadı.' };
 
     const { error } = await supabase

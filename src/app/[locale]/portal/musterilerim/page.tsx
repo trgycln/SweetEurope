@@ -10,6 +10,8 @@ import { Constants } from '@/lib/supabase/database.types';
 import { KOLN_PLZ_MAP } from '@/lib/plzLookup';
 import { matchesAnyField, matchesSearch, buildLoosePostgresRegex } from '@/lib/searchUtils';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface MusterilerimPageProps {
@@ -49,7 +51,7 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
 
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return redirect(`/${locale}/login`);
 
   const { data: profile } = await supabase

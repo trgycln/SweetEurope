@@ -3,6 +3,8 @@ import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { KanbanBoard } from '@/components/portal/gorevler/KanbanBoard';
 import {
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
   addMyTaskAction, deleteTaskAction,
   updateGorevDurumAction, addAltGorevAction,
   toggleAltGorevAction, deleteAltGorevAction,
@@ -21,7 +23,7 @@ export default async function GorevlerimPage({
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return <div className="p-6 text-red-500">Oturum bulunamadı.</div>;
 
   // Tüm görevleri alt görevler ve notlarla birlikte çek

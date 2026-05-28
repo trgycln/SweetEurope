@@ -7,6 +7,8 @@ import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { Tables } from '@/lib/supabase/database.types';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 type GorevWithProfil = Tables<'gorevler'> & {
@@ -28,7 +30,7 @@ export default async function MusteriGorevlerPage({ params }: FirmaGorevleriPage
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
     
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return <div className="p-6 text-red-500">Oturum bulunamadı.</div>;
 
     const [gorevlerRes, profillerRes] = await Promise.all([

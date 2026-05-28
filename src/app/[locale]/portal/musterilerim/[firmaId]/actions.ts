@@ -5,6 +5,8 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Tables, Enums } from '@/lib/supabase/database.types';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type FirmaKategori = Enums<'firma_kategori'>;
 
 type UpdateResult = {
@@ -16,7 +18,7 @@ type UpdateResult = {
 export async function updateMyCustomerAction(formData: FormData, locale: string, firmaId: string): Promise<UpdateResult> {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   const unvan = formData.get('unvan') as string | null;
@@ -66,7 +68,7 @@ export async function updateMyCustomerAction(formData: FormData, locale: string,
 export async function deleteMyCustomerAction(firmaId: string, locale: string): Promise<{ success: boolean; error?: string }> {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   const { error } = await supabase
@@ -87,7 +89,7 @@ export async function deleteMyCustomerAction(firmaId: string, locale: string): P
 export async function addFirmTaskAction(firmaId: string, formData: FormData) {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   const baslik = (formData.get('baslik') || '').toString().trim();
@@ -117,7 +119,7 @@ export async function addFirmTaskAction(firmaId: string, formData: FormData) {
 export async function yeniKisiEkleAction(firmaId: string, formData: FormData) {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   const ad_soyad = formData.get('ad_soyad') as string | null;
@@ -149,7 +151,7 @@ export async function yeniKisiEkleAction(firmaId: string, formData: FormData) {
 export async function yeniEtkinlikEkleAction(firmaId: string, formData: FormData) {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
   const etkinlik_tipi = formData.get('etkinlik_tipi') as string;

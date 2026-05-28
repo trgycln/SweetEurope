@@ -12,6 +12,8 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { createYeniUrunTalepAction } from '@/app/actions/yeni-urun-actions';
 import { FiCheckCircle, FiClock, FiEdit, FiLoader, FiPackage, FiSend, FiXCircle } from 'react-icons/fi';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface PartnerTaleplerimPageProps {
@@ -53,7 +55,7 @@ export default async function PartnerTaleplerimPage({ params }: PartnerTalepleri
 
     const dictionary = await getDictionary(locale);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) {
         return redirect(`/${locale}/login?next=/portal/taleplerim`);
     }

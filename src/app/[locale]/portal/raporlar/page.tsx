@@ -7,6 +7,8 @@ import { Locale } from '@/i18n-config';
 import { FiTrendingUp, FiPackage, FiUsers, FiDollarSign } from 'react-icons/fi';
 import { RevenueChart, TopProductsChart, CustomerGrowthChart } from './ReportCharts';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 const formatCurrency = (value: number) => {
@@ -35,7 +37,7 @@ export default async function RaporlarPage({ params }: { params: Promise<{ local
     const supabase = await createSupabaseServerClient(cookieStore);
     const dictionary = await getDictionary(locale);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return notFound();
 
     // Kullanıcının profilini ve firma bilgisini çek

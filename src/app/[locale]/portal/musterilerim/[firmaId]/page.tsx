@@ -12,6 +12,8 @@ import {
 import { MusteriOzetGrafik } from '@/components/portal/musterilerim/MusteriOzetGrafik';
 import { VisitToggleButton } from '@/components/portal/musterilerim/VisitToggleButton';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -60,7 +62,7 @@ export default async function MusteriOzetPage({ params }: PageProps) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     // Firma sahibi mi kontrol et (security)

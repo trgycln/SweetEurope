@@ -5,6 +5,8 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { Locale } from '@/i18n-config';
 import FavorilerClient from './FavorilerClient';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 export const dynamic = 'force-dynamic';
 
 interface PageProps {
@@ -18,7 +20,7 @@ export default async function FavorilerPage({ params }: PageProps) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase

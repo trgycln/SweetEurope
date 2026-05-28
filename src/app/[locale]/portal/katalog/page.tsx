@@ -18,6 +18,8 @@ export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamis
 // Types imported from separate file to avoid circular dependencies
 import { ProduktMitPreis, Kategorie } from './types';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 // Props-Typ für die Seite (Next.js 15: params/searchParams sind jetzt Promises)
 interface KatalogPageProps {
     params: Promise<{ locale: Locale }>;
@@ -41,7 +43,7 @@ export default async function KatalogPage({
     const pageContent = (dictionary as any).portal?.catalogPage || { title: "Produktkatalog" };
 
     // 1. Benutzer und Profil
-    const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase

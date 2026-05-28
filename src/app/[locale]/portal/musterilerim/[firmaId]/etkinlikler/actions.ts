@@ -5,6 +5,8 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { Tables } from '@/lib/supabase/database.types';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type ActionResult = {
     success: boolean;
     message?: string;
@@ -19,7 +21,7 @@ export async function updateEtkinlikAction(
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
     const aciklama = formData.get('aciklama') as string | null;

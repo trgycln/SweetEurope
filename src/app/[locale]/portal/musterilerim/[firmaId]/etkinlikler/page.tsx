@@ -6,6 +6,8 @@ import EtkinlikKarti from './EtkinlikKarti';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 type EtkinlikTipi = Enums<'etkinlik_tipi'>;
 
 type EtkinlikWithProfile = Tables<'etkinlikler'> & {
@@ -48,7 +50,7 @@ export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return <div className="p-6 text-red-500">Oturum bulunamadı.</div>;
 
     const { data: etkinlikler, error: etkinliklerError } = await supabase

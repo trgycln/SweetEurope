@@ -7,6 +7,8 @@ import { SiparislerClient } from '@/components/portal/siparisler/SiparislerClien
 import { Enums } from '@/lib/supabase/database.types';
 import { unstable_noStore as noStore } from 'next/cache';
 
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+
 const ORDERS_PER_PAGE = 20;
 
 type PageProps = {
@@ -25,7 +27,7 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     const supabase = await createSupabaseServerClient(cookieStore);
     const dictionary = await getDictionary(locale);
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await getGlobalCachedUser();
     if (userError || !user) return redirect(`/${locale}/login`);
 
     const { data: profile, error: profileError } = await supabase
