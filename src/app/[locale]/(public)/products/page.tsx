@@ -404,7 +404,7 @@ export default async function PublicUrunlerPage({
         });
     } catch {}
 
-    let seciliKategoriAdi = 'Alle Produkte';
+    let seciliKategoriAdi = dictionary.publicProductsPage?.allProducts || (locale === 'tr' ? 'Tüm Ürünler' : locale === 'en' ? 'All Products' : locale === 'ar' ? 'جميع المنتجات' : 'Alle Produkte');
     if (seciliKategoriSlug) {
         const sk = kategoriler.find(k => k.slug === seciliKategoriSlug);
         if (sk) seciliKategoriAdi = sk.ad?.[locale] || sk.ad?.['de'] || seciliKategoriAdi;
@@ -441,26 +441,24 @@ export default async function PublicUrunlerPage({
                     <div className="flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-                                {locale === 'de' ? 'B2B Großhandels-Katalog' : 'B2B Toptan Katalog'}
+                                {dictionary.publicProductsPage?.b2bCatalogLabel || 'B2B Großhandels-Katalog'}
                             </p>
                             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                                {locale === 'de' ? 'Sortiment für Profi-Küchen & Gastronomie' : 'Profesyonel Mutfaklar İçin Ürün Gamı'}
+                                {dictionary.publicProductsPage?.heroTitle || 'Sortiment für Profi-Küchen & Gastronomie'}
                             </h1>
                             <p className="mt-1 text-sm text-slate-500 max-w-xl">
-                                {locale === 'de'
-                                    ? 'Tiefkühl-Desserts, Sirupe, Kaffee und Backzutaten – direkt für Cafés, Hotels und Patisserien.'
-                                    : 'Donuk tatlılar, şuruplar, kahve ve pastane malzemeleri.'}
+                                {dictionary.publicProductsPage?.heroDescription || 'Tiefkühl-Desserts, Sirupe, Kaffee und Backzutaten – direkt für Cafés, Hotels und Patisserien.'}
                             </p>
                         </div>
 
                         <div className="flex flex-col items-end gap-2 self-start sm:self-auto">
                             <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-                                {totalAllProducts} {locale === 'de' ? 'Artikel im Sortiment' : 'ürün katalogda'}
+                                {totalAllProducts} {dictionary.publicProductsPage?.totalProductsInCatalog || 'Artikel im Sortiment'}
                             </div>
                             <a href={`mailto:info@elysonsweets.de?subject=${encodeURIComponent('Preisanfrage / B2B Katalog')}`}
                                 className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-slate-400 hover:shadow-sm transition-all">
-                                <FiMail size={12} /> {locale === 'de' ? 'Preisanfrage' : 'Fiyat Teklifi'}
+                                <FiMail size={12} /> {dictionary.publicProductsPage?.priceRequest || 'Preisanfrage'}
                             </a>
                         </div>
                     </div>
@@ -478,13 +476,13 @@ export default async function PublicUrunlerPage({
                         {/* Kategorien — real DB categories */}
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-                                {locale === 'de' ? 'Kategorien' : 'Kategoriler'}
+                                {dictionary.publicProductsPage?.categories || 'Kategorien'}
                             </p>
                             <div className="space-y-0.5">
                                 <Link href={buildProductsHref({})}
                                     className={`flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
                                         ${!seciliKategoriSlug ? 'bg-slate-100 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                                    <span>{locale === 'de' ? 'Alle Kategorien' : 'Tüm Kategoriler'}</span>
+                                    <span>{dictionary.publicProductsPage?.allCategories || (locale === 'tr' ? 'Tüm Kategoriler' : locale === 'en' ? 'All Categories' : locale === 'ar' ? 'جميع الفئات' : 'Alle Kategorien')}</span>
                                     <span className="text-[10px] text-slate-400">{totalAllProducts}</span>
                                 </Link>
 
@@ -533,7 +531,7 @@ export default async function PublicUrunlerPage({
                         {/* Ürün Serisi / Gam Filter */}
                         <div>
                             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-                                {dictionary.gamLabels?.seriesLabel || (locale === 'de' ? 'Produktserie' : 'Ürün Serisi')}
+                                {dictionary.publicProductsPage?.productSeries || 'Produktserie'}
                             </p>
                             <div className="space-y-0.5">
                                 {[
@@ -563,7 +561,7 @@ export default async function PublicUrunlerPage({
                         {(activeFilterCount > 0 || gamFilter) && (
                             <Link href={`/${locale}/products`}
                                 className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-500 hover:border-red-300 hover:text-red-500 transition-colors">
-                                ✕ {locale === 'de' ? 'Filter zurücksetzen' : 'Filtreleri temizle'}
+                                ✕ {dictionary.publicProductsPage?.resetFilter || 'Filter zurücksetzen'}
                             </Link>
                         )}
                     </aside>
@@ -576,7 +574,7 @@ export default async function PublicUrunlerPage({
                             <Link href={buildProductsHref({})}
                                 className={`px-3 py-1.5 text-xs rounded-lg font-medium border whitespace-nowrap transition-colors flex-shrink-0
                                     ${!seciliKategoriSlug ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200'}`}>
-                                {locale === 'de' ? 'Alle' : 'Tümü'} ({totalAllProducts})
+                                {dictionary.publicProductsPage?.all || 'Alle'} ({totalAllProducts})
                             </Link>
                             {visibleKategoriler
                                 .filter(k => !k.ust_kategori_id && (categoryProductCounts[k.id] || 0) > 0)
@@ -601,7 +599,7 @@ export default async function PublicUrunlerPage({
                         {/* Active filter tags */}
                         {activeFilterCount > 0 && (
                             <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
-                                <span className="text-slate-500">{totalCount} {locale === 'de' ? 'Ergebnisse' : 'sonuç'}</span>
+                                <span className="text-slate-500">{totalCount} {dictionary.publicProductsPage?.results || 'Ergebnisse'}</span>
                                 {seciliKategoriSlug && (
                                     <Link href={buildProductsHref({ ...currentQuery, kategori: undefined, altKategori: undefined })}
                                         className="inline-flex items-center gap-1 bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium hover:bg-slate-300">
@@ -615,7 +613,7 @@ export default async function PublicUrunlerPage({
                                     </Link>
                                 )}
                                 <Link href={`/${locale}/products`} className="text-slate-400 hover:text-slate-600 underline ml-1">
-                                    {locale === 'de' ? 'Alle Filter zurücksetzen' : 'Filtreleri temizle'}
+                                    {dictionary.publicProductsPage?.resetAllFilters || 'Alle Filter zurücksetzen'}
                                 </Link>
                             </div>
                         )}
@@ -624,10 +622,10 @@ export default async function PublicUrunlerPage({
                             <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
                                 <FiPackage className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                                 <p className="text-sm font-medium text-slate-600">
-                                    {locale === 'de' ? 'Keine Produkte gefunden' : 'Ürün bulunamadı'}
+                                    {dictionary.publicProductsPage?.noProductsFound || 'Keine Produkte gefunden'}
                                 </p>
                                 <Link href={`/${locale}/products`} className="mt-3 inline-flex text-xs text-slate-500 underline hover:text-slate-700">
-                                    {locale === 'de' ? 'Alle Produkte ansehen' : 'Tüm ürünleri gör'}
+                                    {dictionary.publicProductsPage?.viewAllProducts || 'Alle Produkte ansehen'}
                                 </Link>
                             </div>
                         ) : (

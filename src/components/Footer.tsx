@@ -123,7 +123,7 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
             <span className="border border-secondary/20 rounded px-2 py-0.5">{f.badgeInvoice}</span>
             <span className="border border-secondary/20 rounded px-2 py-0.5">HACCP</span>
             <span className="border border-secondary/20 rounded px-2 py-0.5">
-              {locale === 'ar' ? 'حلال · BRC' : 'BRC · Halal'}
+              {locale === 'ar' ? 'حلال · BRC' : locale === 'tr' ? 'BRC · Helal' : 'BRC · Halal'}
             </span>
           </div>
         </div>

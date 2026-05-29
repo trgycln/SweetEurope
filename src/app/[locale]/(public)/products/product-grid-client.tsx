@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
 import {
-    FiSearch, FiPackage, FiGrid, FiList, FiChevronRight,
+    FiSearch, FiPackage, FiGrid, FiList, FiChevronRight, FiChevronDown,
     FiDownload, FiX, FiShoppingBag, FiPlus, FiMinus, FiSend,
 } from 'react-icons/fi';
 import { LuPackage, LuBarcode, LuThermometerSnowflake, LuThermometer } from 'react-icons/lu';
@@ -53,24 +53,24 @@ const BADGE_DEFS = [
     { key: 'katkisiz',    short: 'Pure',      bg: 'bg-teal-100 text-teal-800 border-teal-200' },
 ] as const;
 
-const TAT_CONFIG: Record<string, { emoji: string; de: string; tr: string }> = {
-    'karamell':        { emoji: '🍮', de: 'Karamell',          tr: 'Karamel' },
-    'schokolade':      { emoji: '🍫', de: 'Schokolade',        tr: 'Çikolata' },
-    'nuss':            { emoji: '🌰', de: 'Nuss',              tr: 'Fındık' },
-    'zitrone':         { emoji: '🍋', de: 'Zitrone',           tr: 'Limon' },
-    'mango':           { emoji: '🥭', de: 'Mango',             tr: 'Mango' },
-    'erdbeere':        { emoji: '🍓', de: 'Erdbeere',          tr: 'Çilek' },
-    'himbeere':        { emoji: '🫐', de: 'Himbeere',          tr: 'Ahududu' },
-    'vanille':         { emoji: '🌿', de: 'Vanille',           tr: 'Vanilya' },
-    'pfirsich':        { emoji: '🍑', de: 'Pfirsich',          tr: 'Şeftali' },
-    'blaubeere':       { emoji: '🫐', de: 'Blaubeere',         tr: 'Yaban Mersini' },
-    'apfel':           { emoji: '🍏', de: 'Apfel',             tr: 'Elma' },
-    'hindistancevizi': { emoji: '🥥', de: 'Kokos',             tr: 'Hindistan Cevizi' },
-    'banane':          { emoji: '🍌', de: 'Banane',            tr: 'Muz' },
-    'kaffee':          { emoji: '☕', de: 'Kaffee',             tr: 'Kahve' },
-    'kirsche':         { emoji: '🍒', de: 'Kirsche',           tr: 'Kiraz' },
-    'brombeere':       { emoji: '🍇', de: 'Brombeere',         tr: 'Böğürtlen' },
-    'ananas':          { emoji: '🍍', de: 'Ananas',            tr: 'Ananas' },
+const TAT_CONFIG: Record<string, { emoji: string; de: string; tr: string; en: string; ar: string }> = {
+    'karamell':        { emoji: '🍮', de: 'Karamell',          tr: 'Karamel', en: 'Caramel', ar: 'كراميل' },
+    'schokolade':      { emoji: '🍫', de: 'Schokolade',        tr: 'Çikolata', en: 'Chocolate', ar: 'شوكولاتة' },
+    'nuss':            { emoji: '🌰', de: 'Nuss',              tr: 'Fındık', en: 'Hazelnut', ar: 'بندق' },
+    'zitrone':         { emoji: '🍋', de: 'Zitrone',           tr: 'Limon', en: 'Lemon', ar: 'ليمون' },
+    'mango':           { emoji: '🥭', de: 'Mango',             tr: 'Mango', en: 'Mango', ar: 'مانجو' },
+    'erdbeere':        { emoji: '🍓', de: 'Erdbeere',          tr: 'Çilek', en: 'Strawberry', ar: 'فراولة' },
+    'himbeere':        { emoji: '🫐', de: 'Himbeere',          tr: 'Ahududu', en: 'Raspberry', ar: 'توت العليق' },
+    'vanille':         { emoji: '🌿', de: 'Vanille',           tr: 'Vanilya', en: 'Vanilla', ar: 'فانيليا' },
+    'pfirsich':        { emoji: '🍑', de: 'Pfirsich',          tr: 'Şeftali', en: 'Peach', ar: 'خوخ' },
+    'blaubeere':       { emoji: '🫐', de: 'Blaubeere',         tr: 'Yaban Mersini', en: 'Blueberry', ar: 'توت أزرق' },
+    'apfel':           { emoji: '🍏', de: 'Apfel',             tr: 'Elma', en: 'Apple', ar: 'تفاح' },
+    'hindistancevizi': { emoji: '🥥', de: 'Kokos',             tr: 'Hindistan Cevizi', en: 'Coconut', ar: 'جوز الهند' },
+    'banane':          { emoji: '🍌', de: 'Banane',            tr: 'Muz', en: 'Banana', ar: 'موز' },
+    'kaffee':          { emoji: '☕', de: 'Kaffee',             tr: 'Kahve', en: 'Coffee', ar: 'قهوة' },
+    'kirsche':         { emoji: '🍒', de: 'Kirsche',           tr: 'Kiraz', en: 'Cherry', ar: 'كرز' },
+    'brombeere':       { emoji: '🍇', de: 'Brombeere',         tr: 'Böğürtlen', en: 'Blackberry', ar: 'توت أسود' },
+    'ananas':          { emoji: '🍍', de: 'Ananas',            tr: 'Ananas', en: 'Pineapple', ar: 'أناناس' },
 };
 
 const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string }> = {
@@ -125,7 +125,7 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
     const type = getStorageType(urun);
     const tempMax = urun.lagertemperatur_max_celsius;
     if (type === 'tiefkuehl') {
-        const label = tempMax !== null && tempMax !== undefined ? `${tempMax}°C` : (locale === 'de' ? 'Tiefkühl' : 'Frozen');
+        const label = tempMax !== null && tempMax !== undefined ? `${tempMax}°C` : (locale === 'tr' ? 'Donuk' : locale === 'ar' ? 'مجمد' : locale === 'en' ? 'Frozen' : 'Tiefkühl');
         return (
             <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-sm">
                 <LuThermometerSnowflake size={9} /> {label}
@@ -134,7 +134,7 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
     }
     if (type === 'kuehlware') {
         const tempMin = urun.lagertemperatur_min_celsius;
-        const label = (tempMin != null && tempMax != null) ? `${tempMin}–${tempMax}°C` : 'Kühlware';
+        const label = (tempMin != null && tempMax != null) ? `${tempMin}–${tempMax}°C` : (locale === 'tr' ? 'Soğuk' : locale === 'ar' ? 'مبرد' : locale === 'en' ? 'Chilled' : 'Kühlware');
         return (
             <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-300">
                 <LuThermometer size={9} /> {label}
@@ -147,7 +147,7 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
 // ─── Main Catalog Card ────────────────────────────────────────────────────────
 
 function CatalogCard({
-    urun, locale, kategoriAdlariMap, isLoggedIn, partnerTier, onAddToMerkliste, inMerkliste,
+    urun, locale, kategoriAdlariMap, isLoggedIn, partnerTier, onAddToMerkliste, inMerkliste, dictionary,
 }: {
     urun: Urun;
     locale: string;
@@ -156,6 +156,7 @@ function CatalogCard({
     partnerTier?: string;
     onAddToMerkliste?: (id: string) => void;
     inMerkliste?: boolean;
+    dictionary?: any;
 }) {
     const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
     const name = urun.ad?.[locale] || urun.ad?.['de'] || urun.ad?.['tr'] || '';
@@ -172,19 +173,19 @@ function CatalogCard({
     // 3-tier pricing rows
     const pricingRows = [
         {
-            label: locale === 'de' ? '1 Karton' : '1 Karton',
+            label: dictionary?.publicProductsPage?.oneCarton || (locale === 'tr' ? '1 Koli' : locale === 'en' ? '1 Carton' : locale === 'ar' ? '1 كرتونة' : '1 Karton'),
             price: urun.satis_fiyati_musteri,
             tierKey: 'koli_bazli',
         },
         {
-            label: locale === 'de' ? 'Ab 5 Kartons' : '5 Koli+',
+            label: dictionary?.publicProductsPage?.from5Cartons || (locale === 'tr' ? '5 Koli+' : locale === 'en' ? '5 Cartons+' : locale === 'ar' ? '5 كراتين+' : 'Ab 5 Kartons'),
             price: urun.satis_fiyati_toptanci,
             tierKey: 'cok_koli',
         },
         {
             label: paletIciKoliAdet > 0
-                ? (locale === 'de' ? `1 Palette (${paletIciKoliAdet} Ktn.)` : `1 Palet (${paletIciKoliAdet} koli)`)
-                : (locale === 'de' ? '1 Palette' : '1 Palet'),
+                ? (locale === 'tr' ? `1 Palet (${paletIciKoliAdet} koli)` : locale === 'en' ? `1 Pallet (${paletIciKoliAdet} ctns)` : locale === 'ar' ? `1 منصة (${paletIciKoliAdet} كرتونة)` : `1 Palette (${paletIciKoliAdet} Ktn.)`)
+                : (locale === 'tr' ? '1 Palet' : locale === 'en' ? '1 Pallet' : locale === 'ar' ? '1 منصة' : '1 Palette'),
             price: urun.satis_fiyati_alt_bayi,
             tierKey: 'palet',
         },
@@ -240,8 +241,8 @@ function CatalogCard({
                     <span className={`ml-auto flex items-center gap-1 text-[9px] font-medium flex-shrink-0 ${inStock ? 'text-emerald-600' : 'text-slate-400'}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${inStock ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                         {inStock
-                            ? (locale === 'de' ? 'Verfügbar' : 'Mevcut')
-                            : (locale === 'de' ? 'Auf Anfrage' : 'Talep üzerine')}
+                            ? (dictionary?.publicProductsPage?.available || 'Verfügbar')
+                            : (dictionary?.publicProductsPage?.onRequest || 'Auf Anfrage')}
                     </span>
                 </div>
 
@@ -264,12 +265,12 @@ function CatalogCard({
                     {koliIciAdet > 0 && (
                         <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border-sky-200">
                             <LuPackage size={9} />
-                            {koliIciAdet} {locale === 'de' ? 'Stk./Ktn.' : 'adet/koli'}
+                            {koliIciAdet} {dictionary?.publicProductsPage?.piecesPerCarton || 'Stk./Ktn.'}
                         </span>
                     )}
                     {paletIciKoliAdet > 0 && (
                         <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border-violet-200">
-                            {paletIciKoliAdet} {locale === 'de' ? 'Ktn./Pal.' : 'koli/palet'}
+                            {paletIciKoliAdet} {dictionary?.publicProductsPage?.cartonsPerPallet || 'Ktn./Pal.'}
                         </span>
                     )}
                 </div>
@@ -302,11 +303,11 @@ function CatalogCard({
                         /* Guest state */
                         <div className="space-y-2">
                             <p className="text-xs italic text-slate-400">
-                                {locale === 'de' ? 'Preis auf Anfrage' : 'Fiyat için giriş yapın'}
+                                {dictionary?.publicProductsPage?.priceLogin || 'Preis auf Anfrage'}
                             </p>
                             <Link href={`/${locale}/products/${urun.slug}`}
                                 className="flex items-center justify-center gap-1 w-full px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 hover:text-slate-800 transition-colors">
-                                Details <FiChevronRight size={11} />
+                                {dictionary?.publicProductsPage?.details || 'Details'} <FiChevronRight size={11} />
                             </Link>
                         </div>
                     ) : (
@@ -334,13 +335,13 @@ function CatalogCard({
                                 </div>
                             ) : (
                                 <p className="text-[10px] italic text-slate-400">
-                                    {locale === 'de' ? 'Preis auf Anfrage' : 'Fiyat için iletişime geçin'}
+                                    {dictionary?.publicProductsPage?.priceOnRequest || 'Preis auf Anfrage'}
                                 </p>
                             )}
                             <div className="flex gap-1.5">
                                 <Link href={`/${locale}/products/${urun.slug}`}
                                     className="flex items-center justify-center gap-1 flex-1 px-2 py-1.5 text-[10px] font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 transition-colors">
-                                    Details
+                                    {dictionary?.publicProductsPage?.details || 'Details'}
                                 </Link>
                                 <button
                                     onClick={() => onAddToMerkliste?.(urun.id)}
@@ -348,7 +349,7 @@ function CatalogCard({
                                         ${inMerkliste
                                             ? 'bg-indigo-600 text-white border border-indigo-600'
                                             : 'bg-slate-900 text-white hover:bg-slate-700'}`}>
-                                    {inMerkliste ? '✓ Gemerkt' : '＋ Merkliste'}
+                                    {inMerkliste ? (dictionary?.publicProductsPage?.cartAdded || '✓ Gemerkt') : (dictionary?.publicProductsPage?.cartAdd || '＋ Merkliste')}
                                 </button>
                             </div>
                         </div>
@@ -409,7 +410,7 @@ function MerklisteDrawer({
                 <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
                     {items.length === 0 ? (
                         <div className="p-6 text-center text-sm text-slate-400">
-                            {locale === 'de' ? 'Keine Produkte auf der Merkliste.' : 'Merkliste boş.'}
+                            {locale === 'tr' ? 'Merkliste boş.' : locale === 'en' ? 'No products in the list.' : locale === 'ar' ? 'لا توجد منتجات في القائمة.' : 'Keine Produkte auf der Merkliste.'}
                         </div>
                     ) : items.map(item => {
                         const u = urunMap.get(item.urunId);
@@ -453,14 +454,14 @@ function MerklisteDrawer({
                     <div className="px-4 py-3 border-t border-slate-200 space-y-2">
                         {totalValue > 0 && (
                             <div className="flex justify-between text-xs text-slate-600">
-                                <span>{locale === 'de' ? 'Geschätzter Gesamtwert' : 'Tahmini toplam'}</span>
+                                <span>{locale === 'tr' ? 'Tahmini toplam' : locale === 'en' ? 'Estimated total' : locale === 'ar' ? 'المجموع المقدر' : 'Geschätzter Gesamtwert'}</span>
                                 <span className="font-semibold">{money(totalValue)}</span>
                             </div>
                         )}
                         <a href={`mailto:info@elysonsweets.de?subject=${encodeURIComponent('Anfrage / Bestellung')}&body=${buildMailBody()}`}
                             className="flex items-center justify-center gap-2 w-full py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition-colors">
                             <FiSend size={14} />
-                            {locale === 'de' ? 'Anfrage senden' : 'Talep gönder'}
+                            {locale === 'tr' ? 'Talep gönder' : locale === 'en' ? 'Send request' : locale === 'ar' ? 'ارسال الطلب' : 'Anfrage senden'}
                         </a>
                     </div>
                 )}
@@ -471,7 +472,7 @@ function MerklisteDrawer({
 
 // ─── Bestseller Section ───────────────────────────────────────────────────────
 
-function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, partnerTier, onAddToMerkliste, merklisteIds }: {
+function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, partnerTier, onAddToMerkliste, merklisteIds, dictionary }: {
     urunler: Urun[];
     locale: string;
     kategoriAdlariMap: Map<string, string>;
@@ -479,13 +480,14 @@ function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, par
     partnerTier?: string;
     onAddToMerkliste?: (id: string) => void;
     merklisteIds: Set<string>;
+    dictionary?: any;
 }) {
     if (urunler.length === 0) return null;
     return (
         <div className="mb-8">
             <div className="flex items-center gap-3 mb-3">
                 <h2 className="text-base font-bold text-slate-800">
-                    Unsere Bestseller 🏆
+                    {locale === 'tr' ? 'En Çok Satanlar' : locale === 'en' ? 'Our Bestsellers' : locale === 'ar' ? 'الأكثر مبيعاً' : 'Unsere Bestseller'} 🏆
                 </h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-orange-200 to-transparent" />
             </div>
@@ -500,6 +502,7 @@ function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, par
                             partnerTier={partnerTier}
                             onAddToMerkliste={onAddToMerkliste}
                             inMerkliste={merklisteIds.has(urun.id)}
+                            dictionary={dictionary}
                         />
                     </div>
                 ))}
@@ -588,8 +591,8 @@ function CatalogRow({ urun, locale, kategoriAdlariMap, isLoggedIn }: {
                 </div>
             </div>
             <StorageBadge urun={urun} locale={locale} />
-            <div className="text-xs text-slate-600 text-center">{koliIciAdet > 0 ? `${koliIciAdet} Stk.` : '—'}</div>
-            <div className="text-xs text-slate-600 text-center">{paletIciAdet > 0 ? `${paletIciAdet} Stk.` : '—'}</div>
+            <div className="text-xs text-slate-600 text-center">{koliIciAdet > 0 ? `${koliIciAdet} ${locale === 'tr' ? 'Adet' : locale === 'en' ? 'Pcs' : locale === 'ar' ? 'قطعة' : 'Stk.'}` : '—'}</div>
+            <div className="text-xs text-slate-600 text-center">{paletIciAdet > 0 ? `${paletIciAdet} ${locale === 'tr' ? 'Adet' : locale === 'en' ? 'Pcs' : locale === 'ar' ? 'قطعة' : 'Stk.'}` : '—'}</div>
             <div className="flex gap-1 flex-wrap">
                 {activeBadges.slice(0, 2).map(b => (
                     <span key={b.key} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}>{b.short}</span>
@@ -679,9 +682,7 @@ export function ProductGridClient({
     // Server-side arama — filteredUrunler = urunler (server zaten filtredi)
     const filteredUrunler = urunler;
 
-    const searchPlaceholder = locale === 'de'
-        ? 'Produkt, Art.-Nr. oder EAN suchen…'
-        : 'Ürün adı, stok kodu veya EAN…';
+    const searchPlaceholder = dictionary?.publicProductsPage?.searchPlaceholderGrid || 'Produkt, Art.-Nr. oder EAN suchen…';
 
     // All urunler for merkliste price lookup (page + bestsellers)
     const allUrunler = useMemo(() => {
@@ -698,18 +699,18 @@ export function ProductGridClient({
                 <div className="flex items-center justify-between gap-3 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
                     <p className="text-sm text-indigo-800">
                         <span className="font-semibold hidden sm:inline">
-                            {locale === 'de' ? 'Für Preise und Bestellungen' : 'Fiyatlar için'}
+                            {dictionary?.publicProductsPage?.guestBannerPrefix || 'Für Preise und Bestellungen'}
                         </span>
                         {' '}
                         <span className="text-indigo-700">
-                            {locale === 'de' ? 'bitte im Partnerportal anmelden.' : 'partner portalına giriş yapın.'}
+                            {dictionary?.publicProductsPage?.guestBannerSuffix || 'bitte im Partnerportal anmelden.'}
                         </span>
                     </p>
                     <div className="flex items-center gap-2 flex-shrink-0">
                         {loginHref && (
                             <Link href={loginHref}
                                 className="text-xs font-semibold px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors whitespace-nowrap">
-                                {locale === 'de' ? 'Jetzt anmelden →' : 'Giriş yap →'}
+                                {dictionary?.publicProductsPage?.loginNow || 'Jetzt anmelden →'}
                             </Link>
                         )}
                         <button onClick={dismissBanner} className="text-indigo-400 hover:text-indigo-600 p-1">
@@ -741,104 +742,103 @@ export function ProductGridClient({
                         </div>
                         <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm flex-shrink-0">
                             <button onClick={() => setViewMode('grid')}
-                                title={locale === 'de' ? 'Gitteransicht' : 'Izgara görünümü'}
+                                title={dictionary?.publicProductsPage?.gridTitle || 'Gitteransicht'}
                                 className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
                                 <FiGrid size={15} />
                             </button>
                             <button onClick={() => setViewMode('list')}
-                                title={locale === 'de' ? 'Listenansicht' : 'Liste görünümü'}
+                                title={dictionary?.publicProductsPage?.listTitle || 'Listenansicht'}
                                 className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
                                 <FiList size={15} />
                             </button>
                         </div>
                     </div>
-                    {/* Özellik filtreleri — Vegan, GF, LF vs */}
-                    <div className="flex gap-2 flex-wrap">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 self-center">
-                            {locale === 'de' ? 'Merkmale:' : 'Özellikler:'}
+                    <div className="flex flex-wrap items-center gap-4">
+                        {/* Features Dropdown */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex-shrink-0">
+                                {dictionary?.publicProductsPage?.features || 'Merkmale:'}
+                            </span>
+                            <div className="relative">
+                                <select
+                                    value={aktiveMerkmale.length > 0 ? aktiveMerkmale[0] : ''}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        const newParams = new URLSearchParams(searchParams.toString());
+                                        if (val) newParams.set('merkmal', val);
+                                        else newParams.delete('merkmal');
+                                        newParams.delete('page');
+                                        router.push(`${pathname}?${newParams.toString()}`);
+                                    }}
+                                    className="appearance-none pl-3 pr-8 py-1.5 text-xs font-medium border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 shadow-sm hover:border-slate-300 transition-colors"
+                                >
+                                    <option value="">
+                                        {locale === 'tr' ? 'Tümü' : locale === 'en' ? 'All' : locale === 'ar' ? 'الكل' : 'Alle'}
+                                    </option>
+                                    {[
+                                        { key: 'vegan',       label: dictionary?.productsProfessionalFilter?.featureOptions?.vegan || 'Vegan',       emoji: '🌱' },
+                                        { key: 'glutenfrei',  label: dictionary?.productsProfessionalFilter?.featureOptions?.glutenFree || 'Glutenfrei',  emoji: '🌾' },
+                                        { key: 'laktosefrei', label: dictionary?.productsProfessionalFilter?.featureOptions?.lactoseFree || 'Laktosefrei', emoji: '🥛' },
+                                        { key: 'ohne_zucker', label: dictionary?.productsProfessionalFilter?.featureOptions?.sugarFree || 'Zuckerfrei',  emoji: '🍬' },
+                                        { key: 'bio',         label: dictionary?.productsProfessionalFilter?.featureOptions?.organic || 'Bio',          emoji: '♻️' },
+                                        { key: 'halal',       label: locale === 'tr' ? 'Helal' : locale === 'ar' ? 'حلال' : 'Halal',        emoji: '✓' },
+                                    ].map(f => (
+                                        <option key={f.key} value={f.key}>
+                                            {f.emoji} {f.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <FiChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                            </div>
+                        </div>
+                    {/* Aroma Dropdown */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 flex-shrink-0">
+                            {dictionary?.publicProductsPage?.flavor || 'Aroma:'}
                         </span>
-                        {[
-                            { key: 'vegan',       label: 'Vegan',       emoji: '🌱' },
-                            { key: 'glutenfrei',  label: 'Glutenfrei',  emoji: '🌾' },
-                            { key: 'laktosefrei', label: 'Laktosefrei', emoji: '🥛' },
-                            { key: 'ohne_zucker', label: 'Zuckerfrei',  emoji: '🍬' },
-                            { key: 'bio',         label: 'Bio',          emoji: '♻️' },
-                            { key: 'halal',       label: 'Halal',        emoji: '✓' },
-                        ].map(f => {
-                            const isActive = aktiveMerkmale.includes(f.key);
-                            const newParams = new URLSearchParams(searchParams.toString());
-                            if (isActive) {
-                                const updated = aktiveMerkmale.filter(m => m !== f.key);
-                                if (updated.length > 0) newParams.set('merkmal', updated.join(','));
-                                else newParams.delete('merkmal');
-                            } else {
-                                newParams.set('merkmal', [...aktiveMerkmale, f.key].join(','));
-                            }
-                            newParams.delete('page');
-                            return (
-                                <a key={f.key}
-                                    href={`${pathname}?${newParams.toString()}`}
-                                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all
-                                        ${isActive
-                                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                                            : 'bg-white text-slate-500 border-slate-200 hover:border-emerald-300 hover:text-emerald-700 hover:bg-emerald-50'}`}>
-                                    {f.emoji} {f.label}
-                                    {isActive && <span className="ml-0.5 opacity-80">✕</span>}
-                                </a>
-                            );
-                        })}
-                    </div>
-
-                    {/* Aroma chip'leri */}
-                    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 self-center flex-shrink-0 mr-1">
-                            {locale === 'de' ? 'Aroma:' : 'Aroma:'}
-                        </span>
-                        {geschmackFilter && (
-                            <a href={(() => {
-                                    const p = new URLSearchParams(searchParams.toString());
-                                    p.delete('geschmack');
-                                    p.delete('page');
-                                    const qs = p.toString();
-                                    return `${pathname}${qs ? `?${qs}` : ''}`;
-                                })()}
-                                className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-orange-500 text-white border border-orange-500 shadow-sm">
-                                {TAT_CONFIG[geschmackFilter]?.emoji} {locale === 'de' ? TAT_CONFIG[geschmackFilter]?.de : TAT_CONFIG[geschmackFilter]?.tr}
-                                <span className="ml-0.5">✕</span>
-                            </a>
-                        )}
-                        {Object.entries(geschmackCounts)
-                            .filter(([key]) => TAT_CONFIG[key] && key !== geschmackFilter)
-                            .sort((a, b) => b[1] - a[1])
-                            .slice(0, 12)
-                            .map(([key, count]) => {
-                                const cfg = TAT_CONFIG[key];
-                                const newParams = new URLSearchParams(searchParams.toString());
-                                newParams.set('geschmack', key);
-                                newParams.delete('page');
-                                return (
-                                    <a key={key}
-                                        href={`${pathname}?${newParams.toString()}`}
-                                        className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border bg-white text-slate-600 border-slate-200 hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50 transition-all"
-                                    >
-                                        <span>{cfg.emoji}</span>
-                                        {locale === 'de' ? cfg.de : cfg.tr}
-                                        <span className="text-slate-400">({count})</span>
-                                    </a>
-                                );
-                            })}
+                        <div className="relative">
+                            <select
+                                value={geschmackFilter || ''}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    const newParams = new URLSearchParams(searchParams.toString());
+                                    if (val) newParams.set('geschmack', val);
+                                    else newParams.delete('geschmack');
+                                    newParams.delete('page');
+                                    router.push(`${pathname}?${newParams.toString()}`);
+                                }}
+                                className="appearance-none pl-3 pr-8 py-1.5 text-xs font-medium border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 shadow-sm hover:border-slate-300 transition-colors"
+                            >
+                                <option value="">
+                                    {locale === 'tr' ? 'Tümü' : locale === 'en' ? 'All' : locale === 'ar' ? 'الكل' : 'Alle'}
+                                </option>
+                                {Object.entries(geschmackCounts)
+                                    .filter(([key]) => TAT_CONFIG[key])
+                                    .sort((a, b) => b[1] - a[1])
+                                    .map(([key, count]) => {
+                                        const cfg = TAT_CONFIG[key];
+                                        return (
+                                            <option key={key} value={key}>
+                                                {cfg.emoji} {(cfg as any)?.[locale] || cfg.de} ({count})
+                                            </option>
+                                        );
+                                    })}
+                            </select>
+                            <FiChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                        </div>
                     </div>
                 </div>
+            </div>
 
             {/* ElysonSweets Empfiehlt */}
             {featuredUrunler.length > 0 && !searchQuery && !geschmackFilter && (
                 <div className={viewMode === 'grid' ? 'bg-amber-50 border border-amber-100 rounded-2xl p-4' : 'border border-amber-100 rounded-xl overflow-hidden'}>
                     <div className={`flex items-center gap-2 ${viewMode === 'grid' ? 'mb-3' : 'px-3 py-2 bg-amber-50'}`}>
                         <span className="text-sm font-bold text-amber-900">
-                            ⭐ {locale === 'de' ? 'ElysonSweets empfiehlt' : 'ElysonSweets Öneriyor'}
+                            ⭐ {dictionary?.publicProductsPage?.elysonRecommends || 'ElysonSweets empfiehlt'}
                         </span>
                         <span className="text-xs text-amber-600">
-                            {locale === 'de' ? '– persönlich ausgewählt' : '– özenle seçildi'}
+                            {dictionary?.publicProductsPage?.personallySelected || '– persönlich ausgewählt'}
                         </span>
                     </div>
                     {viewMode === 'grid' ? (
@@ -853,6 +853,7 @@ export function ProductGridClient({
                                         partnerTier={partnerTier}
                                         onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
                                         inMerkliste={merklisteIds.has(urun.id)}
+                                        dictionary={dictionary}
                                     />
                                 </div>
                             ))}
@@ -878,12 +879,13 @@ export function ProductGridClient({
                         partnerTier={partnerTier}
                         onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
                         merklisteIds={merklisteIds}
+                        dictionary={dictionary}
                     />
                 ) : (
                     <div className="border border-orange-100 rounded-xl overflow-hidden">
                         <div className="flex items-center gap-2 px-3 py-2 bg-orange-50">
                             <span className="text-sm font-bold text-orange-900">
-                                🏆 {locale === 'de' ? 'Unsere Bestseller' : 'En Çok Satanlar'}
+                                🏆 {locale === 'tr' ? 'En Çok Satanlar' : locale === 'en' ? 'Our Bestsellers' : locale === 'ar' ? 'الأكثر مبيعاً' : 'Unsere Bestseller'}
                             </span>
                         </div>
                         <div className="bg-white divide-y divide-slate-100">
@@ -902,14 +904,12 @@ export function ProductGridClient({
                     <span>
                         <strong>"{searchQuery}"</strong>
                         {' '}
-                        {locale === 'de'
-                            ? `— ${urunler.length} Ergebnisse`
-                            : `— ${urunler.length} sonuç`}
+                        {locale === 'tr' ? `— ${urunler.length} sonuç` : locale === 'en' ? `— ${urunler.length} results` : locale === 'ar' ? `— ${urunler.length} نتيجة` : `— ${urunler.length} Ergebnisse`}
                     </span>
                     <a href={pathname}
                         className="ml-auto text-xs text-red-500 hover:text-red-700 flex items-center gap-1 flex-shrink-0">
                         <FiX size={12} />
-                        {locale === 'de' ? 'Suche löschen' : 'Aramayı temizle'}
+                        {locale === 'tr' ? 'Aramayı temizle' : locale === 'en' ? 'Clear search' : locale === 'ar' ? 'مسح البحث' : 'Suche löschen'}
                     </a>
                 </div>
             )}
@@ -917,7 +917,7 @@ export function ProductGridClient({
             {/* Ürün sayısı */}
             {filteredUrunler.length > 0 && (
                 <p className="text-xs text-slate-400">
-                    {locale === 'de' ? `${filteredUrunler.length} Artikel` : `${filteredUrunler.length} ürün`}
+                    {locale === 'tr' ? `${filteredUrunler.length} ürün` : locale === 'en' ? `${filteredUrunler.length} items` : locale === 'ar' ? `${filteredUrunler.length} منتجات` : `${filteredUrunler.length} Artikel`}
                 </p>
             )}
 
@@ -926,7 +926,7 @@ export function ProductGridClient({
                 <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
                     <FiPackage className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                     <p className="text-sm font-medium text-slate-500">
-                        {locale === 'de' ? 'Keine Produkte gefunden' : 'Ürün bulunamadı'}
+                        {dictionary?.publicProductsPage?.noProductsFound || 'Keine Produkte gefunden'}
                     </p>
                 </div>
             ) : viewMode === 'grid' ? (
@@ -942,6 +942,7 @@ export function ProductGridClient({
                                 partnerTier={partnerTier}
                                 onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
                                 inMerkliste={merklisteIds.has(urun.id)}
+                                dictionary={dictionary}
                             />
                         ))}
                     </div>
@@ -951,12 +952,12 @@ export function ProductGridClient({
                 <>
                     <div className="hidden lg:grid grid-cols-[40px_2.5fr_1fr_80px_80px_120px_100px_40px] gap-3 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200 bg-slate-50 rounded-t-lg">
                         <span />
-                        <span>{locale === 'de' ? 'Produkt' : 'Ürün'}</span>
-                        <span>{locale === 'de' ? 'Lagerung' : 'Depolama'}</span>
-                        <span className="text-center">{locale === 'de' ? 'Stk./Ktn.' : 'Adet/Koli'}</span>
-                        <span className="text-center">{locale === 'de' ? 'Stk./Pal.' : 'Adet/Palet'}</span>
-                        <span>{locale === 'de' ? 'Merkmale' : 'Özellikler'}</span>
-                        <span className="text-center">{locale === 'de' ? 'Preis' : 'Fiyat'}</span>
+                        <span>{locale === 'tr' ? 'Ürün' : locale === 'en' ? 'Product' : locale === 'ar' ? 'المنتج' : 'Produkt'}</span>
+                        <span>{locale === 'tr' ? 'Depolama' : locale === 'en' ? 'Storage' : locale === 'ar' ? 'تخزين' : 'Lagerung'}</span>
+                        <span className="text-center">{locale === 'tr' ? 'Adet/Koli' : locale === 'en' ? 'Pcs/Ctn' : locale === 'ar' ? 'قطعة/كرتونة' : 'Stk./Ktn.'}</span>
+                        <span className="text-center">{locale === 'tr' ? 'Adet/Palet' : locale === 'en' ? 'Pcs/Pal' : locale === 'ar' ? 'قطعة/منصة' : 'Stk./Pal.'}</span>
+                        <span>{locale === 'tr' ? 'Özellikler' : locale === 'en' ? 'Features' : locale === 'ar' ? 'الميزات' : 'Merkmale'}</span>
+                        <span className="text-center">{locale === 'tr' ? 'Fiyat' : locale === 'en' ? 'Price' : locale === 'ar' ? 'السعر' : 'Preis'}</span>
                         <span />
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
