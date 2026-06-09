@@ -13,8 +13,6 @@ import { toast } from 'sonner';
 import { getPortalLabels, formatCurrency } from '@/lib/portalLabels';
 import { usePortal } from '@/contexts/PortalContext';
 
-import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
-
 type Birim = 'koli' | 'adet' | 'palet';
 
 interface Urun {
@@ -126,7 +124,7 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
         startTransition(async () => {
             const { createDynamicSupabaseClient } = await import('@/lib/supabase/client');
             const supabase = createDynamicSupabaseClient(true);
-            const { data: { user } } = await getGlobalCachedUser();
+            const { data: { user } } = await supabase.auth.getUser();
             if (!user) { toast.error('Oturum bulunamadı'); return; }
             const { error } = await supabase.from('favori_urunler')
                 .delete().eq('kullanici_id', user.id).eq('urun_id', urunId);

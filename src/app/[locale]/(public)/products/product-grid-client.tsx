@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fi';
 import { LuPackage, LuBarcode, LuThermometerSnowflake, LuThermometer } from 'react-icons/lu';
 import { getBadgeText } from '@/lib/labels';
+import { motion } from 'framer-motion';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,19 @@ interface ProductGridClientProps {
 
 type MerklisteItem = { urunId: string; menge: number };
 
+const itemVariants = {
+    hidden: { opacity: 0, y: 40, scale: 0.95 },
+    show: (i: number) => ({ 
+        opacity: 1, 
+        y: 0, 
+        scale: 1, 
+        transition: { 
+            ease: [0.25, 1, 0.5, 1], 
+            duration: 0.8,
+            delay: (i % 10) * 0.08 
+        } 
+    })
+};
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const BADGE_DEFS = [
@@ -194,7 +208,7 @@ function CatalogCard({
     const hasAnyPrice = pricingRows.some(r => r.price != null && r.price > 0);
 
     return (
-        <div className="group flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-400 hover:shadow-lg transition-all duration-200 will-change-transform">
+        <div className="group h-full flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-400 hover:shadow-lg transition-all duration-200 will-change-transform">
 
             {/* Image area */}
             <Link href={`/${locale}/products/${urun.slug}`} className="block relative h-36 bg-slate-50 overflow-hidden flex-shrink-0 will-change-transform">
@@ -623,6 +637,7 @@ export function ProductGridClient({
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [merklisteItems, setMerklisteItems] = useState<MerklisteItem[]>([]);
     const [merklisteOpen, setMerklisteOpen] = useState(false);
+
     const [bannerDismissed, setBannerDismissed] = useState(false);
 
     const handleSearch = useCallback((value: string) => {
@@ -843,8 +858,16 @@ export function ProductGridClient({
                     </div>
                     {viewMode === 'grid' ? (
                         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-                            {featuredUrunler.map(urun => (
-                                <div key={urun.id} className="w-40 flex-shrink-0">
+                            {featuredUrunler.map((urun, index) => (
+                                <motion.div 
+                                    key={urun.id} 
+                                    custom={index}
+                                    variants={itemVariants}
+                                    initial="hidden"
+                                    whileInView="show"
+                                    viewport={{ once: true, amount: 0.1 }}
+                                    className="w-40 flex-shrink-0 will-change-transform h-full"
+                                >
                                     <CatalogCard
                                         urun={urun}
                                         locale={locale}
@@ -855,13 +878,23 @@ export function ProductGridClient({
                                         inMerkliste={merklisteIds.has(urun.id)}
                                         dictionary={dictionary}
                                     />
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     ) : (
                         <div className="bg-white divide-y divide-slate-100">
-                            {featuredUrunler.map(urun => (
-                                <CatalogRow key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                            {featuredUrunler.map((urun, index) => (
+                                <motion.div 
+                                    key={urun.id} 
+                                    custom={index}
+                                    variants={itemVariants}
+                                    initial="hidden"
+                                    whileInView="show"
+                                    viewport={{ once: true, amount: 0.1 }}
+                                    className="will-change-transform"
+                                >
+                                    <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                                </motion.div>
                             ))}
                         </div>
                     )}
@@ -889,8 +922,18 @@ export function ProductGridClient({
                             </span>
                         </div>
                         <div className="bg-white divide-y divide-slate-100">
-                            {bestsellerUrunler.map(urun => (
-                                <CatalogRow key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                            {bestsellerUrunler.map((urun, index) => (
+                                <motion.div 
+                                    key={urun.id} 
+                                    custom={index}
+                                    variants={itemVariants}
+                                    initial="hidden"
+                                    whileInView="show"
+                                    viewport={{ once: true, amount: 0.1 }}
+                                    className="will-change-transform"
+                                >
+                                    <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                                </motion.div>
                             ))}
                         </div>
                     </div>
@@ -932,18 +975,27 @@ export function ProductGridClient({
             ) : viewMode === 'grid' ? (
                 <>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-                        {filteredUrunler.map(urun => (
-                            <CatalogCard
-                                key={urun.id}
-                                urun={urun}
-                                locale={locale}
-                                kategoriAdlariMap={kategoriAdlariMap}
-                                isLoggedIn={isLoggedIn}
-                                partnerTier={partnerTier}
-                                onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
-                                inMerkliste={merklisteIds.has(urun.id)}
-                                dictionary={dictionary}
-                            />
+                        {filteredUrunler.map((urun, index) => (
+                            <motion.div 
+                                key={urun.id} 
+                                custom={index}
+                                variants={itemVariants} 
+                                initial="hidden"
+                                whileInView="show"
+                                viewport={{ once: true, amount: 0.1 }}
+                                className="will-change-transform h-full"
+                            >
+                                <CatalogCard
+                                    urun={urun}
+                                    locale={locale}
+                                    kategoriAdlariMap={kategoriAdlariMap}
+                                    isLoggedIn={isLoggedIn}
+                                    partnerTier={partnerTier}
+                                    onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                                    inMerkliste={merklisteIds.has(urun.id)}
+                                    dictionary={dictionary}
+                                />
+                            </motion.div>
                         ))}
                     </div>
                     {pagination && <Pagination pagination={pagination} locale={locale} />}
@@ -961,8 +1013,18 @@ export function ProductGridClient({
                         <span />
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
-                        {filteredUrunler.map(urun => (
-                            <CatalogRow key={urun.id} urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                        {filteredUrunler.map((urun, index) => (
+                            <motion.div 
+                                key={urun.id} 
+                                custom={index}
+                                variants={itemVariants} 
+                                initial="hidden"
+                                whileInView="show"
+                                viewport={{ once: true, amount: 0.1 }}
+                                className="will-change-transform"
+                            >
+                                <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                            </motion.div>
                         ))}
                     </div>
                     {pagination && <Pagination pagination={pagination} locale={locale} />}

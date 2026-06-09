@@ -85,7 +85,12 @@ const KATEGORI_AGACI: KategoriNode[] = [
             { id: 'giden_resmi_yazilar', label: 'Resmi Yazılar' },
         ],
     },
-    { id: 'sozlesmeler', label: 'Sözleşmeler', icon: '📋' },
+    {
+        id: 'sozlesmeler', label: 'Sözleşmeler', icon: '📋',
+        children: [
+            { id: 'resmi_kurulus_belgeleri', label: 'Resmi Kuruluş Belgeleri' }
+        ]
+    },
     { id: 'sertifikalar', label: 'Sertifikalar (HACCP)', icon: '🏅' },
     { id: 'gizli', label: 'Gizli Belgeler', icon: '🔒' },
     { id: 'diger', label: 'Diğer', icon: '📁' },
@@ -110,6 +115,9 @@ const ALT_KATEGORILER: Record<string, { id: string; label: string }[]> = {
         { id: 'teklifler', label: 'Teklifler' },
         { id: 'teslimat_irsaliyeleri', label: 'Teslimat İrsaliyeleri' },
         { id: 'giden_resmi_yazilar', label: 'Resmi Yazılar' },
+    ],
+    sozlesmeler: [
+        { id: 'resmi_kurulus_belgeleri', label: 'Resmi Kuruluş Belgeleri' }
     ],
 };
 
@@ -315,21 +323,46 @@ function CategorySidebar({
             </div>
 
             {KATEGORI_AGACI.filter(k => !['gelen_evrak', 'giden_evrak'].includes(k.id)).map(kat => (
-                <button
-                    key={kat.id}
-                    onClick={() => onSelect(kat.id)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${selected === kat.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-slate-100 text-slate-700'}`}
-                >
-                    <span>{kat.icon} {kat.label}</span>
-                    <div className="flex items-center gap-1">
-                        {(kategoriSuresiBitenler[kat.id] || 0) > 0 && (
-                            <span className="text-[9px] bg-red-100 text-red-600 px-1 rounded-full font-bold">
-                                ⚠{kategoriSuresiBitenler[kat.id]}
-                            </span>
-                        )}
-                        <span className="text-xs text-slate-400">{kategoriSayilari[kat.id] || 0}</span>
-                    </div>
-                </button>
+                <div key={kat.id}>
+                    <button
+                        onClick={() => { toggleExpand(kat.id); onSelect(kat.id); }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${selected === kat.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-slate-100 text-slate-700'}`}
+                    >
+                        <span className="flex items-center gap-2">
+                            {kat.children && kat.children.length > 0 ? (
+                                expanded.has(kat.id)
+                                    ? <FiChevronDown size={12} className="text-slate-400" />
+                                    : <FiChevronRight size={12} className="text-slate-400" />
+                            ) : null}
+                            {kat.icon} {kat.label}
+                        </span>
+                        <div className="flex items-center gap-1">
+                            {(kategoriSuresiBitenler[kat.id] || 0) > 0 && (
+                                <span className="text-[9px] bg-red-100 text-red-600 px-1 rounded-full font-bold">
+                                    ⚠{kategoriSuresiBitenler[kat.id]}
+                                </span>
+                            )}
+                            <span className="text-xs text-slate-400">{kategoriSayilari[kat.id] || 0}</span>
+                        </div>
+                    </button>
+                    {kat.children && expanded.has(kat.id) && kat.children.map(child => (
+                        <button
+                            key={child.id}
+                            onClick={() => onSelect(child.id)}
+                            className={`w-full flex items-center justify-between pl-8 pr-3 py-1.5 rounded-lg text-xs transition-colors ${selected === child.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-slate-100 text-slate-500'}`}
+                        >
+                            <span>↳ {child.label}</span>
+                            <div className="flex items-center gap-1">
+                                {(kategoriSuresiBitenler[child.id] || 0) > 0 && (
+                                    <span className="text-[9px] bg-red-100 text-red-600 px-1 rounded-full font-bold">
+                                        ⚠{kategoriSuresiBitenler[child.id]}
+                                    </span>
+                                )}
+                                <span className="text-slate-300">{kategoriSayilari[child.id] || 0}</span>
+                            </div>
+                        </button>
+                    ))}
+                </div>
             ))}
         </div>
     );
@@ -969,7 +1002,7 @@ function BelgeRow({
                     </span>
                     <div className="min-w-0">
                         {/* Kullanıcı adı — birincil, büyük */}
-                        <p className="text-sm font-medium text-slate-800 truncate leading-snug">
+                        <p className="text-sm font-medium text-slate-800 break-words leading-snug" title={belge.ad}>
                             {belge.ad}
                         </p>
 

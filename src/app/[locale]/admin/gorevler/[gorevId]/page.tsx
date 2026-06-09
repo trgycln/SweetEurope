@@ -9,6 +9,7 @@ import { Locale } from '@/i18n-config';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Enums, Tables } from '@/lib/supabase/database.types';
 import { gorevGuncelleAction } from '../actions';
+import MarkdownInput from '@/components/admin/gorevler/MarkdownInput';
 
 export const dynamic = 'force-dynamic';
 
@@ -120,13 +121,10 @@ export default async function GorevDuzenlemePage({
                             <label htmlFor="aciklama" className="block text-sm font-bold text-gray-700 mb-2">
                                 Açıklama
                             </label>
-                            <textarea
+                            <MarkdownInput 
                                 id="aciklama"
                                 name="aciklama"
-                                rows={5}
                                 defaultValue={gorev.aciklama || ''}
-                                className={inputBaseClasses}
-                                placeholder="Görev detayları"
                             />
                         </div>
 

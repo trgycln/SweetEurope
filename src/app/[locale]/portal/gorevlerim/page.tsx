@@ -2,12 +2,11 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { KanbanBoard } from '@/components/portal/gorevler/KanbanBoard';
-import {
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
-
+import {
   addMyTaskAction, deleteTaskAction,
   updateGorevDurumAction, addAltGorevAction,
-  toggleAltGorevAction, deleteAltGorevAction,
+  toggleAltGorevAction, deleteAltGorevAction, editAltGorevAction,
   addGorevNotuAction, deleteGorevNotuAction,
   updateGorevAction,
 } from './actions';
@@ -60,6 +59,10 @@ export default async function GorevlerimPage({
     'use server';
     await toggleAltGorevAction(altGorevId, tamamlandi, locale);
   };
+  const handleEditAltGorev = async (altGorevId: string, baslik: string) => {
+    'use server';
+    await editAltGorevAction(altGorevId, baslik, locale);
+  };
   const handleDeleteAltGorev = async (altGorevId: string) => {
     'use server';
     await deleteAltGorevAction(altGorevId, locale);
@@ -90,6 +93,7 @@ export default async function GorevlerimPage({
       onUpdateDurum={handleUpdateDurum}
       onAddAltGorev={handleAddAltGorev}
       onToggleAltGorev={handleToggleAltGorev}
+      onEditAltGorev={handleEditAltGorev}
       onDeleteAltGorev={handleDeleteAltGorev}
       onAddNot={handleAddNot}
       onDeleteNot={handleDeleteNot}

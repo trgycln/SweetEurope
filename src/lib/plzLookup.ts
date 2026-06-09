@@ -2,61 +2,61 @@
 
 // Köln ve çevresi için detaylı PLZ -> İlçe/Semt haritası
 // Bu liste zamanla genişletilebilir.
-export const KOLN_PLZ_MAP: Record<string, { city: string, district: string }> = {
-    // Innenstadt
-    "50667": { city: "Köln", district: "Altstadt-Nord" },
-    "50668": { city: "Köln", district: "Altstadt-Nord" },
-    "50670": { city: "Köln", district: "Neustadt-Nord" },
-    "50672": { city: "Köln", district: "Neustadt-Nord" },
-    "50674": { city: "Köln", district: "Neustadt-Süd" },
-    "50676": { city: "Köln", district: "Altstadt-Süd" },
-    "50677": { city: "Köln", district: "Neustadt-Süd" },
-    "50678": { city: "Köln", district: "Altstadt-Süd" },
-    "50679": { city: "Köln", district: "Deutz" },
+export const KOLN_PLZ_MAP: Record<string, { city: string, district: string, cityPart?: string }> = {
+    // Innenstadt (Bölge 1)
+    "50667": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord" },
+    "50668": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord" },
+    "50670": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord" },
+    "50672": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord" },
+    "50674": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd" },
+    "50676": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd" },
+    "50677": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd" },
+    "50678": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd" },
+    "50679": { city: "Köln", cityPart: "Innenstadt", district: "Deutz" },
     
-    // Nippes
-    "50733": { city: "Köln", district: "Nippes" },
-    "50735": { city: "Köln", district: "Riehl" },
-    "50737": { city: "Köln", district: "Weidenpesch" },
-    "50739": { city: "Köln", district: "Bilderstöckchen" },
+    // Nippes (Bölge 5)
+    "50733": { city: "Köln", cityPart: "Nippes", district: "Nippes" },
+    "50735": { city: "Köln", cityPart: "Nippes", district: "Riehl" },
+    "50737": { city: "Köln", cityPart: "Nippes", district: "Weidenpesch" },
+    "50739": { city: "Köln", cityPart: "Nippes", district: "Bilderstöckchen" },
     
-    // Ehrenfeld
-    "50823": { city: "Köln", district: "Ehrenfeld" },
-    "50825": { city: "Köln", district: "Neuehrenfeld" },
-    "50827": { city: "Köln", district: "Bickendorf" },
-    "50829": { city: "Köln", district: "Vogelsang" },
+    // Ehrenfeld (Bölge 4)
+    "50823": { city: "Köln", cityPart: "Ehrenfeld", district: "Ehrenfeld" },
+    "50825": { city: "Köln", cityPart: "Ehrenfeld", district: "Neuehrenfeld" },
+    "50827": { city: "Köln", cityPart: "Ehrenfeld", district: "Bickendorf" },
+    "50829": { city: "Köln", cityPart: "Ehrenfeld", district: "Vogelsang" },
     
-    // Lindenthal
-    "50931": { city: "Köln", district: "Lindenthal" },
-    "50933": { city: "Köln", district: "Braunsfeld" },
-    "50935": { city: "Köln", district: "Sülz" },
-    "50937": { city: "Köln", district: "Klettenberg" },
+    // Lindenthal (Bölge 3)
+    "50931": { city: "Köln", cityPart: "Lindenthal", district: "Lindenthal" },
+    "50933": { city: "Köln", cityPart: "Lindenthal", district: "Braunsfeld" },
+    "50935": { city: "Köln", cityPart: "Lindenthal", district: "Sülz" },
+    "50937": { city: "Köln", cityPart: "Lindenthal", district: "Klettenberg" },
     
-    // Rodenkirchen
-    "50968": { city: "Köln", district: "Bayenthal" },
-    "50969": { city: "Köln", district: "Zollstock" },
-    "50996": { city: "Köln", district: "Rodenkirchen" },
-    "50997": { city: "Köln", district: "Godorf" },
-    "50999": { city: "Köln", district: "Sürth" },
+    // Rodenkirchen (Bölge 2)
+    "50968": { city: "Köln", cityPart: "Rodenkirchen", district: "Bayenthal" },
+    "50969": { city: "Köln", cityPart: "Rodenkirchen", district: "Zollstock" },
+    "50996": { city: "Köln", cityPart: "Rodenkirchen", district: "Rodenkirchen" },
+    "50997": { city: "Köln", cityPart: "Rodenkirchen", district: "Godorf" },
+    "50999": { city: "Köln", cityPart: "Rodenkirchen", district: "Sürth" },
     
-    // Mülheim
-    "51061": { city: "Köln", district: "Stammheim" },
-    "51063": { city: "Köln", district: "Mülheim" },
-    "51065": { city: "Köln", district: "Buchheim" },
-    "51067": { city: "Köln", district: "Holweide" },
-    "51069": { city: "Köln", district: "Dellbrück" },
+    // Mülheim (Bölge 9)
+    "51061": { city: "Köln", cityPart: "Mülheim", district: "Stammheim" },
+    "51063": { city: "Köln", cityPart: "Mülheim", district: "Mülheim" },
+    "51065": { city: "Köln", cityPart: "Mülheim", district: "Buchheim" },
+    "51067": { city: "Köln", cityPart: "Mülheim", district: "Holweide" },
+    "51069": { city: "Köln", cityPart: "Mülheim", district: "Dellbrück" },
     
-    // Kalk
-    "51103": { city: "Köln", district: "Kalk" },
-    "51105": { city: "Köln", district: "Poll" },
-    "51107": { city: "Köln", district: "Ostheim" },
-    "51109": { city: "Köln", district: "Merheim" },
+    // Kalk (Bölge 8)
+    "51103": { city: "Köln", cityPart: "Kalk", district: "Kalk" },
+    "51105": { city: "Köln", cityPart: "Kalk", district: "Poll" },
+    "51107": { city: "Köln", cityPart: "Kalk", district: "Ostheim" },
+    "51109": { city: "Köln", cityPart: "Kalk", district: "Merheim" },
     
-    // Porz
-    "51143": { city: "Köln", district: "Porz" },
-    "51145": { city: "Köln", district: "Urbach" },
-    "51147": { city: "Köln", district: "Wahn" },
-    "51149": { city: "Köln", district: "Ensen" }
+    // Porz (Bölge 7)
+    "51143": { city: "Köln", cityPart: "Porz", district: "Porz" },
+    "51145": { city: "Köln", cityPart: "Porz", district: "Urbach" },
+    "51147": { city: "Köln", cityPart: "Porz", district: "Wahn" },
+    "51149": { city: "Köln", cityPart: "Porz", district: "Ensen" }
 };
 
 export async function fetchLocationByPlz(plz: string): Promise<{ city: string, district: string } | null> {

@@ -94,24 +94,28 @@ export const getCachedDashboardData = unstable_cache(
         const supabase = createSupabaseServiceClient();
         const OFFENE_STATUS = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
         
+        function toLocalDateString(d: Date) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        
         const now = new Date();
         const y = now.getFullYear(); 
         const mo = now.getMonth();
         
         let periodStart, periodEnd;
         if (period === 'gecen-ay') {
-            periodStart = `${y}-${String(mo).padStart(2, '0')}-01`;
-            periodEnd = `${y}-${String(mo + 1).padStart(2, '0')}-00`; // Will need proper date math
+            periodStart = toLocalDateString(new Date(y, mo - 1, 1));
+            periodEnd = toLocalDateString(new Date(y, mo, 0)); // last day of prev month
         } else if (period === 'bu-yil') {
-            periodStart = `${y}-01-01`;
+            periodStart = toLocalDateString(new Date(y, 0, 1));
             periodEnd = now.toISOString();
         } else {
-            periodStart = `${y}-${String(mo + 1).padStart(2, '0')}-01`;
+            periodStart = toLocalDateString(new Date(y, mo, 1));
             periodEnd = now.toISOString();
         }
 
-        const prevMonthStart = `${y}-${String(mo).padStart(2, '0')}-01`;
-        const prevMonthEnd = `${y}-${String(mo + 1).padStart(2, '0')}-00`;
+        const prevMonthStart = toLocalDateString(new Date(y, mo - 1, 1));
+        const prevMonthEnd = toLocalDateString(new Date(y, mo, 0));
 
         const todayISO = now.toISOString();
         const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition, useEffect, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import {
     FiCalendar, FiUser, FiX, FiCheck, FiRefreshCw, FiBriefcase,
     FiEdit2, FiAlertCircle, FiClock, FiGrid, FiColumns, FiLoader,
-    FiPlus, FiMessageSquare, FiCheckSquare, FiSquare,
+    FiPlus, FiMessageSquare, FiCheckSquare, FiSquare, FiTrash2, FiSave,
 } from 'react-icons/fi';
 import {
     gorevDurumGuncelleAction,
@@ -15,8 +16,17 @@ import {
     addGorevNotuAction,
     addAltGorevAction,
     toggleAltGorevAction,
+    editAltGorevAction,
+    deleteAltGorevAction,
+    deleteGorevNotuAction,
 } from './actions';
 import { toast } from 'sonner';
+
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+const MDPreview = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default.Markdown), { ssr: false });
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -209,9 +219,16 @@ function GorevDrawer({
     const [detayLoading, setDetayLoading] = useState(true);
     const [notText, setNotText]         = useState('');
     const [altText, setAltText]         = useState('');
+    
+    // Subtask Editing State
+    const [editingAltId, setEditingAltId] = useState<string | null>(null);
+    const [expandedAltId, setExpandedAltId] = useState<string | null>(null);
+    const [editAltText, setEditAltText]   = useState('');
+
     const [notPending, startNot]        = useTransition();
     const [altPending, startAlt]        = useTransition();
     const [toggleAltPending, startToggleAlt] = useTransition();
+    const [actionPending, startAction]  = useTransition(); // For delete/edit
 
     const prio = ONCELIK_CFG[g.oncelik] ?? ONCELIK_CFG['Orta'];
     const late = overdue(g.son_tarih, g.tamamlandi);
@@ -248,6 +265,17 @@ function GorevDrawer({
         });
     }
 
+    function removeNot(id: string) {
+        if (!confirm('Bu notu silmek istediğinize emin misiniz?')) return;
+        startAction(async () => {
+            const res = await deleteGorevNotuAction(id);
+            if (res.success) {
+                toast.success(res.success);
+                setNotlar(prev => prev.filter(n => n.id !== id));
+            } else if (res.error) toast.error(res.error);
+        });
+    }
+
     function submitAlt() {
         if (!altText.trim()) return;
         startAlt(async () => {
@@ -257,6 +285,29 @@ function GorevDrawer({
                 setAltText('');
                 const fresh = await fetchGorevDetayAction(g.id);
                 setAltGorevler(fresh.altGorevler);
+            } else if (res.error) toast.error(res.error);
+        });
+    }
+
+    function saveEditAlt(id: string) {
+        if (!editAltText.trim()) return;
+        startAction(async () => {
+            const res = await editAltGorevAction(id, editAltText);
+            if (res.success) {
+                toast.success(res.success);
+                setAltGorevler(prev => prev.map(a => a.id === id ? { ...a, baslik: editAltText } : a));
+                setEditingAltId(null);
+            } else if (res.error) toast.error(res.error);
+        });
+    }
+
+    function removeAlt(id: string) {
+        if (!confirm('Bu alt görevi silmek istediğinize emin misiniz?')) return;
+        startAction(async () => {
+            const res = await deleteAltGorevAction(id);
+            if (res.success) {
+                toast.success(res.success);
+                setAltGorevler(prev => prev.filter(a => a.id !== id));
             } else if (res.error) toast.error(res.error);
         });
     }
@@ -275,120 +326,177 @@ function GorevDrawer({
     return (
         <>
             <div className="fixed inset-0 bg-black/30 z-40" onClick={onClose} aria-hidden="true" />
-            <div className="fixed right-0 top-0 bottom-0 w-full sm:max-w-md bg-white z-50 shadow-2xl flex flex-col overflow-hidden">
+            <div className="fixed right-0 top-0 bottom-0 w-full sm:max-w-2xl bg-white z-50 shadow-2xl flex flex-col overflow-hidden">
                 <div className={`h-1.5 flex-shrink-0 ${prio.dot}`} />
 
                 {/* Header */}
-                <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-slate-100 flex-shrink-0">
+                <div className="flex items-start justify-between gap-3 px-6 py-5 border-b border-slate-100 flex-shrink-0 bg-white">
                     <div className="min-w-0">
-                        <div className="flex flex-wrap gap-2 mb-1.5">
-                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${prio.badge}`}>{g.oncelik}</span>
-                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${DURUM_CFG[g.durum]?.badge ?? ''}`}>{g.durum}</span>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${prio.badge}`}>{g.oncelik}</span>
+                            <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${DURUM_CFG[g.durum]?.badge ?? ''}`}>{g.durum}</span>
                         </div>
-                        <h2 className={`text-lg font-bold leading-snug ${g.tamamlandi ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                        <h2 className={`text-xl font-extrabold leading-snug ${g.tamamlandi ? 'line-through text-slate-400' : 'text-slate-800'}`}>
                             {g.baslik}
                         </h2>
                     </div>
                     <button type="button" onClick={onClose}
-                        className="flex-shrink-0 p-2 rounded-full hover:bg-slate-100 text-slate-400 min-h-[44px] min-w-[44px] flex items-center justify-center">
-                        <FiX size={20} />
+                        className="flex-shrink-0 p-2.5 rounded-full hover:bg-slate-100 text-slate-400 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors">
+                        <FiX size={22} />
                     </button>
                 </div>
 
                 {/* Scrollable body */}
-                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+                <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 bg-slate-50/30">
                     {late && (
-                        <div className="flex items-center gap-2 px-3 py-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-medium">
-                            <FiAlertCircle size={15} className="flex-shrink-0" />
-                            Gecikmiş — Son tarih: {fmt(g.son_tarih, locale)}
+                        <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
+                            <FiAlertCircle size={16} className="flex-shrink-0" />
+                            Bu görev gecikmiş durumda — Son tarih: {fmt(g.son_tarih, locale)}
                         </div>
                     )}
 
                     {/* Açıklama */}
                     {g.aciklama && (
-                        <div>
-                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Açıklama</p>
-                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{g.aciklama}</p>
+                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3">Görev Açıklaması</p>
+                            <div className="prose prose-sm max-w-none text-slate-700" data-color-mode="light">
+                                <MDPreview source={g.aciklama} style={{ backgroundColor: 'transparent', color: '#334155' }} />
+                            </div>
                         </div>
                     )}
 
                     {/* Detay satırları */}
-                    <div className="divide-y divide-slate-100 rounded-xl border border-slate-200 overflow-hidden">
-                        <div className="flex items-center gap-3 px-4 py-3">
-                            <FiUser size={15} className="text-slate-400 flex-shrink-0" />
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                                <FiUser size={18} />
+                            </div>
                             <div>
-                                <p className="text-[11px] text-slate-400 font-medium">Atanan Kişi</p>
+                                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Atanan Kişi</p>
                                 <div className="flex items-center gap-1.5 mt-0.5">
-                                    <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-[10px] font-bold inline-flex items-center justify-center">{initials(name)}</span>
-                                    <p className="text-sm font-semibold text-slate-800">{name}</p>
+                                    <p className="text-sm font-bold text-slate-800">{name}</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 px-4 py-3">
-                            <FiCalendar size={15} className="text-slate-400 flex-shrink-0" />
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${late ? 'bg-red-50 text-red-500' : 'bg-slate-100 text-slate-500'}`}>
+                                <FiCalendar size={18} />
+                            </div>
                             <div>
-                                <p className="text-[11px] text-slate-400 font-medium">Son Tarih</p>
-                                <p className={`text-sm font-semibold mt-0.5 ${late ? 'text-red-600' : 'text-slate-800'}`}>
+                                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Son Tarih</p>
+                                <p className={`text-sm font-bold mt-0.5 ${late ? 'text-red-600' : 'text-slate-800'}`}>
                                     {g.son_tarih ? fmt(g.son_tarih, locale) : 'Belirsiz'}
                                 </p>
                             </div>
                         </div>
                         {g.ilgili_firma?.unvan && (
-                            <div className="flex items-center gap-3 px-4 py-3">
-                                <FiBriefcase size={15} className="text-slate-400 flex-shrink-0" />
-                                <div>
-                                    <p className="text-[11px] text-slate-400 font-medium">İlgili Firma</p>
+                            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3 col-span-2 sm:col-span-1">
+                                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                                    <FiBriefcase size={18} />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">İlgili Firma</p>
                                     <Link href={`/${locale}/admin/crm/firmalar/${g.ilgili_firma_id}`}
-                                        className="text-sm font-semibold text-blue-600 hover:underline mt-0.5 block" onClick={onClose}>
+                                        className="text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline mt-0.5 block truncate" onClick={onClose}>
                                         {g.ilgili_firma.unvan}
                                     </Link>
                                 </div>
                             </div>
                         )}
-                        <div className="flex items-center gap-3 px-4 py-3">
-                            <FiClock size={15} className="text-slate-400 flex-shrink-0" />
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3 col-span-2 sm:col-span-1">
+                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                                <FiClock size={18} />
+                            </div>
                             <div>
-                                <p className="text-[11px] text-slate-400 font-medium">Oluşturulma</p>
-                                <p className="text-sm text-slate-700 mt-0.5">{fmt(g.created_at, locale)}</p>
+                                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Oluşturulma</p>
+                                <p className="text-sm font-semibold text-slate-700 mt-0.5">{fmt(g.created_at, locale)}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* ── Alt Görevler ─────────────────────────────────── */}
-                    <div>
-                        <div className="flex items-center justify-between mb-2">
-                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <FiCheckSquare size={12} />
+                    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <FiCheckSquare size={16} className="text-slate-400" />
                                 Alt Görevler
                                 {altGorevler.length > 0 && (
-                                    <span className="ml-1 text-slate-600 normal-case font-semibold">
-                                        ({doneCount}/{altGorevler.length})
+                                    <span className="ml-1 text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full">
+                                        {doneCount}/{altGorevler.length}
                                     </span>
                                 )}
-                            </p>
+                            </h3>
                         </div>
 
+                        {/* Progress Bar */}
+                        {altGorevler.length > 0 && (
+                            <div className="w-full bg-slate-100 rounded-full h-1.5 mb-4 overflow-hidden">
+                                <div className="bg-green-500 h-1.5 transition-all duration-300" style={{ width: `${(doneCount / altGorevler.length) * 100}%` }} />
+                            </div>
+                        )}
+
                         {detayLoading ? (
-                            <div className="flex items-center gap-2 py-3 text-slate-400 text-sm">
-                                <FiLoader size={14} className="animate-spin" /> Yükleniyor…
+                            <div className="flex items-center gap-2 py-4 text-slate-400 text-sm justify-center">
+                                <FiLoader size={16} className="animate-spin" /> Yükleniyor…
                             </div>
                         ) : (
                             <>
                                 {altGorevler.length > 0 && (
-                                    <div className="space-y-1.5 mb-3">
+                                    <div className="space-y-2 mb-4">
                                         {altGorevler.map(a => (
-                                            <div key={a.id} className="flex items-start gap-2.5">
+                                            <div key={a.id} className="group flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
                                                 <button type="button"
                                                     onClick={() => toggleAlt(a.id, !a.tamamlandi)}
                                                     disabled={toggleAltPending}
-                                                    className="flex-shrink-0 mt-0.5 text-slate-400 hover:text-green-600 transition-colors">
+                                                    className="flex-shrink-0 mt-0.5 text-slate-300 hover:text-green-500 transition-colors">
                                                     {a.tamamlandi
-                                                        ? <FiCheckSquare size={16} className="text-green-600" />
-                                                        : <FiSquare size={16} />}
+                                                        ? <FiCheckSquare size={18} className="text-green-500" />
+                                                        : <FiSquare size={18} />}
                                                 </button>
-                                                <span className={`text-sm leading-snug ${a.tamamlandi ? 'line-through text-slate-400' : 'text-slate-700'}`}>
-                                                    {a.baslik}
-                                                </span>
+                                                
+                                                {editingAltId === a.id ? (
+                                                    <div className="flex-1 flex gap-2">
+                                                        <textarea 
+                                                            autoFocus
+                                                            rows={3}
+                                                            value={editAltText}
+                                                            onChange={e => setEditAltText(e.target.value)}
+                                                            onKeyDown={e => {
+                                                                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEditAlt(a.id); }
+                                                                if (e.key === 'Escape') setEditingAltId(null);
+                                                            }}
+                                                            className="flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+                                                        />
+                                                        <button onClick={() => saveEditAlt(a.id)} disabled={actionPending} className="text-green-600 hover:bg-green-50 p-1.5 rounded-md">
+                                                            <FiSave size={14} />
+                                                        </button>
+                                                        <button onClick={() => setEditingAltId(null)} className="text-slate-400 hover:bg-slate-100 p-1.5 rounded-md">
+                                                            <FiX size={14} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <div className="flex-1 min-w-0" data-color-mode="light">
+                                                            <div 
+                                                                className={`text-sm pt-0.5 relative cursor-pointer group/content ${expandedAltId === a.id ? '' : 'max-h-12 overflow-hidden'} ${a.tamamlandi ? 'line-through text-slate-400 opacity-70' : 'text-slate-700'}`}
+                                                                onClick={() => setExpandedAltId(expandedAltId === a.id ? null : a.id)}
+                                                            >
+                                                                <MDPreview source={a.baslik} style={{ backgroundColor: 'transparent', color: 'inherit', fontSize: '0.875rem' }} />
+                                                                {expandedAltId !== a.id && a.baslik.length > 50 && (
+                                                                    <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-slate-50 to-transparent" />
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                                                            <button onClick={() => { setEditingAltId(a.id); setEditAltText(a.baslik); }} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Düzenle">
+                                                                <FiEdit2 size={13} />
+                                                            </button>
+                                                            <button onClick={() => removeAlt(a.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Sil">
+                                                                <FiTrash2 size={13} />
+                                                            </button>
+                                                        </div>
+                                                    </>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -396,58 +504,84 @@ function GorevDrawer({
 
                                 {/* Alt görev ekle */}
                                 <div className="flex gap-2">
-                                    <input type="text" value={altText}
+                                    <textarea value={altText}
                                         onChange={e => setAltText(e.target.value)}
-                                        onKeyDown={e => e.key === 'Enter' && submitAlt()}
-                                        placeholder="Yeni alt görev ekle…"
-                                        className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 min-h-[40px]"
+                                        onKeyDown={e => {
+                                            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitAlt(); }
+                                        }}
+                                        rows={2}
+                                        placeholder="Yeni alt görev ekle (Markdown desteklenir)..."
+                                        className="flex-1 rounded-xl border border-slate-200 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 min-h-[44px] bg-slate-50 focus:bg-white transition-colors resize-y"
                                     />
                                     <button type="button" onClick={submitAlt} disabled={altPending || !altText.trim()}
-                                        className="px-3 py-2 rounded-lg bg-slate-800 text-white text-sm font-semibold disabled:opacity-50 hover:bg-slate-700 transition-colors min-h-[40px]">
-                                        {altPending ? <FiLoader size={14} className="animate-spin" /> : <FiPlus size={14} />}
+                                        className="px-4 py-2 rounded-xl bg-slate-800 text-white text-sm font-bold disabled:opacity-50 hover:bg-slate-700 transition-colors min-h-[44px] flex items-center gap-1.5">
+                                        {altPending ? <FiLoader size={14} className="animate-spin" /> : <><FiPlus size={16} /> Ekle</>}
                                     </button>
                                 </div>
                             </>
                         )}
                     </div>
 
-                    {/* ── Notlar ───────────────────────────────────────── */}
+                    {/* ── Aktivite / Notlar Timeline ───────────────────────────────────────── */}
                     <div>
-                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                            <FiMessageSquare size={12} /> Notlar / Gelişmeler
-                        </p>
+                        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4 px-1">
+                            <FiMessageSquare size={16} className="text-slate-400" /> 
+                            Aktivite & Notlar
+                        </h3>
 
-                        {/* Not ekleme */}
-                        <div className="rounded-xl border border-slate-200 overflow-hidden mb-3">
-                            <textarea value={notText}
-                                onChange={e => setNotText(e.target.value)}
-                                placeholder="Yeni not ekle…"
-                                rows={3}
-                                className="w-full px-3 py-2.5 text-sm text-slate-700 resize-none focus:outline-none"
+                        {/* Not ekleme (Markdown) */}
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6" data-color-mode="light">
+                            <MDEditor
+                                value={notText}
+                                onChange={(val) => setNotText(val || '')}
+                                preview="edit"
+                                hideToolbar={false}
+                                height={200}
+                                textareaProps={{ placeholder: "Detaylı bir not ekleyin (Markdown desteklenir)..." }}
+                                className="border-0 shadow-none !rounded-b-none"
                             />
-                            <div className="flex items-center justify-end px-3 py-2 bg-slate-50 border-t border-slate-100">
+                            <div className="flex items-center justify-end px-4 py-3 bg-slate-50 border-t border-slate-200">
                                 <button type="button" onClick={submitNot} disabled={notPending || !notText.trim()}
-                                    className="px-4 py-1.5 rounded-lg bg-slate-800 text-white text-xs font-semibold disabled:opacity-50 hover:bg-slate-700 transition-colors min-h-[36px]">
-                                    {notPending ? <FiLoader size={13} className="animate-spin" /> : 'Not Ekle'}
+                                    className="px-5 py-2 rounded-xl bg-slate-800 text-white text-sm font-bold disabled:opacity-50 hover:bg-slate-700 transition-colors min-h-[40px] shadow-sm">
+                                    {notPending ? <FiLoader size={16} className="animate-spin" /> : 'Notu Kaydet'}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Not listesi */}
+                        {/* Timeline Listesi */}
                         {detayLoading ? null : notlar.length === 0 ? (
-                            <p className="text-sm text-slate-400 text-center py-3">Henüz not eklenmemiş.</p>
+                            <div className="text-center py-8 bg-white rounded-2xl border border-slate-200 border-dashed">
+                                <p className="text-sm text-slate-400 font-medium">Henüz aktivite veya not bulunmuyor.</p>
+                            </div>
                         ) : (
-                            <div className="space-y-3">
-                                {notlar.map(n => (
-                                    <div key={n.id} className="rounded-lg bg-slate-50 border border-slate-100 px-3 py-2.5">
-                                        <div className="flex items-center gap-2 mb-1.5">
-                                            <span className="w-5 h-5 rounded-full bg-slate-300 text-slate-700 text-[9px] font-bold inline-flex items-center justify-center flex-shrink-0">
-                                                {initials(n.kullanici_adi)}
-                                            </span>
-                                            <span className="text-[11px] font-semibold text-slate-600">{n.kullanici_adi ?? 'Anonim'}</span>
-                                            <span className="text-[10px] text-slate-400 ml-auto">{fmtTime(n.olusturma_tarihi)}</span>
+                            <div className="relative pl-4 space-y-6 before:absolute before:inset-0 before:ml-8 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+                                {notlar.map((n, i) => (
+                                    <div key={n.id} className="relative flex items-start gap-4">
+                                        <div className="absolute left-0 w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500 shadow-sm z-10">
+                                            {initials(n.kullanici_adi)}
                                         </div>
-                                        <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{n.not_metni}</p>
+                                        <div className="ml-12 w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-4 relative group">
+                                            {/* Arrow for timeline bubble */}
+                                            <div className="absolute top-4 -left-2 w-4 h-4 bg-white border-l border-t border-slate-200 transform -rotate-45" />
+                                            
+                                            <div className="flex items-start justify-between gap-2 mb-2">
+                                                <div>
+                                                    <span className="font-bold text-slate-800 text-sm">{n.kullanici_adi ?? 'Anonim'}</span>
+                                                    <span className="text-slate-400 text-xs ml-2">not bıraktı</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[11px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                                                        {fmtTime(n.olusturma_tarihi)}
+                                                    </span>
+                                                    <button onClick={() => removeNot(n.id)} className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all p-1" title="Notu Sil">
+                                                        <FiTrash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="prose prose-sm max-w-none text-slate-700 mt-2" data-color-mode="light">
+                                                <MDPreview source={n.not_metni} style={{ backgroundColor: 'transparent', color: '#334155' }} />
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -456,20 +590,20 @@ function GorevDrawer({
                 </div>
 
                 {/* Footer */}
-                <div className="px-5 py-4 border-t border-slate-100 bg-slate-50 flex flex-col gap-2.5 flex-shrink-0">
+                <div className="px-6 py-4 border-t border-slate-200 bg-white flex flex-col sm:flex-row gap-3 flex-shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
+                    <Link href={`/${locale}/admin/gorevler/${g.id}`} onClick={onClose}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold border-2 border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 min-h-[48px] transition-all">
+                        <FiEdit2 size={16} /> Görevi Düzenle
+                    </Link>
                     <button type="button" onClick={handleToggle} disabled={togglePending}
                         className={[
-                            'flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold min-h-[44px] transition-colors',
-                            g.tamamlandi ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-green-600 text-white hover:bg-green-700',
+                            'flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold min-h-[48px] transition-all shadow-sm',
+                            g.tamamlandi ? 'bg-slate-800 text-white hover:bg-slate-900' : 'bg-green-500 text-white hover:bg-green-600 hover:shadow-md',
                         ].join(' ')}>
-                        {togglePending ? <FiLoader size={16} className="animate-spin" /> :
-                         g.tamamlandi ? <><FiRefreshCw size={15} /> Yeniden Aç</> :
-                         <><FiCheck size={15} /> Tamamlandı</>}
+                        {togglePending ? <FiLoader size={18} className="animate-spin" /> :
+                         g.tamamlandi ? <><FiRefreshCw size={16} /> Yeniden Aç</> :
+                         <><FiCheck size={18} /> Tamamlandı Olarak İşaretle</>}
                     </button>
-                    <Link href={`/${locale}/admin/gorevler/${g.id}`} onClick={onClose}
-                        className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 min-h-[44px] transition-colors">
-                        <FiEdit2 size={14} /> Görevi Düzenle
-                    </Link>
                 </div>
             </div>
         </>

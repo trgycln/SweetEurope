@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useRef, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import {
   FiPlus, FiX, FiCheck, FiTrash2, FiCalendar,
   FiChevronRight, FiChevronLeft, FiMessageSquare,
@@ -8,6 +9,12 @@ import {
   FiCheckSquare, FiSquare, FiClock, FiArrowRight,
 } from 'react-icons/fi';
 import { toast } from 'sonner';
+
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
+
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+const MDPreview = dynamic(() => import('@uiw/react-md-editor').then((mod) => mod.default.Markdown), { ssr: false });
 
 // ─── Tipler ───────────────────────────────────────────────
 type AltGorev = {
@@ -47,6 +54,7 @@ interface KanbanBoardProps {
   onUpdateDurum: (gorevId: string, yeniDurum: string) => Promise<void>;
   onAddAltGorev: (gorevId: string, baslik: string) => Promise<void>;
   onToggleAltGorev: (altGorevId: string, tamamlandi: boolean) => Promise<void>;
+  onEditAltGorev: (altGorevId: string, baslik: string) => Promise<void>;
   onDeleteAltGorev: (altGorevId: string) => Promise<void>;
   onAddNot: (gorevId: string, notMetni: string) => Promise<void>;
   onDeleteNot: (notId: string) => Promise<void>;
@@ -132,6 +140,7 @@ function GorevDetayDrawer({
   onUpdateDurum,
   onAddAltGorev,
   onToggleAltGorev,
+  onEditAltGorev,
   onDeleteAltGorev,
   onAddNot,
   onDeleteNot,
@@ -144,6 +153,7 @@ function GorevDetayDrawer({
   onUpdateDurum: (gorevId: string, yeniDurum: string) => Promise<void>;
   onAddAltGorev: (gorevId: string, baslik: string) => Promise<void>;
   onToggleAltGorev: (altGorevId: string, tamamlandi: boolean) => Promise<void>;
+  onEditAltGorev: (altGorevId: string, baslik: string) => Promise<void>;
   onDeleteAltGorev: (altGorevId: string) => Promise<void>;
   onAddNot: (gorevId: string, notMetni: string) => Promise<void>;
   onDeleteNot: (notId: string) => Promise<void>;
@@ -160,6 +170,11 @@ function GorevDetayDrawer({
   const [oncelik, setOncelik] = useState(gorev.oncelik || 'Orta');
   const [aktifTab, setAktifTab] = useState<'altgorevler' | 'notlar'>('altgorevler');
   const baslikRef = useRef<HTMLInputElement>(null);
+
+  // Subtask Edit State
+  const [editingAltId, setEditingAltId] = useState<string | null>(null);
+  const [expandedAltId, setExpandedAltId] = useState<string | null>(null);
+  const [editAltText, setEditAltText] = useState('');
 
   const tamamlananAlt = gorev.alt_gorevler.filter(a => a.tamamlandi).length;
   const toplamAlt = gorev.alt_gorevler.length;
@@ -196,6 +211,14 @@ function GorevDetayDrawer({
     startTransition(async () => {
       await onAddAltGorev(gorev.id, yeniAltGorev.trim());
       setYeniAltGorev('');
+    });
+  };
+
+  const handleAltGorevDuzenle = (altId: string) => {
+    if (!editAltText.trim()) return;
+    startTransition(async () => {
+      await onEditAltGorev(altId, editAltText.trim());
+      setEditingAltId(null);
     });
   };
 
@@ -337,16 +360,18 @@ function GorevDetayDrawer({
         </div>
 
         {/* Açıklama */}
-        <div className="px-5 py-3 border-b">
+        <div className="px-5 py-3 border-b" data-color-mode="light">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
             Açıklama
           </label>
-          <textarea
+          <MDEditor
             value={aciklama}
-            onChange={e => setAciklama(e.target.value)}
-            placeholder="Açıklama ekle..."
-            rows={2}
-            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-accent/30 focus:border-accent text-gray-700"
+            onChange={(val) => setAciklama(val || '')}
+            preview="edit"
+            hideToolbar={false}
+            height={150}
+            textareaProps={{ placeholder: "Açıklama ekle (Markdown desteklenir)..." }}
+            className="border-0 shadow-none !rounded-b-none border border-gray-200"
           />
         </div>
 
@@ -395,12 +420,15 @@ function GorevDetayDrawer({
             <>
               {/* Alt görev ekle */}
               <div className="flex gap-2">
-                <input
+                <textarea
                   value={yeniAltGorev}
                   onChange={e => setYeniAltGorev(e.target.value)}
-                  placeholder="Alt görev ekle..."
-                  className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent/30 focus:border-accent"
-                  onKeyDown={e => e.key === 'Enter' && handleAltGorevEkle()}
+                  placeholder="Alt görev ekle (Markdown)..."
+                  rows={2}
+                  className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent/30 focus:border-accent resize-y"
+                  onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAltGorevEkle(); }
+                  }}
                 />
                 <button
                   onClick={handleAltGorevEkle}
@@ -433,18 +461,53 @@ function GorevDetayDrawer({
                       >
                         {ag.tamamlandi && <FiCheck size={11} />}
                       </button>
-                      <span className={`flex-1 text-sm ${ag.tamamlandi ? 'line-through text-gray-400' : 'text-gray-700'}`}>
-                        {ag.baslik}
-                      </span>
-                      <span className="text-[10px] text-gray-400">
-                        {formatZaman(ag.olusturma_tarihi)}
-                      </span>
-                      <button
-                        onClick={() => startTransition(() => onDeleteAltGorev(ag.id))}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-gray-300 hover:text-red-400 transition-all"
-                      >
-                        <FiTrash2 size={13} />
-                      </button>
+                      
+                      {editingAltId === ag.id ? (
+                        <div className="flex-1 flex gap-2">
+                          <textarea 
+                            autoFocus
+                            rows={3}
+                            value={editAltText}
+                            onChange={e => setEditAltText(e.target.value)}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAltGorevDuzenle(ag.id); }
+                                if (e.key === 'Escape') setEditingAltId(null);
+                            }}
+                            className="flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 resize-y"
+                          />
+                          <button onClick={() => handleAltGorevDuzenle(ag.id)} disabled={isPending} className="text-green-600 hover:bg-green-50 p-1.5 rounded-md">
+                            <FiSave size={14} />
+                          </button>
+                          <button onClick={() => setEditingAltId(null)} className="text-gray-400 hover:bg-gray-100 p-1.5 rounded-md">
+                            <FiX size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex-1 min-w-0" data-color-mode="light">
+                            <div 
+                                className={`text-sm relative cursor-pointer group/content ${expandedAltId === ag.id ? '' : 'max-h-12 overflow-hidden'} ${ag.tamamlandi ? 'line-through text-gray-400 opacity-70' : 'text-gray-700'}`}
+                                onClick={() => setExpandedAltId(expandedAltId === ag.id ? null : ag.id)}
+                            >
+                                <MDPreview source={ag.baslik} style={{ backgroundColor: 'transparent', color: 'inherit', fontSize: '0.875rem' }} />
+                                {expandedAltId !== ag.id && ag.baslik.length > 50 && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-gray-50 to-transparent" />
+                                )}
+                            </div>
+                          </div>
+                          <span className="text-[10px] text-gray-400">
+                            {formatZaman(ag.olusturma_tarihi)}
+                          </span>
+                          <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                            <button onClick={() => { setEditingAltId(ag.id); setEditAltText(ag.baslik); }} className="p-1 text-gray-400 hover:text-accent hover:bg-accent/10 rounded transition-colors" title="Düzenle">
+                              <FiEdit2 size={13} />
+                            </button>
+                            <button onClick={() => startTransition(() => onDeleteAltGorev(ag.id))} className="p-1 text-gray-300 hover:text-red-400 transition-all">
+                              <FiTrash2 size={13} />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -455,47 +518,57 @@ function GorevDetayDrawer({
           {aktifTab === 'notlar' && (
             <>
               {/* Not ekle */}
-              <div className="space-y-2">
-                <textarea
+              <div className="space-y-2 mb-6" data-color-mode="light">
+                <MDEditor
                   value={yeniNot}
-                  onChange={e => setYeniNot(e.target.value)}
-                  placeholder="Not yaz..."
-                  rows={3}
-                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+                  onChange={(val) => setYeniNot(val || '')}
+                  preview="edit"
+                  hideToolbar={false}
+                  height={150}
+                  textareaProps={{ placeholder: "Detaylı bir not ekleyin (Markdown desteklenir)..." }}
+                  className="border-0 shadow-none !rounded-b-none border border-gray-200"
                 />
                 <button
                   onClick={handleNotEkle}
                   disabled={isPending || !yeniNot.trim()}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-accent text-white rounded-lg text-sm font-semibold hover:bg-accent/90 disabled:opacity-40 transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-accent text-white rounded-lg text-sm font-semibold hover:bg-accent/90 disabled:opacity-40 transition-colors w-full justify-center"
                 >
                   <FiMessageSquare size={13} />
-                  Not Ekle
+                  Notu Kaydet
                 </button>
               </div>
 
-              {/* Notlar */}
+              {/* Notlar Timeline */}
               {gorev.gorev_notlari.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-6">
                   Henüz not yok.
                 </p>
               ) : (
-                <div className="space-y-3 mt-2">
+                <div className="relative pl-3 space-y-4 before:absolute before:inset-0 before:ml-4 before:h-full before:w-0.5 before:bg-gray-200">
                   {gorev.gorev_notlari.map(not => (
-                    <div key={not.id} className="bg-amber-50 border border-amber-100 rounded-lg p-3 group relative">
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{not.not_metni}</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-[10px] text-gray-400 flex items-center gap-1">
-                          <FiClock size={10} />
-                          {formatZaman(not.olusturma_tarihi)}
-                        </span>
-                        {not.kullanici_id === currentUserId && (
-                          <button
-                            onClick={() => startTransition(() => onDeleteNot(not.id))}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-gray-300 hover:text-red-400 transition-all"
-                          >
-                            <FiTrash2 size={12} />
-                          </button>
-                        )}
+                    <div key={not.id} className="relative flex items-start gap-3 group">
+                      <div className="absolute left-0 w-2.5 h-2.5 rounded-full bg-accent border-2 border-white translate-y-1 shadow-sm z-10"></div>
+                      <div className="ml-5 w-full bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative">
+                        {/* Arrow */}
+                        <div className="absolute top-2 -left-1.5 w-3 h-3 bg-white border-l border-t border-gray-200 transform -rotate-45" />
+                        
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] text-gray-400 font-semibold flex items-center gap-1">
+                            <FiClock size={10} />
+                            {formatZaman(not.olusturma_tarihi)}
+                          </span>
+                          {not.kullanici_id === currentUserId && (
+                            <button
+                              onClick={() => startTransition(() => onDeleteNot(not.id))}
+                              className="opacity-0 group-hover:opacity-100 p-1 text-gray-300 hover:text-red-400 transition-all"
+                            >
+                              <FiTrash2 size={12} />
+                            </button>
+                          )}
+                        </div>
+                        <div className="prose prose-sm max-w-none text-gray-700" data-color-mode="light">
+                          <MDPreview source={not.not_metni} style={{ backgroundColor: 'transparent', color: '#374151' }} />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -648,6 +721,7 @@ export function KanbanBoard({
   onUpdateDurum,
   onAddAltGorev,
   onToggleAltGorev,
+  onEditAltGorev,
   onDeleteAltGorev,
   onAddNot,
   onDeleteNot,
@@ -789,6 +863,7 @@ export function KanbanBoard({
           onUpdateDurum={onUpdateDurum}
           onAddAltGorev={onAddAltGorev}
           onToggleAltGorev={onToggleAltGorev}
+          onEditAltGorev={onEditAltGorev}
           onDeleteAltGorev={onDeleteAltGorev}
           onAddNot={onAddNot}
           onDeleteNot={onDeleteNot}

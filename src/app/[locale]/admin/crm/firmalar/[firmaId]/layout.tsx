@@ -89,6 +89,7 @@ export default async function FirmaDetailLayout({
 
     const tabLabels = {
         generalInfo: 'Özet',
+        details: 'Detaylar',
         activities: 'Etkinlik Akışı',
         contacts: 'İlgili Kişiler',
         orders: 'Siparişler',

@@ -60,7 +60,8 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     const ticariTipFilter = sp.ticari_tip || '';
     const isAltBayiList = ticariTipFilter === 'alt_bayi';
     const searchQuery = sp.q || '';
-    const statusFilter = sp.status || '';
+    const statusFilterRaw = sp.status;
+    const statusFilter = statusFilterRaw === undefined ? 'MÜŞTERİ' : (statusFilterRaw === 'ALL' ? '' : statusFilterRaw);
     const statusNotInFilter = sp.status_not_in?.split(',') || [];
     const kategoriFilter = sp.kategori || '';
     const cityFilter = sp.city || '';
@@ -103,9 +104,18 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     });
 
     // --- Summary stats (global, unfiltered) ---
-    const { data: allFirmalar } = await supabase
-        .from('firmalar')
-        .select('id, status, son_etkilesim_tarihi, created_at, goruldu, kaynak');
+    let allFirmalar: any[] = [];
+    let summaryPage = 0;
+    while (true) {
+        const { data } = await supabase
+            .from('firmalar')
+            .select('id, status, son_etkilesim_tarihi, created_at, goruldu, kaynak')
+            .range(summaryPage * 1000, (summaryPage + 1) * 1000 - 1);
+        if (!data) break;
+        allFirmalar.push(...data);
+        if (data.length < 1000) break;
+        summaryPage++;
+    }
 
     const now = Date.now();
     const sevenDaysAgo = now - 7 * 86400000;
@@ -173,12 +183,26 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
             .is('sahip_id', null);
     }
 
-    const { data: rawFirmalar, error } = await query.order('created_at', { ascending: false });
+    const orderedQuery = query.order('created_at', { ascending: false });
+    let rawFirmalar: any[] = [];
+    let queryError = null;
+    let mainPage = 0;
+    while (true) {
+        const { data, error } = await orderedQuery.range(mainPage * 1000, (mainPage + 1) * 1000 - 1);
+        if (error) {
+            queryError = error;
+            break;
+        }
+        if (!data) break;
+        rawFirmalar.push(...data);
+        if (data.length < 1000) break;
+        mainPage++;
+    }
 
-    if (error) {
+    if (queryError) {
         return (
             <div className="p-6 text-red-500 bg-red-50 rounded-lg">
-                Firma listesi yüklenemedi: {error.message}
+                Firma listesi yüklenemedi: {queryError.message}
             </div>
         );
     }

@@ -207,7 +207,7 @@ export async function gorevGuncelleAction(
 
     const { data: mevcutGorev } = await supabase
         .from('gorevler')
-        .select('ilgili_firma_id, baslik, atanan_kisi_id')
+        .select('ilgili_firma_id, baslik, atanan_kisi_id, durum')
         .eq('id', gorevId)
         .maybeSingle();
 
@@ -223,7 +223,11 @@ export async function gorevGuncelleAction(
 
     if (typeof data.tamamlandi === 'boolean') {
         updateData.tamamlandi = data.tamamlandi;
-        updateData.durum = data.tamamlandi ? 'Tamamlandı' : 'Yapılacak';
+        if (data.tamamlandi) {
+            updateData.durum = 'Tamamlandı';
+        } else if (mevcutGorev?.durum === 'Tamamlandı') {
+            updateData.durum = 'Yapılacak';
+        }
     }
 
     const { error } = await supabase
@@ -399,6 +403,57 @@ export async function toggleAltGorevAction(
     }
 
     return { success: tamamlandi ? 'Tamamlandı.' : 'Yeniden açıldı.' };
+}
+
+export async function editAltGorevAction(
+    altGorevId: string,
+    baslik: string
+): Promise<ActionResult> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const temiz = baslik.trim();
+    if (!temiz) return { error: 'Alt görev başlığı boş olamaz.' };
+
+    const { error } = await (supabase as any)
+        .from('alt_gorevler')
+        .update({ baslik: temiz })
+        .eq('id', altGorevId);
+
+    if (error) {
+        console.error('Alt görev düzenleme hatası:', error);
+        return { error: 'Alt görev düzenlenemedi.' };
+    }
+
+    return { success: 'Alt görev güncellendi.' };
+}
+
+export async function deleteAltGorevAction(altGorevId: string): Promise<ActionResult> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const { error } = await (supabase as any).from('alt_gorevler').delete().eq('id', altGorevId);
+
+    if (error) {
+        console.error('Alt görev silme hatası:', error);
+        return { error: 'Alt görev silinemedi.' };
+    }
+
+    return { success: 'Alt görev silindi.' };
+}
+
+export async function deleteGorevNotuAction(notId: string): Promise<ActionResult> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const { error } = await (supabase as any).from('gorev_notlari').delete().eq('id', notId);
+
+    if (error) {
+        console.error('Not silme hatası:', error);
+        return { error: 'Not silinemedi.' };
+    }
+
+    return { success: 'Not silindi.' };
 }
 
 export async function gorevSilAction(gorevId: string, locale?: string): Promise<ActionResult> {

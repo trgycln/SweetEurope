@@ -13,13 +13,14 @@ export default function FirmaTabs({
 }: { 
     firmaId: string; 
     locale: Locale; 
-    labels: { generalInfo: string; activities: string; contacts: string; orders: string; tasks: string; };
+    labels: { generalInfo: string; details: string; activities: string; contacts: string; orders: string; tasks: string; };
     extraTabs?: Array<{ name: string; href: string }>
 }) {
     const pathname = usePathname();
 
     const tabs = [
         { name: labels.generalInfo, href: `/${locale}/admin/crm/firmalar/${firmaId}` },
+        { name: labels.details, href: `/${locale}/admin/crm/firmalar/${firmaId}/detaylar` },
         { name: labels.activities, href: `/${locale}/admin/crm/firmalar/${firmaId}/etkinlikler` },
         { name: labels.contacts, href: `/${locale}/admin/crm/firmalar/${firmaId}/kisiler` },
         { name: labels.orders, href: `/${locale}/admin/crm/firmalar/${firmaId}/siparisler` },

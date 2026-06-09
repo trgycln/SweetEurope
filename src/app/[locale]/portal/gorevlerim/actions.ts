@@ -137,6 +137,25 @@ export async function toggleAltGorevAction(
   return { success: true };
 }
 
+// Alt görev düzenle
+export async function editAltGorevAction(
+  altGorevId: string,
+  baslik: string,
+  locale: string
+) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+
+  const { error } = await supabase
+    .from('alt_gorevler')
+    .update({ baslik })
+    .eq('id', altGorevId);
+
+  if (error) return { success: false, error: error.message };
+  revalidatePath(`/${locale}/portal/gorevlerim`);
+  return { success: true };
+}
+
 // Alt görev sil
 export async function deleteAltGorevAction(
   altGorevId: string,
@@ -154,6 +173,7 @@ export async function deleteAltGorevAction(
   revalidatePath(`/${locale}/portal/gorevlerim`);
   return { success: true };
 }
+
 
 // Not ekle
 export async function addGorevNotuAction(

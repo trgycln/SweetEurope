@@ -101,7 +101,7 @@ const STATUS_LABEL: Record<string, string> = {
     'TEMAS EDİLDİ': 'Temas', 'ADAY': 'Aday', 'REDDEDİLDİ': 'Reddedildi',
 };
 const STATUS_CHIPS = [
-    { value: '', label: 'Tümü' }, { value: 'ADAY', label: 'Aday' },
+    { value: 'ALL', label: 'Tümü' }, { value: 'ADAY', label: 'Aday' },
     { value: 'TEMAS EDİLDİ', label: 'Temas' }, { value: 'NUMUNE VERİLDİ', label: 'Numune' },
     { value: 'MÜŞTERİ', label: 'Müşteri' }, { value: 'REDDEDİLDİ', label: 'Reddedildi' },
 ];
@@ -410,12 +410,21 @@ function FirmaTableRow({
                     </Link>
                 )}
                 {!isChild && firma.etiketler && firma.etiketler.length > 0 && (
-                    <div className="flex gap-1 mt-0.5">
-                        {firma.etiketler.slice(0, 2).map(t => (
-                            <span key={t} className="text-[9px] text-slate-400 border border-slate-200 rounded px-1">
-                                {t.replace('#', '').replace(/_/g, ' ')}
-                            </span>
-                        ))}
+                    <div className="flex gap-1 mt-0.5 flex-wrap">
+                        {firma.etiketler.map(t => {
+                            if (t.startsWith('STRATEJI:') || t.startsWith('FO_URUN:')) {
+                                return (
+                                    <span key={t} className="text-[9px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5 font-medium" title={t}>
+                                        {t.replace(/^(STRATEJI|FO_URUN):\s*/, '')}
+                                    </span>
+                                );
+                            }
+                            return (
+                                <span key={t} className="text-[9px] text-slate-400 border border-slate-200 rounded px-1 flex-shrink-0">
+                                    {t.replace('#', '').replace(/_/g, ' ')}
+                                </span>
+                            );
+                        })}
                     </div>
                 )}
             </td>
@@ -490,6 +499,8 @@ function CompactSelect({ value, options, placeholder, onChange, renderOption }: 
     );
 }
 
+import PlzRegionModal from '@/components/admin/PlzRegionModal';
+
 /* ── Main Component ──────────────────────────────────────────────────────── */
 export default function FirmaListClient({
     firmalar, summary, locale, isAltBayiList,
@@ -500,6 +511,13 @@ export default function FirmaListClient({
     const [viewMode, setViewMode] = useState<'card' | 'list'>('list');
     const [groupMode, setGroupMode] = useState<'grouped' | 'flat'>('grouped');
     const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+    
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const PAGE_SIZE = 50;
+
+    // Modals
+    const [plzModalOpen, setPlzModalOpen] = useState(false);
 
     const router = useRouter();
     const pathname = usePathname();
@@ -524,6 +542,7 @@ export default function FirmaListClient({
     const handleGroupMode = (mode: 'grouped' | 'flat') => {
         setGroupMode(mode);
         localStorage.setItem('firma_group_mode', mode);
+        setCurrentPage(1);
     };
 
     const toggleGroup = (id: string) => {
@@ -536,6 +555,11 @@ export default function FirmaListClient({
     };
 
     const groups = useMemo(() => buildGroups(firmalar), [firmalar]);
+
+    // Reset pagination when firmalar changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [firmalar]);
 
     const handleSearch = useDebouncedCallback((term: string) => {
         const p = new URLSearchParams(searchParams.toString());
@@ -583,7 +607,7 @@ export default function FirmaListClient({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {groups.map(group => {
+                        {groups.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(group => {
                             const isCollapsed = collapsedGroups.has(group.parent.id);
                             if (group.isGroup) {
                                 return (
@@ -655,7 +679,7 @@ export default function FirmaListClient({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {firmalar.map(f => (
+                        {firmalar.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(f => (
                             <FirmaTableRow
                                 key={f.id}
                                 firma={f}
@@ -672,7 +696,7 @@ export default function FirmaListClient({
 
     const renderCardGrouped = () => (
         <div className="space-y-4">
-            {groups.map(group => {
+            {groups.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(group => {
                 const isCollapsed = collapsedGroups.has(group.parent.id);
                 if (group.isGroup) {
                     return (
@@ -721,7 +745,7 @@ export default function FirmaListClient({
 
     const renderCardFlat = () => (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-            {firmalar.map(f => (
+            {firmalar.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(f => (
                 <FirmaCard
                     key={f.id}
                     firma={f}
@@ -820,6 +844,10 @@ export default function FirmaListClient({
                     className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap">
                     <FiPlus size={13} /> Yeni Firma
                 </Link>
+                <button type="button" onClick={() => setPlzModalOpen(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold hover:bg-purple-200 transition-colors whitespace-nowrap ml-auto sm:ml-0 border border-purple-200">
+                    <FiMapPin size={13} /> Köln PLZ Rehberi
+                </button>
             </div>
 
             {/* ── Filtre satırı ── */}
@@ -927,6 +955,30 @@ export default function FirmaListClient({
             {firmalar.length > 0 && viewMode === 'list' && groupMode === 'flat' && renderTableFlat()}
             {firmalar.length > 0 && viewMode === 'card' && groupMode === 'grouped' && renderCardGrouped()}
             {firmalar.length > 0 && viewMode === 'card' && groupMode === 'flat' && renderCardFlat()}
+
+            {/* ── Sayfalama ── */}
+            {firmalar.length > PAGE_SIZE && (
+                <div className="flex items-center justify-between mt-4">
+                    <span className="text-xs text-slate-500">
+                        {groupMode === 'grouped' ? groups.length : firmalar.length} kayıt içerisinden {(currentPage - 1) * PAGE_SIZE + 1} - {Math.min(currentPage * PAGE_SIZE, groupMode === 'grouped' ? groups.length : firmalar.length)} arası gösteriliyor.
+                    </span>
+                    <div className="flex items-center gap-1">
+                        <button type="button" disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(p => p - 1)}
+                            className="px-3 py-1 border border-slate-200 rounded text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50">
+                            Önceki
+                        </button>
+                        <button type="button" disabled={currentPage * PAGE_SIZE >= (groupMode === 'grouped' ? groups.length : firmalar.length)}
+                            onClick={() => setCurrentPage(p => p + 1)}
+                            className="px-3 py-1 border border-slate-200 rounded text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50">
+                            Sonraki
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Modals ── */}
+            {plzModalOpen && <PlzRegionModal onClose={() => setPlzModalOpen(false)} />}
         </div>
     );
 }
