@@ -6,6 +6,7 @@ import { Playfair_Display, Lato } from "next/font/google";
 import { headers } from "next/headers";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import VercelAnalytics from "@/components/VercelAnalytics";
+import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
 
 const localeNames: Record<string, string> = {
@@ -103,6 +104,7 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         {children}
         <VercelAnalytics />
+        <CookieBanner />
       </body>
     </html>
   );

@@ -134,7 +134,7 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
         "description": aciklama,
         "brand": {
             "@type": "Brand",
-            "name": "ElysonSweets"
+            "name": urunAdi.toLowerCase().includes('limpo') ? 'Limpo' : urunAdi.toLowerCase().includes('repo') ? 'Repo' : urunAdi.toLowerCase().includes('core') ? 'Core' : urunAdi.toLowerCase().includes('fümer') ? 'Fümer' : 'Fo'
         },
         "offers": {
             "@type": "Offer",

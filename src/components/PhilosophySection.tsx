@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
+import ZeroGravityAroma from './products/ZeroGravityAroma';
 
 // Zarif bir ayıraç için SVG bileşeni
 const DecorativeSeparator = () => (
@@ -36,14 +36,7 @@ const PhilosophySection: React.FC<{ dictionary: any }> = ({ dictionary }) => {
             <div className="relative max-w-2xl mx-auto">
               <div className="absolute -inset-4 bg-accent/15 rounded-3xl blur-2xl"></div>
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-accent/20 aspect-[4/3]">
-                <Image
-                  src="/unsere_philosophie.png"
-                  alt={dictionary.philosophy.imageAlt || 'FO Food Products Premium-Sortiment'}
-                  fill
-                  className="object-cover hover:scale-105 transition-transform duration-700 ease-in-out"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-                  priority
-                />
+                <ZeroGravityAroma />
               </div>
             </div>
           </div>

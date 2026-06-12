@@ -638,7 +638,44 @@ export function ProductGridClient({
     const [merklisteItems, setMerklisteItems] = useState<MerklisteItem[]>([]);
     const [merklisteOpen, setMerklisteOpen] = useState(false);
 
-    const [bannerDismissed, setBannerDismissed] = useState(false);
+    // Client-side authentication state
+    const [clientIsLoggedIn, setClientIsLoggedIn] = useState<boolean>(false);
+    const [clientPartnerTier, setClientPartnerTier] = useState<string | undefined>(undefined);
+
+    const activeIsLoggedIn = isLoggedIn ?? clientIsLoggedIn;
+    const activePartnerTier = partnerTier ?? clientPartnerTier;
+
+    useEffect(() => {
+        const fetchAuth = async () => {
+            const { createDynamicSupabaseClient } = await import('@/lib/supabase/client');
+            const supabase = createDynamicSupabaseClient(true);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setClientIsLoggedIn(true);
+                const { data: profil } = await supabase
+                    .from('profiller')
+                    .select('firma_id, rol')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                if (profil?.firma_id) {
+                    const { data: firma } = await supabase
+                        .from('firmalar')
+                        .select('pricing_tier')
+                        .eq('id', profil.firma_id)
+                        .maybeSingle();
+                    
+                    let tier = firma?.pricing_tier;
+                    if (!tier) {
+                        if (profil.rol === 'Müşteri') tier = 'koli_bazli';
+                        else if (profil.rol === 'Alt Bayi') tier = 'palet';
+                    }
+                    setClientPartnerTier(tier);
+                }
+            }
+        };
+        fetchAuth();
+    }, []);
 
     const handleSearch = useCallback((value: string) => {
         setSearchTerm(value);
@@ -710,7 +747,7 @@ export function ProductGridClient({
         <div className="space-y-4">
 
             {/* Guest banner */}
-            {!isLoggedIn && !bannerDismissed && (
+            {!activeIsLoggedIn && !bannerDismissed && (
                 <div className="flex items-center justify-between gap-3 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
                     <p className="text-sm text-indigo-800">
                         <span className="font-semibold hidden sm:inline">
@@ -872,9 +909,9 @@ export function ProductGridClient({
                                         urun={urun}
                                         locale={locale}
                                         kategoriAdlariMap={kategoriAdlariMap}
-                                        isLoggedIn={isLoggedIn}
-                                        partnerTier={partnerTier}
-                                        onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                                        isLoggedIn={activeIsLoggedIn}
+                                        partnerTier={activePartnerTier}
+                                        onAddToMerkliste={activeIsLoggedIn ? addToMerkliste : undefined}
                                         inMerkliste={merklisteIds.has(urun.id)}
                                         dictionary={dictionary}
                                     />
@@ -893,7 +930,7 @@ export function ProductGridClient({
                                     viewport={{ once: true, amount: 0.1 }}
                                     className="will-change-transform"
                                 >
-                                    <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                                    <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={activeIsLoggedIn} />
                                 </motion.div>
                             ))}
                         </div>
@@ -908,9 +945,9 @@ export function ProductGridClient({
                         urunler={bestsellerUrunler}
                         locale={locale}
                         kategoriAdlariMap={kategoriAdlariMap}
-                        isLoggedIn={isLoggedIn}
-                        partnerTier={partnerTier}
-                        onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                        isLoggedIn={activeIsLoggedIn}
+                        partnerTier={activePartnerTier}
+                        onAddToMerkliste={activeIsLoggedIn ? addToMerkliste : undefined}
                         merklisteIds={merklisteIds}
                         dictionary={dictionary}
                     />
@@ -932,7 +969,7 @@ export function ProductGridClient({
                                     viewport={{ once: true, amount: 0.1 }}
                                     className="will-change-transform"
                                 >
-                                    <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                                    <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={activeIsLoggedIn} />
                                 </motion.div>
                             ))}
                         </div>
@@ -989,9 +1026,9 @@ export function ProductGridClient({
                                     urun={urun}
                                     locale={locale}
                                     kategoriAdlariMap={kategoriAdlariMap}
-                                    isLoggedIn={isLoggedIn}
-                                    partnerTier={partnerTier}
-                                    onAddToMerkliste={isLoggedIn ? addToMerkliste : undefined}
+                                    isLoggedIn={activeIsLoggedIn}
+                                    partnerTier={activePartnerTier}
+                                    onAddToMerkliste={activeIsLoggedIn ? addToMerkliste : undefined}
                                     inMerkliste={merklisteIds.has(urun.id)}
                                     dictionary={dictionary}
                                 />
@@ -1023,7 +1060,7 @@ export function ProductGridClient({
                                 viewport={{ once: true, amount: 0.1 }}
                                 className="will-change-transform"
                             >
-                                <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={isLoggedIn} />
+                                <CatalogRow urun={urun} locale={locale} kategoriAdlariMap={kategoriAdlariMap} isLoggedIn={activeIsLoggedIn} />
                             </motion.div>
                         ))}
                     </div>
@@ -1032,7 +1069,7 @@ export function ProductGridClient({
             )}
 
             {/* Merkliste floating button (logged-in only) */}
-            {isLoggedIn && merklisteItems.length > 0 && (
+            {activeIsLoggedIn && merklisteItems.length > 0 && (
                 <button
                     onClick={() => setMerklisteOpen(true)}
                     className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-slate-900 text-white px-4 py-3 rounded-full shadow-lg hover:bg-slate-700 transition-colors">
@@ -1042,12 +1079,12 @@ export function ProductGridClient({
             )}
 
             {/* Merkliste drawer */}
-            {merklisteOpen && isLoggedIn && (
+            {merklisteOpen && activeIsLoggedIn && (
                 <MerklisteDrawer
                     items={merklisteItems}
                     urunler={allUrunler}
                     locale={locale}
-                    partnerTier={partnerTier}
+                    partnerTier={activePartnerTier}
                     onClose={() => setMerklisteOpen(false)}
                     onRemove={removeFromMerkliste}
                     onChangeMenge={changeItemMenge}

@@ -138,8 +138,33 @@ export default async function Home({
         }
     });
 
+    const organizationSchema = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "ElysonSweets",
+        "url": "https://elysonsweets.de",
+        "logo": "https://elysonsweets.de/logo.png",
+        "description": dictionary.seo?.home?.description || 'Premium distributor of pastry and coffee syrups.',
+        "knowsAbout": ["Fo Syrups", "B2B Gastronomy", "Coffee Syrups", "Pastry Products"],
+        "brand": [
+            {
+                "@type": "Brand",
+                "name": "Fo"
+            },
+            {
+                "@type": "Brand",
+                "name": "Limpo"
+            },
+            {
+                "@type": "Brand",
+                "name": "Repo"
+            }
+        ]
+    };
+
     return (
         <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
             <HeroSection dictionary={dictionary} locale={locale} />
             <PhilosophySection dictionary={dictionary} />
             <FoBrandAboutSection locale={locale} dictionary={dictionary} altKategorilerMap={altKategorilerMap} />

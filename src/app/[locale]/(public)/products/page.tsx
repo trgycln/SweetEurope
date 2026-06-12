@@ -1,6 +1,5 @@
 // src/app/[locale]/(public)/products/page.tsx
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getDictionary } from '@/dictionaries';
 import { ProductGridClient } from './product-grid-client';
 import { getLocalizedName } from '@/lib/utils';
@@ -11,11 +10,11 @@ import {
 } from '@/lib/public-category-visibility';
 import Link from 'next/link';
 import { type Kategori, type Urun } from './types';
-import { cookies } from 'next/headers';
 import { FiPackage, FiMail } from 'react-icons/fi';
 import type { Metadata } from 'next';
+import { createClient } from '@supabase/supabase-js';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // 1 hour caching (ISR)
 
 const baseUrl = 'https://www.elysonsweets.de';
 const locales = ['de', 'en', 'tr', 'ar'];
@@ -76,8 +75,10 @@ export default async function PublicUrunlerPage({
         gam?: string;
     }>;
 }) {
-    const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     const { locale } = await params;
     const sp = await searchParams;
 
@@ -96,42 +97,9 @@ export default async function PublicUrunlerPage({
         seciliKategoriSlug = sp.kategori;
     }
 
-    // ── Auth check — detect if user is a logged-in partner ───────────────────
-    let isLoggedIn = false;
-    let partnerTier: string | undefined;
-    let partnerFirmaId: string | undefined;
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-        isLoggedIn = true;
-        try {
-            const { data: profil } = await supabase
-                .from('profiller')
-                .select('firma_id, rol')
-                .eq('id', user.id)
-                .maybeSingle();
-
-            if (profil?.firma_id) {
-                partnerFirmaId = profil.firma_id;
-                // pricing_tier column may not exist yet (migration pending)
-                const { data: firma } = await (supabase as any)
-                    .from('firmalar')
-                    .select('pricing_tier, id')
-                    .eq('id', profil.firma_id)
-                    .maybeSingle();
-                partnerTier = firma?.pricing_tier ?? undefined;
-
-                // Müşteri rolünde pricing_tier yoksa default 'koli_bazli' kullan
-                // (Alt Bayi default 'palet', Toptancı 'cok_koli' olarak DB'de tutulur)
-                if (!partnerTier) {
-                    if (profil.rol === 'Müşteri') partnerTier = 'koli_bazli';
-                    else if (profil.rol === 'Alt Bayi') partnerTier = 'palet';
-                }
-            }
-        } catch {
-            // Gracefully handle missing columns (migration not yet run)
-        }
-    }
+    // Auth moved to client component to enable static caching of this page
+    let isLoggedIn = undefined;
+    let partnerTier = undefined;
 
     const [dictionary, kategorilerRes, sablonlarRes] = await Promise.all([
         getDictionary(locale as any),
@@ -432,7 +400,7 @@ export default async function PublicUrunlerPage({
     const activeFilterCount = [seciliKategoriSlug, sp.altKategori, gamFilter].filter(Boolean).length;
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 flex flex-col">
 
             {/* ── Page Header ─────────────────────────────────────────────── */}
             <div className="bg-white border-b border-slate-200">
@@ -655,6 +623,38 @@ export default async function PublicUrunlerPage({
                                 dictionary={dictionary}
                             />
                         )}
+                    </div>
+                </div>
+            </div>
+            
+            {/* SEO & GEO FAQ Section */}
+            <div className="bg-slate-50 border-t border-slate-200 mt-12 py-16">
+                <div className="container mx-auto px-4 max-w-4xl">
+                    <div className="text-center mb-10">
+                        <h2 className="text-2xl font-bold text-slate-800 mb-3">{locale === 'tr' ? 'Sıkça Sorulan Sorular' : 'Frequently Asked Questions'}</h2>
+                        <p className="text-slate-500 text-sm">
+                            {locale === 'tr' ? 'Kahve şurupları ve pastacılık ürünlerimiz hakkında merak edilenler' : 'Frequently asked questions about our coffee syrups and pastry products'}
+                        </p>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 className="font-bold text-slate-800 mb-2">{locale === 'tr' ? 'Fo kahve şurubu çeşitleri nelerdir?' : 'What are the varieties of Fo coffee syrup?'}</h3>
+                            <p className="text-slate-600 text-sm leading-relaxed">
+                                {locale === 'tr' ? 'Fo markası, kafeler ve baristalar için geniş bir şurup yelpazesi sunar. En çok tercih edilen aromalar arasında Vanilya, Karamel, Fındık, Çikolata, İrlanda Kremi, Nane, Çilek ve Beyaz Çikolata bulunur.' : 'The Fo brand offers a wide range of syrups for cafes and baristas. The most preferred flavors include Vanilla, Caramel, Hazelnut, Chocolate, Irish Cream, Mint, Strawberry, and White Chocolate.'}
+                            </p>
+                        </div>
+                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 className="font-bold text-slate-800 mb-2">{locale === 'tr' ? 'Kafeler için en çok tercih edilen Fo şurup aromaları hangileridir?' : 'Which Fo syrup flavors are most preferred for cafes?'}</h3>
+                            <p className="text-slate-600 text-sm leading-relaxed">
+                                {locale === 'tr' ? 'Baristaların imza kahveler yaratmak için en sık kullandığı şuruplar Karamel, Vanilya ve Fındık şuruplarıdır. Soğuk içecekler ve kokteyller için ise Blue Curaçao, Grenadine ve Meyve Püreleri yoğun talep görmektedir.' : 'The syrups most frequently used by baristas to create signature coffees are Caramel, Vanilla, and Hazelnut. For cold drinks and cocktails, Blue Curaçao, Grenadine, and Fruit Purees are in high demand.'}
+                            </p>
+                        </div>
+                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 className="font-bold text-slate-800 mb-2">{locale === 'tr' ? 'Almanya\'da toptan Fo şurubu nereden alınır?' : 'Where can I buy wholesale Fo syrup in Germany?'}</h3>
+                            <p className="text-slate-600 text-sm leading-relaxed">
+                                {locale === 'tr' ? 'ElysonSweets, Almanya başta olmak üzere Avrupa\'daki HORECA (Otel, Restoran, Kafe) işletmelerine toptan Fo şurubu tedariki sağlamaktadır. Uygun fiyatlar ve hızlı sevkiyat ile orijinal ürünleri sitemizden sipariş edebilirsiniz.' : 'ElysonSweets provides wholesale Fo syrup supply to HORECA (Hotel, Restaurant, Cafe) businesses in Europe, primarily in Germany. You can order original products from our site with affordable prices and fast shipping.'}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
