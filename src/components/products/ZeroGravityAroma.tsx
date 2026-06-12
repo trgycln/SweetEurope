@@ -23,18 +23,18 @@ interface FloatingAsset {
 
 const assets: FloatingAsset[] = [
     // Arka Plandakiler (Uzak, yavaş ve bulanık)
-    { id: 'coffee-bean-1', src: 'https://cdn.pixabay.com/photo/2014/12/11/02/55/coffee-563797_1280.png', alt: 'Coffee Bean', width: 60, height: 60, initialX: -30, initialY: -25, parallaxFactor: 0.02, zIndex: 1, rotation: 15, blur: 4 },
-    { id: 'caramel-1', src: 'https://cdn.pixabay.com/photo/2017/08/10/01/57/caramel-2617112_1280.png', alt: 'Caramel Cube', width: 70, height: 70, initialX: 35, initialY: -35, parallaxFactor: 0.015, zIndex: 2, rotation: -20, blur: 3 },
-    { id: 'vanilla-1', src: 'https://cdn.pixabay.com/photo/2016/10/25/13/16/vanilla-1768822_1280.png', alt: 'Vanilla Bean', width: 120, height: 80, initialX: -40, initialY: 30, parallaxFactor: 0.025, zIndex: 3, rotation: 45, blur: 2 },
+    { id: 'coffee-bean-1', src: '/images/philosophy/coffee-bean.png', alt: 'Coffee Bean', width: 60, height: 60, initialX: -30, initialY: -25, parallaxFactor: 0.02, zIndex: 1, rotation: 15, blur: 4 },
+    { id: 'caramel-1', src: '/images/philosophy/caramel-cube.png', alt: 'Caramel Cube', width: 70, height: 70, initialX: 35, initialY: -35, parallaxFactor: 0.015, zIndex: 2, rotation: -20, blur: 3 },
+    { id: 'vanilla-1', src: '/images/philosophy/vanilla-bean.png', alt: 'Vanilla Bean', width: 120, height: 80, initialX: -40, initialY: 30, parallaxFactor: 0.025, zIndex: 3, rotation: 45, blur: 2 },
     
     // Orta Plan (Normal hız, net)
-    { id: 'coffee-bean-2', src: 'https://cdn.pixabay.com/photo/2014/12/11/02/55/coffee-563797_1280.png', alt: 'Coffee Bean', width: 80, height: 80, initialX: 45, initialY: 15, parallaxFactor: 0.04, zIndex: 5, rotation: -40 },
-    { id: 'mint-1', src: 'https://cdn.pixabay.com/photo/2016/04/18/14/05/mint-1336605_1280.png', alt: 'Mint Leaf', width: 70, height: 70, initialX: -20, initialY: 45, parallaxFactor: 0.05, zIndex: 6, rotation: 10 },
+    { id: 'coffee-bean-2', src: '/images/philosophy/coffee-bean.png', alt: 'Coffee Bean', width: 80, height: 80, initialX: 45, initialY: 15, parallaxFactor: 0.04, zIndex: 5, rotation: -40 },
+    { id: 'mint-1', src: '/images/philosophy/mint-leaf.png', alt: 'Mint Leaf', width: 70, height: 70, initialX: -20, initialY: 45, parallaxFactor: 0.05, zIndex: 6, rotation: 10 },
     
     // Ön Plan (Hızlı, büyük ve çok net)
-    { id: 'caramel-2', src: 'https://cdn.pixabay.com/photo/2017/08/10/01/57/caramel-2617112_1280.png', alt: 'Caramel Cube', width: 100, height: 100, initialX: -45, initialY: -10, parallaxFactor: 0.08, zIndex: 20, rotation: 35 },
-    { id: 'coffee-bean-3', src: 'https://cdn.pixabay.com/photo/2014/12/11/02/55/coffee-563797_1280.png', alt: 'Coffee Bean', width: 110, height: 110, initialX: 30, initialY: 40, parallaxFactor: 0.09, zIndex: 21, rotation: -15 },
-    { id: 'vanilla-2', src: 'https://cdn.pixabay.com/photo/2016/10/25/13/16/vanilla-1768822_1280.png', alt: 'Vanilla Bean', width: 150, height: 100, initialX: 20, initialY: -45, parallaxFactor: 0.07, zIndex: 22, rotation: 80 },
+    { id: 'caramel-2', src: '/images/philosophy/caramel-cube.png', alt: 'Caramel Cube', width: 100, height: 100, initialX: -45, initialY: -10, parallaxFactor: 0.08, zIndex: 20, rotation: 35 },
+    { id: 'coffee-bean-3', src: '/images/philosophy/coffee-bean.png', alt: 'Coffee Bean', width: 110, height: 110, initialX: 30, initialY: 40, parallaxFactor: 0.09, zIndex: 21, rotation: -15 },
+    { id: 'vanilla-2', src: '/images/philosophy/vanilla-bean.png', alt: 'Vanilla Bean', width: 150, height: 100, initialX: 20, initialY: -45, parallaxFactor: 0.07, zIndex: 22, rotation: 80 },
 ];
 
 export default function ZeroGravityAroma() {
@@ -174,28 +174,13 @@ export default function ZeroGravityAroma() {
                 >
                     {/* Resim Container'ı ortalama için */}
                     <div className="relative -ml-[50%] -mt-[50%]">
-                        {/* Placeholder resimler kullanıyoruz ancak CSS Mask ile şekil verebiliriz veya doğrudan PNG */}
-                        {/* Not: Pixabay'den gelenler genelde şeffaf PNG olmuyor, ama demonstrasyon için `object-contain` */}
-                        {asset.id.includes('caramel') ? (
-                            <div className="bg-amber-600 rounded-lg shadow-lg" style={{ width: asset.width * 0.8, height: asset.height * 0.8 }}></div>
-                        ) : asset.id.includes('bean') ? (
-                            <div className="bg-[#4a3219] rounded-full shadow-lg" style={{ width: asset.width * 0.5, height: asset.height * 0.8, borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%' }}></div>
-                        ) : asset.id.includes('mint') ? (
-                             <div className="bg-emerald-500 rounded-full shadow-lg" style={{ width: asset.width * 0.8, height: asset.height * 0.4, borderRadius: '50% 0 50% 0' }}></div>
-                        ) : (
-                            <div className="bg-[#f3e5ab] shadow-lg" style={{ width: asset.width, height: asset.height * 0.1, borderRadius: '10px' }}></div>
-                        )}
-                        
-                        {/* 
-                        Gerçek resimler eklendiğinde aşağıdaki Image tag'i açılabilir:
                         <Image 
                             src={asset.src} 
                             alt={asset.alt}
                             width={asset.width}
                             height={asset.height}
-                            className="object-contain"
+                            className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]"
                         /> 
-                        */}
                     </div>
                 </div>
             ))}
@@ -209,18 +194,16 @@ export default function ZeroGravityAroma() {
                 {/* Şişe Gölgesi */}
                 <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-12 bg-black/40 blur-xl rounded-full"></div>
                 
-                {/* Şişe Görseli Placeholder (Gerçek premium şişe resmi ile değiştirilmeli) */}
-                <div className="relative w-48 h-[450px] bg-gradient-to-b from-amber-700/80 to-amber-900/90 rounded-t-3xl rounded-b-xl shadow-2xl border border-white/10 backdrop-blur-sm overflow-hidden flex flex-col items-center justify-end pb-8">
-                    {/* Şişe Kapağı */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-20 bg-slate-800 rounded-t-sm"></div>
-                    {/* Etiket */}
-                    <div className="w-32 h-48 bg-[#1a1a1a] rounded-lg border border-amber-500/30 flex flex-col items-center justify-center p-4">
-                        <span className="text-amber-500 text-3xl font-black tracking-widest">FO</span>
-                        <span className="text-white text-xs tracking-[0.2em] uppercase mt-2">Premium</span>
-                        <span className="text-amber-200/80 text-[10px] mt-1">Caramel Syrup</span>
-                    </div>
-                    {/* Cam parlaması efekti */}
-                    <div className="absolute top-0 left-4 w-12 h-full bg-gradient-to-r from-white/0 via-white/10 to-white/0 skew-x-12"></div>
+                {/* Şişe Görseli */}
+                <div className="relative flex items-end justify-center z-10 drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]">
+                    <Image 
+                        src="/images/philosophy/main-bottle.png"
+                        alt="Premium FO Syrup"
+                        width={250}
+                        height={550}
+                        className="object-contain max-h-[450px] w-auto"
+                        priority
+                    />
                 </div>
             </div>
 
