@@ -1317,7 +1317,7 @@ export const dictionary: Partial<Dictionary> = {
     formMessage: 'Mesajınız',
     formButton: 'Mesajı Gönder',
     detailsTitle: 'Doğrudan İletişim',
-    address: 'Musterstraße 123, 12345 Berlin, Almanya',
+    address: 'Wilhelm-Ruppert-Straße 38, 51147 Köln, Almanya',
     phone: '+49 (0) 123 456 789',
     email: 'info@ElysonSweets.de',
   },

@@ -641,6 +641,7 @@ export function ProductGridClient({
     // Client-side authentication state
     const [clientIsLoggedIn, setClientIsLoggedIn] = useState<boolean>(false);
     const [clientPartnerTier, setClientPartnerTier] = useState<string | undefined>(undefined);
+    const [bannerDismissed, setBannerDismissed] = useState<boolean>(false);
 
     const activeIsLoggedIn = isLoggedIn ?? clientIsLoggedIn;
     const activePartnerTier = partnerTier ?? clientPartnerTier;

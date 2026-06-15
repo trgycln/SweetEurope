@@ -1385,7 +1385,7 @@ statusOptions: {
     formMessage: 'Ihre Nachricht',
     formButton: 'Nachricht Senden',
     detailsTitle: 'Direkter Kontakt',
-    address: 'Musterstraße 123, 12345 Berlin, Deutschland',
+    address: 'Wilhelm-Ruppert-Straße 38, 51147 Köln, Deutschland',
     phone: '+49 (0) 123 456 789',
     email: 'info@ElysonSweets.de',
   },

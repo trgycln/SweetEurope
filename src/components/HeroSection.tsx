@@ -17,7 +17,7 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
           muted
           playsInline
           onError={() => setVideoHasError(true)}
-          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+          className="absolute top-0 left-0 w-full h-full object-cover z-0 opacity-80"
         >
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
@@ -29,7 +29,8 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
         />
       )}
-      <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-60 z-10" />
+      {/* Subtle overlay for text readability */}
+      <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-40 z-10 pointer-events-none" />
 
       {/* FO Food Products Logo - Sol Üstte */}
       <div className="absolute top-20 left-10 md:top-24 md:left-20 z-15 pointer-events-none hidden md:block">

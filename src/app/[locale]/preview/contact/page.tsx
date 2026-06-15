@@ -88,7 +88,7 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
             <h2 className="text-4xl font-serif text-primary mb-8 text-center">Unser Standort</h2>
             <div className="rounded-lg overflow-hidden shadow-xl border-4 border-white">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2428.106772428285!2d13.37542277717462!3d52.51627497206105!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851e0610be079%3A0x1033723378253112!2sReichstag%20Building!5e0!3m2!1sen!2sde!4v1727463075591!5m2!1sen!2sde"
+                src="https://maps.google.com/maps?q=Wilhelm-Ruppert-Stra%C3%9Fe+38,+51147+K%C3%B6ln&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="450"
                 style={{ border: 0 }}

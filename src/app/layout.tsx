@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import VercelAnalytics from "@/components/VercelAnalytics";
 import CookieBanner from "@/components/CookieBanner";
+import GlobalFluidProvider from "@/components/GlobalFluidProvider";
 import "./globals.css";
 
 const localeNames: Record<string, string> = {
@@ -102,6 +103,7 @@ export default async function RootLayout({
         />
       </head>
       <body suppressHydrationWarning>
+        <GlobalFluidProvider />
         {children}
         <VercelAnalytics />
         <CookieBanner />

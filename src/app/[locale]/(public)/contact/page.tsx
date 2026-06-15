@@ -50,8 +50,8 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
                   <FaMapMarkerAlt className="text-accent text-2xl mt-1" />
                   <div>
                     <h3 className="font-bold font-sans text-primary">Standort</h3>
-                    <p className="font-sans">Köln, Deutschland</p>
-                    <p className="font-sans text-xs text-gray-500 mt-1">Vollständige Lageradresse wird in Kürze bekannt gegeben</p>
+                    <p className="font-sans">Wilhelm-Ruppert-Straße 38</p>
+                    <p className="font-sans">51147 Köln, Deutschland</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -81,7 +81,7 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
             <h2 className="text-4xl font-serif text-primary mb-8 text-center">Unser Standort</h2>
             <div className="rounded-lg overflow-hidden shadow-xl border-4 border-white">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d25074.962627416494!2d6.9284984!3d50.9412786!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47bf25a6e0c8932f%3A0x8c85f9a7723118b0!2sCologne!5e0!3m2!1sen!2sde!4v1732032000000!5m2!1sen!2sde"
+                src="https://maps.google.com/maps?q=Wilhelm-Ruppert-Stra%C3%9Fe+38,+51147+K%C3%B6ln&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="450"
                 style={{ border: 0 }}

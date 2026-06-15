@@ -1314,7 +1314,7 @@ export const dictionary: Partial<Dictionary> = {
     formMessage: 'Your Message',
     formButton: 'Send Message',
     detailsTitle: 'Direct Contact',
-    address: 'Musterstraße 123, 12345 Berlin, Germany',
+    address: 'Wilhelm-Ruppert-Straße 38, 51147 Köln, Germany',
     phone: '+49 (0) 123 456 789',
     email: 'info@ElysonSweets.de',
   },
