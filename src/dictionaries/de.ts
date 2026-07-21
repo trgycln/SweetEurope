@@ -19,25 +19,25 @@ export const dictionary = {
     },
   ueberUnsPage: {
     // --- Hero Section ---
-    title: 'Unsere Geschichte & Werte', // Zuvor kullanılan
-    heroSubtitle: 'HANDWERKSKUNST AUS TRADITION', // Zuvor düzeltilen
+    title: 'Über uns',
+    heroSubtitle: 'IHR ZUVERLÄSSIGER PARTNER IM HORECA-SEKTOR',
 
     // --- Mission Section ---
-    missionTitle: 'Unsere Mission', // YENİ EKLENDİ
-    missionP1: 'Unsere Mission ist es, die Premium-Patisserie-Kultur in Deutschland zugänglich zu machen. Wir bieten unseren Partnern nicht nur Produkte, sondern ein komplettes Erlebnis, das auf Qualität, Zuverlässigkeit und Exklusivität basiert.', // YENİ EKLENDİ
+    missionTitle: 'Unsere Mission',
+    missionP1: 'Unsere Mission ist es, Hotels, Restaurants und Cafés (HoReCa) in ganz Deutschland mit erstklassigen Kaffeesirupen, Saucen und Getränkelösungen zu beliefern. Wir unterstützen den Erfolg unserer Partner mit innovativen und hochwertigen Produkten.',
 
     // --- Story Section ---
-    storyTitle: 'Von der Manufaktur zum Marktführer', // YENİ EKLENDİ
-    storyP1: 'ElysonSweets wurde 2010 als kleine Manufaktur in Berlin gegründet, angetrieben von der Leidenschaft, traditionelle Rezepte mit moderner Ästhetik zu verbinden. Jedes Rezept wurde über Generationen perfektioniert.', // YENİ EKLENDİ
-    storyP2: 'Heute sind wir stolz darauf, ein wachsendes Netzwerk von Geschäftspartnern zu beliefern und unsere kompromisslose Verpflichtung zur Qualität beizubehalten, während wir expandieren.', // YENİ EKLENDİ
+    storyTitle: 'Ein innovativer Impuls für die Branche',
+    storyP1: 'Wir sind ein junges, dynamisches Unternehmen, das gegründet wurde, um frischen Wind in den deutschen Markt zu bringen und die vielfältigen Bedürfnisse des HoReCa-Sektors zu erfüllen. Wir verstehen die Erwartungen moderner Betriebe.',
+    storyP2: 'Mit unserem breiten Sortiment von Kaffeesirupen bis hin zu Gourmet-Saucen möchten wir zur neuen Adresse für Qualität und Vertrauen in der Branche werden. Wir bauen ein starkes Fundament auf, um gemeinsam zu wachsen.',
 
     // --- Image Alts (Resim Açıklamaları) ---
-    image1Alt: 'ElysonSweets Konditor bei der Handarbeit an einer Torte.', // YENİ EKLENDİ
-    image2Alt: 'Historische Aufnahme der ersten ElysonSweets Manufaktur-Küche.', // YENİ EKLENDİ
+    image1Alt: 'Kaffee-Präsentation in einem modernen und dynamischen HoReCa-Umfeld.',
+    image2Alt: 'Unser breites Sortiment an Premium-Kaffeesirupen und -Saucen.',
 
     // --- Zuvor Düzeltilmiş Diğer Anahtarlar ---
-    section1Title: 'Das Herz von ElysonSweets',
-    section1Text: 'Wir wählen nur die feinsten Zutaten und garantieren meisterhafte Handwerkskunst in jeder Kreation. Qualität ist kein Versprechen, sondern unser Standard.',
+    section1Title: 'Warum wir?',
+    section1Text: 'Weil wir nicht nur ein Lieferant sind, sondern ein strategischer Partner. Mit unserem innovativen Ansatz und unseren hohen Qualitätsstandards stehen wir Ihnen jederzeit zur Seite.',
   },
 
   loginPage: {

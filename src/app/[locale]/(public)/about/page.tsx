@@ -52,7 +52,7 @@ export default async function AboutPage({ params }: { params: { locale: Locale }
           </div>
           <div className="relative h-96 rounded-lg overflow-hidden shadow-xl">
             <Image
-              src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1932&auto=format&fit=crop"
+              src="/images/uberuns.png"
               alt={content.image1Alt}
               fill // 'layout="fill"' ist veraltet, 'fill' verwenden
               className="object-cover" // 'objectFit' ist veraltet, Tailwind-Klasse verwenden
@@ -66,7 +66,7 @@ export default async function AboutPage({ params }: { params: { locale: Locale }
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative h-96 rounded-lg overflow-hidden shadow-xl md:order-2">
               <Image
-                src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1974&auto=format&fit=crop"
+                src="/images/uberuns2.jpg"
                 alt={content.image2Alt}
                 fill
                 className="object-cover"
