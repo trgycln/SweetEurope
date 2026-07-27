@@ -1,0 +1,175 @@
+Y: 77.2, X: 175.5 -> Karamel Aromalı  Şekerli Şurup 700ml
+Y: 87.7, X: 133.0 -> 96x248
+Y: 98.7, X: 127.2 -> Mat
+Y: 109.7, X: 138.7 -> 18.02.2025
+Y: 169.1, X: 561.3 -> RU
+Y: 169.7, X: 192.7 -> FR
+Y: 169.9, X: 84.0 -> EN
+Y: 170.0, X: 601.2 -> СИРОП СО ВКУСОМ КАРАМЕЛЯ
+Y: 170.2, X: 225.9 -> SIROP AROMATISÉ AU CARAMEL
+Y: 170.6, X: 121.2 -> CARAMEL FLAVORED SYRUP
+Y: 171.2, X: 681.7 -> A
+Y: 174.8, X: 562.2 -> Состав:
+Y: 174.8, X: 617.1 -> сахар, вода, ароматизатор,пищевые красители
+Y: 175.6, X: 240.2 -> INGREDIENTS:  Sucre, Eau, Arôme (Caramel), Colorant (E 150a),
+Y: 176.6, X: 137.1 -> INGREDIENTS: Sugar, Water, Flavouring (Caramel),  Colour
+Y: 179.4, X: 610.8 -> (Е 150a), регулятор кислотности (Е  330), консерванты
+Y: 181.1, X: 233.4 -> Correcteur d’acidité (E 330), Conservateur (E 202, E 211).
+Y: 182.6, X: 135.5 -> (E 150a), Acidity regulator (E 330), Preservative (E 202,
+Y: 183.9, X: 567.9 -> (Е  202,  Е  211).
+Y: 186.6, X: 240.4 -> CONSIGNE D’UTILISATION: Recommandé comme arôme et
+Y: 188.0, X: 573.9 -> РЕКОМЕНДАЦИИ
+Y: 188.0, X: 603.9 -> ПО
+Y: 188.0, X: 635.1 -> ПРИГОТОВЛЕНИЮ:
+Y: 188.6, X: 83.9 -> E 211).
+Y: 192.1, X: 240.4 -> édulcorant dans les cafés chauds ou glacés, les milkshakes,
+Y: 192.2, X: 605.7 -> Подходит для горячего и холодного кофе, чая,
+Y: 194.6, X: 130.5 -> Production Date (PRD), Best Before Date (EXP); Batch
+Y: 196.4, X: 593.8 -> милкшейков, коктейлей и моктейлей.
+Y: 197.6, X: 240.4 -> cocktails, mocktails ainsi que les thés chauds ou froids. Utiliser 1 à
+Y: 200.6, X: 130.5 -> number (BATCH NO) is on the package. Keep away from
+Y: 200.6, X: 603.6 -> Рекомендуется использовать 1–2 cl на порцию.
+Y: 203.1, X: 240.4 -> 2 cl de sirop selon le goût. Peut également être préparé comme
+Y: 204.8, X: 605.7 -> Можно также разбавить молоком или водой
+Y: 206.6, X: 116.4 -> direct sunlight, keep in cool and dry place.
+Y: 208.6, X: 240.4 -> boisson en le diluant à raison de 1/8 dans de l’eau ou du lait,
+Y: 209.0, X: 593.5 -> (горячей/холодной) в пропорции 1:8.
+Y: 213.2, X: 599.5 -> Добавляется в десерты и выпечку по вкусу.
+Y: 214.1, X: 240.3 -> chaud ou froid. On peut en ajouter à volonté aux desserts et
+Y: 214.7, X: 83.1 -> TR
+Y: 215.3, X: 125.4 -> KARAMEL AROMALI ŞURUP
+Y: 217.3, X: 581.5 -> Рекомендация по подаче.
+Y: 219.6, X: 240.4 -> produits de pâtisserie pour en rehausser le goût. Suggestion de
+Y: 221.5, X: 560.3 -> Дата
+Y: 221.5, X: 586.4 -> производства.
+Y: 221.5, X: 624.1 -> Рекомендуемая
+Y: 221.5, X: 651.3 -> дата
+Y: 222.7, X: 130.5 -> ‹Ç‹NDEK‹LER: Şeker, Su, Aroma verici (Karamel),
+Y: 225.1, X: 240.4 -> service. La date de production (PRD), la date limite de
+Y: 225.7, X: 605.7 -> потребления и номер партии указано на
+Y: 229.9, X: 605.6 -> этикетке. Хранить в дали от солнечнего света в
+Y: 230.2, X: 130.5 -> Renklendirici (E 150a), Asitlik düzenleyici (E 330),
+Y: 230.6, X: 240.4 -> consommation (EXP) et le numéro de lot (BATCH NO) figurent sur
+Y: 234.1, X: 583.7 -> прохладном и сухом месте.
+Y: 236.1, X: 240.4 -> l’étiquette. Protéger du rayonnement direct du soleil  et dans un
+Y: 237.7, X: 103.7 -> Koruyucu  (E 202, E 211).
+Y: 238.3, X: 592.5 -> Произведено и упаковоно в Турции.
+Y: 241.6, X: 202.4 -> endroit frais et sec.
+Y: 245.2, X: 130.5 -> Üretim Tarihi (ÜRT), Tavsiye Edilen Tüketim Tarihi
+Y: 252.1, X: 423.8 -> Sirop Aromatisé au
+Y: 252.7, X: 130.5 -> (TETT) ve Parti No (PN) etiket üzerindedir. Güneş
+Y: 254.6, X: 241.0 -> Energy and Nutrition Facts 100 ml;
+Y: 254.8, X: 713.4 -> PLACE OF USAGE AND DIRECTION FOR USE:
+Y: 254.8, X: 605.7 -> KULLANILDI⁄I YERLER VE KULLANMA TAL‹MATI:
+Y: 260.1, X: 125.8 -> ışığından uzakta, serin ve kuru yerde saklayınız.
+Y: 260.4, X: 236.0 -> Enerji ve Besin Öğeleri 100 ml;
+Y: 262.7, X: 606.3 -> Sıcak ve soğuk kahvelerde, milkshake, kokteyl ve
+Y: 263.2, X: 719.3 -> It is recommended to use 1–2 cl of syrup as a
+Y: 267.2, X: 205.3 -> Energy - Enerji
+Y: 267.4, X: 271.9 -> 1410 kj / 336 kcal
+Y: 269.0, X: 82.7 -> DE
+Y: 269.8, X: 119.1 -> SIRUP MIT KARAMELL AROMA
+Y: 270.5, X: 606.3 -> mokteyllerde, ayrıca sıcak ve soğuk çaylarda aroma
+Y: 271.5, X: 720.9 -> flavoring and sweetening agent in hot and cold
+Y: 273.3, X: 198.7 -> Fat - Yağ
+Y: 273.5, X: 285.9 -> 0,0 g
+Y: 274.7, X: 423.8 -> Caramel
+Y: 275.3, X: 130.4 -> ZUTATEN: Zucker, Wasser, Aroma (Karamell), Farbstoffe (E 150a),
+Y: 278.3, X: 599.2 -> ve tatlandırıcı olarak 1–2 cl şurup kullanılması
+Y: 279.5, X: 226.0 -> -of which Saturates - Doymuş Yağ
+Y: 279.6, X: 285.9 -> 0,0 g
+Y: 279.9, X: 727.0 -> coffees, milkshakes, cocktails, mocktails, and
+Y: 280.8, X: 127.1 -> Säuerungsmittel (E 330), Konservierungsstoffe (E 202, E 211).
+Y: 285.6, X: 214.8 -> Cholesterol - Kolesterol
+Y: 285.7, X: 285.9 -> 0,0 g
+Y: 286.0, X: 130.4 -> ANWENDUNG: Es wird empfohlen, 1–2 cl Sirup als Aroma- und
+Y: 286.1, X: 596.6 -> tavsiye edilir. Ayrıca sıcak ya da soğuk
+Y: 288.2, X: 729.4 -> also in hot and cold teas. Additionally, it
+Y: 291.0, X: 130.4 -> Süßungsmittel in heißen und kalten Kaffeespezialitäten,
+Y: 291.8, X: 221.0 -> Carbohydrate - Karbonhidrat
+Y: 291.9, X: 284.5 -> 81,8 g
+Y: 293.9, X: 595.4 -> su/süt ile 1/8 oranında karıştırılarak
+Y: 296.0, X: 130.4 -> Milchshakes, Cocktails, Mocktails sowie in heißen und kalten Tees zu
+Y: 296.6, X: 730.3 -> can be mixed with hot or cold water/milk
+Y: 298.0, X: 218.4 -> -of which Sugars - Şekerler
+Y: 298.0, X: 284.5 -> 81,7 g
+Y: 301.0, X: 130.4 -> verwenden. Es kann auch als Getränk zubereitet werden, indem es im
+Y: 301.7, X: 595.3 -> içecek olarak da hazırlanabilir. Tatlı
+Y: 304.1, X: 285.9 -> 0,0 g
+Y: 304.1, X: 206.2 -> Starch - Nişasta
+Y: 304.9, X: 730.3 -> at a 1/8 ratio to prepare a beverage. It
+Y: 306.0, X: 130.4 -> Verhältnis 1:8 mit heißem oder kaltem Wasser oder Milch gemischt
+Y: 309.5, X: 595.5 -> çeşitlerine ve pastacılık ürünlerine lezzet
+Y: 310.2, X: 285.9 -> 0,0 g
+Y: 310.3, X: 218.2 -> Dietary Fibre - Selulozik Lif
+Y: 311.0, X: 130.4 -> wird. Es kann in beliebiger Menge Desserts und Gebäck beigefügt
+Y: 313.3, X: 729.6 -> may also be added in the desired amount
+Y: 316.0, X: 126.4 -> werden, um ihnen Geschmack zu verleihen. Servierempfehlung.
+Y: 316.3, X: 285.9 -> 0,0 g
+Y: 316.4, X: 207.8 -> Protein - Protein
+Y: 317.3, X: 596.7 -> katmak amacıyla istenilen miktarda ilave
+Y: 321.0, X: 130.4 -> Herstellungsdatum (PRD), Mindesthaltbarkeitsdatum (EXP) und
+Y: 321.6, X: 727.8 -> to desserts and pastry products to enhance
+Y: 322.4, X: 274.1 -> 0,004 g / 0,01 g
+Y: 322.6, X: 219.2 -> Sodium - Sodyum / Salt - Tuz
+Y: 325.1, X: 579.4 -> edilebilir. Servis önerisidir.
+Y: 326.0, X: 130.4 -> Partien-Nr. (BATCH NO) befinden sich auf dem Etikett. Vor
+Y: 328.4, X: 240.0 -> Energy and Reference Levels for Some Nutrients(For  Adults)
+Y: 330.0, X: 704.1 -> flavor. Service suggestion.
+Y: 331.0, X: 119.7 -> Sonneneinstrahlung schützen, kühl und trocken lagern.
+Y: 332.4, X: 236.4 -> Enerji ve Bazı Besin Öğeleri için Referans Alım Düzeyleri
+Y: 336.5, X: 203.5 -> (Yetişkinler için)
+Y: 339.7, X: 82.8 -> ES
+Y: 339.8, X: 125.0 -> JARABE CON AROMA DE CARAMELO
+Y: 341.7, X: 648.6 -> Manufacturer / Üretici Firma:
+Y: 342.3, X: 213.5 -> Energy or Nutrition Facts/
+Y: 342.3, X: 276.2 -> Reference Levels
+Y: 345.3, X: 130.4 -> INDICE: Azúcar, Agua,  Aroma (Caramelo), Colorante (E 150a),
+Y: 346.9, X: 210.0 -> Enerji ve Besin Öğeleri
+Y: 346.9, X: 269.8 -> Referans Alım Düzeyleri
+Y: 349.7, X: 689.1 -> Özmer Pastacılık ve ‹çecek Ürünleri San. Paz. Turizm ve Dış Ticaret A.Ş.
+Y: 350.8, X: 127.2 -> Correctores de la acidez (E 330), Conservadore (E 202, E 211).
+Y: 352.7, X: 276.2 -> 8400 kj / 2000 kcal
+Y: 352.7, X: 201.7 -> Energy - Enerji
+Y: 356.0, X: 117.1 -> LUGARES DE SE UTILIZA E INSTRUCCIONES DE USO:
+Y: 356.3, X: 288.1 -> 70 g
+Y: 356.3, X: 196.5 -> Fat - Yağ
+Y: 357.4, X: 635.3 -> Gebze OSB Mah.
+Y: 357.4, X: 703.7 -> hsan Dede Cad. No:151 Gebze / Kocaeli / Türkiye
+Y: 357.7, X: 653.7 -> İ
+Y: 359.8, X: 288.1 -> 20 g
+Y: 359.9, X: 217.9 -> -of which Saturates - Doymuş Yağ
+Y: 361.0, X: 130.4 -> Es wird empfohlen, 1–2 cl Sirup als Aroma- und Süßungsmittel in
+Y: 363.4, X: 287.1 -> 260 g
+Y: 363.6, X: 213.9 -> Carbohydrate - Karbonhidrat
+Y: 365.4, X: 662.5 -> Tel: +90 (262) 673 75 51 / Pbx  Fax: +90 (262) 673 75 52  Branch Office - Antalya ‹rtibat Bürosu Tel: +90 (242) 322 85 71
+Y: 366.0, X: 130.4 -> heißen und kalten Kaffeespezialitäten, Milchshakes, Cocktails,
+Y: 367.0, X: 288.1 -> 90 g
+Y: 367.2, X: 212.0 -> -of which Sugars - Şekerler
+Y: 370.6, X: 288.1 -> 25 g
+Y: 370.8, X: 211.9 -> Dietary Fibre - Selulozik Lif
+Y: 371.0, X: 130.4 -> Mocktails sowie in heißen und kalten Tees zu verwenden. Es kann
+Y: 373.4, X: 662.6 -> www.ozmerpastacilik.com.tr / www.fo.com.tr / www. coregida.com / www.limpo.com.tr / www.repo.com.tr
+Y: 374.2, X: 288.1 -> 50 g
+Y: 374.4, X: 203.6 -> Protein - Protein
+Y: 376.0, X: 130.4 -> auch als Getränk zubereitet werden, indem es im Verhältnis 1:8 mit
+Y: 377.8, X: 283.5 -> 2,4 g / 6 g
+Y: 378.0, X: 213.7 -> Sodium - Sodyum / Salt - Tuz
+Y: 379.6, X: 513.3 -> • Made with Sugar
+Y: 381.0, X: 130.4 -> heißem oder kaltem Wasser oder Milch gemischt wird. Es kann in
+Y: 381.4, X: 569.8 -> www.ozmer.com
+Y: 386.0, X: 130.4 -> beliebiger Menge Desserts und Gebäck beigefügt werden, um ihnen
+Y: 390.8, X: 240.9 -> Company Registration No : TR-41-K-027696
+Y: 391.0, X: 112.0 -> Geschmack zu verleihen. Servierempfehlung.
+Y: 396.0, X: 130.4 -> Herstellungsdatum (PRD), Mindesthaltbarkeitsdatum (EXP) und
+Y: 398.5, X: 222.3 -> şletme Kayıt No              :
+Y: 398.5, X: 273.5 -> TR-41-K-027696
+Y: 398.8, X: 189.9 -> İ
+Y: 401.0, X: 130.4 -> Partien-Nr. (BATCH NO) befinden sich auf dem Etikett. Vor
+Y: 406.0, X: 119.7 -> Sonneneinstrahlung schützen, kühl und trocken lagern.
+Y: 406.5, X: 237.2 -> Türk Gıda Kodeksi’ne uygun olarak üretilmiştir.
+Y: 409.4, X: 423.8 -> Caramel Flavored Syrup
+Y: 414.5, X: 237.0 -> Menşei: Türkiye / Made in Turkey
+Y: 421.8, X: 450.7 -> Ş
+Y: 422.1, X: 410.2 -> Karamel Aromalı
+Y: 422.1, X: 464.3 -> urup

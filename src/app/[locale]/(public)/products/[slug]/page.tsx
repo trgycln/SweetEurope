@@ -126,6 +126,10 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
     const aciklamaJson = (urun as any).aciklamalar as Record<string, string> | null;
     const aciklama = aciklamaJson?.[locale] ?? aciklamaJson?.['de'] ?? aciklamaJson?.['tr'] ?? '';
 
+    // Lade das Dictionary für die Mehrsprachigkeit (gemäß Benutzerwunsch)
+    const { getDictionary } = await import('@/dictionaries');
+    const dictionary = await getDictionary(locale);
+
     const productSchema = {
         "@context": "https://schema.org",
         "@type": "Product",
@@ -196,6 +200,7 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                 urun={urun as any}
                 ozellikSablonu={ozellikSablonu as any}
                 locale={locale}
+                dict={dictionary}
             />
         </>
     );

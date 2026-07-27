@@ -34,7 +34,7 @@ export default async function DatenschutzPage({ params }: { params: Promise<{ lo
               <div className="pl-4 border-l-2 border-accent text-sm text-gray-700 space-y-0.5">
                 <p>Elyson Sweets GmbH i.G.</p>
                 <p>Sirius Business Park</p>
-                <p>Wilhelm-Ruppert-Straße 38 F8</p>
+                <p>Wilhelm-Ruppert-Straße 38 / F8</p>
                 <p>51147 Köln</p>
                 <p>{t.companyRepLabel} Ahmet Seker</p>
                 <p>

@@ -179,47 +179,35 @@ export async function middleware(req: NextRequest) {
     }
 
     // Für eingeloggte Benutzer: Prüfen, ob aktuelle Locale mit bevorzugter Sprache übereinstimmt
-    // NEU: Nur auf geschützten Routen (/admin, /portal) erzwingen. Öffentliche Seiten dürfen Header-Auswahl behalten.
+    // (Auskommentiert, damit der Sprachwechsler im Header immer funktioniert, auch im Admin/Portal)
+    /*
     if (user && pathnameHasLocale && isProtectedRoute) {
-        const currentLocale = pathname.split('/')[1];
-        console.log(`-> Middleware: Locale check - current: ${currentLocale}`);
-        try {
-            const { data: profile } = await supabase
-                .from('profiller')
-                .select('tercih_edilen_dil')
-                .eq('id', user.id)
-                .single();
-            
-            console.log(`-> Middleware: User preferred language from DB: ${profile?.tercih_edilen_dil}`);
-            
-            if (profile?.tercih_edilen_dil &&
-                locales.includes(profile.tercih_edilen_dil) &&
-                currentLocale !== profile.tercih_edilen_dil) {
-                
-                // Nur den Locale-Segment austauschen, Rest identisch lassen
-                const remaining = pathSegments.slice(1).join('/'); // 'admin/dashboard' etc.
-                const newPathname = `/${profile.tercih_edilen_dil}/${remaining}`;
-                console.log(`-> Middleware: ✅ Language mismatch detected! Redirecting from ${pathname} to ${newPathname}`);
-                return NextResponse.redirect(new URL(newPathname, req.url));
-            } else {
-                console.log(`-> Middleware: ℹ️ No redirect needed (current=${currentLocale}, preferred=${profile?.tercih_edilen_dil})`);
-            }
-        } catch (error) {
-            console.error("-> Middleware: ❌ Fehler beim Prüfen der bevorzugten Sprache:", error);
-        }
+        ...
     }
-    // Öffentliche Routen (nicht protected): Keine erzwungene Umschaltung auf Profil-Locale.
-    // Header-Auswahl (manueller Wechsel) bleibt wirksam, weil wir hier keine Redirects mehr auslösen.
+    */
 
-    // x-locale header: root layout html lang attribute icin
+    // x-locale header: root layout html lang attribute icin (Dem Request hinzufügen!)
     const localeFromPath = pathname.split('/')[1];
     if (locales.includes(localeFromPath)) {
-        res.headers.set('x-locale', localeFromPath);
+        res.headers.set('x-locale', localeFromPath); // Bleibt für Response (falls nützlich)
+        req.headers.set('x-locale', localeFromPath); // WICHTIG: Setze es im Request für Server Components
     }
 
     console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
-    // Wichtig: Immer 'res' (die Response von updateSession) zurückgeben, wenn keine andere Aktion erfolgt
-    return res;
+    
+    // Wir müssen die aktualisierten Request-Header an Next.js weitergeben
+    const finalRes = NextResponse.next({
+        request: {
+            headers: req.headers,
+        }
+    });
+
+    // Cookies aus der Supabase-Antwort (res) in die finale Antwort übernehmen
+    res.cookies.getAll().forEach(cookie => {
+        finalRes.cookies.set(cookie.name, cookie.value, cookie);
+    });
+    
+    return finalRes;
 }
 
 export const config = {

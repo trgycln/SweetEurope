@@ -31,7 +31,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
               <h2 className="text-xl font-bold font-serif text-primary mb-3">{t.legalNote}</h2>
               <p>Elyson Sweets GmbH i.G.</p>
               <p>Sirius Business Park</p>
-              <p>Wilhelm-Ruppert-Straße 38 F8</p>
+              <p>Wilhelm-Ruppert-Straße 38 / F8</p>
               <p>51147 Köln</p>
               <p>Deutschland</p>
             </div>

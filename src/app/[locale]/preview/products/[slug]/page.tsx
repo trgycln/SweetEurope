@@ -79,9 +79,10 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
     return (
         <>
             <UrunDetayGorunumu
-                urun={urun}
-                ozellikSablonu={ozellikSablonu}
+                urun={urun as any}
+                ozellikSablonu={ozellikSablonu as any}
                 locale={locale}
+                dict={dictionary}
             />
             
             {/* Review Section */}

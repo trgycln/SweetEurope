@@ -50,7 +50,7 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
                   <FaMapMarkerAlt className="text-accent text-2xl mt-1" />
                   <div>
                     <h3 className="font-bold font-sans text-primary">Standort</h3>
-                    <p className="font-sans">Wilhelm-Ruppert-Straße 38</p>
+                    <p className="font-sans">Wilhelm-Ruppert-Straße 38 / F8</p>
                     <p className="font-sans">51147 Köln, Deutschland</p>
                   </div>
                 </div>

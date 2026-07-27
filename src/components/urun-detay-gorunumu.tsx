@@ -23,6 +23,7 @@ interface UrunDetayGorunumuProps {
     urun: Urun;
     ozellikSablonu: Sablon[];
     locale: Locale;
+    dict?: any;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -64,101 +65,7 @@ const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string; icon: strin
     'Rainforest': { label: 'Rainforest Alliance', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200', icon: '🌲' },
 };
 
-// ── Localization ─────────────────────────────────────────────────────────────
 
-const T = {
-    de: {
-        category: 'Kategorie', sku: 'Art.-Nr.', ean: 'EAN / GTIN',
-        description: 'Produktbeschreibung', specs: 'Technische Daten',
-        packaging: 'Verpackung & Logistik',
-        unit: 'Einheit', box: 'Karton', case: 'Kiste', pallet: 'Palette',
-        weight: 'Gewicht', volume: 'Volumen',
-        contact: 'Preisanfrage stellen',
-        contactSub: 'Für Großbestellungen und individuelle Preislisten stehen wir Ihnen gerne zur Verfügung.',
-        dietary: 'Qualitätsmerkmale', flavors: 'Geschmack', logistics: 'Logistikklasse',
-        certifications: 'Zertifikate & Qualitätssiegel',
-        orderInfo: 'Bestellinformation',
-        moq: 'Mindestbestellmenge', delivery: 'Lieferzeit', validity: 'Mindesthaltbarkeit',
-        validityAfterOpen: 'Nach Öffnung',
-        storage: 'Lagerung', origin: 'Herkunftsland', manufacturer: 'Hersteller',
-        datasheet: 'Produktdatenblatt herunterladen',
-        ingredients: 'Zutaten / Inhaltsstoffe',
-        allergens: 'Allergene (gem. LMIV Anhang II)',
-        allergenContains: 'Enthält:', allergenTraces: 'Kann Spuren enthalten von:',
-        nutritionTitle: 'Nährwertangaben',
-        nutritionPer100: 'je 100 g',
-        nutritionPerPortion: 'je Portion',
-        portionSize: 'Portionsgröße',
-        energy: 'Brennwert', fat: 'Fett', saturated: 'davon gesättigte Fettsäuren',
-        carbs: 'Kohlenhydrate', sugars: 'davon Zucker', fiber: 'Ballaststoffe',
-        protein: 'Eiweiß', salt: 'Salz',
-        werktage: 'Werktage', months: 'Monate', days: 'Tage',
-        tiefkuehl: 'Tiefkühlware (≤ −18 °C)', kuehlware: 'Kühlware', ambient: 'Trocken / Ambient',
-        noAllergen: 'Keine deklarationspflichtigen Allergene.',
-    },
-    tr: {
-        category: 'Kategori', sku: 'Ürün Kodu', ean: 'EAN / GTIN',
-        description: 'Ürün Açıklaması', specs: 'Teknik Özellikler',
-        packaging: 'Ambalaj & Lojistik',
-        unit: 'Birim', box: 'Kutu', case: 'Koli', pallet: 'Palet',
-        weight: 'Ağırlık', volume: 'Hacim',
-        contact: 'Fiyat Teklifi İste',
-        contactSub: 'Toptan siparişler ve fiyat listesi için bizimle iletişime geçin.',
-        dietary: 'Kalite Özellikleri', flavors: 'Lezzet', logistics: 'Lojistik Sınıfı',
-        certifications: 'Sertifikalar & Kalite Belgeleri',
-        orderInfo: 'Sipariş Bilgileri',
-        moq: 'Minimum Sipariş', delivery: 'Teslimat Süresi', validity: 'Son Kullanma',
-        validityAfterOpen: 'Açıldıktan Sonra',
-        storage: 'Depolama', origin: 'Menşei Ülke', manufacturer: 'Üretici',
-        datasheet: 'Ürün Veri Sayfasını İndir',
-        ingredients: 'İçindekiler',
-        allergens: 'Alerjenler (LMIV Ek II)',
-        allergenContains: 'İçerir:', allergenTraces: 'İz miktarda içerebilir:',
-        nutritionTitle: 'Besin Değerleri',
-        nutritionPer100: '100 g başına',
-        nutritionPerPortion: 'Porsiyon başına',
-        portionSize: 'Porsiyon büyüklüğü',
-        energy: 'Enerji', fat: 'Yağ', saturated: 'doymuş yağ asitleri',
-        carbs: 'Karbonhidrat', sugars: 'şeker', fiber: 'Lif',
-        protein: 'Protein', salt: 'Tuz',
-        werktage: 'iş günü', months: 'ay', days: 'gün',
-        tiefkuehl: 'Derin Dondurulmuş (≤ −18 °C)', kuehlware: 'Soğutulmuş', ambient: 'Kuru / Oda Sıcaklığı',
-        noAllergen: 'Beyan edilmesi gereken alerjen bulunmamaktadır.',
-    },
-    en: {
-        category: 'Category', sku: 'SKU', ean: 'EAN / GTIN',
-        description: 'Product Description', specs: 'Technical Details',
-        packaging: 'Packaging & Logistics',
-        unit: 'Unit', box: 'Box', case: 'Case', pallet: 'Pallet',
-        weight: 'Weight', volume: 'Volume',
-        contact: 'Request a Quote',
-        contactSub: 'Contact us for bulk orders and custom price lists.',
-        dietary: 'Quality Features', flavors: 'Flavors', logistics: 'Logistics Class',
-        certifications: 'Certifications & Quality Labels',
-        orderInfo: 'Order Information',
-        moq: 'Min. Order Qty.', delivery: 'Delivery Time', validity: 'Best Before',
-        validityAfterOpen: 'After Opening',
-        storage: 'Storage', origin: 'Country of Origin', manufacturer: 'Manufacturer',
-        datasheet: 'Download Product Datasheet',
-        ingredients: 'Ingredients',
-        allergens: 'Allergens (LMIV Annex II)',
-        allergenContains: 'Contains:', allergenTraces: 'May contain traces of:',
-        nutritionTitle: 'Nutritional Values',
-        nutritionPer100: 'per 100 g',
-        nutritionPerPortion: 'per portion',
-        portionSize: 'Portion size',
-        energy: 'Energy', fat: 'Fat', saturated: 'of which saturated',
-        carbs: 'Carbohydrates', sugars: 'of which sugars', fiber: 'Dietary fibre',
-        protein: 'Protein', salt: 'Salt',
-        werktage: 'working days', months: 'months', days: 'days',
-        tiefkuehl: 'Frozen (≤ −18 °C)', kuehlware: 'Chilled', ambient: 'Dry / Ambient',
-        noAllergen: 'No declarable allergens.',
-    },
-} as const;
-
-function lx(locale: string): typeof T.de {
-    return (T as any)[locale] ?? T.de;
-}
 
 function fmtWeight(kg: number | null | undefined, grams?: number | null): string | null {
     if (kg && kg > 0) return kg >= 1 ? `${kg % 1 === 0 ? kg : kg.toFixed(1)} kg` : `${Math.round(kg * 1000)} g`;
@@ -223,8 +130,8 @@ function AllergenRow({ present, label, icon }: { present: boolean; label: string
 
 // ── FO Product Detail Component ────────────────────────────────────────────────
 
-export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGorunumuProps) {
-    const lc = lx(locale);
+export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale, dict }: UrunDetayGorunumuProps) {
+    const lc = dict?.foProductDetail || {};
     const urunAdi = getLocalizedName(urun.ad, locale);
 const aciklamaRaw = (urun.aciklamalar as Record<string, string> | null) ?? {};
 const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] || aciklamaRaw['tr'] || '';
@@ -241,7 +148,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const haltbarkeitNachOeffnen = urun.haltbarkeit_nach_oeffnen_tage ?? null;
     const zertifikate: string[] = urun.zertifikate ?? [];
     const inhaltsstoffeJson = urun.inhaltsstoffe as Record<string, string> | null;
-    const inhaltsstoffe: string | null = inhaltsstoffeJson?.[locale] ?? inhaltsstoffeJson?.de ?? null;
+    const inhaltsstoffe: string | null = inhaltsstoffeJson?.[locale] ?? inhaltsstoffeJson?.en ?? inhaltsstoffeJson?.de ?? null;
     const allergeneRaw = (urun.allergene as any) ?? {};
     const allergene: Record<string, boolean> = (() => {
         if (allergeneRaw.allergen_free === true) return {};
@@ -325,7 +232,11 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const nPortion = naehrwerteRaw?.pro_portion ?? null;
     const hasNaehrwerte = n100 && (n100.energie_kcal || n100.energie_kj);
 
-    const herkunftLabel = herkunft ? (herkunft[locale] || herkunft.de || herkunft.en || Object.values(herkunft)[0]) : null;
+    const herkunftLabel = typeof herkunft === 'string' 
+        ? herkunft 
+        : herkunft 
+            ? ((herkunft as any)[locale] || (herkunft as any).de || (herkunft as any).en || Object.values(herkunft as any)[0]) 
+            : null;
 
     return (
         <motion.div 
@@ -548,14 +459,6 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                     </div>
                                 )}
                             </div>
-                            {produktdatenblattUrl && (
-                                <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
-                                    <a href={produktdatenblattUrl} target="_blank" rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">
-                                        <FiDownload size={14} /> {lc.datasheet}
-                                    </a>
-                                </div>
-                            )}
                         </div>
 
                         {/* ── Zutaten & Allergene (EU LMIV) ──────────────── */}
@@ -718,14 +621,14 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function UrunDetayGorunumu({ urun, ozellikSablonu, locale }: UrunDetayGorunumuProps) {
+export function UrunDetayGorunumu({ urun, ozellikSablonu, locale, dict }: UrunDetayGorunumuProps) {
     // FO ürünlerini yönlendir
     if (urun.kategoriler?.urun_gami === 'barista-bakery-essentials') {
-        return <FoUrunDetayGorunumu urun={urun} ozellikSablonu={ozellikSablonu} locale={locale} />;
+        return <FoUrunDetayGorunumu urun={urun} ozellikSablonu={ozellikSablonu} locale={locale} dict={dict} />;
     }
 
     // SweetHeaven ürünleri için mevcut bileşen
-    const lc = lx(locale);
+    const lc = dict?.foProductDetail || {};
     const urunAdi = getLocalizedName(urun.ad, locale);
 const aciklamaRaw = (urun.aciklamalar as Record<string, string> | null) ?? {};
 const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] || aciklamaRaw['tr'] || '';
@@ -734,7 +637,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
 
     // ── B2B fields (all now properly typed via database.types.ts) ──
     const eanGtin = urun.ean_gtin ?? null;
-    const herkunft = (urun.herkunftsland as Record<string, string> | null) ?? null;
+    const herkunft = urun.herkunftsland ?? null;
     const moq: number = urun.mindest_bestellmenge ?? 1;
     const moqEinheit: string = urun.mindest_bestellmenge_einheit ?? lc.box;
     const tempMin = urun.lagertemperatur_min_celsius ?? null;
