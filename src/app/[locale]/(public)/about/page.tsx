@@ -54,8 +54,9 @@ export default async function AboutPage({ params }: { params: { locale: Locale }
             <Image
               src="/images/uberuns.png"
               alt={content.image1Alt}
-              fill // 'layout="fill"' ist veraltet, 'fill' verwenden
-              className="object-cover" // 'objectFit' ist veraltet, Tailwind-Klasse verwenden
+              fill
+              className="object-cover"
+              unoptimized
             />
           </div>
         </div>
@@ -70,6 +71,7 @@ export default async function AboutPage({ params }: { params: { locale: Locale }
                 alt={content.image2Alt}
                 fill
                 className="object-cover"
+                unoptimized
               />
           </div>
           <div className="md:order-1">

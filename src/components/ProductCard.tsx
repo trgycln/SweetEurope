@@ -17,9 +17,7 @@ type ProductCardProps = {
 export default function ProductCard({ urun, lang, linkHref }: ProductCardProps) {
     const urunAdi = getLocalizedName(urun.urun_adi, lang);
     const kategoriAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, lang) : '';
-    const imageUrl = (urun.fotograf_url_listesi && urun.fotograf_url_listesi.length > 0) 
-        ? urun.fotograf_url_listesi[0] 
-        : '/placeholder.jpg';
+    const imageUrl = urun.ana_resim_url ? urun.ana_resim_url : '/placeholder.jpg';
 
     const { mounted, unlocked, openLeadModal, addToCart, cart } = useLeadGate();
 
