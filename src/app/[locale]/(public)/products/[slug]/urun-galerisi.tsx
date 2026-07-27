@@ -37,6 +37,7 @@ export function UrunGalerisi({ anaResim, galeri, urunAdi }: UrunGalerisiProps) {
                         height={800}
                         className="w-full h-full object-cover"
                         priority // Ana resim olduğu için öncelikli yükle
+                        unoptimized
                     />
                  )}
             </div>
@@ -50,7 +51,7 @@ export function UrunGalerisi({ anaResim, galeri, urunAdi }: UrunGalerisiProps) {
                                 aktifResim === imgUrl ? 'border-accent' : 'border-transparent hover:border-gray-300'
                             }`}
                         >
-                            <Image src={imgUrl} alt={`Galeri ${index+1}`} width={200} height={200} className="w-full h-full object-cover" />
+                            <Image src={imgUrl} alt={`Galeri ${index+1}`} width={200} height={200} className="w-full h-full object-cover" unoptimized />
                         </button>
                     ))}
                 </div>

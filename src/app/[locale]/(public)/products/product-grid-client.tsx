@@ -214,7 +214,7 @@ function CatalogCard({
             <Link href={`/${locale}/products/${urun.slug}`} className="block relative h-36 bg-slate-50 overflow-hidden flex-shrink-0 will-change-transform">
                 {urun.ana_resim_url ? (
                     <Image src={urun.ana_resim_url} alt={name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                        className="object-contain p-1 group-hover:scale-105 transition-transform duration-300" />
+                        className="object-contain p-1 group-hover:scale-105 transition-transform duration-300" unoptimized />
                 ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <FiPackage className="w-10 h-10 text-slate-300" />
@@ -436,7 +436,7 @@ function MerklisteDrawer({
                             <div key={item.urunId} className="flex items-center gap-3 px-4 py-3">
                                 {u.ana_resim_url && (
                                     <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
-                                        <Image src={u.ana_resim_url} alt={name} fill sizes="40px" className="object-cover" />
+                                        <Image src={u.ana_resim_url} alt={name} fill sizes="40px" className="object-cover" unoptimized />
                                     </div>
                                 )}
                                 <div className="flex-1 min-w-0">
@@ -590,7 +590,7 @@ function CatalogRow({ urun, locale, kategoriAdlariMap, isLoggedIn }: {
             className="group grid grid-cols-[40px_2.5fr_1fr_80px_80px_120px_100px_40px] items-center gap-3 px-4 py-2 hover:bg-slate-50 transition-colors cursor-pointer">
             <div className="relative w-10 h-10 rounded-md overflow-hidden bg-slate-50 flex-shrink-0 will-change-transform">
                 {urun.ana_resim_url ? (
-                    <Image src={urun.ana_resim_url} alt={name} fill sizes="40px" className="object-contain p-0.5" />
+                    <Image src={urun.ana_resim_url} alt={name} fill sizes="40px" className="object-contain p-0.5" unoptimized />
                 ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <FiPackage className="w-4 h-4 text-slate-300" />

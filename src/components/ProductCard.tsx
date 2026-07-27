@@ -78,6 +78,7 @@ export default function ProductCard({ urun, lang, linkHref }: ProductCardProps) 
                         layout="fill"
                         objectFit="cover"
                         className="transition-transform duration-500 group-hover:scale-110"
+                        unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
                     <div className="absolute bottom-4 left-4">

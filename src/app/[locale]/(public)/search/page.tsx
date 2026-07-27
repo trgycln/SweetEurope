@@ -179,6 +179,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                                                         fill
                                                         sizes="64px"
                                                         className="object-cover"
+                                                        unoptimized
                                                     />
                                                 </div>
                                                 <div>
