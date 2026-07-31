@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { FiFile, FiFileText, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2 } from 'react-icons/fi';
+import { FiFile, FiFileText, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2, FiChevronUp, FiChevronDown, FiMenu } from 'react-icons/fi';
 import { toast } from 'sonner';
 import {
   confirmOrderCreateGiderAndLogAction,
@@ -212,6 +212,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   const [lastDraftSaveAt, setLastDraftSaveAt] = useState<string | null>(null);
   const [storageReady, setStorageReady] = useState(false);
   const [editingRecordId,    setEditingRecordId]    = useState<string | null>(null);
+  const [draggedItemId,      setDraggedItemId]      = useState<string | null>(null);
 
   // ── Toplu indirim state ──────────────────────────────────────────────────
   const [bulkDiscMode,      setBulkDiscMode]      = useState<'single' | 'double'>('single');
@@ -529,6 +530,57 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
 
   const removeItem = (id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const moveItem = (id: string, direction: 'up' | 'down') => {
+    setItems((prev) => {
+      const index = prev.findIndex((item) => item.id === id);
+      if (index === -1) return prev;
+      
+      const newItems = [...prev];
+      if (direction === 'up' && index > 0) {
+        [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+      } else if (direction === 'down' && index < newItems.length - 1) {
+        [newItems[index], newItems[index + 1]] = [newItems[index + 1], newItems[index]];
+      }
+      return newItems;
+    });
+  };
+
+  const handleDragStart = (e: React.DragEvent<HTMLTableRowElement>, id: string) => {
+    setDraggedItemId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLTableRowElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLTableRowElement>, targetId: string) => {
+    e.preventDefault();
+    if (!draggedItemId || draggedItemId === targetId) {
+      setDraggedItemId(null);
+      return;
+    }
+
+    setItems((prev) => {
+      const draggedIndex = prev.findIndex((i) => i.id === draggedItemId);
+      const targetIndex = prev.findIndex((i) => i.id === targetId);
+      if (draggedIndex === -1 || targetIndex === -1) return prev;
+
+      const newItems = [...prev];
+      const [draggedItem] = newItems.splice(draggedIndex, 1);
+      newItems.splice(targetIndex, 0, draggedItem);
+      return newItems;
+    });
+
+    setDraggedItemId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItemId(null);
   };
 
   const clearItems = () => setItems([]);
@@ -1564,7 +1616,8 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           <table className="min-w-full border-separate border-spacing-0 text-sm">
             <thead>
               <tr className="bg-gray-50 text-left text-gray-700">
-                <th className="rounded-tl-lg border-b border-gray-200 px-3 py-2">Stok Kodu</th>
+                <th className="rounded-tl-lg border-b border-gray-200 px-2 py-2 w-12 text-center">#</th>
+                <th className="border-b border-gray-200 px-3 py-2">Stok Kodu</th>
                 <th className="border-b border-gray-200 px-3 py-2">Ürün</th>
                 <th className="border-b border-gray-200 px-3 py-2">Birim</th>
                 <th className="border-b border-gray-200 px-3 py-2 text-right">Miktar</th>
@@ -1578,14 +1631,27 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             <tbody>
               {enrichedItems.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-3 py-10 text-center text-gray-500">
+                  <td colSpan={10} className="px-3 py-10 text-center text-gray-500">
                     Henüz ürün eklenmedi.
                   </td>
                 </tr>
               )}
-              {enrichedItems.map((row) => (
+              {enrichedItems.map((row, index) => (
                 <tr key={row.id}
-                  className={`border-b border-gray-100 align-top transition-colors ${row.isModified ? 'bg-orange-50' : ''}`}>
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, row.id)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, row.id)}
+                  onDragEnd={handleDragEnd}
+                  className={`border-b border-gray-100 align-top transition-colors ${row.isModified ? 'bg-orange-50' : ''} ${draggedItemId === row.id ? 'opacity-50 bg-gray-100' : ''}`}>
+                  <td className="px-2 py-2 text-gray-400">
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      <span className="no-print cursor-move hover:text-gray-600" title="Sürükle bırak ile taşı">
+                        <FiMenu size={16} />
+                      </span>
+                      <span className="text-xs font-semibold text-gray-500 w-4 text-center">{index + 1}</span>
+                    </div>
+                  </td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-600">{row.product.stok_kodu || '-'}</td>
                   <td className="px-3 py-2">
                     <Link
@@ -1712,13 +1778,34 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                   </td>
                   <td className="px-3 py-2 text-right font-semibold text-primary">{formatCurrency(row.lineTotal)}</td>
                   <td className="no-print px-3 py-2 text-right">
-                    <button
-                      type="button"
-                      onClick={() => removeItem(row.id)}
-                      className="inline-flex items-center gap-1 rounded-md border border-rose-200 px-2 py-1 text-xs font-medium text-rose-700"
-                    >
-                      <FiTrash2 /> Sil
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        onClick={() => moveItem(row.id, 'up')}
+                        disabled={index === 0}
+                        title="Yukarı taşı"
+                        className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <FiChevronUp size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveItem(row.id, 'down')}
+                        disabled={index === enrichedItems.length - 1}
+                        title="Aşağı taşı"
+                        className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <FiChevronDown size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(row.id)}
+                        title="Sil"
+                        className="inline-flex items-center gap-1 rounded-md border border-rose-200 px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
+                      >
+                        <FiTrash2 /> <span className="hidden sm:inline">Sil</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -1726,7 +1813,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             {enrichedItems.length > 0 && (
               <tfoot>
                 <tr className="bg-gray-50">
-                  <td colSpan={6} className="px-3 py-3 text-sm text-gray-600">
+                  <td colSpan={7} className="px-3 py-3 text-sm text-gray-600">
                     {selectedSupplierName} · {totals.totalLines} kalem · {totals.totalUnits} toplam birim
                   </td>
                   <td className="px-3 py-3 text-right text-sm font-medium text-gray-700">Genel Toplam</td>
@@ -1735,7 +1822,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                 </tr>
                 {/* Palet + Ağırlık özeti satırı */}
                 <tr className="bg-indigo-50 border-t-2 border-indigo-200">
-                  <td colSpan={9} className="rounded-b-lg px-3 py-3">
+                  <td colSpan={10} className="rounded-b-lg px-3 py-3">
                     <div className="flex flex-wrap items-start gap-x-8 gap-y-2">
                       {/* Palet */}
                       <div className="flex items-center gap-2">
