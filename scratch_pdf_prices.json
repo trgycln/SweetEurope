@@ -1,0 +1,2867 @@
+{
+  "fo strawberry flavored sauce": {
+    "original_name": "Fo STRAWBERRY Flavored Sauce",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo caramel flavored sauce": {
+    "original_name": "Fo CARAMEL Flavored Sauce",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo chocolate flavored sauce": {
+    "original_name": "Fo CHOCOLATE Flavored Sauce",
+    "price1": 2.42,
+    "price2": 1.78
+  },
+  "fo kiwi flavored sauce": {
+    "original_name": "Fo KIWI Flavored Sauce",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo banana flavored sauce": {
+    "original_name": "Fo BANANA Flavored Sauce",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo vanilla flavored sauce": {
+    "original_name": "Fo VANILLA Flavored Sauce",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo blue curacao flavored sauce": {
+    "original_name": "Fo BLUE CURACAO Flavored Sauce",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo maple flavored sauce": {
+    "original_name": "Fo MAPLE Flavored Sauce",
+    "price1": 2.25,
+    "price2": 1.66
+  },
+  "fo ice cream sauce with chocolate": {
+    "original_name": "Fo Ice Cream Sauce with CHOCOLATE",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with strawberry": {
+    "original_name": "Fo Ice Cream Sauce with STRAWBERRY",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with caramel": {
+    "original_name": "Fo Ice Cream Sauce with CARAMEL",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with raspberry": {
+    "original_name": "Fo Ice Cream Sauce with RASPBERRY",
+    "price1": 4.64,
+    "price2": 3.42
+  },
+  "fo ice cream sauce with kiwi": {
+    "original_name": "Fo Ice Cream Sauce with KIWI",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with sour cherry": {
+    "original_name": "Fo Ice Cream Sauce with SOUR CHERRY",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with hazelnut": {
+    "original_name": "Fo Ice Cream Sauce with HAZELNUT",
+    "price1": 5.18,
+    "price2": 3.81
+  },
+  "fo ice cream sauce with pistachio": {
+    "original_name": "Fo Ice Cream Sauce with PISTACHIO",
+    "price1": 7.21,
+    "price2": 5.31
+  },
+  "fo ice cream sauce with banana": {
+    "original_name": "Fo Ice Cream Sauce with BANANA",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with orange": {
+    "original_name": "Fo Ice Cream Sauce with ORANGE",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with walnut": {
+    "original_name": "Fo Ice Cream Sauce with WALNUT",
+    "price1": 6.56,
+    "price2": 4.82
+  },
+  "fo ice cream sauce with milky caramel": {
+    "original_name": "Fo Ice Cream Sauce with MILKY CARAMEL",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with instant coffee": {
+    "original_name": "Fo Ice Cream Sauce with INSTANT COFFEE",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with white chocolate": {
+    "original_name": "Fo Ice Cream Sauce with WHITE CHOCOLATE",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with blackberry": {
+    "original_name": "Fo Ice Cream Sauce with BLACKBERRY",
+    "price1": 4.37,
+    "price2": 3.22
+  },
+  "fo ice cream sauce with melon": {
+    "original_name": "Fo Ice Cream Sauce with MELON",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with watermelon": {
+    "original_name": "Fo Ice Cream Sauce with WATERMELON",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with green apple": {
+    "original_name": "Fo Ice Cream Sauce with GREEN APPLE",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with black mulberry": {
+    "original_name": "Fo Ice Cream Sauce with BLACK MULBERRY",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with lemon": {
+    "original_name": "Fo Ice Cream Sauce with LEMON",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with peach": {
+    "original_name": "Fo Ice Cream Sauce with PEACH",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with blueberry": {
+    "original_name": "Fo Ice Cream Sauce with BLUEBERRY",
+    "price1": 4.37,
+    "price2": 3.22
+  },
+  "fo ice cream sauce with milky chocolate": {
+    "original_name": "Fo Ice Cream Sauce with MILKY CHOCOLATE",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with wild berries": {
+    "original_name": "Fo Ice Cream Sauce with WILD BERRIES",
+    "price1": 4.7,
+    "price2": 3.46
+  },
+  "fo ice cream sauce with mango": {
+    "original_name": "Fo Ice Cream Sauce with MANGO",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with saffron (oil base)": {
+    "original_name": "Fo Ice Cream Sauce with SAFFRON (OIL BASE)",
+    "price1": 5.03,
+    "price2": 3.7
+  },
+  "fo ice cream sauce with rose (oil base)": {
+    "original_name": "Fo Ice Cream Sauce with ROSE (OIL BASE)",
+    "price1": 5.03,
+    "price2": 3.7
+  },
+  "fo ice cream sauce with salted caramel (oil base)": {
+    "original_name": "Fo Ice Cream Sauce with SALTED CARAMEL (OIL BASE)",
+    "price1": 6.01,
+    "price2": 4.42
+  },
+  "fo ice cream sauce with blue velvet soon": {
+    "original_name": "Fo Ice Cream Sauce with BLUE VELVET SOON",
+    "price1": 4.92,
+    "price2": 3.62
+  },
+  "fo ice cream sauce with red velvet soon": {
+    "original_name": "Fo Ice Cream Sauce with RED VELVET SOON",
+    "price1": 6.56,
+    "price2": 4.82
+  },
+  "fo chocolate flavored powder drink 1 kg.": {
+    "original_name": "Fo Chocolate Flavored Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo vanilla flavored powder drink 1 kg.": {
+    "original_name": "Fo Vanilla Flavored Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo strawberry flavored powder drink 1 kg.": {
+    "original_name": "Fo Strawberry Flavored Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo banana flavored powder drink 1 kg.": {
+    "original_name": "Fo Banana Flavored Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo caramel flavored powder drink 1 kg.": {
+    "original_name": "Fo Caramel Flavored Powder Drink 1 kg.",
+    "price1": 6.6,
+    "price2": 4.86
+  },
+  "fo rapsberry flavored powder drink 1 kg.": {
+    "original_name": "Fo Rapsberry Flavored Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo peach flavored powder drink 1 kg.": {
+    "original_name": "Fo Peach Flavored Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo melon flavored powder drink 1 kg.": {
+    "original_name": "Fo Melon Flavored Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo biscuit powder drink 1 kg.": {
+    "original_name": "Fo Biscuit Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo black biscuit powder drink 1 kg.": {
+    "original_name": "Fo Black Biscuit Powder Drink 1 kg.",
+    "price1": 7.65,
+    "price2": 5.63
+  },
+  "fo mango flavored powder drink 1 kg.": {
+    "original_name": "Fo Mango Flavored Powder Drink 1 kg.",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo kiwi flavored powder drink 1 kg.": {
+    "original_name": "Fo Kiwi Flavored Powder Drink 1 kg.",
+    "price1": 6.6,
+    "price2": 4.86
+  },
+  "fo tiramisu flavored powder drink 1 kg.": {
+    "original_name": "Fo Tiramisu Flavored Powder Drink 1 kg.",
+    "price1": 6.6,
+    "price2": 4.86
+  },
+  "fo yoghurt powder drink 1 kg.": {
+    "original_name": "Fo Yoghurt Powder Drink 1 kg.",
+    "price1": 6.6,
+    "price2": 4.86
+  },
+  "fo latte powder drink 1 kg.": {
+    "original_name": "Fo LATTE Powder Drink 1 kg.",
+    "price1": 7.2,
+    "price2": 5.3
+  },
+  "fo chai tea latte powder drink 1 kg": {
+    "original_name": "Fo Chai Tea Latte Powder Drink 1 kg",
+    "price1": 5.1,
+    "price2": 3.75
+  },
+  "fo strawberry and banana fruited smoothie mix 0,76 kg.": {
+    "original_name": "Fo Strawberry and Banana Fruited Smoothie Mix 0,76 kg.",
+    "price1": 3.19,
+    "price2": 2.35
+  },
+  "fo matcha gren tea powder drink 1 kg": {
+    "original_name": "Fo Matcha Gren Tea Powder Drink 1 kg",
+    "price1": 7.65,
+    "price2": 5.63
+  },
+  "fo powder drink base (quatro)": {
+    "original_name": "Fo Powder Drink Base (Quatro)",
+    "price1": 6.0,
+    "price2": 4.42
+  },
+  "fo sour cherry pieces sauce 6 kg": {
+    "original_name": "Fo Sour Cherry Pieces Sauce 6 kg",
+    "price1": 51.0,
+    "price2": 37.54
+  },
+  "fo blueberry pieces sauce 6 kg": {
+    "original_name": "Fo Blueberry Pieces Sauce 6 kg",
+    "price1": 34.5,
+    "price2": 25.39
+  },
+  "fo peach pieces sauce 6 kg": {
+    "original_name": "Fo Peach Pieces Sauce 6 kg",
+    "price1": 34.5,
+    "price2": 25.39
+  },
+  "fo raspberry pieces sauce 6 kg": {
+    "original_name": "Fo Raspberry Pieces Sauce 6 kg",
+    "price1": 34.5,
+    "price2": 25.39
+  },
+  "fo strawberry pieces sauce 6 kg": {
+    "original_name": "Fo Strawberry Pieces Sauce 6 kg",
+    "price1": 34.5,
+    "price2": 25.39
+  },
+  "fo wildberry pieces sauce 6 kg": {
+    "original_name": "Fo Wildberry Pieces Sauce 6 kg",
+    "price1": 34.5,
+    "price2": 25.39
+  },
+  "fo powder sahlep drink 1 kg": {
+    "original_name": "Fo Powder SAHLEP Drink 1 Kg",
+    "price1": 5.7,
+    "price2": 4.2
+  },
+  "fo powder sahlep flavored drink 1 kg": {
+    "original_name": "Fo Powder SAHLEP Flavored Drink 1 Kg",
+    "price1": 4.8,
+    "price2": 3.53
+  },
+  "fo powder chocolate drink- hot 1 kg": {
+    "original_name": "Fo Powder CHOCOLATE Drink- HOT 1 Kg",
+    "price1": 6.0,
+    "price2": 4.42
+  },
+  "fo aromatic bitter sauce - panacea 250 ml 6": {
+    "original_name": "FO AROMATIC BITTER SAUCE - PANACEA 250 ml 6",
+    "price1": 9.5,
+    "price2": 6.99
+  },
+  "fo strawberry flavored sauce 12": {
+    "original_name": "Fo STRAWBERRY Flavored Sauce 12",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo caramel flavored sauce 12": {
+    "original_name": "Fo CARAMEL Flavored Sauce 12",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo chocolate flavored sauce 12": {
+    "original_name": "Fo CHOCOLATE Flavored Sauce 12",
+    "price1": 2.42,
+    "price2": 1.78
+  },
+  "fo kiwi flavored sauce 12": {
+    "original_name": "Fo KIWI Flavored Sauce 12",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo banana flavored sauce 12": {
+    "original_name": "Fo BANANA Flavored Sauce 12",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo vanilla flavored sauce 12": {
+    "original_name": "Fo VANILLA Flavored Sauce 12",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo blue curacao flavored sauce 12": {
+    "original_name": "Fo BLUE CURACAO Flavored Sauce 12",
+    "price1": 1.98,
+    "price2": 1.46
+  },
+  "fo maple flavored sauce 12": {
+    "original_name": "Fo MAPLE Flavored Sauce 12",
+    "price1": 2.25,
+    "price2": 1.66
+  },
+  "fo ice cream sauce with chocolate 6": {
+    "original_name": "Fo Ice Cream Sauce with CHOCOLATE 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with strawberry 6": {
+    "original_name": "Fo Ice Cream Sauce with STRAWBERRY 6",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with caramel 6": {
+    "original_name": "Fo Ice Cream Sauce with CARAMEL 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with raspberry 6": {
+    "original_name": "Fo Ice Cream Sauce with RASPBERRY 6",
+    "price1": 4.64,
+    "price2": 3.42
+  },
+  "fo ice cream sauce with kiwi 6": {
+    "original_name": "Fo Ice Cream Sauce with KIWI 6",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with sour cherry 6": {
+    "original_name": "Fo Ice Cream Sauce with SOUR CHERRY 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with hazelnut 6": {
+    "original_name": "Fo Ice Cream Sauce with HAZELNUT 6",
+    "price1": 5.18,
+    "price2": 3.81
+  },
+  "fo ice cream sauce with pistachio 6": {
+    "original_name": "Fo Ice Cream Sauce with PISTACHIO 6",
+    "price1": 7.21,
+    "price2": 5.31
+  },
+  "fo ice cream sauce with banana 6": {
+    "original_name": "Fo Ice Cream Sauce with BANANA 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with orange 6": {
+    "original_name": "Fo Ice Cream Sauce with ORANGE 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with walnut 6": {
+    "original_name": "Fo Ice Cream Sauce with WALNUT 6",
+    "price1": 6.56,
+    "price2": 4.82
+  },
+  "fo ice cream sauce with milky caramel 6": {
+    "original_name": "Fo Ice Cream Sauce with MILKY CARAMEL 6",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with instant coffee 6": {
+    "original_name": "Fo Ice Cream Sauce with INSTANT COFFEE 6",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with white chocolate 6": {
+    "original_name": "Fo Ice Cream Sauce with WHITE CHOCOLATE 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with blackberry 6": {
+    "original_name": "Fo Ice Cream Sauce with BLACKBERRY 6",
+    "price1": 4.37,
+    "price2": 3.22
+  },
+  "fo ice cream sauce with melon 6": {
+    "original_name": "Fo Ice Cream Sauce with MELON 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with watermelon 6": {
+    "original_name": "Fo Ice Cream Sauce with WATERMELON 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with green apple 6": {
+    "original_name": "Fo Ice Cream Sauce with GREEN APPLE 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with black mulberry 6": {
+    "original_name": "Fo Ice Cream Sauce with BLACK MULBERRY 6",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with lemon 6": {
+    "original_name": "Fo Ice Cream Sauce with LEMON 6",
+    "price1": 3.66,
+    "price2": 2.69
+  },
+  "fo ice cream sauce with peach 6": {
+    "original_name": "Fo Ice Cream Sauce with PEACH 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with blueberry 6": {
+    "original_name": "Fo Ice Cream Sauce with BLUEBERRY 6",
+    "price1": 4.37,
+    "price2": 3.22
+  },
+  "fo ice cream sauce with milky chocolate 6": {
+    "original_name": "Fo Ice Cream Sauce with MILKY CHOCOLATE 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with wild berries 6": {
+    "original_name": "Fo Ice Cream Sauce with WILD BERRIES 6",
+    "price1": 4.7,
+    "price2": 3.46
+  },
+  "fo ice cream sauce with mango 6": {
+    "original_name": "Fo Ice Cream Sauce with MANGO 6",
+    "price1": 3.11,
+    "price2": 2.29
+  },
+  "fo ice cream sauce with saffron (oil base) 6": {
+    "original_name": "Fo Ice Cream Sauce with SAFFRON (OIL BASE) 6",
+    "price1": 5.03,
+    "price2": 3.7
+  },
+  "fo ice cream sauce with rose (oil base) 6": {
+    "original_name": "Fo Ice Cream Sauce with ROSE (OIL BASE) 6",
+    "price1": 5.03,
+    "price2": 3.7
+  },
+  "fo ice cream sauce with salted caramel (oil base) 6": {
+    "original_name": "Fo Ice Cream Sauce with SALTED CARAMEL (OIL BASE) 6",
+    "price1": 6.01,
+    "price2": 4.42
+  },
+  "fo ice cream sauce with blue velvet soon 6": {
+    "original_name": "Fo Ice Cream Sauce with BLUE VELVET SOON 6",
+    "price1": 4.92,
+    "price2": 3.62
+  },
+  "fo ice cream sauce with red velvet soon 6": {
+    "original_name": "Fo Ice Cream Sauce with RED VELVET SOON 6",
+    "price1": 6.56,
+    "price2": 4.82
+  },
+  "fo cotton candy ( blue ) 940 gr. 6": {
+    "original_name": "Fo Cotton Candy ( Blue ) 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo cotton candy ( pink ) 940 gr. 6": {
+    "original_name": "Fo Cotton Candy ( Pink ) 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo caramelized biscuit sauce 940 gr. 6": {
+    "original_name": "Fo Caramelized Biscuit Sauce 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo hazelnut sauce 940 gr. (20% hazelnut) 6": {
+    "original_name": "Fo Hazelnut Sauce 940 gr. (20% Hazelnut) 6",
+    "price1": 6.49,
+    "price2": 4.77
+  },
+  "fo pistachio verde sauce 940 gr. ( 5% pistachio) 6": {
+    "original_name": "Fo Pistachio Verde Sauce 940 gr. ( 5% Pistachio) 6",
+    "price1": 6.96,
+    "price2": 6.96
+  },
+  "fo rose sauce 940 gr. 6": {
+    "original_name": "Fo Rose Sauce 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo saffron sauce 940 gr. 6": {
+    "original_name": "Fo Saffron Sauce 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo salted caramel sauce 940 gr. 6": {
+    "original_name": "Fo Salted Caramel Sauce 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo toffee caramel sauce 940 gr. 6": {
+    "original_name": "Fo Toffee Caramel Sauce 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo velvet ( blue ) 940 gr. 6": {
+    "original_name": "Fo Velvet ( Blue ) 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo velvet ( red ) 940 gr. 6": {
+    "original_name": "Fo Velvet ( Red ) 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo white chocolate sauce 940 gr. 6": {
+    "original_name": "Fo White Chocolate Sauce 940 gr. 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo white hazelnut sauce 940 gr. (7% hazelnut) 6": {
+    "original_name": "Fo White Hazelnut Sauce 940 gr. (7% Hazelnut) 6",
+    "price1": 5.13,
+    "price2": 3.78
+  },
+  "fo popping candy sauce-special 940 gr 6": {
+    "original_name": "FO POPPING CANDY SAUCE-SPECIAL 940 gr 6",
+    "price1": 8.34,
+    "price2": 6.14
+  },
+  "fo blueberries pieces sauce 940 gr %20 6": {
+    "original_name": "FO BLUEBERRIES PIECES SAUCE 940 gr %20 6",
+    "price1": 7.48,
+    "price2": 5.51
+  },
+  "fo blueberries pieces sauce 940 gr %40 6": {
+    "original_name": "FO BLUEBERRIES PIECES SAUCE 940 gr %40 6",
+    "price1": 8.63,
+    "price2": 6.35
+  },
+  "fo strawbeery fruited sauce 6": {
+    "original_name": "Fo STRAWBEERY Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo raspberry fruited sauce 6": {
+    "original_name": "Fo RASPBERRY Fruited Sauce 6",
+    "price1": 7.65,
+    "price2": 5.63
+  },
+  "fo black mulberry fruited sauce 6": {
+    "original_name": "Fo BLACK MULBERRY Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo black berry fruited sauce 6": {
+    "original_name": "Fo BLACK BERRY Fruited Sauce 6",
+    "price1": 6.56,
+    "price2": 4.82
+  },
+  "fo kiwi fruited sauce 6": {
+    "original_name": "Fo KIWI Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo sour cherry fruited sauce 6": {
+    "original_name": "Fo SOUR CHERRY Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo mango fruited sauce 6": {
+    "original_name": "Fo MANGO Fruited Sauce 6",
+    "price1": 6.01,
+    "price2": 4.42
+  },
+  "fo melon fruited sauce 6": {
+    "original_name": "Fo MELON Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo watermelon fruited sauce 6": {
+    "original_name": "Fo WATERMELON Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo peach fruited sauce 6": {
+    "original_name": "Fo PEACH Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo green apple fruited sauce 6": {
+    "original_name": "Fo GREEN APPLE Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo banana fruited sauce 6": {
+    "original_name": "Fo BANANA Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo lemon fruited sauce 6": {
+    "original_name": "Fo LEMON Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo coconut fruited sauce 1 kg 6": {
+    "original_name": "Fo COCONUT Fruited Sauce 1 Kg 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo wild berries fruited sauce 1 kg 6": {
+    "original_name": "Fo WILD BERRIES Fruited Sauce 1 Kg 6",
+    "price1": 6.01,
+    "price2": 4.42
+  },
+  "fo pomegranate fruited sauce 6": {
+    "original_name": "Fo POMEGRANATE Fruited Sauce 6",
+    "price1": 6.01,
+    "price2": 4.42
+  },
+  "fo passion fruite fruited sauce 6": {
+    "original_name": "Fo PASSION FRUITE Fruited Sauce 6",
+    "price1": 6.01,
+    "price2": 4.42
+  },
+  "fo blueberry fruited sauce 1 kg 6": {
+    "original_name": "Fo BLUEBERRY Fruited Sauce 1 Kg 6",
+    "price1": 8.74,
+    "price2": 6.43
+  },
+  "fo pineapple fruited sauce 1 kg 6": {
+    "original_name": "Fo PINEAPPLE Fruited Sauce 1 Kg 6",
+    "price1": 6.01,
+    "price2": 4.42
+  },
+  "fo mandarin fruited sauce 6": {
+    "original_name": "Fo MANDARIN Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo pumpkin fruited sauce 6": {
+    "original_name": "Fo PUMPKIN Fruited Sauce 6",
+    "price1": 3.82,
+    "price2": 2.81
+  },
+  "fo yuzu flavored fruit puree-frozen 1kg 6": {
+    "original_name": "Fo Yuzu Flavored Fruit Puree-Frozen 1KG 6",
+    "price1": 3.5,
+    "price2": 2.58
+  },
+  "fo strawberry fruit purée 45% – frozen 1kg 6": {
+    "original_name": "FO Strawberry Fruit Purée 45% – Frozen 1KG 6",
+    "price1": 5.6,
+    "price2": 4.12
+  },
+  "fo wild berries purée 45% – frozen 1kg 6": {
+    "original_name": "FO Wild Berries Purée 45% – Frozen 1KG 6",
+    "price1": 5.6,
+    "price2": 4.12
+  },
+  "fo watermelon fruit purée 45% – frozen 1kg 6": {
+    "original_name": "FO Watermelon Fruit Purée 45% – Frozen 1KG 6",
+    "price1": 5.6,
+    "price2": 4.12
+  },
+  "fo blueberry fruit purée 45% – frozen 1kg 6": {
+    "original_name": "FO Blueberry Fruit Purée 45% – Frozen 1KG 6",
+    "price1": 5.6,
+    "price2": 4.12
+  },
+  "fo mango fruit purée 45% – frozen 1kg 6": {
+    "original_name": "FO Mango Fruit Purée 45% – Frozen 1KG 6",
+    "price1": 5.6,
+    "price2": 4.12
+  },
+  "fo strawberry fruit syrup-premium 700ml 6": {
+    "original_name": "FO STRAWBERRY FRUIT SYRUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo peach fruit syrup-premium 700 ml 6": {
+    "original_name": "FO PEACH FRUIT SYRUP-PREMIUM 700 ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo grenadine premıum flavored syrup 6": {
+    "original_name": "FO GRENADINE Premıum Flavored Syrup 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo green apple fruit syrup-premium 700ml 6": {
+    "original_name": "FO GREEN APPLE FRUIT SYRUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo passion fruit fruited syrup-premium 700 ml 6": {
+    "original_name": "FO PASSION FRUIT FRUITED SYRUP-PREMIUM 700 ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo raspberry fruit syrup-premium 700ml 6": {
+    "original_name": "FO RASPBERRY FRUIT SYRUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo mango fruit syrup-premium 700 ml 6": {
+    "original_name": "FO MANGO FRUIT SYRUP-PREMIUM 700 ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo pomegranate fruit syrup-premium 700 ml 6": {
+    "original_name": "FO POMEGRANATE FRUIT SYRUP-PREMIUM 700 ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo mürver çi̇çeği̇ aro.şurup-premium 700ml 6": {
+    "original_name": "FO MÜRVER ÇİÇEĞİ ARO.ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo çarkifelek meyveli̇ şurup-premium700ml 6": {
+    "original_name": "FO ÇARKIFELEK MEYVELİ ŞURUP-PREMIUM700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo kizilcik aromali şurup-premium 700ml 6": {
+    "original_name": "FO KIZILCIK AROMALI ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo mi̇sket li̇monlu şurup-premium 700ml 6": {
+    "original_name": "FO MİSKET LİMONLU ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo greyfurt meyveli̇ şurup-premium 700ml 6": {
+    "original_name": "FO GREYFURT MEYVELİ ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo karamelli̇ şurup-premium 700ml 6": {
+    "original_name": "FO KARAMELLİ ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo y.mersi̇ni̇ meyveli̇ şurup-premium 700ml 6": {
+    "original_name": "FO Y.MERSİNİ MEYVELİ ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo karpuz meyveli̇ şurup-premium 700ml 6": {
+    "original_name": "FO KARPUZ MEYVELİ ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo beyaz çi̇kolata şurup-premium 700ml 6": {
+    "original_name": "FO BEYAZ ÇİKOLATA ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo çi̇kolatali şurup-premium 700ml 6": {
+    "original_name": "FO ÇİKOLATALI ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo böğürtlen meyveli̇ şurup-premium 700ml 6": {
+    "original_name": "FO BÖĞÜRTLEN MEYVELİ ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo vani̇lya aromali şurup-premium 700ml 6": {
+    "original_name": "FO VANİLYA AROMALI ŞURUP-PREMIUM 700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo yeşi̇l elma meyveli̇ şurup-premium700ml 6": {
+    "original_name": "FO YEŞİL ELMA MEYVELİ ŞURUP-PREMIUM700ML 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo li̇mon şur.-donuk li̇monata 900gr 6": {
+    "original_name": "FO LİMON ŞUR.-DONUK LİMONATA 900GR 6",
+    "price1": 3.0,
+    "price2": 2.21
+  },
+  "fo karişik meyveli̇ i̇çecek-afrodi̇t 800 ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-AFRODİT 800 ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyveli̇ i̇çecek-apollo 800 ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-APOLLO 800 ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyveli̇ i̇çecek-hera 800 ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-HERA 800 ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyveli̇ i̇çecek-di̇onysos 800ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-DİONYSOS 800ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyveli̇ i̇çecek-zeus 800 ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-ZEUS 800 ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyveli̇ i̇çecek-heli̇os 800 ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-HELİOS 800 ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyveli̇ i̇çecek-herakles 800ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-HERAKLES 800ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyveli̇ i̇çecek-demeter 800 ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-DEMETER 800 ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyv. i̇çecek-persephone 800ml 6": {
+    "original_name": "FO KARIŞIK MEYV. İÇECEK-PERSEPHONE 800ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo karişik meyveli̇ i̇çecek-eros 800ml 6": {
+    "original_name": "FO KARIŞIK MEYVELİ İÇECEK-EROS 800ML 6",
+    "price1": 8.0,
+    "price2": 5.89
+  },
+  "fo strawberry flavored syrup 6": {
+    "original_name": "FO STRAWBERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo chocolate flavored syrup 6": {
+    "original_name": "FO CHOCOLATE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo kiwi flavored syrup 6": {
+    "original_name": "FO KIWI Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo grenadine flavored syrup 6": {
+    "original_name": "FO GRENADINE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo caramel flavored syrup 6": {
+    "original_name": "FO CARAMEL Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo raspberry flavored syrup 6": {
+    "original_name": "FO RASPBERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo blue curacao flavored syrup 6": {
+    "original_name": "FO BLUE CURACAO Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo melon flavored syrup 6": {
+    "original_name": "FO MELON Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo mint flavored syrup 6": {
+    "original_name": "FO MINT Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo lime flavored syrup 6": {
+    "original_name": "FO LIME Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo vanilla flavored syrup 6": {
+    "original_name": "FO VANILLA Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo coconut flavored syrup 6": {
+    "original_name": "FO COCONUT Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo coffee flavored syrup 6": {
+    "original_name": "FO COFFEE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo banana flavored syrup 6": {
+    "original_name": "FO BANANA Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo bitter almond flavored syrup 6": {
+    "original_name": "FO BITTER ALMOND Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo peach flavored syrup 6": {
+    "original_name": "FO PEACH Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo sugar flavored syrup 6": {
+    "original_name": "FO SUGAR Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo coconut regular flavored syrup (transparent) 6": {
+    "original_name": "FO COCONUT REGULAR Flavored Syrup (Transparent) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo mango flavored syrup 6": {
+    "original_name": "FO MANGO Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo black current flavored syrup 6": {
+    "original_name": "FO BLACK CURRENT Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo black mulberry flavored syrup 6": {
+    "original_name": "FO BLACK MULBERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo maple flavored syrup 6": {
+    "original_name": "FO MAPLE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo water melon flavored syrup 6": {
+    "original_name": "FO WATER MELON Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo tonic flavored syrup 6": {
+    "original_name": "FO TONIC Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo agave tequila flavored syrup 6": {
+    "original_name": "FO AGAVE TEQUILA Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo violet flavored syrup 6": {
+    "original_name": "FO VIOLET Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo pear flavored syrup 6": {
+    "original_name": "FO PEAR Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo mastic flavored syrup 6": {
+    "original_name": "FO MASTIC Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo irish flavored syrup 6": {
+    "original_name": "FO IRISH Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo tropical flavored syrup 6": {
+    "original_name": "FO TROPICAL Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo ginger flavored coctail syrup 6": {
+    "original_name": "FO GINGER Flavored Coctail Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo salted caramel flavored syrup 6": {
+    "original_name": "FO SALTED CARAMEL Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo caramel flavored syrup (with sugar) 6": {
+    "original_name": "FO CARAMEL Flavored Syrup (WITH SUGAR) 6",
+    "price1": 3.06,
+    "price2": 2.25
+  },
+  "fo vanilla flavored syrup (with sugar) 6": {
+    "original_name": "FO VANILLA Flavored Syrup (WITH SUGAR) 6",
+    "price1": 3.06,
+    "price2": 2.25
+  },
+  "fo hazelnut flavored syrup (with sugar) 6": {
+    "original_name": "FO HAZELNUT Flavored Syrup (WITH SUGAR) 6",
+    "price1": 3.06,
+    "price2": 2.25
+  },
+  "fo triple sec (orange) flavored syrup 6": {
+    "original_name": "FO TRIPLE SEC (ORANGE) Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo rose flavored syrup 6": {
+    "original_name": "FO ROSE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo hazelnut flavored syrup 6": {
+    "original_name": "FO HAZELNUT Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo pistachio flavored syrup 6": {
+    "original_name": "FO PISTACHIO Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo blue berry flavored syrup 6": {
+    "original_name": "FO BLUE BERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo blue berry flavored syrup (blue) 6": {
+    "original_name": "FO BLUE BERRY Flavored Syrup (BLUE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo green apple flavored syrup 6": {
+    "original_name": "FO GREEN APPLE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo apricot flavored syrup 6": {
+    "original_name": "FO APRICOT Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo spearmint flavored syrup 6": {
+    "original_name": "FO SPEARMINT Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo green banana flavored syrup 6": {
+    "original_name": "FO GREEN BANANA Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo apricot seed (ameretto) flavored syrup 6": {
+    "original_name": "FO APRICOT SEED (AMERETTO) Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo irish cream flavored syrup 6": {
+    "original_name": "FO IRISH CREAM Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo green bodrum mandarin flavored syrup 6": {
+    "original_name": "FO GREEN BODRUM MANDARIN Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo white chocolate flavored syrup 6": {
+    "original_name": "FO WHITE CHOCOLATE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo pineapple flavored syrup 6": {
+    "original_name": "FO PINEAPPLE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo tiramisu flavored syrup 6": {
+    "original_name": "FO TIRAMISU Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo cappuccino flavored syrup 6": {
+    "original_name": "FO CAPPUCCINO Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo cinnamon flavored syrup 6": {
+    "original_name": "FO CINNAMON Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo cranberry flavored syrup 6": {
+    "original_name": "FO CRANBERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo bergamot flavored tea syrup 6": {
+    "original_name": "FO BERGAMOT FLAVORED TEA Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo lemon flavored tea syrup 6": {
+    "original_name": "FO LEMON FLAVORED TEA Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo mango flavored tea syrup 6": {
+    "original_name": "FO MANGO FLAVORED TEA Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo peach flavored tea syrup 6": {
+    "original_name": "FO PEACH FLAVORED TEA Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo energy drink flavored syrup 6": {
+    "original_name": "FO ENERGY DRINK Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo anise flavored syrup 6": {
+    "original_name": "FO ANISE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo bubble gum flavored syrup 6": {
+    "original_name": "FO BUBBLE GUM Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo cherry blossom flavored syrup 6": {
+    "original_name": "FO CHERRY BLOSSOM Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo pomegranate flavored syrup 6": {
+    "original_name": "FO POMEGRANATE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo blue raspberry flavored syrup 6": {
+    "original_name": "FO BLUE RASPBERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo saffron flavored syrup 6": {
+    "original_name": "FO SAFFRON Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo toffee nut flavored syrup (with sugar) 6": {
+    "original_name": "FO TOFFEE NUT Flavored Syrup (WITH SUGAR) 6",
+    "price1": 3.06,
+    "price2": 2.25
+  },
+  "fo blackberry flavored syrup 6": {
+    "original_name": "FO BLACKBERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo passion fruit flavored syrup 6": {
+    "original_name": "Fo PASSION FRUIT Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo sweet and sour sauce flavored syrup 6": {
+    "original_name": "Fo SWEET AND SOUR SAUCE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo elder flower flavored syrup 6": {
+    "original_name": "FO ELDER FLOWER Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo chocolate cookie flavored syrup 6": {
+    "original_name": "FO CHOCOLATE COOKIE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo pink grapefruit flavored syrup 6": {
+    "original_name": "Fo PINK GRAPEFRUIT Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo lychee flavored syrup 6": {
+    "original_name": "FO LYCHEE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo chai tea flavored syrup 6": {
+    "original_name": "FO CHAI TEA FLAVORED Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo sourcherry flavored syrup 6": {
+    "original_name": "FO SOURCHERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo brown sugar flavored syrup 6": {
+    "original_name": "FO BROWN SUGAR Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo pumpkin spices flavored syrup 6": {
+    "original_name": "FO PUMPKIN SPICES Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo pumpkin flavored syrup 6": {
+    "original_name": "FO PUMPKIN Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo hibiscus flavored syrup 6": {
+    "original_name": "FO HIBISCUS Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo cucumber flavored syrup 6": {
+    "original_name": "FO CUCUMBER Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo lavender flavored syrup 6": {
+    "original_name": "FO LAVENDER Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo red grappe flavored syrup 6": {
+    "original_name": "FO RED GRAPPE Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo wildberries flavored syrup 6": {
+    "original_name": "FO WILDBERRIES Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo white strawberry flavored syrup 6": {
+    "original_name": "FO WHITE STRAWBERRY Flavored Syrup 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo popcorn flavored syrup 6": {
+    "original_name": "FO POPCORN Flavored Syrup 6",
+    "price1": 3.06,
+    "price2": 2.25
+  },
+  "fo mangostan flavored silvery syrup 700ml 6": {
+    "original_name": "FO MANGOSTAN FLAVORED SILVERY SYRUP 700ML 6",
+    "price1": 3.5,
+    "price2": 2.58
+  },
+  "fo pomelo flavored silvery syrup 700ml 6": {
+    "original_name": "FO POMELO FLAVORED SILVERY SYRUP 700ML 6",
+    "price1": 3.5,
+    "price2": 2.58
+  },
+  "fo aronya flavored silvery syrup 700ml 6": {
+    "original_name": "FO ARONYA FLAVORED SILVERY SYRUP 700ML 6",
+    "price1": 3.5,
+    "price2": 2.58
+  },
+  "fo golden kiwi flavored silvery syrup 700ml 6": {
+    "original_name": "FO GOLDEN KIWI FLAVORED SILVERY SYRUP 700ML 6",
+    "price1": 3.5,
+    "price2": 2.58
+  },
+  "fo koi coctail foamer 100 ml 12": {
+    "original_name": "FO KOI COCTAIL FOAMER 100 ML 12",
+    "price1": 8.63,
+    "price2": 6.35
+  },
+  "fo lemon iced tea syrup 700 ml (base) 6": {
+    "original_name": "FO LEMON ICED TEA SYRUP 700 ML (Base) 6",
+    "price1": 4.0,
+    "price2": 2.94
+  },
+  "fo peach iced tea syrup 700 ml (base) 6": {
+    "original_name": "FO PEACH ICED TEA SYRUP 700 ML (Base) 6",
+    "price1": 4.0,
+    "price2": 2.94
+  },
+  "fo raspberry flavored iced tea syrup 700 ml (base) 6": {
+    "original_name": "FO RASPBERRY FLAVORED ICED TEA SYRUP 700 ML (Base) 6",
+    "price1": 4.0,
+    "price2": 2.94
+  },
+  "fo mango and exotic fruits flavored iced tea syrup 700 ml (base) 6": {
+    "original_name": "FO MANGO AND EXOTIC FRUITS FLAVORED ICED TEA SYRUP 700 ML (Base) 6",
+    "price1": 4.0,
+    "price2": 2.94
+  },
+  "fo mint and lime flavored syrup (base) 6": {
+    "original_name": "FO Mint and Lime Flavored Syrup (BASE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo hibiscus and wildberry flavored syrup (base) 6": {
+    "original_name": "FO HIBISCUS AND WILDBERRY FLAVORED SYRUP (BASE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo orange and mango flavored syrup (base) 6": {
+    "original_name": "FO ORANGE AND MANGO FLAVORED SYRUP (BASE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo blueberry and lychee flavored syrup (base) 6": {
+    "original_name": "FO BLUEBERRY AND LYCHEE FLAVORED SYRUP (BASE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo strawberry and acai flavored syrup (base) 6": {
+    "original_name": "FO STRAWBERRY AND ACAI FLAVORED SYRUP (BASE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo mango and dragon fruit flavored syrup (base) 6": {
+    "original_name": "FO MANGO AND DRAGON FRUIT FLAVORED SYRUP (BASE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo strawberry flavored syrup (base) 6": {
+    "original_name": "FO STRAWBERRY FLAVORED SYRUP (BASE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo grenadine flavored syrup (base) 6": {
+    "original_name": "FO GRENADINE FLAVORED SYRUP (BASE) 6",
+    "price1": 2.73,
+    "price2": 2.01
+  },
+  "fo cuban mint & lime base 700ml / fo küba nanesi aromalı ve misket limonlu baz 700ml (hierba de cuba) 6": {
+    "original_name": "FO Cuban Mint & Lime Base 700ML / Fo Küba Nanesi aromalı ve Misket Limonlu Baz 700ml (Hierba de Cuba) 6",
+    "price1": 3.65,
+    "price2": 2.69
+  },
+  "fo sorrel drink mix – madam sorrel/ fo kuzukulaklı i̇çecek karışımı 1000g (madame sorrel) 6": {
+    "original_name": "FO Sorrel Drink Mix – Madam Sorrel/ Fo Kuzukulaklı İçecek Karışımı 1000g (Madame Sorrel) 6",
+    "price1": 5.5,
+    "price2": 4.05
+  },
+  "fo spreadable cream nummy lotus -340 gr 12": {
+    "original_name": "FO SPREADABLE CREAM Nummy Lotus -340 gr 12",
+    "price1": 3.17,
+    "price2": 2.33
+  },
+  "fo cocoa and hazelnut cream 370 gr - nummy 12": {
+    "original_name": "Fo Cocoa and Hazelnut Cream 370 Gr - Nummy 12",
+    "price1": 3.94,
+    "price2": 2.9
+  },
+  "fo caramelized biscuit spread crunchy 370 gr 12": {
+    "original_name": "FO CARAMELIZED BISCUIT SPREAD CRUNCHY 370 GR 12",
+    "price1": 3.45,
+    "price2": 2.54
+  },
+  "fo pistachio cream spread 360 gr 12": {
+    "original_name": "FO PISTACHIO CREAM SPREAD 360 gr 12",
+    "price1": 7.94,
+    "price2": 5.84
+  },
+  "fo nummy chocolate spread 370 gr 12": {
+    "original_name": "FO NUMMY CHOCOLATE SPREAD 370 gr 12",
+    "price1": 4.14,
+    "price2": 3.05
+  },
+  "fo chocolate sauce 6": {
+    "original_name": "Fo Chocolate Sauce 6",
+    "price1": 13.66,
+    "price2": 10.05
+  },
+  "fo white chocolate sauce 6": {
+    "original_name": "Fo White Chocolate Sauce 6",
+    "price1": 13.66,
+    "price2": 10.05
+  },
+  "fo toffee caramel sauce 6": {
+    "original_name": "Fo Toffee Caramel Sauce 6",
+    "price1": 10.11,
+    "price2": 7.44
+  },
+  "fo hazelnut sauce 6": {
+    "original_name": "Fo Hazelnut Sauce 6",
+    "price1": 15.81,
+    "price2": 11.64
+  },
+  "fo tiramisu flavored sauce 6": {
+    "original_name": "Fo Tiramisu Flavored Sauce 6",
+    "price1": 10.79,
+    "price2": 7.94
+  },
+  "fo cappuccino flavored sauce 6": {
+    "original_name": "Fo Cappuccino Flavored Sauce 6",
+    "price1": 10.11,
+    "price2": 7.44
+  },
+  "fo milky chocolate sauce 6": {
+    "original_name": "Fo Milky Chocolate Sauce 6",
+    "price1": 13.66,
+    "price2": 10.05
+  },
+  "fo caramel flavored sauce 6": {
+    "original_name": "Fo Caramel Flavored Sauce 6",
+    "price1": 10.11,
+    "price2": 7.44
+  },
+  "fo bar-sauce with condenced milk 2,5kg 6": {
+    "original_name": "FO BAR-SAUCE WITH CONDENCED MILK 2,5KG 6",
+    "price1": 9.34,
+    "price2": 6.88
+  },
+  "fo salted caramel flavored sauce 6": {
+    "original_name": "Fo Salted Caramel FLAVORED Sauce 6",
+    "price1": 13.75,
+    "price2": 10.12
+  },
+  "fo caramelized biscuit sauce 6": {
+    "original_name": "Fo Caramelized Biscuit Sauce 6",
+    "price1": 13.75,
+    "price2": 10.12
+  },
+  "fo black biscuit sauce 6": {
+    "original_name": "Fo Black Biscuit Sauce 6",
+    "price1": 13.75,
+    "price2": 10.12
+  },
+  "fo dubai pistachio kadaifi sauce 6 kg 6": {
+    "original_name": "FO DUBAI PISTACHIO KADAIFI SAUCE 6 KG 6",
+    "price1": 110.4,
+    "price2": 81.25
+  },
+  "fo dubai pistachio kadaifi sauce 1,4 kg 6": {
+    "original_name": "FO DUBAI PISTACHIO KADAIFI SAUCE 1,4 KG 6",
+    "price1": 31.4,
+    "price2": 23.11
+  },
+  "fo sweetened condensed milk sauce 2.5 kg 6": {
+    "original_name": "FO Sweetened Condensed Milk Sauce 2.5 kg 6",
+    "price1": 10.0,
+    "price2": 7.36
+  },
+  "fo coconut and pine apple favored beverage / pina colada cocktail mix 6": {
+    "original_name": "FO Coconut and Pine Apple Favored Beverage / PINA COLADA Cocktail Mix 6",
+    "price1": 2.38,
+    "price2": 1.75
+  },
+  "fo lime flavored beverage / margarita cocktail mix 6": {
+    "original_name": "FO Lime Flavored Beverage / MARGARITA Cocktail Mix 6",
+    "price1": 2.38,
+    "price2": 1.75
+  },
+  "fo coconut flavored beverage / blue hawai cocktail mix 6": {
+    "original_name": "FO Coconut Flavored Beverage / BLUE HAWAI Cocktail Mix 6",
+    "price1": 2.38,
+    "price2": 1.75
+  },
+  "fo grenadine and orange flavored beverage / cosmopolitan cocktail mix 6": {
+    "original_name": "FO Grenadine and Orange Flavored Beverage / COSMOPOLITAN Cocktail Mix 6",
+    "price1": 2.38,
+    "price2": 1.75
+  },
+  "fo grenadine and strawberry flavored beverage / fruit cocktail mix 6": {
+    "original_name": "FO Grenadine and Strawberry Flavored Beverage / FRUIT Cocktail Mix 6",
+    "price1": 2.38,
+    "price2": 1.75
+  },
+  "fo mango flavored beverage / sea garden coctail mix 6": {
+    "original_name": "FO Mango Flavored Beverage / SEA GARDEN Coctail Mix 6",
+    "price1": 2.38,
+    "price2": 1.75
+  },
+  "fo grenadine and peach flavored beverage / x on the beach cocktail mix 6": {
+    "original_name": "FO Grenadine and Peach Flavored Beverage / X ON THE BEACH Cocktail Mix 6",
+    "price1": 2.38,
+    "price2": 1.75
+  },
+  "fo taro premium sauce 2,5 kg 6": {
+    "original_name": "Fo Taro Premium sauce 2,5 kg 6",
+    "price1": 11.5,
+    "price2": 8.46
+  },
+  "fo premium white chocolate sauce 2,5kg 6": {
+    "original_name": "FO PREMIUM WHITE CHOCOLATE SAUCE 2,5KG 6",
+    "price1": 17.25,
+    "price2": 12.7
+  },
+  "fo premium caramel sauce 2,5 kg 6": {
+    "original_name": "FO PREMIUM CARAMEL SAUCE 2,5 KG 6",
+    "price1": 15.81,
+    "price2": 11.64
+  },
+  "fo premium chocolate sauce 2,5 kg 6": {
+    "original_name": "FO PREMIUM CHOCOLATE SAUCE 2,5 KG 6",
+    "price1": 15.81,
+    "price2": 11.64
+  },
+  "fo premium salted caramel sauce 2,5 kg 6": {
+    "original_name": "FO PREMIUM SALTED CARAMEL SAUCE 2,5 KG 6",
+    "price1": 15.81,
+    "price2": 11.64
+  },
+  "fo chocolate flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Chocolate Flavored Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo vanilla flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Vanilla Flavored Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo strawberry flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Strawberry Flavored Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo banana flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Banana Flavored Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo caramel flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Caramel Flavored Powder Drink 1 kg. 6 90",
+    "price1": 6.6,
+    "price2": 5.28
+  },
+  "fo rapsberry flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Rapsberry Flavored Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo peach flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Peach Flavored Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo melon flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Melon Flavored Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo biscuit powder drink 1 kg. 6 90": {
+    "original_name": "Fo Biscuit Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo mango flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Mango Flavored Powder Drink 1 kg. 6 90",
+    "price1": 5.7,
+    "price2": 4.56
+  },
+  "fo kiwi flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Kiwi Flavored Powder Drink 1 kg. 6 90",
+    "price1": 6.6,
+    "price2": 5.28
+  },
+  "fo tiramisu flavored powder drink 1 kg. 6 90": {
+    "original_name": "Fo Tiramisu Flavored Powder Drink 1 kg. 6 90",
+    "price1": 6.6,
+    "price2": 5.28
+  },
+  "fo yoghurt powder drink 1 kg. 6 90": {
+    "original_name": "Fo Yoghurt Powder Drink 1 kg. 6 90",
+    "price1": 6.6,
+    "price2": 5.28
+  },
+  "fo latte powder drink 1 kg. 6 90": {
+    "original_name": "Fo LATTE Powder Drink 1 kg. 6 90",
+    "price1": 7.2,
+    "price2": 5.76
+  },
+  "fo chai tea latte powder drink 1 kg 6 90": {
+    "original_name": "Fo Chai Tea Latte Powder Drink 1 kg 6 90",
+    "price1": 5.1,
+    "price2": 4.08
+  },
+  "fo strawberry and banana fruited smoothie mix 0,76 kg. 6 90": {
+    "original_name": "Fo Strawberry and Banana Fruited Smoothie Mix 0,76 kg. 6 90",
+    "price1": 3.19,
+    "price2": 2.55
+  },
+  "fo matcha gren tea powder drink 1 kg 6 90": {
+    "original_name": "Fo Matcha Gren Tea Powder Drink 1 kg 6 90",
+    "price1": 5.47,
+    "price2": 4.38
+  },
+  "fo powder drink base (quatro) 6 90": {
+    "original_name": "Fo Powder Drink Base (Quatro) 6 90",
+    "price1": 6.0,
+    "price2": 4.8
+  },
+  "fo kiwi paste for pastry & ice cream 6 90": {
+    "original_name": "Fo KIWI PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 7.8,
+    "price2": 6.24
+  },
+  "fo strawberry paste for pastry & ice cream 6 90": {
+    "original_name": "Fo STRAWBERRY PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 7.8,
+    "price2": 6.24
+  },
+  "fo sour cherry paste for pastry & ice cream 6 90": {
+    "original_name": "Fo SOUR CHERRY PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 5.4,
+    "price2": 4.32
+  },
+  "fo caramel paste for pastry & ice cream 6 90": {
+    "original_name": "Fo CARAMEL PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 5.15,
+    "price2": 4.12
+  },
+  "fo orange paste for pastry & ice cream 6 90": {
+    "original_name": "Fo ORANGE PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 5.4,
+    "price2": 4.32
+  },
+  "fo banana paste for pastry & ice cream 6 90": {
+    "original_name": "Fo BANANA PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 5.4,
+    "price2": 4.32
+  },
+  "fo melon paste for pastry & ice cream 6 90": {
+    "original_name": "Fo MELON PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 7.8,
+    "price2": 6.24
+  },
+  "fo mango paste for pastry & ice cream 6 90": {
+    "original_name": "Fo MANGO PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 4.82,
+    "price2": 3.85
+  },
+  "fo lemon paste for pastry & ice cream 6 90": {
+    "original_name": "Fo LEMON PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 4.82,
+    "price2": 3.85
+  },
+  "fo mastic paste for pastry & ice cream 6 90": {
+    "original_name": "Fo MASTIC PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 5.4,
+    "price2": 4.32
+  },
+  "fo black mulberry paste for pastry & ice cream 6 90": {
+    "original_name": "Fo BLACK MULBERRY PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 7.8,
+    "price2": 6.24
+  },
+  "fo blackberry paste for pastry & ice cream 6 90": {
+    "original_name": "Fo BLACKBERRY PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 7.8,
+    "price2": 6.24
+  },
+  "fo wild berries paste for pastry & ice cream 6 90": {
+    "original_name": "Fo WILD BERRIES PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 7.8,
+    "price2": 6.24
+  },
+  "fo blueberry paste for pastry & ice cream 6 90": {
+    "original_name": "Fo BLUEBERRY PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 8.64,
+    "price2": 6.91
+  },
+  "fo vanilla paste for pastry & ice cream 6 90": {
+    "original_name": "Fo VANILLA PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 4.82,
+    "price2": 3.85
+  },
+  "fo caramel(blue angel) paste for pastry & ice cream 6 90": {
+    "original_name": "Fo CARAMEL(BLUE ANGEL) PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 3.32,
+    "price2": 2.66
+  },
+  "fo caramel(pink angel) paste for pastry & ice cream 6 90": {
+    "original_name": "Fo CARAMEL(PINK ANGEL) PASTE FOR PASTRY & ICE CREAM 6 90",
+    "price1": 3.32,
+    "price2": 2.66
+  },
+  "fo strawberry flavored sauce 12 120": {
+    "original_name": "Fo STRAWBERRY Flavored Sauce 12 120",
+    "price1": 1.98,
+    "price2": 1.59
+  },
+  "fo caramel flavored sauce 12 120": {
+    "original_name": "Fo CARAMEL Flavored Sauce 12 120",
+    "price1": 1.98,
+    "price2": 1.59
+  },
+  "fo caramel flavored sauce 6 225": {
+    "original_name": "Fo CARAMEL Flavored Sauce 6 225",
+    "price1": 1.98,
+    "price2": 1.59
+  },
+  "fo chocolate flavored sauce 12 120": {
+    "original_name": "Fo CHOCOLATE Flavored Sauce 12 120",
+    "price1": 2.42,
+    "price2": 1.93
+  },
+  "fo kiwi flavored sauce 12 120": {
+    "original_name": "Fo KIWI Flavored Sauce 12 120",
+    "price1": 1.98,
+    "price2": 1.59
+  },
+  "fo banana flavored sauce 12 120": {
+    "original_name": "Fo BANANA Flavored Sauce 12 120",
+    "price1": 1.98,
+    "price2": 1.59
+  },
+  "fo vanilla flavored sauce 12 120": {
+    "original_name": "Fo VANILLA Flavored Sauce 12 120",
+    "price1": 1.98,
+    "price2": 1.59
+  },
+  "fo blue curacao flavored sauce 12 120": {
+    "original_name": "Fo BLUE CURACAO Flavored Sauce 12 120",
+    "price1": 1.98,
+    "price2": 1.59
+  },
+  "fo ice cream sauce with chocolate 6 170": {
+    "original_name": "Fo Ice Cream Sauce with CHOCOLATE 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with strawberry 6 170": {
+    "original_name": "Fo Ice Cream Sauce with STRAWBERRY 6 170",
+    "price1": 3.66,
+    "price2": 2.93
+  },
+  "fo ice cream sauce with caramel 6 170": {
+    "original_name": "Fo Ice Cream Sauce with CARAMEL 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with raspberry 6 170": {
+    "original_name": "Fo Ice Cream Sauce with RASPBERRY 6 170",
+    "price1": 4.64,
+    "price2": 3.71
+  },
+  "fo ice cream sauce with kiwi 6 170": {
+    "original_name": "Fo Ice Cream Sauce with KIWI 6 170",
+    "price1": 3.66,
+    "price2": 2.93
+  },
+  "fo ice cream sauce with sour cherry 6 170": {
+    "original_name": "Fo Ice Cream Sauce with SOUR CHERRY 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with hazelnut 6 170": {
+    "original_name": "Fo Ice Cream Sauce with HAZELNUT 6 170",
+    "price1": 5.18,
+    "price2": 4.14
+  },
+  "fo ice cream sauce with pistachio 6 170": {
+    "original_name": "Fo Ice Cream Sauce with PISTACHIO 6 170",
+    "price1": 7.21,
+    "price2": 5.77
+  },
+  "fo ice cream sauce with banana 6 170": {
+    "original_name": "Fo Ice Cream Sauce with BANANA 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with orange 6 170": {
+    "original_name": "Fo Ice Cream Sauce with ORANGE 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with walnut 6 170": {
+    "original_name": "Fo Ice Cream Sauce with WALNUT 6 170",
+    "price1": 6.56,
+    "price2": 5.24
+  },
+  "fo ice cream sauce with milky caramel 6 170": {
+    "original_name": "Fo Ice Cream Sauce with MILKY CARAMEL 6 170",
+    "price1": 3.66,
+    "price2": 2.93
+  },
+  "fo ice cream sauce with instant coffee 6 170": {
+    "original_name": "Fo Ice Cream Sauce with INSTANT COFFEE 6 170",
+    "price1": 3.66,
+    "price2": 2.93
+  },
+  "fo ice cream sauce with white chocolate 6 170": {
+    "original_name": "Fo Ice Cream Sauce with WHITE CHOCOLATE 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with blackberry 6 170": {
+    "original_name": "Fo Ice Cream Sauce with BLACKBERRY 6 170",
+    "price1": 4.37,
+    "price2": 3.5
+  },
+  "fo ice cream sauce with melon 6 170": {
+    "original_name": "Fo Ice Cream Sauce with MELON 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with watermelon 6 170": {
+    "original_name": "Fo Ice Cream Sauce with WATERMELON 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with green apple 6 170": {
+    "original_name": "Fo Ice Cream Sauce with GREEN APPLE 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with black mulberry 6 170": {
+    "original_name": "Fo Ice Cream Sauce with BLACK MULBERRY 6 170",
+    "price1": 3.66,
+    "price2": 2.93
+  },
+  "fo ice cream sauce with lemon 6 170": {
+    "original_name": "Fo Ice Cream Sauce with LEMON 6 170",
+    "price1": 3.66,
+    "price2": 2.93
+  },
+  "fo ice cream sauce with peach 6 170": {
+    "original_name": "Fo Ice Cream Sauce with PEACH 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with blueberry 6 170": {
+    "original_name": "Fo Ice Cream Sauce with BLUEBERRY 6 170",
+    "price1": 4.37,
+    "price2": 3.5
+  },
+  "fo ice cream sauce with milky chocolate 6 170": {
+    "original_name": "Fo Ice Cream Sauce with MILKY CHOCOLATE 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with wild berries 6 170": {
+    "original_name": "Fo Ice Cream Sauce with WILD BERRIES 6 170",
+    "price1": 4.7,
+    "price2": 3.76
+  },
+  "fo ice cream sauce with mango 6 170": {
+    "original_name": "Fo Ice Cream Sauce with MANGO 6 170",
+    "price1": 3.11,
+    "price2": 2.49
+  },
+  "fo ice cream sauce with saffron (oil base) 6 170": {
+    "original_name": "Fo Ice Cream Sauce with SAFFRON (OIL BASE) 6 170",
+    "price1": 5.03,
+    "price2": 4.02
+  },
+  "fo ice cream sauce with rose (oil base) 6 170": {
+    "original_name": "Fo Ice Cream Sauce with ROSE (OIL BASE) 6 170",
+    "price1": 5.03,
+    "price2": 4.02
+  },
+  "fo ice cream sauce with salted caramel (oil base) 6 170": {
+    "original_name": "Fo Ice Cream Sauce with SALTED CARAMEL (OIL BASE) 6 170",
+    "price1": 6.01,
+    "price2": 4.81
+  },
+  "fo ice cream sauce with blue velvet soon 6 170": {
+    "original_name": "Fo Ice Cream Sauce with BLUE VELVET SOON 6 170",
+    "price1": 4.92,
+    "price2": 3.93
+  },
+  "fo ice cream sauce with red velvet soon 6 170": {
+    "original_name": "Fo Ice Cream Sauce with RED VELVET SOON 6 170",
+    "price1": 6.56,
+    "price2": 5.24
+  },
+  "fo cotton candy ( blue ) 940 gr. 6 170": {
+    "original_name": "Fo Cotton Candy ( Blue ) 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo cotton candy ( pink ) 940 gr. 6 170": {
+    "original_name": "Fo Cotton Candy ( Pink ) 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo caramelized biscuit sauce 940 gr. 6 170": {
+    "original_name": "Fo Caramelized Biscuit Sauce 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo hazelnut sauce 940 gr. (20% hazelnut) 6 170": {
+    "original_name": "Fo Hazelnut Sauce 940 gr. (20% Hazelnut) 6 170",
+    "price1": 6.49,
+    "price2": 5.19
+  },
+  "fo pistachio verde sauce 940 gr. (10% pistachio) 6 170": {
+    "original_name": "Fo Pistachio Verde Sauce 940 gr. (10% Pistachio) 6 170",
+    "price1": 9.19,
+    "price2": 7.35
+  },
+  "fo pistachio verde sauce 940 gr. ( 5% pistachio) 6 170": {
+    "original_name": "Fo Pistachio Verde Sauce 940 gr. ( 5% Pistachio) 6 170",
+    "price1": 6.27,
+    "price2": 5.02
+  },
+  "fo rose sauce 940 gr. 6 170": {
+    "original_name": "Fo Rose Sauce 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo saffron sauce 940 gr. 6 170": {
+    "original_name": "Fo Saffron Sauce 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo salted caramel sauce 940 gr. 6 170": {
+    "original_name": "Fo Salted Caramel Sauce 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo toffee caramel sauce 940 gr. 6 170": {
+    "original_name": "Fo Toffee Caramel Sauce 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo velvet ( blue ) 940 gr. 6 170": {
+    "original_name": "Fo Velvet ( Blue ) 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo velvet ( red ) 940 gr. 6 170": {
+    "original_name": "Fo Velvet ( Red ) 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo white chocolate sauce 940 gr. 6 170": {
+    "original_name": "Fo White Chocolate Sauce 940 gr. 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo white hazelnut sauce 940 gr. (7% hazelnut) 6 170": {
+    "original_name": "Fo White Hazelnut Sauce 940 gr. (7% Hazelnut) 6 170",
+    "price1": 5.13,
+    "price2": 4.11
+  },
+  "fo popping candy sauce-special 940 gr 6 170": {
+    "original_name": "FO POPPING CANDY SAUCE-SPECIAL 940 gr 6 170",
+    "price1": 8.34,
+    "price2": 6.67
+  },
+  "fo blueberries pieces sauce 940 gr %20 6 170": {
+    "original_name": "FO BLUEBERRIES PIECES SAUCE 940 gr %20 6 170",
+    "price1": 7.48,
+    "price2": 5.99
+  },
+  "fo blueberries pieces sauce 940 gr %40 6 170": {
+    "original_name": "FO BLUEBERRIES PIECES SAUCE 940 gr %40 6 170",
+    "price1": 8.63,
+    "price2": 6.9
+  },
+  "fo strawbeery fruited sauce 6 170": {
+    "original_name": "Fo STRAWBEERY Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo raspberry fruited sauce 6 170": {
+    "original_name": "Fo RASPBERRY Fruited Sauce 6 170",
+    "price1": 7.65,
+    "price2": 6.12
+  },
+  "fo black mulberry fruited sauce 6 170": {
+    "original_name": "Fo BLACK MULBERRY Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo black berry fruited sauce 6 170": {
+    "original_name": "Fo BLACK BERRY Fruited Sauce 6 170",
+    "price1": 6.56,
+    "price2": 5.24
+  },
+  "fo kiwi fruited sauce 6 170": {
+    "original_name": "Fo KIWI Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo sour cherry fruited sauce 6 170": {
+    "original_name": "Fo SOUR CHERRY Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo mango fruited sauce 6 170": {
+    "original_name": "Fo MANGO Fruited Sauce 6 170",
+    "price1": 6.01,
+    "price2": 4.81
+  },
+  "fo melon fruited sauce 6 170": {
+    "original_name": "Fo MELON Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo watermelon fruited sauce 6 170": {
+    "original_name": "Fo WATERMELON Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo peach fruited sauce 6 170": {
+    "original_name": "Fo PEACH Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo green apple fruited sauce 6 170": {
+    "original_name": "Fo GREEN APPLE Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo banana fruited sauce 6 170": {
+    "original_name": "Fo BANANA Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo lemon fruited sauce 6 170": {
+    "original_name": "Fo LEMON Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo coconut fruited sauce 1 kg 6 170": {
+    "original_name": "Fo COCONUT Fruited Sauce 1 Kg 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo wild berries fruited sauce 1 kg 6 170": {
+    "original_name": "Fo WILD BERRIES Fruited Sauce 1 Kg 6 170",
+    "price1": 6.01,
+    "price2": 4.81
+  },
+  "fo pomegranate fruited sauce 6 170": {
+    "original_name": "Fo POMEGRANATE Fruited Sauce 6 170",
+    "price1": 6.01,
+    "price2": 4.81
+  },
+  "fo passion fruite fruited sauce 6 170": {
+    "original_name": "Fo PASSION FRUITE Fruited Sauce 6 170",
+    "price1": 6.01,
+    "price2": 4.81
+  },
+  "fo blueberry fruited sauce 1 kg 6 170": {
+    "original_name": "Fo BLUEBERRY Fruited Sauce 1 Kg 6 170",
+    "price1": 8.74,
+    "price2": 6.99
+  },
+  "fo pineapple fruited sauce 1 kg 6 170": {
+    "original_name": "Fo PINEAPPLE Fruited Sauce 1 Kg 6 170",
+    "price1": 6.01,
+    "price2": 4.81
+  },
+  "fo mandarin fruited sauce 6 170": {
+    "original_name": "Fo MANDARIN Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo pumpkin fruited sauce 6 170": {
+    "original_name": "Fo PUMPKIN Fruited Sauce 6 170",
+    "price1": 3.82,
+    "price2": 3.06
+  },
+  "fo strawberry fruit syrup-premium 700ml 6 125": {
+    "original_name": "FO STRAWBERRY FRUIT SYRUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo peach fruit syrup-premium 700 ml 6 125": {
+    "original_name": "FO PEACH FRUIT SYRUP-PREMIUM 700 ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo grenadine premıum flavored syrup 6 125": {
+    "original_name": "FO GRENADINE Premıum Flavored Syrup 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo green apple fruit syrup-premium 700ml 6 125": {
+    "original_name": "FO GREEN APPLE FRUIT SYRUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo passion fruit fruited syrup-premium 700 ml 6 125": {
+    "original_name": "FO PASSION FRUIT FRUITED SYRUP-PREMIUM 700 ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo raspberry fruit syrup-premium 700ml 6 125": {
+    "original_name": "FO RASPBERRY FRUIT SYRUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo mango fruit syrup-premium 700 ml 6 125": {
+    "original_name": "FO MANGO FRUIT SYRUP-PREMIUM 700 ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo pomegranate fruit syrup-premium 700 ml 6 125": {
+    "original_name": "FO POMEGRANATE FRUIT SYRUP-PREMIUM 700 ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo mürver çi̇çeği̇ aro.şurup-premium 700ml 6 125": {
+    "original_name": "FO MÜRVER ÇİÇEĞİ ARO.ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo çarkifelek meyveli̇ şurup-premium700ml 6 125": {
+    "original_name": "FO ÇARKIFELEK MEYVELİ ŞURUP-PREMIUM700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo kizilcik aromali şurup-premium 700ml 6 125": {
+    "original_name": "FO KIZILCIK AROMALI ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo mi̇sket li̇monlu şurup-premium 700ml 6 125": {
+    "original_name": "FO MİSKET LİMONLU ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo greyfurt meyveli̇ şurup-premium 700ml 6 125": {
+    "original_name": "FO GREYFURT MEYVELİ ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo karamelli̇ şurup-premium 700ml 6 125": {
+    "original_name": "FO KARAMELLİ ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo y.mersi̇ni̇ meyveli̇ şurup-premium 700ml 6 125": {
+    "original_name": "FO Y.MERSİNİ MEYVELİ ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo karpuz meyveli̇ şurup-premium 700ml 6 125": {
+    "original_name": "FO KARPUZ MEYVELİ ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo beyaz çi̇kolata şurup-premium 700ml 6 125": {
+    "original_name": "FO BEYAZ ÇİKOLATA ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo çi̇kolatali şurup-premium 700ml 6 125": {
+    "original_name": "FO ÇİKOLATALI ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo böğürtlen meyveli̇ şurup-premium 700ml 6 125": {
+    "original_name": "FO BÖĞÜRTLEN MEYVELİ ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo vani̇lya aromali şurup-premium 700ml 6 125": {
+    "original_name": "FO VANİLYA AROMALI ŞURUP-PREMIUM 700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo yeşi̇l elma meyveli̇ şurup-premium700ml 6 125": {
+    "original_name": "FO YEŞİL ELMA MEYVELİ ŞURUP-PREMIUM700ML 6 125",
+    "price1": 5.5,
+    "price2": 4.4
+  },
+  "fo strawberry flavored syrup 6 125": {
+    "original_name": "FO STRAWBERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo chocolate flavored syrup 6 125": {
+    "original_name": "FO CHOCOLATE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo kiwi flavored syrup 6 125": {
+    "original_name": "FO KIWI Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo grenadine flavored syrup 6 125": {
+    "original_name": "FO GRENADINE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo caramel flavored syrup 6 125": {
+    "original_name": "FO CARAMEL Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo raspberry flavored syrup 6 125": {
+    "original_name": "FO RASPBERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo blue curacao flavored syrup 6 125": {
+    "original_name": "FO BLUE CURACAO Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo melon flavored syrup 6 125": {
+    "original_name": "FO MELON Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo mint flavored syrup 6 125": {
+    "original_name": "FO MINT Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo lime flavored syrup 6 125": {
+    "original_name": "FO LIME Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo vanilla flavored syrup 6 125": {
+    "original_name": "FO VANILLA Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo coconut flavored syrup 6 125": {
+    "original_name": "FO COCONUT Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo coffee flavored syrup 6 125": {
+    "original_name": "FO COFFEE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo banana flavored syrup 6 125": {
+    "original_name": "FO BANANA Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo bitter almond flavored syrup 6 125": {
+    "original_name": "FO BITTER ALMOND Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo peach flavored syrup 6 125": {
+    "original_name": "FO PEACH Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo sugar flavored syrup 6 125": {
+    "original_name": "FO SUGAR Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo coconut regular flavored syrup (transparent) 6 125": {
+    "original_name": "FO COCONUT REGULAR Flavored Syrup (Transparent) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo mango flavored syrup 6 125": {
+    "original_name": "FO MANGO Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo black current flavored syrup 6 125": {
+    "original_name": "FO BLACK CURRENT Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo black mulberry flavored syrup 6 125": {
+    "original_name": "FO BLACK MULBERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo maple flavored syrup 6 125": {
+    "original_name": "FO MAPLE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo water melon flavored syrup 6 125": {
+    "original_name": "FO WATER MELON Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo tonic flavored syrup 6 125": {
+    "original_name": "FO TONIC Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo agave tequila flavored syrup 6 125": {
+    "original_name": "FO AGAVE TEQUILA Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo violet flavored syrup 6 125": {
+    "original_name": "FO VIOLET Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo pear flavored syrup 6 125": {
+    "original_name": "FO PEAR Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo mastic flavored syrup 6 125": {
+    "original_name": "FO MASTIC Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo irish flavored syrup 6 125": {
+    "original_name": "FO IRISH Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo tropical flavored syrup 6 125": {
+    "original_name": "FO TROPICAL Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo ginger flavored coctail syrup 6 125": {
+    "original_name": "FO GINGER Flavored Coctail Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo salted caramel flavored syrup 6 125": {
+    "original_name": "FO SALTED CARAMEL Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo caramel flavored syrup (with sugar) 6 125": {
+    "original_name": "FO CARAMEL Flavored Syrup (WITH SUGAR) 6 125",
+    "price1": 3.06,
+    "price2": 2.45
+  },
+  "fo vanilla flavored syrup (with sugar) 6 125": {
+    "original_name": "FO VANILLA Flavored Syrup (WITH SUGAR) 6 125",
+    "price1": 3.06,
+    "price2": 2.45
+  },
+  "fo hazelnut flavored syrup (with sugar) 6 125": {
+    "original_name": "FO HAZELNUT Flavored Syrup (WITH SUGAR) 6 125",
+    "price1": 3.06,
+    "price2": 2.45
+  },
+  "fo triple sec (orange) flavored syrup 6 125": {
+    "original_name": "FO TRIPLE SEC (ORANGE) Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo rose flavored syrup 6 125": {
+    "original_name": "FO ROSE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo hazelnut flavored syrup 6 125": {
+    "original_name": "FO HAZELNUT Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo pistachio flavored syrup 6 125": {
+    "original_name": "FO PISTACHIO Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo blue berry flavored syrup 6 125": {
+    "original_name": "FO BLUE BERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo blue berry flavored syrup (blue) 6 125": {
+    "original_name": "FO BLUE BERRY Flavored Syrup (BLUE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo green apple flavored syrup 6 125": {
+    "original_name": "FO GREEN APPLE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo apricot flavored syrup 6 125": {
+    "original_name": "FO APRICOT Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo spearmint flavored syrup 6 125": {
+    "original_name": "FO SPEARMINT Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo green banana flavored syrup 6 125": {
+    "original_name": "FO GREEN BANANA Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo apricot seed (ameretto) flavored syrup 6 125": {
+    "original_name": "FO APRICOT SEED (AMERETTO) Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo irish cream flavored syrup 6 125": {
+    "original_name": "FO IRISH CREAM Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo green bodrum mandarin flavored syrup 6 125": {
+    "original_name": "FO GREEN BODRUM MANDARIN Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo white chocolate flavored syrup 6 125": {
+    "original_name": "FO WHITE CHOCOLATE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo pineapple flavored syrup 6 125": {
+    "original_name": "FO PINEAPPLE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo tiramisu flavored syrup 6 125": {
+    "original_name": "FO TIRAMISU Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo cappuccino flavored syrup 6 125": {
+    "original_name": "FO CAPPUCCINO Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo cinnamon flavored syrup 6 125": {
+    "original_name": "FO CINNAMON Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo cranberry flavored syrup 6 125": {
+    "original_name": "FO CRANBERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo bergamot flavored tea syrup 6 125": {
+    "original_name": "FO BERGAMOT FLAVORED TEA Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo lemon flavored tea syrup 6 125": {
+    "original_name": "FO LEMON FLAVORED TEA Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo mango flavored tea syrup 6 125": {
+    "original_name": "FO MANGO FLAVORED TEA Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo peach flavored tea syrup 6 125": {
+    "original_name": "FO PEACH FLAVORED TEA Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo energy drink flavored syrup 6 125": {
+    "original_name": "FO ENERGY DRINK Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo anise flavored syrup 6 125": {
+    "original_name": "FO ANISE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo bubble gum flavored syrup 6 125": {
+    "original_name": "FO BUBBLE GUM Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo cherry blossom flavored syrup 6 125": {
+    "original_name": "FO CHERRY BLOSSOM Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo pomegranate flavored syrup 6 125": {
+    "original_name": "FO POMEGRANATE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo blue raspberry flavored syrup 6 125": {
+    "original_name": "FO BLUE RASPBERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo saffron flavored syrup 6 125": {
+    "original_name": "FO SAFFRON Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo toffee nut flavored syrup (with sugar) 6 125": {
+    "original_name": "FO TOFFEE NUT Flavored Syrup (WITH SUGAR) 6 125",
+    "price1": 3.06,
+    "price2": 2.45
+  },
+  "fo blackberry flavored syrup 6 125": {
+    "original_name": "FO BLACKBERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo passion fruit flavored syrup 6 125": {
+    "original_name": "Fo PASSION FRUIT Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo sweet and sour sauce flavored syrup 6 125": {
+    "original_name": "Fo SWEET AND SOUR SAUCE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo elder flower flavored syrup 6 125": {
+    "original_name": "FO ELDER FLOWER Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo chocolate cookie flavored syrup 6 125": {
+    "original_name": "FO CHOCOLATE COOKIE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo pink grapefruit flavored syrup 6 125": {
+    "original_name": "Fo PINK GRAPEFRUIT Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo lychee flavored syrup 6 125": {
+    "original_name": "FO LYCHEE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo chai tea flavored syrup 6 125": {
+    "original_name": "FO CHAI TEA FLAVORED Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo sourcherry flavored syrup 6 125": {
+    "original_name": "FO SOURCHERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo brown sugar flavored syrup 6 125": {
+    "original_name": "FO BROWN SUGAR Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo pumpkin spices flavored syrup 6 125": {
+    "original_name": "FO PUMPKIN SPICES Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo pumpkin flavored syrup 6 125": {
+    "original_name": "FO PUMPKIN Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo hibiscus flavored syrup 6 125": {
+    "original_name": "FO HIBISCUS Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo cucumber flavored syrup 6 125": {
+    "original_name": "FO CUCUMBER Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo lavender flavored syrup 6 125": {
+    "original_name": "FO LAVENDER Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo red grappe flavored syrup 6 125": {
+    "original_name": "FO RED GRAPPE Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo wildberries flavored syrup 6 125": {
+    "original_name": "FO WILDBERRIES Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo white strawberry flavored syrup 6 125": {
+    "original_name": "FO WHITE STRAWBERRY Flavored Syrup 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo popcorn flavored syrup 6 125": {
+    "original_name": "FO POPCORN Flavored Syrup 6 125",
+    "price1": 3.06,
+    "price2": 2.45
+  },
+  "fo mangostan flavored silvery syrup 700ml 6 125": {
+    "original_name": "FO MANGOSTAN FLAVORED SILVERY SYRUP 700ML 6 125",
+    "price1": 3.5,
+    "price2": 2.8
+  },
+  "fo pomelo flavored silvery syrup 700ml 6 125": {
+    "original_name": "FO POMELO FLAVORED SILVERY SYRUP 700ML 6 125",
+    "price1": 3.5,
+    "price2": 2.8
+  },
+  "fo aronya flavored silvery syrup 700ml 6 125": {
+    "original_name": "FO ARONYA FLAVORED SILVERY SYRUP 700ML 6 125",
+    "price1": 3.5,
+    "price2": 2.8
+  },
+  "fo golden kiwi flavored silvery syrup 700ml 6 125": {
+    "original_name": "FO GOLDEN KIWI FLAVORED SILVERY SYRUP 700ML 6 125",
+    "price1": 3.5,
+    "price2": 2.8
+  },
+  "fo koi coctail foamer 100 ml 12 100": {
+    "original_name": "FO KOI COCTAIL FOAMER 100 ML 12 100",
+    "price1": 8.63,
+    "price2": 6.9
+  },
+  "fo lemon iced tea syrup 700 ml (base) 6 125": {
+    "original_name": "FO LEMON ICED TEA SYRUP 700 ML (Base) 6 125",
+    "price1": 3.0,
+    "price2": 2.4
+  },
+  "fo peach iced tea syrup 700 ml (base) 6 125": {
+    "original_name": "FO PEACH ICED TEA SYRUP 700 ML (Base) 6 125",
+    "price1": 3.0,
+    "price2": 2.4
+  },
+  "fo raspberry flavored iced tea syrup 700 ml (base) 6 125": {
+    "original_name": "FO RASPBERRY FLAVORED ICED TEA SYRUP 700 ML (Base) 6 125",
+    "price1": 3.0,
+    "price2": 2.4
+  },
+  "fo mango and exotic fruits flavored iced tea syrup 700 ml (base) 6 125": {
+    "original_name": "FO MANGO AND EXOTIC FRUITS FLAVORED ICED TEA SYRUP 700 ML (Base) 6 125",
+    "price1": 3.0,
+    "price2": 2.4
+  },
+  "fo mint and lime flavored syrup (base) 6 125": {
+    "original_name": "FO Mint and Lime Flavored Syrup (BASE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo hibiscus and wildberry flavored syrup (base) 6 125": {
+    "original_name": "FO HIBISCUS AND WILDBERRY FLAVORED SYRUP (BASE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo orange and mango flavored syrup (base) 6 125": {
+    "original_name": "FO ORANGE AND MANGO FLAVORED SYRUP (BASE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo blueberry and lychee flavored syrup (base) 6 125": {
+    "original_name": "FO BLUEBERRY AND LYCHEE FLAVORED SYRUP (BASE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo strawberry and acai flavored syrup (base) 6 125": {
+    "original_name": "FO STRAWBERRY AND ACAI FLAVORED SYRUP (BASE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo mango and dragon fruit flavored syrup (base) 6 125": {
+    "original_name": "FO MANGO AND DRAGON FRUIT FLAVORED SYRUP (BASE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo strawberry flavored syrup (base) 6 125": {
+    "original_name": "FO STRAWBERRY FLAVORED SYRUP (BASE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo grenadine flavored syrup (base) 6 125": {
+    "original_name": "FO GRENADINE FLAVORED SYRUP (BASE) 6 125",
+    "price1": 2.73,
+    "price2": 2.19
+  },
+  "fo chocolate sauce 6 60": {
+    "original_name": "Fo Chocolate Sauce 6 60",
+    "price1": 13.66,
+    "price2": 10.93
+  },
+  "fo white chocolate sauce 6 60": {
+    "original_name": "Fo White Chocolate Sauce 6 60",
+    "price1": 13.66,
+    "price2": 10.93
+  },
+  "fo toffee caramel sauce 6 60": {
+    "original_name": "Fo Toffee Caramel Sauce 6 60",
+    "price1": 10.11,
+    "price2": 8.08
+  },
+  "fo hazelnut sauce 6 60": {
+    "original_name": "Fo Hazelnut Sauce 6 60",
+    "price1": 15.81,
+    "price2": 12.65
+  },
+  "fo tiramisu flavored sauce 6 60": {
+    "original_name": "Fo Tiramisu Flavored Sauce 6 60",
+    "price1": 10.79,
+    "price2": 8.63
+  },
+  "fo cappuccino flavored sauce 6 60": {
+    "original_name": "Fo Cappuccino Flavored Sauce 6 60",
+    "price1": 10.11,
+    "price2": 8.08
+  },
+  "fo milky chocolate sauce 6 60": {
+    "original_name": "Fo Milky Chocolate Sauce 6 60",
+    "price1": 13.66,
+    "price2": 10.93
+  },
+  "fo caramel flavored sauce 6 60": {
+    "original_name": "Fo Caramel Flavored Sauce 6 60",
+    "price1": 10.11,
+    "price2": 8.08
+  },
+  "fo bar-sauce with condenced milk 2,5kg 6 0": {
+    "original_name": "FO BAR-SAUCE WITH CONDENCED MILK 2,5KG 6 0",
+    "price1": 9.34,
+    "price2": 7.48
+  },
+  "fo sweetened condensed milk sauce 2.5 kg 6 60": {
+    "original_name": "FO Sweetened Condensed Milk Sauce 2.5 kg 6 60",
+    "price1": 10.0,
+    "price2": 8.0
+  },
+  "fo pistachio flavored sauce 24 40": {
+    "original_name": "FO PISTACHIO Flavored Sauce 24 40",
+    "price1": 13.8,
+    "price2": 11.04
+  },
+  "fo hazelnut flavored sauce 24 40": {
+    "original_name": "Fo HAZELNUT Flavored Sauce 24 40",
+    "price1": 6.33,
+    "price2": 5.06
+  },
+  "fo rose flavored sauce 24 40": {
+    "original_name": "FO ROSE Flavored Sauce 24 40",
+    "price1": 5.46,
+    "price2": 4.37
+  },
+  "fo saffron flavored sauce 24 40": {
+    "original_name": "FO SAFFRON Flavored Sauce 24 40",
+    "price1": 5.46,
+    "price2": 4.37
+  },
+  "fo salted caramel flavored sauce 24 40": {
+    "original_name": "FO SALTED CARAMEL Flavored Sauce 24 40",
+    "price1": 6.33,
+    "price2": 5.06
+  },
+  "fo white hazelnut flavored sauce 24 40": {
+    "original_name": "Fo WHITE HAZELNUT Flavored Sauce 24 40",
+    "price1": 6.33,
+    "price2": 5.06
+  },
+  "fo coconut and pine apple favored beverage / pina colada cocktail mix 6 125": {
+    "original_name": "FO Coconut and Pine Apple Favored Beverage / PINA COLADA Cocktail Mix 6 125",
+    "price1": 2.38,
+    "price2": 1.9
+  },
+  "fo lime flavored beverage / margarita cocktail mix 6 125": {
+    "original_name": "FO Lime Flavored Beverage / MARGARITA Cocktail Mix 6 125",
+    "price1": 2.38,
+    "price2": 1.9
+  },
+  "fo coconut flavored beverage / blue hawai cocktail mix 6 125": {
+    "original_name": "FO Coconut Flavored Beverage / BLUE HAWAI Cocktail Mix 6 125",
+    "price1": 2.38,
+    "price2": 1.9
+  },
+  "fo grenadine and orange flavored beverage / cosmopolitan cocktail mix 6 125": {
+    "original_name": "FO Grenadine and Orange Flavored Beverage / COSMOPOLITAN Cocktail Mix 6 125",
+    "price1": 2.38,
+    "price2": 1.9
+  },
+  "fo grenadine and strawberry flavored beverage / fruit cocktail mix 6 125": {
+    "original_name": "FO Grenadine and Strawberry Flavored Beverage / FRUIT Cocktail Mix 6 125",
+    "price1": 2.38,
+    "price2": 1.9
+  },
+  "fo mango flavored beverage / sea garden coctail mix 6 125": {
+    "original_name": "FO Mango Flavored Beverage / SEA GARDEN Coctail Mix 6 125",
+    "price1": 2.38,
+    "price2": 1.9
+  },
+  "fo grenadine and peach flavored beverage / x on the beach cocktail mix 6 125": {
+    "original_name": "FO Grenadine and Peach Flavored Beverage / X ON THE BEACH Cocktail Mix 6 125",
+    "price1": 2.38,
+    "price2": 1.9
+  }
+}

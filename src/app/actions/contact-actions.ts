@@ -13,7 +13,7 @@ export async function submitContactForm(
     return { success: false, error: 'Bitte alle Felder ausfüllen.' };
   }
 
-  // ── Admin in-app bildirimi ────────────────────────────────────────────────
+  // ── Veritabanına kaydetme (Tam Mesaj) ───────────────────────────────────────
   try {
     const { createClient } = await import('@supabase/supabase-js');
     const supabase = createClient(
@@ -21,14 +21,30 @@ export async function submitContactForm(
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { persistSession: false } }
     );
+
+    const { error: dbError } = await supabase
+      .from('iletisim_mesajlari')
+      .insert({
+        ad_soyad: name,
+        email: email,
+        mesaj: message,
+      });
+
+    if (dbError) {
+      console.warn('[contact-actions] Veritabanı kayıt hatası:', dbError);
+    }
+
+    // ── Admin in-app bildirimi (Kısaltılmış Mesaj) ──────────────────────────────
     const { sendNotification } = await import('@/lib/notificationUtils');
     await sendNotification({
       aliciRol: ['Yönetici', 'Ekip Üyesi'] as any,
       icerik: `💬 ${name} (${email}): "${message.length > 100 ? message.slice(0, 100) + '...' : message}"`,
+      link: '/admin/crm/mesajlar',
+      preferenceKey: 'new_messages',
       supabaseClient: supabase as any,
     });
   } catch (notifErr) {
-    console.warn('[contact-actions] In-app bildirim gönderilemedi:', notifErr);
+    console.warn('[contact-actions] Kayıt/Bildirim hatası:', notifErr);
   }
 
   // ── Admin e-posta bildirimi ───────────────────────────────────────────────

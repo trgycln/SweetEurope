@@ -8,7 +8,7 @@ import {
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX,
     FiGift, FiLayers, FiSettings, FiChevronDown,
     FiRss, FiPaperclip, FiHardDrive, FiBook,
-    FiDollarSign, FiBarChart2, FiUser, FiStar, FiUserCheck
+    FiDollarSign, FiBarChart2, FiUser, FiStar, FiUserCheck, FiMail
 } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
@@ -84,6 +84,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
             links: [
                 { name: sidebarContent.customers || 'Firmalar', href: '/admin/crm/firmalar', icon: FiUsers, roles: ['Yönetici', 'Ekip Üyesi', 'Personel'] as UserRole[], panelKey: 'crm' },
                 { name: sidebarContent.subDealers || 'Alt Bayiler', href: '/admin/crm/alt-bayiler', icon: FiUserCheck, roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[], panelKey: 'subdealers' },
+                { name: 'Gelen Mesajlar', href: '/admin/crm/mesajlar', icon: FiMail, roles: ['Yönetici', 'Ekip Üyesi'] as UserRole[], panelKey: 'crm' },
             ],
         },
         {
