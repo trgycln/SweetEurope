@@ -185,6 +185,13 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                     roles: ['Yönetici'] as UserRole[],
                     panelKey: 'reporting' 
                 },
+                { 
+                    name: 'Kasa İşlemleri', 
+                    href: '/admin/idari/finans/kasa', 
+                    icon: FiHardDrive, 
+                    roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'finances' 
+                },
             ]
         },
         {

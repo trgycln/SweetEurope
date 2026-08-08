@@ -6,7 +6,8 @@ import { cookies } from 'next/headers';
 import {
     FiUsers, FiPackage, FiClipboard, FiBriefcase, FiTruck,
     FiAlertTriangle, FiCheckCircle, FiArchive, FiBox,
-    FiExternalLink, FiAlertCircle, FiCalendar,
+    FiExternalLink, FiAlertCircle, FiCalendar, FiDollarSign,
+    FiPieChart, FiCheckSquare, FiActivity, FiBell
 } from 'react-icons/fi';
 import Link from 'next/link';
 import { Enums } from '@/lib/supabase/database.types';
@@ -21,7 +22,7 @@ import GorevDurumWidget from '@/components/admin/dashboard/GorevDurumWidget';
 import DashboardPeriodTabs from '@/components/admin/dashboard/DashboardPeriodTabs';
 import KasaKalanCard from '@/components/admin/dashboard/KasaKalanCard';
 import HedefTakipCard from '@/components/admin/dashboard/HedefTakipCard';
-import CollapsibleSection from '@/components/admin/dashboard/CollapsibleSection';
+import CockpitAppGrid from '@/components/admin/dashboard/CockpitAppGrid';
 import { AnimatedDashboardContainer, AnimatedCard } from '@/components/admin/dashboard/AnimatedDashboardWrapper';
 import { AnimatedNumber } from '@/components/admin/dashboard/AnimatedNumber';
 import { getCachedDashboardData } from '@/lib/admin/cache-utils';
@@ -143,6 +144,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
         supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).eq('atanan_kisi_id', userId).order('son_tarih', { ascending: true, nullsFirst: false }).limit(10),
         supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).lt('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(10),
         supabase.from('gorevler').select('id, baslik, son_tarih, oncelik').eq('tamamlandi', false).gte('son_tarih', todayISO).order('son_tarih', { ascending: true }).limit(10), // simplified
+        supabase.rpc('get_kasa_ozeti')
     ]);
 
     const {
@@ -196,7 +198,11 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
 
     const settings: Record<string, number> = {};
     for (const s of (settingsRes.data || []) as any[]) { const n = Number(s.setting_value); if (Number.isFinite(n)) settings[s.setting_key] = n; }
-    const kasaBakiyesi   = settings.kasa_bakiyesi  ?? 0;
+    
+    const kasaOzetRes = await supabase.rpc('get_kasa_ozeti');
+    const ozetRow = kasaOzetRes.data?.[0] || { banka_bakiye: 0, nakit_bakiye: 0 };
+    const kasaBakiyesi = (ozetRow.banka_bakiye || 0) + (ozetRow.nakit_bakiye || 0);
+    
     const hedefCiro      = settings.hedef_ciro     ?? 50000;
     const hedefMusteri   = settings.hedef_musteri  ?? 5;
     const hedefTemas     = settings.hedef_temas    ?? 10;
@@ -223,6 +229,315 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
 
     // ── Kısa linkler ──────────────────────────────────────────────────────────
     const L = { locale };
+
+    const apps = [
+        {
+            id: 'finans',
+            title: 'Finansal Detay',
+            icon: <FiPieChart />,
+            colorClass: 'bg-blue-100 text-blue-700',
+            content: (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Sol: P&L */}
+                    <div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Gelir &amp; Maliyet — {periodLabel}</p>
+                        <div className="space-y-0 divide-y divide-slate-100 rounded-xl border border-slate-200 overflow-hidden bg-white">
+                            {[
+                                { label: 'Net Ciro',              value: fmt(mtd?.totalRevenue),  cls: 'text-slate-800' },
+                                { label: 'Satılan Mal Maliyeti',  value: fmt(mtd?.totalCogs),     cls: 'text-red-600' },
+                                { label: 'Brüt Kâr',             value: fmt(mtd?.grossProfit),   cls: (mtd?.grossProfit ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-600', bold: true },
+                                { label: 'Operasyonel Gider',     value: fmt(mtd?.totalExpenses), cls: 'text-slate-600' },
+                                { label: 'Net Kâr',               value: fmt(mtd?.netProfit),     cls: (mtd?.netProfit ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-600', bold: true, border: true },
+                            ].map(r => (
+                                <div key={r.label} className={`flex justify-between items-center px-4 py-2.5 ${r.border ? 'bg-slate-50' : ''}`}>
+                                    <span className={`text-sm ${r.bold ? 'font-bold text-slate-700' : 'text-slate-600'}`}>{r.label}</span>
+                                    <span className={`text-sm font-bold ${r.cls}`}>{r.value}</span>
+                                </div>
+                            ))}
+                        </div>
+                        {prevMtd && deltaPct !== null && (
+                            <p className="text-[11px] text-slate-400 mt-2 px-1">
+                                Geçen ay net kâr: {fmt(prevMtd.netProfit)}
+                                <span className={`ml-1.5 font-semibold ${deltaPct >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>({deltaPct >= 0 ? '+' : ''}{deltaPct}%)</span>
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Sağ: Hedef Takip */}
+                    <HedefTakipCard locale={locale} metrikler={[
+                        { key: 'hedef_ciro',    label: 'Ciro Hedefi',      gercek: mtd?.totalRevenue ?? 0, hedef: hedefCiro,    format: 'currency' },
+                        { key: 'hedef_musteri', label: 'Yeni Müşteri',     gercek: yeniMusteriCnt,          hedef: hedefMusteri, format: 'number' },
+                        { key: 'hedef_temas',   label: 'Temas Edilen',     gercek: temasTotal,               hedef: hedefTemas,   format: 'number' },
+                        { key: 'hedef_siparis', label: 'Teslim Edilen Sipariş', gercek: teslimEdilenCount, hedef: hedefSiparis, format: 'number' },
+                    ]} />
+                </div>
+            )
+        },
+        {
+            id: 'gorevler',
+            title: 'Görev & Sipariş',
+            icon: <FiCheckSquare />,
+            colorClass: 'bg-orange-100 text-orange-700',
+            badgeCount: overdueTasks.length + beklemeydeCount + iptalTalepCount,
+            content: (
+                <div className="space-y-4">
+                    <div className="flex justify-end">
+                        <SectionLink href={`/${locale}/admin/gorevler`}>Tüm görevler</SectionLink>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {/* Sol: Görevler */}
+                        <GorevDurumWidget overdue={overdueTasks} upcoming={upcomingTasks} myTasks={myTasks} locale={locale} />
+
+                        {/* Sağ: Siparişler + TIR */}
+                        <div className="space-y-3">
+                            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                        Sipariş Durumu ({periodLabel})
+                                    </p>
+                                    <Link
+                                        href={`/${locale}/admin/operasyon/siparisler`}
+                                        className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5"
+                                    >
+                                        Tümü <FiExternalLink size={9} />
+                                    </Link>
+                                </div>
+                                {toplamSiparisCount === 0 ? (
+                                    <p className="text-sm text-slate-400 text-center py-3">
+                                        Bu dönem sipariş bulunmuyor.
+                                    </p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {[
+                                                { label: 'Beklemede',    val: beklemeydeCount,   cls: 'bg-amber-50 text-amber-700 border-amber-200',    href: `/${locale}/admin/operasyon/siparisler?durum=Beklemede` },
+                                                { label: 'Hazırlanıyor', val: hazirlaniyorCount, cls: 'bg-blue-50 text-blue-700 border-blue-200',        href: `/${locale}/admin/operasyon/siparisler?durum=Hazırlanıyor` },
+                                                { label: 'Yolda',        val: yoldaCount,        cls: 'bg-violet-50 text-violet-700 border-violet-200',  href: `/${locale}/admin/operasyon/siparisler?durum=Yola Çıktı` },
+                                                { label: 'Teslim',       val: teslimEdilenCount, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', href: `/${locale}/admin/operasyon/siparisler?durum=Teslim Edildi` },
+                                            ].map(s => (
+                                                <Link key={s.label} href={s.href}
+                                                    className={`rounded-lg border px-2.5 py-2 text-center hover:opacity-80 transition-opacity ${s.cls}`}>
+                                                    <p className="text-lg font-bold">{s.val}</p>
+                                                    <p className="text-[10px] font-semibold">{s.label}</p>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                        {iptalTalepCount > 0 && (
+                                            <Link
+                                                href={`/${locale}/admin/operasyon/siparisler?durum=iptal_talep_edildi`}
+                                                className="flex items-center justify-between px-3 py-2 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                                            >
+                                                <span className="text-xs font-semibold text-red-700 flex items-center gap-1.5">
+                                                    <FiAlertCircle size={12} />
+                                                    İptal talebi
+                                                </span>
+                                                <span className="text-sm font-bold text-red-700">{iptalTalepCount}</span>
+                                            </Link>
+                                        )}
+                                        {iptalCount > 0 && (
+                                            <div className="flex items-center justify-between px-3 py-1.5 text-xs text-slate-400">
+                                                <span>İptal edilen</span>
+                                                <span className="font-semibold">{iptalCount}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">Son TIR Partileri</p>
+                                {sonTirler.length === 0 ? (
+                                    <p className="text-sm text-slate-400 text-center py-2">Henüz parti yok.</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {sonTirler.map((b: any) => (
+                                            <div key={b.id} className="flex items-center justify-between text-sm">
+                                                <div>
+                                                    <p className="font-semibold text-slate-700">{b.referans_kodu}</p>
+                                                    <p className="text-[11px] text-slate-400">{formatDate(b.varis_tarihi || b.created_at, locale)}</p>
+                                                </div>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${b.durum === 'Tamamlandı' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                    {b.durum || 'Taslak'}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'stok',
+            title: 'Stok & Hunisi',
+            icon: <FiBox />,
+            colorClass: 'bg-green-100 text-green-700',
+            badgeCount: kritikStok > 0 ? kritikStok : 0,
+            content: (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Sol: Stok */}
+                    <div className="space-y-3">
+                        <div className="grid grid-cols-3 gap-2">
+                            <MiniCard label="Toplam Ürün" value={fmtNum(urunToplamCount)} />
+                            <MiniCard label="Kritik Stok" value={fmtNum(kritikStok)} warn={kritikStok > 0} />
+                            <MiniCard label="Stok Değeri" value={fmt(stokDegeri)} />
+                        </div>
+                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-3.5 space-y-2.5">
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Son TIR</p>
+                                {sonTir ? (
+                                    <div className="flex items-center gap-2">
+                                        <FiTruck size={13} className="text-slate-400" />
+                                        <span className="text-sm font-semibold text-slate-700">{sonTir.referans_kodu}</span>
+                                        <span className="text-xs text-slate-400">{formatDate(sonTir.varis_tarihi || sonTir.created_at, locale)}</span>
+                                    </div>
+                                ) : <p className="text-sm text-slate-400">Kayıt yok</p>}
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Sonraki TIR</p>
+                                {yaklasenTir ? (
+                                    <div className="flex items-center gap-2">
+                                        <FiCalendar size={13} className="text-blue-400" />
+                                        <span className="text-sm font-semibold text-slate-700">{yaklasenTir.referans_kodu}</span>
+                                        <span className="text-xs text-slate-400">{formatDate(yaklasenTir.varis_tarihi, locale)}</span>
+                                    </div>
+                                ) : (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-[11px] font-semibold rounded-full">Planlanmadı</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sağ: Satış Hunisi */}
+                    <div className="space-y-3">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Satış Hunisi</p>
+                        {[
+                            { label: 'Aday',    count: adayCount,    color: 'bg-slate-300' },
+                            { label: 'Temas',   count: temasTotal,   color: 'bg-blue-400' },
+                            { label: 'Müşteri', count: musteriCount, color: 'bg-emerald-500' },
+                        ].map(row => {
+                            const pct = toplamFunnel > 0 ? Math.round(row.count / toplamFunnel * 100) : 0;
+                            return (
+                                <div key={row.label}>
+                                    <div className="flex items-center justify-between text-sm mb-1">
+                                        <span className="text-slate-600 font-medium">{row.label}</span>
+                                        <span className="font-bold text-slate-800">{row.count}</span>
+                                    </div>
+                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div className={`h-full rounded-full ${row.color}`} style={{ width: `${pct}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        {yeniTemasCount > 0 && (
+                            <p className="text-[11px] text-blue-700 bg-blue-50 rounded-lg px-3 py-2">
+                                Bu hafta <strong>{yeniTemasCount} yeni temas</strong> oluşturuldu.
+                            </p>
+                        )}
+                        <Link href={`/${locale}/admin/crm/firmalar`} className="text-xs text-blue-600 hover:underline">CRM → Firma listesi</Link>
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'musteri',
+            title: 'Müşteriler',
+            icon: <FiUsers />,
+            colorClass: 'bg-purple-100 text-purple-700',
+            content: (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <CustomerOverview />
+                    <div>
+                        <p className="text-sm font-bold text-slate-700 mb-3">Alt Bayiler</p>
+                        <DistributorsList locale={locale} dictionary={dictionary} cookieStore={cookieStore} />
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'fiyat-saglik',
+            title: 'Fiyat Sağlığı',
+            icon: <FiActivity />,
+            colorClass: 'bg-cyan-100 text-cyan-700',
+            content: (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3 justify-end">
+                        <SectionLink href={`/${locale}/admin/urun-yonetimi/fiyatlandirma-hub`}>Fiyatlandırma merkezi</SectionLink>
+                        <SectionLink href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}>Detaylı rapor</SectionLink>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <HealthCard title="Marj riski olan ürün" value={`${alarmCount} ürün`}
+                            hint={alarmCount === 0 ? 'Tüm ürünler marj eşiği içinde.' : 'Satış marjını baskılayan ürünler var.'}
+                            tag={alarmCount === 0 ? 'İyi' : 'Acil'} tagColor={alarmCount === 0 ? 'green' : 'red'} />
+                        <HealthCard title="Son partide maliyet farkı" value={sonTir ? (sonTir.referans_kodu || 'Kayıt var') : 'Kayıt yok'}
+                            hint={sonTir ? `${formatDate(sonTir.varis_tarihi || sonTir.created_at, locale)} · ${sonTir.durum || 'Taslak'}` : 'Henüz parti kaydı yok.'}
+                            tag={sonTir ? 'İyi' : 'Veri yok'} tagColor={sonTir ? 'green' : 'yellow'} />
+                        <HealthCard title="Parti verisi güncelliği" value={daysSinceLast === null ? 'Kayıt yok' : `${daysSinceLast} gün`}
+                            hint={daysSinceLast === null ? 'Henüz parti kaydı yok.' : daysSinceLast <= 7 ? 'Güncel veri mevcut.' : 'Parti verisi eskimiş olabilir.'}
+                            tag={daysSinceLast === null ? 'Veri yok' : daysSinceLast <= 7 ? 'İyi' : daysSinceLast <= 21 ? 'Dikkat' : 'Acil'}
+                            tagColor={daysSinceLast === null ? 'yellow' : daysSinceLast <= 7 ? 'green' : 'red'} />
+                        <HealthCard title="Kritik stokta ürün" value={`${kritikStok} ürün`}
+                            hint={kritikStok === 0 ? 'Kritik stok görünmüyor.' : 'Tedarik planı gözden geçirilmeli.'}
+                            tag={kritikStok === 0 ? 'İyi' : kritikStok <= 5 ? 'Dikkat' : 'Acil'}
+                            tagColor={kritikStok === 0 ? 'green' : kritikStok <= 5 ? 'yellow' : 'red'} />
+                    </div>
+                </div>
+            )
+        },
+        {
+            id: 'fiyat-alarm',
+            title: 'Fiyat Alarmları',
+            icon: <FiBell />,
+            colorClass: 'bg-rose-100 text-rose-700',
+            badgeCount: alarmCount > 0 ? alarmCount : 0,
+            content: (
+                <div className="space-y-4">
+                    <div className="flex justify-end">
+                        <SectionLink href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}>Detaylı rapor</SectionLink>
+                    </div>
+                    {alarmCount === 0 ? (
+                        <div className="text-center py-8">
+                            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <FiCheckCircle size={18} className="text-emerald-600" />
+                            </div>
+                            <p className="text-sm font-semibold text-slate-700">Aktif fiyat alarmı yok</p>
+                            <p className="text-xs text-slate-400 mt-0.5">Tüm ürünler marj eşiği içinde.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            <div className="mb-3 px-3 py-2.5 bg-rose-50 rounded-lg border border-rose-100">
+                                <p className="text-sm font-semibold text-rose-700">
+                                    {alarmCount} ürün marj riski
+                                    <span className="ml-2 font-normal text-rose-500">· Ort. sapma %{alarmOrt.toFixed(1)}</span>
+                                </p>
+                            </div>
+                            {alarmUrunler.map((p: any) => {
+                                const variance = Math.abs(Number(p.son_maliyet_sapma_yuzde || 0));
+                                const ad = typeof p.ad === 'object' ? (p.ad?.[locale] || p.ad?.de || p.ad?.tr || 'Ürün') : (p.ad || 'Ürün');
+                                return (
+                                    <Link key={p.id} href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
+                                        className="flex items-center justify-between py-2.5 px-3 rounded-xl border border-slate-100 hover:bg-slate-50 group transition-colors">
+                                        <div>
+                                            <p className="text-sm font-semibold text-slate-800 group-hover:text-rose-700 transition-colors">{ad}</p>
+                                            <p className="text-xs text-slate-400">{p.stok_kodu || '—'}</p>
+                                        </div>
+                                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${variance >= 15 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                                            %{Math.round(variance)}
+                                        </span>
+                                    </Link>
+                                );
+                            })}
+                            <Link href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`} className="block text-center text-xs text-blue-600 hover:underline pt-2">
+                                + Tüm alarmları gör →
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            )
+        }
+    ];
 
     return (
         <AnimatedDashboardContainer>
@@ -334,8 +649,8 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                         { label: 'Yeni Firma',    icon: <FiUsers size={16} />,    href: `/${locale}/admin/crm/firmalar/yeni`,                    bg: 'bg-blue-100 text-blue-700' },
                         { label: 'Yeni Ürün',     icon: <FiArchive size={16} />,  href: `/${locale}/admin/urun-yonetimi/urunler/yeni`,            bg: 'bg-green-100 text-green-700' },
                         { label: 'Yeni Sipariş',  icon: <FiPackage size={16} />,  href: `/${locale}/admin/operasyon/siparisler/yeni`,             bg: 'bg-orange-100 text-orange-700' },
-                        { label: 'Yeni Görev',    icon: <FiClipboard size={16} />,href: `/${locale}/admin/gorevler/ekle`,                         bg: 'bg-teal-100 text-teal-700' },
                         { label: 'Yeni Gider',    icon: <FiBriefcase size={16} />,href: `/${locale}/admin/idari/finans/giderler`,                 bg: 'bg-purple-100 text-purple-700' },
+                        { label: 'Kasa İşlemi',   icon: <FiDollarSign size={16} />,href: `/${locale}/admin/idari/finans/kasa`,                     bg: 'bg-emerald-100 text-emerald-700' },
                     ].map(a => (
                         <Link key={a.label} href={a.href}
                             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all text-sm font-medium text-slate-700 group min-h-[40px]">
@@ -346,304 +661,11 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                 </div>
             </div>
 
-            {/* ── SEKSİYON 2: Finansal Detay & Hedef Takibi ────────────── */}
-            <CollapsibleSection dot="bg-blue-500" title="Finansal Detay & Hedef Takibi"
-                meta={`Net Kâr: ${fmt(mtd?.netProfit)}`}
-                defaultOpen
-            >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Sol: P&L */}
-                    <div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">Gelir &amp; Maliyet — {periodLabel}</p>
-                        <div className="space-y-0 divide-y divide-slate-100 rounded-xl border border-slate-200 overflow-hidden bg-white">
-                            {[
-                                { label: 'Net Ciro',              value: fmt(mtd?.totalRevenue),  cls: 'text-slate-800' },
-                                { label: 'Satılan Mal Maliyeti',  value: fmt(mtd?.totalCogs),     cls: 'text-red-600' },
-                                { label: 'Brüt Kâr',             value: fmt(mtd?.grossProfit),   cls: (mtd?.grossProfit ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-600', bold: true },
-                                { label: 'Operasyonel Gider',     value: fmt(mtd?.totalExpenses), cls: 'text-slate-600' },
-                                { label: 'Net Kâr',               value: fmt(mtd?.netProfit),     cls: (mtd?.netProfit ?? 0) >= 0 ? 'text-emerald-700' : 'text-red-600', bold: true, border: true },
-                            ].map(r => (
-                                <div key={r.label} className={`flex justify-between items-center px-4 py-2.5 ${r.border ? 'bg-slate-50' : ''}`}>
-                                    <span className={`text-sm ${r.bold ? 'font-bold text-slate-700' : 'text-slate-600'}`}>{r.label}</span>
-                                    <span className={`text-sm font-bold ${r.cls}`}>{r.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                        {prevMtd && deltaPct !== null && (
-                            <p className="text-[11px] text-slate-400 mt-2 px-1">
-                                Geçen ay net kâr: {fmt(prevMtd.netProfit)}
-                                <span className={`ml-1.5 font-semibold ${deltaPct >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>({deltaPct >= 0 ? '+' : ''}{deltaPct}%)</span>
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Sağ: Hedef Takip */}
-                    <HedefTakipCard locale={locale} metrikler={[
-                        { key: 'hedef_ciro',    label: 'Ciro Hedefi',      gercek: mtd?.totalRevenue ?? 0, hedef: hedefCiro,    format: 'currency' },
-                        { key: 'hedef_musteri', label: 'Yeni Müşteri',     gercek: yeniMusteriCnt,          hedef: hedefMusteri, format: 'number' },
-                        { key: 'hedef_temas',   label: 'Temas Edilen',     gercek: temasTotal,               hedef: hedefTemas,   format: 'number' },
-                        { key: 'hedef_siparis', label: 'Teslim Edilen Sipariş', gercek: teslimEdilenCount, hedef: hedefSiparis, format: 'number' },
-                    ]} />
-                </div>
-            </CollapsibleSection>
-
-            {/* ── SEKSİYON 3: Görevler & Siparişler ───────────────────── */}
-            <CollapsibleSection
-                dot="bg-orange-400"
-                title="Görevler & Siparişler"
-                meta={`${overdueTasks.length} gecikmiş · ${upcomingTasks.length} yaklaşan · ${aktifSiparisRes.count ?? 0} aktif sipariş`}
-                defaultOpen
-                links={<SectionLink href={`/${locale}/admin/gorevler`}>Tüm görevler</SectionLink>}
-            >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Sol: Görevler */}
-                    <GorevDurumWidget overdue={overdueTasks} upcoming={upcomingTasks} myTasks={myTasks} locale={locale} />
-
-                    {/* Sağ: Siparişler + TIR */}
-                    <div className="space-y-3">
-                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
-                            <div className="flex items-center justify-between mb-3">
-                                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                                    Sipariş Durumu ({periodLabel})
-                                </p>
-                                <Link
-                                    href={`/${locale}/admin/operasyon/siparisler`}
-                                    className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5"
-                                >
-                                    Tümü <FiExternalLink size={9} />
-                                </Link>
-                            </div>
-                            {toplamSiparisCount === 0 ? (
-                                <p className="text-sm text-slate-400 text-center py-3">
-                                    Bu dönem sipariş bulunmuyor.
-                                </p>
-                            ) : (
-                                <div className="space-y-2">
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {[
-                                            { label: 'Beklemede',    val: beklemeydeCount,   cls: 'bg-amber-50 text-amber-700 border-amber-200',    href: `/${locale}/admin/operasyon/siparisler?durum=Beklemede` },
-                                            { label: 'Hazırlanıyor', val: hazirlaniyorCount, cls: 'bg-blue-50 text-blue-700 border-blue-200',        href: `/${locale}/admin/operasyon/siparisler?durum=Hazırlanıyor` },
-                                            { label: 'Yolda',        val: yoldaCount,        cls: 'bg-violet-50 text-violet-700 border-violet-200',  href: `/${locale}/admin/operasyon/siparisler?durum=Yola Çıktı` },
-                                            { label: 'Teslim',       val: teslimEdilenCount, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', href: `/${locale}/admin/operasyon/siparisler?durum=Teslim Edildi` },
-                                        ].map(s => (
-                                            <Link key={s.label} href={s.href}
-                                                className={`rounded-lg border px-2.5 py-2 text-center hover:opacity-80 transition-opacity ${s.cls}`}>
-                                                <p className="text-lg font-bold">{s.val}</p>
-                                                <p className="text-[10px] font-semibold">{s.label}</p>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                    {iptalTalepCount > 0 && (
-                                        <Link
-                                            href={`/${locale}/admin/operasyon/siparisler?durum=iptal_talep_edildi`}
-                                            className="flex items-center justify-between px-3 py-2 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
-                                        >
-                                            <span className="text-xs font-semibold text-red-700 flex items-center gap-1.5">
-                                                <FiAlertCircle size={12} />
-                                                İptal talebi
-                                            </span>
-                                            <span className="text-sm font-bold text-red-700">{iptalTalepCount}</span>
-                                        </Link>
-                                    )}
-                                    {iptalCount > 0 && (
-                                        <div className="flex items-center justify-between px-3 py-1.5 text-xs text-slate-400">
-                                            <span>İptal edilen</span>
-                                            <span className="font-semibold">{iptalCount}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2.5">Son TIR Partileri</p>
-                            {sonTirler.length === 0 ? (
-                                <p className="text-sm text-slate-400 text-center py-2">Henüz parti yok.</p>
-                            ) : (
-                                <div className="space-y-2">
-                                    {sonTirler.map((b: any) => (
-                                        <div key={b.id} className="flex items-center justify-between text-sm">
-                                            <div>
-                                                <p className="font-semibold text-slate-700">{b.referans_kodu}</p>
-                                                <p className="text-[11px] text-slate-400">{formatDate(b.varis_tarihi || b.created_at, locale)}</p>
-                                            </div>
-                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${b.durum === 'Tamamlandı' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                                {b.durum || 'Taslak'}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </CollapsibleSection>
-
-            {/* ── SEKSİYON 4: Stok & Satış Hunisi ─────────────────────── */}
-            <CollapsibleSection
-                dot="bg-green-500"
-                title="Stok & Satış Hunisi"
-                meta={`${urunToplamCount} ürün · ${kritikStok > 0 ? kritikStok + ' kritik' : 'Kritik stok yok'} · ${fmt(stokDegeri)} değer`}
-                defaultOpen
-            >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Sol: Stok */}
-                    <div className="space-y-3">
-                        <div className="grid grid-cols-3 gap-2">
-                            <MiniCard label="Toplam Ürün" value={fmtNum(urunToplamCount)} />
-                            <MiniCard label="Kritik Stok" value={fmtNum(kritikStok)} warn={kritikStok > 0} />
-                            <MiniCard label="Stok Değeri" value={fmt(stokDegeri)} />
-                        </div>
-                        <div className="bg-slate-50 rounded-xl border border-slate-200 p-3.5 space-y-2.5">
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Son TIR</p>
-                                {sonTir ? (
-                                    <div className="flex items-center gap-2">
-                                        <FiTruck size={13} className="text-slate-400" />
-                                        <span className="text-sm font-semibold text-slate-700">{sonTir.referans_kodu}</span>
-                                        <span className="text-xs text-slate-400">{formatDate(sonTir.varis_tarihi || sonTir.created_at, locale)}</span>
-                                    </div>
-                                ) : <p className="text-sm text-slate-400">Kayıt yok</p>}
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Sonraki TIR</p>
-                                {yaklasenTir ? (
-                                    <div className="flex items-center gap-2">
-                                        <FiCalendar size={13} className="text-blue-400" />
-                                        <span className="text-sm font-semibold text-slate-700">{yaklasenTir.referans_kodu}</span>
-                                        <span className="text-xs text-slate-400">{formatDate(yaklasenTir.varis_tarihi, locale)}</span>
-                                    </div>
-                                ) : (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-[11px] font-semibold rounded-full">Planlanmadı</span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Sağ: Satış Hunisi */}
-                    <div className="space-y-3">
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Satış Hunisi</p>
-                        {[
-                            { label: 'Aday',    count: adayCount,    color: 'bg-slate-300' },
-                            { label: 'Temas',   count: temasTotal,   color: 'bg-blue-400' },
-                            { label: 'Müşteri', count: musteriCount, color: 'bg-emerald-500' },
-                        ].map(row => {
-                            const pct = toplamFunnel > 0 ? Math.round(row.count / toplamFunnel * 100) : 0;
-                            return (
-                                <div key={row.label}>
-                                    <div className="flex items-center justify-between text-sm mb-1">
-                                        <span className="text-slate-600 font-medium">{row.label}</span>
-                                        <span className="font-bold text-slate-800">{row.count}</span>
-                                    </div>
-                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className={`h-full rounded-full ${row.color}`} style={{ width: `${pct}%` }} />
-                                    </div>
-                                </div>
-                            );
-                        })}
-                        {yeniTemasCount > 0 && (
-                            <p className="text-[11px] text-blue-700 bg-blue-50 rounded-lg px-3 py-2">
-                                Bu hafta <strong>{yeniTemasCount} yeni temas</strong> oluşturuldu.
-                            </p>
-                        )}
-                        <Link href={`/${locale}/admin/crm/firmalar`} className="text-xs text-blue-600 hover:underline">CRM → Firma listesi</Link>
-                    </div>
-                </div>
-            </CollapsibleSection>
-
-            {/* ── SEKSİYON 5: Müşteri Portföyü & Alt Bayiler (kapalı) ── */}
-            <CollapsibleSection
-                dot="bg-purple-500"
-                title="Müşteri Portföyü & Alt Bayiler"
-                meta={`${musteriCount} müşteri · ${(adayCount + temasTotal)} aday/temas`}
-                defaultOpen={false}
-            >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <CustomerOverview />
-                    <div>
-                        <p className="text-sm font-bold text-slate-700 mb-3">Alt Bayiler</p>
-                        <DistributorsList locale={locale} dictionary={dictionary} cookieStore={cookieStore} />
-                    </div>
-                </div>
-            </CollapsibleSection>
-
-            {/* ── Fiyatlandırma Sağlık Özeti ────────────────────────────── */}
-            <CollapsibleSection
-                dot="bg-red-500"
-                title="Fiyatlandırma Sağlık Özeti"
-                meta={alarmCount > 0 ? `${alarmCount} ürün marj riski · Acil aksiyon gerekiyor` : 'Alarm yok'}
-                defaultOpen={false}
-                links={
-                    <div className="flex items-center gap-3">
-                        <SectionLink href={`/${locale}/admin/urun-yonetimi/fiyatlandirma-hub`}>Fiyatlandırma merkezi</SectionLink>
-                        <SectionLink href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}>Detaylı rapor</SectionLink>
-                    </div>
-                }
-            >
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <HealthCard title="Marj riski olan ürün" value={`${alarmCount} ürün`}
-                        hint={alarmCount === 0 ? 'Tüm ürünler marj eşiği içinde.' : 'Satış marjını baskılayan ürünler var.'}
-                        tag={alarmCount === 0 ? 'İyi' : 'Acil'} tagColor={alarmCount === 0 ? 'green' : 'red'} />
-                    <HealthCard title="Son partide maliyet farkı" value={sonTir ? (sonTir.referans_kodu || 'Kayıt var') : 'Kayıt yok'}
-                        hint={sonTir ? `${formatDate(sonTir.varis_tarihi || sonTir.created_at, locale)} · ${sonTir.durum || 'Taslak'}` : 'Henüz parti kaydı yok.'}
-                        tag={sonTir ? 'İyi' : 'Veri yok'} tagColor={sonTir ? 'green' : 'yellow'} />
-                    <HealthCard title="Parti verisi güncelliği" value={daysSinceLast === null ? 'Kayıt yok' : `${daysSinceLast} gün`}
-                        hint={daysSinceLast === null ? 'Henüz parti kaydı yok.' : daysSinceLast <= 7 ? 'Güncel veri mevcut.' : 'Parti verisi eskimiş olabilir.'}
-                        tag={daysSinceLast === null ? 'Veri yok' : daysSinceLast <= 7 ? 'İyi' : daysSinceLast <= 21 ? 'Dikkat' : 'Acil'}
-                        tagColor={daysSinceLast === null ? 'yellow' : daysSinceLast <= 7 ? 'green' : 'red'} />
-                    <HealthCard title="Kritik stokta ürün" value={`${kritikStok} ürün`}
-                        hint={kritikStok === 0 ? 'Kritik stok görünmüyor.' : 'Tedarik planı gözden geçirilmeli.'}
-                        tag={kritikStok === 0 ? 'İyi' : kritikStok <= 5 ? 'Dikkat' : 'Acil'}
-                        tagColor={kritikStok === 0 ? 'green' : kritikStok <= 5 ? 'yellow' : 'red'} />
-                </div>
-            </CollapsibleSection>
-
-            {/* ── Fiyat Alarmları (kapalı) ───────────────────────────────── */}
-            <CollapsibleSection
-                dot="bg-rose-500"
-                title="Fiyat Alarmları"
-                meta={alarmCount > 0 ? `${alarmCount} ürün marj riski · Ort. %${alarmOrt.toFixed(1)} sapma` : 'Aktif alarm yok'}
-                defaultOpen={false}
-                links={<SectionLink href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}>Detaylı rapor</SectionLink>}
-            >
-                {alarmCount === 0 ? (
-                    <div className="text-center py-8">
-                        <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                            <FiCheckCircle size={18} className="text-emerald-600" />
-                        </div>
-                        <p className="text-sm font-semibold text-slate-700">Aktif fiyat alarmı yok</p>
-                        <p className="text-xs text-slate-400 mt-0.5">Tüm ürünler marj eşiği içinde.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-2">
-                        <div className="mb-3 px-3 py-2.5 bg-rose-50 rounded-lg border border-rose-100">
-                            <p className="text-sm font-semibold text-rose-700">
-                                {alarmCount} ürün marj riski
-                                <span className="ml-2 font-normal text-rose-500">· Ort. sapma %{alarmOrt.toFixed(1)}</span>
-                            </p>
-                        </div>
-                        {alarmUrunler.map((p: any) => {
-                            const variance = Math.abs(Number(p.son_maliyet_sapma_yuzde || 0));
-                            const ad = typeof p.ad === 'object' ? (p.ad?.[locale] || p.ad?.de || p.ad?.tr || 'Ürün') : (p.ad || 'Ürün');
-                            return (
-                                <Link key={p.id} href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`}
-                                    className="flex items-center justify-between py-2.5 px-3 rounded-xl border border-slate-100 hover:bg-slate-50 group transition-colors">
-                                    <div>
-                                        <p className="text-sm font-semibold text-slate-800 group-hover:text-rose-700 transition-colors">{ad}</p>
-                                        <p className="text-xs text-slate-400">{p.stok_kodu || '—'}</p>
-                                    </div>
-                                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${variance >= 15 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                                        %{Math.round(variance)}
-                                    </span>
-                                </Link>
-                            );
-                        })}
-                        <Link href={`/${locale}/admin/urun-yonetimi/karlilik-raporu`} className="block text-center text-xs text-blue-600 hover:underline pt-2">
-                            + Tüm alarmları gör →
-                        </Link>
-                    </div>
-                )}
-            </CollapsibleSection>
+            {/* ── App Grid (Uygulama Modülleri) ─────────────────────────── */}
+            <div className="pt-2">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-1">Yönetim Modülleri</p>
+                <CockpitAppGrid apps={apps} />
+            </div>
 
         </AnimatedDashboardContainer>
     );

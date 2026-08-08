@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { FiChevronDown, FiChevronRight, FiSave, FiRefreshCw } from 'react-icons/fi';
 import { toast } from 'sonner';
+import Link from 'next/link';
 import { bulkSaveProductPricesAction, saveProductPricesAction } from '@/app/actions/urun-fiyat-actions';
 import { savePricingDefaultsAction } from '@/app/actions/system-settings-actions';
 import {
@@ -71,10 +72,9 @@ interface Props {
 // ─── Tier config ──────────────────────────────────────────────────────────────
 
 const TIERS = [
-  { key: 'altBayi',   label: 'Alt Bayi',    color: 'blue',   dbField: 'satis_fiyati_alt_bayi'  },
-  { key: 'koliBazli', label: 'Koli Bazlı',  color: 'violet', dbField: 'satis_fiyati_musteri'   },
+  { key: 'altBayi',   label: '1 Palet',     color: 'blue',   dbField: 'satis_fiyati_alt_bayi'  },
+  { key: 'koliBazli', label: '1 Koli',      color: 'violet', dbField: 'satis_fiyati_musteri'   },
   { key: 'cokKoli',   label: '5 Koli+',     color: 'emerald',dbField: 'satis_fiyati_toptanci'  },
-  { key: 'palet',     label: 'Palet',       color: 'orange', dbField: null                     },
 ] as const;
 
 type TierKey = typeof TIERS[number]['key'];
@@ -564,26 +564,10 @@ export default function SimpleSupplierCostPlatform({
           {/* Fiyat kademeleri */}
           <div>
             <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Fiyat Kademeleri &amp; Min. Sipariş</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {/* Alt Bayi */}
-              <div className="rounded-lg border border-blue-100 bg-blue-50/40 p-3 space-y-2">
-                <p className="text-[11px] font-bold text-blue-800">Alt Bayi</p>
-                <div>
-                  <label className="text-[10px] text-slate-500 block mb-0.5">Marj (%)</label>
-                  <input type="number" min={0} step="0.1" value={altBayiPct}
-                    onChange={e => setAltBayiPct(toNum(e.target.value, 5))}
-                    className="w-full rounded border border-blue-200 px-2 py-1 text-sm" />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 block mb-0.5">Min. sipariş (koli)</label>
-                  <input type="number" min={1} step="1" value={altBayiMinKoli}
-                    onChange={e => setAltBayiMinKoli(toNum(e.target.value, 1))}
-                    className="w-full rounded border border-blue-200 px-2 py-1 text-sm" />
-                </div>
-              </div>
-              {/* Koli Bazlı */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {/* Koli Bazlı -> 1 Koli */}
               <div className="rounded-lg border border-violet-100 bg-violet-50/40 p-3 space-y-2">
-                <p className="text-[11px] font-bold text-violet-800">Koli Bazlı</p>
+                <p className="text-[11px] font-bold text-violet-800">1 Koli</p>
                 <div>
                   <label className="text-[10px] text-slate-500 block mb-0.5">Marj (%)</label>
                   <input type="number" min={0} step="0.1" value={koliBazliPct}
@@ -613,16 +597,21 @@ export default function SimpleSupplierCostPlatform({
                     className="w-full rounded border border-emerald-200 px-2 py-1 text-sm" />
                 </div>
               </div>
-              {/* Palet */}
-              <div className="rounded-lg border border-orange-100 bg-orange-50/40 p-3 space-y-2">
-                <p className="text-[11px] font-bold text-orange-700">Palet Bazlı</p>
+              {/* Alt Bayi -> 1 Palet */}
+              <div className="rounded-lg border border-blue-100 bg-blue-50/40 p-3 space-y-2">
+                <p className="text-[11px] font-bold text-blue-800">1 Palet</p>
                 <div>
                   <label className="text-[10px] text-slate-500 block mb-0.5">Marj (%)</label>
-                  <input type="number" min={0} step="0.1" value={paletPct}
-                    onChange={e => setPaletPct(toNum(e.target.value, 15))}
-                    className="w-full rounded border border-orange-200 px-2 py-1 text-sm" />
+                  <input type="number" min={0} step="0.1" value={altBayiPct}
+                    onChange={e => setAltBayiPct(toNum(e.target.value, 5))}
+                    className="w-full rounded border border-blue-200 px-2 py-1 text-sm" />
                 </div>
-                <p className="text-[10px] text-slate-400">Min: ürün palet_ici_adet değerinden alınır.</p>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-0.5">Min. sipariş (koli)</label>
+                  <input type="number" min={1} step="1" value={altBayiMinKoli}
+                    onChange={e => setAltBayiMinKoli(toNum(e.target.value, 1))}
+                    className="w-full rounded border border-blue-200 px-2 py-1 text-sm" />
+                </div>
               </div>
             </div>
             <div className="mt-3 flex justify-end">
@@ -764,7 +753,9 @@ export default function SimpleSupplierCostPlatform({
                         {/* Ürün */}
                         <td className="px-4 py-2.5">
                           <div className="font-medium text-slate-900 leading-snug text-sm truncate max-w-[200px]" title={pName(row.product)}>
-                            {pName(row.product)}
+                            <Link href={`/${locale ?? 'tr'}/admin/urun-yonetimi/urunler/${row.product.id}`} className="hover:text-indigo-600 hover:underline">
+                              {pName(row.product)}
+                            </Link>
                           </div>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             {row.product.stok_kodu && (
@@ -920,7 +911,9 @@ export default function SimpleSupplierCostPlatform({
               {/* Card header */}
               <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-start justify-between gap-2">
                 <div>
-                  <p className="font-semibold text-slate-900 text-sm leading-snug">{pName(row.product)}</p>
+                  <Link href={`/${locale ?? 'tr'}/admin/urun-yonetimi/urunler/${row.product.id}`} className="font-semibold text-slate-900 text-sm leading-snug hover:text-indigo-600 hover:underline">
+                    {pName(row.product)}
+                  </Link>
                   <div className="flex items-center gap-2 mt-0.5">
                     {row.product.stok_kodu && <span className="font-mono text-[11px] text-slate-400">{row.product.stok_kodu}</span>}
                     <span className={`text-[10px] rounded-full px-1.5 py-0.5 font-medium ${row.profile === 'cold-chain' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>

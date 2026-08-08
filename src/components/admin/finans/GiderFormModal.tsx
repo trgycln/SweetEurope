@@ -27,8 +27,7 @@ interface GiderFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     giderToEdit?: Gider | null;
-    availableCategories: GiderKalemi[]; // Gider Kalemleri (Alle)
-    availableHauptCategories: HauptKategorie[]; // Ana Kategoriler
+    availableCategories: string[]; // Artık sadece string array
     availableFrequencies: readonly Database['public']['Enums']['zahlungshaeufigkeit'][];
     dictionary: Dictionary;
     locale: Locale;
@@ -51,22 +50,8 @@ export function GiderFormModal({
     const isEditing = !!(giderToEdit && giderToEdit.id);
     const isDuplicating = !!(giderToEdit && !giderToEdit.id);
 
-    // Anfangs-Hauptkategorie für Bearbeiten/Duplizieren bestimmen
-    const initialHauptKategorieId = useMemo(() => {
-        if (giderToEdit?.gider_kalemi_id) {
-            return availableCategories.find(k => k.id === giderToEdit.gider_kalemi_id)?.ana_kategori_id || '';
-        }
-        return '';
-    }, [giderToEdit, availableCategories]);
-
-    // State für ausgewählte Hauptkategorie
-    const [selectedHauptKategorie, setSelectedHauptKategorie] = useState<string>(initialHauptKategorieId);
-
-    // Gider Kalemi Liste filtern basierend auf Hauptkategorie
-    const filteredGiderKalemleri = useMemo(() => {
-        if (!selectedHauptKategorie) return [];
-        return availableCategories.filter(k => k.ana_kategori_id === selectedHauptKategorie);
-    }, [selectedHauptKategorie, availableCategories]);
+    // Keine geschachtelten Kategorien mehr, nur flacher Text
+    const [selectedKategori, setSelectedKategori] = useState<string>(giderToEdit?.kategori_ad || '');
 
     // Server Action auswählen
     const actionToUse = isEditing
@@ -125,14 +110,13 @@ export function GiderFormModal({
     useEffect(() => {
         if (isOpen) {
             toastShownRef.current = false; // Zurücksetzen
-            // Optional: Setze selectedHauptKategorie zurück, wenn Modal für "Neu" geöffnet wird
             if (!giderToEdit) {
-                 setSelectedHauptKategorie('');
+                 setSelectedKategori('');
             } else {
-                 setSelectedHauptKategorie(initialHauptKategorieId); // Beim Bearbeiten/Duplizieren neu setzen
+                 setSelectedKategori(giderToEdit.kategori_ad || '');
             }
         }
-    }, [isOpen, giderToEdit, initialHauptKategorieId]); // Abhängigkeiten angepasst
+    }, [isOpen, giderToEdit]);
 
 
     // Nichts rendern, wenn nicht offen
@@ -190,56 +174,42 @@ export function GiderFormModal({
                         {zodErrors?.tarih && <p className="text-xs text-red-600 mt-1">{zodErrors.tarih[0]}</p>}
                     </div>
 
-                    {/* Hauptkategorie */}
+                    {/* Kategori */}
                     <div>
-                        <label htmlFor="haupt_kategorie_select" className="block text-sm font-medium text-gray-700 mb-1">{content.hauptCategory}*</label>
+                        <label htmlFor="kategori_ad" className="block text-sm font-medium text-gray-700 mb-1">Kategori*</label>
+                        <input
+                            type="text"
+                            id="kategori_ad"
+                            name="kategori_ad"
+                            list="kategori-list"
+                            value={selectedKategori}
+                            onChange={(e) => setSelectedKategori(e.target.value)}
+                            required
+                            placeholder="Örn: Araç Bakım, Yemek, Ofis..."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent"
+                        />
+                        <datalist id="kategori-list">
+                            {availableCategories.map(cat => (
+                                <option key={cat} value={cat} />
+                            ))}
+                        </datalist>
+                        {zodErrors?.kategori_ad && <p className="text-xs text-red-600 mt-1">{zodErrors.kategori_ad[0]}</p>}
+                    </div>
+
+                    {/* Kasa Tipi */}
+                    <div>
+                        <label htmlFor="kasa_tipi" className="block text-sm font-medium text-gray-700 mb-1">Ödeme Yöntemi / Kasa*</label>
                         <select
-                            id="haupt_kategorie_select"
-                            name="haupt_kategorie" // Wird nicht gesendet, nur für State-Änderung
-                            value={selectedHauptKategorie} // Gesteuert durch State
-                            onChange={(e) => {
-                                setSelectedHauptKategorie(e.target.value);
-                                // Optional: Reset gider_kalemi_id when Hauptkategorie changes
-                                const form = document.getElementById('gider-form') as HTMLFormElement | null;
-                                if (form) {
-                                    const giderKalemiSelect = form.elements.namedItem('gider_kalemi_id') as HTMLSelectElement | null;
-                                    if (giderKalemiSelect) giderKalemiSelect.value = '';
-                                }
-                            }}
+                            id="kasa_tipi"
+                            name="kasa_tipi"
+                            defaultValue={giderToEdit?.kasa_tipi || 'Banka'}
                             required
                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent bg-white"
                         >
-                            <option value="" disabled>{content.pleaseSelect}</option>
-                            {availableHauptCategories.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.ad}</option>
-                            ))}
+                            <option value="Banka">Banka Hesabı</option>
+                            <option value="Nakit">Nakit Kasa</option>
                         </select>
-                        {/* Zod-Fehler für gider_kalemi_id könnte indirekt hier relevant sein */}
-                    </div>
-
-                    {/* Gider Kalemi (Detailkategorie) */}
-                    <div>
-                        <label htmlFor="gider_kalemi_id" className="block text-sm font-medium text-gray-700 mb-1">{content.category}*</label>
-                        <select
-                            id="gider_kalemi_id"
-                            name="gider_kalemi_id" // Dies wird an die Action gesendet
-                            // Verwende defaultValue ODER value. Da es von selectedHauptKategorie abhängt,
-                            // ist es besser, es ungesteuert zu lassen oder value zu verwenden und onChange zu implementieren.
-                            // Wir verwenden defaultValue und key, um es bei Änderung zurückzusetzen.
-                            defaultValue={selectedHauptKategorie === initialHauptKategorieId ? (giderToEdit?.gider_kalemi_id || '') : ''}
-                            key={selectedHauptKategorie} // Wichtig: Setzt Select zurück, wenn Hauptkategorie wechselt
-                            required
-                            disabled={!selectedHauptKategorie || filteredGiderKalemleri.length === 0}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-accent focus:border-accent bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
-                        >
-                            <option value="" disabled>
-                                {!selectedHauptKategorie ? content.selectHauptCategoryFirst : (filteredGiderKalemleri.length === 0 ? 'Keine Posten verfügbar' : content.pleaseSelect)}
-                            </option>
-                            {filteredGiderKalemleri.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.ad}</option>
-                            ))}
-                        </select>
-                        {zodErrors?.gider_kalemi_id && <p className="text-xs text-red-600 mt-1">{zodErrors.gider_kalemi_id[0]}</p>}
+                        {zodErrors?.kasa_tipi && <p className="text-xs text-red-600 mt-1">{zodErrors.kasa_tipi[0]}</p>}
                     </div>
 
                     {/* Beschreibung */}

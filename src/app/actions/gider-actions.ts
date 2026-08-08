@@ -16,9 +16,8 @@ export type GiderFormState = {
     error?: string | ZodError<any>['formErrors'] | null;
 } | null;
 
-// Zod Schema - gider_kalemi_id ist optional (DB-Spalte ist nullable; Schnellerfassung ohne Kategorie erlaubt)
-const GiderSchema = z.object({
-    gider_kalemi_id: z.string().uuid({ message: "Ungültiger Ausgabenposten." }).optional().nullable(),
+    kategori_ad: z.string().optional().nullable(),
+    kasa_tipi: z.enum(['Banka', 'Nakit'], { errorMap: () => ({ message: "Geçersiz kasa tipi." }) }).optional().nullable(),
     aciklama: z.string().min(3, { message: "Beschreibung muss mind. 3 Zeichen lang sein." }),
     tutar: z.number({ required_error: "Betrag ist erforderlich.", invalid_type_error: "Betrag muss eine Zahl sein." }).positive({ message: "Betrag muss positiv sein." }),
     tarih: z.string().refine((date) => !isNaN(Date.parse(date)), { message: "Ungültiges Datum." }),
@@ -67,7 +66,8 @@ export async function createGiderAction(
     }
 
     const rawData = {
-        gider_kalemi_id: formData.get('gider_kalemi_id') || null,
+        kategori_ad: formData.get('kategori_ad') || null,
+        kasa_tipi: formData.get('kasa_tipi') || 'Banka',
         aciklama: formData.get('aciklama'),
         tutar: formData.get('tutar') ? parseFloat(formData.get('tutar') as string) : undefined,
         tarih: formData.get('tarih'),
@@ -82,7 +82,8 @@ export async function createGiderAction(
     }
 
     const insertData: TablesInsert<'giderler'> = {
-        gider_kalemi_id: validatedFields.data.gider_kalemi_id ?? null,
+        kategori_ad: validatedFields.data.kategori_ad ?? null,
+        kasa_tipi: validatedFields.data.kasa_tipi ?? 'Banka',
         aciklama: validatedFields.data.aciklama,
         tutar: validatedFields.data.tutar,
         tarih: new Date(validatedFields.data.tarih).toISOString(),
@@ -153,7 +154,8 @@ export async function updateGiderAction(
     }
 
     const rawData = {
-        gider_kalemi_id: formData.get('gider_kalemi_id'),
+        kategori_ad: formData.get('kategori_ad') || null,
+        kasa_tipi: formData.get('kasa_tipi') || 'Banka',
         aciklama: formData.get('aciklama'),
         tutar: formData.get('tutar') ? parseFloat(formData.get('tutar') as string) : undefined,
         tarih: formData.get('tarih'),
@@ -168,7 +170,8 @@ export async function updateGiderAction(
     }
 
     const updateData: TablesUpdate<'giderler'> = {
-        gider_kalemi_id: validatedFields.data.gider_kalemi_id,
+        kategori_ad: validatedFields.data.kategori_ad,
+        kasa_tipi: validatedFields.data.kasa_tipi,
         aciklama: validatedFields.data.aciklama,
         tutar: validatedFields.data.tutar,
         tarih: new Date(validatedFields.data.tarih).toISOString(),

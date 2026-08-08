@@ -21,22 +21,21 @@ export type SavePricesResult = {
   error?: string;
 };
 
-function isUnsupportedPriceColumnError(error: { code?: string; message?: string } | null | undefined) {
+function isUnsupportedPriceColumnError(error: any): boolean {
   if (!error) return false;
-  const message = `${error.message || ''}`;
+  const message = (error.message || '').toLowerCase();
   return error.code === '42703'
-    || error.code === 'PGRST204'
-    || message.includes('urun_gami')
-    || message.includes('satis_fiyati_toptanci')
-    || message.includes('standart_inis_maliyeti_net');
+      || error.code === 'PGRST204'
+      || message.includes('urun_gami')
+      || message.includes('standart_inis_maliyeti_net');
 }
 
 function stripUnsupportedPriceFields(data: Partial<Tables<'urunler'>>): Partial<Tables<'urunler'>> {
   const {
     urun_gami,
-    satis_fiyati_toptanci,
     ...fallbackData
-  } = data as Partial<Tables<'urunler'>> & { urun_gami?: string | null; satis_fiyati_toptanci?: number | null; standart_inis_maliyeti_net?: number | null };
+  } = data as Partial<Tables<'urunler'>> & { urun_gami?: string | null; standart_inis_maliyeti_net?: number | null };
+
   const { standart_inis_maliyeti_net: _s, ...safeData } = fallbackData as any;
   return safeData;
 }
@@ -95,6 +94,10 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
     revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/urunler`);
     revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyat-hesaplama`);
     revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
+    revalidatePath(`/${locale ?? 'tr'}/products`, 'layout');
+    revalidatePath(`/${locale ?? 'en'}/products`, 'layout');
+    revalidatePath(`/${locale ?? 'de'}/products`, 'layout');
+    revalidatePath(`/${locale ?? 'ar'}/products`, 'layout');
 
     return { success: true };
   } catch (e) {
@@ -328,6 +331,10 @@ export async function bulkSaveProductPricesAction(
     // Revalidate once after all updates
     revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/urunler`);
     revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
+    revalidatePath(`/${locale ?? 'tr'}/products`, 'layout');
+    revalidatePath(`/${locale ?? 'en'}/products`, 'layout');
+    revalidatePath(`/${locale ?? 'de'}/products`, 'layout');
+    revalidatePath(`/${locale ?? 'ar'}/products`, 'layout');
 
     return { 
       success: true, 

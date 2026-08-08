@@ -90,10 +90,6 @@ export default async function GorevEklemeSayfasi({ params: { locale } }: GorevEk
   const supabase = await createSupabaseServerClient(cookieStore);
   // --- ENDE KORREKTUR ---
 
-  // Benutzerprüfung (optional, aber empfohlen, da Layout es vielleicht schon macht)
-  // const { data: { user } } = await getGlobalCachedUser();
-  // if (!user) { return redirect(`/${locale}/login`); }
-
   // Parallele Abfragen für Dropdowns
   const [profillerRes, firmalarRes] = await Promise.all([
       supabase.from('profiller').select('id, tam_ad').order('tam_ad'),

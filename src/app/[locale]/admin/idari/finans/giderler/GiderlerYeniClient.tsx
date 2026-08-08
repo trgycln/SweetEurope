@@ -27,18 +27,14 @@ type GiderYeni = {
     aciklama: string | null;
     durum: string;
     odeme_sikligi: string | null;
-    gider_kalemi_id: string | null;
+    kategori_ad: string | null;
+    kasa_tipi: string | null;
     kaynak?: string | null;
     tir_id?: string | null;
     otomatik_eklendi?: boolean | null;
     tekrar_tipi?: string | null;
     sablon_id?: string | null;
     profiller?: { tam_ad: string | null } | null;
-    gider_kalemleri?: {
-        id: string;
-        ad: string | null;
-        gider_ana_kategoriler?: { ad: string | null } | null;
-    } | null;
 };
 
 type TirGrubu = {
@@ -66,19 +62,14 @@ type SablonType = {
 
 type KategoriRow = { kategori: string; tutar: number; oran: number };
 
-type GiderKalemiOption = {
-    id: string;
-    ad: string;
-    ana_kategori_id: string;
-    gider_ana_kategoriler?: { ad: string | null } | null;
-};
+
 
 interface Props {
     giderler: GiderYeni[];
     sablonlar: SablonType[];
     tirGruplari: TirGrubu[];
     kategoriDagilimi: KategoriRow[];
-    giderKalemleri: GiderKalemiOption[];
+    giderKalemleri: string[]; // Artık sadece string array
     stats: { toplam: number; tirToplam: number; sabitToplam: number; manuelToplam: number };
     prevPeriodToplam: number;
     locale: string;
@@ -118,7 +109,7 @@ function giderKategoriAdi(g: GiderYeni): string {
         if (a.includes('traces')) return 'TRACES / Ardiye';
         return 'TIR Maliyeti';
     }
-    return g.gider_kalemleri?.gider_ana_kategoriler?.ad ?? g.gider_kalemleri?.ad ?? '—';
+    return g.kategori_ad ?? 'Genel';
 }
 
 /* ── Sub-components ─────────────────────────────────────────────────────── */
@@ -162,7 +153,7 @@ function YeniGiderModal({
 }: {
     onClose: () => void;
     locale: string;
-    giderKalemleri: GiderKalemiOption[];
+    giderKalemleri: string[];
 }) {
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
@@ -206,27 +197,23 @@ function YeniGiderModal({
                             defaultValue={new Date().toISOString().split('T')[0]}
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                     </div>
-                    <div>
-                        <div className="flex items-center justify-between mb-1">
-                            <label className="block text-sm font-medium text-slate-700">Kategori</label>
-                            <a href={`/${locale}/admin/idari/finans/giderler/kategoriler`} target="_blank"
-                                className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold">
-                                + Yeni Kategori
-                            </a>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
+                            <input type="text" name="kategori_ad" list="kategori_listesi" placeholder="Örn: Araç, Ofis..."
+                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                            <datalist id="kategori_listesi">
+                                {giderKalemleri.map((k) => <option key={k} value={k} />)}
+                            </datalist>
                         </div>
-                        <select name="gider_kalemi_id"
-                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
-                            <option value="">— Kategori seçmeden kaydet —</option>
-                            {giderKalemleri.length === 0 ? (
-                                <option disabled>(Henüz kategori yok - Yeni Kategori'ye tıklayın)</option>
-                            ) : (
-                                giderKalemleri.map((k) => (
-                                    <option key={k.id} value={k.id}>
-                                        {k.gider_ana_kategoriler?.ad ? `${k.gider_ana_kategoriler.ad} › ` : ''}{k.ad}
-                                    </option>
-                                ))
-                            )}
-                        </select>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Kasa / Ödeme <span className="text-red-500">*</span></label>
+                            <select name="kasa_tipi" required
+                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
+                                <option value="Banka">Banka Hesabı</option>
+                                <option value="Nakit">Nakit Kasa</option>
+                            </select>
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Açıklama <span className="text-red-500">*</span></label>
@@ -543,7 +530,7 @@ export default function GiderlerYeniClient({
                             <thead className="bg-slate-50 border-b border-slate-100">
                                 <tr>
                                     <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Gider</th>
-                                    <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Kategori</th>
+                                    <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Kategori / Kasa</th>
                                     <th className="px-3 py-2.5 text-right text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Tutar</th>
                                     <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Tarih</th>
                                     <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Durum</th>
@@ -584,11 +571,16 @@ export default function GiderlerYeniClient({
                                                 </div>
                                             </td>
 
-                                            {/* Kategori */}
+                                            {/* Kategori / Kasa */}
                                             <td className="px-3 py-3 whitespace-nowrap">
-                                                <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
-                                                    {kat}
-                                                </span>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full self-start">
+                                                        {kat}
+                                                    </span>
+                                                    <span className="text-[10px] font-medium text-slate-400">
+                                                        {(g as any).kasa_tipi === 'Nakit' ? '💶 Nakit Kasa' : '🏦 Banka'}
+                                                    </span>
+                                                </div>
                                             </td>
 
                                             {/* Tutar */}

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -31,8 +31,7 @@ type GiderKalemi = Tables<'gider_kalemleri'>;
 
 interface GiderlerClientProps {
     initialGiderler: GiderWithDetails[];
-    hauptKategorien: HauptKategorie[];
-    giderKalemleri: GiderKalemi[];
+    availableCategories: string[]; // Artık sadece string array
     availableFrequencies: readonly Database['public']['Enums']['zahlungshaeufigkeit'][];
     dictionary: Dictionary;
     locale: Locale;
@@ -47,8 +46,7 @@ const fmtEur = (v: number, locale: Locale) =>
 
 export function GiderlerClient({
     initialGiderler,
-    hauptKategorien,
-    giderKalemleri,
+    availableCategories,
     availableFrequencies,
     dictionary,
     locale,
@@ -66,20 +64,15 @@ export function GiderlerClient({
     };
 
     const getCategoryName = (gider: GiderWithDetails) => {
-        const kalem = giderKalemleri.find(k => k.id === gider.gider_kalemi_id);
-        if (!kalem) return gider.gider_kalemleri?.gider_ana_kategoriler?.ad || '—';
-        const kategori = hauptKategorien.find(k => k.id === kalem.ana_kategori_id);
-        return getLocalizedName(kategori) || '—';
+        return gider.kategori_ad || 'Genel';
     };
 
     const getItemName = (gider: GiderWithDetails) => {
-        const kalem = giderKalemleri.find(k => k.id === gider.gider_kalemi_id);
-        return getLocalizedName(kalem) || gider.gider_kalemleri?.ad || '—';
+        return gider.kasa_tipi || 'Banka';
     };
 
     // ── Filters ─────────────────────────────────────────────────────────
-    const [selectedHauptCategory, setSelectedHauptCategory] = useState('');
-    const [selectedGiderKalemi, setSelectedGiderKalemi] = useState('');
+    const [selectedKategori, setSelectedKategori] = useState('');
     const [selectedPeriod, setSelectedPeriod] = useState(currentPeriod);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
@@ -120,17 +113,12 @@ export function GiderlerClient({
         setDateTo(fmt(end));
     }, [selectedPeriod]);
 
-    const filteredGiderKalemleri = useMemo(() => {
-        if (!selectedHauptCategory) return giderKalemleri;
-        return giderKalemleri.filter(k => k.ana_kategori_id === selectedHauptCategory);
-    }, [selectedHauptCategory, giderKalemleri]);
+
 
     const filteredGiderler = useMemo(() => {
         let result = [...initialGiderler];
-        if (selectedHauptCategory)
-            result = result.filter(g => g.gider_kalemleri?.ana_kategori_id === selectedHauptCategory);
-        if (selectedGiderKalemi)
-            result = result.filter(g => g.gider_kalemi_id === selectedGiderKalemi);
+        if (selectedKategori)
+            result = result.filter(g => g.kategori_ad === selectedKategori);
         if (dateFrom) result = result.filter(g => g.tarih >= dateFrom);
         if (dateTo) result = result.filter(g => g.tarih <= dateTo);
         if (selectedDurum !== 'all') result = result.filter(g => g.durum === selectedDurum);
@@ -140,7 +128,7 @@ export function GiderlerClient({
             return ((Number(a.tutar) || 0) - (Number(b.tutar) || 0)) * dir;
         });
         return result;
-    }, [initialGiderler, selectedHauptCategory, selectedGiderKalemi, dateFrom, dateTo, selectedDurum, sortField, sortDir]);
+    }, [initialGiderler, selectedKategori, dateFrom, dateTo, selectedDurum, sortField, sortDir]);
 
     // ── Stats ────────────────────────────────────────────────────────────
     const stats = useMemo(() => {
@@ -215,8 +203,7 @@ export function GiderlerClient({
         setSelectedGiderIds(allDraftsSelected ? [] : visibleDraftIds);
 
     const handleResetFilters = () => {
-        setSelectedHauptCategory('');
-        setSelectedGiderKalemi('');
+        setSelectedKategori('');
         setSelectedPeriod('this-month');
         setSelectedDurum('all');
         setSelectedGiderIds([]);
@@ -232,7 +219,7 @@ export function GiderlerClient({
             ? <FiChevronDown className="inline ml-0.5" size={12} />
             : <FiChevronUp className="inline ml-0.5" size={12} />;
 
-    const activeFilterCount = [selectedHauptCategory, selectedGiderKalemi, selectedDurum !== 'all' ? '1' : ''].filter(Boolean).length;
+    const activeFilterCount = [selectedKategori, selectedDurum !== 'all' ? '1' : ''].filter(Boolean).length;
 
     return (
         <div className="space-y-5">
@@ -337,21 +324,12 @@ export function GiderlerClient({
                                 </>
                             )}
                             <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-600">Ana kategori</label>
-                                <select value={selectedHauptCategory}
-                                    onChange={e => { setSelectedHauptCategory(e.target.value); setSelectedGiderKalemi(''); }}
+                                <label className="mb-1 block text-xs font-medium text-slate-600">Kategori</label>
+                                <select value={selectedKategori}
+                                    onChange={e => setSelectedKategori(e.target.value)}
                                     className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                                     <option value="">Tümü</option>
-                                    {hauptKategorien.map(cat => <option key={cat.id} value={cat.id}>{cat.ad}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="mb-1 block text-xs font-medium text-slate-600">Gider kalemi</label>
-                                <select value={selectedGiderKalemi} onChange={e => setSelectedGiderKalemi(e.target.value)}
-                                    disabled={filteredGiderKalemleri.length === 0}
-                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50">
-                                    <option value="">Tümü</option>
-                                    {filteredGiderKalemleri.map(k => <option key={k.id} value={k.id}>{k.ad}</option>)}
+                                    {availableCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                 </select>
                             </div>
                             <div>
@@ -396,7 +374,7 @@ export function GiderlerClient({
                                 <th className="px-3 py-2.5 text-left cursor-pointer select-none" onClick={() => toggleSort('tarih')}>
                                     Tarih <SortIcon field="tarih" />
                                 </th>
-                                <th className="px-3 py-2.5 text-left">Kategori / Kalem</th>
+                                <th className="px-3 py-2.5 text-left">Kategori / Kasa Tipi</th>
                                 <th className="px-3 py-2.5 text-left">Açıklama</th>
                                 <th className="px-3 py-2.5 text-right cursor-pointer select-none" onClick={() => toggleSort('tutar')}>
                                     Tutar <SortIcon field="tutar" />
@@ -411,7 +389,7 @@ export function GiderlerClient({
                                     <td colSpan={8} className="px-4 py-12 text-center">
                                         <FiAlertCircle className="mx-auto mb-2 text-slate-300" size={32} />
                                         <p className="text-sm text-slate-500">
-                                            {selectedHauptCategory || selectedGiderKalemi || selectedDurum !== 'all'
+                                            {selectedKategori || selectedDurum !== 'all'
                                                 ? 'Bu filtrelere uyan kayıt bulunamadı.'
                                                 : 'Henüz gider kaydı yok. Yeni Gider Ekle butonuyla başlayın.'}
                                         </p>
@@ -524,8 +502,7 @@ export function GiderlerClient({
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 giderToEdit={editingGider}
-                availableCategories={giderKalemleri}
-                availableHauptCategories={hauptKategorien}
+                availableCategories={availableCategories}
                 availableFrequencies={availableFrequencies}
                 dictionary={dictionary}
                 locale={locale}
