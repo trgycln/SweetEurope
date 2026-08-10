@@ -4,6 +4,7 @@ import { Locale } from '@/i18n-config';
 import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
 import GiderlerYeniClient from './GiderlerYeniClient';
+import { SUPER_ADMIN_EMAILS } from '@/lib/constants';
 
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
@@ -46,6 +47,7 @@ export default async function GiderlerPage({ params, searchParams }: PageProps) 
 
     const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
+    const isSuperAdmin = !!user.email && SUPER_ADMIN_EMAILS.includes(user.email);
 
     const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
     if (!['Yönetici', 'Personel', 'Ekip Üyesi'].includes(profile?.rol ?? '')) {
@@ -171,6 +173,8 @@ export default async function GiderlerPage({ params, searchParams }: PageProps) 
             locale={locale}
             currentPeriod={currentPeriod}
             isAdmin={profile?.rol === 'Yönetici'}
+            currentUserId={user.id}
+            isSuperAdmin={isSuperAdmin}
         />
     );
 }

@@ -24,14 +24,19 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
 
     // Wenn der Benutzer bereits eingeloggt ist, zum entsprechenden Dashboard weiterleiten
     if (user) {
-        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+        const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
+        
+        const validLocales = ['de', 'en', 'tr', 'ar']; // Match with locales in i18n-config
+        const targetLocale = (profile?.tercih_edilen_dil && validLocales.includes(profile.tercih_edilen_dil)) 
+            ? profile.tercih_edilen_dil 
+            : locale;
         
         // --- KORREKTUR: Redirects müssen sprachspezifisch sein ---
         if (profile?.rol === 'Yönetici' || profile?.rol === 'Personel' || profile?.rol === 'Ekip Üyesi') {
-            redirect(`/${locale}/admin/dashboard`); // locale hinzugefügt
+            redirect(`/${targetLocale}/admin/dashboard`); // targetLocale hinzugefügt
         } else {
             // Standard-Fallback für Müşteri/Alt Bayi
-            redirect(`/${locale}/portal/dashboard`); // locale hinzugefügt
+            redirect(`/${targetLocale}/portal/dashboard`); // targetLocale hinzugefügt
         }
         // --- ENDE KORREKTUR ---
     }

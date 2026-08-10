@@ -15,9 +15,14 @@ type KasaIslemi = {
     profiller: { tam_ad: string | null } | null;
 };
 
-export default function KasaClient({ islemler }: { islemler: KasaIslemi[] }) {
+export default function KasaClient({ islemler, profiller, isSuperAdmin }: { 
+    islemler: KasaIslemi[];
+    profiller: { id: string; tam_ad: string | null; rol: string | null }[];
+    isSuperAdmin: boolean;
+}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
+    const [secilenIslemTipi, setSecilenIslemTipi] = useState('sermaye_girisi');
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -72,13 +77,15 @@ export default function KasaClient({ islemler }: { islemler: KasaIslemi[] }) {
                     <h1 className="text-2xl font-bold text-slate-800">Kasa İşlemleri</h1>
                     <p className="text-slate-500 text-sm">Sermaye, borç ve diğer kasa giriş/çıkışlarını yönetin.</p>
                 </div>
-                <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
-                >
-                    <FiPlus />
-                    Yeni İşlem Ekle
-                </button>
+                {isSuperAdmin && (
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+                    >
+                        <FiPlus />
+                        Yeni İşlem Ekle
+                    </button>
+                )}
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -122,13 +129,15 @@ export default function KasaClient({ islemler }: { islemler: KasaIslemi[] }) {
                                         €{islem.tutar.toFixed(2)}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-center">
-                                        <button 
-                                            onClick={() => handleDelete(islem.id)}
-                                            disabled={isPending}
-                                            className="text-slate-400 hover:text-red-500 transition-colors p-1"
-                                        >
-                                            <FiTrash2 />
-                                        </button>
+                                        {isSuperAdmin && (
+                                            <button 
+                                                onClick={() => handleDelete(islem.id)}
+                                                disabled={isPending}
+                                                className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                                            >
+                                                <FiTrash2 />
+                                            </button>
+                                        )}
                                     </td>
                                 </tr>
                             ))
@@ -163,7 +172,10 @@ export default function KasaClient({ islemler }: { islemler: KasaIslemi[] }) {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-semibold text-slate-600 mb-1">İşlem Tipi</label>
-                                    <select name="islem_tipi" required className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                                    <select name="islem_tipi" required 
+                                        value={secilenIslemTipi}
+                                        onChange={(e) => setSecilenIslemTipi(e.target.value)}
+                                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
                                         <option value="sermaye_girisi">Sermaye Girişi</option>
                                         <option value="borc_alma">Borç Alınan</option>
                                         <option value="sermaye_cikisi">Sermaye Çıkışı</option>
@@ -181,6 +193,20 @@ export default function KasaClient({ islemler }: { islemler: KasaIslemi[] }) {
                                     </select>
                                 </div>
                             </div>
+
+                            {(secilenIslemTipi === 'sermaye_girisi' || secilenIslemTipi === 'sermaye_cikisi') && (
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-600 mb-1">İlgili Ortak (Opsiyonel)</label>
+                                    <select name="ortak_id" className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Seçiniz...</option>
+                                        {profiller.map(p => (
+                                            <option key={p.id} value={p.id}>{p.tam_ad}</option>
+                                        ))}
+                                    </select>
+                                    <p className="text-[10px] text-slate-400 mt-1">Seçilirse, bu tutar otomatik olarak Ortaklar Cari Hesabına da yansıtılır.</p>
+                                </div>
+                            )}
+
                             <div>
                                 <label className="block text-xs font-semibold text-slate-600 mb-1">Açıklama</label>
                                 <textarea name="aciklama" required rows={2} placeholder="İşlem detayı..."

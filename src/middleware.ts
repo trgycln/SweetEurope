@@ -113,14 +113,19 @@ export async function middleware(req: NextRequest) {
     const isLoginPage = pathname.endsWith('/login'); // Prüft auf /de/login, /en/login etc.
     if (user && isLoginPage) {
         console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
-        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
+        const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
         const userRole = profile?.rol;
         const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
             ? '/admin/dashboard'
             : '/portal/dashboard';
-        const currentLocale = pathname.split('/')[1] || defaultLocale;
-        console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${currentLocale}${redirectTo}`);
-        return NextResponse.redirect(new URL(`/${currentLocale}${redirectTo}`, req.url));
+            
+        let targetLocale = pathname.split('/')[1] || defaultLocale;
+        if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+            targetLocale = profile.tercih_edilen_dil;
+        }
+            
+        console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
+        return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
     }
 
     if (user && effectivePath.startsWith('/admin')) {
@@ -178,13 +183,24 @@ export async function middleware(req: NextRequest) {
         );
     }
 
-    // Für eingeloggte Benutzer: Prüfen, ob aktuelle Locale mit bevorzugter Sprache übereinstimmt
-    // (Auskommentiert, damit der Sprachwechsler im Header immer funktioniert, auch im Admin/Portal)
-    /*
+    // Für eingeloggte Benutzer auf geschützten Routen: Aktuelle Locale mit bevorzugter Sprache erzwingen
     if (user && pathnameHasLocale && isProtectedRoute) {
-        ...
+        try {
+            const { data: profile } = await supabase.from('profiller').select('tercih_edilen_dil').eq('id', user.id).single();
+            const currentUrlLocale = pathname.split('/')[1];
+            
+            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil) && currentUrlLocale !== profile.tercih_edilen_dil) {
+                // Nur das erste Vorkommen der Locale ersetzen, um Probleme bei z.B. /de/admin/de-stuff zu vermeiden
+                const newPath = `/${profile.tercih_edilen_dil}${pathname.substring(currentUrlLocale.length + 1)}`;
+                console.log(`-> Middleware: (Protected) Falsche Sprache (${currentUrlLocale}). Redirect zu ${newPath}`);
+                const redirectUrl = new URL(newPath, req.url);
+                redirectUrl.search = req.nextUrl.search; // Suchparameter beibehalten
+                return NextResponse.redirect(redirectUrl);
+            }
+        } catch (error) {
+            console.error("Fehler beim Abrufen der bevorzugten Sprache für Redirect:", error);
+        }
     }
-    */
 
     // x-locale header: root layout html lang attribute icin (Dem Request hinzufügen!)
     const localeFromPath = pathname.split('/')[1];

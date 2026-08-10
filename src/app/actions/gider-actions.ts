@@ -9,6 +9,7 @@ import { revalidatePath } from 'next/cache';
 import { TablesInsert, TablesUpdate, Constants, Database } from '@/lib/supabase/database.types';
 import { z, ZodError } from 'zod';
 import { cookies } from 'next/headers';
+import { SUPER_ADMIN_EMAILS } from '@/lib/constants';
 
 export type GiderFormState = {
     success: boolean;
@@ -16,6 +17,7 @@ export type GiderFormState = {
     error?: string | ZodError<any>['formErrors'] | null;
 } | null;
 
+const GiderSchema = z.object({
     kategori_ad: z.string().optional().nullable(),
     kasa_tipi: z.enum(['Banka', 'Nakit'], { errorMap: () => ({ message: "Geçersiz kasa tipi." }) }).optional().nullable(),
     aciklama: z.string().min(3, { message: "Beschreibung muss mind. 3 Zeichen lang sein." }),
@@ -63,6 +65,10 @@ export async function createGiderAction(
     if (!user) {
         console.log("-> Aktion wird abgebrochen: Nicht authentifiziert.");
         return { success: false, message: '', error: "Nicht authentifiziert." };
+    }
+
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
     }
 
     const rawData = {
@@ -146,6 +152,10 @@ export async function updateGiderAction(
     if (!user) {
         console.log("-> Aktion wird abgebrochen: Nicht authentifiziert.");
         return { success: false, message: '', error: "Nicht authentifiziert." };
+    }
+
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
     }
 
     if (!giderId) {
@@ -234,6 +244,10 @@ export async function deleteGiderAction(giderId: string): Promise<{ success: boo
         return { success: false, message: '', error: "Nicht authentifiziert." };
     }
 
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
+    }
+
     if (!giderId) {
         console.log("-> Aktion wird abgebrochen: Ausgaben-ID fehlt.");
         return { success: false, message: '', error: "Ausgaben-ID fehlt." };
@@ -285,6 +299,10 @@ export async function copyGiderlerFromPreviousMonth(
     if (!user) {
         console.log("-> Aktion wird abgebrochen: Nicht authentifiziert.");
         return { success: false, message: '', error: "Nicht authentifiziert." };
+    }
+
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
     }
 
     // Geçen ayın tarih aralığını hesapla
@@ -405,6 +423,10 @@ export async function createGiderlerFromTemplates(
         return { success: false, message: '', error: "Nicht authentifiziert." };
     }
 
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
+    }
+
     // Aktif şablonları getir
     const { data: templates, error: fetchError } = await supabase
         .from('gider_sablonlari')
@@ -497,6 +519,10 @@ export async function approveGiderler(
         return { success: false, message: '', error: "Nicht authentifiziert." };
     }
 
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
+    }
+
     if (!giderIds || giderIds.length === 0) {
         return { success: false, message: 'Keine Ausgaben ausgewählt.', count: 0 };
     }
@@ -551,6 +577,10 @@ export async function createSablonAction(formData: FormData): Promise<{ success:
         return { success: false, message: '', error: "Nicht authentifiziert." };
     }
 
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
+    }
+
     const gider_kalemi_id = formData.get('gider_kalemi_id') as string;
     const varsayilan_tutar = parseFloat(formData.get('varsayilan_tutar') as string);
     const odeme_sikligi = formData.get('odeme_sikligi') as Database['public']['Enums']['zahlungshaeufigkeit'];
@@ -598,6 +628,10 @@ export async function updateSablonAction(sablonId: string, formData: FormData): 
 
     if (!user) {
         return { success: false, message: '', error: "Nicht authentifiziert." };
+    }
+
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
     }
 
     const gider_kalemi_id = formData.get('gider_kalemi_id') as string;
@@ -649,6 +683,10 @@ export async function toggleSablonAktifAction(sablonId: string): Promise<{ succe
         return { success: false, message: '', error: "Nicht authentifiziert." };
     }
 
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
+    }
+
     // Mevcut durumu al
     const { data: current, error: fetchError } = await supabase
         .from('gider_sablonlari')
@@ -694,6 +732,10 @@ export async function deleteSablonAction(sablonId: string): Promise<{ success: b
 
     if (!user) {
         return { success: false, message: '', error: "Nicht authentifiziert." };
+    }
+
+    if (!user.email || !SUPER_ADMIN_EMAILS.includes(user.email)) {
+        return { success: false, message: '', error: "Süper Admin yetkisi gerekli." };
     }
 
     const { error } = await supabase

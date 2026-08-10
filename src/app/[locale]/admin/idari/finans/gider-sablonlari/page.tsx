@@ -5,6 +5,7 @@ import { Locale } from '@/i18n-config';
 import { GiderSablonlariClientNew } from '@/components/admin/finans/GiderSablonlariClientNew';
 import { Tables } from '@/lib/supabase/database.types';
 import { cookies } from 'next/headers';
+import { SUPER_ADMIN_EMAILS } from '@/lib/constants';
 
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
@@ -56,6 +57,8 @@ export default async function GiderSablonlariPage({
         return redirect(`/${locale}/dashboard`);
     }
 
+    const isSuperAdmin = !!user.email && SUPER_ADMIN_EMAILS.includes(user.email);
+
     // Şablonları ve kalemlerini getir
     const { data: sablonlar } = await supabase
         .from('gider_sablonlari')
@@ -86,6 +89,7 @@ export default async function GiderSablonlariPage({
             giderKalemleri={giderKalemleriRes.data as GiderKalemi[] || []}
             dictionary={dictionary}
             locale={locale}
+            isSuperAdmin={isSuperAdmin}
         />
     );
 }

@@ -32,10 +32,11 @@ export default async function GorevlerListPage({ params, searchParams }: Gorevle
     const supabase = await createSupabaseServerClient(cookieStore);
 
     // ── Ana görev sorgusu ────────────────────────────────────────────────────
+    const currentDurum = sp.durum ?? 'acik';
     let query = supabase.from('gorevler').select('*');
 
-    if (sp.durum === 'acik')       query = query.eq('tamamlandi', false);
-    if (sp.durum === 'tamamlandi') query = query.eq('tamamlandi', true);
+    if (currentDurum === 'acik')       query = query.eq('tamamlandi', false);
+    if (currentDurum === 'tamamlandi') query = query.eq('tamamlandi', true);
     if (sp.atanan)                 query = query.eq('atanan_kisi_id', sp.atanan);
     if (sp.oncelik)                query = query.eq('oncelik', sp.oncelik as GorevOncelik);
 

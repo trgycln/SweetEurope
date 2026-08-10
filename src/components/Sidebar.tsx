@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import {
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX,
     FiGift, FiLayers, FiSettings, FiChevronDown,
-    FiRss, FiPaperclip, FiHardDrive, FiBook,
+    FiRss, FiPaperclip, FiHardDrive, FiBook, FiBriefcase,
     FiDollarSign, FiBarChart2, FiUser, FiStar, FiUserCheck, FiMail
 } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
@@ -176,6 +176,13 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                     href: '/admin/idari/finans/giderler', 
                     icon: FiDollarSign, 
                     roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'finances' 
+                },
+                { 
+                    name: 'Ortak Hesapları', 
+                    href: '/admin/idari/finans/ortaklar', 
+                    icon: FiBriefcase, 
+                    roles: ['Yönetici'] as UserRole[],
                     panelKey: 'finances' 
                 },
                 { 

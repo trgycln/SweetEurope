@@ -38,17 +38,17 @@ interface TemplateItem {
 interface GiderSablonlariClientProps {
     initialSablonlar: GiderSablonWithDetails[];
     hauptKategorien: HauptKategorie[];
-    giderKalemleri: GiderKalemi[];
     dictionary: Dictionary;
     locale: Locale;
+    isSuperAdmin: boolean;
 }
 
 export function GiderSablonlariClientNew({
-    initialSablonlar,
     hauptKategorien,
     giderKalemleri,
     dictionary,
-    locale
+    locale,
+    isSuperAdmin
 }: GiderSablonlariClientProps) {
     const router = useRouter();
     const supabase = createDynamicSupabaseClient(true);
@@ -282,13 +282,15 @@ export function GiderSablonlariClientNew({
                         Tekrarlayan giderleriniz için şablon oluşturun. Her şablonda istediğiniz kadar gider kalemi ekleyebilirsiniz.
                     </p>
                 </div>
-                <button
-                    onClick={handleNewSablon}
-                    className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm"
-                >
-                    <FiPlus size={18} />
-                    Yeni Şablon
-                </button>
+                {isSuperAdmin && (
+                    <button
+                        onClick={handleNewSablon}
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm"
+                    >
+                        <FiPlus size={18} />
+                        Yeni Şablon
+                    </button>
+                )}
             </header>
 
             {/* İstatistikler */}
@@ -326,17 +328,28 @@ export function GiderSablonlariClientNew({
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
                                         <h3 className="text-lg font-bold text-primary">{sablon.sablon_adi}</h3>
-                                        <button
-                                            onClick={() => handleToggleAktif(sablon)}
-                                            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold transition-colors ${
+                                        {isSuperAdmin ? (
+                                            <button
+                                                onClick={() => handleToggleAktif(sablon)}
+                                                className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold transition-colors ${
+                                                    sablon.aktif
+                                                        ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                }`}
+                                            >
+                                                {sablon.aktif ? <FiToggleRight size={14} /> : <FiToggleLeft size={14} />}
+                                                {sablon.aktif ? 'Aktif' : 'Pasif'}
+                                            </button>
+                                        ) : (
+                                            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold opacity-70 ${
                                                 sablon.aktif
-                                                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                        >
-                                            {sablon.aktif ? <FiToggleRight size={14} /> : <FiToggleLeft size={14} />}
-                                            {sablon.aktif ? 'Aktif' : 'Pasif'}
-                                        </button>
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-gray-100 text-gray-600'
+                                            }`}>
+                                                {sablon.aktif ? <FiToggleRight size={14} /> : <FiToggleLeft size={14} />}
+                                                {sablon.aktif ? 'Aktif' : 'Pasif'}
+                                            </div>
+                                        )}
                                     </div>
                                     {sablon.aciklama && (
                                         <p className="text-sm text-gray-600">{sablon.aciklama}</p>
@@ -351,7 +364,7 @@ export function GiderSablonlariClientNew({
                                 </div>
                                 
                                 <div className="flex items-center gap-2">
-                                    {sablon.aktif && (
+                                    {isSuperAdmin && sablon.aktif && (
                                         <button
                                             onClick={() => handleUseTemplate(sablon)}
                                             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm flex items-center gap-2"
@@ -366,20 +379,24 @@ export function GiderSablonlariClientNew({
                                     >
                                         {expandedSablonId === sablon.id ? 'Gizle' : 'Detaylar'}
                                     </button>
-                                    <button
-                                        onClick={() => handleEdit(sablon)}
-                                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                                        title="Düzenle"
-                                    >
-                                        <FiEdit size={18} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(sablon)}
-                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Sil"
-                                    >
-                                        <FiTrash2 size={18} />
-                                    </button>
+                                    {isSuperAdmin && (
+                                        <>
+                                            <button
+                                                onClick={() => handleEdit(sablon)}
+                                                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                title="Düzenle"
+                                            >
+                                                <FiEdit size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(sablon)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Sil"
+                                            >
+                                                <FiTrash2 size={18} />
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 

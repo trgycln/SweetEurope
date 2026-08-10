@@ -34,7 +34,7 @@ export default async function GorevDuzenlemePage({
 
     const [gorevRes, profillerRes, firmalarRes] = await Promise.all([
         supabase.from('gorevler').select('*').eq('id', gorevId).maybeSingle(),
-        supabase.from('profiller').select('id, tam_ad').order('tam_ad'),
+        supabase.from('profiller').select('id, tam_ad, rol').order('tam_ad'),
         supabase.from('firmalar').select('id, unvan').order('unvan'),
     ]);
 
@@ -44,7 +44,13 @@ export default async function GorevDuzenlemePage({
     }
 
     const gorev = gorevRes.data;
-    const profilOptions: ProfilOption[] = profillerRes.data || [];
+    const allProfiller = profillerRes.data || [];
+    const profilOptions: ProfilOption[] = allProfiller.filter(p => 
+        !!p.tam_ad && 
+        !p.tam_ad.startsWith('[Silindi]') && 
+        p.rol !== 'Müşteri' && 
+        p.rol !== 'Alt Bayi'
+    );
     const firmaOptions: FirmaOption[] = firmalarRes.data || [];
     const oncelikOptions: GorevOncelik[] = ['Düşük', 'Orta', 'Yüksek'];
     const inputBaseClasses =

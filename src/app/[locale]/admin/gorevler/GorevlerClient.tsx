@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import {
     FiCalendar, FiUser, FiX, FiCheck, FiRefreshCw, FiBriefcase,
     FiEdit2, FiAlertCircle, FiClock, FiGrid, FiColumns, FiLoader,
-    FiPlus, FiMessageSquare, FiCheckSquare, FiSquare, FiTrash2, FiSave,
+    FiPlus, FiMessageSquare, FiCheckSquare, FiSquare, FiTrash2, FiSave, FiList
 } from 'react-icons/fi';
 import {
     gorevDurumGuncelleAction,
@@ -19,6 +19,7 @@ import {
     editAltGorevAction,
     deleteAltGorevAction,
     deleteGorevNotuAction,
+    gorevTarihGuncelleAction,
 } from './actions';
 import { toast } from 'sonner';
 
@@ -199,6 +200,110 @@ function GorevKarti({
                 </div>
             )}
         </div>
+    );
+}
+
+// ── Görev Satırı (Liste Görünümü) ─────────────────────────────────────────────
+
+function GorevSatiri({
+    g, locale, onOpen, onDateChange, onStatusChange
+}: {
+    g: GorevRow;
+    locale: string;
+    onOpen: (g: GorevRow) => void;
+    onDateChange?: (id: string, date: string) => void;
+    onStatusChange?: (id: string, durum: GorevDurumu) => void;
+}) {
+    const prio = ONCELIK_CFG[g.oncelik] ?? ONCELIK_CFG['Orta'];
+    const late = overdue(g.son_tarih, g.tamamlandi);
+    const name = g.atanan_kisi?.tam_ad ?? 'Atanmadı';
+
+    return (
+        <button
+            type="button"
+            onClick={() => onOpen(g)}
+            className={[
+                'w-full flex items-center gap-3 sm:gap-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl p-3 text-left transition-all duration-150',
+                g.tamamlandi ? 'opacity-60' : '',
+                late ? 'border-red-200 hover:border-red-300' : 'hover:border-slate-300 hover:shadow-sm'
+            ].join(' ')}
+        >
+            {/* Öncelik İndikatörü */}
+            <div className={`w-1.5 h-10 rounded-full flex-shrink-0 ${prio.dot}`} />
+
+            {/* Başlık ve Firma */}
+            <div className="flex-1 min-w-0">
+                <p className={`text-[14px] sm:text-[15px] font-semibold truncate ${g.tamamlandi ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                    {g.baslik}
+                </p>
+                {g.ilgili_firma?.unvan ? (
+                    <div className="flex items-center gap-1 text-[11px] sm:text-[12px] text-slate-400 mt-0.5">
+                        <FiBriefcase size={11} /><span className="truncate">{g.ilgili_firma.unvan}</span>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-1 text-[11px] sm:text-[12px] text-slate-400 mt-0.5">
+                        <span className="truncate opacity-60">Firma Yok</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Durum Rozeti */}
+            <div className="hidden md:flex w-32 flex-shrink-0 items-center relative" onClick={e => e.stopPropagation()}>
+                <select
+                    value={g.durum}
+                    onChange={(e) => {
+                        const newDurum = e.target.value as GorevDurumu;
+                        if (onStatusChange) {
+                            onStatusChange(g.id, newDurum);
+                            toast.promise(
+                                import('./actions').then(m => m.gorevDurumDegistirAction(g.id, newDurum, locale)),
+                                { loading: 'Durum güncelleniyor...', success: 'Görev durumu güncellendi.', error: 'Güncellenemedi.' }
+                            );
+                        }
+                    }}
+                    className={`appearance-none text-[11px] font-semibold px-2.5 py-1 pr-6 rounded-full border cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors ${DURUM_CFG[g.durum]?.badge ?? ''}`}
+                >
+                    <option value="Yapılacak">Yapılacak</option>
+                    <option value="Devam Ediyor">Devam Ediyor</option>
+                    <option value="Tamamlandı">Tamamlandı</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 opacity-50">
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+
+            {/* Atanan Kişi */}
+            <div className="hidden sm:flex w-36 lg:w-48 flex-shrink-0 items-center gap-2">
+                <span className="w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold flex-shrink-0 inline-flex items-center justify-center border border-slate-200">
+                    {initials(name)}
+                </span>
+                <span className="text-[12px] sm:text-[13px] font-medium text-slate-600 truncate">{name}</span>
+            </div>
+
+            {/* Son Tarih */}
+            <div className="w-24 sm:w-28 flex-shrink-0 flex items-center justify-end text-right relative group">
+                {g.son_tarih ? (
+                    <span className={`flex items-center gap-1.5 text-[11px] sm:text-[12px] font-medium transition-colors ${late ? 'text-red-600 bg-red-50 px-2 py-1 rounded-md group-hover:bg-red-100' : 'text-slate-500 group-hover:text-slate-700'}`}>
+                        {late ? <FiAlertCircle size={13} /> : <FiCalendar size={13} />}
+                        {fmt(g.son_tarih, locale)}
+                    </span>
+                ) : (
+                    <span className="text-[11px] sm:text-[12px] font-medium text-slate-400 group-hover:text-slate-600 transition-colors flex items-center gap-1">
+                        <FiCalendar size={13} /> Tarih Seç
+                    </span>
+                )}
+                {onDateChange && (
+                    <input
+                        type="date"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => onDateChange(g.id, e.target.value)}
+                        value={g.son_tarih ? g.son_tarih.split('T')[0] : ''}
+                        title="Tarihi Değiştir"
+                    />
+                )}
+            </div>
+        </button>
     );
 }
 
@@ -623,10 +728,10 @@ function FilterChips({ profiller }: { profiller: Profil[] }) {
         router.replace(`${pathname}?${p.toString()}`);
     }
 
-    const durum   = params.get('durum')   ?? '';
+    const durum   = params.get('durum')   ?? 'acik';
     const oncelik = params.get('oncelik') ?? '';
     const atanan  = params.get('atanan')  ?? '';
-    const any     = !!(durum || oncelik || atanan);
+    const any     = !!(durum !== 'acik' || oncelik || atanan);
 
     const chip    = 'inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[13px] font-medium border transition-all cursor-pointer min-h-[36px] whitespace-nowrap';
     const active  = 'bg-slate-800 text-white border-slate-800';
@@ -634,7 +739,7 @@ function FilterChips({ profiller }: { profiller: Profil[] }) {
 
     return (
         <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
-            {(['', 'acik', 'tamamlandi'] as const).map((v, i) => (
+            {(['tumu', 'acik', 'tamamlandi'] as const).map((v, i) => (
                 <button key={v} type="button" onClick={() => set('durum', v)}
                     className={`${chip} ${durum === v ? active : passive}`}>
                     {['Tümü', 'Açık', 'Tamamlandı'][i]}
@@ -666,9 +771,25 @@ function FilterChips({ profiller }: { profiller: Profil[] }) {
 // ── Ana Bileşen ───────────────────────────────────────────────────────────────
 
 export default function GorevlerClient({ gorevler, profiller, locale }: GorevlerClientProps) {
-    const [mode, setMode]     = useState<'grid' | 'kanban'>('kanban');
+    const [mode, setMode]     = useState<'list' | 'kanban'>('list');
     const [open, setOpen]     = useState<GorevRow | null>(null);
     const [localDurum, setLocalDurum] = useState<Record<string, GorevDurumu>>({});
+    const [localTarih, setLocalTarih] = useState<Record<string, string>>({});
+
+    function handleDateChange(id: string, newDate: string) {
+        setLocalTarih(prev => ({ ...prev, [id]: newDate }));
+        toast.promise(
+            gorevTarihGuncelleAction(id, newDate, locale),
+            {
+                loading: 'Tarih güncelleniyor...',
+                success: 'Görev tarihi başarıyla güncellendi.',
+                error: 'Tarih güncellenirken bir hata oluştu.'
+            }
+        );
+        if (open?.id === id) {
+            setOpen(prev => prev ? { ...prev, son_tarih: newDate || null } : null);
+        }
+    }
 
     function handleStatusChange(id: string, durum: GorevDurumu) {
         setLocalDurum(prev => ({ ...prev, [id]: durum }));
@@ -684,11 +805,16 @@ export default function GorevlerClient({ gorevler, profiller, locale }: Gorevler
         handleStatusChange(open.id, nextDurum);
     }
 
-    const rows = gorevler.map(g =>
-        localDurum[g.id]
-            ? { ...g, durum: localDurum[g.id], tamamlandi: localDurum[g.id] === 'Tamamlandı' }
-            : g
-    );
+    const rows = gorevler.map(g => {
+        let mapped = g;
+        if (localDurum[g.id]) {
+            mapped = { ...mapped, durum: localDurum[g.id], tamamlandi: localDurum[g.id] === 'Tamamlandı' };
+        }
+        if (localTarih[g.id] !== undefined) {
+            mapped = { ...mapped, son_tarih: localTarih[g.id] || null };
+        }
+        return mapped;
+    });
 
     const openCount = rows.filter(g => !g.tamamlandi).length;
 
@@ -700,9 +826,9 @@ export default function GorevlerClient({ gorevler, profiller, locale }: Gorevler
                 <div className="flex items-center gap-2.5 flex-shrink-0">
                     <span className="text-sm text-slate-400 hidden sm:block">{rows.length} görev · {openCount} açık</span>
                     <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm">
-                        <button type="button" onClick={() => setMode('grid')}
-                            className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${mode === 'grid' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
-                            <FiGrid size={15} />
+                        <button type="button" onClick={() => setMode('list')}
+                            className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${mode === 'list' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
+                            <FiList size={15} />
                             <span className="hidden sm:inline text-xs font-medium">Liste</span>
                         </button>
                         <button type="button" onClick={() => setMode('kanban')}
@@ -724,11 +850,11 @@ export default function GorevlerClient({ gorevler, profiller, locale }: Gorevler
                 </div>
             )}
 
-            {/* KART GÖRÜNÜMÜ */}
-            {mode === 'grid' && rows.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* LİSTE GÖRÜNÜMÜ */}
+            {mode === 'list' && rows.length > 0 && (
+                <div className="flex flex-col gap-2">
                     {rows.map(g => (
-                        <GorevKarti key={g.id} g={g} locale={locale} onOpen={setOpen} />
+                        <GorevSatiri key={g.id} g={g} locale={locale} onOpen={setOpen} onDateChange={handleDateChange} onStatusChange={handleStatusChange} />
                     ))}
                 </div>
             )}

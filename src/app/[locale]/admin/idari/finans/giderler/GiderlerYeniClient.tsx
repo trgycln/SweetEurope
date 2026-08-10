@@ -34,6 +34,7 @@ type GiderYeni = {
     otomatik_eklendi?: boolean | null;
     tekrar_tipi?: string | null;
     sablon_id?: string | null;
+    islem_yapan_kullanici_id?: string | null;
     profiller?: { tam_ad: string | null } | null;
 };
 
@@ -75,6 +76,8 @@ interface Props {
     locale: string;
     currentPeriod: string;
     isAdmin: boolean;
+    currentUserId: string;
+    isSuperAdmin: boolean;
 }
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
@@ -145,28 +148,37 @@ function StatCard({
     );
 }
 
-/* ── Yeni Gider Modal ─────────────────────────────────────────────────────*/
-function YeniGiderModal({
+function GiderModal({
     onClose,
     locale,
     giderKalemleri,
+    initialData,
 }: {
     onClose: () => void;
     locale: string;
     giderKalemleri: string[];
+    initialData?: GiderYeni | null;
 }) {
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
+
+    const isEdit = !!initialData;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
         startTransition(async () => {
             try {
-                const { createGiderAction } = await import('@/app/actions/gider-actions');
-                const result = await createGiderAction(undefined, fd);
+                const { createGiderAction, updateGiderAction } = await import('@/app/actions/gider-actions');
+                let result;
+                if (isEdit && initialData?.id) {
+                    result = await updateGiderAction(initialData.id, undefined, fd);
+                } else {
+                    result = await createGiderAction(undefined, fd);
+                }
+                
                 if (result?.success) {
-                    toast.success('Gider eklendi');
+                    toast.success(isEdit ? 'Gider güncellendi' : 'Gider eklendi');
                     onClose();
                     router.refresh();
                 } else {
@@ -176,7 +188,7 @@ function YeniGiderModal({
                     toast.error(errMsg);
                 }
             } catch {
-                toast.error('Gider eklenemedi');
+                toast.error(isEdit ? 'Gider güncellenemedi' : 'Gider eklenemedi');
             }
         });
     };
@@ -185,7 +197,9 @@ function YeniGiderModal({
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
                 <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 className="text-base font-bold text-slate-800">💸 Yeni Manuel Gider</h3>
+                    <h3 className="text-base font-bold text-slate-800">
+                        {isEdit ? '✏️ Gider Düzenle' : '💸 Yeni Manuel Gider'}
+                    </h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1">
                         <FiX size={18} />
                     </button>
@@ -194,13 +208,14 @@ function YeniGiderModal({
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Tarih <span className="text-red-500">*</span></label>
                         <input type="date" name="tarih" required
-                            defaultValue={new Date().toISOString().split('T')[0]}
+                            defaultValue={initialData?.tarih ? new Date(initialData.tarih).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
                             <input type="text" name="kategori_ad" list="kategori_listesi" placeholder="Örn: Araç, Ofis..."
+                                defaultValue={initialData?.kategori_ad || ''}
                                 className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                             <datalist id="kategori_listesi">
                                 {giderKalemleri.map((k) => <option key={k} value={k} />)}
@@ -209,6 +224,7 @@ function YeniGiderModal({
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Kasa / Ödeme <span className="text-red-500">*</span></label>
                             <select name="kasa_tipi" required
+                                defaultValue={initialData?.kasa_tipi || 'Banka'}
                                 className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white">
                                 <option value="Banka">Banka Hesabı</option>
                                 <option value="Nakit">Nakit Kasa</option>
@@ -218,11 +234,13 @@ function YeniGiderModal({
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Açıklama <span className="text-red-500">*</span></label>
                         <input type="text" name="aciklama" required minLength={3} placeholder="En az 3 karakter..."
+                            defaultValue={initialData?.aciklama || ''}
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Tutar (€) <span className="text-red-500">*</span></label>
                         <input type="number" name="tutar" required min="0.01" step="0.01" placeholder="0.00"
+                            defaultValue={initialData?.tutar || ''}
                             className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                     </div>
                     <div className="flex gap-3 pt-2">
@@ -244,12 +262,13 @@ function YeniGiderModal({
 /* ── Main Component ─────────────────────────────────────────────────────── */
 export default function GiderlerYeniClient({
     giderler, sablonlar, tirGruplari, kategoriDagilimi, giderKalemleri,
-    stats, prevPeriodToplam, locale, currentPeriod, isAdmin,
+    stats, prevPeriodToplam, locale, currentPeriod, isAdmin, currentUserId, isSuperAdmin
 }: Props) {
     const router = useRouter();
     const pathname = usePathname();
     const [activeChip, setActiveChip] = useState<string>('tumu');
     const [modalOpen, setModalOpen] = useState(false);
+    const [editingGider, setEditingGider] = useState<GiderYeni | null>(null);
     const [isPending, startTransition] = useTransition();
 
     const degisim = prevPeriodToplam > 0
@@ -350,7 +369,17 @@ export default function GiderlerYeniClient({
 
     return (
         <div className="space-y-5">
-            {modalOpen && <YeniGiderModal onClose={() => setModalOpen(false)} locale={locale} giderKalemleri={giderKalemleri} />}
+            {(modalOpen || editingGider) && (
+                <GiderModal 
+                    onClose={() => {
+                        setModalOpen(false);
+                        setEditingGider(null);
+                    }} 
+                    locale={locale} 
+                    giderKalemleri={giderKalemleri} 
+                    initialData={editingGider}
+                />
+            )}
 
             {/* ── Header ── */}
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -380,10 +409,12 @@ export default function GiderlerYeniClient({
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors">
                         <FiRepeat size={13} /> Şablonlar
                     </Link>
-                    <button onClick={() => setModalOpen(true)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors">
-                        <FiPlus size={13} /> Yeni Gider
-                    </button>
+                    {isSuperAdmin && (
+                        <button onClick={() => setModalOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors">
+                            <FiPlus size={13} /> Yeni Gider
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -616,19 +647,26 @@ export default function GiderlerYeniClient({
                                                         </Link>
                                                     ) : (
                                                         <>
-                                                            {g.durum === 'Taslak' && (
+                                                            {g.durum === 'Taslak' && isSuperAdmin && (
                                                                 <button onClick={() => handleApprove(g.id)}
                                                                     className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                                     title="Onayla">
                                                                     <FiCheck size={13} />
                                                                 </button>
                                                             )}
-                                                            {isAdmin && (
-                                                                <button onClick={() => handleDelete(g.id)}
-                                                                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                                    title="Sil">
-                                                                    <FiX size={13} />
-                                                                </button>
+                                                            {isSuperAdmin && (
+                                                                <>
+                                                                    <button onClick={() => setEditingGider(g)}
+                                                                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                        title="Düzenle">
+                                                                        <FiEdit2 size={13} />
+                                                                    </button>
+                                                                    <button onClick={() => handleDelete(g.id)}
+                                                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                        title="Sil">
+                                                                        <FiX size={13} />
+                                                                    </button>
+                                                                </>
                                                             )}
                                                         </>
                                                     )}
@@ -650,11 +688,13 @@ export default function GiderlerYeniClient({
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="text-sm font-bold text-slate-700">🔄 Sabit Gider Şablonları</h3>
                         <div className="flex gap-2">
-                            <button onClick={handleCreateFromTemplates} disabled={isPending}
-                                className="text-[11px] text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1 border border-purple-200 rounded-lg px-2 py-1 hover:bg-purple-50 transition-colors disabled:opacity-50">
-                                {isPending ? <FiRefreshCw size={10} className="animate-spin" /> : '▶'}
-                                Bu Ay Oluştur
-                            </button>
+                            {isSuperAdmin && (
+                                <button onClick={handleCreateFromTemplates} disabled={isPending}
+                                    className="text-[11px] text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1 border border-purple-200 rounded-lg px-2 py-1 hover:bg-purple-50 transition-colors disabled:opacity-50">
+                                    {isPending ? <FiRefreshCw size={10} className="animate-spin" /> : '▶'}
+                                    Bu Ay Oluştur
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -672,11 +712,17 @@ export default function GiderlerYeniClient({
                                             <p className="text-[10px] text-slate-400">{donemTipi} · {fmt(Number(tutar))}</p>
                                         </div>
                                         <div className="flex items-center gap-1.5 flex-shrink-0">
-                                            <button onClick={() => handleToggleSablon(s.id, s.aktif)}
-                                                className={`w-8 h-4 rounded-full transition-colors relative ${s.aktif ? 'bg-purple-500' : 'bg-slate-300'}`}>
-                                                <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${s.aktif ? 'left-4.5 translate-x-0' : 'left-0.5'}`} />
-                                            </button>
-                                            {isAdmin && (
+                                            {isSuperAdmin ? (
+                                                <button onClick={() => handleToggleSablon(s.id, s.aktif)}
+                                                    className={`w-8 h-4 rounded-full transition-colors relative ${s.aktif ? 'bg-purple-500' : 'bg-slate-300'}`}>
+                                                    <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${s.aktif ? 'left-4.5 translate-x-0' : 'left-0.5'}`} />
+                                                </button>
+                                            ) : (
+                                                <div className={`w-8 h-4 rounded-full relative opacity-50 cursor-not-allowed ${s.aktif ? 'bg-purple-500' : 'bg-slate-300'}`}>
+                                                    <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow ${s.aktif ? 'left-4.5' : 'left-0.5'}`} />
+                                                </div>
+                                            )}
+                                            {isSuperAdmin && (
                                                 <button onClick={() => handleDeleteSablon(s.id)}
                                                     className="text-slate-300 hover:text-red-500 p-1 rounded transition-colors">
                                                     <FiX size={12} />

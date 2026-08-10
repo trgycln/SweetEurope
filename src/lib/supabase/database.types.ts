@@ -1877,6 +1877,54 @@ export type Database = {
           },
         ]
       }
+      ortak_islemleri: {
+        Row: {
+          aciklama: string | null
+          created_at: string | null
+          id: string
+          islem_tipi: string
+          islem_yapan_kullanici_id: string | null
+          ortak_id: string
+          tarih: string
+          tutar: number
+        }
+        Insert: {
+          aciklama?: string | null
+          created_at?: string | null
+          id?: string
+          islem_tipi: string
+          islem_yapan_kullanici_id?: string | null
+          ortak_id: string
+          tarih?: string
+          tutar: number
+        }
+        Update: {
+          aciklama?: string | null
+          created_at?: string | null
+          id?: string
+          islem_tipi?: string
+          islem_yapan_kullanici_id?: string | null
+          ortak_id?: string
+          tarih?: string
+          tutar?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ortak_islemleri_islem_yapan_kullanici_id_fkey"
+            columns: ["islem_yapan_kullanici_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ortak_islemleri_ortak_id_fkey"
+            columns: ["ortak_id"]
+            isOneToOne: false
+            referencedRelation: "profiller"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       pazarlama_materyalleri: {
         Row: {
           aciklama: string | null

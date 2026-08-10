@@ -8,12 +8,22 @@ export const dynamic = 'force-dynamic';
 export default async function KasaPage() {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    const isSuperAdmin = user?.email === 'turgaycelen03@gmail.com';
 
     // İşlemleri getir
     const { data: islemler } = await supabase
         .from('finans_kasa_islemleri')
         .select('*')
         .order('tarih', { ascending: false });
+
+    // Ortaklari getir (sermaye işlemleri için)
+    const { data: profiller } = await supabase
+        .from('profiller')
+        .select('id, tam_ad, rol');
+
+    const ortakProfiller = (profiller || []).filter(p => p.rol === 'Yönetici' || p.rol === 'Kurucu' || p.rol === 'Ortak');
 
     // Özeti getir
     const { data: ozetData } = await supabase.rpc('get_kasa_ozeti');
@@ -51,7 +61,7 @@ export default async function KasaPage() {
                 ))}
             </div>
 
-            <KasaClient islemler={islemler || []} />
+            <KasaClient islemler={islemler || []} profiller={ortakProfiller} isSuperAdmin={isSuperAdmin} />
         </main>
     );
 }

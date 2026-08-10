@@ -480,3 +480,52 @@ export async function gorevSilAction(gorevId: string, locale?: string): Promise<
 
     return { success: 'Görev silindi.' };
 }
+
+export async function gorevTarihGuncelleAction(
+    gorevId: string,
+    yeniTarih: string | null,
+    locale?: string
+): Promise<ActionResult> {
+    const { supabase, user } = await getAuthenticatedClient();
+
+    if (!user) {
+        return { error: 'Nicht authentifiziert.' };
+    }
+
+    const parsedDate = yeniTarih ? new Date(yeniTarih) : null;
+    if (parsedDate && isNaN(parsedDate.getTime())) {
+        return { error: 'Geçersiz tarih formatı.' };
+    }
+
+    const { data: mevcutGorev } = await supabase
+        .from('gorevler')
+        .select('ilgili_firma_id, baslik, atanan_kisi_id')
+        .eq('id', gorevId)
+        .maybeSingle();
+
+    const { error } = await supabase
+        .from('gorevler')
+        .update({
+            son_tarih: parsedDate ? parsedDate.toISOString() : null,
+        })
+        .eq('id', gorevId);
+
+    if (error) {
+        console.error('Fehler beim Aktualisieren des Datums:', error);
+        return { error: 'Tarih güncellenemedi.' };
+    }
+
+    if (mevcutGorev?.atanan_kisi_id && mevcutGorev.atanan_kisi_id !== user.id) {
+        await sendNotification({
+            aliciId: mevcutGorev.atanan_kisi_id,
+            icerik: `"${mevcutGorev?.baslik || 'Görev'}" görevinin tarihi güncellendi.`,
+            link: getTaskDetailLink(gorevId, locale),
+            preferenceKey: 'task_assignments',
+            supabaseClient: supabase,
+        });
+    }
+
+    revalidateTaskPaths(locale, mevcutGorev?.ilgili_firma_id ?? null);
+
+    return { success: 'Görev tarihi güncellendi.' };
+}
