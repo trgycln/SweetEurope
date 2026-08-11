@@ -3,7 +3,7 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import Link from 'next/link';
-import { FiPackage, FiCalendar, FiDollarSign, FiCheckCircle, FiClock, FiTruck, FiXCircle, FiPlus } from 'react-icons/fi';
+import { FiPackage, FiCalendar, FiDollarSign, FiCheckCircle, FiClock, FiTruck, FiXCircle } from 'react-icons/fi';
 import { getDictionary } from '@/dictionaries';
 import StatusUpdateButton from './StatusUpdateButton'; // Stellen Sie sicher, dass dieser Pfad korrekt ist
 import SiparisFiltreleri from './SiparisFiltreleri'; // Stellen Sie sicher, dass dieser Pfad korrekt ist
@@ -14,9 +14,6 @@ import { formatCurrency, formatDate } from '@/lib/utils'; // utils importieren
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import OrderPageWrapper from './OrderPageWrapper';
 import OrderCheckbox from './OrderCheckbox';
-import { buildLoosePostgresRegex } from '@/lib/searchUtils';
-
-import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,7 +70,7 @@ export default async function AlleSiparislerPage({
     const orderStatusTranslations = (dictionary as any).orderStatuses || {}; // Pfad zu Status-Übersetzungen anpassen!
 
     // Benutzer prüfen
-    const { data: { user }, error: userAuthError } = await getGlobalCachedUser(); // Funktioniert jetzt
+    const { data: { user }, error: userAuthError } = await supabase.auth.getUser(); // Funktioniert jetzt
     if (!user) {
         console.log("Kein Benutzer gefunden in AlleSiparislerPage, redirect zu Login.");
         return redirect(`/${locale}/login?next=/admin/operasyon/siparisler`);
@@ -129,12 +126,12 @@ export default async function AlleSiparislerPage({
     const isIdPrefix = !!cleanQuery && /^[0-9a-fA-F-]{3,36}$/.test(cleanQuery); // hex/uuid Fragmente
 
     if (queryParam) {
-        // 1) Firmennamen Kandidaten holen — diakritik-duyarsız regex (i/ı, ş/s, ö/o, ü/u, ç/c, ğ/g, ß/ss, ä/a, é/e ...)
-        const loosePattern = buildLoosePostgresRegex(queryParam);
+        // 1) Firmennamen Kandidaten holen
+        const searchPattern = `%${queryParam}%`;
         const { data: matchingFirmen, error: firmaSearchError } = await supabase
             .from('firmalar')
             .select('id')
-            .filter('unvan', '~*', loosePattern);
+            .ilike('unvan', searchPattern);
         if (firmaSearchError) console.error('⚠️  Fehler bei Firmensuche:', firmaSearchError);
         const matchingFirmaIds = matchingFirmen?.map(f => f.id) || [];
 
@@ -262,16 +259,11 @@ export default async function AlleSiparislerPage({
             <main className="space-y-8">
                 <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>
-                         <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Tüm Siparişler'}</h1>
-                         <p className="text-text-main/80 mt-1">{siparisler.length} {content.ordersListed || 'sipariş listelendi'}</p>
-                    </div>
-                    <Link
-                        href={`/${locale}/admin/operasyon/siparisler/yeni`}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 font-bold text-sm w-full sm:w-auto transition"
-                    >
-                        <FiPlus />
-                        Yeni Sipariş Oluştur
-                    </Link>
+                         <h1 className="font-serif text-4xl font-bold text-primary">{content.title || 'Bestellverwaltung'}</h1>
+                         <p className="text-text-main/80 mt-1">{siparisler.length} {content.ordersListed || 'orders found.'}</p>
+                </div>
+                 {/* Optional: Button für "Neue Bestellung" (ohne spezifische Firma) */}
+                 {/* <Link href={`/${locale}/admin/operasyon/siparisler/yeni`} ... >Neue Bestellung</Link> */}
             </header>
 
              {/* Filterkomponente */}

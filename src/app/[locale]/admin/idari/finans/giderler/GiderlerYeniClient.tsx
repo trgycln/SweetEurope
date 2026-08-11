@@ -399,12 +399,7 @@ export default function GiderlerYeniClient({
                             </button>
                         ))}
                     </div>
-                    {isAdmin && (
-                        <Link href={`/${locale}/admin/idari/finans/giderler/kategoriler`}
-                            className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors">
-                            <FiChevronDown size={13} /> Kategoriler
-                        </Link>
-                    )}
+
                     <Link href={`/${locale}/admin/idari/finans/giderler/sablonlar`}
                         className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors">
                         <FiRepeat size={13} /> Şablonlar
