@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      sirket_resmi_bilgiler: {
+        Row: {
+          id: string
+          kategori: string
+          baslik: string
+          deger: string
+          sira: number
+          onemli_mi: boolean | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          kategori: string
+          baslik: string
+          deger: string
+          sira?: number
+          onemli_mi?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          kategori?: string
+          baslik?: string
+          deger?: string
+          sira?: number
+          onemli_mi?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       alt_bayi_gelirleri: {
         Row: {
           aciklama: string | null

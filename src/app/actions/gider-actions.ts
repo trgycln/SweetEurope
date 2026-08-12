@@ -254,6 +254,23 @@ export async function deleteGiderAction(giderId: string): Promise<{ success: boo
     }
 
     console.log(`-> Versuche Gider zu löschen (ID: ${giderId}) für Benutzer: ${user.id}`);
+    
+    // Önce kaydı bulalım, belki ortak işlemlerine veya kasaya bağlıdır
+    const { data: giderToDelete } = await supabase
+        .from('giderler')
+        .select('kaynak, kaynak_id')
+        .eq('id', giderId)
+        .single();
+        
+    if (giderToDelete?.kaynak === 'ortak_islemleri' && giderToDelete?.kaynak_id) {
+        console.log(`Bağlı ortak_islemleri kaydı bulundu (ID: ${giderToDelete.kaynak_id}), siliniyor...`);
+        // İlgili ortak işlemini sil
+        await supabase.from('ortak_islemleri').delete().eq('id', giderToDelete.kaynak_id);
+        // İlgili kasa işlemini sil
+        await supabase.from('finans_kasa_islemleri').delete().like('aciklama', `%[Ref:${giderToDelete.kaynak_id}]%`);
+        // Not: Gider zaten alttaki kodla silinecek
+    }
+
     const { error } = await supabase
         .from('giderler')
         .delete()
@@ -262,6 +279,12 @@ export async function deleteGiderAction(giderId: string): Promise<{ success: boo
     if (error) {
         console.error("Fehler beim Löschen der Ausgabe:", error);
         return { success: false, message: '', error: `Datenbankfehler: ${error.message}` };
+    }
+
+    // Ortak sayfasını da revalidate et (eğer ortak işlemi silindiyse)
+    if (giderToDelete?.kaynak === 'ortak_islemleri') {
+        revalidatePath('/admin/idari/finans/ortaklar');
+        revalidatePath('/admin/idari/finans/kasa');
     }
 
     console.log("-> Gider erfolgreich gelöscht. Revalidiere Pfade...");

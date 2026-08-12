@@ -27,7 +27,7 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
     const { data: rawBelgeler, error: tableError } = await supabase
         .from('belgeler')
         .select(`
-            id, ad, kategori, alt_kategori, dosya_url, dosya_boyutu, dosya_tipi,
+            id, ad, kategori, alt_kategori, fiziksel_dosya, sira_no, evrak_tarihi,
             iliski_tipi, iliski_id, firma_id, tir_id, aciklama, etiketler,
             son_gecerlilik_tarihi, yukleyen_id, olusturma_tarihi, gizli, otomatik_eklendi, tedarikci_adi,
             firma:firmalar(unvan),
@@ -47,11 +47,8 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
                     Supabase Dashboard &gt; SQL Editor'da aşağıdaki dosyayı çalıştırın:
                 </p>
                 <code className="block bg-white border border-amber-200 rounded-lg p-4 text-xs font-mono text-slate-700 whitespace-pre">
-                    supabase/migrations/belgeler_table.sql
+                    supabase/migrations/20260812_belgeler_fihrist_donusumu.sql
                 </code>
-                <p className="text-amber-700 text-sm mt-3">
-                    Ayrıca Supabase Storage'da <strong>belgeler</strong> adında public olmayan bir bucket oluşturun.
-                </p>
             </div>
         );
     }
@@ -87,14 +84,8 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
 
     const stats = {
         toplam: belgeler.length,
-        suresi_yakin: belgeler.filter(b => {
-            if (!b.son_gecerlilik_tarihi) return false;
-            const exp = new Date(b.son_gecerlilik_tarihi).getTime();
-            return exp > now && exp < thirtyDaysFromNow;
-        }).length,
-        bekleyen: belgeler.filter(b => b.otomatik_eklendi && !b.dosya_url).length,
         bu_ay: belgeler.filter(b => new Date(b.olusturma_tarihi).getTime() > thisMonthStart).length,
-        sozlesmeler: belgeler.filter(b => b.kategori === 'sozlesmeler').length,
+        sozlesmeler: belgeler.filter(b => b.kategori === 'sozlesmeler_dosyasi' || b.kategori === 'sozlesmeler').length,
     };
 
     // Category counts for sidebar
@@ -106,22 +97,12 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
         }
     });
 
-    // Expiring count per category (for sidebar warning badge)
-    const kategoriSuresiBitenler: Record<string, number> = {};
-    belgeler.filter(b => {
-        if (!b.son_gecerlilik_tarihi) return false;
-        const exp = new Date(b.son_gecerlilik_tarihi).getTime();
-        return exp > now && exp < thirtyDaysFromNow;
-    }).forEach(b => {
-        kategoriSuresiBitenler[b.kategori] = (kategoriSuresiBitenler[b.kategori] || 0) + 1;
-    });
 
     return (
         <BelgeYonetimClient
             belgeler={belgeler as any}
             stats={stats}
             kategoriSayilari={kategoriSayilari}
-            kategoriSuresiBitenler={kategoriSuresiBitenler}
             firmalar={firmalar ?? []}
             tirlar={tirlar ?? []}
             locale={locale}

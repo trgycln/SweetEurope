@@ -72,10 +72,34 @@ export async function deleteKasaIslemiAction(id: string) {
         return { error: 'Bu işlem için Süper Admin yetkisi gereklidir.' };
     }
 
+    // Önce kasa işlemini bul ki ortaklarda karşılığı var mı bilelim
+    const { data: islem } = await supabase.from('finans_kasa_islemleri').select('*').eq('id', id).single();
+
     const { error } = await supabase
         .from('finans_kasa_islemleri')
         .delete()
         .eq('id', id);
+
+    if (error) {
+        return { error: error.message };
+    }
+
+    // Eğer bu işlem sermaye giriş/çıkışı ise, ortak işlemini de sil (senkron)
+    if (islem && (islem.islem_tipi === 'sermaye_girisi' || islem.islem_tipi === 'sermaye_cikisi')) {
+        const ortakIslemTipi = islem.islem_tipi === 'sermaye_girisi' ? 'Sermaye Ekleme' : 'Sermaye Çıkışı';
+        const ortakTutar = islem.islem_tipi === 'sermaye_girisi' ? Math.abs(islem.tutar) : -Math.abs(islem.tutar);
+        const ortakAciklama = `Kasa Üzerinden: ${islem.aciklama}`;
+        
+        // Eşleşen ortak işlemini bulup siliyoruz
+        await supabase.from('ortak_islemleri').delete().match({
+            islem_tipi: ortakIslemTipi,
+            tutar: ortakTutar,
+            aciklama: ortakAciklama
+        });
+
+        // Ortaklar sayfasını revalidate et
+        revalidatePath('/admin/idari/finans/ortaklar');
+    }
 
     if (error) {
         return { error: error.message };

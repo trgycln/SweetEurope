@@ -202,9 +202,10 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
             ]
         },
         {
-            title: sidebarContent.settings,
+            title: sidebarContent.settings || 'Ayarlar',
             links: [
                 { name: sidebarContent.profile || 'Profil', href: '/admin/profil', icon: FiUser },
+                { name: 'Şirket Kasası', href: '/admin/ayarlar/sirket-kasasi', icon: FiSettings, roles: ['Yönetici'] as UserRole[] },
             ]
         }
     ];

@@ -47,13 +47,17 @@ export default async function OrtaklarPage({ params }: PageProps) {
     const safeProfiller = ortakProfiller;
 
     // Ortak bazlı bakiye hesaplama
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
     const bakiyeOzet = safeProfiller.reduce((acc: any, p) => {
         acc[p.id] = {
+            id: p.id,
             tam_ad: p.tam_ad,
             sermaye: 0,
-            avans_ve_odeme: 0,
-            hakedis: 0,
-            bakiye: 0
+            cekilen_para: 0,
+            aylik_cekilen_para: 0,
+            kar_payi: 0
         };
         return acc;
     }, {});
@@ -62,20 +66,29 @@ export default async function OrtaklarPage({ params }: PageProps) {
         const p = bakiyeOzet[islem.ortak_id];
         if (!p) return;
         
+        const islemDate = new Date(islem.tarih);
+        const isThisMonth = islemDate.getMonth() === currentMonth && islemDate.getFullYear() === currentYear;
+        
         const tutar = Number(islem.tutar);
-        p.bakiye += tutar;
 
         if (islem.islem_tipi.includes('Sermaye Ekleme') || islem.islem_tipi.includes('Sermaye Çıkışı')) {
             p.sermaye += tutar;
-        } else if (islem.islem_tipi.includes('Maaş Tahakkuku') || islem.islem_tipi.includes('Kar Payı') || islem.islem_tipi.includes('Cepten')) {
-            p.hakedis += tutar;
-        } else if (islem.islem_tipi.includes('Avans') || islem.islem_tipi.includes('Maaş / Nakit Çıkışı')) {
-            p.avans_ve_odeme += tutar; // Bu zaten negatif geliyor
+        } else if (islem.islem_tipi.includes('Kar Payı / Temettü')) {
+            p.kar_payi += tutar; // tutar is negative, it represents cash out
+        } else if (islem.islem_tipi.includes('Ortak Para Çekimi') || islem.islem_tipi.includes('Şahsi Harcama') || islem.islem_tipi.includes('Nakit Çıkışı')) {
+            p.cekilen_para += tutar; // tutar is negative
+            if (isThisMonth) p.aylik_cekilen_para += tutar;
+        } else {
+            // Eski kayit destegi icin: eger negatif bir islem varsa (avans vs) cekilen_para say.
+            if (tutar < 0) {
+                p.cekilen_para += tutar;
+                if (isThisMonth) p.aylik_cekilen_para += tutar;
+            }
         }
     });
 
-    // Sadece bakiyesi 0 olmayan veya işlem görmüş profilleri filtreleyelim
-    const aktifOrtaklar = Object.values(bakiyeOzet).filter((p: any) => p.sermaye !== 0 || p.hakedis !== 0 || p.avans_ve_odeme !== 0);
+    // Sadece sermayesi, çekilen parası veya kâr payı olanları filtreleyelim
+    const aktifOrtaklar = Object.values(bakiyeOzet).filter((p: any) => p.sermaye !== 0 || p.cekilen_para !== 0 || p.kar_payi !== 0);
 
     return (
         <OrtaklarClient
