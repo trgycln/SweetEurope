@@ -66,11 +66,32 @@ export async function siparisOlusturAction(payload: {
             hasPayload: !!payload,
             hasFirmaId: !!payload?.firmaId,
             hasItems: !!payload?.items,
-            isItemsArray: Array.isArray(payload?.items), // Prüfen ob Array
+            isItemsArray: Array.isArray(payload?.items),
             itemsLength: payload?.items?.length
         });
-        // Dies ist die Fehlermeldung, die der Benutzer sieht
         return { error: "Kunden- oder Produktinformationen fehlen." };
+    }
+
+    // --- STOK KONTROLÜ (Eşzamanlılık ve Negatif Stok Koruması İçin) ---
+    const urunIds = payload.items.map(item => item.urun_id);
+    const { data: stokBilgileri, error: stokError } = await supabase
+        .from('urunler')
+        .select('id, stok_miktari, ad')
+        .in('id', urunIds);
+
+    if (stokError) {
+        console.error("Stok bilgisi alınamadı:", stokError);
+        return { error: "Stok bilgileri alınırken veritabanı hatası oluştu." };
+    }
+
+    for (const item of payload.items) {
+        const urun = stokBilgileri?.find(u => u.id === item.urun_id);
+        if (!urun) {
+            return { error: `Siparişteki bir ürün bulunamadı.` };
+        }
+        if ((urun.stok_miktari || 0) < item.adet) {
+            return { error: `Yetersiz stok: ${urun.ad} ürününden sadece ${urun.stok_miktari || 0} adet mevcut (İstenen: ${item.adet}). Lütfen sepetinizi güncelleyin.` };
+        }
     }
     // --- ENDE VALIDIERUNG ---
 
