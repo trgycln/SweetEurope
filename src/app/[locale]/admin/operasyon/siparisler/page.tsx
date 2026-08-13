@@ -221,7 +221,7 @@ export default async function AlleSiparislerPage({
         });
         firmalar = Array.from(unique, ([id, unvan]) => ({ id, unvan }));
     } else {
-        const { data, error } = await supabase.from('firmalar').select('id, unvan').order('unvan');
+        const { data, error } = await supabase.from('firmalar').select('id, unvan').eq('status', 'MÜŞTERİ').order('unvan');
         firmalar = data || [];
         firmalarError = error;
     }

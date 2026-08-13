@@ -6,7 +6,7 @@ import Image from 'next/image';
 import {
     FiArrowLeft, FiUser, FiTruck, FiPackage,
     FiMapPin, FiCalendar, FiClock, FiAlertTriangle,
-    FiCheck, FiImage,
+    FiCheck, FiImage, FiPrinter,
 } from 'react-icons/fi';
 import DurumGuncellePaneli from './DurumGuncellePaneli';
 import { assignSiparisPersonelAction } from '../actions';
@@ -139,6 +139,15 @@ export default async function OperasyonSiparisDetayPage({ params, searchParams }
                         <h1 className="text-2xl font-bold text-gray-800">
                             #{siparis.id.slice(0, 8).toUpperCase()}
                         </h1>
+                        <Link
+                            href={`/${locale}/print/lieferschein/${siparis.id}`}
+                            target="_blank"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 hover:text-accent transition-colors shadow-sm"
+                            title="Teslimat Fişi Yazdır"
+                        >
+                            <FiPrinter size={16} />
+                            <span className="hidden sm:inline">Lieferschein</span>
+                        </Link>
                         {cfg && (
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
                                 {cfg.label}

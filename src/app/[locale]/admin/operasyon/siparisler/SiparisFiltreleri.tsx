@@ -1,9 +1,86 @@
 // src/app/admin/operasyon/siparisler/SiparisFiltreleri.tsx (DÜZELTİLMİŞ)
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 import { FiSearch } from 'react-icons/fi';
+
+function SearchableSelect({
+    options,
+    value,
+    onChange,
+    allOptionLabel
+}: {
+    options: { value: string; label: string }[];
+    value: string;
+    onChange: (val: string) => void;
+    allOptionLabel: string;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const filteredOptions = options.filter(opt => opt.label.toLowerCase().includes(search.toLowerCase()));
+    const selectedOption = options.find(opt => opt.value === value);
+
+    return (
+        <div className="relative" ref={wrapperRef}>
+            <div 
+                className="w-full bg-white border border-bg-subtle rounded-lg p-2.5 text-sm cursor-pointer flex justify-between items-center hover:border-gray-300"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <span className="truncate">{selectedOption ? selectedOption.label : allOptionLabel}</span>
+                <span className="text-gray-400 text-xs">▼</span>
+            </div>
+            {isOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 flex flex-col">
+                    <div className="p-2 border-b border-gray-100">
+                        <input 
+                            type="text" 
+                            className="w-full p-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-500"
+                            placeholder="Firma ara..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                        />
+                    </div>
+                    <div className="overflow-y-auto">
+                        <div 
+                            className={`p-2 px-3 text-sm cursor-pointer hover:bg-gray-100 ${value === '' ? 'bg-blue-50 text-blue-600' : ''}`}
+                            onClick={() => { onChange(''); setIsOpen(false); setSearch(''); }}
+                        >
+                            {allOptionLabel}
+                        </div>
+                        {filteredOptions.map(opt => (
+                            <div 
+                                key={opt.value}
+                                className={`p-2 px-3 text-sm cursor-pointer hover:bg-gray-100 ${value === opt.value ? 'bg-blue-50 text-blue-600' : ''}`}
+                                onClick={() => { onChange(opt.value); setIsOpen(false); setSearch(''); }}
+                            >
+                                {opt.label}
+                            </div>
+                        ))}
+                        {filteredOptions.length === 0 && (
+                            <div className="p-2 px-3 text-sm text-gray-500">Kayıt bulunamadı</div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
 
 type Firma = { id: string; unvan: string | null };
 type Durum = { anahtar: string; deger: string };
@@ -82,17 +159,12 @@ export default function SiparisFiltreleri({ firmalar, durumlar, locale, dictiona
                 <label htmlFor="firma" className="block text-xs font-bold text-text-main/80 mb-1">
                     {content.companyLabel || 'Firma'}
                 </label>
-                <select
-                    id="firma"
-                    className={baseClasses}
-                    onChange={(e) => handleFilterChange('firmaId', e.target.value)}
-                    defaultValue={searchParams.get('firmaId')?.toString() || ''}
-                >
-                    <option value="">{content.companyAllOption || 'Tüm Firmalar'}</option>
-                    {firmalar.map(f => (
-                        <option key={f.id} value={f.id}>{f.unvan}</option>
-                    ))}
-                </select>
+                <SearchableSelect
+                    options={firmalar.map(f => ({ value: f.id, label: f.unvan || 'İsimsiz Firma' }))}
+                    value={searchParams.get('firmaId')?.toString() || ''}
+                    onChange={(val) => handleFilterChange('firmaId', val)}
+                    allOptionLabel={content.companyAllOption || 'Tüm Firmalar'}
+                />
             </div>
         </div>
     );
