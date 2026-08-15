@@ -34,16 +34,16 @@ export default function DigitalCard() {
           className="block w-full py-4 px-6 bg-gradient-to-r from-[#B38728] via-[#FBF5B7] to-[#D4AF37] text-[#153023] font-bold rounded-lg shadow-lg transform transition hover:scale-105 uppercase tracking-wide"
           download
         >
-          Rehbere Kaydet
+          Kontakt speichern
         </a>
 
         {/* Links Grid */}
         <div className="space-y-4 pt-4">
-          <LinkBox href="tel:+4917641533653" icon="📞" text="Hemen Ara" />
-          <LinkBox href="https://wa.me/4917641533653" icon="💬" text="WhatsApp'tan Yaz" />
-          <LinkBox href="mailto:info@elysonsweets.de" icon="✉️" text="E-posta Gönder" />
-          <LinkBox href="https://maps.google.com/?q=Wilhelm-Ruppert-Str.+38+F/8,+51147+Köln" icon="📍" text="Yol Tarifi Al" />
-          <LinkBox href="https://www.elysonsweets.de" icon="🌐" text="Web Sitemizi Ziyaret Et" />
+          <LinkBox href="tel:+4917641533653" icon="📞" text="Jetzt anrufen" />
+          <LinkBox href="https://wa.me/4917641533653" icon="💬" text="WhatsApp Nachricht" />
+          <LinkBox href="mailto:info@elysonsweets.de" icon="✉️" text="E-Mail senden" />
+          <LinkBox href="https://maps.google.com/?q=Wilhelm-Ruppert-Str.+38+F/8,+51147+Köln" icon="📍" text="Route planen" />
+          <LinkBox href="https://www.elysonsweets.de" icon="🌐" text="Webseite besuchen" />
         </div>
       </div>
     </div>
