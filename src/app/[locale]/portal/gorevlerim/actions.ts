@@ -6,6 +6,20 @@ import { revalidatePath } from 'next/cache';
 
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
+function formatLinks(text: string): string {
+    if (!text) return text;
+    const regex = /\[[^\]]*\]\([^)]*\)|(https?:\/\/[^\s<]+)/g;
+    return text.replace(regex, (match, urlGroup) => {
+        if (!urlGroup) return match;
+        const trailing = urlGroup.match(/[.,;!?]+$/);
+        if (trailing) {
+            const url = urlGroup.slice(0, -trailing[0].length);
+            return `[Bağlantı](${url})${trailing[0]}`;
+        }
+        return `[Bağlantı](${urlGroup})`;
+    });
+}
+
 export async function addMyTaskAction(formData: FormData, locale: string) {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
@@ -111,7 +125,7 @@ export async function addAltGorevAction(
 
   const { error } = await supabase
     .from('alt_gorevler')
-    .insert({ gorev_id: gorevId, baslik, tamamlandi: false });
+    .insert({ gorev_id: gorevId, baslik: formatLinks(baslik), tamamlandi: false });
 
   if (error) return { success: false, error: error.message };
   revalidatePath(`/${locale}/portal/gorevlerim`);
@@ -148,7 +162,7 @@ export async function editAltGorevAction(
 
   const { error } = await supabase
     .from('alt_gorevler')
-    .update({ baslik })
+    .update({ baslik: formatLinks(baslik) })
     .eq('id', altGorevId);
 
   if (error) return { success: false, error: error.message };
@@ -188,7 +202,7 @@ export async function addGorevNotuAction(
 
   const { error } = await supabase
     .from('gorev_notlari')
-    .insert({ gorev_id: gorevId, kullanici_id: user.id, not_metni: notMetni });
+    .insert({ gorev_id: gorevId, kullanici_id: user.id, not_metni: formatLinks(notMetni) });
 
   if (error) return { success: false, error: error.message };
   revalidatePath(`/${locale}/portal/gorevlerim`);

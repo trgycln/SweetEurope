@@ -4,7 +4,7 @@
 import React from 'react';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils';
-import { FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
 import ContactFormClient from './ContactFormClient';
 import type { Metadata } from 'next';
 
@@ -58,7 +58,15 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
                   <FaEnvelope className="text-accent text-2xl mt-1" />
                   <div>
                     <h3 className="font-bold font-sans text-primary">E-Mail</h3>
-                    <a href={`mailto:${content.email}`} className="font-sans hover:text-accent transition-colors">{content.email}</a>
+                    <a href={`mailto:${content.email}`} className="font-sans hover:text-accent transition-colors block">{content.email}</a>
+                    <a href="mailto:elysonsweets@gmail.com" className="font-sans hover:text-accent transition-colors block">elysonsweets@gmail.com</a>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <FaPhone className="text-accent text-2xl mt-1" />
+                  <div>
+                    <h3 className="font-bold font-sans text-primary">Telefon</h3>
+                    <a href="tel:+4917641533653" className="font-sans hover:text-accent transition-colors block">+49 176 41533653</a>
                   </div>
                 </div>
               </div>

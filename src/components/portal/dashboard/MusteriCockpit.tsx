@@ -16,14 +16,7 @@ function toLocalDate(d: Date) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Yıllık ciroya göre tier hesabı (label'lar locale ile gelir)
-function calcTier(yearTotal: number, L: ReturnType<typeof getPortalLabels>): { label: string; color: string; emoji: string; next?: string; nextThreshold?: number } {
-    if (yearTotal >= 50000) return { label: L.tierPlatinum, color: 'from-violet-500 to-fuchsia-600', emoji: '💎' };
-    if (yearTotal >= 20000) return { label: L.tierGold, color: 'from-amber-500 to-orange-500', emoji: '🥇', next: L.tierPlatinum, nextThreshold: 50000 };
-    if (yearTotal >= 8000) return { label: L.tierSilver, color: 'from-slate-400 to-slate-500', emoji: '🥈', next: L.tierGold, nextThreshold: 20000 };
-    if (yearTotal >= 2000) return { label: L.tierBronze, color: 'from-orange-700 to-amber-800', emoji: '🥉', next: L.tierSilver, nextThreshold: 8000 };
-    return { label: L.tierNew, color: 'from-slate-300 to-slate-400', emoji: '🌱', next: L.tierBronze, nextThreshold: 2000 };
-}
+
 
 const STATUS_CHIP: Record<string, string> = {
     'Beklemede': 'bg-amber-100 text-amber-700 border-amber-200',
@@ -127,8 +120,6 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
 
     // ── Paralel sorgular ────────────────────────────────────────
     const [
-        siparislerYilRes,
-        siparislerOncekYilRes,
         aktifSiparislerRes,
         sonSiparislerRes,
         favoritesRes,
@@ -139,18 +130,6 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
         duyurularRes,
         enCokSatilanlarRes,
     ] = await Promise.all([
-        supabase.from('siparisler')
-            .select('toplam_tutar_net, siparis_tarihi, siparis_durumu')
-            .eq('firma_id', firmaId)
-            .gte('siparis_tarihi', yearStart)
-            .order('siparis_tarihi', { ascending: false }),
-
-        supabase.from('siparisler')
-            .select('toplam_tutar_net')
-            .eq('firma_id', firmaId)
-            .gte('siparis_tarihi', prevYearStart)
-            .lte('siparis_tarihi', prevYearEnd),
-
         (supabase as any).from('siparisler')
             .select('id, siparis_tarihi, siparis_durumu, toplam_tutar_net, teslimat_adresi')
             .eq('firma_id', firmaId)
@@ -220,8 +199,6 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
             .limit(6),
     ]);
 
-    const siparislerYil = (siparislerYilRes.data ?? []) as any[];
-    const siparislerOncekYil = (siparislerOncekYilRes.data ?? []) as any[];
     const aktifSiparisler = (aktifSiparislerRes.data ?? []) as any[];
     const sonSiparisler = (sonSiparislerRes.data ?? []) as any[];
     const sikUrunler = ((sikUrunlerRes.data as any[]) ?? []).slice(0, 6);
@@ -230,17 +207,9 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
     const enCokSatilanlar = (enCokSatilanlarRes.data ?? []) as any[];
 
     // ── Hesaplamalar ────────────────────────────────────────────
-    const yilTotal = siparislerYil.reduce((s, o: any) => s + Number(o.toplam_tutar_net || 0), 0);
-    const oncekiYilTotal = siparislerOncekYil.reduce((s, o: any) => s + Number(o.toplam_tutar_net || 0), 0);
-    const yillikDelta = oncekiYilTotal > 0 ? Math.round(((yilTotal - oncekiYilTotal) / oncekiYilTotal) * 100) : null;
-
     const aktifSiparisSayisi = aktifSiparisler.length;
     const favoriteCount = favoritesRes.count ?? 0;
     const bekleyenTalep = bekleyenTalepRes.count ?? 0;
-
-    // Tier hesabı
-    const tier = calcTier(yilTotal, L);
-    const tierProgress = tier.nextThreshold ? Math.min(100, Math.round((yilTotal / tier.nextThreshold) * 100)) : 100;
 
     // Açık bakiye tahmini: son 30 gün içindeki teslim edilmiş + bekleyen tahsilat
     const odemeVadesi = finansalRes.data?.odeme_vadesi_gun ?? 30;
@@ -287,17 +256,15 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
 
             {/* ── Hoşgeldin Bandı ── */}
             <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                <div className={`bg-gradient-to-r ${tier.color} px-5 py-4 text-white`}>
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-4 text-white">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-3">
-                            <span className="text-3xl">{tier.emoji}</span>
+                            <span className="text-3xl">👋</span>
                             <div>
-                                {/* Fix: sadece tier label, "Müşteri" tekrarı yok */}
                                 <p className="text-xs font-bold uppercase tracking-widest opacity-80">
                                     {locale === 'de' ? 'Willkommen' : 'Hoşgeldiniz'}
                                 </p>
                                 <p className="text-lg font-bold">{firmaUnvan}</p>
-                                <p className="text-xs opacity-80 mt-0.5">{tier.label}</p>
                             </div>
                         </div>
                         <div className="text-right">
@@ -308,29 +275,6 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                         </div>
                     </div>
                 </div>
-
-                {/* Tier progress — sadece aktif müşterilerde */}
-                {!isNewCustomer && tier.next && tier.nextThreshold && (
-                    <div className="px-5 py-3 bg-slate-50 border-t border-slate-100">
-                        <div className="flex items-center justify-between text-xs mb-1.5">
-                            <span className="text-slate-600 flex items-center gap-1">
-                                <FiAward size={12} className="text-amber-500" />
-                                <strong>{tier.next}</strong> {L.nextLevel}
-                            </span>
-                            <span className="text-slate-500">
-                                <strong className="text-slate-700">{fmt(yilTotal)}</strong> / {fmt(tier.nextThreshold)}
-                                <span className="text-[10px] text-slate-400 ml-1">({tierProgress}%)</span>
-                            </span>
-                        </div>
-                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div className={`h-full bg-gradient-to-r ${tier.color} transition-all`}
-                                style={{ width: `${tierProgress}%` }} />
-                        </div>
-                        <p className="text-[10px] text-slate-400 mt-1.5">
-                            {L.nextLevelRemaining}: <strong className="text-slate-600">{fmt(tier.nextThreshold - yilTotal)}</strong>
-                        </p>
-                    </div>
-                )}
             </div>
 
             {/* ══════════════════════════════════════════════════
@@ -482,22 +426,7 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
             ══════════════════════════════════════════════════ */
                 <>
                     {/* KPI Kartlar */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div className="rounded-xl border border-blue-200/60 p-4 bg-gradient-to-br from-blue-50 to-white">
-                            <div className="flex items-center justify-between mb-1">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-700">{L.yearTotal}</p>
-                                <FiTrendingUp size={14} className="text-blue-500" />
-                            </div>
-                            <p className="text-xl font-bold text-blue-800">{fmt(yilTotal)}</p>
-                            <div className="flex items-center gap-1.5 mt-1">
-                                <p className="text-[11px] text-slate-500">{siparislerYil.length} {L.nOrders}</p>
-                                {yillikDelta !== null && (
-                                    <span className={`text-[10px] font-bold ${yillikDelta >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                                        {yillikDelta >= 0 ? '+' : ''}{yillikDelta}%
-                                    </span>
-                                )}
-                            </div>
-                        </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
                         <div className="rounded-xl border border-orange-200/60 p-4 bg-gradient-to-br from-orange-50 to-white">
                             <div className="flex items-center justify-between mb-1">

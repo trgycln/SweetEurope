@@ -9,6 +9,7 @@ import {
   FiCheckSquare, FiSquare, FiClock, FiArrowRight,
 } from 'react-icons/fi';
 import { toast } from 'sonner';
+import { formatLinks } from '@/lib/utils';
 
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
@@ -489,7 +490,13 @@ function GorevDetayDrawer({
                                 className={`text-sm relative cursor-pointer group/content ${expandedAltId === ag.id ? '' : 'max-h-12 overflow-hidden'} ${ag.tamamlandi ? 'line-through text-gray-400 opacity-70' : 'text-gray-700'}`}
                                 onClick={() => setExpandedAltId(expandedAltId === ag.id ? null : ag.id)}
                             >
-                                <MDPreview source={ag.baslik} style={{ backgroundColor: 'transparent', color: 'inherit', fontSize: '0.875rem' }} />
+                                <MDPreview 
+                                    source={formatLinks(ag.baslik)} 
+                                    style={{ backgroundColor: 'transparent', color: 'inherit', fontSize: '0.875rem' }} 
+                                    components={{
+                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />
+                                    }}
+                                />
                                 {expandedAltId !== ag.id && ag.baslik.length > 50 && (
                                     <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-gray-50 to-transparent" />
                                 )}
@@ -567,7 +574,13 @@ function GorevDetayDrawer({
                           )}
                         </div>
                         <div className="prose prose-sm max-w-none text-gray-700" data-color-mode="light">
-                          <MDPreview source={not.not_metni} style={{ backgroundColor: 'transparent', color: '#374151' }} />
+                          <MDPreview 
+                              source={formatLinks(not.not_metni)} 
+                              style={{ backgroundColor: 'transparent', color: '#374151' }} 
+                              components={{
+                                  a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />
+                              }}
+                          />
                         </div>
                       </div>
                     </div>

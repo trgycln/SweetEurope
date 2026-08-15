@@ -9,6 +9,20 @@ import { sendNotification } from '@/lib/notificationUtils';
 
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
+function formatLinks(text: string): string {
+    if (!text) return text;
+    const regex = /\[[^\]]*\]\([^)]*\)|(https?:\/\/[^\s<]+)/g;
+    return text.replace(regex, (match, urlGroup) => {
+        if (!urlGroup) return match;
+        const trailing = urlGroup.match(/[.,;!?]+$/);
+        if (trailing) {
+            const url = urlGroup.slice(0, -trailing[0].length);
+            return `[Bağlantı](${url})${trailing[0]}`;
+        }
+        return `[Bağlantı](${urlGroup})`;
+    });
+}
+
 type ActionResult = {
     success?: string;
     error?: string;
@@ -213,7 +227,7 @@ export async function gorevGuncelleAction(
 
     const updateData: TablesUpdate<'gorevler'> = {
         baslik,
-        aciklama: data.aciklama?.trim() || null,
+        aciklama: data.aciklama ? formatLinks(data.aciklama.trim()) : null,
         son_tarih: parsedDate ? parsedDate.toISOString() : null,
         atanan_kisi_id: atananKisiId,
         sahip_id: atananKisiId,
@@ -346,7 +360,7 @@ export async function addGorevNotuAction(
     const { supabase, user } = await getAuthenticatedClient();
     if (!user) return { error: 'Oturum açık değil.' };
 
-    const metin = notMetni.trim();
+    const metin = formatLinks(notMetni.trim());
     if (!metin) return { error: 'Not metni boş olamaz.' };
 
     const { error } = await (supabase as any)
@@ -368,7 +382,7 @@ export async function addAltGorevAction(
     const { supabase, user } = await getAuthenticatedClient();
     if (!user) return { error: 'Oturum açık değil.' };
 
-    const temiz = baslik.trim();
+    const temiz = formatLinks(baslik.trim());
     if (!temiz) return { error: 'Alt görev başlığı boş olamaz.' };
 
     const { data, error } = await (supabase as any)
@@ -412,7 +426,7 @@ export async function editAltGorevAction(
     const { supabase, user } = await getAuthenticatedClient();
     if (!user) return { error: 'Oturum açık değil.' };
 
-    const temiz = baslik.trim();
+    const temiz = formatLinks(baslik.trim());
     if (!temiz) return { error: 'Alt görev başlığı boş olamaz.' };
 
     const { error } = await (supabase as any)

@@ -189,3 +189,21 @@ export function slugify(text: string): string {
         .replace(/^-+/, '') // Führende '-' entfernen
         .replace(/-+$/, ''); // Nachfolgende '-' entfernen
 }
+
+/**
+ * Uzun linkleri Markdown formatına dönüştürerek kısaltır.
+ * Mevcut markdown linklerini veya HTML etiketleri içindeki linkleri atlar.
+ */
+export function formatLinks(text: string | null | undefined): string {
+    if (!text) return '';
+    const regex = /\[[^\]]*\]\([^)]*\)|(https?:\/\/[^\s<]+)/g;
+    return String(text).replace(regex, (match, urlGroup) => {
+        if (!urlGroup) return match;
+        const trailing = urlGroup.match(/[.,;!?]+$/);
+        if (trailing) {
+            const url = urlGroup.slice(0, -trailing[0].length);
+            return `[Bağlantı](${url})${trailing[0]}`;
+        }
+        return `[Bağlantı](${urlGroup})`;
+    });
+}

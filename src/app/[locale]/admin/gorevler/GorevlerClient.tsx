@@ -22,6 +22,7 @@ import {
     gorevTarihGuncelleAction,
 } from './actions';
 import { toast } from 'sonner';
+import { formatLinks } from '@/lib/utils';
 
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
@@ -465,7 +466,13 @@ function GorevDrawer({
                         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wider mb-3">Görev Açıklaması</p>
                             <div className="prose prose-sm max-w-none text-slate-700" data-color-mode="light">
-                                <MDPreview source={g.aciklama} style={{ backgroundColor: 'transparent', color: '#334155' }} />
+                                <MDPreview 
+                                    source={formatLinks(g.aciklama)} 
+                                    style={{ backgroundColor: 'transparent', color: '#334155' }} 
+                                    components={{
+                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" />
+                                    }}
+                                />
                             </div>
                         </div>
                     )}
@@ -586,7 +593,13 @@ function GorevDrawer({
                                                                 className={`text-sm pt-0.5 relative cursor-pointer group/content ${expandedAltId === a.id ? '' : 'max-h-12 overflow-hidden'} ${a.tamamlandi ? 'line-through text-slate-400 opacity-70' : 'text-slate-700'}`}
                                                                 onClick={() => setExpandedAltId(expandedAltId === a.id ? null : a.id)}
                                                             >
-                                                                <MDPreview source={a.baslik} style={{ backgroundColor: 'transparent', color: 'inherit', fontSize: '0.875rem' }} />
+                                                                <MDPreview 
+                                                                    source={formatLinks(a.baslik)} 
+                                                                    style={{ backgroundColor: 'transparent', color: 'inherit', fontSize: '0.875rem' }} 
+                                                                    components={{
+                                                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} />
+                                                                    }}
+                                                                />
                                                                 {expandedAltId !== a.id && a.baslik.length > 50 && (
                                                                     <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-slate-50 to-transparent" />
                                                                 )}
@@ -684,7 +697,13 @@ function GorevDrawer({
                                                 </div>
                                             </div>
                                             <div className="prose prose-sm max-w-none text-slate-700 mt-2" data-color-mode="light">
-                                                <MDPreview source={n.not_metni} style={{ backgroundColor: 'transparent', color: '#334155' }} />
+                                                <MDPreview 
+                                                    source={formatLinks(n.not_metni)} 
+                                                    style={{ backgroundColor: 'transparent', color: '#334155' }} 
+                                                    components={{
+                                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" />
+                                                    }}
+                                                />
                                             </div>
                                         </div>
                                     </div>

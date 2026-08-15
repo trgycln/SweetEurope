@@ -150,7 +150,7 @@ export default async function FirmaOzetPage({ params }: PageProps) {
             .select(`
                 miktar, toplam_fiyat, urun_id, siparis_id,
                 urunler(id, ad, stok_kodu, ana_resim_url),
-                siparisler!inner(firma_id, siparis_tarihi)
+                siparisler!inner(firma_id, siparis_tarihi, siparis_durumu)
             `)
             .eq('siparisler.firma_id', firmaId)
             .gte('siparisler.siparis_tarihi', twelveMonthsAgoStr),
@@ -189,15 +189,18 @@ export default async function FirmaOzetPage({ params }: PageProps) {
     }
 
     // ── Hesaplamalar ───────────────────────────────────────────────
-    const lifetimeCiro = siparislerTum.reduce((s, o) => s + Number(o.toplam_tutar_net || 0), 0);
-    const siparisYil = siparislerTum.filter(o => o.siparis_tarihi >= yearStart);
-    const siparisOncekYil = siparislerTum.filter(o =>
+    // Ciro hesaplamalarında iptal edilmiş siparişleri hariç tutuyoruz
+    const gecerliSiparisler = siparislerTum.filter(o => !['İptal Edildi', 'cancelled', 'iptal_talep_edildi'].includes(o.siparis_durumu));
+    
+    const lifetimeCiro = gecerliSiparisler.reduce((s, o) => s + Number(o.toplam_tutar_net || 0), 0);
+    const siparisYil = gecerliSiparisler.filter(o => o.siparis_tarihi >= yearStart);
+    const siparisOncekYil = gecerliSiparisler.filter(o =>
         o.siparis_tarihi >= prevYearStart && o.siparis_tarihi <= prevYearEnd
     );
     const yilCiro = siparisYil.reduce((s, o) => s + Number(o.toplam_tutar_net || 0), 0);
     const oncekYilCiro = siparisOncekYil.reduce((s, o) => s + Number(o.toplam_tutar_net || 0), 0);
     const yillikDelta = oncekYilCiro > 0 ? Math.round(((yilCiro - oncekYilCiro) / oncekYilCiro) * 100) : null;
-    const ortSepet = siparislerTum.length > 0 ? lifetimeCiro / siparislerTum.length : 0;
+    const ortSepet = gecerliSiparisler.length > 0 ? lifetimeCiro / gecerliSiparisler.length : 0;
 
     const aktifSiparisler = siparislerTum.filter(o =>
         ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing', 'shipped'].includes(o.siparis_durumu)
@@ -227,7 +230,7 @@ export default async function FirmaOzetPage({ params }: PageProps) {
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         aylikMap.set(key, { ciro: 0, adet: 0 });
     }
-    for (const o of siparislerTum) {
+    for (const o of gecerliSiparisler) {
         if (!o.siparis_tarihi) continue;
         const d = new Date(o.siparis_tarihi);
         if (d < twelveMonthsAgo) continue;
@@ -253,6 +256,10 @@ export default async function FirmaOzetPage({ params }: PageProps) {
     // Top 5 ürün (son 12 ay)
     const urunMap = new Map<string, { urun: any; miktar: number; tutar: number; sayi: number }>();
     for (const d of siparisDetay) {
+        // İptal edilmiş siparişleri hariç tut
+        if (d.siparisler && ['İptal Edildi', 'cancelled', 'iptal_talep_edildi'].includes(d.siparisler.siparis_durumu)) {
+            continue;
+        }
         const uid = d.urun_id;
         if (!uid) continue;
         const ex = urunMap.get(uid) || { urun: d.urunler, miktar: 0, tutar: 0, sayi: 0 };
