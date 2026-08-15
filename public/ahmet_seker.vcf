@@ -1,0 +1,11 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Seker;Ahmet;;;
+FN:Ahmet Seker
+ORG:Elysonsweets GmbH
+TITLE:Geschäftsführer
+TEL;type=CELL;type=VOICE;type=pref:+49 176 41533653
+EMAIL;type=WORK;type=pref:info@elysonsweets.de
+URL:https://www.elysonsweets.de
+ADR;type=WORK:;;Wilhelm-Ruppert-Str. 38 F/8;Köln;;51147;Germany
+END:VCARD
