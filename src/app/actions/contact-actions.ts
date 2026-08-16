@@ -40,7 +40,7 @@ export async function submitContactForm(
       aliciRol: ['Yönetici', 'Ekip Üyesi'] as any,
       icerik: `💬 ${name} (${email}): "${message.length > 100 ? message.slice(0, 100) + '...' : message}"`,
       link: '/admin/crm/mesajlar',
-      preferenceKey: 'new_messages',
+      preferenceKey: 'new_messages' as any,
       supabaseClient: supabase as any,
     });
   } catch (notifErr) {

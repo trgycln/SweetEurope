@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     },
     {
       label: 'görev atamaları',
-      run: () => supabaseAdmin.from('gorevler').update({ atanan_kisi_id: null }).eq('atanan_kisi_id', userIdToDelete),
+      run: () => supabaseAdmin.from('gorevler').update({ atanan_kisi_id: null as any }).eq('atanan_kisi_id', userIdToDelete),
     },
     {
       label: 'görev sahipliği',

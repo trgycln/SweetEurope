@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
             : [];
 
         const { data: belge, error: dbError } = await supabase
-            .from('belgeler')
+            .from('belgeler' as any)
             .insert({
                 ad,
                 kategori,

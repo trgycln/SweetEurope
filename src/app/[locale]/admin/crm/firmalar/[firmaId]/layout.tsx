@@ -42,9 +42,10 @@ export default async function FirmaDetailLayout({
     params,
 }: {
     children: React.ReactNode;
-    params: Promise<{ firmaId: string; locale: Locale }>;
+    params: Promise<{ firmaId: string; locale: string }>;
 }) {
-    const { firmaId, locale } = await params;
+    const { firmaId, locale: localeStr } = await params;
+    const locale = localeStr as Locale;
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 

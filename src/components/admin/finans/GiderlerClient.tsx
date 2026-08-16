@@ -25,6 +25,8 @@ type GiderWithDetails = Tables<'giderler'> & {
             ad: string | null;
         } | null;
     } | null;
+    kategori_ad?: string;
+    kasa_tipi?: string;
 };
 type HauptKategorie = Tables<'gider_ana_kategoriler'>;
 type GiderKalemi = Tables<'gider_kalemleri'>;

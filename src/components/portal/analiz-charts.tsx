@@ -38,7 +38,7 @@ export function TopCategoriesChart({ data }: TopCategoriesChartProps) {
                 />
                 <YAxis />
                 <Tooltip 
-                    formatter={(value: number) => `€${value.toFixed(2)}`}
+                    formatter={(value: any) => `€${value.toFixed(2)}`}
                     contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
                 />
                 <Legend />
@@ -60,7 +60,7 @@ export function SalesTrendChart({ data }: SalesTrendChartProps) {
                 <XAxis dataKey="ay" />
                 <YAxis />
                 <Tooltip 
-                    formatter={(value: number) => `€${value.toFixed(2)}`}
+                    formatter={(value: any) => `€${value.toFixed(2)}`}
                     contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
                 />
                 <Legend />

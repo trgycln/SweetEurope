@@ -24,7 +24,7 @@ type BlogResult = Pick<Tables<'blog_yazilari'>, 'id' | 'baslik' | 'slug' | 'one_
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
     const { locale } = params;
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     const dictionary = await getDictionary(locale);
     // Sicherer Zugriff auf das Dictionary mit Fallback
     const searchContent = (dictionary as any).search || {

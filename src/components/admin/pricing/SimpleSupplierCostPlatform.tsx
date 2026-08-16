@@ -77,7 +77,7 @@ const TIERS = [
   { key: 'cokKoli',   label: '5 Koli+',     color: 'emerald',dbField: 'satis_fiyati_toptanci'  },
 ] as const;
 
-type TierKey = typeof TIERS[number]['key'];
+type TierKey = typeof TIERS[number]['key'] | 'palet';
 
 const TIER_COLOR: Record<TierKey, { header: string; input: string; inputOverride: string; text: string }> = {
   altBayi:   { header: 'text-blue-700',   input: 'border-slate-200 bg-slate-50 text-slate-500',   inputOverride: 'border-blue-400 bg-blue-50 text-blue-900',   text: 'text-blue-800' },
@@ -449,7 +449,7 @@ export default function SimpleSupplierCostPlatform({
       const payload = selectedProfile === 'cold-chain'
         ? { pricing_shipping_frozen_per_box: currentShipping, pricing_customs_frozen_percent: currentCustoms }
         : { pricing_shipping_non_cold_per_box: currentShipping, pricing_customs_non_cold_percent: currentCustoms };
-      const res = await savePricingDefaultsAction(payload, locale);
+      const res = await savePricingDefaultsAction(payload as any, locale);
       if (res?.error) toast.error(res.error);
       else toast.success('Lojistik parametreler kaydedildi.');
     });

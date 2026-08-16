@@ -27,7 +27,7 @@ export async function createKasaIslemiAction(formData: FormData) {
     }
 
     const { error } = await supabase
-        .from('finans_kasa_islemleri')
+        .from('finans_kasa_islemleri' as any)
         .insert({
             islem_tipi,
             kasa_tipi,
@@ -73,10 +73,10 @@ export async function deleteKasaIslemiAction(id: string) {
     }
 
     // Önce kasa işlemini bul ki ortaklarda karşılığı var mı bilelim
-    const { data: islem } = await supabase.from('finans_kasa_islemleri').select('*').eq('id', id).single();
+    const { data: islem } = await supabase.from('finans_kasa_islemleri' as any).select('*').eq('id', id).single();
 
     const { error } = await supabase
-        .from('finans_kasa_islemleri')
+        .from('finans_kasa_islemleri' as any)
         .delete()
         .eq('id', id);
 
@@ -85,10 +85,10 @@ export async function deleteKasaIslemiAction(id: string) {
     }
 
     // Eğer bu işlem sermaye giriş/çıkışı ise, ortak işlemini de sil (senkron)
-    if (islem && (islem.islem_tipi === 'sermaye_girisi' || islem.islem_tipi === 'sermaye_cikisi')) {
-        const ortakIslemTipi = islem.islem_tipi === 'sermaye_girisi' ? 'Sermaye Ekleme' : 'Sermaye Çıkışı';
-        const ortakTutar = islem.islem_tipi === 'sermaye_girisi' ? Math.abs(islem.tutar) : -Math.abs(islem.tutar);
-        const ortakAciklama = `Kasa Üzerinden: ${islem.aciklama}`;
+    if (islem && ((islem as any).islem_tipi === 'sermaye_girisi' || (islem as any).islem_tipi === 'sermaye_cikisi')) {
+        const ortakIslemTipi = (islem as any).islem_tipi === 'sermaye_girisi' ? 'Sermaye Ekleme' : 'Sermaye Çıkışı';
+        const ortakTutar = (islem as any).islem_tipi === 'sermaye_girisi' ? Math.abs((islem as any).tutar) : -Math.abs((islem as any).tutar);
+        const ortakAciklama = `Kasa Üzerinden: ${(islem as any).aciklama}`;
         
         // Eşleşen ortak işlemini bulup siliyoruz
         await supabase.from('ortak_islemleri').delete().match({
@@ -102,7 +102,7 @@ export async function deleteKasaIslemiAction(id: string) {
     }
 
     if (error) {
-        return { error: error.message };
+        return { error: (error as any).message };
     }
 
     revalidatePath('/admin/idari/finans/kasa');

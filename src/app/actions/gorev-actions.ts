@@ -8,7 +8,7 @@ import { sendNotification } from '@/lib/notificationUtils'; // Bildirim fonksiyo
 
 // Yeni bir görev oluşturan Server Action
 export async function gorevOlusturAction(data: TablesInsert<'gorevler'>) {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: "Yetkisiz işlem." };
 
@@ -42,7 +42,7 @@ export async function gorevOlusturAction(data: TablesInsert<'gorevler'>) {
             icerik: mesaj,
             link: link,
             preferenceKey: 'task_assignments',
-            supabaseClient: supabase
+            supabaseClient: supabase as any
         });
     }
     // --- Bildirim Bitti ---
@@ -55,7 +55,7 @@ export async function gorevOlusturAction(data: TablesInsert<'gorevler'>) {
 
 // Bir görevin durumunu güncelleyen Server Action
 export async function gorevDurumGuncelleAction(gorevId: number, yeniDurum: Enums<'gorev_durumu'>) {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: "Yetkisiz işlem." };
 
@@ -64,7 +64,7 @@ export async function gorevDurumGuncelleAction(gorevId: number, yeniDurum: Enums
     const { data: gorevData, error: fetchError } = await supabase
         .from('gorevler')
         .select('id, baslik, olusturan_kisi_id, atanan_kisi_id')
-        .eq('id', gorevId)
+        .eq('id', gorevId.toString())
         .single();
 
     if (fetchError || !gorevData) {
@@ -77,7 +77,7 @@ export async function gorevDurumGuncelleAction(gorevId: number, yeniDurum: Enums
     const { error: updateError } = await supabase
         .from('gorevler')
         .update({ durum: yeniDurum })
-        .eq('id', gorevId);
+        .eq('id', gorevId.toString());
 
     if (updateError) {
         console.error("Görev durum güncelleme hatası:", updateError);
@@ -95,7 +95,7 @@ export async function gorevDurumGuncelleAction(gorevId: number, yeniDurum: Enums
             icerik: mesaj,
             link: link,
             preferenceKey: 'task_assignments',
-            supabaseClient: supabase
+            supabaseClient: supabase as any
         });
     }
 
@@ -108,7 +108,7 @@ export async function gorevDurumGuncelleAction(gorevId: number, yeniDurum: Enums
                 icerik: mesaj,
                 link: link,
                 preferenceKey: 'task_assignments',
-                supabaseClient: supabase
+                supabaseClient: supabase as any
             });
         }
     }

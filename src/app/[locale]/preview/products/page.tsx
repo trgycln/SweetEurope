@@ -74,7 +74,7 @@ export default async function PublicUrunlerPage({
         supabase.from('kategori_ozellik_sablonlari').select('kategori_id, alan_adi, gosterim_adi, sira')
     ]);
 
-    const kategoriler: Kategori[] = kategorilerRes.data || [];
+    const kategoriler: Kategori[] = (kategorilerRes.data as any) || [];
     const hiddenKategoriIds = buildHiddenPublicCategoryIds(kategoriler);
     const visibleKategoriler = kategoriler.filter(k => !hiddenKategoriIds.has(k.id));
     const matchesSelectedProductLine = (categoryId?: string | null) => {
@@ -471,7 +471,7 @@ export default async function PublicUrunlerPage({
                                 tat: sp.tat,
                             },
                             basePath: `/${locale}/preview/products`,
-                        }}
+                        } as any}
                     />
                 )}
             </div>

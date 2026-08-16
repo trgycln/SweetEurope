@@ -19,7 +19,6 @@ const itemVariants = {
     opacity: 1, 
     y: 0, 
     transition: { 
-      ease: [0.25, 1, 0.5, 1], 
       duration: 0.6 
     } 
   },

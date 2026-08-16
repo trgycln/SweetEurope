@@ -38,12 +38,14 @@ interface TemplateItem {
 interface GiderSablonlariClientProps {
     initialSablonlar: GiderSablonWithDetails[];
     hauptKategorien: HauptKategorie[];
+    giderKalemleri?: GiderKalemi[];
     dictionary: Dictionary;
     locale: Locale;
     isSuperAdmin: boolean;
 }
 
 export function GiderSablonlariClientNew({
+    initialSablonlar,
     hauptKategorien,
     giderKalemleri,
     dictionary,
@@ -244,16 +246,17 @@ export function GiderSablonlariClientNew({
         try {
             const { data, error } = await supabase.rpc('create_expenses_from_template', {
                 p_sablon_id: sablon.id,
-                p_hedef_ay: null // Current month
+                p_hedef_ay: undefined // Current month
             });
 
             if (error) throw error;
 
-            if (data.success) {
-                toast.success(data.message);
+            const response = data as any;
+            if (response?.success) {
+                toast.success(response?.message);
                 router.refresh();
             } else {
-                toast.error(data.error || 'Bir hata oluştu');
+                toast.error(response?.error || 'Bir hata oluştu');
             }
         } catch (error: any) {
             toast.error(`Hata: ${error.message}`);
@@ -507,7 +510,7 @@ export function GiderSablonlariClientNew({
                                                         required
                                                     >
                                                         <option value="">Seçiniz...</option>
-                                                        {giderKalemleri.map(k => (
+                                                        {(giderKalemleri || []).map(k => (
                                                             <option key={k.id} value={k.id}>{k.ad}</option>
                                                         ))}
                                                     </select>

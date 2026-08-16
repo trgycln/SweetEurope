@@ -22,11 +22,11 @@ export default async function AdminLayout({
 }: {
     children: React.ReactNode;
     // Die Signatur MUSS Promise enthalten
-    params: Promise<{ locale: Locale }>;
+    params: Promise<{ locale: string }>;
 }) {
     // --- params auflösen ---
     const resolvedParams = await params;
-    const locale = resolvedParams.locale;
+    const locale = resolvedParams.locale as Locale;
     // --- ENDE ---
 
     // --- Supabase Client korrekt initialisieren ---

@@ -5,7 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // Bu fonksiyon, özel (private) bir bucket'taki dosya için güvenli, süreli bir indirme linki oluşturur.
 export async function getFileDownloadUrlAction(filePath: string, bucketName: string) {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
 
     // Güvenlik kontrolü: Kullanıcı bu dosyayı görmeye yetkili mi?
     // Not: Storage RLS politikalarımız bu kontrolü zaten yapıyor, bu ek bir katman.
@@ -27,7 +27,7 @@ export async function getFileDownloadUrlAction(filePath: string, bucketName: str
 
 // Bu fonksiyon, Storage'dan bir dosyayı siler.
 export async function deleteFileAction(filePath: string, bucketName: string) {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createSupabaseServerClient();
     // (Burada da yönetici rol kontrolü eklenebilir)
 
     const { error } = await supabase.storage

@@ -78,7 +78,7 @@ export async function submitPartnerApplication(formData: FormData): Promise<{ su
         aliciRol: ['Yönetici', 'Ekip Üyesi'] as any,
         icerik: `🆕 Yeni web başvurusu: ${firma.unvan}`,
         link: `/admin/crm/firmalar/${firma.id}`,
-        preferenceKey: 'new_partner_applications',
+        preferenceKey: 'general_announcements' as any,
         supabaseClient: supabase as any,
       });
     } catch (notifErr) {

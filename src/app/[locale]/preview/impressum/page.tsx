@@ -2,7 +2,7 @@ import React from 'react';
 import { dictionary } from '@/dictionaries/de';
 
 export default function ImpressumPage() {
-  const content = dictionary.impressumPage;
+  const content = dictionary.impressumPage as any;
 
   return (
     <div className="bg-secondary text-text-main">

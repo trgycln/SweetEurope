@@ -68,7 +68,7 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
 
     const Pagination = () => {
         if (!pagination) return null;
-        const { page, perPage, total, kategori, query, basePath } = pagination;
+        const { page, perPage, total, kategori, query, basePath } = pagination as any;
         const totalPages = Math.max(1, Math.ceil(total / perPage));
         if (totalPages <= 1) return null;
 
@@ -79,7 +79,7 @@ export function ProductGridClient({ urunler, locale, kategoriAdlariMap, sablonMa
 
             if (query) {
                 Object.entries(query).forEach(([key, value]) => {
-                    if (value) params.set(key, value);
+                    if (value) params.set(key, String(value));
                 });
             } else if (kategori) {
                 params.set('kategori', kategori);

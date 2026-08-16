@@ -38,10 +38,10 @@ export async function GET(request: NextRequest) {
                 .rpc('search_documents', {
                     p_owner_id: user.id,
                     p_search_term: tsQueryTerm,
-                    p_folder_id: folderId,
-                    p_date_from: dateFrom,
-                    p_date_to: dateTo,
-                    p_tags: tags,
+                    p_folder_id: folderId ?? undefined,
+                    p_date_from: dateFrom ?? undefined,
+                    p_date_to: dateTo ?? undefined,
+                    p_tags: tags ?? undefined,
                 });
 
             if (error) {

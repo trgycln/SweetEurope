@@ -15,8 +15,8 @@ export function KategoriYonetimClient({ serverKategoriler }: { serverKategoriler
     const [sablonAlanlari, setSablonAlanlari] = useState<Ozellik[]>([]);
 
     useEffect(() => {
-        if (seciliKategori && seciliKategori.teknik_ozellik_sablonu) {
-            setSablonAlanlari(seciliKategori.teknik_ozellik_sablonu as Ozellik[]);
+        if (seciliKategori && (seciliKategori as any).teknik_ozellik_sablonu) {
+            setSablonAlanlari((seciliKategori as any).teknik_ozellik_sablonu as Ozellik[]);
         } else {
             setSablonAlanlari([]);
         }
@@ -59,7 +59,7 @@ export function KategoriYonetimClient({ serverKategoriler }: { serverKategoriler
                 </ul>
             </div>
 
-            <form action={saveKategori} className="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
+            <form action={async (fd) => { await saveKategori(fd); }} className="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
                 <h2 className="font-bold text-lg mb-4">{seciliKategori ? 'Kategoriyi Düzenle' : 'Yeni Kategori Oluştur'}</h2>
                 {seciliKategori && <input type="hidden" name="id" value={seciliKategori.id} />}
                 <input type="hidden" name="sablon_data" value={JSON.stringify(sablonAlanlari)} />

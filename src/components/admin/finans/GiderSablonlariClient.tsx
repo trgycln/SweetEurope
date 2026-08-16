@@ -25,6 +25,10 @@ type GiderSablonWithDetails = Tables<'gider_sablonlari'> & {
             ad: string | null;
         } | null;
     } | null;
+    odeme_sikligi?: string;
+    varsayilan_tutar?: number;
+    aciklama_sablonu?: string;
+    gider_kalemi_id?: string;
 };
 
 type HauptKategorie = Tables<'gider_ana_kategoriler'>;
@@ -145,7 +149,7 @@ export function GiderSablonlariClient({
                         {formatCurrency(
                             initialSablonlar
                                 .filter(s => s.aktif && s.odeme_sikligi === 'Monatlich')
-                                .reduce((sum, s) => sum + s.varsayilan_tutar, 0),
+                                .reduce((sum, s) => sum + (s.varsayilan_tutar || 0), 0),
                             locale
                         )}
                     </div>
@@ -194,7 +198,7 @@ export function GiderSablonlariClient({
                                         {sablon.aciklama_sablonu || '-'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold text-right">
-                                        {formatCurrency(sablon.varsayilan_tutar, locale)}
+                                        {formatCurrency(sablon.varsayilan_tutar || 0, locale)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {sablon.odeme_sikligi}

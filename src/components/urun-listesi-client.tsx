@@ -110,7 +110,7 @@ export function UrunListesiClient({ serverUrunler, serverKategoriler, userRole }
                                     <tr key={urun.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 font-bold text-gray-900">{urunAdi}</td>
                                         <td className="px-6 py-4 text-gray-500">{urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, 'de') : 'Kategorisiz'}</td>
-                                        <td className="px-6 py-4 font-semibold">{formatCurrency(urun.temel_satis_fiyati)}</td>
+                                        <td className="px-6 py-4 font-semibold">{formatCurrency(urun.temel_satis_fiyati, 'de')}</td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold">{urun.stok_adeti}</span>

@@ -141,7 +141,7 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
     if (type === 'tiefkuehl') {
         const label = tempMax !== null && tempMax !== undefined ? `${tempMax}°C` : (locale === 'tr' ? 'Donuk' : locale === 'ar' ? 'مجمد' : locale === 'en' ? 'Frozen' : 'Tiefkühl');
         return (
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white shadow-sm">
+            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-stone-800 text-white shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
                 <LuThermometerSnowflake size={9} /> {label}
             </span>
         );
@@ -150,7 +150,7 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
         const tempMin = urun.lagertemperatur_min_celsius;
         const label = (tempMin != null && tempMax != null) ? `${tempMin}–${tempMax}°C` : (locale === 'tr' ? 'Soğuk' : locale === 'ar' ? 'مبرد' : locale === 'en' ? 'Chilled' : 'Kühlware');
         return (
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-300">
+            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-[0_2px_8px_rgba(16,185,129,0.15)]">
                 <LuThermometer size={9} /> {label}
             </span>
         );
@@ -208,7 +208,7 @@ function CatalogCard({
     const hasAnyPrice = pricingRows.some(r => r.price != null && r.price > 0);
 
     return (
-        <div className="group h-full flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-400 hover:shadow-lg transition-all duration-200 will-change-transform">
+        <div className="group h-full flex flex-col bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 will-change-transform shadow-[0_4px_20px_rgb(0,0,0,0.03)]">
 
             {/* Image area */}
             <Link href={`/${locale}/products/${urun.slug}`} className="block relative h-36 bg-slate-50 overflow-hidden flex-shrink-0 will-change-transform">
@@ -334,12 +334,12 @@ function CatalogCard({
                                         const isHighlighted = partnerTier === row.tierKey;
                                         return (
                                             <div key={i}
-                                                className={`flex items-center justify-between px-1.5 py-0.5 rounded text-[10px] transition-colors
+                                                className={`flex items-center justify-between px-2 py-1 rounded-md text-[10px] transition-all duration-300
                                                     ${isHighlighted
-                                                        ? 'bg-indigo-50 border border-indigo-200 font-bold text-indigo-900'
-                                                        : 'text-slate-600'}`}>
-                                                <span className={isHighlighted ? 'text-indigo-700' : 'text-slate-500'}>{row.label}</span>
-                                                <span className={`font-semibold ${isHighlighted ? 'text-indigo-900' : 'text-slate-800'}`}>
+                                                        ? 'bg-amber-50/80 border border-amber-200 font-bold text-amber-900 shadow-sm'
+                                                        : 'text-stone-600'}`}>
+                                                <span className={isHighlighted ? 'text-amber-700' : 'text-stone-500'}>{row.label}</span>
+                                                <span className={`font-semibold ${isHighlighted ? 'text-amber-900' : 'text-stone-800'}`}>
                                                     {money(row.price)}
                                                 </span>
                                             </div>
@@ -361,8 +361,8 @@ function CatalogCard({
                                     onClick={() => onAddToMerkliste?.(urun.id)}
                                     className={`flex items-center justify-center gap-1 flex-1 px-2 py-1.5 text-[10px] font-semibold rounded-lg transition-colors
                                         ${inMerkliste
-                                            ? 'bg-indigo-600 text-white border border-indigo-600'
-                                            : 'bg-slate-900 text-white hover:bg-slate-700'}`}>
+                                            ? 'bg-amber-600 text-white border border-amber-600 shadow-md shadow-amber-600/20'
+                                            : 'bg-stone-900 text-white hover:bg-stone-800 shadow-md shadow-stone-900/10'}`}>
                                     {inMerkliste ? (dictionary?.publicProductsPage?.cartAdded || '✓ Gemerkt') : (dictionary?.publicProductsPage?.cartAdd || '＋ Merkliste')}
                                 </button>
                             </div>
@@ -411,8 +411,8 @@ function MerklisteDrawer({
 
     return (
         <div className="fixed inset-0 z-50 flex">
-            <div className="flex-1 bg-black/40" onClick={onClose} />
-            <div className="w-full max-w-sm bg-white shadow-xl flex flex-col h-full overflow-hidden">
+            <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="w-full max-w-sm bg-white/95 backdrop-blur-xl shadow-[-10px_0_30px_rgba(0,0,0,0.05)] border-l border-white/60 rounded-l-3xl flex flex-col h-full overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
                     <h2 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
                         <FiShoppingBag size={16} />
@@ -473,7 +473,7 @@ function MerklisteDrawer({
                             </div>
                         )}
                         <a href={`mailto:info@elysonsweets.de?subject=${encodeURIComponent('Anfrage / Bestellung')}&body=${buildMailBody()}`}
-                            className="flex items-center justify-center gap-2 w-full py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-700 transition-colors">
+                            className="flex items-center justify-center gap-2 w-full py-3 bg-stone-900 text-white text-sm font-semibold rounded-xl hover:bg-stone-800 hover:shadow-lg transition-all duration-300">
                             <FiSend size={14} />
                             {locale === 'tr' ? 'Talep gönder' : locale === 'en' ? 'Send request' : locale === 'ar' ? 'ارسال الطلب' : 'Anfrage senden'}
                         </a>
@@ -749,24 +749,24 @@ export function ProductGridClient({
 
             {/* Guest banner */}
             {!activeIsLoggedIn && !bannerDismissed && (
-                <div className="flex items-center justify-between gap-3 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
-                    <p className="text-sm text-indigo-800">
+                <div className="flex items-center justify-between gap-3 bg-amber-50/80 border border-amber-200 shadow-sm rounded-2xl px-5 py-4">
+                    <p className="text-sm text-amber-900">
                         <span className="font-semibold hidden sm:inline">
                             {dictionary?.publicProductsPage?.guestBannerPrefix || 'Für Preise und Bestellungen'}
                         </span>
                         {' '}
-                        <span className="text-indigo-700">
+                        <span className="text-amber-700">
                             {dictionary?.publicProductsPage?.guestBannerSuffix || 'bitte im Partnerportal anmelden.'}
                         </span>
                     </p>
                     <div className="flex items-center gap-2 flex-shrink-0">
                         {loginHref && (
                             <Link href={loginHref}
-                                className="text-xs font-semibold px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors whitespace-nowrap">
+                                className="text-xs font-semibold px-4 py-2 bg-stone-900 text-white rounded-xl shadow-md shadow-stone-900/10 hover:bg-stone-800 hover:-translate-y-0.5 transition-all duration-300 whitespace-nowrap">
                                 {dictionary?.publicProductsPage?.loginNow || 'Jetzt anmelden →'}
                             </Link>
                         )}
-                        <button onClick={dismissBanner} className="text-indigo-400 hover:text-indigo-600 p-1">
+                        <button onClick={dismissBanner} className="text-amber-500 hover:text-amber-700 p-1">
                             <FiX size={14} />
                         </button>
                     </div>
@@ -784,7 +784,7 @@ export function ProductGridClient({
                                 placeholder={searchPlaceholder}
                                 value={searchTerm}
                                 onChange={e => handleSearch(e.target.value)}
-                                className="w-full pl-9 pr-8 py-2.5 text-sm border-2 border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 shadow-sm placeholder:text-slate-400"
+                                className="w-full pl-9 pr-8 py-2.5 text-sm border-2 border-stone-100 rounded-2xl bg-white focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 shadow-sm hover:border-stone-200 transition-all placeholder:text-stone-400"
                             />
                             {searchTerm && (
                                 <button onClick={() => handleSearch('')}
@@ -793,15 +793,15 @@ export function ProductGridClient({
                                 </button>
                             )}
                         </div>
-                        <div className="flex rounded-lg border border-slate-200 bg-white overflow-hidden shadow-sm flex-shrink-0">
+                        <div className="flex rounded-xl border border-stone-200 bg-white overflow-hidden shadow-sm flex-shrink-0">
                             <button onClick={() => setViewMode('grid')}
                                 title={dictionary?.publicProductsPage?.gridTitle || 'Gitteransicht'}
-                                className={`p-2.5 transition-colors ${viewMode === 'grid' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                className={`p-2.5 transition-all duration-300 ${viewMode === 'grid' ? 'bg-stone-900 text-white' : 'text-stone-500 hover:bg-stone-50'}`}>
                                 <FiGrid size={15} />
                             </button>
                             <button onClick={() => setViewMode('list')}
                                 title={dictionary?.publicProductsPage?.listTitle || 'Listenansicht'}
-                                className={`p-2.5 transition-colors ${viewMode === 'list' ? 'bg-slate-800 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                className={`p-2.5 transition-all duration-300 ${viewMode === 'list' ? 'bg-stone-900 text-white' : 'text-stone-500 hover:bg-stone-50'}`}>
                                 <FiList size={15} />
                             </button>
                         </div>
@@ -823,7 +823,7 @@ export function ProductGridClient({
                                         newParams.delete('page');
                                         router.push(`${pathname}?${newParams.toString()}`);
                                     }}
-                                    className="appearance-none pl-3 pr-8 py-1.5 text-xs font-medium border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 shadow-sm hover:border-slate-300 transition-colors"
+                                    className="appearance-none pl-3 pr-8 py-1.5 text-xs font-medium border border-stone-200 rounded-xl bg-white text-stone-700 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 shadow-sm hover:border-stone-300 transition-all duration-300"
                                 >
                                     <option value="">
                                         {locale === 'tr' ? 'Tümü' : locale === 'en' ? 'All' : locale === 'ar' ? 'الكل' : 'Alle'}
@@ -860,7 +860,7 @@ export function ProductGridClient({
                                     newParams.delete('page');
                                     router.push(`${pathname}?${newParams.toString()}`);
                                 }}
-                                className="appearance-none pl-3 pr-8 py-1.5 text-xs font-medium border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 shadow-sm hover:border-slate-300 transition-colors"
+                                className="appearance-none pl-3 pr-8 py-1.5 text-xs font-medium border border-stone-200 rounded-xl bg-white text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 shadow-sm hover:border-stone-300 transition-all duration-300"
                             >
                                 <option value="">
                                     {locale === 'tr' ? 'Tümü' : locale === 'en' ? 'All' : locale === 'ar' ? 'الكل' : 'Alle'}
@@ -885,7 +885,7 @@ export function ProductGridClient({
 
             {/* ElysonSweets Empfiehlt */}
             {featuredUrunler.length > 0 && !searchQuery && !geschmackFilter && (
-                <div className={viewMode === 'grid' ? 'bg-amber-50 border border-amber-100 rounded-2xl p-4' : 'border border-amber-100 rounded-xl overflow-hidden'}>
+                <div className={viewMode === 'grid' ? 'bg-gradient-to-br from-amber-50/80 to-amber-100/50 backdrop-blur-md border border-amber-200 rounded-3xl p-5 shadow-[0_4px_20px_rgb(0,0,0,0.02)]' : 'border border-amber-200 rounded-2xl overflow-hidden shadow-sm'}>
                     <div className={`flex items-center gap-2 ${viewMode === 'grid' ? 'mb-3' : 'px-3 py-2 bg-amber-50'}`}>
                         <span className="text-sm font-bold text-amber-900">
                             ⭐ {dictionary?.publicProductsPage?.elysonRecommends || 'ElysonSweets empfiehlt'}
@@ -920,7 +920,7 @@ export function ProductGridClient({
                             ))}
                         </div>
                     ) : (
-                        <div className="bg-white divide-y divide-slate-100">
+                        <div className="bg-white/80 backdrop-blur-sm divide-y divide-stone-100">
                             {featuredUrunler.map((urun, index) => (
                                 <motion.div 
                                     key={urun.id} 
@@ -953,13 +953,13 @@ export function ProductGridClient({
                         dictionary={dictionary}
                     />
                 ) : (
-                    <div className="border border-orange-100 rounded-xl overflow-hidden">
-                        <div className="flex items-center gap-2 px-3 py-2 bg-orange-50">
-                            <span className="text-sm font-bold text-orange-900">
+                    <div className="border border-amber-200 rounded-2xl overflow-hidden shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
+                        <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-50 to-transparent">
+                            <span className="text-sm font-bold text-amber-900">
                                 🏆 {locale === 'tr' ? 'En Çok Satanlar' : locale === 'en' ? 'Our Bestsellers' : locale === 'ar' ? 'الأكثر مبيعاً' : 'Unsere Bestseller'}
                             </span>
                         </div>
-                        <div className="bg-white divide-y divide-slate-100">
+                        <div className="bg-white/80 backdrop-blur-sm divide-y divide-stone-100">
                             {bestsellerUrunler.map((urun, index) => (
                                 <motion.div 
                                     key={urun.id} 
@@ -980,7 +980,7 @@ export function ProductGridClient({
 
             {/* Arama sonucu bilgisi */}
             {searchQuery && (
-                <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5">
+                <div className="flex items-center gap-2 text-sm text-stone-700 bg-white/60 backdrop-blur-md border border-white/80 shadow-sm rounded-xl px-4 py-2.5">
                     <FiSearch size={14} className="text-slate-400 flex-shrink-0" />
                     <span>
                         <strong>"{searchQuery}"</strong>
@@ -1040,7 +1040,7 @@ export function ProductGridClient({
                 </>
             ) : (
                 <>
-                    <div className="hidden lg:grid grid-cols-[40px_2.5fr_1fr_80px_80px_120px_100px_40px] gap-3 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200 bg-slate-50 rounded-t-lg">
+                    <div className="hidden lg:grid grid-cols-[40px_2.5fr_1fr_80px_80px_120px_100px_40px] gap-3 px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-stone-500 border-b border-stone-200 bg-stone-100/50 backdrop-blur-md rounded-t-2xl">
                         <span />
                         <span>{locale === 'tr' ? 'Ürün' : locale === 'en' ? 'Product' : locale === 'ar' ? 'المنتج' : 'Produkt'}</span>
                         <span>{locale === 'tr' ? 'Depolama' : locale === 'en' ? 'Storage' : locale === 'ar' ? 'تخزين' : 'Lagerung'}</span>
@@ -1050,7 +1050,7 @@ export function ProductGridClient({
                         <span className="text-center">{locale === 'tr' ? 'Fiyat' : locale === 'en' ? 'Price' : locale === 'ar' ? 'السعر' : 'Preis'}</span>
                         <span />
                     </div>
-                    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
+                    <div className="bg-white/80 backdrop-blur-sm border border-stone-200 rounded-2xl overflow-hidden divide-y divide-stone-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
                         {filteredUrunler.map((urun, index) => (
                             <motion.div 
                                 key={urun.id} 
@@ -1073,7 +1073,7 @@ export function ProductGridClient({
             {activeIsLoggedIn && merklisteItems.length > 0 && (
                 <button
                     onClick={() => setMerklisteOpen(true)}
-                    className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-slate-900 text-white px-4 py-3 rounded-full shadow-lg hover:bg-slate-700 transition-colors">
+                    className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-stone-900 text-white px-5 py-3.5 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.15)] hover:bg-stone-800 hover:-translate-y-1 transition-all duration-300">
                     <FiShoppingBag size={18} />
                     <span className="text-sm font-semibold">{merklisteItems.length}</span>
                 </button>

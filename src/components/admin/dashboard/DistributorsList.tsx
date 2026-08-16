@@ -18,7 +18,7 @@ export async function DistributorsList({ locale, dictionary, cookieStore }: Dist
     const [{ data: altBayiProfiles }, { data: altBayiFirmalar }] = await Promise.all([
         supabase
             .from('profiller')
-            .select('id, firma_adi, firma_id')
+            .select('id, tam_ad, firma_id')
             .eq('rol', 'Alt Bayi'),
         supabase
             .from('firmalar')
@@ -37,16 +37,16 @@ export async function DistributorsList({ locale, dictionary, cookieStore }: Dist
                 id: `firma:${firma.id}`,
                 firmaId: firma.id,
                 ownerId,
-                displayName: profile?.firma_adi || firma.unvan || 'Unknown'
+                displayName: (profile as any)?.tam_ad || firma.unvan || 'Unknown'
             };
         }),
-        ...(altBayiProfiles || [])
+        ...((altBayiProfiles as any[]) || [])
             .filter((profile) => !firmOwnerIds.has(profile.id))
             .map((profile) => ({
                 id: `profil:${profile.id}`,
                 firmaId: profile.firma_id ?? null,
                 ownerId: profile.id,
-                displayName: profile.firma_adi || 'Unknown'
+                displayName: profile.tam_ad || 'Unknown'
             }))
     ];
 

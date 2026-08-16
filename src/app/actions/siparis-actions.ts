@@ -111,14 +111,15 @@ export async function siparisOlusturAction(payload: {
     .single();
 
     // ID aus dem Ergebnis extrahieren (Annahme: RPC gibt { order_id: '...' } oder nur die ID zurück)
+    const data = rpcResultData as any;
     const newOrderId =
-        typeof rpcResultData === 'string'
-            ? rpcResultData
-            : rpcResultData &&
-                typeof rpcResultData === 'object' &&
-                'order_id' in rpcResultData &&
-                typeof rpcResultData.order_id === 'string'
-                ? rpcResultData.order_id
+        typeof data === 'string'
+            ? data
+            : data &&
+                typeof data === 'object' &&
+                'order_id' in data &&
+                typeof data.order_id === 'string'
+                ? data.order_id
                 : null;
 
     if (rpcError || !newOrderId) {
@@ -394,7 +395,7 @@ export async function iptalTalebiGonderAction(
             ilgili_firma_id: firmaId,
         }));
 
-        await supabase.from('gorevler').insert(gorevler);
+        await supabase.from('gorevler').insert(gorevler as any);
 
         // 3. Yöneticilere bildirim gönder
         const bildirimler = yoneticiler.map(y => ({

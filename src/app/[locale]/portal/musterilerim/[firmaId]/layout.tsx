@@ -8,8 +8,9 @@ import MusteriTabs from './MusteriTabs';
 
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
-export default async function MusteriLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: Locale, firmaId: string }> }) {
-  const { locale, firmaId } = await params;
+export default async function MusteriLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string, firmaId: string }> }) {
+  const { locale: localeStr, firmaId } = await params;
+  const locale = localeStr as Locale;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user } } = await getGlobalCachedUser();

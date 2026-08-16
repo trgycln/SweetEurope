@@ -39,7 +39,7 @@ type BitisUyari = {
 
 const COLORS = ['#C69F6B', '#2B2B2B', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#6B7280'];
 
-const fmt = (v: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
+const fmt = (v: any) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
 const chg = (cur: number, prv: number) => prv === 0 ? 0 : ((cur - prv) / prv) * 100;
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -393,8 +393,8 @@ export default function ExpenseAnalysisPage({ params }: PageProps) {
                                         <BarChart data={forecast}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                             <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                                            <YAxis tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
-                                            <Tooltip formatter={(v: number) => fmt(v)} />
+                                            <YAxis tickFormatter={(v: any) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
+                                            <Tooltip formatter={(v: any) => fmt(v)} />
                                             <Bar dataKey="tahmin" fill="#3B82F6" radius={[4, 4, 0, 0]} />
                                         </BarChart>
                                     </ResponsiveContainer>
@@ -483,7 +483,7 @@ export default function ExpenseAnalysisPage({ params }: PageProps) {
                                                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
                                             ))}
                                         </Pie>
-                                        <Tooltip formatter={(v: number) => fmt(v)} />
+                                        <Tooltip formatter={(v: any) => fmt(v)} />
                                         <Legend iconSize={10} iconType="circle" />
                                     </PieChart>
                                 </ResponsiveContainer>
@@ -528,9 +528,9 @@ export default function ExpenseAnalysisPage({ params }: PageProps) {
                                     <ResponsiveContainer width="100%" height={280}>
                                         <BarChart data={expenses} layout="vertical" barSize={16}>
                                             <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                            <XAxis type="number" tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
+                                            <XAxis type="number" tickFormatter={(v: any) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
                                             <YAxis type="category" dataKey="kategori" tick={{ fontSize: 10 }} width={90} />
-                                            <Tooltip formatter={(v: number) => fmt(v)} />
+                                            <Tooltip formatter={(v: any) => fmt(v)} />
                                             <Bar dataKey="toplam" name="Gider" radius={[0, 4, 4, 0]}>
                                                 {expenses.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                                             </Bar>
@@ -549,8 +549,8 @@ export default function ExpenseAnalysisPage({ params }: PageProps) {
                                 <LineChart data={monthly}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                                    <YAxis tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
-                                    <Tooltip formatter={(v: number) => fmt(v)} />
+                                    <YAxis tickFormatter={(v: any) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
+                                    <Tooltip formatter={(v: any) => fmt(v)} />
                                     <Line type="monotone" dataKey="total" stroke="#C69F6B" strokeWidth={2.5}
                                           name="Gider" dot={{ r: 4, fill: '#C69F6B' }} />
                                 </LineChart>

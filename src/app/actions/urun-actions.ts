@@ -9,10 +9,7 @@ import { Tables, Enums } from '@/lib/supabase/database.types';
 // --- Fiyat Listesi ve Diğer Bileşenler İçin Gerekli Olan Eski Fonksiyonlar ---
 
 // Hızlı düzenleme için tip tanımı
-type UrunOperasyonelData = Partial<Pick<Tables<'urunler'>['Row'], 
-    'alis_fiyati' | 'liste_fiyati_kutu' | 'distributor_fiyati_kutu' | 'pesin_fiyat' | 
-    'barkod' | 'kutu_gramaj' | 'koli_ici_kutu_adet' | 'tedarikci_urun_kodu' | 'urun_kodu' | 'kutu_ici_adet' | 'stok_adeti'
->>;
+type UrunOperasyonelData = any;
 
 export async function updateUrunOperasyonel(urunId: string, data: UrunOperasyonelData) {
     const supabase = await createSupabaseServerClient();
@@ -48,12 +45,29 @@ export async function deleteUrun(urunId: string) {
     return { success: true, message: 'Ürün başarıyla silindi.' };
 }
 
-export async function guncelleUrunGorunurluk(urunId: string, yeniDurum: Tables<'urunler'>['Row']['gorunurluk']) {
+export async function updateUrunAllFields(urunId: string, urunData: Partial<Tables<'urunler'>>, userRole: string | null) {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, message: 'Yetkisiz işlem.' };
 
-    const { error } = await supabase.from('urunler').update({ gorunurluk: yeniDurum }).eq('id', urunId);
+    const { error } = await supabase.from('urunler').update(urunData).eq('id', urunId);
+
+    if (error) {
+        console.error('Ürün güncelleme hatası:', error);
+        return { success: false, message: `Veritabanı hatası: ${error.message}` };
+    }
+
+    revalidatePath('/admin/operasyon/fiyat-listesi');
+    revalidatePath('/admin/operasyon/urunler');
+    return { success: true, message: 'Ürün başarıyla güncellendi.' };
+}
+
+export async function guncelleUrunGorunurluk(urunId: string, yeniDurum: any) {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, message: 'Yetkisiz işlem.' };
+
+    const { error } = await supabase.from('urunler').update({ gorunurluk: yeniDurum } as any).eq('id', urunId);
 
     if (error) {
         console.error('Ürün görünürlük güncelleme hatası:', error);
@@ -119,10 +133,10 @@ export async function saveUrun(formData: FormData) {
 
   let error;
   if (urunId) {
-    ({ error } = await supabase.from('urunler').update(urunData).eq('id', urunId));
+    ({ error } = await supabase.from('urunler').update(urunData as any).eq('id', urunId));
   } else {
     // Yeni ürün ekleme mantığını da düzeltiyoruz
-    const { data: insertedData, error: insertError } = await supabase.from('urunler').insert(urunData).select().single();
+    const { data: insertedData, error: insertError } = await supabase.from('urunler').insert(urunData as any).select().single();
     error = insertError;
   }
   

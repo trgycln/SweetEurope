@@ -22,7 +22,7 @@ interface CustomerGrowth {
 }
 
 export const RevenueChart = ({ data, locale }: { data: MonthlyRevenue[], locale: string }) => {
-    const formatCurrency = (value: number) => {
+    const formatCurrency = (value: any) => {
         return new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(value);
     };
 
@@ -31,7 +31,7 @@ export const RevenueChart = ({ data, locale }: { data: MonthlyRevenue[], locale:
             <BarChart data={data}>
                 <XAxis dataKey="month" />
                 <YAxis tickFormatter={(value) => `€${(value / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                <Tooltip formatter={(value: any) => formatCurrency(value)} />
                 <Legend />
                 <Bar dataKey="revenue" fill="#C69F6B" name="Ciro" />
             </BarChart>
@@ -40,7 +40,7 @@ export const RevenueChart = ({ data, locale }: { data: MonthlyRevenue[], locale:
 };
 
 export const TopProductsChart = ({ data, locale }: { data: TopProduct[], locale: string }) => {
-    const formatCurrency = (value: number) => {
+    const formatCurrency = (value: any) => {
         return new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(value);
     };
 

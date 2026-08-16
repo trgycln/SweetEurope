@@ -433,16 +433,16 @@ function buildParsedRows(rows: string[][], fallbackProfile: SupplierProfile): Pa
   for (let index = headerIndex + 1; index < rows.length; index += 1) {
     const row = rows[index];
     const localizedNames: Partial<Record<AppLocale, string>> = {
-      tr: indexes.productNameTr != null ? valueOrNull(String(row[indexes.productNameTr] || '')) : null,
-      de: indexes.productNameDe != null ? valueOrNull(String(row[indexes.productNameDe] || '')) : null,
-      en: indexes.productNameEn != null ? valueOrNull(String(row[indexes.productNameEn] || '')) : null,
-      ar: indexes.productNameAr != null ? valueOrNull(String(row[indexes.productNameAr] || '')) : null,
+      tr: indexes.productNameTr != null ? (valueOrNull(String(row[indexes.productNameTr] || '')) ?? undefined) : undefined,
+      de: indexes.productNameDe != null ? (valueOrNull(String(row[indexes.productNameDe] || '')) ?? undefined) : undefined,
+      en: indexes.productNameEn != null ? (valueOrNull(String(row[indexes.productNameEn] || '')) ?? undefined) : undefined,
+      ar: indexes.productNameAr != null ? (valueOrNull(String(row[indexes.productNameAr] || '')) ?? undefined) : undefined,
     };
     const localizedDescriptions: Partial<Record<AppLocale, string>> = {
-      tr: indexes.descriptionTr != null ? valueOrNull(String(row[indexes.descriptionTr] || '')) : null,
-      de: indexes.descriptionDe != null ? valueOrNull(String(row[indexes.descriptionDe] || '')) : null,
-      en: indexes.descriptionEn != null ? valueOrNull(String(row[indexes.descriptionEn] || '')) : null,
-      ar: indexes.descriptionAr != null ? valueOrNull(String(row[indexes.descriptionAr] || '')) : null,
+      tr: indexes.descriptionTr != null ? (valueOrNull(String(row[indexes.descriptionTr] || '')) ?? undefined) : undefined,
+      de: indexes.descriptionDe != null ? (valueOrNull(String(row[indexes.descriptionDe] || '')) ?? undefined) : undefined,
+      en: indexes.descriptionEn != null ? (valueOrNull(String(row[indexes.descriptionEn] || '')) ?? undefined) : undefined,
+      ar: indexes.descriptionAr != null ? (valueOrNull(String(row[indexes.descriptionAr] || '')) ?? undefined) : undefined,
     };
 
     const stockCode = indexes.stockCode != null ? valueOrNull(String(row[indexes.stockCode] || '')) : null;
@@ -1019,14 +1019,14 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
       productQuery = await supabase
         .from('urunler')
         .select('id, stok_kodu, ad, aciklamalar, distributor_alis_fiyati, tedarikci_id, teknik_ozellikler, kategori_id, slug')
-        .range(0, 3999);
+        .range(0, 3999) as any;
     }
 
     if (categorySchemaNeedsFallback) {
       categoryQuery = await supabase
         .from('kategoriler')
         .select('id, ad, slug, ust_kategori_id')
-        .range(0, 3999);
+        .range(0, 3999) as any;
     }
 
     if (productQuery.error || !productQuery.data) {
@@ -1194,7 +1194,7 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
       const packaging = normalizePackaging(row);
       const updateData: TablesUpdate<'urunler'> = {
         urun_gami: profileToProductLine(row.profile),
-        teknik_ozellikler: mergedSpecs,
+        teknik_ozellikler: mergedSpecs as any,
         alis_fiyat_seviyesi: row.purchaseLevel,
         ...(row.boxesPerCase != null && packaging.unitsPerCase ? { koli_ici_adet: packaging.unitsPerCase } : {}),
         ...(row.casesPerPallet != null && packaging.unitsPerPallet ? { palet_ici_adet: packaging.unitsPerPallet } : {}),
@@ -1260,7 +1260,7 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
       if (row.casesPerPallet != null) updateData.palet_ici_adet = row.casesPerPallet;
 
       const naehrwerteUpdate = buildNaehrwertePayload(row);
-      if (naehrwerteUpdate) updateData.naehrwerte = naehrwerteUpdate;
+      if (naehrwerteUpdate) updateData.naehrwerte = naehrwerteUpdate as any;
 
       const inhaltsstoffeUpdate = buildInhaltsstoffePayload(row);
       if (inhaltsstoffeUpdate) updateData.inhaltsstoffe = inhaltsstoffeUpdate;

@@ -48,7 +48,7 @@ export function AdminLayoutClient({
     const userEmail = user.email ?? 'Keine E-Mail';
 
     const handleLogout = async () => {
-        const supabase = (await import('@/lib/supabase/client')).createDynamicSupabaseClient();
+        const supabase = (await import('@/lib/supabase/client')).createDynamicSupabaseClient(false);
         await supabase.auth.signOut();
         router.push(`/${locale}/login`);
     };

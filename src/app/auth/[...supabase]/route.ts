@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/'
 
   if (code) {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
   // Überprüfen, ob der Pfad auf /auth/sign-out endet
   if (request.nextUrl.pathname.endsWith('/auth/sign-out')) {
       console.log("Handling POST /auth/sign-out explicitly via route handler"); // Log zur Überprüfung
-      const cookieStore = cookies()
+      const cookieStore = await cookies()
       const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

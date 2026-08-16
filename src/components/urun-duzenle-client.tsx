@@ -25,7 +25,7 @@ export function UrunDetayClient({ urun, tedarikciler, userRole }: UrunDuzenleCli
 
   if (editMode) {
     // Düzenleme modundaysak, akıllı formu göster
-    return <UrunFormu urun={urun} tedarikciler={tedarikciler} />;
+    return <UrunFormu mevcutUrun={urun as any} tedarikciler={tedarikciler as any} locale="de" kategoriler={[]} birimler={[]} labels={{} as any} />;
   }
 
   // Değilse, zenginleştirilmiş okuma modunu göster

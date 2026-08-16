@@ -22,8 +22,8 @@ type SegmentSplit = { segment: string; revenue: number; orderCount: number };
 
 const CHART_COLORS = ['#C69F6B', '#2B2B2B', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'];
 
-const fmt  = (v: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
-const pct  = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
+const fmt  = (v: any) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
+const pct  = (v: any) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
 const chg  = (cur: number, prv: number) => prv === 0 ? 0 : ((cur - prv) / prv) * 100;
 
 type PageProps = { params: Promise<{ locale: string }> };
@@ -330,8 +330,8 @@ export default function RevenueAnalysisPage({ params }: PageProps) {
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                                    <YAxis tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
-                                    <Tooltip formatter={(v: number) => fmt(v)} />
+                                    <YAxis tickFormatter={(v: any) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
+                                    <Tooltip formatter={(v: any) => fmt(v)} />
                                     <Legend />
                                     <Area type="monotone" dataKey="grossRevenue" stroke="#C69F6B" fill="url(#gradGross)" strokeWidth={2} name="Brüt Ciro" />
                                     <Area type="monotone" dataKey="netRevenue"   stroke="#2B2B2B" fill="url(#gradNet)"   strokeWidth={2} name="Net Ciro"  />
@@ -356,7 +356,7 @@ export default function RevenueAnalysisPage({ params }: PageProps) {
                                                 <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                                             ))}
                                         </Pie>
-                                        <Tooltip formatter={(v: number) => fmt(v)} />
+                                        <Tooltip formatter={(v: any) => fmt(v)} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
@@ -396,9 +396,9 @@ export default function RevenueAnalysisPage({ params }: PageProps) {
                                     <ResponsiveContainer width="100%" height={160}>
                                         <BarChart data={segments} layout="vertical" barSize={18}>
                                             <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                            <XAxis type="number" tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
+                                            <XAxis type="number" tickFormatter={(v: any) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
                                             <YAxis type="category" dataKey="segment" tick={{ fontSize: 11 }} width={70} />
-                                            <Tooltip formatter={(v: number) => fmt(v)} />
+                                            <Tooltip formatter={(v: any) => fmt(v)} />
                                             <Bar dataKey="revenue" name="Ciro" radius={[0, 4, 4, 0]}>
                                                 {segments.map((_, i) => (
                                                     <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />

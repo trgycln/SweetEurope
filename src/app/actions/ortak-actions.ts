@@ -112,7 +112,7 @@ export async function createOrtakIslemi(formData: FormData) {
         else if (islem_tipi === 'Sermaye Çıkışı') kasaIslemTipi = 'sermaye_cikisi';
         else if (islem_tipi === 'Ortak Para Çekimi (Maaş/Avans)') kasaIslemTipi = 'diger_cikis';
 
-        await supabase.from('finans_kasa_islemleri').insert({
+        await supabase.from('finans_kasa_islemleri' as any).insert({
             islem_tipi: kasaIslemTipi,
             kasa_tipi: kasa_tipi,
             tutar: Math.abs(tutar),
@@ -141,7 +141,7 @@ export async function deleteOrtakIslemi(id: string) {
 
     // Önce bağlı olan Giderler ve Kasa kayıtlarını silelim
     await supabase.from('giderler').delete().eq('kaynak_id', id);
-    await supabase.from('finans_kasa_islemleri').delete().like('aciklama', `%[Ref:${id}]%`);
+    await supabase.from('finans_kasa_islemleri' as any).delete().like('aciklama', `%[Ref:${id}]%`);
 
     // Sonra ana işlemi silelim
     const { error } = await supabase.from('ortak_islemleri').delete().eq('id', id);
@@ -194,7 +194,7 @@ export async function distributeKarPayiAction(
 
         // 2. Kasa çıkışını oluştur (Eğer Kasa seçildiyse)
         if (kasa_tipi && ['Banka', 'Nakit'].includes(kasa_tipi)) {
-            await supabase.from('finans_kasa_islemleri').insert({
+            await supabase.from('finans_kasa_islemleri' as any).insert({
                 islem_tipi: 'diger_cikis',
                 kasa_tipi: kasa_tipi,
                 tutar: dagitim.tutar,

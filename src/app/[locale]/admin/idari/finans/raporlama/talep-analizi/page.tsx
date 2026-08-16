@@ -22,7 +22,7 @@ const ABC_COLORS = { A: { bg: 'bg-emerald-100 text-emerald-700', bar: '#10B981',
                      B: { bg: 'bg-blue-100 text-blue-700',      bar: '#3B82F6', badge: 'bg-blue-100 text-blue-700 border-blue-200'       },
                      C: { bg: 'bg-gray-100 text-gray-600',      bar: '#9CA3AF', badge: 'bg-gray-100 text-gray-500 border-gray-200'       } };
 
-const fmt      = (v: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
+const fmt      = (v: any) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(v);
 const truncate = (s: string, n = 20) => s?.length > n ? `${s.slice(0, n - 1)}…` : (s || '');
 
 export default function DemandAnalysisPage({ params }: PageProps) {
@@ -354,10 +354,10 @@ export default function DemandAnalysisPage({ params }: PageProps) {
                                 <ResponsiveContainer width="100%" height={320}>
                                     <BarChart data={topByRev.slice(0, 10)} layout="vertical" barSize={14}>
                                         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                        <XAxis type="number" tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
+                                        <XAxis type="number" tickFormatter={(v: any) => `€${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} />
                                         <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 10 }}
                                                tickFormatter={(v: string) => truncate(v, 18)} />
-                                        <Tooltip formatter={(v: number) => fmt(v)} />
+                                        <Tooltip formatter={(v: any) => fmt(v)} />
                                         <Bar dataKey="totalRevenue" name="Ciro" radius={[0, 4, 4, 0]}>
                                             {topByRev.slice(0, 10).map((p, i) => (
                                                 <Cell key={i} fill={ABC_COLORS[p.abcClass ?? 'C'].bar} />
@@ -380,7 +380,7 @@ export default function DemandAnalysisPage({ params }: PageProps) {
                                              cx="50%" cy="50%" outerRadius={95} innerRadius={35}>
                                             {categories.map((_, i) => <Cell key={i} fill={THEME_COLORS[i % THEME_COLORS.length]} />)}
                                         </Pie>
-                                        <Tooltip formatter={(v: number) => fmt(v)} />
+                                        <Tooltip formatter={(v: any) => fmt(v)} />
                                         <Legend iconSize={10} />
                                     </PieChart>
                                 </ResponsiveContainer>

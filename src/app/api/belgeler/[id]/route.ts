@@ -16,7 +16,7 @@ export async function DELETE(
     }
 
     const { error: dbError } = await supabase
-        .from('belgeler')
+        .from('belgeler' as any)
         .delete()
         .eq('id', id);
 
@@ -53,7 +53,7 @@ export async function PATCH(
     }
 
     const { data, error } = await supabase
-        .from('belgeler')
+        .from('belgeler' as any)
         .update(updates)
         .eq('id', id)
         .select(`

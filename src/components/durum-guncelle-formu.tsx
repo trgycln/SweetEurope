@@ -8,9 +8,9 @@ import { siparisDurumGuncelleAction } from "@/app/actions/siparis-actions";
 type SiparisStatus = Enums<'siparis_durumu'>;
 
 export function DurumGuncelleFormu({ siparis }: { siparis: Tables<'siparisler'> }) {
-    const [status, setStatus] = useState<SiparisStatus>(siparis.siparis_statusu);
+    const [status, setStatus] = useState<SiparisStatus>(siparis.siparis_durumu as SiparisStatus);
     const [isPending, startTransition] = useTransition();
-    const [result, setResult] = useState<{ success?: string, error?: string } | null>(null);
+    const [result, setResult] = useState<any>(null);
 
     const statusOptions: SiparisStatus[] = ["Beklemede", "Hazırlanıyor", "Yola Çıktı", "Teslim Edildi", "İptal Edildi"];
     
@@ -34,7 +34,7 @@ export function DurumGuncelleFormu({ siparis }: { siparis: Tables<'siparisler'> 
                 >
                     {statusOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
-                <button onClick={handleSubmit} disabled={isPending || status === siparis.siparis_statusu} className="px-4 py-2 bg-accent text-white font-bold rounded-md disabled:bg-gray-400">
+                <button onClick={handleSubmit} disabled={isPending || status === siparis.siparis_durumu} className="px-4 py-2 bg-accent text-white font-bold rounded-md disabled:bg-gray-400">
                     {isPending ? "..." : "Kaydet"}
                 </button>
             </div>

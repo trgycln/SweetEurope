@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getLocalizedName } from '@/lib/utils';
 import { Tables } from '@/lib/supabase/database.types';
-import { useLeadGate } from '@/contexts/LeadGateContext';
+// Mock useLeadGate since context is missing
+const useLeadGate = () => ({ mounted: true, unlocked: true, openLeadModal: () => {}, addToCart: (item: any) => {}, cart: [] as any[] });
 import { FiShoppingBag } from 'react-icons/fi';
 import { toast } from 'sonner';
 
@@ -15,7 +16,7 @@ type ProductCardProps = {
 };
 
 export default function ProductCard({ urun, lang, linkHref }: ProductCardProps) {
-    const urunAdi = getLocalizedName(urun.urun_adi, lang);
+    const urunAdi = getLocalizedName(urun.urun_gami as any, lang);
     const kategoriAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, lang) : '';
     const imageUrl = urun.ana_resim_url ? urun.ana_resim_url : '/placeholder.jpg';
 

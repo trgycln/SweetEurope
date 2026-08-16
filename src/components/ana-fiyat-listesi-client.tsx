@@ -10,7 +10,18 @@ import { getLocalizedName, formatCurrency } from '@/lib/utils';
 import { Tables } from '@/lib/supabase/database.types';
 
 // Tip tanımları, veritabanındaki en güncel ve tam haliyle
-type Urun = Tables<'urunler'> & { kategoriler: Pick<Tables<'kategoriler'>, 'id' | 'ad'> | null };
+type Urun = Tables<'urunler'> & { 
+    kategoriler: Pick<Tables<'kategoriler'>, 'id' | 'ad'> | null;
+    liste_fiyati_kutu?: number;
+    liste_fiyati_dilim_birim?: number;
+    distributor_fiyati_kutu?: number;
+    distributor_fiyati_dilim_birim?: number;
+    iskonto_orani?: number;
+    kutu_gramaj?: number;
+    dilim_gramaj?: number;
+    gorunurluk?: string;
+    urun_adi?: any;
+};
 type Kategori = Pick<Tables<'kategoriler'>, 'id' | 'ad'>;
 
 // Görünürlük için yeniden kullanılabilir yardımcı bileşen
@@ -56,8 +67,9 @@ export function AnaFiyatListesiClient({ serverUrunler, serverKategoriler }: { se
     const router = useRouter();
 
     const filteredUrunler = useMemo(() => {
+        const term = searchTerm.toLowerCase();
         return urunler
-            .filter(urun => getLocalizedName(urun.urun_adi, 'de').toLowerCase().includes(searchTerm.toLowerCase()))
+            .filter(urun => (urun.urun_gami as any)?.toLowerCase().includes(term) || urun.stok_kodu?.toLowerCase().includes(term))
             .filter(urun => kategoriFilter ? urun.kategoriler?.id === kategoriFilter : true);
     }, [urunler, searchTerm, kategoriFilter]);
 
@@ -77,7 +89,7 @@ export function AnaFiyatListesiClient({ serverUrunler, serverKategoriler }: { se
                 distributor_fiyati_kutu: editedData.distributor_fiyati_kutu ? parseFloat(String(editedData.distributor_fiyati_kutu)) : null,
                 distributor_fiyati_dilim_birim: editedData.distributor_fiyati_dilim_birim ? parseFloat(String(editedData.distributor_fiyati_dilim_birim)) : null,
                 iskonto_orani: editedData.iskonto_orani ? parseFloat(String(editedData.iskonto_orani)) : null,
-            });
+            } as any);
 
             if (result.success) {
                 toast.success('Fiyatlar güncellendi.');
@@ -134,7 +146,7 @@ export function AnaFiyatListesiClient({ serverUrunler, serverKategoriler }: { se
                     <tbody className="divide-y divide-gray-200">
                         {filteredUrunler.map(urun => {
                             const isEditing = editingRowId === urun.id;
-                            const urunAdi = getLocalizedName(urun.urun_adi, 'de');
+                            const urunAdi = getLocalizedName(urun.urun_gami as any, 'de');
                             return (
                                 <tr key={urun.id} className={isEditing ? 'bg-yellow-50' : 'hover:bg-gray-50'}>
                 <td className="sticky left-0 bg-inherit px-3 py-2 font-bold z-10">
@@ -143,10 +155,10 @@ export function AnaFiyatListesiClient({ serverUrunler, serverKategoriler }: { se
                                     <td className="px-3 py-2"><GorunurlukToggle urun={urun} onUpdate={handleUpdateGorunurluk} /></td>
                                     <td className="px-3 py-2 text-right">{urun.kutu_gramaj ? `${urun.kutu_gramaj} gr` : '-'}</td>
                                     <td className="px-3 py-2 text-right">{urun.dilim_gramaj ? `${urun.dilim_gramaj} gr` : '-'}</td>
-                                    <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.liste_fiyati_kutu ?? ''} onChange={(e) => handleInputChange('liste_fiyati_kutu', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-green-700">{formatCurrency(urun.liste_fiyati_kutu)}</span>}</td>
-                                    <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.liste_fiyati_dilim_birim ?? ''} onChange={(e) => handleInputChange('liste_fiyati_dilim_birim', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-green-600">{formatCurrency(urun.liste_fiyati_dilim_birim)}</span>}</td>
-                                    <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.distributor_fiyati_kutu ?? ''} onChange={(e) => handleInputChange('distributor_fiyati_kutu', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-blue-700">{formatCurrency(urun.distributor_fiyati_kutu)}</span>}</td>
-                                    <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.distributor_fiyati_dilim_birim ?? ''} onChange={(e) => handleInputChange('distributor_fiyati_dilim_birim', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-blue-600">{formatCurrency(urun.distributor_fiyati_dilim_birim)}</span>}</td>
+                                    <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.liste_fiyati_kutu ?? ''} onChange={(e) => handleInputChange('liste_fiyati_kutu', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-green-700">{formatCurrency(urun.liste_fiyati_kutu as number, 'de')}</span>}</td>
+                                    <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.liste_fiyati_dilim_birim ?? ''} onChange={(e) => handleInputChange('liste_fiyati_dilim_birim', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-green-600">{formatCurrency(urun.liste_fiyati_dilim_birim as number, 'de')}</span>}</td>
+                                    <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.distributor_fiyati_kutu ?? ''} onChange={(e) => handleInputChange('distributor_fiyati_kutu', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-blue-700">{formatCurrency(urun.distributor_fiyati_kutu as number, 'de')}</span>}</td>
+                                    <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.distributor_fiyati_dilim_birim ?? ''} onChange={(e) => handleInputChange('distributor_fiyati_dilim_birim', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-blue-600">{formatCurrency(urun.distributor_fiyati_dilim_birim as number, 'de')}</span>}</td>
                                     <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.iskonto_orani ?? ''} onChange={(e) => handleInputChange('iskonto_orani', e.target.value)} className="w-16 p-1 border rounded text-right" /> : <span>{urun.iskonto_orani ? `${urun.iskonto_orani}%` : '-'}</span>}</td>
                                     <td className="px-3 py-2 text-right">{urun.kutu_ici_adet || '-'}</td>
                                     <td className="px-3 py-2 text-right">{urun.koli_ici_kutu_adet || '-'}</td>

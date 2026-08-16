@@ -2,11 +2,11 @@
 // FINALE VERSION (async, erwartet cookieStore, async Cookie-Handler, KEIN await headers, KEINE global.headers)
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { headers, cookies, ReadonlyRequestCookies } from 'next/headers'; // ReadonlyRequestCookies importieren
+import { headers, cookies } from 'next/headers';
 import { Database } from './database.types';
 
 // Hauptfunktion ist async, erwartet cookieStore
-export const createSupabaseServerClient = async (cookieStoreInput?: ReadonlyRequestCookies | Awaited<ReturnType<typeof cookies>>) => {
+export const createSupabaseServerClient = async (cookieStoreInput?: Awaited<ReturnType<typeof cookies>> | any) => {
 
   const store = cookieStoreInput;
   if (!store) {

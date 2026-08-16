@@ -400,18 +400,18 @@ export default async function PublicUrunlerPage({
     const activeFilterCount = [seciliKategoriSlug, sp.altKategori, gamFilter].filter(Boolean).length;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-[#FAFAFA] flex flex-col font-sans">
 
             {/* ── Page Header ─────────────────────────────────────────────── */}
-            <div className="bg-white border-b border-slate-200">
+            <div className="bg-white/80 backdrop-blur-xl border-b border-white/50 sticky top-0 z-30 shadow-sm">
                 <div className="container mx-auto px-4 sm:px-8 py-5">
 
                     <div className="flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
                         <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-1">
                                 {dictionary.publicProductsPage?.b2bCatalogLabel || 'B2B Großhandels-Katalog'}
                             </p>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
                                 {dictionary.publicProductsPage?.heroTitle || 'Sortiment für Profi-Küchen & Gastronomie'}
                             </h1>
                             <p className="mt-1 text-sm text-slate-500 max-w-xl">
@@ -419,14 +419,14 @@ export default async function PublicUrunlerPage({
                             </p>
                         </div>
 
-                        <div className="flex flex-col items-end gap-2 self-start sm:self-auto">
-                            <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                        <div className="flex flex-col items-end gap-2 self-start sm:self-auto mt-2 sm:mt-0">
+                            <div className="flex items-center gap-2 text-xs text-stone-600 bg-white/60 backdrop-blur-md border border-white/80 shadow-sm rounded-xl px-3 py-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                                 {totalAllProducts} {dictionary.publicProductsPage?.totalProductsInCatalog || 'Artikel im Sortiment'}
                             </div>
                             <a href={`mailto:info@elysonsweets.de?subject=${encodeURIComponent('Preisanfrage / B2B Katalog')}`}
-                                className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-slate-400 hover:shadow-sm transition-all">
-                                <FiMail size={12} /> {dictionary.publicProductsPage?.priceRequest || 'Preisanfrage'}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-white border border-white/80 shadow-[0_4px_14px_0_rgb(0,0,0,0.05)] rounded-xl px-4 py-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] transition-all duration-300">
+                                <FiMail size={14} className="text-amber-600" /> {dictionary.publicProductsPage?.priceRequest || 'Preisanfrage'}
                             </a>
                         </div>
                     </div>
@@ -443,13 +443,13 @@ export default async function PublicUrunlerPage({
 
                         {/* Kategorien — real DB categories */}
                         <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3 ml-1">
                                 {dictionary.publicProductsPage?.categories || 'Kategorien'}
                             </p>
                             <div className="space-y-0.5">
                                 <Link href={buildProductsHref({})}
-                                    className={`flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
-                                        ${!seciliKategoriSlug ? 'bg-slate-100 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                                    className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all duration-300
+                                        ${!seciliKategoriSlug ? 'bg-amber-50 text-amber-900 font-bold shadow-sm border border-amber-100' : 'text-stone-600 hover:bg-white hover:shadow-sm'}`}>
                                     <span>{dictionary.publicProductsPage?.allCategories || (locale === 'tr' ? 'Tüm Kategoriler' : locale === 'en' ? 'All Categories' : locale === 'ar' ? 'جميع الفئات' : 'Alle Kategorien')}</span>
                                     <span className="text-[10px] text-slate-400">{totalAllProducts}</span>
                                 </Link>
@@ -472,8 +472,8 @@ export default async function PublicUrunlerPage({
                                         return (
                                             <div key={k.id}>
                                                 <Link href={buildProductsHref({ kategori: k.slug || undefined })}
-                                                    className={`flex items-center justify-between w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
-                                                        ${isSelected ? 'bg-slate-100 text-slate-900 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                                                    className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all duration-300
+                                                        ${isSelected ? 'bg-amber-50 text-amber-900 font-bold shadow-sm border border-amber-100' : 'text-stone-600 hover:bg-white hover:shadow-sm'}`}>
                                                     <span className="truncate">{getLocalizedName(k.ad, locale as any)}</span>
                                                     <span className="text-[10px] text-slate-400 ml-1 flex-shrink-0">{count}</span>
                                                 </Link>
@@ -482,8 +482,8 @@ export default async function PublicUrunlerPage({
                                                         {subKats.map(sk => (
                                                             <Link key={sk.id}
                                                                 href={buildProductsHref({ kategori: k.slug || undefined, altKategori: sk.slug || undefined })}
-                                                                className={`flex items-center justify-between w-full px-2 py-1 rounded text-xs transition-colors
-                                                                    ${sp.altKategori === sk.slug ? 'text-slate-900 font-semibold' : 'text-slate-500 hover:text-slate-800'}`}>
+                                                                className={`flex items-center justify-between w-full px-3 py-1.5 rounded-xl text-xs transition-all duration-300
+                                                                    ${sp.altKategori === sk.slug ? 'text-amber-900 font-bold bg-amber-50/50' : 'text-stone-500 hover:text-stone-900 hover:bg-white/50'}`}>
                                                                 <span className="truncate">{getLocalizedName(sk.ad, locale as any)}</span>
                                                                 <span className="text-[10px] text-slate-400">{categoryProductCounts[sk.id] || 0}</span>
                                                             </Link>
@@ -497,8 +497,8 @@ export default async function PublicUrunlerPage({
                         </div>
 
                         {/* Ürün Serisi / Gam Filter */}
-                        <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                        <div className="mt-2">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3 ml-1">
                                 {dictionary.publicProductsPage?.productSeries || 'Produktserie'}
                             </p>
                             <div className="space-y-0.5">
@@ -514,8 +514,8 @@ export default async function PublicUrunlerPage({
                                         <Link
                                             key={key}
                                             href={buildProductsHref({ gam: isActive ? undefined : key, page: undefined })}
-                                            className={`flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-sm transition-colors
-                                                ${isActive ? 'bg-indigo-50 text-indigo-900 font-semibold border border-indigo-200' : 'text-slate-600 hover:bg-slate-100'}`}
+                                            className={`flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm transition-all duration-300
+                                                ${isActive ? 'bg-amber-50 text-amber-900 font-bold border border-amber-200 shadow-sm' : 'text-stone-600 hover:bg-white hover:shadow-sm'}`}
                                         >
                                             <span>{emoji}</span>
                                             <span className="truncate">{label}</span>
@@ -528,7 +528,7 @@ export default async function PublicUrunlerPage({
                         {/* Filter zurücksetzen */}
                         {(activeFilterCount > 0 || gamFilter) && (
                             <Link href={`/${locale}/products`}
-                                className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-lg border border-dashed border-slate-300 text-xs text-slate-500 hover:border-red-300 hover:text-red-500 transition-colors">
+                                className="flex items-center justify-center gap-1.5 w-full px-3 py-2 rounded-xl border-2 border-dashed border-stone-200 text-xs font-medium text-stone-500 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition-all duration-300">
                                 ✕ {dictionary.publicProductsPage?.resetFilter || 'Filter zurücksetzen'}
                             </Link>
                         )}
@@ -540,8 +540,8 @@ export default async function PublicUrunlerPage({
                         {/* Mobile: horizontal scrollable category chips */}
                         <div className="flex gap-1.5 mb-4 lg:hidden overflow-x-auto pb-1 scrollbar-hide">
                             <Link href={buildProductsHref({})}
-                                className={`px-3 py-1.5 text-xs rounded-lg font-medium border whitespace-nowrap transition-colors flex-shrink-0
-                                    ${!seciliKategoriSlug ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200'}`}>
+                                className={`px-4 py-2 text-xs rounded-xl font-medium whitespace-nowrap transition-all duration-300 shadow-sm
+                                    ${!seciliKategoriSlug ? 'bg-stone-900 text-white shadow-stone-900/20' : 'bg-white text-stone-600 border border-white/80'}`}>
                                 {dictionary.publicProductsPage?.all || 'Alle'} ({totalAllProducts})
                             </Link>
                             {visibleKategoriler
@@ -557,8 +557,8 @@ export default async function PublicUrunlerPage({
                                 .map(k => (
                                     <Link key={k.id}
                                         href={buildProductsHref({ kategori: k.slug || undefined })}
-                                        className={`px-3 py-1.5 text-xs rounded-lg font-medium border whitespace-nowrap transition-colors flex-shrink-0
-                                            ${seciliKategoriSlug === k.slug ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200'}`}>
+                                        className={`px-4 py-2 text-xs rounded-xl font-medium whitespace-nowrap transition-all duration-300 shadow-sm
+                                            ${seciliKategoriSlug === k.slug ? 'bg-stone-900 text-white shadow-stone-900/20' : 'bg-white text-stone-600 border border-white/80'}`}>
                                         {getLocalizedName(k.ad, locale as any)} ({categoryProductCounts[k.id] || 0})
                                     </Link>
                                 ))}
@@ -628,29 +628,30 @@ export default async function PublicUrunlerPage({
             </div>
             
             {/* SEO & GEO FAQ Section */}
-            <div className="bg-slate-50 border-t border-slate-200 mt-12 py-16">
-                <div className="container mx-auto px-4 max-w-4xl">
-                    <div className="text-center mb-10">
-                        <h2 className="text-2xl font-bold text-slate-800 mb-3">{locale === 'tr' ? 'Sıkça Sorulan Sorular' : 'Frequently Asked Questions'}</h2>
-                        <p className="text-slate-500 text-sm">
+            <div className="mt-16 py-16 relative">
+                <div className="absolute inset-0 bg-stone-100/50 backdrop-blur-3xl -skew-y-2 origin-top-left -z-10" />
+                <div className="container mx-auto px-4 max-w-4xl relative z-10">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-extrabold text-stone-900 mb-4 tracking-tight">{locale === 'tr' ? 'Sıkça Sorulan Sorular' : 'Frequently Asked Questions'}</h2>
+                        <p className="text-stone-500 text-sm max-w-xl mx-auto">
                             {locale === 'tr' ? 'Kahve şurupları ve pastacılık ürünlerimiz hakkında merak edilenler' : 'Frequently asked questions about our coffee syrups and pastry products'}
                         </p>
                     </div>
-                    <div className="space-y-4">
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 className="font-bold text-slate-800 mb-2">{locale === 'tr' ? 'Fo kahve şurubu çeşitleri nelerdir?' : 'What are the varieties of Fo coffee syrup?'}</h3>
+                    <div className="space-y-6">
+                        <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 hover:-translate-y-1 transition-transform duration-300">
+                            <h3 className="font-bold text-stone-900 text-lg mb-3 flex items-center gap-2"><span className="text-amber-500 text-xl">•</span> {locale === 'tr' ? 'Fo kahve şurubu çeşitleri nelerdir?' : 'What are the varieties of Fo coffee syrup?'}</h3>
                             <p className="text-slate-600 text-sm leading-relaxed">
                                 {locale === 'tr' ? 'Fo markası, kafeler ve baristalar için geniş bir şurup yelpazesi sunar. En çok tercih edilen aromalar arasında Vanilya, Karamel, Fındık, Çikolata, İrlanda Kremi, Nane, Çilek ve Beyaz Çikolata bulunur.' : 'The Fo brand offers a wide range of syrups for cafes and baristas. The most preferred flavors include Vanilla, Caramel, Hazelnut, Chocolate, Irish Cream, Mint, Strawberry, and White Chocolate.'}
                             </p>
                         </div>
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 className="font-bold text-slate-800 mb-2">{locale === 'tr' ? 'Kafeler için en çok tercih edilen Fo şurup aromaları hangileridir?' : 'Which Fo syrup flavors are most preferred for cafes?'}</h3>
+                        <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 hover:-translate-y-1 transition-transform duration-300">
+                            <h3 className="font-bold text-stone-900 text-lg mb-3 flex items-center gap-2"><span className="text-amber-500 text-xl">•</span> {locale === 'tr' ? 'Kafeler için en çok tercih edilen Fo şurup aromaları hangileridir?' : 'Which Fo syrup flavors are most preferred for cafes?'}</h3>
                             <p className="text-slate-600 text-sm leading-relaxed">
                                 {locale === 'tr' ? 'Baristaların imza kahveler yaratmak için en sık kullandığı şuruplar Karamel, Vanilya ve Fındık şuruplarıdır. Soğuk içecekler ve kokteyller için ise Blue Curaçao, Grenadine ve Meyve Püreleri yoğun talep görmektedir.' : 'The syrups most frequently used by baristas to create signature coffees are Caramel, Vanilla, and Hazelnut. For cold drinks and cocktails, Blue Curaçao, Grenadine, and Fruit Purees are in high demand.'}
                             </p>
                         </div>
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 className="font-bold text-slate-800 mb-2">{locale === 'tr' ? 'Almanya\'da toptan Fo şurubu nereden alınır?' : 'Where can I buy wholesale Fo syrup in Germany?'}</h3>
+                        <div className="bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 hover:-translate-y-1 transition-transform duration-300">
+                            <h3 className="font-bold text-stone-900 text-lg mb-3 flex items-center gap-2"><span className="text-amber-500 text-xl">•</span> {locale === 'tr' ? 'Almanya\'da toptan Fo şurubu nereden alınır?' : 'Where can I buy wholesale Fo syrup in Germany?'}</h3>
                             <p className="text-slate-600 text-sm leading-relaxed">
                                 {locale === 'tr' ? 'ElysonSweets, Almanya başta olmak üzere Avrupa\'daki HORECA (Otel, Restoran, Kafe) işletmelerine toptan Fo şurubu tedariki sağlamaktadır. Uygun fiyatlar ve hızlı sevkiyat ile orijinal ürünleri sitemizden sipariş edebilirsiniz.' : 'ElysonSweets provides wholesale Fo syrup supply to HORECA (Hotel, Restaurant, Cafe) businesses in Europe, primarily in Germany. You can order original products from our site with affordable prices and fast shipping.'}
                             </p>

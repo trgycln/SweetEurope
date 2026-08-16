@@ -57,8 +57,8 @@ export function KontaklarClient({ initialTedarikciler, initialKontaklar }: Props
                                 {initialTedarikciler.map(t => (
                                     <li key={t.id} className="py-4 flex justify-between items-center">
                                         <div>
-                                            <p className="font-bold text-primary">{t.ad}</p>
-                                            <p className="text-sm text-gray-500">{t.iletisim_kisi}</p>
+                                            <p className="font-bold text-primary">{t.unvan}</p>
+                                            <p className="text-sm text-gray-500">{t.yetkili_kisi}</p>
                                         </div>
                                         <div className="text-sm text-gray-600 hidden sm:block">{t.telefon}</div>
                                         {/* TODO: Düzenle/Sil butonları eklenecek */}
@@ -76,8 +76,8 @@ export function KontaklarClient({ initialTedarikciler, initialKontaklar }: Props
                                 {initialKontaklar.map(k => (
                                     <li key={k.id} className="py-4 flex justify-between items-center">
                                         <div>
-                                            <p className="font-bold text-primary">{k.kurum_adi}</p>
-                                            <p className="text-sm text-gray-500">{k.aciklama}</p>
+                                            <p className="font-bold text-primary">{k.unvan || k.ad_soyad}</p>
+                                            <p className="text-sm text-gray-500">{k.ad_soyad}</p>
                                         </div>
                                         <div className="text-sm text-gray-600 hidden sm:block">{k.telefon}</div>
                                         {/* TODO: Düzenle/Sil butonları eklenecek */}

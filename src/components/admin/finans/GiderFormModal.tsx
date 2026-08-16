@@ -18,6 +18,8 @@ type Gider = Tables<'giderler'> & {
         id: string;
         ana_kategori_id: string;
     } | null;
+    kategori_ad?: string;
+    kasa_tipi?: string;
 };
 type HauptKategorie = Tables<'gider_ana_kategoriler'>;
 type GiderKalemi = Tables<'gider_kalemleri'>;
@@ -28,6 +30,7 @@ interface GiderFormModalProps {
     onClose: () => void;
     giderToEdit?: Gider | null;
     availableCategories: string[]; // Artık sadece string array
+    availableHauptCategories?: HauptKategorie[];
     availableFrequencies: readonly Database['public']['Enums']['zahlungshaeufigkeit'][];
     dictionary: Dictionary;
     locale: Locale;
