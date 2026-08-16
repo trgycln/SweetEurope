@@ -11,6 +11,8 @@ import { LuPackage, LuPackage2, LuWarehouse, LuBarcode, LuTruck, LuThermometerSn
 import { getBadgeText, getFlavorLabel } from '@/lib/labels';
 import { ProductDescriptionRenderer } from '@/components/common/ProductDescriptionRenderer';
 import { formatLmivIngredients } from '@/lib/allergen-highlighter';
+import { LabelModal } from '@/components/common/LabelModal';
+import { getProductLabelPdfUrl } from '@/lib/label-matcher';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 // All B2B fields are now in Tables<'urunler'> after database.types.ts regeneration
@@ -170,7 +172,8 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     })();
     const isAllergenFree = allergeneRaw.allergen_free === true;
     const lieferzeitWerktage = urun.lieferzeit_werktage ?? null;
-    const produktdatenblattUrl = urun.produktdatenblatt_url ?? null;
+    const [isLabelModalOpen, setIsLabelModalOpen] = React.useState(false);
+    const produktdatenblattUrl = getProductLabelPdfUrl(urun.produktdatenblatt_url || (urun as any).etiket_pdf_url, urunAdi, urun.stok_kodu);
     const herstellerName = urun.hersteller_name ?? null;
     const herstellerLand = urun.hersteller_land ?? null;
 
@@ -609,10 +612,23 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                     <FiMail size={14} /> {lc.contact}
                                 </a>
                                 {produktdatenblattUrl && (
-                                    <a href={produktdatenblattUrl} target="_blank" rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-2 bg-slate-800 text-white font-semibold text-sm px-4 py-3 rounded-xl hover:bg-slate-700 transition-colors border border-slate-700">
-                                        <FiDownload size={14} /> PDF
-                                    </a>
+                                    <>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setIsLabelModalOpen(true)}
+                                            className="inline-flex items-center justify-center gap-2 bg-slate-800 text-white font-semibold text-sm px-4 py-3 rounded-xl hover:bg-slate-700 transition-colors border border-slate-700 cursor-pointer"
+                                            title="PDF Etiket"
+                                        >
+                                            <FiDownload size={14} /> PDF
+                                        </button>
+                                        <LabelModal
+                                            pdfUrl={produktdatenblattUrl}
+                                            productTitle={urunAdi}
+                                            isOpen={isLabelModalOpen}
+                                            onClose={() => setIsLabelModalOpen(false)}
+                                            locale={locale}
+                                        />
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -672,7 +688,8 @@ const allergene: Record<string, boolean> = (() => {
 })();
 const isAllergenFree = allergeneRaw.allergen_free === true;
     const lieferzeitWerktage = urun.lieferzeit_werktage ?? null;
-    const produktdatenblattUrl = urun.produktdatenblatt_url ?? null;
+    const [isLabelModalOpen, setIsLabelModalOpen] = React.useState(false);
+    const produktdatenblattUrl = getProductLabelPdfUrl(urun.produktdatenblatt_url || (urun as any).etiket_pdf_url, urunAdi, urun.stok_kodu);
     const herstellerName = urun.hersteller_name ?? null;
     const herstellerLand = urun.hersteller_land ?? null;
 
@@ -1174,10 +1191,23 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                     <FiMail size={14} /> {lc.contact}
                                 </a>
                                 {produktdatenblattUrl && (
-                                    <a href={produktdatenblattUrl} target="_blank" rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-2 bg-slate-800 text-white font-semibold text-sm px-4 py-3 rounded-xl hover:bg-slate-700 transition-colors border border-slate-700">
-                                        <FiDownload size={14} /> PDF
-                                    </a>
+                                    <>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setIsLabelModalOpen(true)}
+                                            className="inline-flex items-center justify-center gap-2 bg-slate-800 text-white font-semibold text-sm px-4 py-3 rounded-xl hover:bg-slate-700 transition-colors border border-slate-700 cursor-pointer"
+                                            title="PDF Etiket"
+                                        >
+                                            <FiDownload size={14} /> PDF
+                                        </button>
+                                        <LabelModal
+                                            pdfUrl={produktdatenblattUrl}
+                                            productTitle={urunAdi}
+                                            isOpen={isLabelModalOpen}
+                                            onClose={() => setIsLabelModalOpen(false)}
+                                            locale={locale}
+                                        />
+                                    </>
                                 )}
                             </div>
                         </div>

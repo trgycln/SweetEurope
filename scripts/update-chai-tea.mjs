@@ -43,7 +43,7 @@ async function updateChaiTea() {
       contains_de: "Enthält Milchprodukte.",
       contains_en: "Contains dairy products."
     },
-    produktdatenblatt_url: "/Ürün Etiketleri/toz 1kg/FO CHAI TEA AROMALI ICECEK TOZU 1KG-C.pdf"
+    produktdatenblatt_url: "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/toz-1kg/FO-CHAI-TEA-AROMALI-ICECEK-TOZU-1KG-C.pdf"
   };
 
   console.log('Updating Chai Tea Latte...');
