@@ -268,7 +268,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                                                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                                                 return (
                                                     <Link
-                                                        key={item.name}
+                                                        key={item.href}
                                                         href={item.href}
                                                         className={`flex items-center gap-3 rounded-md px-3 py-2 transition-colors duration-200 ${isActive ? 'bg-accent text-primary font-bold' : 'text-secondary/80 hover:bg-white/10 hover:text-white'}`}
                                                     >

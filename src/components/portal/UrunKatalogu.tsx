@@ -245,7 +245,7 @@ export function UrunKatalogu({
 
     const filtrelenmisUrunler = useMemo(() => {
         return initialUrunler.filter(urun => {
-            const ad = getLocalizedName(urun.ad, locale, '').toLowerCase();
+            const ad = getLocalizedName(urun.ad, locale).toLowerCase();
             const arama = aramaMetni.toLowerCase();
             const aramaEslesmesi = !arama || ad.includes(arama) || urun.stok_kodu?.toLowerCase().includes(arama);
             const kategoriEslesmesi = !seciliKategori || urun.kategori_id === seciliKategori;

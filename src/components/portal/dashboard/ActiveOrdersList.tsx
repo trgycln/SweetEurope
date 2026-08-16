@@ -7,10 +7,12 @@ import { Enums, Tables } from '@/lib/supabase/database.types';
 import { cookies } from 'next/headers';
 import { unstable_noStore as noStore } from 'next/cache';
 
+import type { IconType } from 'react-icons';
+
 type Order = Pick<Tables<'siparisler'>, 'id' | 'siparis_tarihi' | 'toplam_tutar_brut' | 'siparis_durumu'>;
 type SiparisStatusKey = Enums<'siparis_durumu'>;
 
-const STATUS_ICONS: Record<string, React.ElementType> = {
+const STATUS_ICONS: Record<string, IconType> = {
     'processing': FiClock,
     'shipped': FiTruck,
     'delivered': FiCheckCircle,

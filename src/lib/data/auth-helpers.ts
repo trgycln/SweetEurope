@@ -2,6 +2,7 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { User } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
 // Profilimiz için TypeScript tipi
 export type Profile = {
@@ -21,8 +22,8 @@ export type EnrichedSession = {
  * Supabase Auth'tan gelen kullanıcı bilgisi ile veritabanındaki profil (rol) bilgisini birleştirir.
  */
 export async function getEnrichedSession(): Promise<EnrichedSession | null> {
-  // Server Client'ı argümansız çağırıyoruz (server.ts'in son haline göre)
-  const supabase = createSupabaseServerClient();
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
 
   // 1. Supabase Auth'tan aktif kullanıcıyı al
   const {

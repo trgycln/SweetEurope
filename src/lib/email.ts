@@ -35,7 +35,7 @@ export async function sendAdminEmail({
       to: ADMIN_EMAIL,
       subject,
       html,
-      reply_to: replyTo || 'elysonsweets@gmail.com',
+      replyTo: replyTo || 'elysonsweets@gmail.com',
     });
   } catch (err) {
     console.error('[email] Gönderim hatası:', err);

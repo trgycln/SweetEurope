@@ -2,19 +2,16 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  
-  reactStrictMode: false,
+  reactStrictMode: true,
   serverExternalPackages: ['@supabase/ssr', '@supabase/supabase-js'],
-  // Vercel'in build sırasında TypeScript hatalarını görmezden gelmesini sağlar
+  
   typescript: {
     ignoreBuildErrors: true,
   },
-
-  // Vercel'in build sırasında ESLint hatalarını görmezden gelmesini sağlar
   eslint: {
     ignoreDuringBuilds: true,
   },
-  
+
   images: {
     remotePatterns: [
       // Supabase Storage Hostname'i Eklendi

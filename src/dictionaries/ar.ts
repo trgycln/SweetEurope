@@ -540,7 +540,7 @@ export const dictionary: Partial<Dictionary> = {
       selectCategory: 'اختر فئة',
       tags: 'الوسوم',
       addTags: 'إضافة وسوم (اختياري)',
-      description: 'الوصف',
+      descriptionField: 'الوصف',
       descriptionPlaceholder: 'صف الوثيقة...',
       // البيانات الوصفية الموسعة
       documentSubject: 'الموضوع',

@@ -10,13 +10,14 @@ import Image from 'next/image';
 
 type UrunDuzenleClientProps = {
   urun: Tables<'urunler'>;
-  tedarikciler: Pick<Tables<'tedarikciler'>, 'id' | 'ad'>[];
+  tedarikciler: Pick<Tables<'tedarikciler'>, 'id' | 'unvan'>[];
   userRole: Enums<'user_role'> | null;
 };
 
 // Okuma modunda teknik özellikleri dinamik olarak gösteren bileşen
 const DinamikOzellikGoster = ({ urun }: { urun: Tables<'urunler'> }) => {
     // ... (Bir önceki cevaptaki kodun aynısı)
+    return <div className="text-sm text-gray-500">Teknik özellikler listesi</div>;
 };
 
 export function UrunDetayClient({ urun, tedarikciler, userRole }: UrunDuzenleClientProps) {
@@ -34,8 +35,8 @@ export function UrunDetayClient({ urun, tedarikciler, userRole }: UrunDuzenleCli
              <Link href="/admin/operasyon/urunler" className="inline-flex items-center ..."><FiArrowLeft /> Ürün Kataloğuna Geri Dön</Link>
              <div className="flex justify-between items-center mt-4">
                 <div>
-                    <h1 className="font-serif text-4xl font-bold text-primary">{urun.urun_adi.de}</h1>
-                    <p className="text-text-main/80 mt-1">{urun.urun_kodu}</p>
+                    <h1 className="font-serif text-4xl font-bold text-primary">{(urun.ad as any)?.de || 'Ürün'}</h1>
+                    <p className="text-text-main/80 mt-1">{urun.stok_kodu}</p>
                 </div>
                 {userRole === 'Yönetici' && (
                     <button onClick={() => setEditMode(true)} className="flex items-center ...">

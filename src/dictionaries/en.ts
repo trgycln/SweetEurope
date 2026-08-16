@@ -541,7 +541,7 @@ export const dictionary: Partial<Dictionary> = {
       selectCategory: 'Select a category',
       tags: 'Tags',
       addTags: 'Add tags (optional)',
-      description: 'Description',
+      descriptionField: 'Description',
       descriptionPlaceholder: 'Describe the document...',
       // Extended Metadata
       documentSubject: 'Subject',

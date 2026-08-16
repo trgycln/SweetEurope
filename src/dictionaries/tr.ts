@@ -567,7 +567,7 @@ export const dictionary: Partial<Dictionary> = {
       selectCategory: 'Kategori seçin',
       tags: 'Etiketler',
       addTags: 'Etiket ekle (isteğe bağlı)',
-      description: 'Açıklama',
+      descriptionField: 'Açıklama',
       descriptionPlaceholder: 'Belgeyi açıklayın...',
       // Genişletilmiş Meta Veriler
       documentSubject: 'Konu',

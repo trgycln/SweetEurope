@@ -18,6 +18,7 @@ type ActionResult = {
     orderId?: string; // Für create Action
     data?: unknown; // Für andere Actions optional
     message?: string; // Für Erfolgs-/Fehlermeldungen
+    url?: string; // Für Download-URLs
 };
 
 // Typ für Artikel-Payload in der create-Funktion

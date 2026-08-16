@@ -532,7 +532,7 @@ export const dictionary = {
       selectCategory: 'Wählen Sie eine Kategorie',
       tags: 'Markierungen',
       addTags: 'Markierungen hinzufügen (optional)',
-      description: 'Beschreibung',
+      descriptionField: 'Beschreibung',
       descriptionPlaceholder: 'Beschreiben Sie das Dokument...',
       // Erweiterte Metadaten
       documentSubject: 'Betreff',

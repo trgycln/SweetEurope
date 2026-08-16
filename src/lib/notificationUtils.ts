@@ -102,10 +102,10 @@ export async function sendNotification(
                 throw roleError;
             }
 
-            recipients = (usersInRole || []).map((user: { id: string; rol?: string | null }) => ({
-                id: user.id,
+            recipients = (usersInRole || []).map((user: any) => ({
+                id: user.id || '',
                 rol: (user.rol ?? null) as AppUserRole,
-            }));
+            })).filter(u => u.id !== '');
         } else if (aliciFirmaId) {
             const { data: usersInFirma, error: firmaError } = await supabase
                 .from('profiller')

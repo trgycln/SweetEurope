@@ -105,7 +105,7 @@ export function HizliSiparisClient({ urunler, locale, dictionary }: HizliSiparis
     };
 
     const filtrelenmisUrunler = useMemo(() => urunler.filter(urun => {
-        const ad = getLocalizedName(urun.ad, locale, '').toLowerCase(); // utils Funktion verwenden
+        const ad = getLocalizedName(urun.ad, locale).toLowerCase(); // utils Funktion verwenden
         const stokKodu = urun.stok_kodu?.toLowerCase() || '';
         return ad.includes(searchTerm.toLowerCase()) || stokKodu.includes(searchTerm.toLowerCase());
     }), [urunler, searchTerm, locale]);

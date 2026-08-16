@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getLocalizedName } from '@/lib/utils';
-import { Tables } from '@/lib-supabase/database.types';
+import { Tables } from '@/lib/supabase/database.types';
 import { useLeadGate } from '@/contexts/LeadGateContext';
 import { FiShoppingBag } from 'react-icons/fi';
 import { toast } from 'sonner';

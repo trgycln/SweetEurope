@@ -6,6 +6,8 @@ import Link from 'next/link';
 // NEU: Icons hier in der Client-Komponente importieren
 import { FiTruck, FiDollarSign, FiShoppingCart, FiBox, FiClock } from 'react-icons/fi';
 
+import type { IconType } from 'react-icons';
+
 // NEU: Ein Typ für die Icon-Namen, die wir als String erwarten
 export type KpiIconName = 'truck' | 'dollar' | 'cart' | 'box' | 'clock';
 
@@ -18,7 +20,7 @@ interface KpiCardProps {
 }
 
 // NEU: Map, die die String-Namen den importierten Icon-Komponenten zuordnet
-const iconMap: Record<KpiIconName, ElementType> = {
+const iconMap: Record<KpiIconName, IconType> = {
     truck: FiTruck,
     dollar: FiDollarSign,
     cart: FiShoppingCart,

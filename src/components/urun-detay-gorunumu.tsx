@@ -761,7 +761,8 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
     const nPortion = naehrwerteRaw?.pro_portion ?? null;
     const hasNaehrwerte = n100 && (n100.energie_kcal || n100.energie_kj);
 
-    const herkunftLabel = herkunft ? (herkunft[locale] || herkunft.de || herkunft.en || Object.values(herkunft)[0]) : null;
+    const h = herkunft as any;
+    const herkunftLabel = h ? (h[locale] || h.de || h.en || Object.values(h)[0]) : null;
 
     return (
         <div className="bg-slate-50 min-h-screen py-8 md:py-14">

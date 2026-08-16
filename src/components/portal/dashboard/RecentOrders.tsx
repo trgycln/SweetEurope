@@ -10,12 +10,14 @@ import { Enums, Tables } from '@/lib/supabase/database.types';
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
+import type { IconType } from 'react-icons';
+
 // Typ für die Bestelldaten
 type Order = Pick<Tables<'siparisler'>, 'id' | 'siparis_tarihi' | 'toplam_tutar_brut' | 'siparis_durumu'>;
 type SiparisStatusKey = Enums<'siparis_durumu'>;
 
 // Status-Definitionen (unverändert)
-const STATUS_ICONS: Record<string, React.ElementType> = {
+const STATUS_ICONS: Record<string, IconType> = {
     'processing': FiClock,
     'shipped': FiTruck,
     'delivered': FiCheckCircle,
