@@ -204,108 +204,105 @@ export default async function PublicUrunlerPage({
     let sortedData: any[] = [];
     let totalCount = 0;
 
+    let urunlerQuery = (supabase as any)
+        .from('urunler')
+        .select(productSelectFields, { count: 'exact' })
+        .eq('aktif', true);
+
+    if (filtrelenecekKategoriIdleri.length > 0) {
+        urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+    }
+
+    if (gamFilter) {
+        urunlerQuery = urunlerQuery.eq('urun_gami', gamFilter);
+    }
+
+    if (geschmackFilter) {
+        urunlerQuery = urunlerQuery.contains(
+            'teknik_ozellikler->geschmack',
+            JSON.stringify([geschmackFilter])
+        );
+    }
+
+    for (const merkmal of aktifMerkmale) {
+        urunlerQuery = (urunlerQuery as any).contains('teknik_ozellikler', { [merkmal]: true });
+    }
+
     if (searchQuery) {
-        // Server-side full-text search via RPC
-        const { data: searchResults } = await (supabase as any).rpc(
-            'search_urunler',
-            { p_query: searchQuery, p_locale: locale }
+        const queryStr = `%${searchQuery}%`;
+        urunlerQuery = urunlerQuery.or(
+            `ad->>de.ilike.${queryStr},ad->>en.ilike.${queryStr},ad->>tr.ilike.${queryStr},ad->>ar.ilike.${queryStr},stok_kodu.ilike.${queryStr},ean_gtin.ilike.${queryStr}`
         );
+    }
 
-        const searchIds = (searchResults || []).map((r: any) => r.id);
+    let urunlerRes = await urunlerQuery.order('ad', { ascending: true });
 
-        if (searchIds.length === 0) {
-            sortedData = [];
-            totalCount = 0;
-        } else {
-            const { data: searchUrunler } = await (supabase as any)
-                .from('urunler')
-                .select(productSelectFields)
-                .in('id', searchIds)
-                .eq('aktif', true);
-
-            // Relevanz sırasına göre sırala
-            const relevanzMap = new Map(
-                (searchResults || []).map((r: any) => [r.id, r.relevanz])
-            );
-            sortedData = (searchUrunler || [])
-                .filter((u: any) => !hiddenKategoriIds.has(u.kategori_id ?? ''))
-                .sort((a: any, b: any) =>
-                    (relevanzMap.get(b.id) || 0) - (relevanzMap.get(a.id) || 0)
-                );
-            totalCount = sortedData.length;
-        }
-    } else {
-        // Normal sorgu — mevcut mantık
-        let urunlerQuery = (supabase as any)
-            .from('urunler')
-            .select(productSelectFields, { count: 'exact' })
-            .eq('aktif', true);
-
+    if (urunlerRes.error) {
+        console.error('Product query error, retrying:', urunlerRes.error.message);
+        const minimalFields = `id, ad, slug, ana_resim_url, kategori_id, stok_kodu, stok_miktari,
+            koli_ici_adet, palet_ici_adet, teknik_ozellikler, lojistik_sinifi,
+            lagertemperatur_min_celsius, lagertemperatur_max_celsius, zertifikate,
+            satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
+            created_at, mindest_bestellmenge, mindest_bestellmenge_einheit, aktif`;
+        let retryQuery = supabase.from('urunler').select(minimalFields).eq('aktif', true);
         if (filtrelenecekKategoriIdleri.length > 0) {
-            urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+            retryQuery = retryQuery.in('kategori_id', filtrelenecekKategoriIdleri);
         }
-
-        if (gamFilter) {
-            urunlerQuery = urunlerQuery.eq('urun_gami', gamFilter);
-        }
-
-        if (geschmackFilter) {
-            urunlerQuery = urunlerQuery.contains(
-                'teknik_ozellikler->geschmack',
-                JSON.stringify([geschmackFilter])
+        if (searchQuery) {
+            const queryStr = `%${searchQuery}%`;
+            retryQuery = retryQuery.or(
+                `ad->>de.ilike.${queryStr},ad->>en.ilike.${queryStr},ad->>tr.ilike.${queryStr},ad->>ar.ilike.${queryStr},stok_kodu.ilike.${queryStr},ean_gtin.ilike.${queryStr}`
             );
         }
+        urunlerRes = await retryQuery.order('ad', { ascending: true });
+    }
 
-        for (const merkmal of aktifMerkmale) {
-            urunlerQuery = (urunlerQuery as any).contains('teknik_ozellikler', { [merkmal]: true });
+    sortedData = (urunlerRes.data || []).filter(
+        (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
+    );
+    totalCount = sortedData.length;
+
+    // Sort by category order
+    const kategoriById = new Map(kategoriler.map(k => [k.id, k]));
+    const getRootSlug = (catId?: string | null) => {
+        let cur = catId ? kategoriById.get(catId) : null;
+        let guard = 0;
+        while (cur?.ust_kategori_id && guard < 10) {
+            cur = kategoriById.get(cur.ust_kategori_id) || null;
+            guard++;
         }
+        return cur?.slug || null;
+    };
 
-        let urunlerRes = await urunlerQuery.order('ad', { ascending: true });
-
-        if (urunlerRes.error) {
-            console.error('Product query error, retrying:', urunlerRes.error.message);
-            const minimalFields = `id, ad, slug, ana_resim_url, kategori_id, stok_kodu, stok_miktari,
-                koli_ici_adet, palet_ici_adet, teknik_ozellikler, lojistik_sinifi,
-                lagertemperatur_min_celsius, lagertemperatur_max_celsius, zertifikate,
-                satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
-                created_at, mindest_bestellmenge, mindest_bestellmenge_einheit, aktif`;
-            let retryQuery = supabase.from('urunler').select(minimalFields).eq('aktif', true);
-            if (filtrelenecekKategoriIdleri.length > 0) {
-                retryQuery = retryQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+    if (sortedData.length > 0) {
+        sortedData = [...sortedData].sort((a: any, b: any) => {
+            const ai = visibleMainCategoryOrder.indexOf(getRootSlug(a.kategori_id) as any);
+            const bi = visibleMainCategoryOrder.indexOf(getRootSlug(b.kategori_id) as any);
+            const sa = ai === -1 ? 999 : ai;
+            const sb = bi === -1 ? 999 : bi;
+            if (sa !== sb) return sa - sb;
+            
+            if (searchQuery) {
+                // If there's a search query, try to bring exact matches closer
+                const sq = searchQuery.toLowerCase();
+                const aName = String(a.ad?.[locale] || a.ad?.de || '').toLowerCase();
+                const bName = String(b.ad?.[locale] || b.ad?.de || '').toLowerCase();
+                const aSku = String(a.stok_kodu || '').toLowerCase();
+                const bSku = String(b.stok_kodu || '').toLowerCase();
+                const aEan = String(a.ean_gtin || '').toLowerCase();
+                const bEan = String(b.ean_gtin || '').toLowerCase();
+                
+                const aScore = (aName.includes(sq) ? 1 : 0) + (aSku.includes(sq) ? 2 : 0) + (aEan === sq ? 3 : 0);
+                const bScore = (bName.includes(sq) ? 1 : 0) + (bSku.includes(sq) ? 2 : 0) + (bEan === sq ? 3 : 0);
+                
+                if (aScore !== bScore) return bScore - aScore;
             }
-            urunlerRes = await retryQuery.order('ad', { ascending: true });
-        }
-
-        sortedData = (urunlerRes.data || []).filter(
-            (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
-        );
-        totalCount = sortedData.length;
-
-        // Sort by category order
-        const kategoriById = new Map(kategoriler.map(k => [k.id, k]));
-        const getRootSlug = (catId?: string | null) => {
-            let cur = catId ? kategoriById.get(catId) : null;
-            let guard = 0;
-            while (cur?.ust_kategori_id && guard < 10) {
-                cur = kategoriById.get(cur.ust_kategori_id) || null;
-                guard++;
-            }
-            return cur?.slug || null;
-        };
-
-        if (sortedData.length > 0) {
-            sortedData = [...sortedData].sort((a: any, b: any) => {
-                const ai = visibleMainCategoryOrder.indexOf(getRootSlug(a.kategori_id) as any);
-                const bi = visibleMainCategoryOrder.indexOf(getRootSlug(b.kategori_id) as any);
-                const sa = ai === -1 ? 999 : ai;
-                const sb = bi === -1 ? 999 : bi;
-                if (sa !== sb) return sa - sb;
-                const pa = a.ortalama_puan || 0, pb = b.ortalama_puan || 0;
-                if (pa !== pb) return pb - pa;
-                return String(a.ad?.[locale] || a.ad?.de || '')
-                    .localeCompare(String(b.ad?.[locale] || b.ad?.de || ''));
-            });
-        }
+            
+            const pa = a.ortalama_puan || 0, pb = b.ortalama_puan || 0;
+            if (pa !== pb) return pb - pa;
+            return String(a.ad?.[locale] || a.ad?.de || '')
+                .localeCompare(String(b.ad?.[locale] || b.ad?.de || ''));
+        });
     }
 
     const from = (page - 1) * perPage;

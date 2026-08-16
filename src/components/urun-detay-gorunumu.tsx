@@ -13,6 +13,7 @@ import { ProductDescriptionRenderer } from '@/components/common/ProductDescripti
 import { formatLmivIngredients } from '@/lib/allergen-highlighter';
 import { LabelModal } from '@/components/common/LabelModal';
 import { getProductLabelPdfUrl } from '@/lib/label-matcher';
+import { DietaryStickers } from '@/components/DietaryStickers';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 // All B2B fields are now in Tables<'urunler'> after database.types.ts regeneration
@@ -196,7 +197,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
         ? fmtWeight(((unitWeightKg ?? (unitWeightG! / 1000))) * paletKoliCount, null)
         : null;
 
-    const BADGE_KEYS = ['vegan', 'vegetarisch', 'glutenfrei', 'laktosefrei', 'bio'] as const;
+    const BADGE_KEYS = ['vegan', 'vegetarisch', 'glutenfrei', 'laktosefrei', 'bio', 'ohne_zucker'] as const;
     const activeBadges = BADGE_KEYS.filter(k => tekniks[k] === true || tekniks[k] === 'true');
 
     const containsAllergens = ALLERGEN_DEFS.filter(a => allergene[a.key] === true);
@@ -265,6 +266,9 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                     className="aspect-square w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm relative group">
                                     <Image src={activeImg} alt={urunAdi} width={800} height={800}
                                         className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" priority />
+                                    <div className="absolute bottom-4 right-4">
+                                        <DietaryStickers teknikOzellikler={urun.teknik_ozellikler as any} size="sm" />
+                                    </div>
                                 </motion.div>
                             </AnimatePresence>
                         ) : (
@@ -344,14 +348,25 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{lc.dietary}</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {/* Ohne Gentechnik — FO default */}
-                                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                                        {t(locale, 'Ohne Gentechnik', 'Non-GMO', 'GDO-suz', 'غير معدل وراثيا')}
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs">
+                                        <span>🛡️</span> {t(locale, 'Ohne Gentechnik', 'Non-GMO', 'GDO-suz', 'غير معدل وراثيا')}
                                     </span>
-                                    {activeBadges.map(k => (
-                                        <span key={k} className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            {getBadgeText(k, locale as any)}
-                                        </span>
-                                    ))}
+                                    {activeBadges.map(k => {
+                                        const badgeConfig: Record<string, { icon: string; bg: string }> = {
+                                            vegan: { icon: '🌱', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+                                            laktosefrei: { icon: '🥛', bg: 'bg-sky-50 text-sky-800 border-sky-200' },
+                                            glutenfrei: { icon: '🌾', bg: 'bg-amber-50 text-amber-800 border-amber-200' },
+                                            ohne_zucker: { icon: '💎', bg: 'bg-indigo-50 text-indigo-800 border-indigo-200' },
+                                            vegetarisch: { icon: '🥗', bg: 'bg-green-50 text-green-800 border-green-200' },
+                                            bio: { icon: '🍃', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+                                        };
+                                        const cfg = badgeConfig[k] || { icon: '✓', bg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+                                        return (
+                                            <span key={k} className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border shadow-2xs ${cfg.bg}`}>
+                                                <span>{cfg.icon}</span> {getBadgeText(k, locale as any)}
+                                            </span>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

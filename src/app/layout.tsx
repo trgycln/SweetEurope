@@ -38,10 +38,14 @@ export const metadata: Metadata = {
   description: "B2B Großhandel für Cafés, Hotels und Patisserien. Sirupe, Saucen, Desserts und Backzutaten von FO Food Products.",
   metadataBase: new URL("https://www.elysonsweets.de"),
   icons: {
-    icon: "/favicon.png",
-    apple: "/favicon.png",
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    apple: "/apple-touch-icon.png",
     shortcut: "/favicon.png",
   },
+  manifest: "/manifest.webmanifest",
   openGraph: {
     title: "ElysonSweets | Premium B2B Großhandel",
     description: "B2B Großhandel für Cafés, Hotels und Patisserien. Sirupe, Saucen, Desserts und Backzutaten.",

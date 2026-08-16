@@ -7,14 +7,15 @@ import { LuPackage, LuBarcode } from "react-icons/lu";
 import { Locale } from "@/i18n-config";
 import { Dictionary } from "@/dictionaries";
 import { ProduktMitPreis } from "@/app/[locale]/portal/katalog/types";
+import { DietaryStickers } from "@/components/DietaryStickers";
 
 // Badge-Konfiguration (aus public catalog adaptiert)
 export const BADGE_DEFS = [
-    { key: 'vegan', short: 'Vegan', bg: 'bg-green-100 text-green-800 border-green-200' },
-    { key: 'glutenfrei', short: 'Glutenfrei', bg: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-    { key: 'laktosefrei', short: 'Laktosefrei', bg: 'bg-blue-100 text-blue-800 border-blue-200' },
-    { key: 'bio', short: 'Bio', bg: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
-    { key: 'ohne_zucker', short: 'Zuckerfrei', bg: 'bg-sky-100 text-sky-800 border-sky-200' },
+    { key: 'vegan', short: 'Vegan', icon: '🌱', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+    { key: 'laktosefrei', short: 'Laktosefrei', icon: '🥛', bg: 'bg-sky-50 text-sky-800 border-sky-200' },
+    { key: 'glutenfrei', short: 'Glutenfrei', icon: '🌾', bg: 'bg-amber-50 text-amber-800 border-amber-200' },
+    { key: 'ohne_zucker', short: 'Zuckerfrei', icon: '💎', bg: 'bg-indigo-50 text-indigo-800 border-indigo-200' },
+    { key: 'bio', short: 'Bio', icon: '🍃', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
 ] as const;
 
 export const TAT_CONFIG: Record<string, { de: string; tr: string; emoji: string }> = {
@@ -328,6 +329,9 @@ export function ProduktGridCard({
                         <FiImage size={48} />
                     </div>
                 )}
+                <div className="absolute bottom-2 left-2">
+                    <DietaryStickers teknikOzellikler={produkt.teknik_ozellikler as any} size="sm" />
+                </div>
             </div>
 
             {/* Content */}
@@ -406,16 +410,17 @@ export function ProduktGridCard({
                 </div>
 
                 {/* Quality Badges */}
-                <div className="flex flex-wrap gap-1 min-h-[16px]">
+                <div className="flex flex-wrap gap-1 min-h-[18px]">
                     {BADGE_DEFS.filter(b => {
                         const v = tekniks[b.key];
                         return v === true || v === 'true' || v === 'evet' || v === 1;
                     }).slice(0, 3).map(b => (
                         <span
                             key={b.key}
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}
+                            className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${b.bg}`}
                         >
-                            {b.short}
+                            <span>{b.icon}</span>
+                            <span>{b.short}</span>
                         </span>
                     ))}
                     {produkt.zertifikate?.slice(0, 2).map(z => {
@@ -424,7 +429,7 @@ export function ProduktGridCard({
                         return (
                             <span
                                 key={z}
-                                className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${cfg.bg}`}
+                                className={`inline-flex items-center text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${cfg.bg}`}
                             >
                                 {cfg.label}
                             </span>

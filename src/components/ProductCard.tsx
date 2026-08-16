@@ -8,6 +8,7 @@ import { Tables } from '@/lib/supabase/database.types';
 const useLeadGate = () => ({ mounted: true, unlocked: true, openLeadModal: () => {}, addToCart: (item: any) => {}, cart: [] as any[] });
 import { FiShoppingBag } from 'react-icons/fi';
 import { toast } from 'sonner';
+import { DietaryStickers, DietaryBadgeList } from '@/components/DietaryStickers';
 
 type ProductCardProps = {
     urun: Tables<'urunler'> & { kategoriler: { ad: any } | null };
@@ -69,6 +70,14 @@ export default function ProductCard({ urun, lang, linkHref }: ProductCardProps) 
         toast.success(successMessages[lang] || successMessages.de);
     };
 
+    const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
+    const badges = [
+        ...(tekniks.vegan ? [{ label: 'Vegan', icon: '🌱', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' }] : []),
+        ...(tekniks.laktosefrei ? [{ label: lang === 'tr' ? 'Laktozsuz' : 'Laktosefrei', icon: '🥛', bg: 'bg-sky-50 text-sky-800 border-sky-200' }] : []),
+        ...(tekniks.glutenfrei ? [{ label: lang === 'tr' ? 'Glutensiz' : 'Glutenfrei', icon: '🌾', bg: 'bg-amber-50 text-amber-800 border-amber-200' }] : []),
+        ...(tekniks.ohne_zucker ? [{ label: lang === 'tr' ? 'Şekersiz' : 'Zuckerfrei', icon: '💎', bg: 'bg-indigo-50 text-indigo-800 border-indigo-200' }] : []),
+    ];
+
     return (
         <div className="group relative block bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <Link href={linkHref} className="block">
@@ -81,17 +90,31 @@ export default function ProductCard({ urun, lang, linkHref }: ProductCardProps) 
                         className="transition-transform duration-500 group-hover:scale-110"
                         unoptimized
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <div className="absolute bottom-4 right-4">
+                        <DietaryStickers teknikOzellikler={urun.teknik_ozellikler as any} size="sm" />
+                    </div>
                     <div className="absolute bottom-4 left-4">
                         <p className="text-xs font-semibold text-white uppercase tracking-wider bg-black/30 px-2 py-1 rounded">
                             {kategoriAdi}
                         </p>
                     </div>
                 </div>
-                <div className="p-4">
+                <div className="p-4 space-y-2">
                     <h3 className="font-serif text-lg font-semibold text-primary truncate" title={urunAdi}>
                         {urunAdi}
                     </h3>
+
+                    {/* Dietary Badges */}
+                    {badges.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                            {badges.slice(0, 3).map((b, i) => (
+                                <span key={i} className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${b.bg}`}>
+                                    <span>{b.icon}</span>
+                                    <span>{b.label}</span>
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </Link>
             

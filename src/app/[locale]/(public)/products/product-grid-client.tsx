@@ -13,6 +13,7 @@ import {
 import { LuPackage, LuBarcode, LuThermometerSnowflake, LuThermometer } from 'react-icons/lu';
 import { getBadgeText } from '@/lib/labels';
 import { motion } from 'framer-motion';
+import { DietaryStickers } from '@/components/DietaryStickers';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,12 +61,12 @@ const itemVariants = {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const BADGE_DEFS = [
-    { key: 'vegan',       short: 'Vegan',    bg: 'bg-green-100 text-green-800 border-green-200' },
-    { key: 'glutenfrei',  short: 'GF',        bg: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-    { key: 'laktosefrei', short: 'LF',        bg: 'bg-blue-100 text-blue-800 border-blue-200' },
-    { key: 'bio',         short: 'Bio',       bg: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
-    { key: 'ohne_zucker', short: 'Ø Zucker',  bg: 'bg-sky-100 text-sky-800 border-sky-200' },
-    { key: 'katkisiz',    short: 'Pure',      bg: 'bg-teal-100 text-teal-800 border-teal-200' },
+    { key: 'vegan',       short: 'Vegan',        icon: '🌱', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+    { key: 'laktosefrei', short: 'Laktosefrei', icon: '🥛', bg: 'bg-sky-50 text-sky-800 border-sky-200' },
+    { key: 'glutenfrei',  short: 'Glutenfrei',  icon: '🌾', bg: 'bg-amber-50 text-amber-800 border-amber-200' },
+    { key: 'ohne_zucker', short: 'Zuckerfrei',  icon: '💎', bg: 'bg-indigo-50 text-indigo-800 border-indigo-200' },
+    { key: 'bio',         short: 'Bio',         icon: '🍃', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+    { key: 'katkisiz',    short: 'Rein',        icon: '✨', bg: 'bg-teal-50 text-teal-800 border-teal-200' },
 ] as const;
 
 const TAT_CONFIG: Record<string, { emoji: string; de: string; tr: string; en: string; ar: string }> = {
@@ -241,6 +242,11 @@ function CatalogCard({
                 <div className="absolute top-2 left-2">
                     <StorageBadge urun={urun} locale={locale} />
                 </div>
+
+                {/* Dietary stickers — bottom right */}
+                <div className="absolute bottom-1.5 right-1.5">
+                    <DietaryStickers teknikOzellikler={urun.teknik_ozellikler as any} size="sm" />
+                </div>
             </Link>
 
             {/* Content */}
@@ -291,21 +297,22 @@ function CatalogCard({
                 </div>
 
                 {/* Quality/cert badges row */}
-                <div className="flex flex-wrap gap-1 min-h-[16px]">
+                <div className="flex flex-wrap gap-1 min-h-[18px]">
                     {BADGE_DEFS.filter(b => {
                         const v = tekniks[b.key];
                         return v === true || v === 'true' || v === 'evet' || v === 1;
                     }).slice(0, 3).map(b => (
                         <span key={b.key} title={getBadgeText(b.key as any, locale as any)}
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}>
-                            {b.short}
+                            className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${b.bg}`}>
+                            <span>{b.icon}</span>
+                            <span>{b.short}</span>
                         </span>
                     ))}
                     {urun.zertifikate?.filter(z => z !== 'BRC' && z !== 'Halal').slice(0, 2).map(z => {
                         const cfg = ZERTIFIKAT_CONFIG[z];
                         if (!cfg) return null;
                         return (
-                            <span key={z} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${cfg.bg}`}>
+                            <span key={z} className={`inline-flex items-center text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${cfg.bg}`}>
                                 {cfg.label}
                             </span>
                         );
