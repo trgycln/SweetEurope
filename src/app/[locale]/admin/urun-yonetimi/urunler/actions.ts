@@ -131,6 +131,7 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
         ean_gtin:  (formData.get('ean_gtin') as string || '').trim() || null,
         slug: formData.get('slug') as string,
         stok_miktari: parseInt(formData.get('stok_miktari') as string || '0', 10),
+        tedarik_turu: parseInt(formData.get('stok_miktari') as string || '0', 10) > 0 ? 'stoklu' : ((formData.get('tedarik_turu') as string) || null),
         stok_esigi: parseInt(formData.get('stok_esigi') as string || '0', 10),
         ana_satis_birimi_id: (formData.get('ana_satis_birimi_id') as string) || null,
         distributor_alis_fiyati: parseFloat(formData.get('distributor_alis_fiyati') as string || '0'),
@@ -620,6 +621,9 @@ export async function quickUpdateUrunAction(
     }
     if (updates.stok_miktari !== undefined) {
         updateData.stok_miktari = updates.stok_miktari;
+        if (updates.stok_miktari > 0) {
+            updateData.tedarik_turu = 'stoklu';
+        }
     }
     if (updates.aktif !== undefined) {
         updateData.aktif = updates.aktif;

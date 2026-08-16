@@ -37,7 +37,7 @@ function getSepetItem(item: SepetUrunu) {
     const koliAdet = Number(item.produkt.koli_ici_adet ?? 1);
     const paletAdet = Number((item.produkt as any).palet_ici_adet ?? 0);
     const toplamAdet = item.birim === 'palet'
-        ? item.menge * (paletAdet || koliAdet)
+        ? item.menge * (paletAdet > 0 ? paletAdet * koliAdet : koliAdet)
         : item.birim === 'koli'
             ? item.menge * koliAdet
             : item.menge;

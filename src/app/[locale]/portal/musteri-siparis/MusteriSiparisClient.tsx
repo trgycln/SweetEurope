@@ -52,7 +52,10 @@ function getAdetFiyat(urun: Urun, birim: Birim, miktar: number): number {
 
 function getToplamAdet(urun: Urun, birim: Birim, miktar: number): number {
     const koliAdet = Number(urun.koli_ici_adet ?? 1);
-    if (birim === 'palet') return Number(urun.palet_ici_adet ?? koliAdet) * miktar;
+    if (birim === 'palet') {
+        const paletKoli = Number(urun.palet_ici_adet ?? 0);
+        return (paletKoli > 0 ? paletKoli * koliAdet : koliAdet) * miktar;
+    }
     if (birim === 'koli') return koliAdet * miktar;
     return miktar;
 }
@@ -143,7 +146,7 @@ function SepeteEkleModal({ urun, locale, onClose, onAdd }: {
                                         </span>
                                         <span className="text-[10px] text-gray-400 mt-0.5">
                                             {b === 'koli' ? `${koliAdet} adet`
-                                                : b === 'palet' ? `${paletAdet} adet`
+                                                : b === 'palet' ? `${paletAdet} ${locale === 'de' ? 'Karton' : 'koli'}`
                                                 : (locale === 'de' ? 'Einzeln' : 'Tekli')}
                                         </span>
                                     </button>

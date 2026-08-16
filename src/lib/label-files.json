@@ -1,0 +1,506 @@
+[
+  {
+    "originalName": "FO-PROFESYONEL-SIYAH-CIKOLATALI-BAR-SOS-2,5KG-YY-C_Folder.pdf",
+    "storageKey": "barsos/FO-PROFESYONEL-SIYAH-CIKOLATALI-BAR-SOS-25KG-YY-C_Folder.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/barsos/FO-PROFESYONEL-SIYAH-CIKOLATALI-BAR-SOS-25KG-YY-C_Folder.pdf",
+    "rawPath": "barsos\\FO-PROFESYONEL-SIYAH-CIKOLATALI-BAR-SOS-2,5KG-YY-C_Folder.pdf"
+  },
+  {
+    "originalName": "FO-TOFFEE-KARAMEL-BARSOS-2,5-YY-C.pdf",
+    "storageKey": "barsos/FO-TOFFEE-KARAMEL-BARSOS-25-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/barsos/FO-TOFFEE-KARAMEL-BARSOS-25-YY-C.pdf",
+    "rawPath": "barsos\\FO-TOFFEE-KARAMEL-BARSOS-2,5-YY-C.pdf"
+  },
+  {
+    "originalName": "FO_BEYAZ_CIKOLATA_BAR_SOS_2,5KG_YY-DIS-TİC.pdf",
+    "storageKey": "barsos/FO_BEYAZ_CIKOLATA_BAR_SOS_25KG_YY-DIS-TIC.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/barsos/FO_BEYAZ_CIKOLATA_BAR_SOS_25KG_YY-DIS-TIC.pdf",
+    "rawPath": "barsos\\FO_BEYAZ_CIKOLATA_BAR_SOS_2,5KG_YY-DIS-TİC.pdf"
+  },
+  {
+    "originalName": "PREMIUM BAR SOS KARAMEL BAR SOS 2,5 KG-C.pdf",
+    "storageKey": "barsos/PREMIUM-BAR-SOS-KARAMEL-BAR-SOS-25-KG-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/barsos/PREMIUM-BAR-SOS-KARAMEL-BAR-SOS-25-KG-C.pdf",
+    "rawPath": "barsos\\PREMIUM BAR SOS KARAMEL BAR SOS 2,5 KG-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-BAR-SOS-BEYAZ CİKOLATA-CİKOLATA 2,5KG-C.pdf",
+    "storageKey": "barsos/PREMIUM-BAR-SOS-BEYAZ-CIKOLATA-CIKOLATA-25KG-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/barsos/PREMIUM-BAR-SOS-BEYAZ-CIKOLATA-CIKOLATA-25KG-C.pdf",
+    "rawPath": "barsos\\PREMIUM-BAR-SOS-BEYAZ CİKOLATA-CİKOLATA 2,5KG-C.pdf"
+  },
+  {
+    "originalName": "YENI-PREMIUM-BAR-SOS-CİKOLATALI 2,5KG-C.pdf",
+    "storageKey": "barsos/YENI-PREMIUM-BAR-SOS-CIKOLATALI-25KG-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/barsos/YENI-PREMIUM-BAR-SOS-CIKOLATALI-25KG-C.pdf",
+    "rawPath": "barsos\\YENI-PREMIUM-BAR-SOS-CİKOLATALI 2,5KG-C.pdf"
+  },
+  {
+    "originalName": "YENI-PREMIUM-TARO AROMALI SOS-2,5KG-YY-C.pdf",
+    "storageKey": "barsos/YENI-PREMIUM-TARO-AROMALI-SOS-25KG-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/barsos/YENI-PREMIUM-TARO-AROMALI-SOS-25KG-YY-C.pdf",
+    "rawPath": "barsos\\YENI-PREMIUM-TARO AROMALI SOS-2,5KG-YY-C.pdf"
+  },
+  {
+    "originalName": "FO FRAMBUAZ MEYVELI SOS 1 KG-C.pdf",
+    "storageKey": "frozen/FO-FRAMBUAZ-MEYVELI-SOS-1-KG-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-FRAMBUAZ-MEYVELI-SOS-1-KG-C.pdf",
+    "rawPath": "frozen\\FO FRAMBUAZ MEYVELI SOS 1 KG-C.pdf"
+  },
+  {
+    "originalName": "FO-ANANAS-MEYVELI-SOS-1KG-(FROZEN)-C.pdf",
+    "storageKey": "frozen/FO-ANANAS-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-ANANAS-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "rawPath": "frozen\\FO-ANANAS-MEYVELI-SOS-1KG-(FROZEN)-C.pdf"
+  },
+  {
+    "originalName": "FO-BÖGÜRTLEN-MEYVELI-SOS-1KG-(FROZEN)-YY.pdf",
+    "storageKey": "frozen/FO-BOGURTLEN-MEYVELI-SOS-1KG-FROZEN-YY.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-BOGURTLEN-MEYVELI-SOS-1KG-FROZEN-YY.pdf",
+    "rawPath": "frozen\\FO-BÖGÜRTLEN-MEYVELI-SOS-1KG-(FROZEN)-YY.pdf"
+  },
+  {
+    "originalName": "FO-HİNDİSTAN-CEVİZİ-MEYVELI-SOS-1KG-(FROZEN)-C.pdf",
+    "storageKey": "frozen/FO-HINDISTAN-CEVIZI-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-HINDISTAN-CEVIZI-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "rawPath": "frozen\\FO-HİNDİSTAN-CEVİZİ-MEYVELI-SOS-1KG-(FROZEN)-C.pdf"
+  },
+  {
+    "originalName": "FO-KARADUT-MEYVELI-SOS-1KG-(FROZEN)-YY.pdf",
+    "storageKey": "frozen/FO-KARADUT-MEYVELI-SOS-1KG-FROZEN-YY.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-KARADUT-MEYVELI-SOS-1KG-FROZEN-YY.pdf",
+    "rawPath": "frozen\\FO-KARADUT-MEYVELI-SOS-1KG-(FROZEN)-YY.pdf"
+  },
+  {
+    "originalName": "FO-KARPUZ-MEYVELI-SOS-1KG-(FROZEN)-C.pdf",
+    "storageKey": "frozen/FO-KARPUZ-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-KARPUZ-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "rawPath": "frozen\\FO-KARPUZ-MEYVELI-SOS-1KG-(FROZEN)-C.pdf"
+  },
+  {
+    "originalName": "FO-KIVI-MEYVELI-SOS-1KG-(FROZEN)-YY-C.pdf",
+    "storageKey": "frozen/FO-KIVI-MEYVELI-SOS-1KG-FROZEN-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-KIVI-MEYVELI-SOS-1KG-FROZEN-YY-C.pdf",
+    "rawPath": "frozen\\FO-KIVI-MEYVELI-SOS-1KG-(FROZEN)-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-LİMON-MEYVELI-SOS-1KG-(FROZEN)-C_Folder.pdf",
+    "storageKey": "frozen/FO-LIMON-MEYVELI-SOS-1KG-FROZEN-C_Folder.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-LIMON-MEYVELI-SOS-1KG-FROZEN-C_Folder.pdf",
+    "rawPath": "frozen\\FO-LİMON-MEYVELI-SOS-1KG-(FROZEN)-C_Folder.pdf"
+  },
+  {
+    "originalName": "FO-MANGO-MEYVELI-SOS-1KG-(FROZEN)-C.pdf",
+    "storageKey": "frozen/FO-MANGO-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-MANGO-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "rawPath": "frozen\\FO-MANGO-MEYVELI-SOS-1KG-(FROZEN)-C.pdf"
+  },
+  {
+    "originalName": "FO-MUZ-MEYVELI-SOS-1KG-(FROZEN)-YY.pdf",
+    "storageKey": "frozen/FO-MUZ-MEYVELI-SOS-1KG-FROZEN-YY.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-MUZ-MEYVELI-SOS-1KG-FROZEN-YY.pdf",
+    "rawPath": "frozen\\FO-MUZ-MEYVELI-SOS-1KG-(FROZEN)-YY.pdf"
+  },
+  {
+    "originalName": "FO-ORMAN-MEYVESİ-MEYVELI-SOS-1KG-(FROZEN)-YY-C.pdf",
+    "storageKey": "frozen/FO-ORMAN-MEYVESI-MEYVELI-SOS-1KG-FROZEN-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-ORMAN-MEYVESI-MEYVELI-SOS-1KG-FROZEN-YY-C.pdf",
+    "rawPath": "frozen\\FO-ORMAN-MEYVESİ-MEYVELI-SOS-1KG-(FROZEN)-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-YABAN-MERSINI-MEYVELI-SOS-1KG-(FROZEN)-YY-C.pdf",
+    "storageKey": "frozen/FO-YABAN-MERSINI-MEYVELI-SOS-1KG-FROZEN-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-YABAN-MERSINI-MEYVELI-SOS-1KG-FROZEN-YY-C.pdf",
+    "rawPath": "frozen\\FO-YABAN-MERSINI-MEYVELI-SOS-1KG-(FROZEN)-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-YESİL-ELMA-MEYVELI-SOS-1KG-(FROZEN)-YY-c.pdf",
+    "storageKey": "frozen/FO-YESIL-ELMA-MEYVELI-SOS-1KG-FROZEN-YY-c.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-YESIL-ELMA-MEYVELI-SOS-1KG-FROZEN-YY-c.pdf",
+    "rawPath": "frozen\\FO-YESİL-ELMA-MEYVELI-SOS-1KG-(FROZEN)-YY-c.pdf"
+  },
+  {
+    "originalName": "FO-ÇARKIFELEK-MEYVELI-SOS-1KG-(FROZEN)-C.pdf",
+    "storageKey": "frozen/FO-CARKIFELEK-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-CARKIFELEK-MEYVELI-SOS-1KG-FROZEN-C.pdf",
+    "rawPath": "frozen\\FO-ÇARKIFELEK-MEYVELI-SOS-1KG-(FROZEN)-C.pdf"
+  },
+  {
+    "originalName": "FO-ÇİLEK-MEYVELI-SOS-1KG-(FROZEN)-YY-c.pdf",
+    "storageKey": "frozen/FO-CILEK-MEYVELI-SOS-1KG-FROZEN-YY-c.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-CILEK-MEYVELI-SOS-1KG-FROZEN-YY-c.pdf",
+    "rawPath": "frozen\\FO-ÇİLEK-MEYVELI-SOS-1KG-(FROZEN)-YY-c.pdf"
+  },
+  {
+    "originalName": "FO-ŞEFTALİ-MEYVELI-SOS-1KG-(FROZEN)-YY.pdf",
+    "storageKey": "frozen/FO-SEFTALI-MEYVELI-SOS-1KG-FROZEN-YY.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/frozen/FO-SEFTALI-MEYVELI-SOS-1KG-FROZEN-YY.pdf",
+    "rawPath": "frozen\\FO-ŞEFTALİ-MEYVELI-SOS-1KG-(FROZEN)-YY.pdf"
+  },
+  {
+    "originalName": "FO-APOLLO-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf",
+    "storageKey": "meyveli-icecek-800ml/FO-APOLLO-KARISIK-MEYVELI-ICECEK-800ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/meyveli-icecek-800ml/FO-APOLLO-KARISIK-MEYVELI-ICECEK-800ML-C.pdf",
+    "rawPath": "meyveli icecek 800ml\\FO-APOLLO-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf"
+  },
+  {
+    "originalName": "FO-DIONYSOS-KARISIK-MEYVELİ-İCECEK-800ml-C.pdf",
+    "storageKey": "meyveli-icecek-800ml/FO-DIONYSOS-KARISIK-MEYVELI-ICECEK-800ml-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/meyveli-icecek-800ml/FO-DIONYSOS-KARISIK-MEYVELI-ICECEK-800ml-C.pdf",
+    "rawPath": "meyveli icecek 800ml\\FO-DIONYSOS-KARISIK-MEYVELİ-İCECEK-800ml-C.pdf"
+  },
+  {
+    "originalName": "FO-HELIOS-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf",
+    "storageKey": "meyveli-icecek-800ml/FO-HELIOS-KARISIK-MEYVELI-ICECEK-800ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/meyveli-icecek-800ml/FO-HELIOS-KARISIK-MEYVELI-ICECEK-800ML-C.pdf",
+    "rawPath": "meyveli icecek 800ml\\FO-HELIOS-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf"
+  },
+  {
+    "originalName": "FO-HERAKLES-KARISIK-MEYVELİ-İCECEK-820ML-C.pdf",
+    "storageKey": "meyveli-icecek-800ml/FO-HERAKLES-KARISIK-MEYVELI-ICECEK-820ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/meyveli-icecek-800ml/FO-HERAKLES-KARISIK-MEYVELI-ICECEK-820ML-C.pdf",
+    "rawPath": "meyveli icecek 800ml\\FO-HERAKLES-KARISIK-MEYVELİ-İCECEK-820ML-C.pdf"
+  },
+  {
+    "originalName": "FO-ZEUS-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf",
+    "storageKey": "meyveli-icecek-800ml/FO-ZEUS-KARISIK-MEYVELI-ICECEK-800ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/meyveli-icecek-800ml/FO-ZEUS-KARISIK-MEYVELI-ICECEK-800ML-C.pdf",
+    "rawPath": "meyveli icecek 800ml\\FO-ZEUS-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf"
+  },
+  {
+    "originalName": "ELEKTRİK ÇİÇEĞİ VE YABAN MERSİNİ AROMALI BAZ-RAZZY-C.pdf",
+    "storageKey": "surup/ELEKTRIK-CICEGI-VE-YABAN-MERSINI-AROMALI-BAZ-RAZZY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/ELEKTRIK-CICEGI-VE-YABAN-MERSINI-AROMALI-BAZ-RAZZY-C.pdf",
+    "rawPath": "surup\\ELEKTRİK ÇİÇEĞİ VE YABAN MERSİNİ AROMALI BAZ-RAZZY-C.pdf"
+  },
+  {
+    "originalName": "FO KARAMEL SURUP-(sekerli).pdf",
+    "storageKey": "surup/FO-KARAMEL-SURUP-sekerli.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-KARAMEL-SURUP-sekerli.pdf",
+    "rawPath": "surup\\FO KARAMEL SURUP-(sekerli).pdf"
+  },
+  {
+    "originalName": "FO KUBA NANESI AROMALI VE MISKET LIMONLU BAZ-C.pdf",
+    "storageKey": "surup/FO-KUBA-NANESI-AROMALI-VE-MISKET-LIMONLU-BAZ-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-KUBA-NANESI-AROMALI-VE-MISKET-LIMONLU-BAZ-C.pdf",
+    "rawPath": "surup\\FO KUBA NANESI AROMALI VE MISKET LIMONLU BAZ-C.pdf"
+  },
+  {
+    "originalName": "FO VANILYA-AROMALI-SEKERSIZ-SURUP-c_Folder.pdf",
+    "storageKey": "surup/FO-VANILYA-AROMALI-SEKERSIZ-SURUP-c_Folder.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-VANILYA-AROMALI-SEKERSIZ-SURUP-c_Folder.pdf",
+    "rawPath": "surup\\FO VANILYA-AROMALI-SEKERSIZ-SURUP-c_Folder.pdf"
+  },
+  {
+    "originalName": "FO-ANANAS-AROMALI-SURUP-700ml-C.pdf",
+    "storageKey": "surup/FO-ANANAS-AROMALI-SURUP-700ml-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-ANANAS-AROMALI-SURUP-700ml-C.pdf",
+    "rawPath": "surup\\FO-ANANAS-AROMALI-SURUP-700ml-C.pdf"
+  },
+  {
+    "originalName": "FO-BAHCENANE-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-BAHCENANE-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-BAHCENANE-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-BAHCENANE-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-BOGURTLEN-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-BOGURTLEN-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-BOGURTLEN-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-BOGURTLEN-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-CIKOLATA-AROMALI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/FO-CIKOLATA-AROMALI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-CIKOLATA-AROMALI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\FO-CIKOLATA-AROMALI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "FO-CILEK-AROMALI-SURUP-700ml-SEKERLI-C.pdf",
+    "storageKey": "surup/FO-CILEK-AROMALI-SURUP-700ml-SEKERLI-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-CILEK-AROMALI-SURUP-700ml-SEKERLI-C.pdf",
+    "rawPath": "surup\\FO-CILEK-AROMALI-SURUP-700ml-SEKERLI-C.pdf"
+  },
+  {
+    "originalName": "FO-DAMLALIKLI-KOKTEYL-KOPURTUCU-ETIKET-C.pdf",
+    "storageKey": "surup/FO-DAMLALIKLI-KOKTEYL-KOPURTUCU-ETIKET-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-DAMLALIKLI-KOKTEYL-KOPURTUCU-ETIKET-C.pdf",
+    "rawPath": "surup\\FO-DAMLALIKLI-KOKTEYL-KOPURTUCU-ETIKET-C.pdf"
+  },
+  {
+    "originalName": "FO-FINDIK-AROMALI-SEKERSIZ-SURUP-C.pdf",
+    "storageKey": "surup/FO-FINDIK-AROMALI-SEKERSIZ-SURUP-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-FINDIK-AROMALI-SEKERSIZ-SURUP-C.pdf",
+    "rawPath": "surup\\FO-FINDIK-AROMALI-SEKERSIZ-SURUP-C.pdf"
+  },
+  {
+    "originalName": "FO-FINDIK-KARAMEL-AROMALI-SURUP-700ml-YY-SEKERLI-C.pdf",
+    "storageKey": "surup/FO-FINDIK-KARAMEL-AROMALI-SURUP-700ml-YY-SEKERLI-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-FINDIK-KARAMEL-AROMALI-SURUP-700ml-YY-SEKERLI-C.pdf",
+    "rawPath": "surup\\FO-FINDIK-KARAMEL-AROMALI-SURUP-700ml-YY-SEKERLI-C.pdf"
+  },
+  {
+    "originalName": "FO-HIBISKUS-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-HIBISKUS-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-HIBISKUS-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-HIBISKUS-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-HINDISTANCEVIZI-BLANC-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-HINDISTANCEVIZI-BLANC-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-HINDISTANCEVIZI-BLANC-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-HINDISTANCEVIZI-BLANC-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-HINDISTANCEVIZI-REGULAR-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-HINDISTANCEVIZI-REGULAR-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-HINDISTANCEVIZI-REGULAR-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-HINDISTANCEVIZI-REGULAR-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-KARPUZ-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-KARPUZ-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-KARPUZ-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-KARPUZ-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-KIVI-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-KIVI-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-KIVI-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-KIVI-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-MANGO-AROMALI-SURUP-700ml-YY.pdf",
+    "storageKey": "surup/FO-MANGO-AROMALI-SURUP-700ml-YY.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-MANGO-AROMALI-SURUP-700ml-YY.pdf",
+    "rawPath": "surup\\FO-MANGO-AROMALI-SURUP-700ml-YY.pdf"
+  },
+  {
+    "originalName": "FO-MOJITO-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-MOJITO-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-MOJITO-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-MOJITO-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-MUZ-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-MUZ-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-MUZ-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-MUZ-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-NANE-AROMALI-SURUP-700ml.pdf",
+    "storageKey": "surup/FO-NANE-AROMALI-SURUP-700ml.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-NANE-AROMALI-SURUP-700ml.pdf",
+    "rawPath": "surup\\FO-NANE-AROMALI-SURUP-700ml.pdf"
+  },
+  {
+    "originalName": "FO-NANE-MISKET-LIMON-COOL-LIME-MIX-C.pdf",
+    "storageKey": "surup/FO-NANE-MISKET-LIMON-COOL-LIME-MIX-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-NANE-MISKET-LIMON-COOL-LIME-MIX-C.pdf",
+    "rawPath": "surup\\FO-NANE-MISKET-LIMON-COOL-LIME-MIX-C.pdf"
+  },
+  {
+    "originalName": "FO-NAR-AROMALI-SURUP-700ml-Nar-eksisi-uyarılı-C.pdf",
+    "storageKey": "surup/FO-NAR-AROMALI-SURUP-700ml-Nar-eksisi-uyarili-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-NAR-AROMALI-SURUP-700ml-Nar-eksisi-uyarili-C.pdf",
+    "rawPath": "surup\\FO-NAR-AROMALI-SURUP-700ml-Nar-eksisi-uyarılı-C.pdf"
+  },
+  {
+    "originalName": "FO-SAKURA-BEYAZ-SEFTALI-BAZ-700ml.pdf",
+    "storageKey": "surup/FO-SAKURA-BEYAZ-SEFTALI-BAZ-700ml.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-SAKURA-BEYAZ-SEFTALI-BAZ-700ml.pdf",
+    "rawPath": "surup\\FO-SAKURA-BEYAZ-SEFTALI-BAZ-700ml.pdf"
+  },
+  {
+    "originalName": "FO-TURUNC-AROMALI-SURUP-700ml-C.pdf",
+    "storageKey": "surup/FO-TURUNC-AROMALI-SURUP-700ml-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-TURUNC-AROMALI-SURUP-700ml-C.pdf",
+    "rawPath": "surup\\FO-TURUNC-AROMALI-SURUP-700ml-C.pdf"
+  },
+  {
+    "originalName": "FO-YESILELMA-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/FO-YESILELMA-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/FO-YESILELMA-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\FO-YESILELMA-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "Fo_Beyaz_Cikolata_Aromalı_Surup_YY-E171sız-C.pdf",
+    "storageKey": "surup/Fo_Beyaz_Cikolata_Aromali_Surup_YY-E171siz-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/Fo_Beyaz_Cikolata_Aromali_Surup_YY-E171siz-C.pdf",
+    "rawPath": "surup\\Fo_Beyaz_Cikolata_Aromalı_Surup_YY-E171sız-C.pdf"
+  },
+  {
+    "originalName": "Fo_MAVI-Frambuaz_Aromalı_Surup_SEKERLI.pdf",
+    "storageKey": "surup/Fo_MAVI-Frambuaz_Aromali_Surup_SEKERLI.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/Fo_MAVI-Frambuaz_Aromali_Surup_SEKERLI.pdf",
+    "rawPath": "surup\\Fo_MAVI-Frambuaz_Aromalı_Surup_SEKERLI.pdf"
+  },
+  {
+    "originalName": "PREMIUM-BEYAZ-CİKOLATALI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-BEYAZ-CIKOLATALI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-BEYAZ-CIKOLATALI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-BEYAZ-CİKOLATALI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-BOGURTLEN MEYVELI-SURUP-700ML.pdf",
+    "storageKey": "surup/PREMIUM-BOGURTLEN-MEYVELI-SURUP-700ML.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-BOGURTLEN-MEYVELI-SURUP-700ML.pdf",
+    "rawPath": "surup\\PREMIUM-BOGURTLEN MEYVELI-SURUP-700ML.pdf"
+  },
+  {
+    "originalName": "PREMIUM-CILEK-MEYVELI-SURUP-700ML.pdf",
+    "storageKey": "surup/PREMIUM-CILEK-MEYVELI-SURUP-700ML.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-CILEK-MEYVELI-SURUP-700ML.pdf",
+    "rawPath": "surup\\PREMIUM-CILEK-MEYVELI-SURUP-700ML.pdf"
+  },
+  {
+    "originalName": "PREMIUM-FINDIK-AROMALI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-FINDIK-AROMALI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-FINDIK-AROMALI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-FINDIK-AROMALI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-FRAMBUAZ-MEYVELI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-FRAMBUAZ-MEYVELI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-FRAMBUAZ-MEYVELI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-FRAMBUAZ-MEYVELI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-KARAMELLİ-SURUP-700ML.pdf",
+    "storageKey": "surup/PREMIUM-KARAMELLI-SURUP-700ML.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-KARAMELLI-SURUP-700ML.pdf",
+    "rawPath": "surup\\PREMIUM-KARAMELLİ-SURUP-700ML.pdf"
+  },
+  {
+    "originalName": "PREMIUM-KARPUZ-AROMALI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-KARPUZ-AROMALI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-KARPUZ-AROMALI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-KARPUZ-AROMALI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-MANGO-MEYVELI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-MANGO-MEYVELI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-MANGO-MEYVELI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-MANGO-MEYVELI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-NAR-MEYVELI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-NAR-MEYVELI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-NAR-MEYVELI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-NAR-MEYVELI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-SEFTALI-MEYVELI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-SEFTALI-MEYVELI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-SEFTALI-MEYVELI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-SEFTALI-MEYVELI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-VANILYA-AROMALI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-VANILYA-AROMALI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-VANILYA-AROMALI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-VANILYA-AROMALI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "PREMIUM-YESİL-ELMA-AROMALI-SURUP-700ML-C.pdf",
+    "storageKey": "surup/PREMIUM-YESIL-ELMA-AROMALI-SURUP-700ML-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/PREMIUM-YESIL-ELMA-AROMALI-SURUP-700ML-C.pdf",
+    "rawPath": "surup\\PREMIUM-YESİL-ELMA-AROMALI-SURUP-700ML-C.pdf"
+  },
+  {
+    "originalName": "SEKERLI-FO-SEFTALI-AROMALI-SURUP-700ml-TURUNCU-C.pdf",
+    "storageKey": "surup/SEKERLI-FO-SEFTALI-AROMALI-SURUP-700ml-TURUNCU-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/SEKERLI-FO-SEFTALI-AROMALI-SURUP-700ml-TURUNCU-C.pdf",
+    "rawPath": "surup\\SEKERLI-FO-SEFTALI-AROMALI-SURUP-700ml-TURUNCU-C.pdf"
+  },
+  {
+    "originalName": "SEKERLI-FO-VANILYA-AROMALI-SURUP-700ml-YY-C.pdf",
+    "storageKey": "surup/SEKERLI-FO-VANILYA-AROMALI-SURUP-700ml-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/SEKERLI-FO-VANILYA-AROMALI-SURUP-700ml-YY-C.pdf",
+    "rawPath": "surup\\SEKERLI-FO-VANILYA-AROMALI-SURUP-700ml-YY-C.pdf"
+  },
+  {
+    "originalName": "YENİ-Y-2023-KARAMEL-AROMALI-SEKERSIZ-SURUP.pdf",
+    "storageKey": "surup/YENI-Y-2023-KARAMEL-AROMALI-SEKERSIZ-SURUP.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/surup/YENI-Y-2023-KARAMEL-AROMALI-SEKERSIZ-SURUP.pdf",
+    "rawPath": "surup\\YENİ-Y-2023-KARAMEL-AROMALI-SEKERSIZ-SURUP.pdf"
+  },
+  {
+    "originalName": "FO CILEK DEKOR TOPPING 750G-C.pdf",
+    "storageKey": "topping/FO-CILEK-DEKOR-TOPPING-750G-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/topping/FO-CILEK-DEKOR-TOPPING-750G-C.pdf",
+    "rawPath": "topping\\FO CILEK DEKOR TOPPING 750G-C.pdf"
+  },
+  {
+    "originalName": "FO CİKOLATA ARM. DEKOR TOPPING 750G-C.pdf",
+    "storageKey": "topping/FO-CIKOLATA-ARM.-DEKOR-TOPPING-750G-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/topping/FO-CIKOLATA-ARM.-DEKOR-TOPPING-750G-C.pdf",
+    "rawPath": "topping\\FO CİKOLATA ARM. DEKOR TOPPING 750G-C.pdf"
+  },
+  {
+    "originalName": "FO MADAME SORREL KUZUKULAKLI KARISIM-C.pdf",
+    "storageKey": "topping/FO-MADAME-SORREL-KUZUKULAKLI-KARISIM-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/topping/FO-MADAME-SORREL-KUZUKULAKLI-KARISIM-C.pdf",
+    "rawPath": "topping\\FO MADAME SORREL KUZUKULAKLI KARISIM-C.pdf"
+  },
+  {
+    "originalName": "FO-ANTEP-FISTIKLI-SPECIAL-SOS-940g-�5-N-C.pdf",
+    "storageKey": "topping/FO-ANTEP-FISTIKLI-SPECIAL-SOS-940g-5-N-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/topping/FO-ANTEP-FISTIKLI-SPECIAL-SOS-940g-5-N-C.pdf",
+    "rawPath": "topping\\FO-ANTEP-FISTIKLI-SPECIAL-SOS-940g-�5-N-C.pdf"
+  },
+  {
+    "originalName": "FO-ECLIPSE-SPECIAL-SOS-1000g-C.pdf",
+    "storageKey": "topping/FO-ECLIPSE-SPECIAL-SOS-1000g-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/topping/FO-ECLIPSE-SPECIAL-SOS-1000g-C.pdf",
+    "rawPath": "topping\\FO-ECLIPSE-SPECIAL-SOS-1000g-C.pdf"
+  },
+  {
+    "originalName": "FO-PATLAYAN ŞEKERLİ-SPECIAL-SOS-1000g-C.pdf",
+    "storageKey": "topping/FO-PATLAYAN-SEKERLI-SPECIAL-SOS-1000g-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/topping/FO-PATLAYAN-SEKERLI-SPECIAL-SOS-1000g-C.pdf",
+    "rawPath": "topping\\FO-PATLAYAN ŞEKERLİ-SPECIAL-SOS-1000g-C.pdf"
+  },
+  {
+    "originalName": "FO CHAI TEA AROMALI ICECEK TOZU 1KG-C.pdf",
+    "storageKey": "toz-1kg/FO-CHAI-TEA-AROMALI-ICECEK-TOZU-1KG-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/toz-1kg/FO-CHAI-TEA-AROMALI-ICECEK-TOZU-1KG-C.pdf",
+    "rawPath": "toz 1kg\\FO CHAI TEA AROMALI ICECEK TOZU 1KG-C.pdf"
+  },
+  {
+    "originalName": "FO CIKOLATA AROMALI ICECEK TOZU 1KG.pdf",
+    "storageKey": "toz-1kg/FO-CIKOLATA-AROMALI-ICECEK-TOZU-1KG.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/toz-1kg/FO-CIKOLATA-AROMALI-ICECEK-TOZU-1KG.pdf",
+    "rawPath": "toz 1kg\\FO CIKOLATA AROMALI ICECEK TOZU 1KG.pdf"
+  },
+  {
+    "originalName": "FO CILEK AROMALI ICECEK TOZU 1KG-C.pdf",
+    "storageKey": "toz-1kg/FO-CILEK-AROMALI-ICECEK-TOZU-1KG-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/toz-1kg/FO-CILEK-AROMALI-ICECEK-TOZU-1KG-C.pdf",
+    "rawPath": "toz 1kg\\FO CILEK AROMALI ICECEK TOZU 1KG-C.pdf"
+  },
+  {
+    "originalName": "FO VANILYA AROMALI ICECEK TOZU 1 KG.pdf",
+    "storageKey": "toz-1kg/FO-VANILYA-AROMALI-ICECEK-TOZU-1-KG.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/toz-1kg/FO-VANILYA-AROMALI-ICECEK-TOZU-1-KG.pdf",
+    "rawPath": "toz 1kg\\FO VANILYA AROMALI ICECEK TOZU 1 KG.pdf"
+  },
+  {
+    "originalName": "FO-KAVUN-MILKSHAKE-1KG-YY-C.pdf",
+    "storageKey": "toz-1kg/FO-KAVUN-MILKSHAKE-1KG-YY-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/toz-1kg/FO-KAVUN-MILKSHAKE-1KG-YY-C.pdf",
+    "rawPath": "toz 1kg\\FO-KAVUN-MILKSHAKE-1KG-YY-C.pdf"
+  },
+  {
+    "originalName": "FO-OUATTRO-BASE-TASARIM-ONAYLI-C.pdf",
+    "storageKey": "toz-1kg/FO-OUATTRO-BASE-TASARIM-ONAYLI-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/toz-1kg/FO-OUATTRO-BASE-TASARIM-ONAYLI-C.pdf",
+    "rawPath": "toz 1kg\\FO-OUATTRO-BASE-TASARIM-ONAYLI-C.pdf"
+  },
+  {
+    "originalName": "FO-YESILCAY-MATCHA AROMALI ICECEK TOZU 1KG-C.pdf",
+    "storageKey": "toz-1kg/FO-YESILCAY-MATCHA-AROMALI-ICECEK-TOZU-1KG-C.pdf",
+    "publicUrl": "https://szuhjzgyhhlrydyllrcd.supabase.co/storage/v1/object/public/urun-etiketleri/toz-1kg/FO-YESILCAY-MATCHA-AROMALI-ICECEK-TOZU-1KG-C.pdf",
+    "rawPath": "toz 1kg\\FO-YESILCAY-MATCHA AROMALI ICECEK TOZU 1KG-C.pdf"
+  }
+]

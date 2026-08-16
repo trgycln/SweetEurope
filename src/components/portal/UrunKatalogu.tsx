@@ -373,7 +373,7 @@ export function UrunKatalogu({
                                         </p>
                                         {isOutOfStock && (
                                             <span className="text-[10px] text-red-500 font-semibold">
-                                                {t(locale, 'Ausverkauft', 'Out of stock', 'Stok yok', 'نفد المخزون')}
+                                                {t(locale, 'Nicht auf Lager', 'Out of stock', 'Stok yok', 'نفد المخزون')}
                                             </span>
                                         )}
                                     </td>

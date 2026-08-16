@@ -42,3 +42,9 @@ next-env.d.ts
 
 # supabase
 .env.local
+
+# large media & labels (stored in Supabase Storage)
+/public/Ürün Etiketleri
+/public/urun-etiketleri
+/public/Ürün Etiketleri/**
+/public/urun-etiketleri/**

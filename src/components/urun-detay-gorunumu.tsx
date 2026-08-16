@@ -9,6 +9,8 @@ import { getLocalizedName, Locale } from '@/lib/utils';
 import { FiTag, FiInfo, FiMail, FiDownload, FiAlertTriangle } from 'react-icons/fi';
 import { LuPackage, LuPackage2, LuWarehouse, LuBarcode, LuTruck, LuThermometerSnowflake, LuThermometer, LuShieldCheck, LuClock, LuCalendar } from 'react-icons/lu';
 import { getBadgeText, getFlavorLabel } from '@/lib/labels';
+import { ProductDescriptionRenderer } from '@/components/common/ProductDescriptionRenderer';
+import { formatLmivIngredients } from '@/lib/allergen-highlighter';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 // All B2B fields are now in Tables<'urunler'> after database.types.ts regeneration
@@ -379,8 +381,11 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                         {aciklama && (
                             <div>
                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{lc.description}</h3>
-                                <div className="text-sm text-slate-600 leading-relaxed"
-                                    dangerouslySetInnerHTML={{ __html: aciklama.replace(/\n/g, '<br />') }} />
+                                <ProductDescriptionRenderer
+                                    text={aciklama}
+                                    productTitle={urunAdi}
+                                    locale={locale}
+                                />
                             </div>
                         )}
 
@@ -471,7 +476,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                 {inhaltsstoffe && (
                                     <div className="mb-3 p-3.5 rounded-xl border border-slate-200 bg-white">
                                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">{lc.ingredients}</p>
-                                        <p className="text-xs text-slate-700 leading-relaxed">{inhaltsstoffe}</p>
+                                        <div className="text-xs text-slate-700 leading-relaxed">{formatLmivIngredients(inhaltsstoffe)}</div>
                                     </div>
                                 )}
 
@@ -919,8 +924,11 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                         {aciklama && (
                             <div>
                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{lc.description}</h3>
-                                <div className="text-sm text-slate-600 leading-relaxed"
-                                    dangerouslySetInnerHTML={{ __html: aciklama.replace(/\n/g, '<br />') }} />
+                                <ProductDescriptionRenderer
+                                    text={aciklama}
+                                    productTitle={urunAdi}
+                                    locale={locale}
+                                />
                             </div>
                         )}
 
@@ -1030,7 +1038,7 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                 {inhaltsstoffe && (
                                     <div className="mb-3 p-3.5 rounded-xl border border-slate-200 bg-white">
                                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">{lc.ingredients}</p>
-                                        <p className="text-xs text-slate-700 leading-relaxed">{inhaltsstoffe}</p>
+                                        <div className="text-xs text-slate-700 leading-relaxed">{formatLmivIngredients(inhaltsstoffe)}</div>
                                     </div>
                                 )}
 

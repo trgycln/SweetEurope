@@ -4,7 +4,7 @@
 import React, { useState } from 'react'; // useState importieren
 import Image from 'next/image';
 import { Tables } from '@/lib/supabase/database.types';
-import { getLocalizedName, formatCurrency } from '@/lib/utils';
+import { getLocalizedName, formatCurrency, computeTedarikDurumu } from '@/lib/utils';
 import { Locale } from '@/i18n-config';
 import { Dictionary } from '@/dictionaries';
 import {
@@ -13,6 +13,8 @@ import {
 } from 'react-icons/fi';
 import { LuBarcode } from 'react-icons/lu';
 import { usePortal, ProduktImWarenkorb } from '@/contexts/PortalContext'; // NEU: Context importieren
+import { ProductDescriptionRenderer } from '@/components/common/ProductDescriptionRenderer';
+import { ProductSpecsAccordion } from '@/components/common/ProductSpecsAccordion';
 import { toast } from 'sonner'; // NEU: toast importieren
 
 // Typen (unverändert)
@@ -41,26 +43,29 @@ const ozelliklerMap = [
     { key: 'raf_omru_ay', label: 'Haltbarkeit', icon: <FiClipboard/>, suffix: ' Monate' },
 ];
 
-// LagerStatusAnzeige (unverändert)
-const LagerStatusAnzeige = ({ menge, schwelle, dictionary }: { menge: number | null, schwelle: number | null, dictionary: Dictionary }) => {
+// LagerStatusAnzeige
+const LagerStatusAnzeige = ({ menge, schwelle, dictionary, locale, tukenmeTarihi }: { menge: number | null, schwelle: number | null, dictionary: Dictionary, locale: Locale, tukenmeTarihi: string | null }) => {
     const currentMenge = menge ?? 0;
     const warnSchwelle = schwelle ?? 0;
     const content = (dictionary as any)?.portal?.productDetailPage || {};
 
-    let status: { text: string; color: string; icon: React.ReactNode };
+    let status: { text: string; color: string; icon: React.ReactNode; showCount: boolean };
 
-    if (currentMenge <= 0) {
-        status = { text: content.availabilityOutOfStock || "Ausverkauft", color: "text-red-600", icon: <FiXCircle /> };
+    const durum = computeTedarikDurumu(currentMenge, tukenmeTarihi);
+    if (durum === 'talep_uzerine') {
+        status = { text: locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok', color: "text-violet-600", icon: <FiAlertTriangle />, showCount: false };
+    } else if (durum === 'tukendi') {
+        status = { text: locale === 'de' ? 'Ausverkauft' : 'Tükendi', color: "text-red-600", icon: <FiXCircle />, showCount: false };
     } else if (currentMenge <= warnSchwelle) {
-        status = { text: content.availabilityLowStock || "Wenig Bestand", color: "text-yellow-600", icon: <FiAlertTriangle /> };
+        status = { text: content.availabilityLowStock || (locale === 'de' ? 'Wenig Bestand' : 'Az stok'), color: "text-yellow-600", icon: <FiAlertTriangle />, showCount: true };
     } else {
-        status = { text: content.availabilityInStock || "Auf Lager", color: "text-green-600", icon: <FiCheckCircle /> };
+        status = { text: content.availabilityInStock || (locale === 'de' ? 'Auf Lager' : 'Stokta var'), color: "text-green-600", icon: <FiCheckCircle />, showCount: true };
     }
 
     return (
         <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${status.color}`}>
             {status.icon}
-            {status.text} ({currentMenge})
+            {status.text} {status.showCount ? `(${currentMenge})` : ''}
         </span>
     );
 };
@@ -108,7 +113,7 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
     // NEU: Handler für "In den Warenkorb"
     const handleAddToWarenkorb = () => {
         if (stokMiktari === null || stokMiktari <= 0) {
-            toast.error("Dieses Produkt ist ausverkauft.");
+            toast.error(locale === "de" ? "Dieses Produkt ist nicht auf Lager." : "Stokta yok.");
             return;
         }
         if (partnerPreis === null) {
@@ -177,7 +182,7 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                              </div>
                              <div className='sm:text-right'>
                                  <p className="text-xs font-bold text-text-main/60 uppercase">{content.availability || "Verfügbarkeit"}</p>
-                                 <LagerStatusAnzeige menge={stokMiktari} schwelle={urun.stok_esigi} dictionary={dictionary} />
+                                 <LagerStatusAnzeige menge={stokMiktari} schwelle={urun.stok_esigi} dictionary={dictionary} locale={locale} tukenmeTarihi={(urun as any).stok_tukenme_tarihi} />
                              </div>
                          </div>
 
@@ -224,19 +229,23 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                         {/* --- Ende Bestell-Aktionen --- */}
 
 
-                         {/* Beschreibung (unverändert) */}
+                         {/* Beschreibung / Akıllı Estetik Açıklama */}
                          {aciklama && typeof aciklama === 'string' && aciklama !== 'Unbenannt' && aciklama.trim() !== '' && (
-                            <div className="prose prose-sm max-w-none text-text-main" dangerouslySetInnerHTML={{ __html: aciklama.replace(/\n/g, '<br />') }} />
+                            <ProductDescriptionRenderer
+                                text={aciklama}
+                                productTitle={urunAdi}
+                                locale={locale}
+                            />
                          )}
 
-                         {/* Technische Details (unverändert) */}
+                         {/* Technische Details (falls vorhanden) */}
                          {gosterilecekOzellikler.length > 0 && (
-                             <div className="border-t pt-6">
-                                 <h3 className="font-bold font-sans tracking-wider uppercase mb-3 text-primary text-sm">Details</h3>
+                             <div className="border-t pt-4">
+                                 <h3 className="font-bold font-sans tracking-wider uppercase mb-2 text-primary text-xs">Details</h3>
                                  <div className="space-y-1">
                                      {gosterilecekOzellikler.map(item => (
-                                         <div key={item.key} className="flex justify-between items-center py-1.5 text-sm">
-                                             <span className="font-medium text-text-main/80">{item.label}</span>
+                                         <div key={item.key} className="flex justify-between items-center py-1 text-xs">
+                                             <span className="font-medium text-text-main/70">{item.label}</span>
                                              <span className="font-semibold text-primary">{item.value}{item.suffix || ''}</span>
                                          </div>
                                      ))}
@@ -244,69 +253,27 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                              </div>
                          )}
 
-                         {/* Sabit lojistik bilgiler */}
-                         {((urun as any).koli_ici_adet || (urun as any).palet_ici_adet || (urun as any).birim_agirlik_kg ||
-                           (urun as any).mindest_bestellmenge || (urun as any).lieferzeit_werktage || (urun as any).hersteller_name) && (
-                             <div className="border-t pt-6 mt-2">
-                                 <h3 className="font-bold font-sans tracking-wider uppercase mb-3 text-primary text-sm">
-                                     {locale === 'de' ? 'Logistik & Lieferung' : 'Lojistik & Teslimat'}
-                                 </h3>
-                                 <div className="space-y-1">
-                                     {(urun as any).koli_ici_adet && (
-                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
-                                             <span className="text-text-main/70">
-                                                 {locale === 'de' ? 'Stück/Karton' : 'Adet/Koli'}
-                                             </span>
-                                             <span className="font-semibold text-primary">{(urun as any).koli_ici_adet}</span>
-                                         </div>
-                                     )}
-                                     {(urun as any).palet_ici_adet && (
-                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
-                                             <span className="text-text-main/70">
-                                                 {locale === 'de' ? 'Kartons/Palette' : 'Koli/Palet'}
-                                             </span>
-                                             <span className="font-semibold text-primary">{(urun as any).palet_ici_adet}</span>
-                                         </div>
-                                     )}
-                                     {(urun as any).birim_agirlik_kg && (
-                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
-                                             <span className="text-text-main/70">
-                                                 {locale === 'de' ? 'Gewicht/Einheit' : 'Birim Ağırlık'}
-                                             </span>
-                                             <span className="font-semibold text-primary">{(urun as any).birim_agirlik_kg} kg</span>
-                                         </div>
-                                     )}
-                                     {(urun as any).mindest_bestellmenge && (
-                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
-                                             <span className="text-text-main/70">
-                                                 {locale === 'de' ? 'Mindestbestellmenge' : 'Min. Sipariş Miktarı'}
-                                             </span>
-                                             <span className="font-semibold text-primary">
-                                                 {(urun as any).mindest_bestellmenge} {(urun as any).mindest_bestellmenge_einheit || ''}
-                                             </span>
-                                         </div>
-                                     )}
-                                     {(urun as any).lieferzeit_werktage && (
-                                         <div className="flex justify-between items-center py-1.5 text-sm border-b border-gray-100">
-                                             <span className="text-text-main/70">
-                                                 {locale === 'de' ? 'Lieferzeit' : 'Teslimat Süresi'}
-                                             </span>
-                                             <span className="font-semibold text-primary">
-                                                 {(urun as any).lieferzeit_werktage} {locale === 'de' ? 'Werktage' : 'iş günü'}
-                                             </span>
-                                         </div>
-                                     )}
-                                     {(urun as any).hersteller_name && (
-                                         <div className="flex justify-between items-center py-1.5 text-sm">
-                                             <span className="text-text-main/70">
-                                                 {locale === 'de' ? 'Hersteller' : 'Üretici'}
-                                             </span>
-                                             <span className="font-semibold text-primary">{(urun as any).hersteller_name}</span>
-                                         </div>
-                                     )}
-                                 </div>
-                             </div>
-                         )}
+                         {/* ── Akıllı Katlanabilir Bölümler: Zutaten, Nährwerte, Logistik & Original Etikett ── */}
+                         <ProductSpecsAccordion
+                             inhaltsstoffe={(urun as any).inhaltsstoffe}
+                             naehrwerte={(urun as any).naehrwerte}
+                             allergene={(urun as any).allergene}
+                             etiketPdfUrl={(urun as any).etiket_pdf_url || (urun as any).produktdatenblatt_url}
+                             logistik={{
+                                 koliIciAdet: (urun as any).koli_ici_adet,
+                                 paletIciAdet: (urun as any).palet_ici_adet,
+                                 paletIciKoliAdet: (urun as any).palet_ici_koli_adet,
+                                 birimAgirlikKg: (urun as any).birim_agirlik_kg,
+                                 mindestBestellmenge: (urun as any).mindest_bestellmenge,
+                                 mindestBestellmengeEinheit: (urun as any).mindest_bestellmenge_einheit,
+                                 lieferzeitWerktage: (urun as any).lieferzeit_werktage,
+                                 herstellerName: (urun as any).hersteller_name,
+                                 herkunftsland: (urun as any).herkunftsland,
+                             }}
+                             productName={urunAdi}
+                             stokKodu={urun.stok_kodu}
+                             locale={locale}
+                         />
                     </div>
                 </div>
             </div>

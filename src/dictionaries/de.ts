@@ -69,7 +69,7 @@ export const dictionary = {
         availability: "Verfügbarkeit",
         availabilityInStock: "Auf Lager",
         availabilityLowStock: "Wenig Bestand",
-        availabilityOutOfStock: "Ausverkauft",
+        availabilityOutOfStock: "Nicht auf Lager",
         
         // ------------------
     },
@@ -93,11 +93,11 @@ export const dictionary = {
       stockStatus: {
         inStock: 'Auf Lager',
         lowStock: 'Wenig Lagerbestand',
-        outOfStock: 'Ausverkauft',
+        outOfStock: 'Nicht auf Lager',
         addToCart: "In den Warenkorb", // Button-Text
         addedToCart: "sepete eklendi!", // Toast-Nachricht (oder "zum Warenkorb hinzugefügt!")
         stockNotAvailable: "Stok yetersiz! Maksimum %{stock} adet.", // Warnung
-        productOutOfStock: "Dieses Produkt ist ausverkauft.",
+        productOutOfStock: "Dieses Produkt ist nicht auf Lager.",
       },
       noProductsFound: 'Keine Produkte für diese Kriterien gefunden.',
       cartTitle: 'Ihr Warenkorb',
@@ -108,7 +108,7 @@ export const dictionary = {
       processingOrder: 'Bestellung wird bearbeitet...',
       error: {
         stockNotAvailable: 'Nicht genügend Lagerbestand! Maximal %{stock} Einheiten verfügbar.',
-        productOutOfStock: 'Dieses Produkt ist ausverkauft.',
+        productOutOfStock: 'Dieses Produkt ist nicht auf Lager.',
         cartEmpty: 'Bitte fügen Sie Produkte zum Warenkorb hinzu, um eine Bestellung aufzugeben.',
       },
     },

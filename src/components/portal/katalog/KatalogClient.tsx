@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect, useMemo } from "react";
 import { FiHeart, FiSearch, FiX, FiList, FiGrid } from "react-icons/fi";
 import { toggleFavoriteAction } from "@/app/actions/favoriten-actions";
+import { submitUrunTalep } from "@/app/actions/talep-actions";
 import { Locale } from "@/i18n-config";
 import { Dictionary } from "@/dictionaries";
 import { ProduktMitPreis, Kategorie } from "@/app/[locale]/portal/katalog/types";
@@ -257,6 +258,26 @@ export function KatalogClient({
             `${miktar} ${birimLabel} → ${getLocalizedName(modalProdukt.ad, locale)}`
         );
         setModalProdukt(null);
+    };
+
+    const handleModalTalep = async (miktar: number, birim: Birim, notlar: string) => {
+        if (!modalProdukt) return;
+
+        const result = await submitUrunTalep({
+            urun_id: modalProdukt.id,
+            miktar,
+            birim,
+            notlar
+        });
+
+        if (result.success) {
+            toast.success(
+                locale === 'de' ? 'Ihre Anfrage wurde erfolgreich gesendet!' : 'Talebiniz başarıyla gönderildi!'
+            );
+            setModalProdukt(null);
+        } else {
+            toast.error(result.error || (locale === 'de' ? 'Fehler beim Senden der Anfrage.' : 'Talep gönderilirken hata oluştu.'));
+        }
     };
 
     const ProduktKarteWithFavorite = ({ produkt }: { produkt: ProduktMitPreis }) => {
@@ -598,6 +619,7 @@ export function KatalogClient({
                     locale={locale}
                     onClose={() => setModalProdukt(null)}
                     onAdd={handleModalAdd}
+                    onTalep={handleModalTalep}
                 />
             )}
         </div>

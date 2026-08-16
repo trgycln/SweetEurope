@@ -207,3 +207,13 @@ export function formatLinks(text: string | null | undefined): string {
         return `[Bağlantı](${urlGroup})`;
     });
 }
+
+export function computeTedarikDurumu(stok: number | null | undefined, tukenmeTarihi: string | null | undefined): 'stokta' | 'tukendi' | 'talep_uzerine' {
+    const s = stok ?? 0;
+    if (s > 0) return 'stokta';
+    if (!tukenmeTarihi) return 'talep_uzerine';
+    const tukenme = new Date(tukenmeTarihi).getTime();
+    if (isNaN(tukenme)) return 'talep_uzerine';
+    const ucAyiGecti = (Date.now() - tukenme) > (90 * 24 * 60 * 60 * 1000);
+    return ucAyiGecti ? 'talep_uzerine' : 'tukendi';
+}

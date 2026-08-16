@@ -1,3 +1,4 @@
+import { computeTedarikDurumu } from '@/lib/utils';
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -76,11 +77,13 @@ export function SepeteEkleModal({
     locale,
     onClose,
     onAdd,
+    onTalep,
 }: {
     produkt: ProduktMitPreis;
     locale: string;
     onClose: () => void;
     onAdd: (miktar: number, birim: Birim) => void;
+    onTalep?: (miktar: number, birim: Birim, notlar: string) => Promise<void>;
 }) {
     const [birim, setBirim] = useState<Birim>('koli');
     const [miktar, setMiktar] = useState(1);
@@ -297,7 +300,7 @@ export function ProduktGridCard({
     return (
         <Link
             href={`/${locale}/portal/katalog/${produkt.id}`}
-            className="block bg-white rounded-lg shadow border border-gray-200 overflow-hidden group relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            className="flex flex-col h-full bg-white rounded-lg shadow border border-gray-200 overflow-hidden group relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
         >
             {/* Favoriten-Button */}
             <button
@@ -316,7 +319,7 @@ export function ProduktGridCard({
                     alt={produktName}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                     onError={(e) => { e.currentTarget.src = '/placeholder.png'; }}
                 />
@@ -328,7 +331,7 @@ export function ProduktGridCard({
             </div>
 
             {/* Content */}
-            <div className="p-4 space-y-3">
+            <div className="p-4 space-y-3 flex flex-col flex-1">
                 {/* SKU + Barkod */}
                 <div className="space-y-0.5">
                     <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -345,13 +348,22 @@ export function ProduktGridCard({
 
                 {/* Stok durumu */}
                 {(() => {
-                  const miktar = produkt.stok_miktari ?? null;
+                  const miktar = produkt.stok_miktari ?? 0;
                   const esik = produkt.stok_esigi ?? 10;
-                  if (miktar === null) return null;
-                  if (miktar <= 0) return (
+                  const durum = computeTedarikDurumu(miktar, (produkt as any).stok_tukenme_tarihi);
+                  
+                  if (durum === 'talep_uzerine') {
+                      return (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-violet-500 inline-block"/>
+                            {locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok'}
+                          </span>
+                      );
+                  }
+                  if (durum === 'tukendi') return (
                     <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
                       <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"/>
-                      {locale === 'de' ? 'Ausverkauft' : 'Stok yok'}
+                      {locale === 'de' ? 'Ausverkauft' : 'Tükendi'}
                     </span>
                   );
                   if (miktar <= esik) return (
@@ -369,7 +381,7 @@ export function ProduktGridCard({
                 })()}
 
                 {/* Name */}
-                <h3 className="font-semibold text-primary text-sm line-clamp-2" title={produktName}>
+                <h3 className="font-semibold text-primary text-sm line-clamp-2 min-h-[40px]" title={produktName}>
                     {produktName}
                 </h3>
 
@@ -421,7 +433,7 @@ export function ProduktGridCard({
                 </div>
 
                 {/* Pricing */}
-                <div className="border-t border-gray-100 pt-2 space-y-1">
+                <div className="border-t border-gray-100 pt-2 space-y-1 mt-auto">
                     {pricingRows.map((row, i) => {
                         const mobileHidden = i > 0;
                         return row.price ? (
@@ -515,13 +527,20 @@ export function ProduktListRow({
         produkt.partnerPreis !== produkt.satis_fiyati_alt_bayi;
 
     // Stok durumu
-    const stokMiktar = produkt.stok_miktari ?? null;
+    const stokMiktar = produkt.stok_miktari ?? 0;
     const stokEsik = produkt.stok_esigi ?? 10;
-    const stokBadge = stokMiktar === null ? null : stokMiktar <= 0
-        ? { label: locale === 'de' ? 'Ausverkauft' : 'Stok yok', dot: 'bg-red-500', bg: 'bg-red-50 text-red-700 border-red-200' }
-        : stokMiktar <= stokEsik
-        ? { label: locale === 'de' ? 'Wenig Bestand' : 'Az stok', dot: 'bg-amber-400', bg: 'bg-amber-50 text-amber-700 border-amber-200' }
-        : { label: locale === 'de' ? 'Auf Lager' : 'Stokta var', dot: 'bg-green-500', bg: 'bg-green-50 text-green-700 border-green-200' };
+    const durum = computeTedarikDurumu(stokMiktar, (produkt as any).stok_tukenme_tarihi);
+      
+    let stokBadge: { label: string; dot: string; bg: string } | null = null;
+    if (durum === 'talep_uzerine') {
+        stokBadge = { label: locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok', dot: 'bg-violet-500', bg: 'bg-violet-50 text-violet-700 border-violet-200' };
+    } else if (durum === 'tukendi') {
+        stokBadge = { label: locale === 'de' ? 'Ausverkauft' : 'Tükendi', dot: 'bg-red-500', bg: 'bg-red-50 text-red-700 border-red-200' };
+    } else if (stokMiktar <= stokEsik) {
+        stokBadge = { label: locale === 'de' ? 'Wenig Bestand' : 'Az stok', dot: 'bg-amber-400', bg: 'bg-amber-50 text-amber-700 border-amber-200' };
+    } else {
+        stokBadge = { label: locale === 'de' ? 'Auf Lager' : 'Stokta var', dot: 'bg-green-500', bg: 'bg-green-50 text-green-700 border-green-200' };
+    }
 
     return (
         <Link

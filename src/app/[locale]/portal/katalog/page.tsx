@@ -169,8 +169,24 @@ export default async function KatalogPage({
         return true;
     });
 
-    // JS Sorting
+    // JS Sorting (Gelişmiş Öncelikli Sıralama)
     filteredProdukte.sort((a, b) => {
+        // Öncelik 1: Favoriler
+        const aFav = favoritenIds.has(a.id);
+        const bFav = favoritenIds.has(b.id);
+        if (aFav !== bFav) return aFav ? -1 : 1;
+
+        // Öncelik 2: Önerilen Ürünler
+        const aRec = (a as any).onerilen === true ? 1 : 0;
+        const bRec = (b as any).onerilen === true ? 1 : 0;
+        if (aRec !== bRec) return bRec - aRec;
+
+        // Öncelik 3: Stok Durumu (Stokta olanlar önce)
+        const aStock = (a.stok_miktari ?? 1) > 0 ? 1 : 0;
+        const bStock = (b.stok_miktari ?? 1) > 0 ? 1 : 0;
+        if (aStock !== bStock) return bStock - aStock;
+
+        // Öncelik 4: Kullanıcı Seçimi (Fiyat, Yeni, İsim vs.)
         if (sortBy === 'price_asc') {
             return (a.satis_fiyati_musteri ?? 0) - (b.satis_fiyati_musteri ?? 0);
         }

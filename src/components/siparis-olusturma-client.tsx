@@ -71,8 +71,10 @@ function getAdetFiyat(urun: ProductOption, birim: Birim, miktar: number, userRol
 
 function getToplamAdet(urun: ProductOption, birim: Birim, miktar: number): number {
     const koliAdet = Number(urun.koli_ici_adet ?? 1);
-    const paletAdet = Number(urun.palet_ici_adet ?? koliAdet);
-    if (birim === 'palet') return paletAdet * miktar;
+    if (birim === 'palet') {
+        const paletKoli = Number(urun.palet_ici_adet ?? 0);
+        return (paletKoli > 0 ? paletKoli * koliAdet : koliAdet) * miktar;
+    }
     if (birim === 'koli') return koliAdet * miktar;
     return miktar;
 }
@@ -100,7 +102,7 @@ function SepeteEkleModal({
     const birimOptions: { key: Birim; label: string; sub: string }[] = [
         { key: 'koli', label: 'Koli/Ktn.', sub: `${koliAdet} adet` },
         { key: 'adet', label: 'Adet/Stk.', sub: 'Tekli' },
-        ...(paletAdet > 0 ? [{ key: 'palet' as Birim, label: 'Palet/Pal.', sub: `${paletAdet} adet` }] : []),
+        ...(paletAdet > 0 ? [{ key: 'palet' as Birim, label: 'Palet/Pal.', sub: `${paletAdet} koli/Ktn.` }] : []),
     ];
 
     const fiyatHint = birim === 'palet'

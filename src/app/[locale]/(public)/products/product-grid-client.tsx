@@ -1,4 +1,5 @@
 'use client';
+import { computeTedarikDurumu } from '@/lib/utils';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -269,7 +270,7 @@ function CatalogCard({
 
                 {/* Product name */}
                 <Link href={`/${locale}/products/${urun.slug}`}>
-                    <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 group-hover:text-slate-600">
+                    <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 min-h-[40px] group-hover:text-slate-600">
                         {name}
                     </h3>
                 </Link>
