@@ -123,7 +123,7 @@ export default function ComingSoonLandingPage() {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <div className="rounded-full shadow-2xl border-8 border-white bg-white overflow-hidden flex items-center justify-center" style={{width: '180px', height: '180px'}}>
-              <img src="/Logo.jpg" alt="ElysonSweets Logo" width={180} height={180} style={{objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%'}} />
+              <Image src="/Logo.jpg" alt="ElysonSweets Logo" width={180} height={180} priority style={{objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%'}} />
             </div>
           </div>
 

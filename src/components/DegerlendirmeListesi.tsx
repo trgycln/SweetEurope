@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { FiStar, FiThumbsUp, FiThumbsDown } from 'react-icons/fi';
 import { type Degerlendirme, voteDegerlendirme } from '@/app/actions/degerlendirme-actions';
 
@@ -142,11 +143,13 @@ export default function DegerlendirmeListesi({
             {degerlendirme.resimler && degerlendirme.resimler.length > 0 && (
               <div className="flex gap-2 mb-4">
                 {degerlendirme.resimler.map((resim, index) => (
-                  <img
+                  <Image
                     key={index}
                     src={resim}
                     alt={`Review image ${index + 1}`}
-                    className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                    width={80}
+                    height={80}
+                    className="object-cover rounded-lg border border-gray-200"
                   />
                 ))}
               </div>

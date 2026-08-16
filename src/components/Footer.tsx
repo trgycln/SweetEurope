@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaInstagram, FaLinkedin } from 'react-icons/fa';
 
 const FO_CATEGORY_SLUGS = [
@@ -29,7 +30,7 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-accent/40 bg-white/10 flex-shrink-0">
-                <img src="/Logo.jpg" alt="Logo" width={40} height={40} className="object-cover w-full h-full" />
+                <Image src="/Logo.jpg" alt="Logo" width={40} height={40} className="object-cover w-full h-full" />
               </div>
               <h3 className="text-xl font-serif font-bold text-white tracking-wide">ElysonSweets</h3>
             </div>

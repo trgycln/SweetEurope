@@ -9,41 +9,47 @@ import { getDictionary } from "@/dictionaries";
 import { Locale } from "@/i18n-config";
 import { Database, Tables, Enums } from "@/lib/supabase/database.types";
 import { resolvePartnerPreis } from "@/lib/pricing";
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
+import { cookies } from 'next/headers'; 
+import { unstable_noStore as noStore } from 'next/cache'; 
 import { matchesAnyField, extractMultilingual } from '@/lib/searchUtils';
-
-export const dynamic = 'force-dynamic'; // Sicherstellen, dass die Seite dynamisch ist
-
-// Types imported from separate file to avoid circular dependencies
 import { ProduktMitPreis, Kategorie } from './types';
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
-// Props-Typ für die Seite (Next.js 15: params/searchParams sind jetzt Promises)
+export const dynamic = 'force-dynamic';
+
 interface KatalogPageProps {
     params: Promise<{ locale: Locale }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+const BADGE_DEFS = [
+    { key: 'vegan', short: 'Vegan', bg: 'bg-green-100 text-green-800 border-green-200' },
+    { key: 'glutenfrei', short: 'Glutenfrei', bg: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    { key: 'laktosefrei', short: 'Laktosefrei', bg: 'bg-blue-100 text-blue-800 border-blue-200' },
+    { key: 'bio', short: 'Bio', bg: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+    { key: 'ohne_zucker', short: 'Zuckerfrei', bg: 'bg-sky-100 text-sky-800 border-sky-200' },
+] as const;
+
+const getLocalizedName = (adObj: any, locale: Locale, fallback = 'Unbenannt') => {
+    if (!adObj) return fallback;
+    if (typeof adObj === 'string') return adObj;
+    return adObj[locale] || adObj['de'] || Object.values(adObj)[0] as string || fallback;
+};
+
 export default async function KatalogPage({
     params,
     searchParams
 }: KatalogPageProps) {
-    noStore(); // Caching deaktivieren
+    noStore();
     const { locale } = await params;
     const resolvedSearchParams = await searchParams;
 
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
     const dictionary = await getDictionary(locale);
-    const pageContent = (dictionary as any).portal?.catalogPage || { title: "Produktkatalog" };
 
-    // 1. Benutzer und Profil
-    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
+    const { data: { user } } = await getGlobalCachedUser();
     if (!user) return redirect(`/${locale}/login`);
 
     const { data: profile } = await supabase
@@ -58,118 +64,180 @@ export default async function KatalogPage({
     }
     const userRole = profile.rol;
 
-    // 2. Filter-Parameter
-    const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : '';
+    // Filter-Parameter
+    const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q.toLowerCase() : '';
     const categoryFilter = typeof resolvedSearchParams.kategorie === 'string' ? resolvedSearchParams.kategorie : '';
-    const favoritenFilter = resolvedSearchParams.favoriten === 'true'; // Favoriten-Filter lesen
+    const favoritenFilter = resolvedSearchParams.favoriten === 'true';
+    const stokFilter = resolvedSearchParams.stok === 'true';
+    const badgesParam = typeof resolvedSearchParams.badges === 'string' && resolvedSearchParams.badges ? resolvedSearchParams.badges.split(',') : [];
+    const zertifikateParam = typeof resolvedSearchParams.zertifikate === 'string' && resolvedSearchParams.zertifikate ? resolvedSearchParams.zertifikate.split(',') : [];
+    const tatParam = typeof resolvedSearchParams.tat === 'string' && resolvedSearchParams.tat ? resolvedSearchParams.tat.split(',') : [];
+    const sortBy = typeof resolvedSearchParams.sort === 'string' ? resolvedSearchParams.sort : 'name';
+    const pageParam = typeof resolvedSearchParams.page === 'string' ? parseInt(resolvedSearchParams.page, 10) : 1;
+    let currentPage = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
-    // 3. Daten abrufen
     let produkteQuery = supabase
         .from('urunler')
         .select('*, kategoriler(ad)')
-        .eq('aktif', true); // Nur aktive Produkte
+        .eq('aktif', true);
 
-    // Suchfilter: client-side, çoklu-dil + diakritik-duyarsız
-    // (DB tarafında uygulamıyoruz; tüm aktif ürünler getirilir, sonra JS'de filtrelenir.
-    //  Türkçe/Almanca/İngilizce/Arapça tüm ad alanları + stok_kodu içinde aranır.)
-    
-    // Kategoriefilter: Wenn eine Hauptkategorie ausgewählt ist, beziehen wir auch alle Unterkategorien ein
-    if (categoryFilter) {
-        // Hauptkategorie + alle Unterkategorien sammeln
-        const { data: alleKategorien } = await supabase
-            .from('kategoriler')
-            .select('id, ust_kategori_id');
-        const relevanteIds = new Set<string>([categoryFilter]);
-        if (Array.isArray(alleKategorien)) {
-            const queue = [categoryFilter];
-            while (queue.length > 0) {
-                const current = queue.shift()!;
-                alleKategorien
-                    .filter(k => k.ust_kategori_id === current)
-                    .forEach(child => {
-                        if (!relevanteIds.has(child.id)) {
-                            relevanteIds.add(child.id);
-                            queue.push(child.id);
-                        }
-                    });
-            }
-        }
-        produkteQuery = produkteQuery.in('kategori_id', Array.from(relevanteIds));
-    }
-
-    // Sortierung
-    produkteQuery = produkteQuery.order(`ad->>${locale}`, { ascending: true, nullsFirst: false });
-
-    // Parallele Abfragen
     const [produkteRes, kategorienRes, favoritenRes] = await Promise.all([
         produkteQuery,
-        // Kategorien für Hierarchie
         supabase
             .from('kategoriler')
             .select('id, ad, ust_kategori_id, slug')
             .order('ust_kategori_id', { ascending: true, nullsFirst: true })
             .order(`ad->>${locale}`),
-        // Favoriten für diesen Benutzer
         supabase.from('favori_urunler').select('urun_id').eq('kullanici_id', user.id)
     ]);
 
-    // 4. Datenverarbeitung
-    let produkte: Tables<'urunler'>[] = [];
-    if (produkteRes.error) {
-        console.error("Fehler beim Laden der Produkte:", produkteRes.error);
-        // Bei Fehler leeres Array anzeigen
-    } else {
-        produkte = produkteRes.data || [];
-    }
-
-        const kategorien: Kategorie[] = kategorienRes.data || [];
+    let produkte: Tables<'urunler'>[] = produkteRes.data || [];
+    const kategorien: Kategorie[] = kategorienRes.data || [];
     const favoritenIds = new Set((favoritenRes.data || []).map(f => f.urun_id));
 
-    // Favorit + arama (çoklu-dil ad alanları + stok_kodu) filtrelerini uygula
-    const filteredProdukte = produkte.filter(p => {
+    // Kategoriefilter hierarchy mapping
+    const relevanteIds = new Set<string>();
+    if (categoryFilter) {
+        relevanteIds.add(categoryFilter);
+        const queue = [categoryFilter];
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+            kategorien.filter(k => k.ust_kategori_id === current).forEach(child => {
+                if (!relevanteIds.has(child.id)) {
+                    relevanteIds.add(child.id);
+                    queue.push(child.id);
+                }
+            });
+        }
+    }
+
+    // JS Filtering
+    let filteredProdukte = produkte.filter(p => {
         if (favoritenFilter && !favoritenIds.has(p.id)) return false;
+        if (categoryFilter && !relevanteIds.has(p.kategori_id as string)) return false;
+        if (stokFilter && (p.stok_miktari ?? 1) <= 0) return false;
+        
+        const tekniks = (p.teknik_ozellikler || {}) as Record<string, unknown>;
+        
+        if (badgesParam.length > 0) {
+            const hasAllBadges = badgesParam.every(key => {
+                const v = tekniks[key];
+                return v === true || v === 'true' || v === 'evet' || v === 1;
+            });
+            if (!hasAllBadges) return false;
+        }
+
+        if (zertifikateParam.length > 0) {
+            const hasAllZertifikate = zertifikateParam.every(z => 
+                ((p as any).zertifikate || []).includes(z)
+            );
+            if (!hasAllZertifikate) return false;
+        }
+
+        if (tatParam.length > 0) {
+            const produktTatlar: string[] = (() => {
+                const g = tekniks.geschmack;
+                if (!g) return [];
+                if (Array.isArray(g)) return g;
+                try { return JSON.parse(g as string); } catch { return []; }
+            })();
+            const hasAnyTat = tatParam.some(t => produktTatlar.includes(t));
+            if (!hasAnyTat) return false;
+        }
+
         if (searchQuery) {
-            const adFields = extractMultilingual((p as any).ad);
-            const allFields = [...adFields, (p as any).stok_kodu];
-            if (!matchesAnyField(allFields, searchQuery)) return false;
+            const nameTr = (p.ad as any)?.tr?.toLowerCase() || '';
+            const nameDe = (p.ad as any)?.de?.toLowerCase() || '';
+            const sku = p.stok_kodu?.toLowerCase() || '';
+            const ean = (p as any).ean_gtin?.toLowerCase() || '';
+            const aciklama = (p.aciklamalar as any)?.[locale]?.toLowerCase() || (p.aciklamalar as any)?.de?.toLowerCase() || '';
+            const zertStr = ((p as any).zertifikate || []).join(' ').toLowerCase();
+            const badgeStr = BADGE_DEFS
+                .filter(b => {
+                    const v = tekniks[b.key];
+                    return v === true || v === 'true' || v === 'evet' || v === 1;
+                })
+                .map(b => b.short.toLowerCase())
+                .join(' ');
+                
+            const passtZuSuche = nameTr.includes(searchQuery) || nameDe.includes(searchQuery) || 
+                                 sku.includes(searchQuery) || ean.includes(searchQuery) || 
+                                 aciklama.includes(searchQuery) || zertStr.includes(searchQuery) || 
+                                 badgeStr.includes(searchQuery);
+            if (!passtZuSuche) return false;
         }
         return true;
     });
-    // Limit concurrent price resolution to prevent stack overflow
-    const BATCH_SIZE = 20;
-    const personalisierteProdukte: ProduktMitPreis[] = [];
 
-    for (let i = 0; i < filteredProdukte.length; i += BATCH_SIZE) {
-      const batch = filteredProdukte.slice(i, i + BATCH_SIZE);
-      const batchResults = await Promise.all(
-        batch.map(async (produkt) => {
-          try {
-            const partnerPreis = await resolvePartnerPreis({
-              supabase,
-              urun: produkt as Tables<'urunler'>,
-              userRole: profile.rol as Enums['user_role'],
-              firmaId: (profile.firma_id as string) || '',
-              qty: 1,
-            });
-            return { ...produkt, partnerPreis };
-          } catch {
-            return { ...produkt, partnerPreis: null };
-          }
+    // JS Sorting
+    filteredProdukte.sort((a, b) => {
+        if (sortBy === 'price_asc') {
+            return (a.satis_fiyati_musteri ?? 0) - (b.satis_fiyati_musteri ?? 0);
+        }
+        if (sortBy === 'price_desc') {
+            return (b.satis_fiyati_musteri ?? 0) - (a.satis_fiyati_musteri ?? 0);
+        }
+        if (sortBy === 'new') {
+            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+        }
+        const na = getLocalizedName(a.ad, locale).toLowerCase();
+        const nb = getLocalizedName(b.ad, locale).toLowerCase();
+        return na.localeCompare(nb);
+    });
+
+    // Pagination
+    const ITEMS_PER_PAGE = 24;
+    const totalItems = filteredProdukte.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedProdukte = filteredProdukte.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    // Resolve Partner Preis ONLY for paginated products
+    const personalisierteProdukte: ProduktMitPreis[] = await Promise.all(
+        paginatedProdukte.map(async (produkt) => {
+            try {
+                const partnerPreis = await resolvePartnerPreis({
+                    supabase,
+                    urun: produkt,
+                    userRole: profile.rol as Enums['user_role'],
+                    firmaId: (profile.firma_id as string) || '',
+                    qty: 1,
+                });
+                return { ...produkt, partnerPreis };
+            } catch {
+                return { ...produkt, partnerPreis: null };
+            }
         })
-      );
-      personalisierteProdukte.push(...batchResults);
-    }
+    );
+    
+    // Convert to regular array for serialization
+    const favoritenIdsArray = Array.from(favoritenIds);
 
-    // 5. An Client übergeben
     return (
         <KatalogClient
             initialProdukte={personalisierteProdukte}
             kategorien={kategorien}
-            favoritenIds={favoritenIds}
+            favoritenIdsArray={favoritenIdsArray}
             locale={locale}
             dictionary={dictionary}
+            
+            // Stats & Pagination
+            totalItems={totalItems}
+            totalPages={totalPages}
+            currentPage={currentPage}
+            
+            // Pass all initial active filters to client so they initialize correctly
             initialSearchQuery={searchQuery}
             initialCategoryFilter={categoryFilter}
+            initialFavoritenFilter={favoritenFilter}
+            initialStokFilter={stokFilter}
+            initialBadges={badgesParam}
+            initialZertifikate={zertifikateParam}
+            initialTat={tatParam}
+            initialSort={sortBy}
+            
             userRole={userRole}
         />
     );

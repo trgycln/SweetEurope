@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatCurrency, getLocalizedName } from "@/lib/utils";
 import { quickUpdateUrunAction } from "./actions";
 
@@ -48,9 +49,9 @@ export default function EditableUrunRowClient({ urun, tierPrices, locale, conten
             {/* Resim */}
             <td className="w-10 px-3 py-2">
                 <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`}>
-                    <div className="w-8 h-8 rounded overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0 relative">
                         {urun.ana_resim_url
-                            ? <img src={urun.ana_resim_url} alt={urunAdi} className="w-full h-full object-cover" />
+                            ? <Image src={urun.ana_resim_url} alt={urunAdi} fill sizes="32px" className="object-cover" />
                             : <span className="text-[9px] text-slate-300">img</span>
                         }
                     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { FiStar, FiCheck, FiX, FiUser, FiPackage, FiCalendar } from 'react-icons/fi';
 import { approveDegerlendirme, rejectDegerlendirme } from '@/app/actions/degerlendirme-actions';
 import { Locale } from '@/lib/utils';
@@ -182,11 +183,13 @@ export function DegerlendirmelerClient({ reviews: initialReviews, locale }: Dege
           {review.resimler && review.resimler.length > 0 && (
             <div className="flex gap-2 mb-4">
               {review.resimler.map((img, idx) => (
-                <img
+                <Image
                   key={idx}
                   src={img}
                   alt={`Review ${idx + 1}`}
-                  className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                  width={80}
+                  height={80}
+                  className="object-cover rounded-lg border border-gray-200"
                 />
               ))}
             </div>

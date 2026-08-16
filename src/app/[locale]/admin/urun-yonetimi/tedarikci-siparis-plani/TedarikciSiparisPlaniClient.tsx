@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { FiFile, FiFileText, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2, FiChevronUp, FiChevronDown, FiMenu } from 'react-icons/fi';
 import { toast } from 'sonner';
@@ -1471,16 +1472,13 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       {/* ─── Aktif sipariş listesi (yazdırılabilir) ───────────────────── */}
       <section id="print-order-list" className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="form-watermark" aria-hidden="true">
-          <img
+          <Image
             src="/logo.png"
             alt=""
+            width={600}
+            height={760}
             className="h-[760px] w-auto object-contain"
-            onError={(e) => {
-              const target = e.currentTarget;
-              if (!target.src.includes('/Logo.jpg')) {
-                target.src = '/Logo.jpg';
-              }
-            }}
+            priority
           />
         </div>
 

@@ -3,6 +3,7 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
+import Image from 'next/image';
 import * as THREE from 'three';
 
 const LiquidShader = {
@@ -99,10 +100,12 @@ export default function LiquidImageCard({ src, alt }: { src: string; alt: string
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Orijinal fotoğraf her zaman güvende altta durur. Eğer WebGL çökerse bu görünür. */}
-      <img 
+      <Image 
         src={src} 
         alt={alt} 
-        className={`w-full h-full object-contain p-4 transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`} 
+        fill
+        className={`object-contain p-4 transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`} 
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
 
       {/* Sadece fare üzerine gelindiğinde Canvas'ı yükleyip suyu hareket ettiriyoruz. Bu performansı 100 kat artırır ve çökmeleri önler. */}

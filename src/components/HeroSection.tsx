@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary, locale }) => {
@@ -23,9 +24,11 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
         </video>
       )}
       {videoHasError && (
-        <img
+        <Image
           src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=1"
           alt="Lezzetli bir tatlı"
+          fill
+          priority
           className="absolute top-0 left-0 w-full h-full object-cover z-0"
         />
       )}
@@ -35,14 +38,14 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
       {/* FO Food Products Logo - Sol Üstte */}
       <div className="absolute top-20 left-10 md:top-24 md:left-20 z-15 pointer-events-none hidden md:block">
         <div className="rounded-full shadow-2xl border-8 border-white/30 bg-white/5 backdrop-blur-sm overflow-hidden flex items-center justify-center" style={{ width: '280px', height: '280px' }}>
-          <img src="/fologo.webp" alt="FO Food Products Logo" width={280} height={280} style={{ objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%', opacity: '0.3' }} />
+          <Image src="/fologo.webp" alt="FO Food Products Logo" width={280} height={280} style={{ objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%', opacity: '0.3' }} />
         </div>
       </div>
 
       {/* ElysonSweets Logo - Sağ Üstte */}
       <div className="absolute top-20 right-10 md:top-24 md:right-20 z-15 pointer-events-none hidden md:block">
         <div className="rounded-full shadow-2xl border-8 border-white/30 bg-white/5 backdrop-blur-sm overflow-hidden flex items-center justify-center" style={{ width: '280px', height: '280px' }}>
-          <img src="/Logo.jpg" alt="ElysonSweets Logo" width={280} height={280} style={{ objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%', opacity: '0.3' }} />
+          <Image src="/Logo.jpg" alt="ElysonSweets Logo" width={280} height={280} style={{ objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%', opacity: '0.3' }} />
         </div>
       </div>
 

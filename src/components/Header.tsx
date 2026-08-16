@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import {
@@ -110,7 +111,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                     <Link href={`/${currentLocale}${isAdminHeader ? '/admin/dashboard' : ''}`} className="flex items-center gap-2">
                         {!isAdminHeader && (
                                 <div className="hidden sm:flex rounded-full shadow-lg border-4 border-white bg-white mx-auto overflow-hidden items-center justify-center" style={{width: '48px', height: '48px', maxWidth: '60px', marginRight: '0.5rem'}}>
-                                  <img src="/Logo.jpg" alt="Logo" width={48} height={48} style={{objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%'}} />
+                                  <Image src="/Logo.jpg" alt="Logo" width={48} height={48} priority style={{objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%'}} />
                                 </div>
                         )}
                         <span className={`text-xl sm:text-2xl font-serif font-bold ${isAdminHeader ? 'text-primary' : 'text-white'}`}>ElysonSweets {isAdminHeader && <span className="text-sm font-sans font-normal text-gray-500 ml-1">Admin</span>}</span>
