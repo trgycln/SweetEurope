@@ -12,7 +12,7 @@ export type SavePricesPayload = {
   satis_fiyati_toptanci?: number | null;
   satis_fiyati_musteri?: number | null;
   distributor_alis_fiyati?: number | null;
-  urun_gami?: string | null;
+  urun_gami?: string[] | null;
   standart_inis_maliyeti_net?: number | null;
 };
 
@@ -34,7 +34,7 @@ function stripUnsupportedPriceFields(data: Partial<Tables<'urunler'>>): Partial<
   const {
     urun_gami,
     ...fallbackData
-  } = data as Partial<Tables<'urunler'>> & { urun_gami?: string | null; standart_inis_maliyeti_net?: number | null };
+  } = data as Partial<Tables<'urunler'>> & { urun_gami?: string[] | null; standart_inis_maliyeti_net?: number | null };
 
   const { standart_inis_maliyeti_net: _s, ...safeData } = fallbackData as any;
   return safeData;
@@ -254,7 +254,7 @@ export type BulkSavePricesPayload = {
     satis_fiyati_toptanci?: number;
     satis_fiyati_musteri?: number;
     distributor_alis_fiyati?: number;
-    urun_gami?: string | null;
+    urun_gami?: string[] | null;
   }>;
 };
 

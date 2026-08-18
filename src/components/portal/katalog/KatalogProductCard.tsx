@@ -7,7 +7,7 @@ import { LuPackage, LuBarcode } from "react-icons/lu";
 import { Locale } from "@/i18n-config";
 import { Dictionary } from "@/dictionaries";
 import { ProduktMitPreis } from "@/app/[locale]/portal/katalog/types";
-import { DietaryStickers } from "@/components/DietaryStickers";
+import { ProductDietaryBadges } from "@/components/DietaryStickers";
 
 // Badge-Konfiguration (aus public catalog adaptiert)
 export const BADGE_DEFS = [
@@ -329,9 +329,6 @@ export function ProduktGridCard({
                         <FiImage size={48} />
                     </div>
                 )}
-                <div className="absolute bottom-2 left-2">
-                    <DietaryStickers teknikOzellikler={produkt.teknik_ozellikler as any} size="sm" />
-                </div>
             </div>
 
             {/* Content */}
@@ -409,33 +406,12 @@ export function ProduktGridCard({
                     )}
                 </div>
 
-                {/* Quality Badges */}
-                <div className="flex flex-wrap gap-1 min-h-[18px]">
-                    {BADGE_DEFS.filter(b => {
-                        const v = tekniks[b.key];
-                        return v === true || v === 'true' || v === 'evet' || v === 1;
-                    }).slice(0, 3).map(b => (
-                        <span
-                            key={b.key}
-                            className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${b.bg}`}
-                        >
-                            <span>{b.icon}</span>
-                            <span>{b.short}</span>
-                        </span>
-                    ))}
-                    {produkt.zertifikate?.slice(0, 2).map(z => {
-                        const cfg = ZERTIFIKAT_CONFIG[z];
-                        if (!cfg) return null;
-                        return (
-                            <span
-                                key={z}
-                                className={`inline-flex items-center text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${cfg.bg}`}
-                            >
-                                {cfg.label}
-                            </span>
-                        );
-                    })}
-                </div>
+                {/* Quality / Dietary Badges */}
+                <ProductDietaryBadges
+                    teknikOzellikler={produkt.teknik_ozellikler as any}
+                    zertifikate={produkt.zertifikate}
+                    size="sm"
+                />
 
                 {/* Pricing */}
                 <div className="border-t border-gray-100 pt-2 space-y-1 mt-auto">
@@ -587,17 +563,12 @@ export function ProduktListRow({
                         </span>
                     )}
                 </div>
-                {/* Quality Badges */}
-                <div className="flex flex-wrap gap-1">
-                    {BADGE_DEFS.filter(b => {
-                        const v = tekniks[b.key];
-                        return v === true || v === 'true' || v === 'evet' || v === 1;
-                    }).slice(0, 3).map(b => (
-                        <span key={b.key} className={`text-[9px] font-bold px-1.5 py-0 rounded border ${b.bg}`}>
-                            {b.short}
-                        </span>
-                    ))}
-                </div>
+                {/* Quality / Dietary Badges */}
+                <ProductDietaryBadges
+                    teknikOzellikler={produkt.teknik_ozellikler as any}
+                    zertifikate={produkt.zertifikate}
+                    size="xs"
+                />
             </div>
 
             {/* Orta: Lojistik chip'leri — sabit genişlik */}

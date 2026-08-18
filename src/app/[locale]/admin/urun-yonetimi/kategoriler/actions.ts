@@ -48,7 +48,8 @@ export async function createKategoriAction(formData: FormData): Promise<ActionRe
     });
     const ustKategoriId = (formData.get('ust_kategori_id') as string) || null;
     const rawSlug = (formData.get('slug') as string) || '';
-    const urunGami = ((formData.get('urun_gami') as string) || '').trim() || null;
+    const _rawUrunGami = formData.getAll('urun_gami') as string[];
+    const urunGami = _rawUrunGami.length > 0 ? _rawUrunGami : null;
     const finalSlug = slugify(rawSlug || adJson.en || adJson.de || adJson.tr || 'kategori') || null;
 
     // Türkçe ad zorunlu mu kontrolü
@@ -103,7 +104,8 @@ export async function updateKategoriAction(kategoriId: string, formData: FormDat
     });
     const ustKategoriId = (formData.get('ust_kategori_id') as string) || null;
     const rawSlug = (formData.get('slug') as string) || '';
-    const urunGami = ((formData.get('urun_gami') as string) || '').trim() || null;
+    const _rawUrunGami = formData.getAll('urun_gami') as string[];
+    const urunGami = _rawUrunGami.length > 0 ? _rawUrunGami : null;
     const finalSlug = slugify(rawSlug || adJson.en || adJson.de || adJson.tr || 'kategori') || null;
     
     if (!adJson.tr) { // Ana dil kontrolü

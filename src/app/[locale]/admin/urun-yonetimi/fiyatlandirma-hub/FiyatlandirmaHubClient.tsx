@@ -8,7 +8,7 @@ type ProductLite = Pick<Tables<'urunler'>, 'id' | 'ad' | 'kategori_id' | 'tedari
 interface Props {
   locale: string;
   products: ProductLite[];
-  categories: Array<{ id: string; ad: Record<string, string> | string | null; slug?: string | null; ust_kategori_id?: string | null; urun_gami?: string | null }>;
+  categories: Array<{ id: string; ad: Record<string, string> | string | null; slug?: string | null; ust_kategori_id?: string | null; urun_gami?: string[] | null }>;
   companies: Array<{ id: string; unvan: string }>;
   suppliers: Array<{ id: string; unvan: string | null }>;
   recentBatches: Array<any>;

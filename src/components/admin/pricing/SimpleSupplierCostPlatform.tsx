@@ -27,7 +27,7 @@ type ProductLite = {
   satis_fiyati_toptanci?: number | null;
   satis_fiyati_musteri?: number | null;
   teknik_ozellikler?: Record<string, unknown> | null;
-  urun_gami?: string | null;
+  urun_gami?: string[] | null;
   stok_kodu?: string | null;
   aktif?: boolean | null;
   birim_agirlik_kg?: number | null;
@@ -62,7 +62,7 @@ type TierOverride = { value: string; isManual: boolean };
 interface Props {
   locale: string;
   products: ProductLite[];
-  categories?: Array<{ id: string; ad: Record<string, string> | string | null; slug?: string | null; ust_kategori_id?: string | null; urun_gami?: string | null }>;
+  categories?: Array<{ id: string; ad: Record<string, string> | string | null; slug?: string | null; ust_kategori_id?: string | null; urun_gami?: string[] | null }>;
   companies?: Array<{ id: string; unvan: string }>;
   suppliers?: Array<{ id: string; unvan: string | null }>;
   recentBatches?: any[];

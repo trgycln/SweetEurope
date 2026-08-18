@@ -2,49 +2,105 @@ import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 
-async function updateFavicons() {
-  const logoPath = path.join(process.cwd(), 'public', 'logo.png');
-  const srcAppDir = path.join(process.cwd(), 'src', 'app');
-  const publicDir = path.join(process.cwd(), 'public');
-
-  if (!fs.existsSync(logoPath)) {
-    console.error('public/logo.png not found!');
-    return;
+async function generateFavicons() {
+  const rootDir = process.cwd();
+  // Check for logo_arka_plansiz_hazir.png or fallback to logo.png
+  let inputLogoPath = path.join(rootDir, 'public', 'logo_arka_plansiz_hazir.png');
+  if (!fs.existsSync(inputLogoPath)) {
+    inputLogoPath = path.join(rootDir, 'public', 'logo.png');
   }
 
-  console.log('Generating new favicons from logo.png...');
+  const publicDir = path.join(rootDir, 'public');
+  const srcAppDir = path.join(rootDir, 'src', 'app');
 
-  // Create icon.png (used by modern browsers and Next.js)
-  await sharp(logoPath)
-    .resize(512, 512, {
-      fit: 'contain',
-      background: { r: 0, g: 0, b: 0, alpha: 0 }
-    })
-    .toFile(path.join(srcAppDir, 'icon.png'));
-
-  // Create apple-icon.png
-  await sharp(logoPath)
-    .resize(180, 180, {
-      fit: 'contain',
-      background: { r: 255, g: 255, b: 255, alpha: 1 } // Apple icons usually don't support transparency
-    })
-    .toFile(path.join(srcAppDir, 'apple-icon.png'));
-
-  console.log('Successfully generated src/app/icon.png and src/app/apple-icon.png');
-
-  // Remove old vercel favicons
-  const filesToDelete = [
-    path.join(publicDir, 'favicon.ico'),
-    path.join(publicDir, 'favicon.png'),
-    path.join(publicDir, 'apple-touch-icon.png')
-  ];
-
-  for (const file of filesToDelete) {
-    if (fs.existsSync(file)) {
-      fs.unlinkSync(file);
-      console.log(`Deleted ${file}`);
-    }
+  if (!fs.existsSync(inputLogoPath)) {
+    console.error('Logo source image not found!');
+    process.exit(1);
   }
+
+  console.log(`Reading and trimming ${inputLogoPath}...`);
+  // Trim transparent borders to get the tightest bounding box of the logo artwork
+  const trimmedBuffer = await sharp(inputLogoPath).trim().toBuffer();
+  const trimmedMeta = await sharp(trimmedBuffer).metadata();
+  console.log(`Trimmed dimensions: ${trimmedMeta.width}x${trimmedMeta.height} (Aspect ratio: ${(trimmedMeta.width / trimmedMeta.height).toFixed(3)})`);
+
+  // Helper function to create centered icon on transparent canvas
+  async function createSquareIconBuffer(size, fillRatio = 0.92) {
+    const targetWidth = Math.round(size * fillRatio);
+    const targetHeight = Math.round(targetWidth / (trimmedMeta.width / trimmedMeta.height));
+
+    const resizedLogo = await sharp(trimmedBuffer)
+      .resize({
+        width: targetWidth,
+        height: targetHeight,
+        fit: 'inside',
+        withoutEnlargement: false,
+      })
+      .toBuffer();
+
+    const actualResizedMeta = await sharp(resizedLogo).metadata();
+    const left = Math.round((size - actualResizedMeta.width) / 2);
+    const top = Math.round((size - actualResizedMeta.height) / 2);
+
+    return sharp({
+      create: {
+        width: size,
+        height: size,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      },
+    })
+      .composite([{ input: resizedLogo, left, top }])
+      .png()
+      .toBuffer();
+  }
+
+  console.log('Generating optimized icons...');
+
+  // 1. 512x512 sizes
+  const icon512 = await createSquareIconBuffer(512, 0.92);
+  fs.writeFileSync(path.join(publicDir, 'favicon.png'), icon512);
+  fs.writeFileSync(path.join(publicDir, 'android-chrome-512x512.png'), icon512);
+  fs.writeFileSync(path.join(publicDir, 'logo.png'), icon512);
+  fs.writeFileSync(path.join(srcAppDir, 'icon.png'), icon512);
+  console.log('✓ 512x512 icons generated (favicon.png, android-chrome-512x512.png, logo.png, src/app/icon.png)');
+
+  // 2. 192x192 sizes
+  const icon192 = await createSquareIconBuffer(192, 0.92);
+  fs.writeFileSync(path.join(publicDir, 'android-chrome-192x192.png'), icon192);
+  console.log('✓ 192x192 icon generated (android-chrome-192x192.png)');
+
+  // 3. 180x180 sizes (Apple touch icon)
+  const icon180 = await createSquareIconBuffer(180, 0.90);
+  fs.writeFileSync(path.join(publicDir, 'apple-touch-icon.png'), icon180);
+  fs.writeFileSync(path.join(srcAppDir, 'apple-icon.png'), icon180);
+  console.log('✓ 180x180 Apple touch icon generated (apple-touch-icon.png, src/app/apple-icon.png)');
+
+  // 4. 48x48 size (Google search crawler standard)
+  const icon48 = await createSquareIconBuffer(48, 0.92);
+  fs.writeFileSync(path.join(publicDir, 'favicon-48x48.png'), icon48);
+  console.log('✓ 48x48 icon generated (favicon-48x48.png)');
+
+  // 5. 32x32 size
+  const icon32 = await createSquareIconBuffer(32, 0.92);
+  fs.writeFileSync(path.join(publicDir, 'favicon-32x32.png'), icon32);
+  console.log('✓ 32x32 icon generated (favicon-32x32.png)');
+
+  // 6. 16x16 size
+  const icon16 = await createSquareIconBuffer(16, 0.92);
+  fs.writeFileSync(path.join(publicDir, 'favicon-16x16.png'), icon16);
+  console.log('✓ 16x16 icon generated (favicon-16x16.png)');
+
+  // 7. Multi-size / crisp favicon.ico for public and src/app
+  const icoBuffer = await sharp(icon48).toFormat('png').toBuffer();
+  fs.writeFileSync(path.join(publicDir, 'favicon.ico'), icoBuffer);
+  fs.writeFileSync(path.join(srcAppDir, 'favicon.ico'), icoBuffer);
+  console.log('✓ favicon.ico created in public/ and src/app/');
+
+  console.log('\nAll favicons generated successfully with transparent backgrounds and optimal filling!');
 }
 
-updateFavicons().catch(console.error);
+generateFavicons().catch((err) => {
+  console.error('Error generating favicons:', err);
+  process.exit(1);
+});

@@ -18,7 +18,7 @@ type ProductLite = {
   birim_agirlik_kg?: number | null;
   lojistik_sinifi?: string | null;
   teknik_ozellikler?: Record<string, unknown> | null;
-  urun_gami?: string | null;
+  urun_gami?: string[] | null;
   koli_ici_adet?: number | null;
   palet_ici_adet?: number | null;
 };

@@ -59,7 +59,7 @@ interface UrunlerListPageProps { // Props-Typ hinzugefügt
         q?: string;
         page?: string;
         tedarikci?: string;
-        urun_gami?: string;
+        urun_gami?: string[] | null;
         lojistik?: string;
         ozellik?: string;
     }>;
@@ -204,7 +204,7 @@ export default async function UrunlerListPage({
 
     // Neue Filter
     if (tedarikciFilter) query = query.eq('tedarikci_id', tedarikciFilter);
-    if (urunGamiFilter) query = query.eq('urun_gami', urunGamiFilter);
+    if (urunGamiFilter) query = (query as any).contains('urun_gami', [urunGamiFilter]);
     if (lojistikFilter) query = query.eq('lojistik_sinifi', lojistikFilter);
     if (ozellikFilter) {
         query = query.eq(`teknik_ozellikler->>${ozellikFilter}` as any, 'true');

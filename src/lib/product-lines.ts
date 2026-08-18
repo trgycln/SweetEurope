@@ -115,7 +115,7 @@ type CategoryLike = {
   id: string;
   slug?: string | null;
   ust_kategori_id?: string | null;
-  urun_gami?: string | null;
+  urun_gami?: string[] | null;
 };
 
 export function inferProductLineFromCategoryId(
@@ -129,8 +129,10 @@ export function inferProductLineFromCategoryId(
   let guard = 0;
 
   while (current && guard < 10) {
-    if (isProductLineKey(current.urun_gami)) {
-      return current.urun_gami;
+    if (current.urun_gami && Array.isArray(current.urun_gami) && current.urun_gami.length > 0) {
+      for (const gam of current.urun_gami) {
+        if (isProductLineKey(gam)) return gam;
+      }
     }
 
     const inferred = inferProductLineFromCategorySlug(current.slug);

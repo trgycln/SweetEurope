@@ -384,8 +384,8 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
     const seciliKategoriId = altKategoriId;
     const kategoriBazliUrunGami = inferProductLineFromCategoryId(kategoriler as any, seciliKategoriId);
     const [manuelUrunGami, setManuelUrunGami] = useState<ProductLineKey | 'auto'>(
-        mevcutUrun?.urun_gami === 'frozen-desserts' || mevcutUrun?.urun_gami === 'barista-bakery-essentials'
-            ? mevcutUrun.urun_gami
+        Array.isArray(mevcutUrun?.urun_gami) && (mevcutUrun.urun_gami.includes('frozen-desserts') || mevcutUrun.urun_gami.includes('barista-bakery-essentials'))
+            ? mevcutUrun.urun_gami.find(g => g === 'frozen-desserts' || g === 'barista-bakery-essentials') as ProductLineKey
             : 'auto'
     );
     const seciliUrunGami = manuelUrunGami === 'auto' ? kategoriBazliUrunGami : manuelUrunGami;
@@ -770,19 +770,26 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                      </div>
 
                      <div>
-                         <label htmlFor="urun_gami_select" className={labelClasses}>Ürün Serisi / Gam</label>
-                         <select
-                             id="urun_gami_select"
-                             name="urun_gami"
-                             defaultValue={['barista', 'dondurma', 'pastaci', 'icecek'].includes(mevcutUrun?.urun_gami ?? '') ? (mevcutUrun?.urun_gami ?? '') : ''}
-                             className="w-full p-2 border rounded-md bg-gray-50"
-                         >
-                             <option value="">— Seçiniz (isteğe bağlı) —</option>
-                             <option value="barista">Barista &amp; Bar</option>
-                             <option value="dondurma">Eis &amp; Gelato / Dondurma</option>
-                             <option value="pastaci">Konditorei &amp; Bäckerei / Pastacılık</option>
-                             <option value="icecek">Getränke / İçecekler</option>
-                         </select>
+                         <label className={labelClasses}>Ürün Serisi / Gam</label>
+                         <div className="grid grid-cols-2 gap-2 mt-2">
+                             {[
+                                 { value: 'barista', label: 'Barista & Bar' },
+                                 { value: 'dondurma', label: 'Eis & Gelato / Dondurma' },
+                                 { value: 'pastaci', label: 'Konditorei & Bäckerei / Pastacılık' },
+                                 { value: 'icecek', label: 'Getränke / İçecekler' }
+                             ].map(gam => (
+                                 <label key={gam.value} className="flex items-center gap-2 cursor-pointer p-2 rounded border hover:bg-gray-50 transition-colors">
+                                     <input 
+                                        type="checkbox" 
+                                        name="urun_gami" 
+                                        value={gam.value}
+                                        defaultChecked={Array.isArray(mevcutUrun?.urun_gami) ? mevcutUrun.urun_gami.includes(gam.value) : false}
+                                        className="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500" 
+                                     />
+                                     <span className="text-sm">{gam.label}</span>
+                                 </label>
+                             ))}
+                         </div>
                          <p className="text-xs text-gray-400 mt-1">Hedef müşteri segmenti — kafeler, dondurma dükkanları, pastaneler, içecek büfeleri</p>
                      </div>
 
@@ -990,7 +997,7 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                         <div>
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Ambalaj / toptanci hiyerarsisi</p>
                             <p className="mt-1 text-sm text-slate-700">
-                                Bir kolide kac adet oldugu ve bir palette toplam kac adet bulundugu burada saklanir.
+                                Bir kolide kaç adet olduğu ve bir palette toplam kaç koli (karton) bulunduğu burada saklanır.
                             </p>
                         </div>
 
@@ -1013,13 +1020,13 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                                 <input type="number" min="1" step="1" name="koli_ici_adet" id="koli_ici_adet" defaultValue={mevcutUrun?.koli_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
                             </div>
                             <div>
-                                <label htmlFor="palet_ici_adet" className={labelClasses}>1 palette toplam kac adet? <span className="text-red-500">*</span></label>
+                                <label htmlFor="palet_ici_adet" className={labelClasses}>1 palette toplam kac koli (karton)? <span className="text-red-500">*</span></label>
                                 <input type="number" min="1" step="1" name="palet_ici_adet" id="palet_ici_adet" defaultValue={mevcutUrun?.palet_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
                             </div>
                         </div>
 
                         <p className="text-xs text-slate-600">
-                            Sistem palet toplamlarini siparis hesaplarinda kullanir. Ornek: 1 kolide 6 adet, 1 palette 125 adet.
+                            Sistem palet toplamlarini siparis hesaplarinda kullanir. Ornek: 1 kolide 6 adet, 1 palette 125 koli.
                         </p>
                     </div>
 

@@ -214,7 +214,7 @@ export default async function PublicUrunlerPage({
     }
 
     if (gamFilter) {
-        urunlerQuery = urunlerQuery.eq('urun_gami', gamFilter);
+        urunlerQuery = (urunlerQuery as any).contains('urun_gami', [gamFilter]);
     }
 
     if (geschmackFilter) {
@@ -339,8 +339,7 @@ export default async function PublicUrunlerPage({
             featuredQuery = featuredQuery.eq('urun_gami', gamFilter);
         }
         const { data: featuredData } = await featuredQuery
-            .order('featured_sira', { ascending: true })
-            .limit(6);
+            .order('featured_sira', { ascending: true });
         featuredUrunler = (featuredData || []).filter(
             (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
         ) as unknown as Urun[];

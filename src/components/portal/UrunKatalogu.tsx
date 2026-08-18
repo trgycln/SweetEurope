@@ -76,7 +76,7 @@ function SepeteEkleModal({
     const birimOptions: { key: Birim; labelDe: string; labelTr: string; sub: string }[] = [
         { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliAdet} Stk./${koliAdet} adet` },
         { key: 'adet', labelDe: 'Stück', labelTr: 'Adet', sub: t(locale, 'Einzeln', 'Single', 'Tekli', 'مفرد') },
-        ...(paletAdet > 0 ? [{ key: 'palet' as Birim, labelDe: 'Palette', labelTr: 'Palet', sub: `${paletAdet} Stk./${paletAdet} adet` }] : []),
+        ...(paletAdet > 0 ? [{ key: 'palet' as Birim, labelDe: 'Palette', labelTr: 'Palet', sub: `${paletAdet} Ktn./${paletAdet} koli` }] : []),
     ];
 
     const fiyatKademe = birim === 'palet'

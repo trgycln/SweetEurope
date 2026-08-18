@@ -1806,7 +1806,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           slug?: string | null
-          urun_gami?: string | null
+          urun_gami?: string[] | null
           ust_kategori_id?: string | null
         }
         Update: {
@@ -1815,7 +1815,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           slug?: string | null
-          urun_gami?: string | null
+          urun_gami?: string[] | null
           ust_kategori_id?: string | null
         }
         Relationships: [
@@ -2603,7 +2603,7 @@ export type Database = {
           taric_kodu?: string | null
           tedarikci_id?: string | null
           teknik_ozellikler?: Json | null
-          urun_gami?: string | null
+          urun_gami?: string[] | null
           zertifikate?: string[] | null
         }
         Update: {
@@ -2662,7 +2662,7 @@ export type Database = {
           taric_kodu?: string | null
           tedarikci_id?: string | null
           teknik_ozellikler?: Json | null
-          urun_gami?: string | null
+          urun_gami?: string[] | null
           zertifikate?: string[] | null
         }
         Relationships: [

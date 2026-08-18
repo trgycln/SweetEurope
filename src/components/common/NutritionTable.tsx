@@ -38,8 +38,9 @@ function fmtVal(val: any, unit = 'g'): string {
 export function NutritionTable({ data, locale = 'de', className = '' }: NutritionTableProps) {
     if (!data || Object.keys(data).length === 0) return null;
 
-    // Support nested pro_100g or flat structure or localized strings
-    const raw = data.pro_100g || data[locale as any] || data.de || data.tr || data.en || data;
+    // Support nested pro_100g, pro_100ml or flat structure or localized strings
+    const raw = data.pro_100g || data.pro_100ml || data[locale as any] || data.de || data.tr || data.en || data;
+    const isPer100ml = !!data.pro_100ml && !data.pro_100g;
 
     const kj = raw.energie_kj ?? raw.energy_kj ?? raw.enerji_kj ?? null;
     const kcal = raw.energie_kcal ?? raw.energy_kcal ?? raw.enerji_kcal ?? raw.enerji ?? raw.energy ?? null;
@@ -131,7 +132,7 @@ export function NutritionTable({ data, locale = 'de', className = '' }: Nutritio
                     {t.title}
                 </span>
                 <span className="text-[11px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200">
-                    {t.per100}
+                    {isPer100ml ? t.per100.replace('100 g', '100 ml').replace('100g', '100ml') : t.per100}
                 </span>
             </div>
             <div className="divide-y divide-slate-100 text-xs">

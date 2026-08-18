@@ -58,7 +58,8 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
         aciklamalarJson[dil] = formData.get(`aciklamalar_${dil}`) as string || '';
     });
     const galeriUrls = formData.has('galeri_resim_urls[]') ? formData.getAll('galeri_resim_urls[]') as string[] : [];
-    const urunGami = ((formData.get('urun_gami') as string) || '').trim() || null;
+    const _rawUrunGami = formData.getAll('urun_gami') as string[];
+    const urunGami = _rawUrunGami.length > 0 ? _rawUrunGami : null;
     const koliIciAdet = parseInteger(formData.get('koli_ici_adet'));
     const paletIciAdet = parseInteger(formData.get('palet_ici_adet'));
     const alisFiyatSeviyesi = ((formData.get('alis_fiyat_seviyesi') as string) || '').trim() || 'adet';

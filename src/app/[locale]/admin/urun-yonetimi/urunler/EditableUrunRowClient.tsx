@@ -76,14 +76,18 @@ export default function EditableUrunRowClient({ urun, tierPrices, locale, conten
 
             {/* Gam */}
             <td className="px-3 py-2 text-xs text-slate-500 whitespace-nowrap">
-                {urun.urun_gami ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
-                        {urun.urun_gami === 'barista' ? 'Barista' :
-                         urun.urun_gami === 'dondurma' ? 'Eis & Gelato' :
-                         urun.urun_gami === 'pastaci' ? 'Konditorei' :
-                         urun.urun_gami === 'icecek' ? 'Getränke' :
-                         urun.urun_gami}
-                    </span>
+                {urun.urun_gami && Array.isArray(urun.urun_gami) && urun.urun_gami.length > 0 ? (
+                    <div className="flex gap-1 flex-wrap">
+                        {urun.urun_gami.map(gam => (
+                            <span key={gam} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                {gam === 'barista' ? 'Barista' :
+                                 gam === 'dondurma' ? 'Eis & Gelato' :
+                                 gam === 'pastaci' ? 'Konditorei' :
+                                 gam === 'icecek' ? 'Getränke' :
+                                 gam}
+                            </span>
+                        ))}
+                    </div>
                 ) : '—'}
             </td>
 

@@ -1,19 +1,19 @@
 'use client';
 import { computeTedarikDurumu } from '@/lib/utils';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { type Urun } from './types';
 import {
-    FiSearch, FiPackage, FiGrid, FiList, FiChevronRight, FiChevronDown,
+    FiSearch, FiPackage, FiGrid, FiList, FiChevronRight, FiChevronLeft, FiChevronDown,
     FiDownload, FiX, FiShoppingBag, FiPlus, FiMinus, FiSend,
 } from 'react-icons/fi';
 import { LuPackage, LuBarcode, LuThermometerSnowflake, LuThermometer } from 'react-icons/lu';
 import { getBadgeText } from '@/lib/labels';
 import { motion } from 'framer-motion';
-import { DietaryStickers } from '@/components/DietaryStickers';
+import { ProductDietaryBadges } from '@/components/DietaryStickers';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -137,6 +137,80 @@ function getStorageType(urun: Urun): 'tiefkuehl' | 'kuehlware' | 'ambient' {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
+function ProductCarousel({ children }: { children: React.ReactNode }) {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const [isHovered, setIsHovered] = useState(false);
+
+    const scroll = useCallback((direction: 'left' | 'right') => {
+        if (scrollRef.current) {
+            const { current } = scrollRef;
+            const scrollAmount = current.clientWidth * 0.75;
+            
+            if (direction === 'right') {
+                const maxScroll = current.scrollWidth - current.clientWidth;
+                if (current.scrollLeft >= maxScroll - 10) {
+                    current.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            } else {
+                if (current.scrollLeft <= 10) {
+                    const maxScroll = current.scrollWidth - current.clientWidth;
+                    current.scrollTo({ left: maxScroll, behavior: 'smooth' });
+                } else {
+                    current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                }
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isHovered) return;
+        
+        const interval = setInterval(() => {
+            scroll('right');
+        }, 4000);
+        
+        return () => clearInterval(interval);
+    }, [isHovered, scroll]);
+
+    return (
+        <div 
+            className="relative group"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onTouchStart={() => setIsHovered(true)}
+            onTouchEnd={() => setTimeout(() => setIsHovered(false), 2000)}
+        >
+            {/* Left Button */}
+            <button
+                onClick={(e) => { e.preventDefault(); scroll('left'); }}
+                className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-white/95 backdrop-blur-sm border border-stone-200 text-stone-600 w-10 h-10 rounded-full shadow-[0_4px_12px_rgb(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-stone-50 hover:scale-105 hover:text-amber-600 hidden md:flex items-center justify-center"
+                aria-label="Scroll left"
+            >
+                <FiChevronLeft size={22} />
+            </button>
+
+            {/* Scrollable Container */}
+            <div 
+                ref={scrollRef} 
+                className="flex gap-3 overflow-x-auto pb-3 pt-1 px-2 -mx-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth"
+            >
+                {children}
+            </div>
+
+            {/* Right Button */}
+            <button
+                onClick={(e) => { e.preventDefault(); scroll('right'); }}
+                className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-white/95 backdrop-blur-sm border border-stone-200 text-stone-600 w-10 h-10 rounded-full shadow-[0_4px_12px_rgb(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-stone-50 hover:scale-105 hover:text-amber-600 hidden md:flex items-center justify-center"
+                aria-label="Scroll right"
+            >
+                <FiChevronRight size={22} />
+            </button>
+        </div>
+    );
+}
+
 function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
     const type = getStorageType(urun);
     const tempMax = urun.lagertemperatur_max_celsius;
@@ -242,11 +316,6 @@ function CatalogCard({
                 <div className="absolute top-2 left-2">
                     <StorageBadge urun={urun} locale={locale} />
                 </div>
-
-                {/* Dietary stickers — bottom right */}
-                <div className="absolute bottom-1.5 right-1.5">
-                    <DietaryStickers teknikOzellikler={urun.teknik_ozellikler as any} size="sm" />
-                </div>
             </Link>
 
             {/* Content */}
@@ -296,28 +365,12 @@ function CatalogCard({
                     )}
                 </div>
 
-                {/* Quality/cert badges row */}
-                <div className="flex flex-wrap gap-1 min-h-[18px]">
-                    {BADGE_DEFS.filter(b => {
-                        const v = tekniks[b.key];
-                        return v === true || v === 'true' || v === 'evet' || v === 1;
-                    }).slice(0, 3).map(b => (
-                        <span key={b.key} title={getBadgeText(b.key as any, locale as any)}
-                            className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${b.bg}`}>
-                            <span>{b.icon}</span>
-                            <span>{b.short}</span>
-                        </span>
-                    ))}
-                    {urun.zertifikate?.filter(z => z !== 'BRC' && z !== 'Halal').slice(0, 2).map(z => {
-                        const cfg = ZERTIFIKAT_CONFIG[z];
-                        if (!cfg) return null;
-                        return (
-                            <span key={z} className={`inline-flex items-center text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${cfg.bg}`}>
-                                {cfg.label}
-                            </span>
-                        );
-                    })}
-                </div>
+                {/* Quality/cert/dietary badges row */}
+                <ProductDietaryBadges
+                    teknikOzellikler={urun.teknik_ozellikler as any}
+                    zertifikate={urun.zertifikate}
+                    size="sm"
+                />
 
                 {/* Pricing area */}
                 <div className="mt-auto pt-2 border-t border-slate-100">
@@ -513,9 +566,9 @@ function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, par
                 </h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-orange-200 to-transparent" />
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+            <ProductCarousel>
                 {urunler.map(urun => (
-                    <div key={urun.id} className="w-48 flex-shrink-0">
+                    <div key={urun.id} className="w-48 flex-shrink-0 snap-start">
                         <CatalogCard
                             urun={urun}
                             locale={locale}
@@ -528,7 +581,7 @@ function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, par
                         />
                     </div>
                 ))}
-            </div>
+            </ProductCarousel>
         </div>
     );
 }
@@ -615,10 +668,12 @@ function CatalogRow({ urun, locale, kategoriAdlariMap, isLoggedIn }: {
             <StorageBadge urun={urun} locale={locale} />
             <div className="text-xs text-slate-600 text-center">{koliIciAdet > 0 ? `${koliIciAdet} ${locale === 'tr' ? 'Adet' : locale === 'en' ? 'Pcs' : locale === 'ar' ? 'قطعة' : 'Stk.'}` : '—'}</div>
             <div className="text-xs text-slate-600 text-center">{paletIciAdet > 0 ? `${paletIciAdet} ${locale === 'tr' ? 'Adet' : locale === 'en' ? 'Pcs' : locale === 'ar' ? 'قطعة' : 'Stk.'}` : '—'}</div>
-            <div className="flex gap-1 flex-wrap">
-                {activeBadges.slice(0, 2).map(b => (
-                    <span key={b.key} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${b.bg}`}>{b.short}</span>
-                ))}
+            <div className="flex gap-1 flex-wrap items-center">
+                <ProductDietaryBadges
+                    teknikOzellikler={urun.teknik_ozellikler as any}
+                    zertifikate={urun.zertifikate}
+                    size="xs"
+                />
             </div>
             <div className="text-xs text-slate-700 text-center">
                 {isLoggedIn
@@ -903,29 +958,31 @@ export function ProductGridClient({
                         </span>
                     </div>
                     {viewMode === 'grid' ? (
-                        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-                            {featuredUrunler.map((urun, index) => (
-                                <motion.div 
-                                    key={urun.id} 
-                                    custom={index}
-                                    variants={itemVariants}
-                                    initial="hidden"
-                                    whileInView="show"
-                                    viewport={{ once: true, amount: 0.1 }}
-                                    className="w-40 flex-shrink-0 will-change-transform h-full"
-                                >
-                                    <CatalogCard
-                                        urun={urun}
-                                        locale={locale}
-                                        kategoriAdlariMap={kategoriAdlariMap}
-                                        isLoggedIn={activeIsLoggedIn}
-                                        partnerTier={activePartnerTier}
-                                        onAddToMerkliste={activeIsLoggedIn ? addToMerkliste : undefined}
-                                        inMerkliste={merklisteIds.has(urun.id)}
-                                        dictionary={dictionary}
-                                    />
-                                </motion.div>
-                            ))}
+                        <div className="px-1">
+                            <ProductCarousel>
+                                {featuredUrunler.map((urun, index) => (
+                                    <motion.div 
+                                        key={urun.id} 
+                                        custom={index}
+                                        variants={itemVariants}
+                                        initial="hidden"
+                                        whileInView="show"
+                                        viewport={{ once: true, amount: 0.1 }}
+                                        className="w-48 flex-shrink-0 will-change-transform h-full snap-start"
+                                    >
+                                        <CatalogCard
+                                            urun={urun}
+                                            locale={locale}
+                                            kategoriAdlariMap={kategoriAdlariMap}
+                                            isLoggedIn={activeIsLoggedIn}
+                                            partnerTier={activePartnerTier}
+                                            onAddToMerkliste={activeIsLoggedIn ? addToMerkliste : undefined}
+                                            inMerkliste={merklisteIds.has(urun.id)}
+                                            dictionary={dictionary}
+                                        />
+                                    </motion.div>
+                                ))}
+                            </ProductCarousel>
                         </div>
                     ) : (
                         <div className="bg-white/80 backdrop-blur-sm divide-y divide-stone-100">

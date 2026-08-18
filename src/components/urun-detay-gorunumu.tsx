@@ -224,7 +224,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const [activeImg, setActiveImg] = React.useState(allImages[0] ?? null);
 
     const naehrwerteRaw = urun.naehrwerte as any;
-    const n100 = naehrwerteRaw?.pro_100g ?? (naehrwerteRaw?.energy_kj ? {
+    const n100 = naehrwerteRaw?.pro_100g ?? naehrwerteRaw?.pro_100ml ?? (naehrwerteRaw?.energy_kj ? {
         energie_kj: naehrwerteRaw.energy_kj,
         energie_kcal: naehrwerteRaw.energy_kcal,
         fett: naehrwerteRaw.fat_g,
@@ -237,6 +237,8 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     } : null);
     const nPortion = naehrwerteRaw?.pro_portion ?? null;
     const hasNaehrwerte = n100 && (n100.energie_kcal || n100.energie_kj);
+    const isPer100ml = !!naehrwerteRaw?.pro_100ml && !naehrwerteRaw?.pro_100g;
+    const per100Label = isPer100ml ? lc.nutritionPer100?.replace('100 g', '100 ml').replace('100 جم', '100 مل') : lc.nutritionPer100;
 
     const herkunftLabel = typeof herkunft === 'string' 
         ? herkunft 
@@ -425,19 +427,19 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                     />
                                     <TierCard
                                         icon={<LuPackage2 size={15} />}
-                                        title={locale === 'de' ? '1 Kiste' : '1 Case'}
+                                        title={t(locale, '1 Karton', '1 Case', '1 Koli', '١ كرتونة')}
                                         accent="bg-violet-50 border-violet-200 text-violet-800"
                                         lines={[
-                                            koliIciAdet ? (locale === 'de' ? `${koliIciAdet} Stk.` : `${koliIciAdet} units`) : null,
+                                            koliIciAdet ? t(locale, `${koliIciAdet} Stk.`, `${koliIciAdet} units`, `${koliIciAdet} adet`, `${koliIciAdet} قطع`) : null,
                                             koliAgirlik ? `~${koliAgirlik}` : null,
                                         ]}
                                     />
                                     <TierCard
                                         icon={<LuWarehouse size={15} />}
-                                        title={locale === 'de' ? '1 Palette' : '1 Pallet'}
+                                        title={t(locale, '1 Palette', '1 Pallet', '1 Palet', '١ منصة')}
                                         accent="bg-slate-100 border-slate-300 text-slate-700"
                                         lines={[
-                                            paletIciAdet ? (locale === 'de' ? `${paletIciAdet} Stk.` : `${paletIciAdet} units`) : null,
+                                            paletIciAdet ? t(locale, `${paletIciAdet} Karton`, `${paletIciAdet} cases`, `${paletIciAdet} koli`, `${paletIciAdet} كرتونة`) : null,
                                             paletAgirlik ? `~${paletAgirlik}` : null,
                                         ]}
                                     />
@@ -557,7 +559,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                 <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
                                     <div className="grid grid-cols-3 px-4 py-2 bg-slate-50 border-b border-slate-200">
                                         <span className="text-xs text-slate-400 font-medium col-span-1" />
-                                        <span className="text-xs font-bold text-slate-700 text-right">{lc.nutritionPer100}</span>
+                                        <span className="text-xs font-bold text-slate-700 text-right">{per100Label}</span>
                                         {nPortion && (
                                             <span className="text-xs font-bold text-slate-700 text-right">
                                                 {lc.nutritionPerPortion}
@@ -626,25 +628,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                     className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-slate-900 font-semibold text-sm px-5 py-3 rounded-xl hover:bg-slate-100 transition-colors min-w-[160px]">
                                     <FiMail size={14} /> {lc.contact}
                                 </a>
-                                {produktdatenblattUrl && (
-                                    <>
-                                        <button 
-                                            type="button"
-                                            onClick={() => setIsLabelModalOpen(true)}
-                                            className="inline-flex items-center justify-center gap-2 bg-slate-800 text-white font-semibold text-sm px-4 py-3 rounded-xl hover:bg-slate-700 transition-colors border border-slate-700 cursor-pointer"
-                                            title="PDF Etiket"
-                                        >
-                                            <FiDownload size={14} /> PDF
-                                        </button>
-                                        <LabelModal
-                                            pdfUrl={produktdatenblattUrl}
-                                            productTitle={urunAdi}
-                                            isOpen={isLabelModalOpen}
-                                            onClose={() => setIsLabelModalOpen(false)}
-                                            locale={locale}
-                                        />
-                                    </>
-                                )}
+
                             </div>
                         </div>
 
@@ -784,7 +768,7 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
     const [activeImg, setActiveImg] = React.useState(allImages[0] ?? null);
 
     const naehrwerteRaw = urun.naehrwerte as any;
-    const n100 = naehrwerteRaw?.pro_100g ?? (naehrwerteRaw?.energy_kj ? {
+    const n100 = naehrwerteRaw?.pro_100g ?? naehrwerteRaw?.pro_100ml ?? (naehrwerteRaw?.energy_kj ? {
         energie_kj: naehrwerteRaw.energy_kj,
         energie_kcal: naehrwerteRaw.energy_kcal,
         fett: naehrwerteRaw.fat_g,
@@ -797,6 +781,8 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
     } : null);
     const nPortion = naehrwerteRaw?.pro_portion ?? null;
     const hasNaehrwerte = n100 && (n100.energie_kcal || n100.energie_kj);
+    const isPer100ml = !!naehrwerteRaw?.pro_100ml && !naehrwerteRaw?.pro_100g;
+    const per100Label = isPer100ml ? lc.nutritionPer100?.replace('100 g', '100 ml').replace('100 جم', '100 مل') : lc.nutritionPer100;
 
     const h = herkunft as any;
     const herkunftLabel = h ? (h[locale] || h.de || h.en || Object.values(h)[0]) : null;
@@ -1136,7 +1122,7 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                 <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
                                     <div className="grid grid-cols-3 px-4 py-2 bg-slate-50 border-b border-slate-200">
                                         <span className="text-xs text-slate-400 font-medium col-span-1" />
-                                        <span className="text-xs font-bold text-slate-700 text-right">{lc.nutritionPer100}</span>
+                                        <span className="text-xs font-bold text-slate-700 text-right">{per100Label}</span>
                                         {nPortion && (
                                             <span className="text-xs font-bold text-slate-700 text-right">
                                                 {lc.nutritionPerPortion}
@@ -1205,25 +1191,7 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                     className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-slate-900 font-semibold text-sm px-5 py-3 rounded-xl hover:bg-slate-100 transition-colors min-w-[160px]">
                                     <FiMail size={14} /> {lc.contact}
                                 </a>
-                                {produktdatenblattUrl && (
-                                    <>
-                                        <button 
-                                            type="button"
-                                            onClick={() => setIsLabelModalOpen(true)}
-                                            className="inline-flex items-center justify-center gap-2 bg-slate-800 text-white font-semibold text-sm px-4 py-3 rounded-xl hover:bg-slate-700 transition-colors border border-slate-700 cursor-pointer"
-                                            title="PDF Etiket"
-                                        >
-                                            <FiDownload size={14} /> PDF
-                                        </button>
-                                        <LabelModal
-                                            pdfUrl={produktdatenblattUrl}
-                                            productTitle={urunAdi}
-                                            isOpen={isLabelModalOpen}
-                                            onClose={() => setIsLabelModalOpen(false)}
-                                            locale={locale}
-                                        />
-                                    </>
-                                )}
+
                             </div>
                         </div>
 

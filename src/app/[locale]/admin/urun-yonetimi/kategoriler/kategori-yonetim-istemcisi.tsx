@@ -168,9 +168,23 @@ function KategoriModal({ isOpen, onClose, mevcutKategori, tumKategoriler }: {
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-600 mb-1">Ürün Gamı</label>
-                <select name="urun_gami" defaultValue={mevcutKategori?.urun_gami || ''} className="w-full p-2 border rounded-md bg-gray-50 text-sm">
-                  {URUN_GAMLARI.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
-                </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 border p-2 rounded-md bg-gray-50 max-h-24 overflow-y-auto">
+                  {URUN_GAMLARI.map(g => {
+                    if (g.value === '') return null; // Skip empty/optional placeholder
+                    return (
+                      <label key={g.value} className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          name="urun_gami"
+                          value={g.value}
+                          defaultChecked={Array.isArray(mevcutKategori?.urun_gami) ? mevcutKategori.urun_gami.includes(g.value) : false}
+                          className="w-3.5 h-3.5 text-amber-600"
+                        />
+                        <span className="truncate">{g.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             <div className="border rounded-lg p-3">
