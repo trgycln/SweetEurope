@@ -37,9 +37,9 @@ export default async function AboutPage({ params }: { params: { locale: Locale }
   return (
     <div className="bg-secondary text-text-main">
       {/* Hero Section */}
-      <div className="relative bg-primary text-secondary text-center py-20 md:py-32">
-        <p className="font-sans tracking-widest uppercase">{content?.heroSubtitle}</p>
-        <h1 className="text-5xl md:text-7xl font-serif mt-4">{content.title}</h1>
+      <div className="relative bg-primary text-secondary text-center py-16 sm:py-20 md:py-32 px-4 sm:px-6">
+        <p className="font-sans text-xs sm:text-sm tracking-widest uppercase">{content?.heroSubtitle}</p>
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif mt-3 sm:mt-4">{content.title}</h1>
       </div>
 
       {/* Story Section */}

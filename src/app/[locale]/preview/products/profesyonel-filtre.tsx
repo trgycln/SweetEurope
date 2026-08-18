@@ -14,8 +14,11 @@ interface ProfesyonelFiltreProps {
     kategoriler: Kategori[];
     locale: string;
     seciliKategoriSlug?: string;
+    seciliUrunGami?: string;
     totalCount?: number;
     availablePorsiyonlar?: number[]; // Dynamic portion options from database
+    availableHacimler?: number[];
+    basePath?: string;
     labels: {
         searchPlaceholder?: string;
         categoryLabel?: string;

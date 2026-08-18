@@ -20,7 +20,7 @@ export default async function MusteriTalepleriPage({ params }: MusteriTalepleriP
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: talepler, error } = await supabase
+    const { data: talepler, error } = await (supabase as any)
         .from('urun_talepleri')
         .select(`
             *,

@@ -1,15 +1,14 @@
-// src/app/admin/crm/firmalar/[firmaId]/siparisler/[siparisId]/page.tsx
-
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { FiArrowLeft } from 'react-icons/fi';
 
-// Para ve Tarih formatlama yardımcı fonksiyonları
 const formatCurrency = (amount: number | null) => {
     if (amount === null) return 'N/A';
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
 };
+
 const formatDate = (dateStr: string | null) => {
     if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -18,14 +17,13 @@ const formatDate = (dateStr: string | null) => {
 export default async function SiparisDetayPage({ 
     params 
 }: { 
-    params: { firmaId: string; siparisId: string } 
+    params: Promise<{ locale?: string; firmaId: string; siparisId: string }> 
 }) {
-    const supabase = createSupabaseServerClient();
+    const { firmaId, siparisId, locale = 'de' } = await params;
 
-    // Bu, bu sayfanın en önemli sorgusudur.
-    // Tek bir sorgu ile siparişin kendisini, bağlı olduğu firma adını,
-    // içindeki tüm ürün satırlarını (siparis_detay) ve bu satırlardaki
-    // ürünlerin isimlerini (urunler) çekiyoruz.
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
     const { data: siparis, error } = await supabase
         .from('siparisler')
         .select(`
@@ -36,23 +34,21 @@ export default async function SiparisDetayPage({
                 urunler ( ad )
             )
         `)
-        .eq('id', params.siparisId)
+        .eq('id', siparisId)
         .single();
 
     if (error || !siparis) {
         console.error("Sipariş detayı çekilirken hata:", error);
-        notFound(); // Sipariş bulunamazsa 404 sayfasına yönlendir.
+        notFound();
     }
 
-    // @ts-ignore - Supabase tipleri bazen iç içe ilişkileri tam yakalayamayabilir.
-    const firmaUnvan = siparis.firmalar?.unvan || 'Firma Bilgisi Yok';
-    // @ts-ignore
-    const urunSatirlari = siparis.siparis_detay || [];
+    const firmaUnvan = (siparis as any).firmalar?.unvan || 'Firma Bilgisi Yok';
+    const urunSatirlari = (siparis as any).siparis_detay || [];
 
     return (
         <div className="space-y-6">
             <Link 
-                href={`/admin/crm/firmalar/${params.firmaId}/siparisler`} 
+                href={`/${locale}/admin/crm/firmalar/${firmaId}/siparisler`} 
                 className="inline-flex items-center gap-2 text-sm text-text-main/80 hover:text-accent transition-colors"
             >
                 <FiArrowLeft />
@@ -71,7 +67,7 @@ export default async function SiparisDetayPage({
                     </div>
                     <div>
                         <h3 className="text-xs font-bold text-text-main/60 uppercase">Sipariş Tarihi</h3>
-                        <p className="font-semibold text-primary">{formatDate(siparis.siparis_tarihi)}</p>
+                        <p className="font-semibold text-primary">{formatDate(siparis.created_at)}</p>
                     </div>
                     <div>
                         <h3 className="text-xs font-bold text-text-main/60 uppercase">Durum</h3>
@@ -95,8 +91,7 @@ export default async function SiparisDetayPage({
                                 {urunSatirlari.map((item: any) => (
                                     <tr key={item.id} className="border-b last:border-none">
                                         <td className="py-3 font-semibold text-text-main">
-                                            {/* @ts-ignore */}
-                                            {item.urunler?.ad?.['tr'] || 'Ürün Adı Bulunamadı'}
+                                            {item.urunler?.ad?.['tr'] || item.urunler?.ad?.['de'] || 'Ürün Adı Bulunamadı'}
                                         </td>
                                         <td className="py-3 text-right">{item.miktar}</td>
                                         <td className="py-3 text-right">{formatCurrency(item.birim_fiyat)}</td>

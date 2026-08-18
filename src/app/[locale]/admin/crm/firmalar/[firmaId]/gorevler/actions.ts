@@ -67,7 +67,7 @@ export async function firmaIcinGorevEkleAction(
     };
 
     // In Datenbank einfügen
-    const { error } = await supabase.from('gorevler').insert(insertData);
+    const { error } = await supabase.from('gorevler').insert(insertData as any);
 
     if (error) {
         console.error("Fehler beim Hinzufügen der Aufgabe:", error);

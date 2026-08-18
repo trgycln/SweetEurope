@@ -64,7 +64,7 @@ export default async function DegerlendirmelerPage({
       kullanici_adi: profil?.tam_ad || 'Anonim',
       kullanici_email: firma?.email || '',
       firma_adi: firma?.unvan || null,
-      urun_adi: urun?.ad?.[locale] || urun?.ad?.de || 'Ürün',
+      urun_adi: (urun?.ad as any)?.[locale] || (urun?.ad as any)?.de || (urun?.ad as any)?.tr || 'Ürün',
     };
   }));
 

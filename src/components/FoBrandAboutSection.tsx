@@ -55,7 +55,7 @@ interface Props {
 export default function FoBrandAboutSection({ locale, dictionary, altKategorilerMap = {} }: Props) {
 
     return (
-        <section className="relative bg-gradient-to-b from-[#FAF9F6] to-[#EAE8E1] py-20 px-6 overflow-hidden">
+        <section className="relative bg-gradient-to-b from-[#FAF9F6] to-[#EAE8E1] py-16 sm:py-20 px-4 sm:px-8 md:px-12 lg:px-20 overflow-hidden">
 
             {/* Decorative background elements */}
             <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-[0.04] bg-[#2B2B2B] translate-x-1/3 -translate-y-1/3 pointer-events-none" />
@@ -64,11 +64,11 @@ export default function FoBrandAboutSection({ locale, dictionary, altKategoriler
             <div className="container mx-auto relative">
 
                 {/* Header */}
-                <div className="text-center mb-14">
+                <div className="text-center mb-10 sm:mb-14">
                     <span className="inline-block text-xs font-bold uppercase tracking-[0.22em] text-[#C69F6B] mb-3">
                         {dictionary.foBrandAboutSection.whyElyson}
                     </span>
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-[#2B2B2B] mb-4 leading-tight">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif text-[#2B2B2B] mb-4 leading-tight">
                         {dictionary.foBrandAboutSection.horecaSpecialist}
                     </h2>
                     <p className="text-base text-[#6B6B6B] max-w-2xl mx-auto">

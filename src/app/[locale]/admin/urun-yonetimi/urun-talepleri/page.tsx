@@ -1,6 +1,4 @@
 // src/app/[locale]/admin/urun-yonetimi/urun-talepleri/page.tsx
-// KORRIGIERTE VERSION (Tippfehler in Zeile 108 behoben)
-
 import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import Link from 'next/link';
@@ -13,12 +11,11 @@ import UrunTalepAktionen from './UrunTalepAktionen';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { unstable_noStore as noStore } from 'next/cache';
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
 // Status-Definitionen
 type UrunStatusKey = Enums<'urun_talep_durumu'>;
-const STATUS_ICONS: Record<string, React.ElementType> = { 'Yeni': FiClock, 'Değerlendiriliyor': FiPackage, 'Onaylandı': FiCheckCircle, 'Reddedildi': FiXCircle };
+const STATUS_ICONS: Record<string, any> = { 'Yeni': FiClock, 'Değerlendiriliyor': FiPackage, 'Onaylandı': FiCheckCircle, 'Reddedildi': FiXCircle };
 const STATUS_COLORS: Record<string, string> = { 'Yeni': 'text-yellow-600 bg-yellow-100', 'Değerlendiriliyor': 'text-blue-600 bg-blue-100', 'Onaylandı': 'text-green-600 bg-green-100', 'Reddedildi': 'text-red-600 bg-red-100' };
 
 export const dynamic = 'force-dynamic';
@@ -30,29 +27,20 @@ type UrunTalepRow = Tables<'yeni_urun_talepleri'> & {
 
 // Props-Typ für die Seite
 interface UrunTalepleriPageProps {
-    params: { locale: Locale };
-    searchParams?: { status?: string; firmaId?: string; q?: string; };
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ status?: string; firmaId?: string; q?: string; }>;
 }
-
-// Funktion zum Extrahieren des Produktnamens (falls benötigt, hier nicht direkt)
-// const getProductName = (urunAdJson: any, currentLocale: Locale): string => { ... };
 
 export default async function UrunTalepleriPage({
     params,
     searchParams
 }: UrunTalepleriPageProps) {
-    noStore(); // Caching deaktivieren
-    const locale = params.locale;
+    noStore();
+    const { locale } = await params;
+    const resolvedSearchParams = searchParams ? await searchParams : {};
 
-    // --- Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    // --- ENDE ---
-
-    // Optional: Benutzerprüfung
-    // const { data: { user } } = await getGlobalCachedUser();
-    // if (!user) { return redirect(`/${locale}/login`); }
-    // ... Rollenprüfung ...
 
     const dictionary = await getDictionary(locale);
 
@@ -65,22 +53,22 @@ export default async function UrunTalepleriPage({
     };
 
     const statusOptions = content.statusOptions || {};
-    const statusTranslations = statusOptions; // Übersetzungen
+    const statusTranslations = statusOptions;
 
     // Basisabfrage mit Join
     let query = supabase
         .from('yeni_urun_talepleri')
-        .select(`*, firma: firmalar!inner (unvan)`); // !inner Join
+        .select(`*, firma: firmalar!inner (unvan)`);
 
     // Filter anwenden
-    if (searchParams?.status) {
-        query = query.eq('status', searchParams.status as UrunStatusKey);
+    if (resolvedSearchParams?.status) {
+        query = query.eq('status', resolvedSearchParams.status as UrunStatusKey);
     }
-    if (searchParams?.firmaId) {
-        query = query.eq('firma_id', searchParams.firmaId);
+    if (resolvedSearchParams?.firmaId) {
+        query = query.eq('firma_id', resolvedSearchParams.firmaId);
     }
-    if (searchParams?.q) {
-        const aramaTerimi = `%${searchParams.q}%`;
+    if (resolvedSearchParams?.q) {
+        const aramaTerimi = `%${resolvedSearchParams.q}%`;
         const { data: eslesenFirmalar, error: firmaSearchError } = await supabase
             .from('firmalar')
             .select('id')
@@ -97,26 +85,20 @@ export default async function UrunTalepleriPage({
         );
     }
 
-    // Daten parallel abrufen
     const [anfragenRes, firmalarRes] = await Promise.all([
         query.order('created_at', { ascending: false }),
-        supabase.from('firmalar').select('id, unvan').order('unvan') // Für Filter-Dropdown
+        supabase.from('firmalar').select('id, unvan').order('unvan')
     ]);
 
-    // --- KORREKTUR HIER ---
-    const { data: anfragen, error: anfragenError } = anfragenRes; // 'error' umbenannt
+    const { data: anfragen, error: anfragenError } = anfragenRes;
     const { data: firmalar, error: firmalarError } = firmalarRes;
 
-    // Fehlerbehandlung (angepasst)
     if (anfragenError || firmalarError) {
         console.error("Fehler beim Laden der Produktanfragen oder Firmen:", anfragenError || firmalarError);
         return <div className="p-6 text-red-500 bg-red-50 rounded-lg">Daten konnten nicht geladen werden. Details in Server-Logs.</div>;
     }
-    // --- ENDE KORREKTUR ---
 
-    // Typ-Zuweisung
-    const anfrageListe: UrunTalepRow[] = (anfragen as any[]) || []; // Sicherer Cast
-    // Datumsformatierung
+    const anfrageListe: UrunTalepRow[] = (anfragen as any[]) || [];
     const formatDate = (dateStr: string | null): string => {
         if (!dateStr) return '-';
         try {
@@ -126,7 +108,6 @@ export default async function UrunTalepleriPage({
         }
     };
 
-    // Optionen für Filter-Dropdown
     const durumSecenekleri = Object.entries(statusOptions).map(([anahtar, deger]) => ({
         anahtar: anahtar as UrunStatusKey,
         deger: deger as string
@@ -141,17 +122,17 @@ export default async function UrunTalepleriPage({
             </header>
 
             {/* Filter */}
-            <UrunTalepFiltreleri firmalar={firmalar || []} durumlar={durumSecenekleri} locale={locale} />
+            <UrunTalepFiltreleri firmalar={firmalar || []} durumlar={durumSecenekleri} />
 
             {/* Liste oder "Keine Ergebnisse" */}
             {anfrageListe.length === 0 ? (
                 <div className="mt-12 text-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-white shadow-sm">
                     <FiMessageSquare className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                        {Object.keys(searchParams || {}).filter(k => k !== 'locale').length > 0 ? content.noRequestsFilter : content.noRequests}
+                        {Object.keys(resolvedSearchParams || {}).length > 0 ? content.noRequestsFilter : content.noRequests}
                     </h2>
                      <p className="text-gray-500 mt-1">
-                         {Object.keys(searchParams || {}).filter(k => k !== 'locale').length > 0 ? 'Versuchen Sie, Ihre Filterkriterien zu ändern.' : ''}
+                         {Object.keys(resolvedSearchParams || {}).length > 0 ? 'Versuchen Sie, Ihre Filterkriterien zu ändern.' : ''}
                      </p>
                 </div>
             ) : (
@@ -166,7 +147,7 @@ export default async function UrunTalepleriPage({
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {anfrageListe.map((anfrage) => {
-                                const firmaUnvan = anfrage.firma!.unvan || 'Unbekannt';
+                                const firmaUnvan = anfrage.firma?.unvan || 'Unbekannt';
                                 const statusKey = anfrage.status as UrunStatusKey;
                                 const translatedStatus = (statusTranslations as Record<string, string>)[statusKey] || statusKey;
                                 const StatusIcon = STATUS_ICONS[statusKey] || FiClock;
@@ -192,7 +173,7 @@ export default async function UrunTalepleriPage({
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm space-y-2 align-top w-56">
-                                            <UrunTalepAktionen talep={anfrage} locale={locale} />
+                                            <UrunTalepAktionen talep={anfrage} />
                                         </td>
                                     </tr>
                                 );

@@ -33,8 +33,8 @@ type NumuneStatusKey = Enums<'numune_talep_durumu'>;
 type UrunStatusKey = Enums<'urun_talep_durumu'>;
 
 // --- Hilfskomponenten (Status-Badges) ---
-const NumuneStatusBadge = ({ status, text }: { status: NumuneStatusKey, text: string }) => { const iconMap: Record<string, React.ElementType> = { 'Yeni Talep': FiClock, 'Onaylandı': FiCheckCircle, 'Hazırlanıyor': FiPackage, 'Gönderildi': FiTruck, 'İptal Edildi': FiXCircle }; const colorMap: Record<string, string> = { 'Yeni Talep': 'text-yellow-600 bg-yellow-100', 'Onaylandı': 'text-blue-600 bg-blue-100', 'Hazırlanıyor': 'text-purple-600 bg-purple-100', 'Gönderildi': 'text-green-600 bg-green-100', 'İptal Edildi': 'text-red-600 bg-red-100' }; const Icon = iconMap[status] || FiClock; const color = colorMap[status] || 'text-gray-600 bg-gray-100'; return <span className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full ${color}`}><Icon size={12} /> {text}</span>; };
-const UrunStatusBadge = ({ status, text }: { status: UrunStatusKey, text: string }) => { const iconMap: Record<string, React.ElementType> = { 'Yeni': FiClock, 'Değerlendiriliyor': FiPackage, 'Onaylandı': FiCheckCircle, 'Reddedildi': FiXCircle }; const colorMap: Record<string, string> = { 'Yeni': 'text-yellow-600 bg-yellow-100', 'Değerlendiriliyor': 'text-blue-600 bg-blue-100', 'Onaylandı': 'text-green-600 bg-green-100', 'Reddedildi': 'text-red-600 bg-red-100' }; const Icon = iconMap[status] || FiClock; const color = colorMap[status] || 'text-gray-600 bg-gray-100'; return <span className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full ${color}`}><Icon size={12} /> {text}</span>; };
+const NumuneStatusBadge = ({ status, text }: { status: NumuneStatusKey, text: string }) => { const iconMap: Record<string, any> = { 'Yeni Talep': FiClock, 'Onaylandı': FiCheckCircle, 'Hazırlanıyor': FiPackage, 'Gönderildi': FiTruck, 'İptal Edildi': FiXCircle }; const colorMap: Record<string, string> = { 'Yeni Talep': 'text-yellow-600 bg-yellow-100', 'Onaylandı': 'text-blue-600 bg-blue-100', 'Hazırlanıyor': 'text-purple-600 bg-purple-100', 'Gönderildi': 'text-green-600 bg-green-100', 'İptal Edildi': 'text-red-600 bg-red-100' }; const Icon = iconMap[status] || FiClock; const color = colorMap[status] || 'text-gray-600 bg-gray-100'; return <span className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full ${color}`}><Icon size={12} /> {text}</span>; };
+const UrunStatusBadge = ({ status, text }: { status: UrunStatusKey, text: string }) => { const iconMap: Record<string, any> = { 'Yeni': FiClock, 'Değerlendiriliyor': FiPackage, 'Onaylandı': FiCheckCircle, 'Reddedildi': FiXCircle }; const colorMap: Record<string, string> = { 'Yeni': 'text-yellow-600 bg-yellow-100', 'Değerlendiriliyor': 'text-blue-600 bg-blue-100', 'Onaylandı': 'text-green-600 bg-green-100', 'Reddedildi': 'text-red-600 bg-red-100' }; const Icon = iconMap[status] || FiClock; const color = colorMap[status] || 'text-gray-600 bg-gray-100'; return <span className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full ${color}`}><Icon size={12} /> {text}</span>; };
 
 // Submit-Button für das neue Produktformular
 function SubmitButton({ dictionary }: { dictionary: Dictionary }) {
@@ -105,12 +105,12 @@ export function TaleplerimClient({ initialNumuneTalepleri, initialUrunTalepleri,
 
         startCancelTransition(async () => {
             const result = await partnerDeleteUrunTalepAction(talepId);
-            if (result.success) {
+            if (result?.success) {
                 toast.success(content.requestDeleted || "Anfrage gelöscht");
                 // Liste im Client aktualisieren
                 setUrunTalepleri(prev => prev.filter(t => t.id !== talepId));
             } else {
-                toast.error(result.error || content.errorOccurred || "Ein Fehler ist aufgetreten");
+                toast.error(result?.error || result?.message || content.errorOccurred || "Ein Fehler ist aufgetreten");
             }
         });
     };

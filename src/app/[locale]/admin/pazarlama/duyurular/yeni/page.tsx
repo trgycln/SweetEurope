@@ -3,7 +3,7 @@
 // KORREKTUR 3: React importieren, um React.use() verwenden zu können
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Database, Enums } from '@/lib/supabase/database.types';
 import { FiArrowLeft, FiSave } from 'react-icons/fi';
 import { useFormStatus } from 'react-dom';
@@ -39,12 +39,9 @@ function SubmitButton() {
     );
 }
 
-export default function NeueDuyuruPage({ params }: { params: { locale: string } }) {
-    // KORREKTUR 3: params mit React.use() sicher auspacken
-    // Auch wenn params hier nicht direkt ein Promise ist, stellt dieser Hook sicher,
-    // dass wir den Wert korrekt handhaben, wie von Next.js empfohlen.
-    const resolvedParams = React.use(params);
-    const locale = resolvedParams.locale; // Jetzt sicher auf locale zugreifen
+export default function NeueDuyuruPage() {
+    const params = useParams();
+    const locale = (params?.locale as string) || 'de';
 
     const router = useRouter();
     const initialState: FormState = null;

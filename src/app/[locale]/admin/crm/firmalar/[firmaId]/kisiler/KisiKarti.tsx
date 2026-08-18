@@ -16,7 +16,8 @@ type DisKontak = {
 };
 
 interface KisiKartiProps {
-    kisi: DisKontak;
+    kisi: DisKontak | any;
+    locale?: any;
 }
 
 export default function KisiKarti({ kisi }: KisiKartiProps) {
@@ -38,7 +39,7 @@ export default function KisiKarti({ kisi }: KisiKartiProps) {
     const handleDelete = async () => {
         if (window.confirm(`${kisi.ad_soyad} adlı kişiyi silmek istediğinizden emin misiniz?`)) {
             startTransition(async () => {
-                const result = await silKisiAction(kisi.id, kisi.firma_id);
+                const result = await silKisiAction(kisi.id, kisi.firma_id || '');
                 if (result.success) {
                     toast.success(result.message);
                 } else {
@@ -58,7 +59,7 @@ export default function KisiKarti({ kisi }: KisiKartiProps) {
                         <FiEdit className="text-accent text-2xl" />
                     </div>
                     <div className="flex-grow space-y-2">
-                        <input type="text" name="ad_soyad" defaultValue={kisi.ad_soyad} required className={`${inputClasses} font-bold`} />
+                        <input type="text" name="ad_soyad" defaultValue={kisi.ad_soyad || ''} required className={`${inputClasses} font-bold`} />
                         <input type="text" name="unvan" defaultValue={kisi.unvan || ''} placeholder="Unvan" className={inputClasses} />
                         <input type="email" name="email" defaultValue={kisi.email || ''} placeholder="E-posta" className={inputClasses} />
                         <input type="tel" name="telefon" defaultValue={kisi.telefon || ''} placeholder="Telefon" className={inputClasses} />

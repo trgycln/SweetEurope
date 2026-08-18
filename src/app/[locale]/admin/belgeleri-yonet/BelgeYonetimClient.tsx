@@ -108,6 +108,7 @@ function CategorySidebar({
     onSelect: (id: string) => void;
     toplam: number;
     kategoriSayilari: Record<string, number>;
+    kategoriSuresiBitenler?: Record<string, number>;
 }) {
     return (
         <div className="space-y-1">

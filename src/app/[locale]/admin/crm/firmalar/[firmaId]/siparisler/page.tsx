@@ -16,7 +16,7 @@ type SiparisStatusKey = Enums<'siparis_durumu'> | string; // Sicherer Typ
 type Siparis = Tables<'siparisler'>;
 
 // Icons für Status (mit korrekten Schlüsseln in Anführungszeichen)
-const STATUS_ICONS: Record<string, React.ElementType> = {
+const STATUS_ICONS: Record<string, any> = {
     'Beklemede': FiClock, // In Anführungszeichen
     'Hazırlanıyor': FiClock, // In Anführungszeichen
     'Yola Çıktı': FiTruck, // War schon korrekt
@@ -35,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
     'Yola Çıktı': 'text-purple-600 bg-purple-100', // War schon korrekt
     'Teslim Edildi': 'text-green-600 bg-green-100', // In Anführungszeichen
     'İptal Edildi': 'text-red-600 bg-red-100', // War schon korrekt
-    processing: 'text-yellow-600 bg-yellow-100',
+    processing: 'text-blue-600 bg-blue-100',
     shipped: 'text-purple-600 bg-purple-100',
     delivered: 'text-green-600 bg-green-100',
     cancelled: 'text-red-600 bg-red-100',
@@ -43,15 +43,15 @@ const STATUS_COLORS: Record<string, string> = {
 
 // Props-Typ für die Seite
 interface FirmaSiparisleriPageProps {
-    params: {
+    params: Promise<{
         locale: Locale;
         firmaId: string;
-    };
-    searchParams?: { [key: string]: string | string[] | undefined };
+    }>;
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriPageProps) {
-    const { firmaId, locale } = params;
+    const { firmaId, locale } = await params;
 
     // --- Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies();
@@ -63,7 +63,7 @@ export default async function FirmaSiparisleriPage({ params }: FirmaSiparisleriP
 
     // Dictionary für Übersetzungen laden
     const dictionary = await getDictionary(locale);
-    const orderStatusTranslations = dictionary.orderStatuses || {};
+    const orderStatusTranslations = (dictionary as any).orderStatuses || {};
 
     // Bestellungen für die Firma abrufen
     const { data: siparislerData, error } = await supabase

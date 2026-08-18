@@ -133,7 +133,7 @@ export default async function PortalLayout({
     };
 
     return (
-        <PortalProvider value={initialContextValue}>
+        <PortalProvider value={initialContextValue as any}>
             <VisitPlannerProvider>
                 <PortalContainer dictionary={dictionary}>
                     {children}

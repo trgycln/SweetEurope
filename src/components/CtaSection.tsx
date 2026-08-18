@@ -9,15 +9,15 @@ const DecorativeSeparator = () => (
 
 const CtaSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary, locale }) => {
   return (
-    <section className="bg-primary text-secondary py-20 px-6">
+    <section className="bg-primary text-secondary py-16 sm:py-20 px-4 sm:px-8 md:px-12 lg:px-20">
       <div className="container mx-auto text-center max-w-3xl">
-        <h2 className="text-4xl md:text-5xl font-serif">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif">
           {dictionary.cta.title}
         </h2>
 
         <DecorativeSeparator />
 
-        <p className="font-sans text-lg opacity-90 leading-relaxed mb-10">
+        <p className="font-sans text-sm sm:text-lg opacity-90 leading-relaxed mb-8 sm:mb-10">
           {dictionary.cta.subtitle}
         </p>
 

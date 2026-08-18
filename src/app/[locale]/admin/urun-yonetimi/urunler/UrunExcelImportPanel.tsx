@@ -77,7 +77,7 @@ export default function UrunExcelImportPanel({ locale, suppliers }: Props) {
         return;
       }
 
-      const parts = [];
+      const parts: string[] = [];
       if (response?.createdCount) parts.push(`${response.createdCount} yeni ürün oluşturuldu`);
       if (response?.updatedCount) parts.push(`${response.updatedCount} ürün güncellendi`);
       if (response?.skippedCount) parts.push(`${response.skippedCount} satır atlandı`);

@@ -153,7 +153,7 @@ function KategoriModal({ isOpen, onClose, mevcutKategori, tumKategoriler }: {
                       const prefix = '—'.repeat(depth) + (depth > 0 ? ' ' : '');
                       return (
                         <option key={k.id} value={k.id}>
-                          {prefix}{k.ad?.tr || k.ad?.de || 'İsimsiz'}
+                          {prefix}{(k.ad as any)?.tr || (k.ad as any)?.de || 'İsimsiz'}
                         </option>
                       );
                     })}
@@ -409,7 +409,7 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
     });
   };
 
-  const renderTree = (parentId: string | null, depth: number): JSX.Element[] => {
+  const renderTree = (parentId: string | null, depth: number): React.ReactNode[] => {
     const children = serverKategoriler.filter(
       k => (k.ust_kategori_id || null) === parentId
     );

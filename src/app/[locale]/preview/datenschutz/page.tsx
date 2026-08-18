@@ -2,43 +2,49 @@ import React from 'react';
 import { dictionary } from '@/dictionaries/de';
 
 export default function DatenschutzPage() {
-  const content = dictionary.datenschutzPage;
+  const t = dictionary.datenschutzPage;
 
   return (
     <div className="bg-secondary text-text-main">
       {/* Hero Section */}
-      <div className="relative bg-primary text-secondary text-center py-20 md:py-32">
-        <h1 className="text-5xl md:text-7xl font-serif text-secondary">{content.title}</h1>
-        <p className="text-sm mt-4 opacity-80">{content.lastUpdated}</p>
+      <div className="relative bg-primary text-secondary text-center py-16 sm:py-20 md:py-32 px-4 sm:px-6">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif text-secondary">{t.title}</h1>
+        <p className="text-secondary/60 mt-3 text-sm sm:text-lg">{t.subtitle}</p>
       </div>
 
       {/* Content Section */}
       <section className="py-20 px-6">
         <div className="container mx-auto max-w-3xl font-sans">
-          <div className="space-y-8 bg-white p-10 rounded-lg shadow-lg leading-loose">
-            <p>{content.p1}</p>
-            <p>{content.p2}</p>
-            
+          <div className="space-y-8 bg-white p-10 rounded-lg shadow-lg text-text-main">
             <div>
-              <h2 className="text-2xl font-bold font-serif text-primary mt-8 mb-4">{content.sectionTitle1}</h2>
-              <p>{content.responsibleBody}</p>
-              <div className="mt-4 pl-4 border-l-2 border-accent">
-                {content.companyDetails.map((line, index) => (
-                  <p key={index}>{line}</p>
-                ))}
+              <h2 className="text-xl font-bold font-serif text-primary mb-3">{t.section1Title}</h2>
+              <p className="text-sm text-gray-700 leading-relaxed mb-3">{t.section1Intro}</p>
+              <div className="pl-4 border-l-2 border-accent text-sm text-gray-700 space-y-0.5">
+                <p>Elyson Sweets GmbH i.G.</p>
+                <p>Sirius Business Park</p>
+                <p>Wilhelm-Ruppert-Straße 38 / F8</p>
+                <p>51147 Köln</p>
+                <p>{t.companyRepLabel} Ahmet Seker</p>
+                <p>
+                  E-Mail:{' '}
+                  <a href="mailto:info@elysonsweets.de" className="hover:text-accent transition-colors">
+                    info@elysonsweets.de
+                  </a>
+                </p>
               </div>
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold font-serif text-primary mt-8 mb-4">{content.sectionTitle2}</h2>
-              <p>{content.rightsIntro}</p>
-              <ul className="list-disc list-inside mt-4 space-y-2">
-                {content.rightsList.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-              <p className="mt-4">{content.p3}</p>
+              <h2 className="text-xl font-bold font-serif text-primary mb-3">{t.section2Title}</h2>
+              <p className="text-sm text-gray-700 leading-relaxed">{t.section2Text}</p>
             </div>
+
+            <div>
+              <h2 className="text-xl font-bold font-serif text-primary mb-3">{t.section3Title}</h2>
+              <p className="text-sm text-gray-700 leading-relaxed">{t.section3Text}</p>
+            </div>
+
+            <p className="text-xs text-gray-400 pt-4 border-t border-gray-100">{t.lastUpdated}</p>
           </div>
         </div>
       </section>

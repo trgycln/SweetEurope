@@ -35,7 +35,7 @@ export default async function FiyatHesaplamaPage({ params }: { params: Promise<{
     <div className="p-6 max-w-5xl mx-auto">
       <h1 className="text-2xl font-semibold mb-2">Basit Tedarik Maliyet Platformu</h1>
       <p className="text-secondary/70 mb-6">Soguk zincirli ve soguk zincir disi tedarik senaryolari icin ayni ekranda net maliyet ve hedef satis fiyatini hesaplayin.</p>
-      <CalculatorClient locale={locale} products={products} categories={kategoriler || []} systemSettings={systemSettings} />
+      <CalculatorClient locale={locale} products={products as any} categories={kategoriler || []} systemSettings={systemSettings} />
     </div>
   );
 }

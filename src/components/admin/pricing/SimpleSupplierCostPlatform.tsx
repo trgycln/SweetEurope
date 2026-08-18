@@ -297,8 +297,9 @@ export default function SimpleSupplierCostPlatform({
     return [...products]
       .sort((a, b) => pName(a).localeCompare(pName(b), 'tr'))
       .map(product => {
-        const storedLine: ProductLineKey = isProductLineKey(product.urun_gami)
-          ? product.urun_gami
+        const rawLine = Array.isArray(product.urun_gami) ? product.urun_gami[0] : product.urun_gami;
+        const storedLine: ProductLineKey = isProductLineKey(rawLine)
+          ? rawLine
           : (inferProductLineFromCategoryId(categories, product.kategori_id) || 'barista-bakery-essentials');
         const profile: SupplierProfile = productProfileOverrides[product.id]
           || inferSupplierProfileFromProductLine(storedLine);
@@ -402,7 +403,7 @@ export default function SimpleSupplierCostPlatform({
     try {
       const res = await saveProductPricesAction({
         urunId: row.product.id,
-        urun_gami: profileToProductLine(row.profile),
+        urun_gami: profileToProductLine(row.profile) as any,
         satis_fiyati_alt_bayi:  r2(resolvedTierPrice(row, 'altBayi')),
         satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
         satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),
@@ -428,7 +429,7 @@ export default function SimpleSupplierCostPlatform({
     startBulkSaving(async () => {
       const items = readyRows.map(row => ({
         urunId: row.product.id,
-        urun_gami: profileToProductLine(row.profile),
+        urun_gami: profileToProductLine(row.profile) as any,
         satis_fiyati_alt_bayi:  r2(resolvedTierPrice(row, 'altBayi')),
         satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
         satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),

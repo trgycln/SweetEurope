@@ -27,7 +27,7 @@ const DB_STATUSES: ReadonlyArray<Enums<'siparis_durumu'>> = ['Beklemede', 'Hazı
 const OFFENE_STATUS: ReadonlyArray<Enums<'siparis_durumu'>> = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
 
 // Status Icons und Farben (mit Anführungszeichen für Schlüssel mit Sonderzeichen)
-const STATUS_ICONS: Record<string, React.ElementType> = {
+const STATUS_ICONS: Record<string, any> = {
     'Beklemede': FiClock,
     'Hazırlanıyor': FiClock,
     'processing': FiClock,

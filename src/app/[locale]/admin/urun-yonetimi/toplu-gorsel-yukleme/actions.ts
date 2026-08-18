@@ -5,7 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { slugify } from '@/lib/utils';
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
 const BUCKET = 'urun-gorselleri';
@@ -13,12 +12,11 @@ const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 // ─── Auth yardımcısı ────────────────────────────────────────────────────────
-// Hem auth kontrolü yapar hem de supabase client'ı döner (tekrar oluşturmamak için)
-async function ensureAdmin() {
+async function ensureAdmin(): Promise<{ error: string } | { supabase: any; userId: string }> {
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user }, error: authError } = await getGlobalCachedUser();
-  if (authError || !user) return { error: 'Yetkisiz erişim.' as const };
+  if (authError || !user) return { error: 'Yetkisiz erişim.' };
 
   const { data: profile } = await supabase
     .from('profiller')
@@ -31,7 +29,7 @@ async function ensureAdmin() {
     profile?.rol !== 'Personel' &&
     profile?.rol !== 'Ekip Üyesi'
   ) {
-    return { error: 'Bu işlem için yetki gerekiyor.' as const };
+    return { error: 'Bu işlem için yetki gerekiyor.' };
   }
   return { supabase, userId: user.id };
 }
@@ -110,35 +108,35 @@ export async function tekDosyaYukleAction(
   formData: FormData
 ): Promise<TekDosyaYukleResult> {
   try {
-  const auth = await ensureAdmin();
-  if ('error' in auth) return { success: false, message: auth.error };
+    const auth = await ensureAdmin();
+    if ('error' in auth) return { success: false, message: auth.error };
 
-  const file = formData.get('file');
-  if (!(file instanceof File)) return { success: false, message: 'Geçerli bir dosya seçin.' };
-  if (!ALLOWED_TYPES.has(file.type)) return { success: false, message: 'Sadece PNG, JPG, WEBP desteklenir.' };
-  if (file.size > MAX_BYTES) return { success: false, message: 'Dosya 10 MB sınırını aşıyor.' };
+    const file = formData.get('file');
+    if (!(file instanceof File)) return { success: false, message: 'Geçerli bir dosya seçin.' };
+    if (!ALLOWED_TYPES.has(file.type)) return { success: false, message: 'Sadece PNG, JPG, WEBP desteklenir.' };
+    if (file.size > MAX_BYTES) return { success: false, message: 'Dosya 10 MB sınırını aşıyor.' };
 
-  const stokKodu = String(formData.get('stok_kodu') || '').trim() || 'urun';
-  const tip = String(formData.get('tip') || 'main'); // 'main' | '1' | '2' ...
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const stokKodu = String(formData.get('stok_kodu') || '').trim() || 'urun';
+    const tip = String(formData.get('tip') || 'main');
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
 
-  const safeKod = slugify(stokKodu) || 'urun';
-  const storagePath = `toplu-yukleme/${safeKod}/${tip}-${Date.now()}.${ext}`;
+    const safeKod = slugify(stokKodu) || 'urun';
+    const storagePath = `toplu-yukleme/${safeKod}/${tip}-${Date.now()}.${ext}`;
 
-  const serviceSupabase = createSupabaseServiceClient();
-  const { data, error } = await serviceSupabase.storage
-    .from(BUCKET)
-    .upload(storagePath, file, { contentType: file.type, upsert: true });
+    const serviceSupabase = createSupabaseServiceClient();
+    const { data, error } = await serviceSupabase.storage
+      .from(BUCKET)
+      .upload(storagePath, file, { contentType: file.type, upsert: true });
 
-  if (error || !data) {
-    return { success: false, message: error?.message || 'Yükleme başarısız.' };
-  }
+    if (error || !data) {
+      return { success: false, message: error?.message || 'Yükleme başarısız.' };
+    }
 
-  const { data: urlData } = serviceSupabase.storage
-    .from(BUCKET)
-    .getPublicUrl(data.path);
+    const { data: urlData } = serviceSupabase.storage
+      .from(BUCKET)
+      .getPublicUrl(data.path);
 
-  return { success: true, url: urlData.publicUrl, storagePath: data.path };
+    return { success: true, url: urlData.publicUrl, storagePath: data.path };
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error('tekDosyaYukleAction beklenmedik hata:', msg);
@@ -151,7 +149,7 @@ export async function tekDosyaYukleAction(
 export type GorselGuncelleInput = {
   urunId: string;
   anaResimUrl: string | null;
-  galeriEkle: string[];   // mevcut galeriye EKLENECEKler
+  galeriEkle: string[];
 };
 
 export type GorselGuncelleResult =
@@ -162,37 +160,36 @@ export async function gorselGuncelleAction(
   input: GorselGuncelleInput
 ): Promise<GorselGuncelleResult> {
   try {
-  const auth = await ensureAdmin();
-  if ('error' in auth) return { success: false, message: auth.error };
-  const { supabase } = auth;
+    const auth = await ensureAdmin();
+    if ('error' in auth) return { success: false, message: auth.error };
+    const { supabase } = auth;
 
-  // Mevcut galeriyi al
-  const { data: mevcut } = await supabase
-    .from('urunler')
-    .select('galeri_resim_urls')
-    .eq('id', input.urunId)
-    .single();
+    const { data: mevcut } = await supabase
+      .from('urunler')
+      .select('galeri_resim_urls')
+      .eq('id', input.urunId)
+      .single();
 
-  const mevcutGaleri: string[] = Array.isArray(mevcut?.galeri_resim_urls)
-    ? (mevcut.galeri_resim_urls as string[])
-    : [];
+    const mevcutGaleri: string[] = Array.isArray(mevcut?.galeri_resim_urls)
+      ? (mevcut.galeri_resim_urls as string[])
+      : [];
 
-  const yeniGaleri = [...mevcutGaleri, ...input.galeriEkle];
+    const yeniGaleri = [...mevcutGaleri, ...input.galeriEkle];
 
-  const updatePayload: Record<string, unknown> = { galeri_resim_urls: yeniGaleri };
-  if (input.anaResimUrl !== null) {
-    updatePayload.ana_resim_url = input.anaResimUrl;
-  }
+    const updatePayload: Record<string, unknown> = { galeri_resim_urls: yeniGaleri };
+    if (input.anaResimUrl !== null) {
+      updatePayload.ana_resim_url = input.anaResimUrl;
+    }
 
-  const { error } = await supabase
-    .from('urunler')
-    .update(updatePayload)
-    .eq('id', input.urunId);
+    const { error } = await supabase
+      .from('urunler')
+      .update(updatePayload as any)
+      .eq('id', input.urunId);
 
-  if (error) return { success: false, message: error.message };
+    if (error) return { success: false, message: error.message };
 
-  revalidatePath('/[locale]/admin/urun-yonetimi/urunler', 'layout');
-  return { success: true };
+    revalidatePath('/[locale]/admin/urun-yonetimi/urunler', 'layout');
+    return { success: true };
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error('gorselGuncelleAction beklenmedik hata:', msg);
@@ -216,7 +213,7 @@ function normalizeText(text: string): string {
 export type ImgiEslestirSonucu = {
   dosyaAdi: string;
   eslesen: UrunEslesmeSonucu | null;
-  puan: number; // 0-1 arasında güven skoru
+  puan: number;
 };
 
 export async function sorguImgiEslestirAction(
@@ -236,7 +233,6 @@ export async function sorguImgiEslestirAction(
 
     if (dbError) return { sonuclar: [], hata: dbError.message };
 
-    // Her ürün için kelime listesi hazırla (tüm diller birleştirilerek)
     const urunListesi = (urunler || []).map(u => {
       const ad = u.ad as Record<string, string> | string | null;
       const adWords: string[] = [];
@@ -265,7 +261,6 @@ export async function sorguImgiEslestirAction(
 
       const normKelimeler = kelimeler.map(k => normalizeText(k)).filter(k => k.length >= 3);
       const normDosyaAdi = normalizeText(dosyaAdi);
-      // Dosya adında "fo" marka işareti var mı?
       const isFoFile = /-fo-|-g-fo-|_fo_/.test(normDosyaAdi);
 
       let bestPuan = -1;
@@ -274,18 +269,15 @@ export async function sorguImgiEslestirAction(
       for (const urun of urunListesi) {
         let matchCount = 0;
         for (const k of normKelimeler) {
-          // Çift yönlü prefix eşleştirme: "viskisi" ↔ "viski", "cikolata" ↔ "cikolatali"
           const matched = urun.adWords.some(aw => aw.startsWith(k) || k.startsWith(aw));
           if (matched) matchCount++;
         }
         let puan = normKelimeler.length > 0 ? matchCount / normKelimeler.length : 0;
-        // FO marka bonusu
         if (isFoFile && urun.isFO) puan = Math.min(1, puan + 0.15);
 
         if (puan > bestPuan) { bestPuan = puan; bestUrun = urun; }
       }
 
-      // Hiç kelime eşleşmesi yoksa (puan=0) → eslesen null, ama bestUrun'u bilgi olarak saklama
       if (!bestUrun || bestPuan <= 0) return { dosyaAdi, eslesen: null, puan: 0 };
 
       return {

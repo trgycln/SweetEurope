@@ -1193,7 +1193,7 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
       matchedCount += 1;
       const packaging = normalizePackaging(row);
       const updateData: TablesUpdate<'urunler'> = {
-        urun_gami: profileToProductLine(row.profile),
+        urun_gami: profileToProductLine(row.profile) as any,
         teknik_ozellikler: mergedSpecs as any,
         alis_fiyat_seviyesi: row.purchaseLevel,
         ...(row.boxesPerCase != null && packaging.unitsPerCase ? { koli_ici_adet: packaging.unitsPerCase } : {}),
@@ -1306,7 +1306,7 @@ export async function importSupplierPriceListAction(formData: FormData, locale =
       updatedProducts.push({
         urunId: matchedProduct.id,
         distributor_alis_fiyati: Number((effectiveUpdateData.distributor_alis_fiyati ?? matchedProduct.distributor_alis_fiyati ?? 0).toFixed(2)),
-        urun_gami: effectiveUpdateData.urun_gami ?? matchedProduct.urun_gami,
+        urun_gami: (effectiveUpdateData.urun_gami ?? matchedProduct.urun_gami) as any,
       });
     }
 

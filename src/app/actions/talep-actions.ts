@@ -27,7 +27,7 @@ export async function submitUrunTalep(params: {
         return { success: false, error: 'Firma bilgisi bulunamadı.' };
     }
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
         .from('urun_talepleri')
         .insert({
             firma_id: profile.firma_id,
@@ -51,7 +51,7 @@ export async function updateUrunTalepDurumu(talep_id: string, durum: string) {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
         .from('urun_talepleri')
         .update({ durum })
         .eq('id', talep_id);

@@ -1,19 +1,19 @@
-// src/app/[locale]/admin/operasyon/numune-talepleri/page.tsx (Vollständig)
+// src/app/[locale]/admin/operasyon/numune-talepleri/page.tsx
 import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { FiPackage, FiCalendar, FiClock, FiCheckCircle, FiTruck, FiHardDrive, FiXCircle } from 'react-icons/fi';
 import { getDictionary } from '@/dictionaries';
 import { Enums, Tables } from '@/lib/supabase/database.types';
-import { Locale } from '@/i18n-config'; // Pfad ggf. anpassen
+import { Locale } from '@/i18n-config';
 import NumuneStatusUpdateButton from './NumuneStatusUpdateButton';
 import NumuneCancelButton from './NumuneCancelButton';
-// NEU: Filterkomponente importieren
 import NumuneFiltreleri from './NumuneFiltreleri';
 
 // Status-Definitionen
 type NumuneStatusKey = Enums<'numune_talep_durumu'>;
-const STATUS_ICONS: Record<string, React.ElementType> = {
+const STATUS_ICONS: Record<string, any> = {
     'Yeni Talep': FiClock,
     'Onaylandı': FiCheckCircle,
     'Hazırlanıyor': FiPackage,
@@ -39,13 +39,16 @@ export default async function MusteranfragenPage({
     params,
     searchParams 
 }: { 
-    params: { locale: Locale };
-    searchParams?: { status?: string; firmaId?: string; q?: string; };
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ status?: string; firmaId?: string; q?: string; }>;
 }) {
-    const supabase = createSupabaseServerClient();
-    const locale = params.locale;
+    const { locale } = await params;
+    const resolvedSearchParams = searchParams ? await searchParams : {};
+
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
     const dictionary = await getDictionary(locale);
-    // Sicherer Zugriff auf Dictionary-Einträge
     const content = (dictionary as any).adminDashboard?.sampleRequestsPage || {
         title: "Musteranfragen",
         description: "Anfragen aufgelistet.",
@@ -61,32 +64,24 @@ export default async function MusteranfragenPage({
         .from('numune_talepleri')
         .select(` *, firma: firmalar!firma_id (unvan), urun: urunler!urun_id (id, ad, stok_kodu) `);
 
-    // Filter anwenden
-    if (searchParams?.status) {
-        query = query.eq('durum', searchParams.status as NumuneStatusKey);
+    if (resolvedSearchParams?.status) {
+        query = query.eq('durum', resolvedSearchParams.status as NumuneStatusKey);
     }
-    if (searchParams?.firmaId) {
-        query = query.eq('firma_id', searchParams.firmaId);
+    if (resolvedSearchParams?.firmaId) {
+        query = query.eq('firma_id', resolvedSearchParams.firmaId);
     }
-    if (searchParams?.q) {
-        const aramaTerimi = `%${searchParams.q}%`;
-        
-        // Suche in Firmennamen
+    if (resolvedSearchParams?.q) {
+        const aramaTerimi = `%${resolvedSearchParams.q}%`;
         const { data: eslesenFirmalar } = await supabase.from('firmalar').select('id').ilike('unvan', aramaTerimi);
         const firmaIdListesi = eslesenFirmalar?.map(f => f.id) || [];
-        
-        // TODO: Suche nach Produktnamen (JSONB)
         
         if (firmaIdListesi.length > 0) {
             query = query.in('firma_id', firmaIdListesi);
         } else {
-             if (searchParams.q) {
-                query = query.eq('id', '00000000-0000-0000-0000-000000000000');
-             }
+            query = query.eq('id', '00000000-0000-0000-0000-000000000000');
         }
     }
 
-    // Daten parallel abrufen
     const [anfragenRes, firmalarRes] = await Promise.all([
         query.order('created_at', { ascending: false }),
         supabase.from('firmalar').select('id, unvan').order('unvan')
@@ -103,7 +98,6 @@ export default async function MusteranfragenPage({
     const anfrageListe: NumuneTalepRow[] = anfragen as any;
     const formatDate = (dateStr: string | null) => new Date(dateStr || 0).toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-    // Daten für Filter-Dropdown vorbereiten
     const durumSecenekleri = Object.entries(statusOptions).map(([anahtar, deger]) => ({
         anahtar: anahtar as NumuneStatusKey,
         deger: deger as string
@@ -116,13 +110,19 @@ export default async function MusteranfragenPage({
                 <p className="text-text-main/80 mt-1">{anfrageListe?.length || 0} {content.description}</p>
             </header>
             
-            <NumuneFiltreleri firmalar={firmalar || []} durumlar={durumSecenekleri} />
+            <NumuneFiltreleri 
+                firmalar={firmalar || []} 
+                durumlar={durumSecenekleri} 
+                searchPlaceholder="Suchen..." 
+                allCompaniesText="Alle Firmen" 
+                allStatusesText="Alle Status" 
+            />
 
             {anfrageListe.length === 0 ? (
                 <div className="mt-12 text-center p-10 border-2 border-dashed border-bg-subtle rounded-lg bg-white shadow-sm">
                     <FiHardDrive className="mx-auto text-5xl text-gray-300 mb-4" />
                     <h2 className="font-serif text-2xl font-semibold text-primary">
-                        {Object.keys(searchParams || {}).length > 1 ? content.noRequestsFilter : content.noRequests}
+                        {Object.keys(resolvedSearchParams || {}).length > 0 ? content.noRequestsFilter : content.noRequests}
                     </h2>
                 </div>
             ) : (
@@ -180,7 +180,12 @@ export default async function MusteranfragenPage({
                                                     {statusKey === 'Hazırlanıyor' && (
                                                         <NumuneStatusUpdateButton anfrageId={anfrage.id} neuerStatus="Gönderildi" label="Senden" icon={<FiTruck size={12}/>} className="bg-green-100 text-green-700 hover:bg-green-200" />
                                                     )}
-                                                    <NumuneCancelButton anfrageId={anfrage.id} />
+                                                    <NumuneCancelButton 
+                                                        anfrageId={anfrage.id} 
+                                                        label="Stornieren" 
+                                                        promptText="Grund für Stornierung:" 
+                                                        emptyReasonError="Bitte geben Sie einen Grund an." 
+                                                    />
                                                 </>
                                             )}
                                             {isFinalState && (<span className="text-xs text-gray-400">—</span>)}

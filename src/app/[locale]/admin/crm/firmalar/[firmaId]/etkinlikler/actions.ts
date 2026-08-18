@@ -72,7 +72,7 @@ export async function yeniEtkinlikEkleAction(
         etkinlik_tipi: etkinlik_tipi,
     };
 
-    const { error: insertError } = await supabase.from('etkinlikler').insert(insertData);
+    const { error: insertError } = await supabase.from('etkinlikler').insert(insertData as any);
 
     if (insertError) {
         console.error('Fehler beim Hinzufügen der Aktivität:', insertError);

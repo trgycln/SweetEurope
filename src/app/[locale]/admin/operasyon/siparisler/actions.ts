@@ -140,7 +140,7 @@ export async function updateOdemeDurumuAction(
         .update({ 
             odeme_durumu: odemeDurumu,
             odeme_kasa_tipi: kasaTipi
-        })
+        } as any)
         .eq('id', siparisId);
 
     if (error) {

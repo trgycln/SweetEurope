@@ -63,7 +63,7 @@ async function gorevEkleAction(locale: Locale, formData: FormData) { // Locale �
       durum: 'Yapılacak', // Standard-Status setzen (falls Spalte 'durum' verwendet wird)
   };
 
-  const { error } = await supabase.from('gorevler').insert(insertData);
+  const { error } = await supabase.from('gorevler').insert(insertData as any);
 
   if (error) {
     console.error('Fehler beim Hinzufügen der Aufgabe:', error.message);
@@ -77,13 +77,13 @@ async function gorevEkleAction(locale: Locale, formData: FormData) { // Locale �
 
 // Props-Typ für die Seite
 interface GorevEklemeSayfasiProps {
-    params: { locale: Locale };
-    // searchParams könnten hier auch hinzugefügt werden
+    params: Promise<{ locale: Locale }>;
 }
 
 // Seiten-Komponente
-export default async function GorevEklemeSayfasi({ params: { locale } }: GorevEklemeSayfasiProps) {
-  noStore(); // Caching deaktivieren
+export default async function GorevEklemeSayfasi({ params }: GorevEklemeSayfasiProps) {
+  noStore();
+  const { locale } = await params;
 
   // --- KORREKTUR 2: Supabase Client in Page Component ---
   const cookieStore = await cookies();
@@ -104,7 +104,7 @@ export default async function GorevEklemeSayfasi({ params: { locale } }: GorevEk
       p.rol !== 'Alt Bayi'
   );
   const firmaOptions: FirmaOption[] = firmalarRes.data || [];
-  const oncelikOptions: GorevOncelik[] = ['Düşük', 'Orta', 'Yüksek', 'Acil']; // Aus Enum
+  const oncelikOptions: GorevOncelik[] = ['Düşük', 'Orta', 'Yüksek'];
 
   // Styling für Inputs
   const inputBaseClasses = "w-full bg-gray-50 border border-gray-300 rounded-lg p-3 text-sm text-gray-700 focus:ring-2 focus:ring-accent focus:border-transparent transition-colors duration-200 placeholder:text-gray-400"; // Styling angepasst

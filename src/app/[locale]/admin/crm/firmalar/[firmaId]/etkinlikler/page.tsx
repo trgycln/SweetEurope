@@ -1,152 +1,106 @@
-// src/app/[locale]/admin/crm/firmalar/[firmaId]/etkinlikler/page.tsx
-// KORRIGIERTE VERSION (await cookies + await createClient)
-
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Enums, Tables } from '@/lib/supabase/database.types'; // Tables hinzugefügt
-import { FiSend } from 'react-icons/fi';
-// Annahme: actions.ts liegt im selben Verzeichnis
-import { yeniEtkinlikEkleAction } from './actions';
-import EtkinlikKarti from './EtkinlikKarti'; // Client Komponente für die Darstellung
-import EtkinlikEkleForm from './EtkinlikEkleForm'; // Import EtkinlikEkleForm
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-import { Locale } from '@/i18n-config'; // Importiere Locale, falls benötigt
-import { redirect } from 'next/navigation'; // Import für Redirect
+import { Enums, Tables } from '@/lib/supabase/database.types';
+import { cookies } from 'next/headers';
+import { Locale } from '@/i18n-config';
+import { redirect } from 'next/navigation';
 import { getDictionary } from '@/dictionaries';
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+import EtkinlikKarti from './EtkinlikKarti';
+import EtkinlikEkleForm from './EtkinlikEkleForm';
 
 type EtkinlikTipi = Enums<'etkinlik_tipi'>;
 
-// Typ für Etkinlik mit Profilinformationen
-type EtkinlikWithProfile = Tables<'etkinlikler'> & {
-    olusturan_personel: {
-        tam_ad: string | null;
-    } | null; // Profil kann null sein, falls FK nicht gesetzt oder Profil gelöscht
-};
-
-// Zeitdifferenz-Formatierungsfunktion (unverändert)
 function zamanFarkiFormatla(tarihStr: string | null, timeDict: any): string {
-    if (!tarihStr) return ''; // Fallback für null Datum
+    if (!tarihStr) return '';
     const tarih = new Date(tarihStr);
     const simdi = new Date();
-    // Prüfen ob Datum gültig ist
     if (isNaN(tarih.getTime())) return '';
 
     const farkSaniye = Math.floor((simdi.getTime() - tarih.getTime()) / 1000);
 
-    if (farkSaniye < 60) return timeDict.justNow;
+    if (farkSaniye < 60) return timeDict?.justNow || 'Az önce';
     let aralik = Math.floor(farkSaniye / 60);
-    if (aralik < 60) return aralik + " " + timeDict.minutesAgo;
+    if (aralik < 60) return aralik + " " + (timeDict?.minutesAgo || 'dk önce');
     aralik = Math.floor(farkSaniye / 3600);
-    if (aralik < 24) return aralik + " " + timeDict.hoursAgo;
+    if (aralik < 24) return aralik + " " + (timeDict?.hoursAgo || 'saat önce');
     aralik = Math.floor(farkSaniye / 86400);
-    if (aralik < 30) return aralik + " " + timeDict.daysAgo; // Annahme Monat ~ 30 Tage
-    aralik = Math.floor(farkSaniye / 2592000); // 30 Tage
-    if (aralik < 12) return aralik + " " + timeDict.monthsAgo;
-    aralik = Math.floor(farkSaniye / 31536000); // 365 Tage
-    return aralik + " " + timeDict.yearsAgo;
+    if (aralik < 30) return aralik + " " + (timeDict?.daysAgo || 'gün önce');
+    aralik = Math.floor(farkSaniye / 2592000);
+    if (aralik < 12) return aralik + " " + (timeDict?.monthsAgo || 'ay önce');
+    aralik = Math.floor(farkSaniye / 31536000);
+    return aralik + " " + (timeDict?.yearsAgo || 'yıl önce');
 }
 
-// Props-Typ für die Seite
 interface EtkinliklerPageProps {
-    params: {
-        locale: Locale; // Locale wird vom Layout bereitgestellt
+    params: Promise<{
+        locale: Locale;
         firmaId: string;
-    };
-    // searchParams könnten hier auch hinzugefügt werden, falls benötigt
+    }>;
 }
 
 export default async function EtkinliklerPage({ params }: EtkinliklerPageProps) {
-    const { firmaId, locale } = params; // Locale extrahieren
+    const { firmaId, locale } = await params;
     const dict = await getDictionary(locale);
-    const t = dict.adminDashboard.crmPage.activities;
+    const t = (dict as any).adminDashboard?.crmPage?.activities || {};
 
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
-    // Benutzer abrufen (wichtig für Berechtigungen und Zuordnung)
-    const { data: { user }, error: userError } = await getGlobalCachedUser();
-
-    // Fehler beim Abrufen des Benutzers oder kein Benutzer -> Redirect zum Login
-    if (userError || !user) {
-        console.error("Fehler beim Abrufen des Benutzers in EtkinliklerPage oder kein Benutzer:", userError);
+    const { data: { user } } = await getGlobalCachedUser();
+    if (!user) {
         return redirect(`/${locale}/login?next=/admin/crm/firmalar/${firmaId}/etkinlikler`);
     }
 
-    // Optional: Überprüfen, ob der Benutzer die Berechtigung hat, diese Seite zu sehen
-    // const { data: profile } = await supabase.from('profiller')...
-    // if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') { /* redirect */ }
-
-    // Etkinlikler abrufen
-    // KORREKTUR im SELECT: Foreign Key Namen explizit angeben für Klarheit
-    const { data: etkinlikler, error: etkinliklerError } = await supabase
+    const { data: etkinliklerData, error } = await supabase
         .from('etkinlikler')
-        .select(`*, olusturan_personel: profiller!etkinlikler_olusturan_personel_id_fkey( tam_ad )`)
+        .select(`
+            *,
+            olusturan_personel: profiller!olusturan_personel_id (tam_ad)
+        `)
         .eq('firma_id', firmaId)
         .order('created_at', { ascending: false });
 
-    if (etkinliklerError) {
-        console.error("Fehler beim Laden der Aktivitäten:", etkinliklerError);
-        // Bessere Fehlermeldung anzeigen
-        return <div className="p-4 bg-red-100 text-red-700 rounded border border-red-300">{t.errorLoading} Details: {etkinliklerError.message}</div>;
+    if (error) {
+        console.error("Fehler beim Laden der Aktivitäten:", error);
+        return <div className="p-4 bg-red-100 text-red-700 rounded border border-red-300">{t.errorLoading || 'Hata'}</div>;
     }
 
-    // Typ-Zuweisung für bessere Typsicherheit
-    const etkinlikListesi: EtkinlikWithProfile[] = etkinlikler || [];
-
-    // Verfügbare Aktivitätstypen (aus Enums oder Konstanten holen)
-    // Stellen Sie sicher, dass 'Constants' korrekt importiert ist, falls Sie es verwenden
-    // const etkinlikTipleri: EtkinlikTipi[] = Constants.public.Enums.etkinlik_tipi || [];
-    // Oder manuell:
+    const etkinlikListesi: any[] = etkinliklerData || [];
     const etkinlikTipleri: EtkinlikTipi[] = ['Not', 'Telefon Görüşmesi', 'Toplantı', 'E-posta', 'Teklif'];
 
-    // Server Action mit der firmaId vorbereiten
-    // const formActionWithId = yeniEtkinlikEkleAction.bind(null, firmaId, locale);
-
     return (
-        // Layout mit zwei Spalten
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-            {/* Linke Spalte: Formular zum Hinzufügen */}
             <div className="lg:col-span-1">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{t.addActivityTitle}</h2>
+                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{t.newActivityTitle || 'Yeni Aktivite'}</h2>
                 <EtkinlikEkleForm 
                     firmaId={firmaId} 
                     locale={locale} 
                     etkinlikTipleri={etkinlikTipleri}
-                    dict={t.form}
+                    dict={t.form || {}}
                 />
             </div>
 
-            {/* Rechte Spalte: Aktivitätenliste */}
             <div className="lg:col-span-2">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{t.activityHistoryTitle}</h2>
+                <h2 className="font-serif text-2xl font-bold text-primary mb-4">{t.activityHistoryTitle || 'Aktivite Geçmişi'}</h2>
                 <div className="space-y-6">
-                    {/* Prüfen, ob Aktivitäten vorhanden sind */}
                     {etkinlikListesi.length > 0 ? (
                         etkinlikListesi.map(etkinlik => {
                             const zamanFarki = zamanFarkiFormatla(etkinlik.created_at, t.time);
 
                             return (
-                                // EtkinlikKarti Komponente verwenden
                                 <EtkinlikKarti
                                     key={etkinlik.id}
-                                    // Striktere Typisierung, falls EtkinlikKarti dies erwartet
-                                    etkinlik={etkinlik as EtkinlikWithProfile}
+                                    etkinlik={etkinlik}
                                     zamanFarki={zamanFarki}
-                                    // ikonAdi wird wahrscheinlich in EtkinlikKarti basierend auf etkinlik.etkinlik_tipi gesetzt
-                                    ikonAdi={etkinlik.etkinlik_tipi} // Vermutlich nicht hier benötigt
-                                    currentUser={user} // Aktuellen Benutzer übergeben (für Bearbeiten/Löschen-Rechte?)
-                                    dict={t.card}
+                                    ikonAdi={etkinlik.etkinlik_tipi || ''}
+                                    currentUser={user}
+                                    dict={t.card || {}}
                                 />
                             );
                         })
                     ) : (
-                        // Nachricht, wenn keine Aktivitäten vorhanden sind
                         <div className="text-center p-8 border-2 border-dashed border-gray-200 rounded-lg bg-white">
-                            <p className="text-gray-500">{t.noActivities}</p>
+                            <p className="text-gray-500">{t.noActivities || 'Henüz aktivite bulunmuyor.'}</p>
                         </div>
                     )}
                 </div>

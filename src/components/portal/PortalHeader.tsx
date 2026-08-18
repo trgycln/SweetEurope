@@ -49,43 +49,52 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
     };
 
     return (
-        <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-bg-subtle bg-secondary px-6">
+        <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200/80 bg-white/90 backdrop-blur-md px-4 sm:px-6 shadow-xs">
             {/* Hamburger Button & Firmentitel */}
-            <div className="flex items-center gap-4">
-                <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-text-main/70 hover:text-primary">
-                    <FiMenu size={24} />
+            <div className="flex items-center gap-3 sm:gap-4">
+                <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors"
+                    aria-label="Menü öffnen"
+                >
+                    <FiMenu size={22} />
                 </button>
-                <h1 className="hidden lg:block font-serif text-xl font-bold text-primary">{firmaUnvan} {content.titleSuffix}</h1>
+                <div className="flex items-center gap-2">
+                    <h1 className="font-serif text-lg sm:text-xl font-bold text-primary tracking-tight">
+                        {firmaUnvan} <span className="text-slate-400 font-sans text-sm font-normal hidden sm:inline">| {content.titleSuffix}</span>
+                    </h1>
+                </div>
             </div>
             
             {/* Rechte Seite: Icons */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
                 <Bildirimler />
                 
                 {/* Warenkorb-Shortcut */}
                 <Link
                     href={`/${locale}/portal/siparisler/yeni`}
-                    className="relative p-2 text-text-main/80 hover:text-primary transition-colors"
+                    className="relative p-2 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors"
                     title={content.cartTitle}
                 >
-                    <FiShoppingCart size={22} />
+                    <FiShoppingCart size={21} />
                     {gesamtMenge > 0 && (
-                        <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white text-xs font-bold animate-pulse">
+                        <span className="absolute 1 top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold shadow-xs animate-pulse">
                             {gesamtMenge}
                         </span>
                     )}
                 </Link>
 
-                <div className="h-8 w-px bg-bg-subtle hidden sm:block" />
+                <div className="h-6 w-px bg-slate-200 hidden sm:block mx-1" />
                 
-                {/* Logout-Button (ersetzt das <form>) */}
+                {/* Logout-Button */}
                 <button
                     onClick={handleLogout}
                     disabled={isLoggingOut}
-                    className="flex items-center gap-2 text-red-500 hover:text-red-700 disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors disabled:opacity-50 text-sm font-medium"
+                    title={content.logout}
                 >
-                    {isLoggingOut ? <FiLoader className="animate-spin" /> : <BiLogOut size={20} />}
-                    <span className="text-sm font-medium">{content.logout}</span>
+                    {isLoggingOut ? <FiLoader className="animate-spin" size={17} /> : <BiLogOut size={18} />}
+                    <span className="hidden sm:inline">{content.logout}</span>
                 </button>
             </div>
         </header>

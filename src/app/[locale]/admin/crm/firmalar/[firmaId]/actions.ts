@@ -1,51 +1,41 @@
 // src/app/[locale]/admin/crm/firmalar/[firmaId]/actions.ts
-// KORRIGIERTE VERSION (await cookies + await createClient)
-
 'use server';
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Enums, Tables } from "@/lib/supabase/database.types";
 import { revalidatePath } from "next/cache";
-import { sendNotification } from '@/lib/notificationUtils'; // Importieren
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-import { puanOnerisi, PUANLAMA_ARALIK, ANA_KATEGORILER } from "@/lib/crm/kategoriYonetimi"; // YENİ: Import kategori yönetimi
-
+import { sendNotification } from '@/lib/notificationUtils';
+import { cookies } from 'next/headers';
+import { puanOnerisi, PUANLAMA_ARALIK, ANA_KATEGORILER } from "@/lib/crm/kategoriYonetimi";
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
 type FirmaStatus = Enums<'firma_status'>;
 type FirmaKategorie = Enums<'firma_kategori'>;
 
-// Typ für Rückgabewert
 type UpdateFirmaResult = {
     success: boolean;
-    data?: Tables<'firmalar'>; // Nur bei Erfolg senden
+    data?: Tables<'firmalar'>;
     error?: string;
 };
 
-// Diese Server Action aktualisiert die Firmendaten
 export async function updateFirmaAction(
     firmaId: string,
-    oncekiStatus: FirmaStatus | null, // Kann auch null sein, falls vorher nicht gesetzt
+    oncekiStatus: FirmaStatus | null,
     formData: FormData
 ): Promise<UpdateFirmaResult> {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
-    const cookieStore = await cookies(); // await hinzufügen
-    const supabase = await createSupabaseServerClient(cookieStore); // await hinzufügen + store übergeben
-    // --- ENDE KORREKTUR ---
+    const { data: { user } } = await getGlobalCachedUser();
+    if (!user) return { success: false, error: "Nicht authentifiziert." };
 
-    // Benutzerprüfung
-    const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
-    if (!user) return { success: false, error: "Nicht authentifiziert." }; // Fehlermeldung angepasst
-
-    // --- Formulardaten sicher auslesen ---
     const unvan = formData.get('unvan') as string | null;
     const kategorie = formData.get('kategori') as FirmaKategorie | null;
     const yeniStatus = formData.get('status') as FirmaStatus | null;
     const adres = formData.get('adres') as string | null;
     const telefon = formData.get('telefon') as string | null;
     const email = formData.get('email') as string | null;
-    const oncelik_puani_raw = formData.get('oncelik_puani') as string | null; // YENİ: Öncelik puanı form'dan oku
+    const oncelik_puani_raw = formData.get('oncelik_puani') as string | null;
     const instagram_url = formData.get('instagram_url') as string | null;
     const linkedin_url = formData.get('linkedin_url') as string | null;
     const facebook_url = formData.get('facebook_url') as string | null;
@@ -53,7 +43,7 @@ export async function updateFirmaAction(
     const google_maps_url = formData.get('google_maps_url') as string | null;
     const sehir = formData.get('sehir') as string | null;
     const ilce = formData.get('ilce') as string | null;
-    const mahalle = formData.get('mahalle') as string | null; // New field
+    const mahalle = formData.get('mahalle') as string | null;
     const posta_kodu = formData.get('posta_kodu') as string | null;
     const yetkili_kisi = formData.get('yetkili_kisi') as string | null;
     const etiketler = formData.getAll('etiketler') as string[];
@@ -62,16 +52,13 @@ export async function updateFirmaAction(
     const ticari_tip_raw = formData.get('ticari_tip') as string | null;
     const sahip_id_raw = formData.get('sahip_id') as string | null;
     const parent_firma_id = formData.get('parent_firma_id') as string | null;
-    // Checkbox-Wert korrekt auslesen
     const referans_olarak_goster = formData.get('referans_olarak_goster') === 'on';
-    // Inheritance flags
     const inherit_web_url = formData.get('inherit_web_url') === 'on';
     const inherit_instagram_url = formData.get('inherit_instagram_url') === 'on';
     const inherit_linkedin_url = formData.get('inherit_linkedin_url') === 'on';
     const inherit_facebook_url = formData.get('inherit_facebook_url') === 'on';
     const inherit_google_maps_url = formData.get('inherit_google_maps_url') === 'on';
 
-    // İşletme Bilgileri (teknik_ozellikler JSONB alanı için)
     const isletme_tipi = formData.get('isletme_tipi') as string | null;
     const koltuk_sayisi_raw = formData.get('koltuk_sayisi') as string | null;
     const tercihli_urun_gami = formData.getAll('tercihli_urun_gami') as string[];
@@ -87,11 +74,9 @@ export async function updateFirmaAction(
     const churn_riski = formData.get('churn_riski') === 'on';
     const churn_neden = formData.get('churn_neden') as string | null;
 
-    // Einfache Validierung (Beispiel)
-    if (!unvan) { // Status ist oft optional oder wird nicht immer geändert
+    if (!unvan) {
         return { success: false, error: "Firmenname darf nicht leer sein." };
     }
-    // Stellen Sie sicher, dass der Status gültig ist, falls er übergeben wurde
     const validStatusOptions: ReadonlyArray<FirmaStatus> = [
         "ADAY",
         "TEMAS EDİLDİ",
@@ -103,81 +88,69 @@ export async function updateFirmaAction(
          return { success: false, error: `Ungültiger Status: ${yeniStatus}` };
     }
 
-    // Objekt für das Update erstellen
-    const updatedData: Partial<Tables<'firmalar'>> = {};
+    const updatedData: any = {};
     if (unvan) updatedData.unvan = unvan;
-    if (kategorie) updatedData.kategori = kategorie; else updatedData.kategori = null; // Explizit null setzen, wenn leer
+    if (kategorie) updatedData.kategori = kategorie; else updatedData.kategori = null;
     if (yeniStatus) updatedData.status = yeniStatus;
     if (adres) updatedData.adres = adres; else updatedData.adres = null;
     if (telefon) updatedData.telefon = telefon; else updatedData.telefon = null;
     if (email) updatedData.email = email; else updatedData.email = null;
-    // if (oncelik) (updatedData as any).oncelik = oncelik; else (updatedData as any).oncelik = null; // Removed manual priority
-    if (instagram_url) (updatedData as any).instagram_url = instagram_url; else (updatedData as any).instagram_url = null;
-    if (linkedin_url) (updatedData as any).linkedin_url = linkedin_url; else (updatedData as any).linkedin_url = null;
-    if (facebook_url) (updatedData as any).facebook_url = facebook_url; else (updatedData as any).facebook_url = null;
-    if (web_url) (updatedData as any).web_url = web_url; else (updatedData as any).web_url = null;
-    if (google_maps_url) (updatedData as any).google_maps_url = google_maps_url; else (updatedData as any).google_maps_url = null;
-    if (sehir) (updatedData as any).sehir = sehir; else (updatedData as any).sehir = null;
-    if (ilce) (updatedData as any).ilce = ilce; else (updatedData as any).ilce = null;
-    if (mahalle) (updatedData as any).mahalle = mahalle; else (updatedData as any).mahalle = null; // New field
-    if (posta_kodu) (updatedData as any).posta_kodu = posta_kodu; else (updatedData as any).posta_kodu = null;
-    if (yetkili_kisi) (updatedData as any).yetkili_kisi = yetkili_kisi; else (updatedData as any).yetkili_kisi = null;
-    if (etiketler && etiketler.length > 0) (updatedData as any).etiketler = etiketler; else (updatedData as any).etiketler = null;
-    (updatedData as any).pricing_tier = pricing_tier_raw || null;
-    if (kaynak) (updatedData as any).kaynak = kaynak; else (updatedData as any).kaynak = null;
+    if (instagram_url) updatedData.instagram_url = instagram_url; else updatedData.instagram_url = null;
+    if (linkedin_url) updatedData.linkedin_url = linkedin_url; else updatedData.linkedin_url = null;
+    if (facebook_url) updatedData.facebook_url = facebook_url; else updatedData.facebook_url = null;
+    if (web_url) updatedData.web_url = web_url; else updatedData.web_url = null;
+    if (google_maps_url) updatedData.google_maps_url = google_maps_url; else updatedData.google_maps_url = null;
+    if (sehir) updatedData.sehir = sehir; else updatedData.sehir = null;
+    if (ilce) updatedData.ilce = ilce; else updatedData.ilce = null;
+    if (mahalle) updatedData.mahalle = mahalle; else updatedData.mahalle = null;
+    if (posta_kodu) updatedData.posta_kodu = posta_kodu; else updatedData.posta_kodu = null;
+    if (yetkili_kisi) updatedData.yetkili_kisi = yetkili_kisi; else updatedData.yetkili_kisi = null;
+    if (etiketler && etiketler.length > 0) updatedData.etiketler = etiketler; else updatedData.etiketler = null;
+    updatedData.pricing_tier = pricing_tier_raw || null;
+    if (kaynak) updatedData.kaynak = kaynak; else updatedData.kaynak = null;
     if (kategorie) {
-        (updatedData as any).ticari_tip = ticari_tip_raw || (kategorie === 'Alt Bayi' ? 'alt_bayi' : 'musteri');
+        updatedData.ticari_tip = ticari_tip_raw || (kategorie === 'Alt Bayi' ? 'alt_bayi' : 'musteri');
     }
     if (sahip_id_raw !== null) {
-        (updatedData as any).sahip_id = sahip_id_raw || null;
+        updatedData.sahip_id = sahip_id_raw || null;
     }
     if (parent_firma_id !== null) {
-        (updatedData as any).parent_firma_id = parent_firma_id || null;
+        updatedData.parent_firma_id = parent_firma_id || null;
     }
-    // Store inheritance flags
-    (updatedData as any).inherit_web_url = inherit_web_url;
-    (updatedData as any).inherit_instagram_url = inherit_instagram_url;
-    (updatedData as any).inherit_linkedin_url = inherit_linkedin_url;
-    (updatedData as any).inherit_facebook_url = inherit_facebook_url;
-    (updatedData as any).inherit_google_maps_url = inherit_google_maps_url;
+    updatedData.inherit_web_url = inherit_web_url;
+    updatedData.inherit_instagram_url = inherit_instagram_url;
+    updatedData.inherit_linkedin_url = inherit_linkedin_url;
+    updatedData.inherit_facebook_url = inherit_facebook_url;
+    updatedData.inherit_google_maps_url = inherit_google_maps_url;
     
-    // --- YENİ PUANLAMA SİSTEMİ (KÖLN DİSTRİBÜTÖR) ---
     let oncelik_puani: number | null = null;
-
-    // 1. Form'dan gelen puanı kullan veya kategorie'ye göre öner
     if (oncelik_puani_raw && /^\d+$/.test(oncelik_puani_raw)) {
-        // Form'dan geçerli bir puan geldi
         const parsedScore = parseInt(oncelik_puani_raw, 10);
         if (parsedScore > 0 && parsedScore <= 100) {
             oncelik_puani = parsedScore;
         } else {
-            // Puan aralığı dışında, kategorie'ye göre öner
             if (kategorie && PUANLAMA_ARALIK[kategorie as any]) {
                 oncelik_puani = PUANLAMA_ARALIK[kategorie as any].ort;
             }
         }
     } else if (kategorie && PUANLAMA_ARALIK[kategorie as any]) {
-        // Form'dan puan gelmedi, kategorie'ye göre öner
         oncelik_puani = puanOnerisi(kategorie as any);
     }
 
     if (oncelik_puani !== null) {
-        (updatedData as any).oncelik_puani = oncelik_puani;
+        updatedData.oncelik_puani = oncelik_puani;
     }
-    // --- END: YENİ PUANLAMA SİSTEMİ ---
 
-    // Checkbox-Wert immer setzen (true oder false)
     updatedData.referans_olarak_goster = referans_olarak_goster;
-    (updatedData as any).updated_by = user.id;
+    updatedData.updated_by = user.id;
 
-    // teknik_ozellikler: mevcut değerlerle merge et
     const { data: mevcutFirmaData } = await supabase
         .from('firmalar')
         .select('teknik_ozellikler')
         .eq('id', firmaId)
         .single();
     const mevcutTeknikOzellikler = (mevcutFirmaData as any)?.teknik_ozellikler || {};
-    (updatedData as any).teknik_ozellikler = {
+    updatedData.teknik_ozellikler = {
         ...mevcutTeknikOzellikler,
         isletme_tipi: isletme_tipi || null,
         koltuk_sayisi: koltuk_sayisi_raw ? parseInt(koltuk_sayisi_raw, 10) : null,
@@ -195,62 +168,51 @@ export async function updateFirmaAction(
         churn_neden: churn_riski ? (churn_neden || null) : null,
     };
 
-    // --- Ab hier Logik für Update, Statusänderung und Benachrichtigung ---
-    const promises = [];
+    const promises: any[] = [];
 
-    // 1. Update-Promise vorbereiten
     const updatePromise = supabase
         .from('firmalar')
         .update(updatedData)
         .eq('id', firmaId)
-        .select() // Aktualisierte Daten zurückgeben
+        .select()
         .single();
-    promises.push(updatePromise);
+    promises.push(updatePromise as any);
 
-    // 2. Bei Statusänderung: Log und Benachrichtigung hinzufügen
     if (yeniStatus && yeniStatus !== oncekiStatus) {
         console.log(`Statusänderung erkannt für Firma ${firmaId}: ${oncekiStatus} -> ${yeniStatus}`);
 
-        // a) Aktivität loggen (Namen der Spalten prüfen!)
-        // Annahme: Ihre 'etkinlikler' Tabelle hat 'olusturan_personel_id', 'etkinlik_tipi', 'aciklama'
         const logPromise = supabase.from('etkinlikler').insert({
             firma_id: firmaId,
-            olusturan_personel_id: user.id, // ID des eingeloggten Admin/Teammitglieds
-            etkinlik_tipi: 'Not', // Oder einen spezifischen Typ 'Statusänderung'
-            aciklama: `Status von '${oncekiStatus || 'Unbekannt'}' zu '${yeniStatus}' geändert.` // Text anpassen
-        });
-        promises.push(logPromise);
+            olusturan_personel_id: user.id,
+            etkinlik_tipi: 'Not',
+            aciklama: `Status von '${oncekiStatus || 'Unbekannt'}' zu '${yeniStatus}' geändert.`
+        } as any);
+        promises.push(logPromise as any);
 
-        // b) Partner benachrichtigen
         const bildirimMesaj = `Ihr Firmenstatus wurde zu "${yeniStatus}" geändert.`;
-        const bildirimLink = `/portal/dashboard`; // Ziel-Link für den Partner
-        // sendNotification direkt aufrufen
+        const bildirimLink = `/portal/dashboard`;
         promises.push(sendNotification({
-            aliciFirmaId: firmaId, // ID der Firma, deren Benutzer benachrichtigt werden sollen
+            aliciFirmaId: firmaId,
             icerik: bildirimMesaj,
             link: bildirimLink,
-            supabaseClient: supabase // Übergeben Sie den bereits erstellten Client
+            supabaseClient: supabase
         }));
     }
 
-    // Alle Promises parallel ausführen
     try {
         const results = await Promise.all(promises);
-        // Erstes Ergebnis ist das Update-Ergebnis
-        const updateResult = results[0] as typeof updatePromise extends Promise<infer U> ? U : never;
+        const updateResult: any = results[0];
 
-        // Prüfen, ob das Haupt-Update fehlgeschlagen ist
-        if (updateResult.error) {
+        if (updateResult?.error) {
             console.error("Fehler beim Firma-Update (DB):", updateResult.error);
-            throw updateResult.error; // Fehler werfen, um ins catch zu springen
+            throw updateResult.error;
         }
 
-        // Optional: Fehler beim Loggen oder Benachrichtigen prüfen und loggen
         if (yeniStatus && yeniStatus !== oncekiStatus) {
-            if (results[1] && (results[1] as any).error) { // Prüfung auf Fehler im Log-Promise
+            if (results[1] && (results[1] as any).error) {
                  console.warn(`Firma ${firmaId} aktualisiert, aber Aktivitätslog fehlgeschlagen:`, (results[1] as any).error);
             }
-            if (results[2]) { // Prüfung auf Ergebnis des Benachrichtigungs-Promises
+            if (results[2]) {
                  const notificationResult = results[2] as { success: boolean, error?: any };
                  if (!notificationResult.success) {
                      console.warn(`Firma ${firmaId} aktualisiert, aber Benachrichtigung fehlgeschlagen:`, notificationResult.error);
@@ -260,24 +222,21 @@ export async function updateFirmaAction(
             }
         }
 
-        // Relevante Pfade neu validieren, damit die UI die Änderungen zeigt
-        revalidatePath('/admin/crm/firmalar'); // Liste neu laden
-        revalidatePath(`/admin/crm/firmalar/${firmaId}`); // Detailseite neu laden
+        revalidatePath('/admin/crm/firmalar');
+        revalidatePath(`/admin/crm/firmalar/${firmaId}`);
         if (yeniStatus && yeniStatus !== oncekiStatus) {
-             revalidatePath(`/admin/crm/firmalar/${firmaId}/etkinlikler`); // Aktivitätenliste neu laden
+             revalidatePath(`/admin/crm/firmalar/${firmaId}/etkinlikler`);
         }
-        // revalidatePath('/portal/dashboard'); // Ggf. für Partner relevant
 
         console.log(`Firma ${firmaId} erfolgreich aktualisiert.`);
-        return { success: true, data: updateResult.data }; // Erfolg mit aktualisierten Daten zurückgeben
+        return { success: true, data: updateResult?.data };
 
     } catch (error: any) {
         console.error("Fehler in updateFirmaAction Promise.all:", error);
-        return { success: false, error: "Update fehlgeschlagen: " + error.message }; // Allgemeine Fehlermeldung
+        return { success: false, error: "Update fehlgeschlagen: " + error.message };
     }
 }
 
-// Firma silme (admin veya sahibi) server action
 export async function deleteFirmaAction(
     firmaId: string,
     locale: string
@@ -288,7 +247,6 @@ export async function deleteFirmaAction(
     const { data: { user } } = await getGlobalCachedUser();
     if (!user) return { success: false, error: 'Nicht authentifiziert.' };
 
-    // Silme işlemi (RLS: sahibi olan kullanıcı silebilir; admin için ayrı politika gereklidir)
     const { error } = await supabase
         .from('firmalar')
         .delete()
@@ -299,8 +257,6 @@ export async function deleteFirmaAction(
         return { success: false, error: error.message };
     }
 
-    // Listeyi yenile ve listeye dön
     revalidatePath(`/${locale}/admin/crm/firmalar`);
-    // Not: Client tarafta redirect yerine router push kullanacağız; burada sadece revalidate yeterli
     return { success: true };
 }

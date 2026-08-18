@@ -821,7 +821,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       'Stok Kodu': '',
       'Barkod (EAN/GTIN)': '',
       'Urun Adi': 'GENEL TOPLAM',
-      Birim: '',
+      Birim: '' as any,
       Miktar: 0,
       Palet: Number((totals.totalPallets || 0).toFixed(2)),
       'Agirlik (kg)': Number((totals.totalWeightKg || 0).toFixed(2)),

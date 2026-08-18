@@ -65,8 +65,9 @@ export default function PriceMatrixClient({ locale }: { locale: string }) {
             const catSet = new Set<string>();
             result.products.forEach((p: Product) => {
                 if (p.kategoriAd) {
-                    const catName = typeof p.kategoriAd === 'object' 
-                        ? (p.kategoriAd[locale] || p.kategoriAd.tr || p.kategoriAd.en)
+                    const catObj = p.kategoriAd as any;
+                    const catName = typeof p.kategoriAd === 'object' && p.kategoriAd !== null
+                        ? (catObj[locale] || catObj.tr || catObj.en)
                         : p.kategoriAd;
                     if (catName) {
                         catSet.add(catName);
@@ -95,8 +96,9 @@ export default function PriceMatrixClient({ locale }: { locale: string }) {
     // Filter by category
     if (categoryFilter) {
         sortedProducts = sortedProducts.filter(p => {
-            const catName = typeof p.kategoriAd === 'object' 
-                ? (p.kategoriAd[locale] || p.kategoriAd.tr || p.kategoriAd.en)
+            const catObj = p.kategoriAd as any;
+            const catName = typeof p.kategoriAd === 'object' && p.kategoriAd !== null
+                ? (catObj[locale] || catObj.tr || catObj.en)
                 : p.kategoriAd;
             return catName === categoryFilter;
         });

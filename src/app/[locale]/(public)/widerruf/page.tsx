@@ -11,9 +11,9 @@ export default async function WiderrufPage() {
   return (
     <div className="bg-secondary text-text-main">
       {/* Hero */}
-      <div className="relative bg-primary text-secondary text-center py-20 md:py-32">
-        <h1 className="text-5xl md:text-7xl font-serif text-secondary">Widerrufsbelehrung</h1>
-        <p className="text-secondary/60 mt-3 text-lg">Informationen zum Widerrufsrecht</p>
+      <div className="relative bg-primary text-secondary text-center py-16 sm:py-20 md:py-32 px-4 sm:px-6">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif text-secondary">Widerrufsbelehrung</h1>
+        <p className="text-secondary/60 mt-3 text-sm sm:text-lg">Informationen zum Widerrufsrecht</p>
       </div>
 
       {/* Content */}

@@ -7,7 +7,7 @@ import { updateEtkinlikAction } from './actions';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 
-const etkinlikIkonlari: Record<string, React.ElementType> = {
+const etkinlikIkonlari: Record<string, any> = {
     'Not': FiMessageSquare,
     'Telefon Görüşmesi': FiPhone,
     'Toplantı': FiUsers,

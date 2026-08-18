@@ -390,7 +390,10 @@ export default async function OperasyonSiparisDetayPage({ params, searchParams }
                             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">
                                 Sorumlu Personel
                             </h3>
-                            <form action={assignSiparisPersonelAction} className="space-y-2">
+                            <form action={async (formData: FormData) => {
+                                'use server';
+                                await assignSiparisPersonelAction(formData);
+                            }} className="space-y-2">
                                 <input type="hidden" name="siparisId" value={siparis.id} />
                                 <select
                                     name="personelId"

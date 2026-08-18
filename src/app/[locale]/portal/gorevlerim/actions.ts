@@ -104,7 +104,7 @@ export async function updateGorevDurumAction(
   const tamamlandi = yeniDurum === 'Tamamlandı';
   const { error } = await supabase
     .from('gorevler')
-    .update({ durum: yeniDurum, tamamlandi })
+    .update({ durum: yeniDurum as any, tamamlandi })
     .eq('id', gorevId);
 
   if (error) return { success: false, error: error.message };
@@ -123,7 +123,7 @@ export async function addAltGorevAction(
   const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('alt_gorevler')
     .insert({ gorev_id: gorevId, baslik: formatLinks(baslik), tamamlandi: false });
 
@@ -141,7 +141,7 @@ export async function toggleAltGorevAction(
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('alt_gorevler')
     .update({ tamamlandi: !tamamlandi })
     .eq('id', altGorevId);
@@ -160,7 +160,7 @@ export async function editAltGorevAction(
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('alt_gorevler')
     .update({ baslik: formatLinks(baslik) })
     .eq('id', altGorevId);
@@ -178,7 +178,7 @@ export async function deleteAltGorevAction(
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('alt_gorevler')
     .delete()
     .eq('id', altGorevId);
@@ -200,7 +200,7 @@ export async function addGorevNotuAction(
   const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('gorev_notlari')
     .insert({ gorev_id: gorevId, kullanici_id: user.id, not_metni: formatLinks(notMetni) });
 
@@ -217,7 +217,7 @@ export async function deleteGorevNotuAction(
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('gorev_notlari')
     .delete()
     .eq('id', notId);
@@ -240,7 +240,7 @@ export async function updateGorevAction(
 
   const { error } = await supabase
     .from('gorevler')
-    .update(updates)
+    .update(updates as any)
     .eq('id', gorevId);
 
   if (error) return { success: false, error: error.message };

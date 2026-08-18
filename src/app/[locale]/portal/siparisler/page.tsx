@@ -6,10 +6,9 @@ import { Locale } from '@/i18n-config';
 import { SiparislerClient } from '@/components/portal/siparisler/SiparislerClient';
 import { Enums } from '@/lib/supabase/database.types';
 import { unstable_noStore as noStore } from 'next/cache';
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
-const ORDERS_PER_PAGE = 20;
+const ORDERS_PER_PAGE = 12;
 
 type PageProps = {
     params: Promise<{ locale: Locale }>;
@@ -59,7 +58,32 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     // ── Kendi siparişleri ──────────────────────────────────────
     let kendiQuery = supabase
         .from('siparisler')
-        .select('id, siparis_tarihi, toplam_tutar_net, siparis_durumu', { count: 'exact' })
+        .select(`
+            id,
+            siparis_tarihi,
+            toplam_tutar_net,
+            toplam_tutar_brut,
+            kdv_orani,
+            siparis_durumu,
+            teslimat_adresi,
+            notlar,
+            siparis_detay (
+                id,
+                urun_id,
+                miktar,
+                birim_fiyat,
+                toplam_fiyat,
+                urunler (
+                    id,
+                    ad,
+                    stok_kodu,
+                    ana_resim_url,
+                    satis_fiyati_musteri,
+                    stok_miktari,
+                    koli_ici_adet
+                )
+            )
+        `, { count: 'exact' })
         .eq('firma_id', firmaId);
 
     if (status) kendiQuery = kendiQuery.eq('siparis_durumu', status);
@@ -69,6 +93,42 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     const kendiRes = await kendiQuery;
     siparisler = kendiRes.data || [];
     count = kendiRes.count || 0;
+
+    // ── İstatistikler (Hızlı Özet Verisi) ─────────────────────
+    const { data: allKendiOrders } = await supabase
+        .from('siparisler')
+        .select('id, siparis_durumu, toplam_tutar_net, siparis_tarihi')
+        .eq('firma_id', firmaId);
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const ordersForStats = allKendiOrders || [];
+    const activeOrdersCount = ordersForStats.filter(s => 
+        ['Beklemede', 'Hazırlanıyor', 'processing', 'Yola Çıktı', 'shipped'].includes(s.siparis_durumu)
+    ).length;
+    const shippedOrdersCount = ordersForStats.filter(s => 
+        ['Yola Çıktı', 'shipped'].includes(s.siparis_durumu)
+    ).length;
+    const deliveredOrdersCount = ordersForStats.filter(s => 
+        ['Teslim Edildi', 'delivered'].includes(s.siparis_durumu)
+    ).length;
+    const monthSpending = ordersForStats
+        .filter(s => {
+            if (!s.siparis_tarihi) return false;
+            const d = new Date(s.siparis_tarihi);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear && !['İptal Edildi', 'cancelled'].includes(s.siparis_durumu);
+        })
+        .reduce((sum, s) => sum + Number(s.toplam_tutar_net || 0), 0);
+
+    const stats = {
+        totalOrders: ordersForStats.length,
+        activeOrders: activeOrdersCount,
+        shippedOrders: shippedOrdersCount,
+        deliveredOrders: deliveredOrdersCount,
+        monthSpending,
+    };
 
     // ── Alt bayi müşteri siparişleri ───────────────────────────
     if (isAltBayi) {
@@ -83,12 +143,36 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
             let musteriQuery = supabase
                 .from('siparisler')
                 .select(`
-                    id, siparis_tarihi, toplam_tutar_net, siparis_durumu,
-                    firmalar(unvan)
+                    id,
+                    siparis_tarihi,
+                    toplam_tutar_net,
+                    toplam_tutar_brut,
+                    kdv_orani,
+                    siparis_durumu,
+                    teslimat_adresi,
+                    notlar,
+                    firmalar ( unvan ),
+                    siparis_detay (
+                        id,
+                        urun_id,
+                        miktar,
+                        birim_fiyat,
+                        toplam_fiyat,
+                        urunler (
+                            id,
+                            ad,
+                            stok_kodu,
+                            ana_resim_url,
+                            satis_fiyati_musteri,
+                            stok_miktari,
+                            koli_ici_adet
+                        )
+                    )
                 `, { count: 'exact' })
                 .in('firma_id', musteriIds);
 
             if (status) musteriQuery = musteriQuery.eq('siparis_durumu', status);
+            if (searchQuery) musteriQuery = (musteriQuery as any).like('id::text', `${searchQuery}%`);
             musteriQuery = musteriQuery.order('siparis_tarihi', { ascending: false }).range(from, to);
 
             const musteriRes = await musteriQuery;
@@ -111,6 +195,7 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
             activeTab={tab}
             kendiCount={count}
             musteriCount={musteriCount}
+            stats={stats}
         />
     );
 }

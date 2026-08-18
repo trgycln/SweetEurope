@@ -31,7 +31,7 @@ export default async function OrtaklarPage({ params }: PageProps) {
 
     // Ortakları çekelim
     const { data: profiller } = await supabase.from('profiller').select('id, tam_ad, rol');
-    const ortakProfiller = (profiller || []).filter(p => p.rol === 'Yönetici' || p.rol === 'Kurucu' || p.rol === 'Ortak');
+    const ortakProfiller = (profiller || []).filter((p: any) => (p.rol as string) === 'Yönetici' || (p.rol as string) === 'Kurucu' || (p.rol as string) === 'Ortak');
 
     // İşlemleri çekelim
     const { data: islemler } = await supabase
@@ -94,7 +94,7 @@ export default async function OrtaklarPage({ params }: PageProps) {
         <OrtaklarClient
             islemler={safeIslemler}
             profiller={safeProfiller}
-            aktifOrtaklar={aktifOrtaklar}
+            aktifOrtaklar={aktifOrtaklar as any}
             locale={locale}
             isAdmin={profile?.rol === 'Yönetici'}
             currentUserId={user.id}

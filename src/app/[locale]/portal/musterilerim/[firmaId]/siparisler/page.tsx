@@ -5,13 +5,12 @@ import { getDictionary } from '@/dictionaries';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { Tables, Enums } from '@/lib/supabase/database.types';
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
 type SiparisStatusKey = Enums<'siparis_durumu'> | string;
 type Siparis = Tables<'siparisler'>;
 
-const STATUS_ICONS: Record<string, React.ElementType> = {
+const STATUS_ICONS: Record<string, any> = {
     'Beklemede': FiClock,
     'Hazırlanıyor': FiClock,
     'Yola Çıktı': FiTruck,

@@ -22,7 +22,7 @@ export default function BasitMaliyetHesaplayiciTab({ locale, products, categorie
   return (
     <SimpleSupplierCostPlatform
       locale={locale}
-      products={products}
+      products={products as any}
       categories={categories}
       companies={companies}
       suppliers={suppliers}

@@ -49,33 +49,33 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
         </div>
       </div>
 
-      <div className="relative z-20 text-white px-4 max-w-5xl mx-auto py-20 flex flex-col items-center">
+      <div className="relative z-20 text-white px-4 sm:px-8 md:px-12 lg:px-20 max-w-5xl mx-auto py-16 sm:py-20 flex flex-col items-center">
         {/* Company Name */}
         <motion.h1 
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1, ease: [0.25, 1, 0.5, 1] }}
-          className="text-6xl md:text-8xl font-serif font-bold mb-6 drop-shadow-2xl tracking-wide" style={{ color: '#FFD700', willChange: 'transform, opacity' }}>
+          className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-bold mb-4 sm:mb-6 drop-shadow-2xl tracking-wide whitespace-nowrap" style={{ color: '#FFD700', willChange: 'transform, opacity' }}>
           ElysonSweets
         </motion.h1>
 
         {/* Main Headline */}
         <motion.h2 
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 1, 0.5, 1] }}
-          className="text-3xl md:text-5xl font-bold text-accent mb-6 drop-shadow-lg text-center" style={{ willChange: 'transform, opacity' }}>
+          className="text-2xl sm:text-3xl md:text-5xl font-bold text-accent mb-4 sm:mb-6 drop-shadow-lg text-center leading-snug" style={{ willChange: 'transform, opacity' }}>
           {dictionary.hero.mainHeadline}
         </motion.h2>
 
         {/* Subheadline */}
         <motion.p 
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 1, 0.5, 1] }}
-          className="text-xl md:text-2xl text-white mb-8 max-w-4xl mx-auto drop-shadow-md leading-relaxed text-center" style={{ willChange: 'transform, opacity' }}>
+          className="text-sm sm:text-lg md:text-2xl text-white mb-6 sm:mb-8 max-w-4xl mx-auto drop-shadow-md leading-relaxed text-center" style={{ willChange: 'transform, opacity' }}>
           {dictionary.hero.subHeadline}
         </motion.p>
 
         {/* Value Proposition */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.7, ease: [0.25, 1, 0.5, 1] }}
-          className="bg-white/15 backdrop-blur-md border-2 border-accent/60 rounded-2xl p-6 md:p-8 max-w-3xl mx-auto shadow-2xl mb-8" style={{ willChange: 'transform, opacity' }}>
-          <p className="text-lg md:text-xl text-white font-semibold leading-relaxed text-center">
+          className="bg-white/15 backdrop-blur-md border-2 border-accent/60 rounded-2xl p-4 sm:p-6 md:p-8 max-w-3xl mx-auto shadow-2xl mb-8" style={{ willChange: 'transform, opacity' }}>
+          <p className="text-sm sm:text-base md:text-xl text-white font-semibold leading-relaxed text-center">
             {dictionary.hero.valueProposition}
           </p>
         </motion.div>

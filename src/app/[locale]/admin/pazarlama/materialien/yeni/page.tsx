@@ -3,7 +3,7 @@
 // KORREKTUR 1: React importieren für React.use() und React.useActionState
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Database, Enums } from '@/lib/supabase/database.types';
 import { FiArrowLeft, FiSave, FiUploadCloud, FiLoader, FiX } from 'react-icons/fi';
 // KORREKTUR 2: useFormStatus aus react-dom importieren
@@ -25,10 +25,9 @@ function SubmitButton() {
     );
 }
 
-export default function NeuesMaterialPage({ params }: { params: { locale: string } }) {
-    // KORREKTUR 3: params mit React.use() sicher auspacken
-    const resolvedParams = React.use(params);
-    const locale = resolvedParams.locale;
+export default function NeuesMaterialPage() {
+    const params = useParams();
+    const locale = (params?.locale as string) || 'de';
 
     const router = useRouter();
     const initialState: UploadFormState = null;

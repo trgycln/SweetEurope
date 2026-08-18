@@ -6,7 +6,7 @@ import { updateEtkinlikAction } from './actions';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 
-const etkinlikIkonlari: Record<string, React.ElementType> = {
+const etkinlikIkonlari: Record<string, any> = {
     'Not': FiMessageSquare,
     'Telefon Görüşmesi': FiPhone,
     'Toplantı': FiUsers,
@@ -26,19 +26,11 @@ type Etkinlik = {
 };
 
 interface EtkinlikKartiProps {
-    etkinlik: Etkinlik;
+    etkinlik: any;
     zamanFarki: string;
-    ikonAdi: string; // Sunucu bileşeninden artık ikonun adını (string) alıyoruz.
+    ikonAdi: string;
     currentUser: User | null;
-    dict: {
-        unknownUser: string;
-        updateSuccess: string;
-        updateError: string;
-        editTitle: string;
-        createdBy: string;
-        cancel: string;
-        save: string;
-    };
+    dict: any;
 }
 
 export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUser, dict }: EtkinlikKartiProps) {
@@ -47,13 +39,14 @@ export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUs
     const [currentAciklama, setCurrentAciklama] = useState(etkinlik.aciklama);
 
     // İkonu, prop olarak gelen metin anahtarına göre burada belirliyoruz.
-    const Icon = etkinlikIkonlari[ikonAdi] || FiMessageSquare;
+    const Icon: any = etkinlikIkonlari[ikonAdi] || FiMessageSquare;
 
     const personelAdi = etkinlik.olusturan_personel?.tam_ad || dict.unknownUser;
     
     // Düzenleme yetkisini kontrol et: Sadece notu oluşturan kişi ve sadece ilk 15 dakika içinde.
     const canEdit = 
         currentUser?.id === etkinlik.olusturan_personel_id &&
+        etkinlik.created_at &&
         new Date().getTime() - new Date(etkinlik.created_at).getTime() < 15 * 60 * 1000;
 
     const handleUpdate = (formData: FormData) => {
@@ -72,8 +65,8 @@ export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUs
     return (
         <div className="flex gap-4 group">
             <div className="flex flex-col items-center">
-                <span className="flex items-center justify-center w-10 h-10 bg-bg-subtle rounded-full">
-                    <Icon className="text-accent" />
+                <span className="flex items-center justify-center w-10 h-10 bg-bg-subtle rounded-full text-accent">
+                    <Icon />
                 </span>
                 <div className="w-px h-full bg-bg-subtle"></div>
             </div>
@@ -97,7 +90,7 @@ export default function EtkinlikKarti({ etkinlik, zamanFarki, ikonAdi, currentUs
                     <form action={handleUpdate} className="mt-2 space-y-2">
                         <textarea
                             name="aciklama"
-                            defaultValue={currentAciklama}
+                            defaultValue={currentAciklama || ''}
                             rows={3}
                             className="w-full p-2 border rounded-md text-sm"
                             autoFocus

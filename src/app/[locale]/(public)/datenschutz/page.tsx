@@ -19,9 +19,9 @@ export default async function DatenschutzPage({ params }: { params: Promise<{ lo
 
   return (
     <div className="bg-secondary text-text-main" dir={isRtl ? 'rtl' : 'ltr'}>
-      <div className="relative bg-primary text-secondary text-center py-20 md:py-32">
-        <h1 className="text-5xl md:text-7xl font-serif text-secondary">{t.title}</h1>
-        <p className="text-secondary/60 mt-3 text-lg">{t.subtitle}</p>
+      <div className="relative bg-primary text-secondary text-center py-16 sm:py-20 md:py-32 px-4 sm:px-6">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif text-secondary">{t.title}</h1>
+        <p className="text-secondary/60 mt-3 text-sm sm:text-lg">{t.subtitle}</p>
       </div>
 
       <section className="py-20 px-6">

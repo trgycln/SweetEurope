@@ -153,13 +153,13 @@ export default function ZeroGravityAroma() {
     return (
         <div 
             ref={containerRef} 
-            className="relative w-full h-full min-h-[400px] overflow-hidden bg-slate-900 flex items-center justify-center rounded-2xl"
+            className="relative w-full h-full min-h-[300px] md:min-h-[400px] lg:min-h-[500px] overflow-hidden bg-slate-900 flex items-center justify-center rounded-2xl"
         >
             {/* Arka Plan Radyal Degrade */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15)_0%,rgba(15,23,42,1)_70%)] pointer-events-none"></div>
 
             {/* Arka Plan Işık Hüzmesi */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-blue-500/20 blur-[100px] rounded-full pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] md:w-[300px] h-[200px] md:h-[300px] bg-blue-500/20 blur-[80px] md:blur-[100px] rounded-full pointer-events-none"></div>
 
             {/* Aromalar (Floating Assets) */}
             {assets.map((asset, idx) => (
@@ -179,7 +179,11 @@ export default function ZeroGravityAroma() {
                             alt={asset.alt}
                             width={asset.width}
                             height={asset.height}
-                            className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]"
+                            className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] w-10 md:w-auto h-10 md:h-auto"
+                            style={{ 
+                                width: isMobile ? asset.width * 0.6 : asset.width,
+                                height: isMobile ? asset.height * 0.6 : asset.height
+                            }}
                         /> 
                     </div>
                 </div>
@@ -192,16 +196,16 @@ export default function ZeroGravityAroma() {
                 style={{ transformStyle: 'preserve-3d' }}
             >
                 {/* Şişe Gölgesi */}
-                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-48 h-12 bg-black/40 blur-xl rounded-full"></div>
+                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-32 md:w-48 h-8 md:h-12 bg-black/40 blur-xl rounded-full"></div>
                 
                 {/* Şişe Görseli */}
-                <div className="relative flex items-end justify-center z-10 drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]">
+                <div className="relative flex items-end justify-center z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)]">
                     <Image 
                         src="/images/philosophy/main-bottle.png"
                         alt="Premium FO Syrup"
                         width={250}
                         height={550}
-                        className="object-contain max-h-[450px] w-auto"
+                        className="object-contain max-h-[250px] md:max-h-[450px] w-auto"
                         priority
                     />
                 </div>

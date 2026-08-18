@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function KasaPage() {
     const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
+    const supabase: any = await createSupabaseServerClient(cookieStore);
     
     const { data: { user } } = await supabase.auth.getUser();
     const isSuperAdmin = user?.email === 'turgaycelen03@gmail.com';
@@ -23,7 +23,7 @@ export default async function KasaPage() {
         .from('profiller')
         .select('id, tam_ad, rol');
 
-    const ortakProfiller = (profiller || []).filter(p => p.rol === 'Yönetici' || p.rol === 'Kurucu' || p.rol === 'Ortak');
+    const ortakProfiller = (profiller || []).filter((p: any) => (p.rol as string) === 'Yönetici' || (p.rol as string) === 'Kurucu' || (p.rol as string) === 'Ortak');
 
     // Özeti getir
     const { data: ozetData } = await supabase.rpc('get_kasa_ozeti');
@@ -61,7 +61,7 @@ export default async function KasaPage() {
                 ))}
             </div>
 
-            <KasaClient islemler={islemler || []} profiller={ortakProfiller} isSuperAdmin={isSuperAdmin} />
+            <KasaClient islemler={(islemler as any) || []} profiller={ortakProfiller} isSuperAdmin={isSuperAdmin} />
         </main>
     );
 }

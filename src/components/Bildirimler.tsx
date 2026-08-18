@@ -123,7 +123,7 @@ export function Bildirimler() {
                         className="fixed inset-0 z-40" 
                         onClick={() => setIsOpen(false)}
                     />
-                    <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 z-50">
+                    <div className="fixed left-4 right-4 top-[72px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-80 bg-white rounded-lg shadow-2xl border border-gray-200 z-50">
                         <div className="p-4 flex justify-between items-center border-b">
                             <span className="font-bold">Bildirimler</span>
                             {okunmamisSayisi > 0 && 

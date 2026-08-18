@@ -31,9 +31,9 @@ const CertificationsStrip: React.FC<{ dictionary: any }> = ({ dictionary }) => {
   ];
 
   return (
-    <section className="bg-bg-subtle py-16 px-6">
+    <section className="bg-bg-subtle py-12 sm:py-16 px-4 sm:px-8 md:px-12 lg:px-20">
       <div className="container mx-auto">
-        <h3 className="text-center text-2xl md:text-3xl font-serif mb-10">
+        <h3 className="text-center text-xl sm:text-2xl md:text-3xl font-serif mb-6 sm:mb-10">
           {dictionary.certifications.title}
         </h3>
 

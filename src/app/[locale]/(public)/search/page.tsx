@@ -1,7 +1,6 @@
-// src/app/[locale]/(public)/search/page.tsx (Verbesserte Suche)
-
 import React from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { getDictionary } from '@/dictionaries';
 // Annahme: Locale ist in utils.ts definiert
 import { Locale, getLocalizedName } from '@/lib/utils';
@@ -13,8 +12,8 @@ import Image from 'next/image';
 
 // Props-Typ für die Seite
 type SearchPageProps = {
-    params: { locale: Locale };
-    searchParams: { [key: string]: string | string[] | undefined };
+    params: Promise<{ locale: Locale }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 // Typen für die Suchergebnisse
@@ -23,8 +22,10 @@ type BlogResult = Pick<Tables<'blog_yazilari'>, 'id' | 'baslik' | 'slug' | 'one_
 
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
-    const { locale } = params;
-    const supabase = createSupabaseServerClient();
+    const { locale } = await params;
+    const resolvedSearchParams = await searchParams;
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
     const dictionary = await getDictionary(locale);
     // Sicherer Zugriff auf das Dictionary mit Fallback
     const searchContent = (dictionary as any).search || {
@@ -33,7 +34,7 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
     };
 
     // 1. Suchbegriff aus der URL holen
-    const query = typeof searchParams.q === 'string' ? searchParams.q : '';
+    const query = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : '';
     const searchTerm = `%${query}%`; // Wildcard für ILIKE-Suche
     const hasSearch = query.trim().length > 0;
 

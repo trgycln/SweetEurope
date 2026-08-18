@@ -20,7 +20,7 @@ export default function CompanySettingsForm({ initialData }: { initialData: Sirk
     deger: ''
   });
 
-  const supabase = createDynamicSupabaseClient();
+  const supabase: any = createDynamicSupabaseClient(false);
 
   // Filter and Group data
   const groupedData = useMemo(() => {

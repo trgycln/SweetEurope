@@ -130,7 +130,7 @@ export default async function MusterilerimPage({ params, searchParams }: Musteri
 
   // Yalnızca kesin eşleşmeleri DB tarafında filtrele (statü/pkz/öncelik)
   if (statusFilter) {
-    query = query.eq('status', statusFilter);
+    query = query.eq('status', statusFilter as any);
   }
   if (zipCodeFilter) {
     query = query.eq('posta_kodu', zipCodeFilter);

@@ -3,11 +3,10 @@
 import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
 export async function addGiderAction(formData: FormData, locale: string) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
@@ -31,7 +30,7 @@ export async function addGiderAction(formData: FormData, locale: string) {
 }
 
 export async function updateGiderAction(giderId: string, formData: FormData, locale: string) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
@@ -56,7 +55,7 @@ export async function updateGiderAction(giderId: string, formData: FormData, loc
 }
 
 export async function deleteGiderAction(giderId: string, locale: string) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.' };
@@ -83,7 +82,7 @@ export async function addKategoriAction(ad: string, locale: string) {
     return { success: false, error: 'Kategori adı gereklidir.' };
   }
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('alt_bayi_gider_kategorileri')
     .insert({ sahip_id: user.id, ad: ad.trim() })
     .single();
@@ -105,7 +104,7 @@ export async function getKategorilerAction() {
   const { data: { user } } = await getGlobalCachedUser();
   if (!user) return { success: false, error: 'Oturum bulunamadı.', kategoriler: [] };
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('alt_bayi_gider_kategorileri')
     .select('ad')
     .eq('sahip_id', user.id)
@@ -113,7 +112,7 @@ export async function getKategorilerAction() {
 
   if (error) return { success: false, error: error.message, kategoriler: [] };
 
-  return { success: true, kategoriler: (data || []).map(k => k.ad) };
+  return { success: true, kategoriler: ((data as any[]) || []).map((k: any) => k.ad) };
 }
 
 type AddSatisPayload = {

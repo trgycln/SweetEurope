@@ -155,7 +155,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     // (`.or()` içinde regex pattern güvensiz olduğu için client-side JS filter yapacağız - aşağıda)
     if (statusFilter) {
         const mapped = canonicalize(statusFilter);
-        if (mapped) query = query.eq('status', mapped);
+        if (mapped) query = query.eq('status', mapped as any);
     }
     if (statusNotInFilter.length > 0) {
         const mapped = statusNotInFilter.map(canonicalize).filter(Boolean);
@@ -185,7 +185,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
 
     const orderedQuery = query.order('created_at', { ascending: false });
     let rawFirmalar: any[] = [];
-    let queryError = null;
+    let queryError: any = null;
     let mainPage = 0;
     while (true) {
         const { data, error } = await orderedQuery.range(mainPage * 1000, (mainPage + 1) * 1000 - 1);

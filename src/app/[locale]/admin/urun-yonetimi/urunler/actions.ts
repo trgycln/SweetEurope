@@ -123,7 +123,7 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     });
     naehrwerteObj.pro_100g = pro100g;
 
-    const data: TablesUpdate<'urunler'> = {
+    const data: any = {
         ad: adJson,
         aciklamalar: aciklamalarJson,
         kategori_id: formData.get('kategori_id') as string,
@@ -499,7 +499,7 @@ export async function createUrunAction(formData: FormData): Promise<FormState> {
         
     if (error || !data) { 
         console.error("Fehler Create:", error); 
-        return { success: false, message: 'Erstellen fehlgeschlagen: ' + error.message }; 
+        return { success: false, message: 'Erstellen fehlgeschlagen: ' + (error?.message || 'Unbekannter Fehler') }; 
     }
     
     revalidatePath('/admin/urun-yonetimi/urunler'); 
@@ -549,7 +549,7 @@ export async function deleteUrunAction(
             .maybeSingle();
 
         if (!placeholder) {
-            const { data: newPlaceholder, error: createErr } = await supabase
+            const { data: newPlaceholder, error: createErr } = await (supabase as any)
                 .from('urunler')
                 .insert({
                     stok_kodu: '__DELETED__',
@@ -565,6 +565,10 @@ export async function deleteUrunAction(
                 return { success: false, message: 'Placeholder ürün oluşturulamadı: ' + createErr?.message };
             }
             placeholder = newPlaceholder;
+        }
+
+        if (!placeholder) {
+            return { success: false, message: 'Placeholder ürün bulunamadı.' };
         }
 
         // Sipariş satırlarını placeholder'a yönlendir

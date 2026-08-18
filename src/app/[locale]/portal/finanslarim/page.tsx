@@ -123,7 +123,7 @@ export default async function FinanslarimPage({ params, searchParams }: PageProp
             .eq('sahip_id', user.id)
             .gte('tarih', sixMonthsStart),
 
-        supabase.from('alt_bayi_gider_kategorileri')
+        (supabase as any).from('alt_bayi_gider_kategorileri')
             .select('ad')
             .eq('sahip_id', user.id)
             .order('olusturulma_tarihi', { ascending: true }),

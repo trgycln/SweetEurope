@@ -19,6 +19,8 @@ interface YeniSiparisFormuProps {
     firmaId: string;
     varsayilanTeslimatAdresi: string;
     urunler: Urun[];
+    firmenListe?: any;
+    locale?: any;
 }
 
 // Sepetteki ürünün tipi

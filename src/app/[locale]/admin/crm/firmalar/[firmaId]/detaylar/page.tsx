@@ -29,7 +29,7 @@ export default async function FirmaDetaylarPage({
         notFound();
     }
 
-    const tekOz = firma.teknik_ozellikler || {};
+    const tekOz = (firma as any).teknik_ozellikler || {};
     
     const ISLETME_TIPI: Record<string, string> = {
         kafe: 'Kafe', restoran: 'Restoran', pastane: 'Pastane',
@@ -110,7 +110,7 @@ export default async function FirmaDetaylarPage({
                             </div>
                             <div>
                                 <span className="block text-xs font-semibold text-slate-400 uppercase mb-0.5">Fiyat Kademesi</span>
-                                <span className="text-slate-800 font-medium">{firma.pricing_tier ? firma.pricing_tier.replace('_', ' ') : 'Atanmamış'}</span>
+                                <span className="text-slate-800 font-medium">{(firma as any).pricing_tier ? (firma as any).pricing_tier.replace('_', ' ') : 'Atanmamış'}</span>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-2">

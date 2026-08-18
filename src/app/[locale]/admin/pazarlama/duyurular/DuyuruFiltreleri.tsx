@@ -7,6 +7,7 @@ import { Enums } from '@/lib/supabase/database.types';
 
 interface DuyuruFiltreleriProps {
     hedefKitleOptions: Enums<'hedef_rol'>[];
+    locale?: string;
 }
 
 export default function DuyuruFiltreleri({ hedefKitleOptions }: DuyuruFiltreleriProps) {

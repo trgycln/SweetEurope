@@ -270,7 +270,7 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
       .limit(1000);
   
   const anaFirmaOptions = anaFirmalar || [];
-  const kategoriOptions: FirmaKategori[] = [
+  const kategoriOptions: string[] = [
       "A",
       "B",
       "C",
@@ -322,11 +322,11 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
               <div>
                   <h3 className="text-sm font-bold text-red-800">Bu firma zaten kayıtlı!</h3>
                   <p className="text-sm text-red-700 mt-1">
-                      <strong>{searchParams.duplicate_name}</strong> isimli firma sistemde mevcut.
+                      <strong>{resolvedSearchParams.duplicate_name as string}</strong> isimli firma sistemde mevcut.
                   </p>
                   <div className="mt-2">
                       <Link 
-                          href={`/${locale}/admin/crm/firmalar/${searchParams.duplicate_id}`}
+                          href={`/${locale}/admin/crm/firmalar/${resolvedSearchParams.duplicate_id as string}`}
                           className="text-sm font-medium text-red-800 underline hover:text-red-900"
                       >
                           Mevcut firmayı görüntüle &rarr;

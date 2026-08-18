@@ -20,7 +20,7 @@ export default function CalculatorClient({ locale, products, categories, compani
   return (
     <SimpleSupplierCostPlatform
       locale={locale}
-      products={products}
+      products={products as any}
       categories={categories}
       companies={companies}
       systemSettings={systemSettings}

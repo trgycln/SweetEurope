@@ -14,6 +14,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { matchesAnyField, extractMultilingual } from '@/lib/searchUtils';
 import { ProduktMitPreis, Kategorie } from './types';
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,7 +73,7 @@ export default async function KatalogPage({
     const badgesParam = typeof resolvedSearchParams.badges === 'string' && resolvedSearchParams.badges ? resolvedSearchParams.badges.split(',') : [];
     const zertifikateParam = typeof resolvedSearchParams.zertifikate === 'string' && resolvedSearchParams.zertifikate ? resolvedSearchParams.zertifikate.split(',') : [];
     const tatParam = typeof resolvedSearchParams.tat === 'string' && resolvedSearchParams.tat ? resolvedSearchParams.tat.split(',') : [];
-    const sortBy = typeof resolvedSearchParams.sort === 'string' ? resolvedSearchParams.sort : 'name';
+    const sortBy = typeof resolvedSearchParams.sort === 'string' ? resolvedSearchParams.sort : 'featured';
     const pageParam = typeof resolvedSearchParams.page === 'string' ? parseInt(resolvedSearchParams.page, 10) : 1;
     let currentPage = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
@@ -81,19 +82,82 @@ export default async function KatalogPage({
         .select('*, kategoriler(ad)')
         .eq('aktif', true);
 
-    const [produkteRes, kategorienRes, favoritenRes] = await Promise.all([
+    const [produkteRes, kategorienRes, favoritenRes, pastOrdersRes, lastOrderRes] = await Promise.all([
         produkteQuery,
         supabase
             .from('kategoriler')
             .select('id, ad, ust_kategori_id, slug')
             .order('ust_kategori_id', { ascending: true, nullsFirst: true })
             .order(`ad->>${locale}`),
-        supabase.from('favori_urunler').select('urun_id').eq('kullanici_id', user.id)
+        supabase.from('favori_urunler').select('urun_id').eq('kullanici_id', user.id),
+        profile.firma_id
+            ? supabase.from('siparisler').select('id, siparis_detay(urun_id, miktar)').eq('firma_id', profile.firma_id)
+            : Promise.resolve({ data: [] }),
+        profile.firma_id
+            ? supabase
+                .from('siparisler')
+                .select(`
+                    id,
+                    siparis_tarihi,
+                    toplam_tutar_net,
+                    toplam_tutar_brut,
+                    siparis_durumu,
+                    siparis_detay (
+                        id,
+                        urun_id,
+                        miktar,
+                        birim_fiyat,
+                        toplam_fiyat,
+                        urunler ( id, ad, stok_kodu, ana_resim_url, stok_miktari, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi, koli_ici_adet )
+                    )
+                `)
+                .eq('firma_id', profile.firma_id)
+                .order('siparis_tarihi', { ascending: false })
+                .limit(1)
+                .maybeSingle()
+            : Promise.resolve({ data: null })
     ]);
 
     let produkte: Tables<'urunler'>[] = produkteRes.data || [];
-    const kategorien: Kategorie[] = kategorienRes.data || [];
+    const rawKategorien: Kategorie[] = kategorienRes.data || [];
     const favoritenIds = new Set((favoritenRes.data || []).map(f => f.urun_id));
+
+    // Son Sipariş Verisi (1-Klick Nachbestellung)
+    const lastOrderData = (lastOrderRes as any)?.data || null;
+
+    // Müşterinin geçmiş sipariş sıklığı haritası (Häufig bestellt)
+    const userOrderCounts: Record<string, number> = {};
+    (pastOrdersRes.data || []).forEach(order => {
+        const details = (order as any).siparis_detay || [];
+        details.forEach((item: any) => {
+            if (item.urun_id) {
+                userOrderCounts[item.urun_id] = (userOrderCounts[item.urun_id] || 0) + (Number(item.miktar) || 1);
+            }
+        });
+    });
+
+    // Hide categories the same way as public page
+    const hiddenKategoriIds = buildHiddenPublicCategoryIds(rawKategorien as any);
+    
+    // Calculate product counts for categories
+    const categoryProductCounts: Record<string, number> = {};
+    const kategoriParentLookup = new Map(rawKategorien.map(k => [k.id, k.ust_kategori_id ?? null]));
+
+    produkte.forEach(p => {
+        if (!p.kategori_id || hiddenKategoriIds.has(p.kategori_id)) return;
+        
+        let current: string | null = p.kategori_id;
+        let guard = 0;
+        while (current && guard++ < 10) {
+            categoryProductCounts[current] = (categoryProductCounts[current] || 0) + 1;
+            current = kategoriParentLookup.get(current) ?? null;
+        }
+    });
+
+    // Only pass categories that have products and are not hidden
+    const kategorien = rawKategorien.filter(k => 
+        !hiddenKategoriIds.has(k.id) && (categoryProductCounts[k.id] || 0) > 0
+    );
 
     // Kategoriefilter hierarchy mapping
     const relevanteIds = new Set<string>();
@@ -169,37 +233,96 @@ export default async function KatalogPage({
         return true;
     });
 
-    // JS Sorting (Gelişmiş Öncelikli Sıralama)
+    // JS Sorting (Gelişmiş B2B Sıralama Mantığı)
     filteredProdukte.sort((a, b) => {
-        // Öncelik 1: Favoriler
-        const aFav = favoritenIds.has(a.id);
-        const bFav = favoritenIds.has(b.id);
-        if (aFav !== bFav) return aFav ? -1 : 1;
+        // 1. Kullanıcı özel bir sıralama modu seçtiyse:
+        if (sortBy === 'frequent') {
+            const countA = userOrderCounts[a.id] || 0;
+            const countB = userOrderCounts[b.id] || 0;
+            if (countA !== countB) return countB - countA;
+            // Sipariş sıklığı eşitse stoktakileri öne al
+            const aStock = (a.stok_miktari ?? 1) > 0 ? 1 : 0;
+            const bStock = (b.stok_miktari ?? 1) > 0 ? 1 : 0;
+            if (aStock !== bStock) return bStock - aStock;
+        } else if (sortBy === 'favorites') {
+            const aFav = favoritenIds.has(a.id) ? 1 : 0;
+            const bFav = favoritenIds.has(b.id) ? 1 : 0;
+            if (aFav !== bFav) return bFav - aFav;
+        } else if (sortBy === 'stock') {
+            const aStock = (a.stok_miktari ?? 1) > 0 ? 1 : 0;
+            const bStock = (b.stok_miktari ?? 1) > 0 ? 1 : 0;
+            if (aStock !== bStock) return bStock - aStock;
+        } else if (sortBy === 'price_asc') {
+            const pa = a.satis_fiyati_musteri ?? (a as any).partnerPreis ?? 0;
+            const pb = b.satis_fiyati_musteri ?? (b as any).partnerPreis ?? 0;
+            if (pa !== pb) return pa - pb;
+        } else if (sortBy === 'price_desc') {
+            const pa = a.satis_fiyati_musteri ?? (a as any).partnerPreis ?? 0;
+            const pb = b.satis_fiyati_musteri ?? (b as any).partnerPreis ?? 0;
+            if (pa !== pb) return pb - pa;
+        } else if (sortBy === 'new') {
+            const timeA = new Date(a.created_at || 0).getTime();
+            const timeB = new Date(b.created_at || 0).getTime();
+            if (timeA !== timeB) return timeB - timeA;
+        } else {
+            // Default / 'featured': Empfohlen & Bestseller
+            // 1. Önce Önerilen / Bestseller olanlar
+            const aRec = ((a as any).onerilen === true || (a as any).is_bestseller === true || (a as any).is_featured === true) ? 1 : 0;
+            const bRec = ((b as any).onerilen === true || (b as any).is_bestseller === true || (b as any).is_featured === true) ? 1 : 0;
+            if (aRec !== bRec) return bRec - aRec;
 
-        // Öncelik 2: Önerilen Ürünler
-        const aRec = (a as any).onerilen === true ? 1 : 0;
-        const bRec = (b as any).onerilen === true ? 1 : 0;
-        if (aRec !== bRec) return bRec - aRec;
+            // 2. Müşterinin sık sipariş ettikleri
+            const countA = userOrderCounts[a.id] || 0;
+            const countB = userOrderCounts[b.id] || 0;
+            if (countA !== countB) return countB - countA;
 
-        // Öncelik 3: Stok Durumu (Stokta olanlar önce)
-        const aStock = (a.stok_miktari ?? 1) > 0 ? 1 : 0;
-        const bStock = (b.stok_miktari ?? 1) > 0 ? 1 : 0;
-        if (aStock !== bStock) return bStock - aStock;
+            // 3. Stoktakiler önce
+            const aStock = (a.stok_miktari ?? 1) > 0 ? 1 : 0;
+            const bStock = (b.stok_miktari ?? 1) > 0 ? 1 : 0;
+            if (aStock !== bStock) return bStock - aStock;
+        }
 
-        // Öncelik 4: Kullanıcı Seçimi (Fiyat, Yeni, İsim vs.)
-        if (sortBy === 'price_asc') {
-            return (a.satis_fiyati_musteri ?? 0) - (b.satis_fiyati_musteri ?? 0);
-        }
-        if (sortBy === 'price_desc') {
-            return (b.satis_fiyati_musteri ?? 0) - (a.satis_fiyati_musteri ?? 0);
-        }
-        if (sortBy === 'new') {
-            return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-        }
+        // İkincil fallback: İsim sıralaması
         const na = getLocalizedName(a.ad, locale).toLowerCase();
         const nb = getLocalizedName(b.ad, locale).toLowerCase();
         return na.localeCompare(nb);
     });
+
+    // Stamm-Sortiment (Rutin Sipariş Listesi / Fast Replenishment Sheet):
+    // Geçmişte sipariş edilmiş veya favorilenmiş ürünler
+    const stammCandidates = produkte.filter(p => 
+        (userOrderCounts[p.id] || 0) > 0 || favoritenIds.has(p.id)
+    ).sort((a, b) => {
+        const countA = userOrderCounts[a.id] || 0;
+        const countB = userOrderCounts[b.id] || 0;
+        if (countA !== countB) return countB - countA;
+        const favA = favoritenIds.has(a.id) ? 1 : 0;
+        const favB = favoritenIds.has(b.id) ? 1 : 0;
+        return favB - favA;
+    });
+
+    const finalStammCandidates = stammCandidates.length > 0
+        ? stammCandidates.slice(0, 30)
+        : produkte
+            .filter(p => (p as any).onerilen === true || (p as any).is_bestseller === true || (p as any).is_featured === true)
+            .slice(0, 12);
+
+    const stammProdukte: ProduktMitPreis[] = await Promise.all(
+        finalStammCandidates.map(async (produkt) => {
+            try {
+                const partnerPreis = await resolvePartnerPreis({
+                    supabase,
+                    urun: produkt,
+                    userRole: profile.rol as Enums<'user_role'>,
+                    firmaId: (profile.firma_id as string) || '',
+                    qty: 1,
+                });
+                return { ...produkt, partnerPreis };
+            } catch {
+                return { ...produkt, partnerPreis: null };
+            }
+        })
+    );
 
     // Pagination
     const ITEMS_PER_PAGE = 24;
@@ -217,7 +340,7 @@ export default async function KatalogPage({
                 const partnerPreis = await resolvePartnerPreis({
                     supabase,
                     urun: produkt,
-                    userRole: profile.rol as Enums['user_role'],
+                    userRole: profile.rol as Enums<'user_role'>,
                     firmaId: (profile.firma_id as string) || '',
                     qty: 1,
                 });
@@ -234,6 +357,8 @@ export default async function KatalogPage({
     return (
         <KatalogClient
             initialProdukte={personalisierteProdukte}
+            stammProdukte={stammProdukte}
+            lastOrderData={lastOrderData}
             kategorien={kategorien}
             favoritenIdsArray={favoritenIdsArray}
             locale={locale}

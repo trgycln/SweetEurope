@@ -26,10 +26,10 @@ function SubmitButton({ dictionary }: { dictionary: Dictionary }) {
     );
 }
 
-export function EditTalepForm({ talep, dictionary }: { talep: Talep, dictionary: Dictionary }) {
+export function EditTalepForm({ talep, dictionary, locale: propLocale }: { talep: Talep, dictionary: Dictionary, locale?: string }) {
     const router = useRouter();
     const params = useParams();
-    const locale = params.locale as string;
+    const locale = propLocale || (params.locale as string) || 'de';
     const content = (dictionary as any).portal?.requestsPage?.newProduct || {}; // Verwende dieselben Labels
     
     // Binde die talep.id an die Action

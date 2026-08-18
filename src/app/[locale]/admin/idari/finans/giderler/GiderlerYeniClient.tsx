@@ -172,9 +172,9 @@ function GiderModal({
                 const { createGiderAction, updateGiderAction } = await import('@/app/actions/gider-actions');
                 let result;
                 if (isEdit && initialData?.id) {
-                    result = await updateGiderAction(initialData.id, undefined, fd);
+                    result = await (updateGiderAction as any)(initialData.id, null, fd);
                 } else {
-                    result = await createGiderAction(undefined, fd);
+                    result = await (createGiderAction as any)(null, fd);
                 }
                 
                 if (result?.success) {
@@ -576,7 +576,7 @@ export default function GiderlerYeniClient({
                                             {/* Gider adı */}
                                             <td className="px-4 py-3 max-w-[240px]">
                                                 <p className="text-sm font-medium text-slate-800 truncate">
-                                                    {g.aciklama || g.gider_kalemleri?.ad || '—'}
+                                                    {g.aciklama || (g as any).gider_kalemleri?.ad || '—'}
                                                 </p>
                                                 <div className="flex items-center gap-1.5 mt-0.5">
                                                     {isTir && (

@@ -74,7 +74,7 @@ export default function FirmaRow({
         posta_kodu: firma.posta_kodu,
         google_maps_url: firma.google_maps_url,
         telefon: firma.telefon,
-      });
+      } as any);
     }
   };
 

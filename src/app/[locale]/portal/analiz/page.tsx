@@ -1,22 +1,19 @@
-// src/app/portal/analiz/page.tsx
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { notFound } from 'next/navigation';
+import { FiSlash } from 'react-icons/fi';
+import { TopCategoriesChart, SalesTrendChart } from '@/components/portal/analiz-charts';
 import { cookies } from 'next/headers';
-import { notFound } from "next/navigation";
-import { FiBarChart2, FiSlash, FiStar } from "react-icons/fi";
-import { SalesTrendChart, TopCategoriesChart } from "@/components/portal/analiz-charts";
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
-// Hilfsfunktion für Datumsbereich
-const getDateRange = () => {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 3); // Letzte 3 Monate
-    return { 
-        start: startDate.toISOString().split('T')[0], 
-        end: endDate.toISOString().split('T')[0] 
+function getDateRange() {
+    const end = new Date();
+    const start = new Date();
+    start.setMonth(start.getMonth() - 3);
+    return {
+        start: start.toISOString().split('T')[0],
+        end: end.toISOString().split('T')[0]
     };
-};
+}
 
 export default async function AnalysePage() {
     const cookieStore = await cookies();
@@ -44,6 +41,8 @@ export default async function AnalysePage() {
         return <div>Rapor verileri yüklenemedi.</div>;
     }
 
+    const reportData: any = report;
+
     return (
         <div className="space-y-8">
             <header>
@@ -54,17 +53,17 @@ export default async function AnalysePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bg-white p-6 rounded-2xl shadow-lg">
                     <h2 className="font-serif text-2xl font-bold text-primary mb-4">En Popüler Kategoriler (Ciro Bazında)</h2>
-                    <TopCategoriesChart data={report.topCategories} />
+                    <TopCategoriesChart data={reportData.topCategories} />
                 </div>
                 <div className="bg-white p-6 rounded-2xl shadow-lg">
                     <h2 className="font-serif text-2xl font-bold text-primary mb-4">Satış Trendi</h2>
-                    <SalesTrendChart data={report.salesTrend} />
+                    <SalesTrendChart data={reportData.salesTrend} />
                 </div>
             </div>
              <div className="bg-white p-6 rounded-2xl shadow-lg">
                 <h2 className="font-serif text-2xl font-bold text-primary mb-4">En Çok Satan Ürünler (Adet Bazında)</h2>
                 <ul className="space-y-3">
-                    {(report.topProducts as any[]).map((p, i) => (
+                    {(reportData.topProducts as any[] || []).map((p: any, i: number) => (
                         <li key={i} className="flex justify-between items-center text-sm border-b pb-2">
                             <span className="font-bold text-primary">{p.urun_adi}</span>
                             <span className="font-semibold text-accent">{p.total_adet} adet</span>

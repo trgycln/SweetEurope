@@ -50,7 +50,7 @@ export async function updateUrunAllFields(urunId: string, urunData: Partial<Tabl
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, message: 'Yetkisiz işlem.' };
 
-    const { error } = await supabase.from('urunler').update(urunData).eq('id', urunId);
+    const { error } = await supabase.from('urunler').update(urunData as any).eq('id', urunId);
 
     if (error) {
         console.error('Ürün güncelleme hatası:', error);

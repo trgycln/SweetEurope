@@ -18,7 +18,7 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
     noStore();
     const { locale } = await params;
     const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
+    const supabase: any = await createSupabaseServerClient(cookieStore);
 
     const { data: { user }, error: authError } = await getGlobalCachedUser();
     if (authError || !user) redirect(`/${locale}/login`);
@@ -75,7 +75,7 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
         .order('created_at', { ascending: false })
         .limit(100);
 
-    const belgeler = rawBelgeler ?? [];
+    const belgeler: any[] = rawBelgeler ?? [];
 
     // Compute summary stats server-side
     const now = Date.now();

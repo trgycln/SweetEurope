@@ -45,7 +45,7 @@ interface ProductGridClientProps {
 
 type MerklisteItem = { urunId: string; menge: number };
 
-const itemVariants = {
+const itemVariants: any = {
     hidden: { opacity: 0, y: 40, scale: 0.95 },
     show: (i: number) => ({ 
         opacity: 1, 
@@ -723,13 +723,13 @@ export function ProductGridClient({
                     .maybeSingle();
 
                 if (profil?.firma_id) {
-                    const { data: firma } = await supabase
+                    const { data: firma } = await (supabase as any)
                         .from('firmalar')
                         .select('pricing_tier')
                         .eq('id', profil.firma_id)
                         .maybeSingle();
                     
-                    let tier = firma?.pricing_tier;
+                    let tier = (firma as any)?.pricing_tier;
                     if (!tier) {
                         if (profil.rol === 'Müşteri') tier = 'koli_bazli';
                         else if (profil.rol === 'Alt Bayi') tier = 'palet';

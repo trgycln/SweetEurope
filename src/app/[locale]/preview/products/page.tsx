@@ -75,11 +75,11 @@ export default async function PublicUrunlerPage({
     ]);
 
     const kategoriler: Kategori[] = (kategorilerRes.data as any) || [];
-    const hiddenKategoriIds = buildHiddenPublicCategoryIds(kategoriler);
+    const hiddenKategoriIds = buildHiddenPublicCategoryIds(kategoriler as any);
     const visibleKategoriler = kategoriler.filter(k => !hiddenKategoriIds.has(k.id));
     const matchesSelectedProductLine = (categoryId?: string | null) => {
         if (!seciliUrunGami) return true;
-        return inferProductLineFromCategoryId(kategoriler, categoryId) === seciliUrunGami;
+        return inferProductLineFromCategoryId(kategoriler as any, categoryId) === seciliUrunGami;
     };
     const lineVisibleKategoriler = visibleKategoriler.filter(k => matchesSelectedProductLine(k.id));
     const visibleMainCategoryOrder = seciliUrunGami

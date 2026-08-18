@@ -29,7 +29,7 @@ type YeniUrunTalepWithProfil = Tables<'yeni_urun_talepleri'> & {
 type UrunStatusKey = 'Yeni' | 'Değerlendiriliyor' | 'Onaylandı' | 'Reddedildi';
 
 const UrunStatusBadge = ({ status, text }: { status: UrunStatusKey, text: string }) => { 
-    const iconMap: Record<string, React.ElementType> = { 
+    const iconMap: Record<string, any> = { 
         'Yeni': FiClock, 
         'Değerlendiriliyor': FiPackage, 
         'Onaylandı': FiCheckCircle, 
@@ -94,6 +94,11 @@ export default async function PartnerTaleplerimPage({ params }: PartnerTalepleri
 
     const formatDate = (dateStr: string | null) => new Date(dateStr || 0).toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
 
+    async function handleCreateAction(formData: FormData) {
+        'use server';
+        await createYeniUrunTalepAction(null, formData);
+    }
+
     return (
         <div className="space-y-8">
             <header>
@@ -102,7 +107,7 @@ export default async function PartnerTaleplerimPage({ params }: PartnerTalepleri
             </header>
 
             <div className="space-y-8">
-                <form action={createYeniUrunTalepAction} className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg space-y-6 max-w-3xl mx-auto">
+                <form action={handleCreateAction} className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg space-y-6 max-w-3xl mx-auto">
                     <h2 className="font-serif text-2xl font-bold text-primary">{productRequestContent.formTitle || "Neue Produktanfrage einreichen"}</h2>
                     <p className="text-sm text-text-main/80">{productRequestContent.newProductIntro || "Haben Sie eine Produktidee...?"}</p>
                     <div>
@@ -117,11 +122,11 @@ export default async function PartnerTaleplerimPage({ params }: PartnerTalepleri
                         <label htmlFor="beschreibung" className="block text-sm font-bold text-text-main/80 mb-2">{productRequestContent.newProductDescription || "Beschreibung"} <span className="text-red-500">*</span></label>
                         <textarea name="beschreibung" id="beschreibung" rows={5} required placeholder="Bitte beschreiben Sie das Produkt..." className="w-full p-3 border rounded-lg bg-secondary" />
                     </div>
-                     <div>
+                    <div>
                         <label htmlFor="geschaetzte_menge_pro_woche" className="block text-sm font-bold text-text-main/80 mb-2">{productRequestContent.newProductEstimate || "Geschätzte Abnahme (pro Woche)"}</label>
                         <input type="number" name="geschaetzte_menge_pro_woche" id="geschaetzte_menge_pro_woche" placeholder="0" min="0" className="w-full p-3 border rounded-lg bg-secondary" />
                     </div>
-                     <div>
+                    <div>
                         <label htmlFor="referenz_link_gorsel" className="block text-sm font-bold text-text-main/80 mb-2">{productRequestContent.newProductLink || "Referenzlink (Bild oder Webseite)"}</label>
                         <input type="url" name="referenz_link_gorsel" id="referenz_link_gorsel" placeholder="https://..." className="w-full p-3 border rounded-lg bg-secondary" />
                     </div>

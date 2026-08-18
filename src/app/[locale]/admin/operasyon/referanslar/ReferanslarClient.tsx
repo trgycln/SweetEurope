@@ -166,7 +166,7 @@ const Textarea = (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ReferanslarClient({ locale }: { locale: string }) {
-    const sb = createDynamicSupabaseClient(false);
+    const sb: any = createDynamicSupabaseClient(false);
 
     const [loading,      setLoading]      = useState(true);
     const [kargoFirmalar,setKargoFirmalar]= useState<KargoFirma[]>([]);

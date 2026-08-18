@@ -526,111 +526,130 @@ export function ProduktListRow({
     return (
         <Link
             href={`/${locale}/portal/katalog/${produkt.id}`}
-            className="flex items-center gap-2 sm:gap-4 px-3 sm:px-4 py-3 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow group"
+            className="block bg-white border border-stone-200/90 rounded-2xl p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-all duration-200 group relative"
         >
-            {/* Thumbnail */}
-            <div className="relative w-14 h-14 bg-gray-50 rounded-md flex-shrink-0 overflow-hidden">
-                <Image
-                    src={produkt.ana_resim_url || '/placeholder.png'}
-                    alt={produktName}
-                    fill
-                    sizes="56px"
-                    className="object-cover"
-                    loading="lazy"
-                />
+            {/* Top Area: Image + Full Title + Action Icons */}
+            <div className="flex items-start gap-3 sm:gap-4">
+                {/* Thumbnail */}
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-stone-50 border border-stone-100 rounded-xl overflow-hidden flex-shrink-0 p-1">
+                    <Image
+                        src={produkt.ana_resim_url || '/placeholder.png'}
+                        alt={produktName}
+                        fill
+                        sizes="80px"
+                        className="object-contain group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                    />
+                </div>
+
+                {/* Main Content Area (Spans full available width) */}
+                <div className="flex-1 min-w-0">
+                    {/* Header: Title & Heart Favorite */}
+                    <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-bold text-sm sm:text-base text-stone-900 group-hover:text-amber-600 transition-colors leading-snug break-words" title={produktName}>
+                            {produktName}
+                        </h4>
+                        
+                        {/* Favorite button */}
+                        <button
+                            onClick={onToggleFavorite}
+                            disabled={isPending}
+                            className={`p-1.5 rounded-lg border transition-colors flex-shrink-0 ${
+                                isFavorit
+                                    ? 'bg-red-50 border-red-200 text-red-500'
+                                    : 'border-stone-200 text-stone-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50/50'
+                            }`}
+                            title={isFavorit ? (locale === 'de' ? 'Von Favoriten entfernen' : 'Favorilerden çıkar') : (locale === 'de' ? 'Zu Favoriten hinzufügen' : 'Favorilere ekle')}
+                        >
+                            <FiHeart size={15} fill={isFavorit ? 'currentColor' : 'none'} />
+                        </button>
+                    </div>
+
+                    {/* Metadata line: SKU, Barcode, Stock badge */}
+                    <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
+                        <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-md">
+                            <LuBarcode size={12} className="text-stone-400" />
+                            {produkt.stok_kodu || '—'}
+                        </span>
+                        {produkt.ean_gtin && (
+                            <span className="inline-flex items-center gap-1 font-mono text-[11px] text-stone-500 bg-stone-50 px-1.5 py-0.5 rounded border border-stone-200/60">
+                                {produkt.ean_gtin}
+                            </span>
+                        )}
+                        {stokBadge && (
+                            <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${stokBadge.bg}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full inline-block ${stokBadge.dot}`} />
+                                {stokBadge.label}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Logistics & Dietary Badges */}
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                        {koliAdet > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200/70 whitespace-nowrap">
+                                <LuPackage size={10} />
+                                {koliAdet} {locale === 'de' ? 'Stk./Ktn.' : 'adet/koli'}
+                            </span>
+                        )}
+                        {paletKoli > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200/70 whitespace-nowrap">
+                                {paletKoli} {locale === 'de' ? 'Ktn./Pal.' : 'koli/pal.'}
+                            </span>
+                        )}
+                        {kg && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/70 whitespace-nowrap">
+                                {kg} kg
+                            </span>
+                        )}
+                        <ProductDietaryBadges
+                            teknikOzellikler={produkt.teknik_ozellikler as any}
+                            zertifikate={produkt.zertifikate}
+                            size="xs"
+                        />
+                    </div>
+                </div>
             </div>
 
-            {/* Sol: İsim + SKU + Stok + Badges — flex-1 */}
-            <div className="flex-1 min-w-0 space-y-1">
-                <h4 className="font-semibold text-sm text-primary group-hover:text-blue-600 truncate">
-                    {produktName}
-                </h4>
-                <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs text-gray-400 flex items-center gap-0.5 font-mono">
-                        <LuBarcode size={11} />
-                        {produkt.stok_kodu || '—'}
-                    </span>
-                    {produkt.ean_gtin && (
-                        <span className="text-xs text-gray-300 flex items-center gap-0.5 font-mono">
-                            <LuBarcode size={10} />
-                            {produkt.ean_gtin}
-                        </span>
+            {/* Bottom Row: Tiered Pricing Bar & Add To Cart Button */}
+            <div className="mt-3 pt-3 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                {/* Pricing Badges / Tiers */}
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                    {pricingRows.map((row, i) =>
+                        row.price ? (
+                            <div
+                                key={i}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs ${
+                                    row.highlight
+                                        ? 'bg-blue-50/80 border border-blue-200/80 text-blue-900'
+                                        : 'bg-stone-50 border border-stone-200/70 text-stone-700'
+                                }`}
+                            >
+                                <span className="text-[10px] text-stone-400 font-medium">{row.label}:</span>
+                                <span className={`font-bold ${row.highlight ? 'text-blue-700' : 'text-stone-900'}`}>
+                                    {formatCurrency(row.price)}
+                                </span>
+                            </div>
+                        ) : null
                     )}
-                    {stokBadge && (
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${stokBadge.bg}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full inline-block ${stokBadge.dot}`} />
-                            {stokBadge.label}
-                        </span>
+                    {showIhrPreis && (
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs text-amber-900 font-bold">
+                            <span className="text-[10px] text-amber-700">{locale === 'de' ? 'Ihr Preis:' : 'Size Özel:'}</span>
+                            <span className="text-amber-900 font-extrabold">{formatCurrency(produkt.partnerPreis)}</span>
+                        </div>
                     )}
                 </div>
-                {/* Quality / Dietary Badges */}
-                <ProductDietaryBadges
-                    teknikOzellikler={produkt.teknik_ozellikler as any}
-                    zertifikate={produkt.zertifikate}
-                    size="xs"
-                />
-            </div>
 
-            {/* Orta: Lojistik chip'leri — sabit genişlik */}
-            <div className="hidden sm:flex flex-col gap-1 flex-shrink-0 w-28">
-                {koliAdet > 0 && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap">
-                        <LuPackage size={9} />
-                        {koliAdet} {locale === 'de' ? 'St./Ktn.' : 'adet/koli'}
-                    </span>
-                )}
-                {paletKoli > 0 && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200 whitespace-nowrap">
-                        {paletKoli} {locale === 'de' ? 'Ktn./Pal.' : 'koli/pal.'}
-                    </span>
-                )}
-                {kg && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
-                        {kg} kg
-                    </span>
-                )}
-            </div>
-
-            {/* Sağ: Fiyat kolonu */}
-            <div className="flex-shrink-0 w-28 sm:w-40 space-y-0.5">
-                {pricingRows.map((row, i) =>
-                    row.price ? (
-                        <div key={i} className={`flex items-center justify-between px-1.5 py-0.5 rounded text-[10px] ${
-                            row.highlight ? 'bg-blue-50 border border-blue-100' : ''
-                        }`}>
-                            <span className={`hidden sm:inline ${row.highlight ? 'text-blue-700 font-semibold' : 'text-gray-400'}`}>
-                                {row.label}
-                            </span>
-                            <span className={`font-bold ${row.highlight ? 'text-blue-700' : 'text-gray-700'}`}>
-                                {formatCurrency(row.price)}
-                            </span>
-                        </div>
-                    ) : null
-                )}
-                {showIhrPreis && (
-                    <div className="flex justify-between items-center px-1.5 py-0.5 bg-indigo-50 border border-indigo-200 rounded text-[10px] text-indigo-900 font-bold">
-                        <span>{locale === 'de' ? 'Ihr Preis' : 'Size Özel'}</span>
-                        <span>{formatCurrency(produkt.partnerPreis)}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* Aksiyonlar: Sepet + Favori */}
-            <div className="flex flex-col gap-1.5 flex-shrink-0 items-center">
-                <button
-                    onClick={onQuickAdd}
-                    className="p-2 rounded-lg bg-accent text-white hover:bg-accent/90 transition-colors"
-                    title={locale === 'de' ? 'In den Warenkorb' : 'Sepete Ekle'}
-                >
-                    <FiShoppingCart size={14} />
-                </button>
-                <button
-                    onClick={onToggleFavorite}
-                    disabled={isPending}
-                    className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${isFavorit ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500'}`}
-                >
-                    <FiHeart size={14} fill={isFavorit ? 'currentColor' : 'none'} />
-                </button>
+                {/* Add To Cart Button */}
+                <div className="flex items-center justify-end flex-shrink-0">
+                    <button
+                        onClick={onQuickAdd}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold shadow-sm shadow-amber-600/20 transition-all"
+                    >
+                        <FiShoppingCart size={14} />
+                        <span>{locale === 'de' ? 'In den Warenkorb' : 'Sepete Ekle'}</span>
+                    </button>
+                </div>
             </div>
         </Link>
     );

@@ -128,7 +128,7 @@ async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: 
 async function ManagerDashboard({ locale, period, dictionary, cookieStore, userId }: {
     locale: string; period: string; dictionary: any; cookieStore: any; userId: string;
 }) {
-    const supabase = await createSupabaseServerClient(cookieStore);
+    const supabase: any = await createSupabaseServerClient(cookieStore);
     const now = new Date();
     const { start: periodStart, end: periodEnd } = getPeriodDates(period, now);
     const todayISO          = now.toISOString();
@@ -156,8 +156,8 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
     } = dashboardData;
 
     // ── Veri işle ─────────────────────────────────────────────────────────────
-    const mtd     = plRes.data;
-    const prevMtd = plPrevRes.data;
+    const mtd     = plRes.data as any;
+    const prevMtd = plPrevRes.data as any;
     const deltaPct = prevMtd?.totalRevenue
         ? Math.round(((mtd?.totalRevenue ?? 0) - prevMtd.totalRevenue) / prevMtd.totalRevenue * 100)
         : null;
@@ -354,7 +354,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                                             <div key={b.id} className="flex items-center justify-between text-sm">
                                                 <div>
                                                     <p className="font-semibold text-slate-700">{b.referans_kodu}</p>
-                                                    <p className="text-[11px] text-slate-400">{formatDate(b.varis_tarihi || b.created_at, locale)}</p>
+                                                    <p className="text-[11px] text-slate-400">{formatDate(b.varis_tarihi || b.created_at, locale as any)}</p>
                                                 </div>
                                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${b.durum === 'Tamamlandı' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                                                     {b.durum || 'Taslak'}
@@ -391,7 +391,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                                     <div className="flex items-center gap-2">
                                         <FiTruck size={13} className="text-slate-400" />
                                         <span className="text-sm font-semibold text-slate-700">{sonTir.referans_kodu}</span>
-                                        <span className="text-xs text-slate-400">{formatDate(sonTir.varis_tarihi || sonTir.created_at, locale)}</span>
+                                        <span className="text-xs text-slate-400">{formatDate(sonTir.varis_tarihi || sonTir.created_at, locale as any)}</span>
                                     </div>
                                 ) : <p className="text-sm text-slate-400">Kayıt yok</p>}
                             </div>
@@ -401,7 +401,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                                     <div className="flex items-center gap-2">
                                         <FiCalendar size={13} className="text-blue-400" />
                                         <span className="text-sm font-semibold text-slate-700">{yaklasenTir.referans_kodu}</span>
-                                        <span className="text-xs text-slate-400">{formatDate(yaklasenTir.varis_tarihi, locale)}</span>
+                                        <span className="text-xs text-slate-400">{formatDate(yaklasenTir.varis_tarihi, locale as any)}</span>
                                     </div>
                                 ) : (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 text-[11px] font-semibold rounded-full">Planlanmadı</span>
@@ -472,7 +472,7 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                             hint={alarmCount === 0 ? 'Tüm ürünler marj eşiği içinde.' : 'Satış marjını baskılayan ürünler var.'}
                             tag={alarmCount === 0 ? 'İyi' : 'Acil'} tagColor={alarmCount === 0 ? 'green' : 'red'} />
                         <HealthCard title="Son partide maliyet farkı" value={sonTir ? (sonTir.referans_kodu || 'Kayıt var') : 'Kayıt yok'}
-                            hint={sonTir ? `${formatDate(sonTir.varis_tarihi || sonTir.created_at, locale)} · ${sonTir.durum || 'Taslak'}` : 'Henüz parti kaydı yok.'}
+                            hint={sonTir ? `${formatDate(sonTir.varis_tarihi || sonTir.created_at, locale as any)} · ${sonTir.durum || 'Taslak'}` : 'Henüz parti kaydı yok.'}
                             tag={sonTir ? 'İyi' : 'Veri yok'} tagColor={sonTir ? 'green' : 'yellow'} />
                         <HealthCard title="Parti verisi güncelliği" value={daysSinceLast === null ? 'Kayıt yok' : `${daysSinceLast} gün`}
                             hint={daysSinceLast === null ? 'Henüz parti kaydı yok.' : daysSinceLast <= 7 ? 'Güncel veri mevcut.' : 'Parti verisi eskimiş olabilir.'}
