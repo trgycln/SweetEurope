@@ -37,10 +37,22 @@ export const PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS = [
 ] as const;
 
 export const PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER = [
+  'sauces-and-ingredients',
+  'syrups',
+  'premium-cocktail-syrups',
+  'flavored-cocktail-syrups',
+  'cafe-bar-sauces',
+  'fruit-sauces',
+  'professional-bar-sauces',
+  'powdered-beverages',
+  'ice-cream-gelato',
+  'pastry-bakery',
+  'iconic-products',
+  'anatolian-legends-ready-mixes',
+  'frozen-purees',
   // FO-specific categories (active once DB migration runs)
   ...FO_CATEGORY_SLUGS,
   // Legacy FO categories kept as fallback until migration completes
-  'sauces-and-ingredients',
   'coffee',
   'drinks',
 ] as const;

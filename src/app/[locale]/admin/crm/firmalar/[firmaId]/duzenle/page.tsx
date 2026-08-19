@@ -505,6 +505,7 @@ export default function FirmaDuzenlePage() {
                                 <select id="odeme_vadesi_gun" name="odeme_vadesi_gun" defaultValue={tekOz.odeme_vadesi_gun ?? ''} className={inp}>
                                     <option value="">-- Seçin --</option>
                                     <option value="0">0 gün (peşin)</option>
+                                    <option value="5">5 gün</option>
                                     <option value="7">7 gün</option>
                                     <option value="14">14 gün</option>
                                     <option value="30">30 gün</option>

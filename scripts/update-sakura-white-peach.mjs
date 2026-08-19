@@ -96,7 +96,7 @@ Store in a cool, dry place away from sunlight.`,
     geschmack: ["sakura", "beyaz şeftali", "white peach", "weißer pfirsich", "خوخ أبيض"],
     birim_hacim_ml: 700,
     koli_ici_adet: 6,
-    palet_ici_adet: 170
+    palet_ici_adet: 125
   };
 
   const updatePayload = {
@@ -107,6 +107,8 @@ Store in a cool, dry place away from sunlight.`,
     besin_degerleri: JSON.stringify(naehrwerte),
     allergene,
     aciklamalar,
+    koli_ici_adet: 6,
+    palet_ici_adet: 125,
     teknik_ozellikler: updatedTeknik,
     aktif: true
   };

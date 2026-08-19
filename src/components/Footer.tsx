@@ -4,9 +4,11 @@ import Image from 'next/image';
 import { FaInstagram, FaLinkedin } from 'react-icons/fa';
 
 const FO_CATEGORY_SLUGS = [
-  { slug: 'sauces-and-ingredients', key: 'catSaucesLabel' },
-  { slug: 'coffee',                 key: 'catCoffeeLabel' },
-  { slug: 'drinks',                 key: 'catDrinksLabel' },
+  { slug: 'sauces-and-ingredients', key: 'catHorecaLabel',  fallback: 'HoReCa – Gesamtsortiment' },
+  { slug: 'syrups',                 key: 'catSyrupsLabel',  fallback: 'Sirupe & Barista-Basen' },
+  { slug: 'cafe-bar-sauces',        key: 'catSaucesLabel',  fallback: 'Saucen & Fruchtpürees' },
+  { slug: 'powdered-beverages',     key: 'catDrinksLabel',  fallback: 'Getränkepulver & Frappés' },
+  { slug: 'ice-cream-gelato',       key: 'catIceCreamLabel',fallback: 'Eisdiele & Gelateria' },
 ] as const;
 
 const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, locale = 'de' }) => {
@@ -38,7 +40,15 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
               {f.description}
             </p>
             <div className="text-sm text-secondary/60 space-y-1">
-              <p>📍 {f.location}</p>
+              <a
+                href="https://maps.google.com/?q=Wilhelm-Ruppert-Stra%C3%9Fe+38%2C+51147+K%C3%B6ln%2C+Deutschland"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block hover:text-accent transition-colors cursor-pointer"
+                title="Google Maps"
+              >
+                📍 {f.location}
+              </a>
               <a href="mailto:info@elysonsweets.de" className="block hover:text-accent transition-colors">
                 ✉ info@elysonsweets.de
               </a>
@@ -63,7 +73,7 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
                   href={`/${locale}/products?kategori=${cat.slug}`}
                   className="block text-sm text-secondary/70 hover:text-accent transition-colors truncate"
                 >
-                  {f[cat.key]}
+                  {f[cat.key] || cat.fallback}
                 </Link>
               ))}
             </nav>

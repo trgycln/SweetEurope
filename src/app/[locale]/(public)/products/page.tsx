@@ -171,18 +171,54 @@ export default async function PublicUrunlerPage({
         dessertbar: { lagerung: 'tiefkuehl' },
     };
 
+    // Helper to get all descendant category IDs recursively
+    const getAllDescendantIds = (catId: string, allCats: Kategori[]): string[] => {
+        const ids = [catId];
+        const directChildren = allCats.filter(k => k.ust_kategori_id === catId);
+        for (const child of directChildren) {
+            ids.push(...getAllDescendantIds(child.id, allCats));
+        }
+        return ids;
+    };
+
+    const CATEGORY_SLUG_ALIASES: Record<string, string> = {
+        'coffee': 'syrups',
+        'drinks': 'powdered-beverages',
+        'cocktail-syrups': 'flavored-cocktail-syrups',
+        'premium-syrups': 'premium-cocktail-syrups',
+        'fruited-sauces': 'fruit-sauces',
+        'powder-drinks': 'powdered-beverages',
+        'sauces': 'cafe-bar-sauces',
+        'ice-cream': 'ice-cream-gelato',
+        'dondurmacilik': 'ice-cream-gelato',
+        'pastacilik': 'pastry-bakery',
+        'pastacilik-ic-dolgular-dekorasyon': 'pastry-bakery',
+    };
+
     // Resolve selected category + IDs to filter
     let filtrelenecekKategoriIdleri: string[] = [];
+    let isCategoryFilterActive = false;
+
     if (seciliKategoriSlug) {
-        const anaKategori = visibleKategoriler.find(k => k.slug === seciliKategoriSlug);
+        isCategoryFilterActive = true;
+        const targetSlug = CATEGORY_SLUG_ALIASES[seciliKategoriSlug] || seciliKategoriSlug;
+        const anaKategori = visibleKategoriler.find(
+            k => k.slug === targetSlug || k.slug === seciliKategoriSlug || k.id === seciliKategoriSlug
+        );
+
         if (anaKategori) {
             if (altKategoriFilter) {
-                const altKat = visibleKategoriler.find(k => k.slug === altKategoriFilter);
-                if (altKat) filtrelenecekKategoriIdleri.push(altKat.id);
+                const targetAltSlug = CATEGORY_SLUG_ALIASES[altKategoriFilter] || altKategoriFilter;
+                const altKat = visibleKategoriler.find(
+                    k => k.slug === targetAltSlug || k.slug === altKategoriFilter || k.id === altKategoriFilter
+                );
+                if (altKat) {
+                    filtrelenecekKategoriIdleri = getAllDescendantIds(altKat.id, visibleKategoriler);
+                } else {
+                    filtrelenecekKategoriIdleri = getAllDescendantIds(anaKategori.id, visibleKategoriler);
+                }
             } else {
-                filtrelenecekKategoriIdleri.push(anaKategori.id);
-                visibleKategoriler.filter(k => k.ust_kategori_id === anaKategori.id)
-                    .forEach(ak => filtrelenecekKategoriIdleri.push(ak.id));
+                filtrelenecekKategoriIdleri = getAllDescendantIds(anaKategori.id, visibleKategoriler);
             }
         }
     }
@@ -209,8 +245,12 @@ export default async function PublicUrunlerPage({
         .select(productSelectFields, { count: 'exact' })
         .eq('aktif', true);
 
-    if (filtrelenecekKategoriIdleri.length > 0) {
-        urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+    if (isCategoryFilterActive) {
+        if (filtrelenecekKategoriIdleri.length > 0) {
+            urunlerQuery = urunlerQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+        } else {
+            urunlerQuery = urunlerQuery.eq('id', '00000000-0000-0000-0000-000000000000');
+        }
     }
 
     if (gamFilter) {
@@ -245,8 +285,12 @@ export default async function PublicUrunlerPage({
             satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
             created_at, mindest_bestellmenge, mindest_bestellmenge_einheit, aktif`;
         let retryQuery = supabase.from('urunler').select(minimalFields).eq('aktif', true);
-        if (filtrelenecekKategoriIdleri.length > 0) {
-            retryQuery = retryQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+        if (isCategoryFilterActive) {
+            if (filtrelenecekKategoriIdleri.length > 0) {
+                retryQuery = retryQuery.in('kategori_id', filtrelenecekKategoriIdleri);
+            } else {
+                retryQuery = retryQuery.eq('id', '00000000-0000-0000-0000-000000000000');
+            }
         }
         if (searchQuery) {
             const queryStr = `%${searchQuery}%`;
@@ -370,7 +414,8 @@ export default async function PublicUrunlerPage({
 
     let seciliKategoriAdi = dictionary.publicProductsPage?.allProducts || (locale === 'tr' ? 'Tüm Ürünler' : locale === 'en' ? 'All Products' : locale === 'ar' ? 'جميع المنتجات' : 'Alle Produkte');
     if (seciliKategoriSlug) {
-        const sk = kategoriler.find(k => k.slug === seciliKategoriSlug);
+        const targetSlug = CATEGORY_SLUG_ALIASES[seciliKategoriSlug] || seciliKategoriSlug;
+        const sk = kategoriler.find(k => k.slug === targetSlug || k.slug === seciliKategoriSlug || k.id === seciliKategoriSlug);
         if (sk) seciliKategoriAdi = sk.ad?.[locale] || sk.ad?.['de'] || seciliKategoriAdi;
     }
 
@@ -463,7 +508,8 @@ export default async function PublicUrunlerPage({
                                     })
                                     .map(k => {
                                         const count = categoryProductCounts[k.id] || 0;
-                                        const isSelected = seciliKategoriSlug === k.slug;
+                                        const targetSelectedSlug = CATEGORY_SLUG_ALIASES[seciliKategoriSlug || ''] || seciliKategoriSlug;
+                                        const isSelected = seciliKategoriSlug === k.slug || targetSelectedSlug === k.slug || seciliKategoriSlug === k.id;
                                         const subKats = visibleKategoriler.filter(sk => sk.ust_kategori_id === k.id && (categoryProductCounts[sk.id] || 0) > 0);
                                         return (
                                             <div key={k.id}>
