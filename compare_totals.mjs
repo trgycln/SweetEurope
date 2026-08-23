@@ -13,7 +13,7 @@ async function run() {
   let pfTotalAmount = 0;
   for (const item of allProformaItems) {
       pfMap.set(item.barcode, item);
-      pfTotalAmount += item.amount;
+      pfTotalAmount += item.amount || 0;
   }
   
   const draftKey = 'supplier_order_plan_draft_642896a8-ec56-4a58-917d-eafe2831a104';
@@ -21,12 +21,13 @@ async function run() {
   let draft = JSON.parse(row.setting_value);
   
   const draftProductIds = draft.items.map(i => i.productId);
-  const { data: products } = await supabase.from('urunler').select('id, stok_kodu, ad, ean_gtin, satici_fiyat, koli_ici_adet').in('id', draftProductIds);
-  const productMap = new Map(products.map(p => [p.id, p]));
+  const { data: products } = await supabase.from('urunler').select('id, stok_kodu, ad, ean_gtin, distributor_alis_fiyati, koli_ici_adet').in('id', draftProductIds);
+  const productMap = new Map((products || []).map(p => [p.id, p]));
   
   let md = '# Detaylı Fiyat ve Tutar Analizi\n\n';
-  md += '| Stok Kodu | Ürün Adı | DB Koli x İçi | DB Birim Fiyat | DB Toplam (€) | PF QTY | PF Birim Fiyat | PF Toplam (€) | Fark (€) |\n';
-  md += '|---|---|---|---|---|---|---|---|---|\n';
+  md += 'Sisteminizdeki güncel "Eski Alış Fiyatları" üzerinden yapılan hesaplama ile Proforma faturanızdaki "Yeni Alış Fiyatları" arasındaki tutarsızlıkları aşağıda detaylı olarak inceleyebilirsiniz. Toplam 91 satırın hepsini görebilirsiniz:\n\n';
+  md += '| Stok Kodu | Ürün Adı | Sistem Hesabı (Koli x İçi x Fiyat) | Sistem Tutar (€) | Proforma QTY x Fiyat | Proforma Tutar (€) | Toplam Fark (€) |\n';
+  md += '|---|---|---|---|---|---|---|\n';
 
   let dbGrandTotal = 0;
   let differences = [];
@@ -35,7 +36,7 @@ async function run() {
       const p = productMap.get(item.productId);
       if (!p) continue;
       
-      const dbPrice = p.satici_fiyat || 0;
+      const dbPrice = p.distributor_alis_fiyati || 0;
       const dbKoliIci = p.koli_ici_adet || 1;
       const dbKoli = item.quantity;
       const itemDbTotal = dbPrice * dbKoliIci * dbKoli;
@@ -43,19 +44,17 @@ async function run() {
       
       const pfItem = pfMap.get(p.ean_gtin);
       if (pfItem) {
-          const pfAmount = pfItem.amount;
-          const pfPrice = pfItem.unit_price;
+          const pfAmount = pfItem.amount || 0;
+          const pfPrice = pfItem.unit_price || 0;
           const diff = itemDbTotal - pfAmount;
           
           if (Math.abs(diff) > 0.01) {
               differences.push({
                   stokKodu: p.stok_kodu,
                   ad: p.ad.tr,
-                  dbQty: `${dbKoli} x ${dbKoliIci} = ${dbKoli * dbKoliIci}`,
-                  dbPrice: dbPrice.toFixed(2),
+                  dbCalc: `${dbKoli} x ${dbKoliIci} x €${dbPrice.toFixed(2)}`,
                   dbTotal: itemDbTotal.toFixed(2),
-                  pfQty: pfItem.qty,
-                  pfPrice: pfPrice.toFixed(2),
+                  pfCalc: `${pfItem.qty || (dbKoli * dbKoliIci)} x €${pfPrice.toFixed(2)}`,
                   pfTotal: pfAmount.toFixed(2),
                   diff: diff.toFixed(2)
               });
@@ -64,27 +63,31 @@ async function run() {
           // In draft but not in proforma
           differences.push({
               stokKodu: p.stok_kodu,
-              ad: p.ad.tr + ' (SADECE TASLAKTA)',
-              dbQty: `${dbKoli} x ${dbKoliIci} = ${dbKoli * dbKoliIci}`,
-              dbPrice: dbPrice.toFixed(2),
+              ad: p.ad.tr + ' (SADECE SİSTEMDE)',
+              dbCalc: `${dbKoli} x ${dbKoliIci} x €${dbPrice.toFixed(2)}`,
               dbTotal: itemDbTotal.toFixed(2),
-              pfQty: '-',
-              pfPrice: '-',
+              pfCalc: '-',
               pfTotal: '0.00',
               diff: itemDbTotal.toFixed(2)
           });
       }
   }
 
-  // Sort differences: biggest differences first (negative or positive)
-  differences.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
+  // Sort differences: biggest differences first (absolute values)
+  differences.sort((a,b) => Math.abs(parseFloat(b.diff)) - Math.abs(parseFloat(a.diff)));
   
   for (const d of differences) {
-      md += `| ${d.stokKodu} | ${d.ad} | ${d.dbQty} | €${d.dbPrice} | €${d.dbTotal} | ${d.pfQty} | €${d.pfPrice} | €${d.pfTotal} | **€${d.diff}** |\n`;
+      let diffStr = d.diff;
+      if (parseFloat(d.diff) < 0) {
+          diffStr = `<span style="color:red">**${d.diff}**</span>`;
+      } else {
+          diffStr = `<span style="color:green">**+${d.diff}**</span>`;
+      }
+      md += `| ${d.stokKodu} | ${d.ad} | ${d.dbCalc} | €${d.dbTotal} | ${d.pfCalc} | €${d.pfTotal} | ${diffStr} |\n`;
   }
   
-  md += `\n\n**Sistemdeki Genel Toplam:** €${dbGrandTotal.toFixed(2)}\n`;
-  md += `**Proforma Faturadaki Genel Toplam:** €${pfTotalAmount.toFixed(2)}\n`;
+  md += `\n\n**Sistemdeki Genel Toplam (Eski Fiyatlar):** €${dbGrandTotal.toFixed(2)}\n`;
+  md += `**Proforma Faturadaki Genel Toplam (Yeni Fiyatlar):** €${pfTotalAmount.toFixed(2)}\n`;
   md += `**Aralarındaki Toplam Fark:** €${(dbGrandTotal - pfTotalAmount).toFixed(2)}\n`;
   
   fs.writeFileSync('fiyat_farki_analizi.md', md);
