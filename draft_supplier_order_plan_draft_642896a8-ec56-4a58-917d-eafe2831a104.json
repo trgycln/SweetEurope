@@ -1,0 +1,545 @@
+{
+  "draftName": "FO Siparis Listesi_31.07.2026",
+  "selectedSupplierId": "1d650c3f-aede-45e5-9fd9-9a058e9e05ce",
+  "search": "8691123120571",
+  "selectedProductId": "",
+  "selectedUnitType": "adet",
+  "selectedQuantity": 1,
+  "items": [
+    {
+      "id": "346a52b2-1034-48fb-b605-89b9886c8ffd-1785528579910-exqo1",
+      "productId": "346a52b2-1034-48fb-b605-89b9886c8ffd",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "114d0277-2b63-4ca1-b65e-ac5cb66e64c5-1785528593382-a4asn",
+      "productId": "114d0277-2b63-4ca1-b65e-ac5cb66e64c5",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "9e271277-edc5-49db-ad49-892bffb6799b-1785528602444-2lfdd",
+      "productId": "9e271277-edc5-49db-ad49-892bffb6799b",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "669a23c7-7f23-4fe6-8c3a-e78f75f28373-1785528615169-pi0hh",
+      "productId": "669a23c7-7f23-4fe6-8c3a-e78f75f28373",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "024aecdc-953c-4f7e-8a6f-28427a757e9b-1785528624612-dhwsi",
+      "productId": "024aecdc-953c-4f7e-8a6f-28427a757e9b",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "fe93aa42-578a-43fb-b34d-8f6525148ae7-1785528633857-i9uta",
+      "productId": "fe93aa42-578a-43fb-b34d-8f6525148ae7",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "531facb3-06cc-453b-8367-955fcde6458e-1785528642825-crj2y",
+      "productId": "531facb3-06cc-453b-8367-955fcde6458e",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "11924546-d75b-43d5-9562-1976c25c0489-1785528652081-yydys",
+      "productId": "11924546-d75b-43d5-9562-1976c25c0489",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "5bcfaac8-3211-429b-abb2-e12ef66da2cc-1785528661393-zct1a",
+      "productId": "5bcfaac8-3211-429b-abb2-e12ef66da2cc",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "e87a76a4-103f-410c-9e39-a6be21b7f433-1785528670285-uyc2h",
+      "productId": "e87a76a4-103f-410c-9e39-a6be21b7f433",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "4b56480f-b892-49a2-88f9-c7b4fab4a3ad-1785528679630-xb0wn",
+      "productId": "4b56480f-b892-49a2-88f9-c7b4fab4a3ad",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "2ea65f32-3798-49ff-9f5b-997e0ec2b1da-1785528688081-14rx6",
+      "productId": "2ea65f32-3798-49ff-9f5b-997e0ec2b1da",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "24dc99d5-dee1-4160-8047-43d28e07aa35-1785528697001-5g95z",
+      "productId": "24dc99d5-dee1-4160-8047-43d28e07aa35",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "0eb33808-ed37-43da-9b85-33144cdb4653-1785528705629-sj8ya",
+      "productId": "0eb33808-ed37-43da-9b85-33144cdb4653",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "8ffa3fe9-a81f-43cc-bae7-ceabac4dbb82-1785528713777-081r3",
+      "productId": "8ffa3fe9-a81f-43cc-bae7-ceabac4dbb82",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "cda9db32-fc4b-4834-a12f-c21278896c09-1785528722384-yfpvm",
+      "productId": "cda9db32-fc4b-4834-a12f-c21278896c09",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "2d438bd2-d047-4b8f-b163-c4d6bcd57ea5-1785528730761-xxwvs",
+      "productId": "2d438bd2-d047-4b8f-b163-c4d6bcd57ea5",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "e666631e-587f-443e-8c4a-0311b2b72a8c-1785528740321-s6zcx",
+      "productId": "e666631e-587f-443e-8c4a-0311b2b72a8c",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "381703aa-92f3-486e-ab39-b37b041b49e8-1785528751193-6qu9r",
+      "productId": "381703aa-92f3-486e-ab39-b37b041b49e8",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "03e6cf67-efe7-4141-9f69-87ec5e70f9fa-1785528758985-m9pm8",
+      "productId": "03e6cf67-efe7-4141-9f69-87ec5e70f9fa",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "b795f070-9313-4219-87e9-6de1585daaa4-1785528767022-365zu",
+      "productId": "b795f070-9313-4219-87e9-6de1585daaa4",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "2cd6dc8e-1433-438d-8fd1-764b8d8045ce-1785528775001-uya7l",
+      "productId": "2cd6dc8e-1433-438d-8fd1-764b8d8045ce",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "bd4e98af-6b3c-479e-a91f-4054db4163ad-1785528783405-c0i69",
+      "productId": "bd4e98af-6b3c-479e-a91f-4054db4163ad",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "44a4ed7f-4e0c-439f-a4b3-87670fb9aff9-1785528791281-41run",
+      "productId": "44a4ed7f-4e0c-439f-a4b3-87670fb9aff9",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "abca0310-e8e4-407a-802c-66df1425f310-1785528799509-0tdey",
+      "productId": "abca0310-e8e4-407a-802c-66df1425f310",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "c4ffaa96-dfe9-449d-930f-34d7e2905a34-1785528808261-6m1nm",
+      "productId": "c4ffaa96-dfe9-449d-930f-34d7e2905a34",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "a7ca4f25-6bda-4155-bf4c-940ed5bc7b97-1785528816893-n1z4v",
+      "productId": "a7ca4f25-6bda-4155-bf4c-940ed5bc7b97",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "fe96b76f-ed65-408f-b839-5e2fc6787870-1785528825509-5ivyc",
+      "productId": "fe96b76f-ed65-408f-b839-5e2fc6787870",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "be97c3b8-a1c6-42ea-93f2-7e76629baaf3-1785528834005-1lppx",
+      "productId": "be97c3b8-a1c6-42ea-93f2-7e76629baaf3",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "8a644fee-e81e-4ec6-b229-55a179fbb845-1785528842149-9xxbz",
+      "productId": "8a644fee-e81e-4ec6-b229-55a179fbb845",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "3368c956-7293-4a1a-8111-2fd1129d8f04-1785528854221-ixt8x",
+      "productId": "3368c956-7293-4a1a-8111-2fd1129d8f04",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "c9836857-d08d-4a9d-8036-60c4ec00c8fd-1785528862478-729y7",
+      "productId": "c9836857-d08d-4a9d-8036-60c4ec00c8fd",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "af5809e6-832f-4a94-9346-dae57cd07709-1785528871462-t6cis",
+      "productId": "af5809e6-832f-4a94-9346-dae57cd07709",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "0c2f58b8-86fe-48a8-8264-8dd64627092b-1785528881017-iufod",
+      "productId": "0c2f58b8-86fe-48a8-8264-8dd64627092b",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "db361886-66e2-49f1-994a-c9dbe3fe5e56-1785528889537-n77u5",
+      "productId": "db361886-66e2-49f1-994a-c9dbe3fe5e56",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "00718ba0-52e7-4abd-81fe-6c930f6f3a10-1785528999547-gfvdb",
+      "productId": "00718ba0-52e7-4abd-81fe-6c930f6f3a10",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "39824918-6201-4abb-9a8d-98bd91de3946-1785529012801-5gro0",
+      "productId": "39824918-6201-4abb-9a8d-98bd91de3946",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "20d8c1cd-897d-4e10-b952-14f11cc95dda-1785529021409-7to19",
+      "productId": "20d8c1cd-897d-4e10-b952-14f11cc95dda",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "22c82f63-fa94-4eb5-9fdf-3ddb41afaac3-1785529029865-y2gr2",
+      "productId": "22c82f63-fa94-4eb5-9fdf-3ddb41afaac3",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "b3b08244-8d02-41b5-ad8f-7de99d05558a-1785529038317-j5fyo",
+      "productId": "b3b08244-8d02-41b5-ad8f-7de99d05558a",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "af116b86-de09-4a26-8c3c-ed7d02cd254d-1785529047623-vqend",
+      "productId": "af116b86-de09-4a26-8c3c-ed7d02cd254d",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "0bf1dfd4-4d21-4fc2-a252-7e98c59c9028-1785529090005-cuow0",
+      "productId": "0bf1dfd4-4d21-4fc2-a252-7e98c59c9028",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "6339219d-4c9e-4389-a7cb-c8d062efee8f-1785529102205-3vlqa",
+      "productId": "6339219d-4c9e-4389-a7cb-c8d062efee8f",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "53ba43ac-992c-4eef-9724-035f9d724dfb-1785529110269-0gkzv",
+      "productId": "53ba43ac-992c-4eef-9724-035f9d724dfb",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "e343b424-22f9-4c72-8ec3-d7ac9872dda0-1785529117973-gqgia",
+      "productId": "e343b424-22f9-4c72-8ec3-d7ac9872dda0",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "4efd0ab0-01b8-4e94-b61a-40576c2c6bb0-1785529126445-pyt6h",
+      "productId": "4efd0ab0-01b8-4e94-b61a-40576c2c6bb0",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "e3b8c6ff-fcf2-4552-b58a-3a616b979a8b-1785529135106-bj4i5",
+      "productId": "e3b8c6ff-fcf2-4552-b58a-3a616b979a8b",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "dfb1fc66-ea0a-4a78-b4c3-3a65f1c8d2e0-1785529142909-4n913",
+      "productId": "dfb1fc66-ea0a-4a78-b4c3-3a65f1c8d2e0",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "1be59fa7-c321-4b01-8a36-d29f039e59c6-1785529151277-w01ps",
+      "productId": "1be59fa7-c321-4b01-8a36-d29f039e59c6",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "8be92bb0-f908-4614-b4c2-4deac3a5b66c-1785529159861-4h541",
+      "productId": "8be92bb0-f908-4614-b4c2-4deac3a5b66c",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "4f60f69b-158e-48cd-8252-9bf52fc9a658-1785529172551-akw23",
+      "productId": "4f60f69b-158e-48cd-8252-9bf52fc9a658",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "eb5baae4-761d-4c1f-88f8-e913e03cb5f9-1785529180453-qcyps",
+      "productId": "eb5baae4-761d-4c1f-88f8-e913e03cb5f9",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "fee7b294-3320-41ec-9e3f-23298bbb8903-1785529188453-kn0c0",
+      "productId": "fee7b294-3320-41ec-9e3f-23298bbb8903",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "d65ba9af-cd9a-48f0-823d-781c917bd259-1785529196017-37nt2",
+      "productId": "d65ba9af-cd9a-48f0-823d-781c917bd259",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "fbb3ce44-1950-4ed2-b7a5-21718fc48436-1785529203849-5lg88",
+      "productId": "fbb3ce44-1950-4ed2-b7a5-21718fc48436",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "c3029bf8-5bc5-4566-8d50-0e2ba3ab0ffb-1785529212497-06lxy",
+      "productId": "c3029bf8-5bc5-4566-8d50-0e2ba3ab0ffb",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "28a3730b-f5b1-4801-8744-a1aecb7b9f98-1785529220505-hiaif",
+      "productId": "28a3730b-f5b1-4801-8744-a1aecb7b9f98",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "298d997b-cf81-466f-baa2-432f3cb03bf9-1785529228145-mycz0",
+      "productId": "298d997b-cf81-466f-baa2-432f3cb03bf9",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "16f4e873-0ef4-415c-9576-9a4410a01f24-1785529236089-6dqda",
+      "productId": "16f4e873-0ef4-415c-9576-9a4410a01f24",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "b802a6ee-e2fd-4d82-aa73-8cbeb198fcec-1785529244473-c4oc7",
+      "productId": "b802a6ee-e2fd-4d82-aa73-8cbeb198fcec",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "69dec99d-316d-4896-937e-779cd7c54a79-1785529254001-bcm1h",
+      "productId": "69dec99d-316d-4896-937e-779cd7c54a79",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "357aec8c-430f-4310-b486-de1b81bb47f3-1785529264195-t3wrn",
+      "productId": "357aec8c-430f-4310-b486-de1b81bb47f3",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "36e51cd3-b42d-47dd-945c-035fbb82eb06-1785529364597-rcpvp",
+      "productId": "36e51cd3-b42d-47dd-945c-035fbb82eb06",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "77f84482-1d46-4ccb-8b66-0c8b817db17c-1785529383133-1yxq9",
+      "productId": "77f84482-1d46-4ccb-8b66-0c8b817db17c",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "6acc385e-7fa8-4803-8a11-4d6f672de45f-1785529424839-beqns",
+      "productId": "6acc385e-7fa8-4803-8a11-4d6f672de45f",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "5f6458b1-255e-4275-8ce8-7f0ff779891f-1785529442966-8u9sg",
+      "productId": "5f6458b1-255e-4275-8ce8-7f0ff779891f",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "cf80047e-584b-406e-ab2e-d65dd41c5901-1785529459047-aylyx",
+      "productId": "cf80047e-584b-406e-ab2e-d65dd41c5901",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "cea27501-54da-40ec-85fd-560fc06d25af-1785529476571-15dsd",
+      "productId": "cea27501-54da-40ec-85fd-560fc06d25af",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "cedb0279-cd0a-4cfa-8a9f-9dc745457549-1785529485706-qb8b0",
+      "productId": "cedb0279-cd0a-4cfa-8a9f-9dc745457549",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "2bb2317e-ba80-461f-9a24-7fd4d702565b-1785529530762-rxd4x",
+      "productId": "2bb2317e-ba80-461f-9a24-7fd4d702565b",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "65ec97da-0aba-4a23-ac1e-c2e34317d7fe-1785529538118-7j5zl",
+      "productId": "65ec97da-0aba-4a23-ac1e-c2e34317d7fe",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "fd39fc06-6857-41d3-a4f7-f5fcb535119e-1785529546667-581yx",
+      "productId": "fd39fc06-6857-41d3-a4f7-f5fcb535119e",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "e0e43bc5-06cb-40bb-8bb8-7fbaf48be313-1785529556651-em365",
+      "productId": "e0e43bc5-06cb-40bb-8bb8-7fbaf48be313",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "ffefea8f-c4ed-40c9-b445-8d573a17af0f-1785529564210-z8h9m",
+      "productId": "ffefea8f-c4ed-40c9-b445-8d573a17af0f",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "a46effd1-1eba-4cda-8699-5d03a2f15675-1785529571714-a1sx4",
+      "productId": "a46effd1-1eba-4cda-8699-5d03a2f15675",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "e26771eb-f6d0-4cd9-8c27-316633f348f7-1785529578881-9unm7",
+      "productId": "e26771eb-f6d0-4cd9-8c27-316633f348f7",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "cbc22277-3a1e-4151-a47a-ca7575ebe0a5-1785529586251-wo1ro",
+      "productId": "cbc22277-3a1e-4151-a47a-ca7575ebe0a5",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "b6aa45a8-d61a-4fa3-8eb3-c0375890cadc-1785529594491-jv8ti",
+      "productId": "b6aa45a8-d61a-4fa3-8eb3-c0375890cadc",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "5b1339ac-c72d-4b9d-843d-9daa2732100f-1785529601994-m23k6",
+      "productId": "5b1339ac-c72d-4b9d-843d-9daa2732100f",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "5de34925-b25a-463f-ae71-b093693c38bf-1785531259139-v72qz",
+      "productId": "5de34925-b25a-463f-ae71-b093693c38bf",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "b591721c-37e5-46ad-94e9-cdf85885e870-1785531270104-4z58l",
+      "productId": "b591721c-37e5-46ad-94e9-cdf85885e870",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "e4c0244b-2d45-496c-905a-cc22e4f177d9-1785531277334-cd92i",
+      "productId": "e4c0244b-2d45-496c-905a-cc22e4f177d9",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "3739f1f3-5681-4aa8-9130-54648a7054b0-1785531285628-atymv",
+      "productId": "3739f1f3-5681-4aa8-9130-54648a7054b0",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "74e456d4-691f-49f7-bf54-3e83cbec8c9c-1785531293090-cn162",
+      "productId": "74e456d4-691f-49f7-bf54-3e83cbec8c9c",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "5197da14-3b8b-4085-bf4f-efb4cffdcd43-1785531300043-swp1x",
+      "productId": "5197da14-3b8b-4085-bf4f-efb4cffdcd43",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "66c5292e-4658-43ee-8a1b-1ceca47e496e-1785531307235-dg4td",
+      "productId": "66c5292e-4658-43ee-8a1b-1ceca47e496e",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "f73d92a0-8ac0-468a-aeab-6b63a94339f5-1785531315411-wucjc",
+      "productId": "f73d92a0-8ac0-468a-aeab-6b63a94339f5",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "efea93fb-4b89-4879-87b7-c998f8ca92e5-1785531322450-gj5cg",
+      "productId": "efea93fb-4b89-4879-87b7-c998f8ca92e5",
+      "unitType": "koli",
+      "quantity": 1
+    },
+    {
+      "id": "099012a1-3083-4d78-9f02-06a50b66f25e-1785531329243-x0va2",
+      "productId": "099012a1-3083-4d78-9f02-06a50b66f25e",
+      "unitType": "koli",
+      "quantity": 1
+    }
+  ],
+  "savedAt": "2026-08-23T16:13:27.584Z"
+}

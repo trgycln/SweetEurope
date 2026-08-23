@@ -11,6 +11,11 @@ import {
     FiX, FiPackage
 } from 'react-icons/fi';
 import { toast } from 'sonner';
+import {
+    getKoliIciAdet, getPaletIciKoliAdet, getPaletToplamAdet,
+    hasPaletOption, hesaplaToplamAdet, hesaplaBirimFiyat,
+    hesaplaKoliMiktar, getAktifKademe, hesaplaSepetSatiri,
+} from '@/lib/pricingUtils';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function t(locale: Locale, de: string, en: string, tr: string, ar: string) {
@@ -34,24 +39,6 @@ interface UrunKataloguProps {
     userRole?: string;
 }
 
-// ── Fiyat hesabı ──────────────────────────────────────────────────────────
-function getBirimFiyat(urun: Urun, birim: Birim, miktar: number): number {
-    if (birim === 'palet') {
-        return Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_musteri ?? 0);
-    }
-    if (birim === 'koli' && miktar >= 5) {
-        return Number(urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
-    }
-    return Number(urun.satis_fiyati_musteri ?? urun.partnerPreis ?? 0);
-}
-
-function getToplamAdet(urun: Urun, birim: Birim, miktar: number): number {
-    const koliAdet = Number(urun.koli_ici_adet ?? 1);
-    if (birim === 'palet') return Number(urun.palet_ici_adet ?? koliAdet) * miktar;
-    if (birim === 'koli') return koliAdet * miktar;
-    return miktar;
-}
-
 // ── Mini Sepet Modal ───────────────────────────────────────────────────────
 function SepeteEkleModal({
     urun,
@@ -67,21 +54,26 @@ function SepeteEkleModal({
     const [birim, setBirim] = useState<Birim>('koli');
     const [miktar, setMiktar] = useState(1);
 
-    const koliAdet = Number(urun.koli_ici_adet ?? 1);
-    const paletAdet = Number(urun.palet_ici_adet ?? 0);
-    const toplamAdet = getToplamAdet(urun, birim, miktar);
-    const adetFiyat = getBirimFiyat(urun, birim, miktar);
-    const toplamFiyat = toplamAdet * adetFiyat;
+    const koliAdet = getKoliIciAdet(urun);
+    const paletIciKoli = getPaletIciKoliAdet(urun);
+    const paletToplamAdetVal = getPaletToplamAdet(urun);
+
+    const sepet = hesaplaSepetSatiri(urun, birim, miktar);
+    const { toplamAdet, adetFiyat, toplamFiyat, kademe } = sepet;
 
     const birimOptions: { key: Birim; labelDe: string; labelTr: string; sub: string }[] = [
-        { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliAdet} Stk./${koliAdet} adet` },
+        { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliAdet} ${locale === 'de' ? 'Stk.' : 'adet'}` },
         { key: 'adet', labelDe: 'Stück', labelTr: 'Adet', sub: t(locale, 'Einzeln', 'Single', 'Tekli', 'مفرد') },
-        ...(paletAdet > 0 ? [{ key: 'palet' as Birim, labelDe: 'Palette', labelTr: 'Palet', sub: `${paletAdet} Ktn./${paletAdet} koli` }] : []),
+        ...(hasPaletOption(urun) ? [{ key: 'palet' as Birim, labelDe: 'Palette', labelTr: 'Palet',
+            sub: locale === 'de'
+                ? `${paletIciKoli} Ktn. / ${paletToplamAdetVal} Stk.`
+                : `${paletIciKoli} koli / ${paletToplamAdetVal} adet`
+        }] : []),
     ];
 
-    const fiyatKademe = birim === 'palet'
+    const fiyatKademe = kademe === 'palet'
         ? { label: t(locale, 'Palettenpreis', 'Pallet price', 'Palet fiyatı', 'سعر المنصة'), color: 'text-blue-700' }
-        : birim === 'koli' && miktar >= 5
+        : kademe === 'toptanci'
             ? { label: t(locale, 'Mengenrabatt aktiv ✓', 'Volume discount active ✓', '5+ koli indirimi ✓', 'خصم الكمية نشط ✓'), color: 'text-green-600' }
             : birim === 'koli' && miktar < 5
                 ? { label: t(locale, `Ab 5 Kartons günstiger`, `Cheaper from 5 cases`, `5+ koli alınca indirim`, `أرخص من 5 كراتين`), color: 'text-amber-600' }
@@ -90,8 +82,8 @@ function SepeteEkleModal({
     return (
         <>
             <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden pointer-events-auto">
                     {/* Header */}
                     <div className="flex items-center gap-3 p-4 border-b">
                         {urun.ana_resim_url ? (
@@ -260,10 +252,8 @@ export function UrunKatalogu({
     }, [warenkorb]);
 
     const handleAdd = useCallback((urun: Urun, miktar: number, birim: Birim) => {
-        const adetFiyat = getBirimFiyat(urun, birim, miktar);
-
         addToWarenkorb(
-            { ...urun, partnerPreis: adetFiyat },
+            urun,
             miktar,
             birim
         );

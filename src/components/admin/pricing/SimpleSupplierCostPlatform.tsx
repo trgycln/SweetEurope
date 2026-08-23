@@ -75,9 +75,10 @@ const TIERS = [
   { key: 'altBayi',   label: '1 Palet',     color: 'blue',   dbField: 'satis_fiyati_alt_bayi'  },
   { key: 'koliBazli', label: '1 Koli',      color: 'violet', dbField: 'satis_fiyati_musteri'   },
   { key: 'cokKoli',   label: '5 Koli+',     color: 'emerald',dbField: 'satis_fiyati_toptanci'  },
+  { key: 'palet',     label: 'Palet',       color: 'orange', dbField: null                     },
 ] as const;
 
-type TierKey = typeof TIERS[number]['key'] | 'palet';
+type TierKey = typeof TIERS[number]['key'];
 
 const TIER_COLOR: Record<TierKey, { header: string; input: string; inputOverride: string; text: string }> = {
   altBayi:   { header: 'text-blue-700',   input: 'border-slate-200 bg-slate-50 text-slate-500',   inputOverride: 'border-blue-400 bg-blue-50 text-blue-900',   text: 'text-blue-800' },
@@ -241,6 +242,10 @@ export default function SimpleSupplierCostPlatform({
   // isManual=true marks user-edited values that survive "Tümünü Uygula" recalculation.
   const [overrides, setOverrides] = useState<Record<string, Partial<Record<TierKey, TierOverride>>>>({});
 
+  // Onay modalları
+  const [confirmModal, setConfirmModal] = useState<{ open: boolean; rows: PricingRow[] }>({ open: false, rows: [] });
+  const [pendingConfirmRowId, setPendingConfirmRowId] = useState<string | null>(null);
+
   // Profile-specific params (shipping + customs)
   const [profileInputs, setProfileInputs] = useState<Record<SupplierProfile, { shippingPerBox: number; customsPct: number }>>(() => ({
     'cold-chain': {
@@ -356,6 +361,22 @@ export default function SimpleSupplierCostPlatform({
   const nonColdCount = rows.filter(r => r.profile === 'non-cold').length;
   const readyRows    = visibleRows.filter(r => r.purchase > 0);
 
+  // ── DB alanı ↔ tier key eşleşmesi ─────────────────────────────────────────
+  const TIER_TO_DB_FIELD: Partial<Record<TierKey, keyof ProductLite>> = {
+    altBayi:   'satis_fiyati_alt_bayi',
+    koliBazli: 'satis_fiyati_musteri',
+    cokKoli:   'satis_fiyati_toptanci',
+  };
+
+  /** Ürünün DB'deki mevcut fiyatını döndürür (varsa) */
+  const getDbPrice = (product: ProductLite, tierKey: TierKey): number | null => {
+    const field = TIER_TO_DB_FIELD[tierKey];
+    if (!field) return null;
+    const val = product[field];
+    if (typeof val === 'number' && val > 0) return val;
+    return null;
+  };
+
   // ── Helpers ─────────────────────────────────────────────────────────────────
   const setOverride = (id: string, tier: TierKey, val: string) => {
     setOverrides(prev => ({
@@ -392,13 +413,23 @@ export default function SimpleSupplierCostPlatform({
   };
 
   // ── Save handlers ────────────────────────────────────────────────────────────
-  const handleSaveRow = async (row: PricingRow) => {
+
+  /** Tekil satır kaydet: önce satır-içi onay isteği açar */
+  const handleSaveRow = (row: PricingRow) => {
     if (row.purchase <= 0) { toast.error('Alış fiyatı girilmemiş ürün kaydedilemez.'); return; }
-    const invalidTiers = TIERS.filter(tier => resolvedTierPrice(row, tier.key) <= row.calculation.landedCost);
+    const savableTiers = TIERS.filter(t => t.dbField !== null);
+    const invalidTiers = savableTiers.filter(tier => resolvedTierPrice(row, tier.key) <= row.calculation.landedCost);
     if (invalidTiers.length > 0) {
       toast.error(`Satış fiyatı Net Mal. altında: ${invalidTiers.map(t => t.label).join(', ')}. Lütfen düzeltin.`);
       return;
     }
+    // Onay banner'ını aç
+    setPendingConfirmRowId(row.product.id);
+  };
+
+  /** Satır-içi onay sonrası gerçek kayıt */
+  const doConfirmRow = async (row: PricingRow) => {
+    setPendingConfirmRowId(null);
     setSavingRows(prev => new Set([...prev, row.product.id]));
     try {
       const res = await saveProductPricesAction({
@@ -417,17 +448,27 @@ export default function SimpleSupplierCostPlatform({
   };
 
   const [isBulkSaving, startBulkSaving] = useTransition();
+
+  /** Tümünü Uygula: maliyet kontrolü yapıp onay modalını aç */
   const handleApplyAll = () => {
     if (readyRows.length === 0) { toast.error('Alış fiyatı olan ürün yok.'); return; }
+    const savableTiers = TIERS.filter(t => t.dbField !== null);
     const belowCostRows = readyRows.filter(row =>
-      TIERS.some(tier => resolvedTierPrice(row, tier.key) <= row.calculation.landedCost)
+      savableTiers.some(tier => resolvedTierPrice(row, tier.key) <= row.calculation.landedCost)
     );
     if (belowCostRows.length > 0) {
-      toast.error(`${belowCostRows.length} üründe satış fiyatı Net Mal. altında. Kaydetmeden önce fiyatları düzeltin.`);
+      toast.error(`${belowCostRows.length} üründe satış fiyatı Net Mal. altında. Lütfen düzeltin.`);
       return;
     }
+    // Modalı aç — gerçek kayıt buradan yapılmaz
+    setConfirmModal({ open: true, rows: readyRows });
+  };
+
+  /** Onay modalından onaylanınca gerçek toplu kayıt */
+  const doConfirmBulk = () => {
+    setConfirmModal({ open: false, rows: [] });
     startBulkSaving(async () => {
-      const items = readyRows.map(row => ({
+      const items = confirmModal.rows.map(row => ({
         urunId: row.product.id,
         urun_gami: profileToProductLine(row.profile) as any,
         satis_fiyati_alt_bayi:  r2(resolvedTierPrice(row, 'altBayi')),
@@ -437,7 +478,7 @@ export default function SimpleSupplierCostPlatform({
       }));
       const res = await bulkSaveProductPricesAction({ items }, locale);
       if (res?.error) toast.error(res.error);
-      else toast.success(`${res?.updatedCount ?? 0} ürün güncellendi.`);
+      else toast.success(`${res?.updatedCount ?? 0} ürün başarıyla güncellendi.`);
     });
   };
 
@@ -565,44 +606,13 @@ export default function SimpleSupplierCostPlatform({
           {/* Fiyat kademeleri */}
           <div>
             <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Fiyat Kademeleri &amp; Min. Sipariş</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {/* Koli Bazlı -> 1 Koli */}
-              <div className="rounded-lg border border-violet-100 bg-violet-50/40 p-3 space-y-2">
-                <p className="text-[11px] font-bold text-violet-800">1 Koli</p>
-                <div>
-                  <label className="text-[10px] text-slate-500 block mb-0.5">Marj (%)</label>
-                  <input type="number" min={0} step="0.1" value={koliBazliPct}
-                    onChange={e => setKoliBazliPct(toNum(e.target.value, 50))}
-                    className="w-full rounded border border-violet-200 px-2 py-1 text-sm" />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 block mb-0.5">Min. sipariş (koli)</label>
-                  <input type="number" min={1} step="1" value={koliBazliMinKoli}
-                    onChange={e => setKoliBazliMinKoli(toNum(e.target.value, 1))}
-                    className="w-full rounded border border-violet-200 px-2 py-1 text-sm" />
-                </div>
-              </div>
-              {/* 5 Koli+ */}
-              <div className="rounded-lg border border-emerald-100 bg-emerald-50/40 p-3 space-y-2">
-                <p className="text-[11px] font-bold text-emerald-800">5 Koli+</p>
-                <div>
-                  <label className="text-[10px] text-slate-500 block mb-0.5">Marj (%)</label>
-                  <input type="number" min={0} step="0.1" value={cokKoliPct}
-                    onChange={e => setCokKoliPct(toNum(e.target.value, 30))}
-                    className="w-full rounded border border-emerald-200 px-2 py-1 text-sm" />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 block mb-0.5">Min. sipariş (koli)</label>
-                  <input type="number" min={1} step="1" value={cokKoliMinKoli}
-                    onChange={e => setCokKoliMinKoli(toNum(e.target.value, 5))}
-                    className="w-full rounded border border-emerald-200 px-2 py-1 text-sm" />
-                </div>
-              </div>
-              {/* Alt Bayi -> 1 Palet */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+
+              {/* Alt Bayi */}
               <div className="rounded-lg border border-blue-100 bg-blue-50/40 p-3 space-y-2">
-                <p className="text-[11px] font-bold text-blue-800">1 Palet</p>
+                <p className="text-[11px] font-bold text-blue-800">Alt Bayi</p>
                 <div>
-                  <label className="text-[10px] text-slate-500 block mb-0.5">Marj (%)</label>
+                  <label className="text-[10px] text-slate-500 block mb-0.5">Kar Marjı (%)</label>
                   <input type="number" min={0} step="0.1" value={altBayiPct}
                     onChange={e => setAltBayiPct(toNum(e.target.value, 5))}
                     className="w-full rounded border border-blue-200 px-2 py-1 text-sm" />
@@ -614,6 +624,58 @@ export default function SimpleSupplierCostPlatform({
                     className="w-full rounded border border-blue-200 px-2 py-1 text-sm" />
                 </div>
               </div>
+
+              {/* Koli Bazlı → 1 Koli */}
+              <div className="rounded-lg border border-violet-100 bg-violet-50/40 p-3 space-y-2">
+                <p className="text-[11px] font-bold text-violet-800">1 Koli</p>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-0.5">Kar Marjı (%)</label>
+                  <input type="number" min={0} step="0.1" value={koliBazliPct}
+                    onChange={e => setKoliBazliPct(toNum(e.target.value, 50))}
+                    className="w-full rounded border border-violet-200 px-2 py-1 text-sm" />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-0.5">Min. sipariş (koli)</label>
+                  <input type="number" min={1} step="1" value={koliBazliMinKoli}
+                    onChange={e => setKoliBazliMinKoli(toNum(e.target.value, 1))}
+                    className="w-full rounded border border-violet-200 px-2 py-1 text-sm" />
+                </div>
+              </div>
+
+              {/* 5 Koli+ */}
+              <div className="rounded-lg border border-emerald-100 bg-emerald-50/40 p-3 space-y-2">
+                <p className="text-[11px] font-bold text-emerald-800">5 Koli+</p>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-0.5">Kar Marjı (%)</label>
+                  <input type="number" min={0} step="0.1" value={cokKoliPct}
+                    onChange={e => setCokKoliPct(toNum(e.target.value, 30))}
+                    className="w-full rounded border border-emerald-200 px-2 py-1 text-sm" />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-0.5">Min. sipariş (koli)</label>
+                  <input type="number" min={1} step="1" value={cokKoliMinKoli}
+                    onChange={e => setCokKoliMinKoli(toNum(e.target.value, 5))}
+                    className="w-full rounded border border-emerald-200 px-2 py-1 text-sm" />
+                </div>
+              </div>
+
+              {/* Palet — referans, DB'ye kaydedilmez ayrı alanda */}
+              <div className="rounded-lg border border-orange-100 bg-orange-50/40 p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-bold text-orange-800">Palet</p>
+                  <span className="text-[9px] text-orange-500 bg-orange-100 rounded px-1">referans</span>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 block mb-0.5">Kar Marjı (%)</label>
+                  <input type="number" min={0} step="0.1" value={paletPct}
+                    onChange={e => setPaletPct(toNum(e.target.value, 15))}
+                    className="w-full rounded border border-orange-200 px-2 py-1 text-sm" />
+                </div>
+                <p className="text-[9px] text-slate-400 leading-snug">
+                  Listede gösterim amaçlı. Palet fiyatı ayrı DB alanına kaydedilmez.
+                </p>
+              </div>
+
             </div>
             <div className="mt-3 flex justify-end">
               <button type="button" onClick={saveMarginDefaults} disabled={isPersisting}
@@ -622,6 +684,7 @@ export default function SimpleSupplierCostPlatform({
               </button>
             </div>
           </div>
+
 
           <p className="text-[11px] text-slate-400">
             Formül: (Alış + Nakliye) × (1 + Gümrük%) × (1 + Operasyonel%) = Net Maliyet → × (1 + Marj%) = Satış Fiyatı (KDV hariç)
@@ -722,22 +785,20 @@ export default function SimpleSupplierCostPlatform({
                   <th className="px-4 py-2.5 min-w-[220px]">Ürün</th>
                   <th className="px-3 py-2.5 text-right w-28 text-slate-600">Alış/Kutu</th>
                   <th className="px-3 py-2.5 text-right w-28 text-slate-600">Net Mal.</th>
-                  <th className={`px-3 py-2.5 text-right w-32 ${TIER_COLOR.altBayi.header}`}>
-                    <div>Alt Bayi</div>
-                    <div className="font-normal normal-case text-[10px] opacity-70">%{altBayiPct} · min {altBayiMinKoli} koli</div>
-                  </th>
-                  <th className={`px-3 py-2.5 text-right w-32 ${TIER_COLOR.koliBazli.header}`}>
-                    <div>Koli Bazlı</div>
-                    <div className="font-normal normal-case text-[10px] opacity-70">%{koliBazliPct} · min {koliBazliMinKoli} koli</div>
-                  </th>
-                  <th className={`px-3 py-2.5 text-right w-32 ${TIER_COLOR.cokKoli.header}`}>
-                    <div>5 Koli+</div>
-                    <div className="font-normal normal-case text-[10px] opacity-70">%{cokKoliPct} · min {cokKoliMinKoli} koli</div>
-                  </th>
-                  <th className={`px-3 py-2.5 text-right w-32 ${TIER_COLOR.palet.header}`}>
-                    <div>Palet</div>
-                    <div className="font-normal normal-case text-[10px] opacity-70">%{paletPct} · ürün paletine göre</div>
-                  </th>
+                  {TIERS.map(tier => {
+                    const colors = TIER_COLOR[tier.key];
+                    const subtitle =
+                      tier.key === 'altBayi'   ? `%${altBayiPct} · min ${altBayiMinKoli} koli` :
+                      tier.key === 'koliBazli' ? `%${koliBazliPct} · min ${koliBazliMinKoli} koli` :
+                      tier.key === 'cokKoli'   ? `%${cokKoliPct} · min ${cokKoliMinKoli} koli` :
+                      /* palet */                `%${paletPct} · ürün paletine göre`;
+                    return (
+                      <th key={tier.key} className={`px-3 py-2.5 text-right w-32 ${colors.header}`}>
+                        <div>{tier.label}</div>
+                        <div className="font-normal normal-case text-[10px] opacity-70">{subtitle}</div>
+                      </th>
+                    );
+                  })}
                   <th className="px-3 py-2.5 w-28 text-right">İşlem</th>
                 </tr>
               </thead>
@@ -784,16 +845,45 @@ export default function SimpleSupplierCostPlatform({
                           }
                         </td>
 
-                        {/* 4 Tier editable inputs */}
+                        {/* Tier cells: editable for DB-backed tiers, read-only display for palet */}
                         {TIERS.map(tier => {
                           const auto = row.calculation[`${tier.key}Net`] as number;
+                          const colors = TIER_COLOR[tier.key];
+
+                          // Palet sütunu: DB alanı yok, sadece referans gösterim
+                          if (tier.dbField === null) {
+                            return (
+                              <td key={tier.key} className="px-2 py-2">
+                                <div className="w-full rounded-md border border-dashed border-orange-200 bg-orange-50/40 px-2 py-1.5 text-sm text-right font-mono text-orange-700 italic" title="Referans fiyat — kaydedilmez">
+                                  {noPurchase ? <span className="text-slate-300">—</span> : Number.isFinite(auto) ? auto.toFixed(2) : '—'}
+                                </div>
+                              </td>
+                            );
+                          }
+
                           const hasOv = hasManualOverride(row.product.id, tier.key);
                           const resolvedPrice = resolvedTierPrice(row, tier.key);
                           const belowCost = !noPurchase && resolvedPrice <= row.calculation.landedCost;
-                          const colors = TIER_COLOR[tier.key];
+                          const dbPrice = !noPurchase ? getDbPrice(row.product, tier.key) : null;
+                          const hasDiff = dbPrice !== null && Math.abs(resolvedPrice - dbPrice) > 0.001;
+                          const isIncrease = hasDiff && resolvedPrice > (dbPrice ?? 0);
                           return (
                             <td key={tier.key} className="px-2 py-2">
                               <div className="relative group">
+                                {/* DB vs Hesaplanan diff gösterimi */}
+                                {hasDiff && !noPurchase && (
+                                  <div className="flex items-center justify-end gap-1 mb-0.5">
+                                    <span className="text-[10px] font-mono text-slate-400 line-through">{dbPrice!.toFixed(2)}</span>
+                                    <span className={`text-[9px] font-bold ${isIncrease ? 'text-emerald-600' : 'text-red-500'}`}>
+                                      {isIncrease ? '▲' : '▼'}
+                                    </span>
+                                  </div>
+                                )}
+                                {dbPrice !== null && !hasDiff && !noPurchase && (
+                                  <div className="flex justify-end mb-0.5">
+                                    <span className="text-[9px] text-slate-300">✓ aynı</span>
+                                  </div>
+                                )}
                                 <input
                                   type="number"
                                   min={0}
@@ -803,7 +893,7 @@ export default function SimpleSupplierCostPlatform({
                                   onChange={e => setOverride(row.product.id, tier.key, e.target.value)}
                                   disabled={noPurchase}
                                   className={`w-full rounded-md border px-2 py-1.5 text-sm text-right font-mono transition disabled:cursor-not-allowed
-                                    ${belowCost ? 'border-red-500 bg-red-50 text-red-700' : hasOv ? colors.inputOverride : colors.input}
+                                    ${belowCost ? 'border-red-500 bg-red-50 text-red-700' : hasDiff ? (isIncrease ? 'border-emerald-300 bg-emerald-50/60' : 'border-red-200 bg-red-50/40') : hasOv ? colors.inputOverride : colors.input}
                                     focus:outline-none focus:ring-1 focus:ring-offset-0`}
                                   style={!hasOv && !belowCost ? { fontStyle: 'italic' } : {}}
                                 />
@@ -834,33 +924,72 @@ export default function SimpleSupplierCostPlatform({
                         })}
 
                         {/* Actions */}
-                        <td className="px-3 py-2.5 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleSaveRow(row)}
-                              disabled={isSaving || noPurchase}
-                              className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 transition"
-                            >
-                              {isSaving ? <FiRefreshCw className="animate-spin w-3 h-3" /> : <FiSave className="w-3 h-3" />}
-                              Kaydet
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setExpandedRows(prev => { const s = new Set(prev); s.has(row.product.id) ? s.delete(row.product.id) : s.add(row.product.id); return s; })}
-                              className="rounded-md border border-slate-200 p-1.5 text-slate-400 hover:text-slate-700 transition"
-                              title="Detay"
-                            >
-                              {isExpanded ? <FiChevronDown className="w-3.5 h-3.5" /> : <FiChevronRight className="w-3.5 h-3.5" />}
-                            </button>
-                          </div>
+                        <td className="px-3 py-2.5">
+                          {pendingConfirmRowId === row.product.id ? (
+                            /* Satır-içi onay bannerı */
+                            <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 space-y-2 min-w-[180px]">
+                              <p className="text-[11px] font-semibold text-amber-800">Kaydedilecek fiyatlar:</p>
+                              <div className="space-y-0.5">
+                                {TIERS.filter(t => t.dbField !== null).map(t => {
+                                  const newP = resolvedTierPrice(row, t.key);
+                                  const oldP = getDbPrice(row.product, t.key);
+                                  return (
+                                    <div key={t.key} className="flex items-center justify-between gap-2 text-[10px]">
+                                      <span className="text-slate-500">{t.label}</span>
+                                      <span className="font-mono">
+                                        {oldP ? <span className="text-slate-400 line-through mr-1">{oldP.toFixed(2)}</span> : null}
+                                        <span className="font-bold text-slate-800">{newP.toFixed(2)} €</span>
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              <div className="flex gap-1.5 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => doConfirmRow(row)}
+                                  disabled={isSaving}
+                                  className="flex-1 rounded bg-indigo-600 px-2 py-1 text-[11px] font-bold text-white hover:bg-indigo-700 disabled:opacity-50"
+                                >
+                                  {isSaving ? '...' : '✓ Onayla'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setPendingConfirmRowId(null)}
+                                  className="flex-1 rounded border border-slate-200 px-2 py-1 text-[11px] text-slate-500 hover:bg-slate-50"
+                                >
+                                  × İptal
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleSaveRow(row)}
+                                disabled={isSaving || noPurchase}
+                                className="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 transition"
+                              >
+                                {isSaving ? <FiRefreshCw className="animate-spin w-3 h-3" /> : <FiSave className="w-3 h-3" />}
+                                Kaydet
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setExpandedRows(prev => { const s = new Set(prev); s.has(row.product.id) ? s.delete(row.product.id) : s.add(row.product.id); return s; })}
+                                className="rounded-md border border-slate-200 p-1.5 text-slate-400 hover:text-slate-700 transition"
+                                title="Detay"
+                              >
+                                {isExpanded ? <FiChevronDown className="w-3.5 h-3.5" /> : <FiChevronRight className="w-3.5 h-3.5" />}
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
 
                       {/* Expanded detail row */}
                       {isExpanded && (
                         <tr className="bg-slate-50/60">
-                          <td colSpan={8} className="px-6 py-3">
+                          <td colSpan={9} className="px-6 py-3">
                             <div className="flex flex-wrap gap-4 text-xs text-slate-600">
                               {paletKoliAdedi > 0 && (
                                 <div className="flex items-center gap-1.5">
@@ -987,6 +1116,114 @@ export default function SimpleSupplierCostPlatform({
           );
         })}
       </div>
+
+      {/* ── Toplu Uygulama Onay Modalı ─────────────────────────────────────── */}
+      {confirmModal.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setConfirmModal({ open: false, rows: [] })}
+          />
+          {/* Modal kutusu */}
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl flex flex-col max-h-[85vh]">
+            {/* Başlık */}
+            <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-slate-100">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">⚠️ Toplu Fiyat Güncelleme Onayı</h2>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  <span className="font-semibold text-indigo-700">{confirmModal.rows.length} ürün</span> güncellenecek.
+                  Bu işlem geri alınamaz. Lütfen değişiklikleri kontrol edin.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmModal({ open: false, rows: [] })}
+                className="text-slate-400 hover:text-slate-600 text-xl leading-none mt-0.5"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Değişiklik tablosu */}
+            <div className="overflow-y-auto flex-1 px-6 py-3">
+              <table className="min-w-full text-xs">
+                <thead>
+                  <tr className="text-left text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                    <th className="pb-2 font-semibold">Ürün</th>
+                    {TIERS.filter(t => t.dbField !== null).map(t => (
+                      <th key={t.key} className="pb-2 text-right font-semibold pr-3">{t.label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {confirmModal.rows.map(row => (
+                    <tr key={row.product.id} className="hover:bg-slate-50/60">
+                      <td className="py-1.5 pr-4">
+                        <div className="font-medium text-slate-800 truncate max-w-[200px]">{pName(row.product)}</div>
+                        {row.product.stok_kodu && (
+                          <div className="text-[10px] text-slate-400 font-mono">{row.product.stok_kodu}</div>
+                        )}
+                      </td>
+                      {TIERS.filter(t => t.dbField !== null).map(t => {
+                        const newP = resolvedTierPrice(row, t.key);
+                        const oldP = getDbPrice(row.product, t.key);
+                        const diff = oldP !== null ? newP - oldP : null;
+                        const isUp = diff !== null && diff > 0.001;
+                        const isDown = diff !== null && diff < -0.001;
+                        return (
+                          <td key={t.key} className="py-1.5 text-right pr-3">
+                            {oldP ? (
+                              <div className="space-y-0.5">
+                                <div className="text-slate-400 line-through font-mono">{oldP.toFixed(2)}</div>
+                                <div className={`font-bold font-mono ${isUp ? 'text-emerald-700' : isDown ? 'text-red-600' : 'text-slate-700'}`}>
+                                  {newP.toFixed(2)} €
+                                  {isUp && <span className="ml-0.5 text-[9px]">▲</span>}
+                                  {isDown && <span className="ml-0.5 text-[9px]">▼</span>}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="font-mono font-bold text-slate-700">{newP.toFixed(2)} € <span className="text-[9px] text-slate-400 font-normal">(yeni)</span></div>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Uyarı ve Butonlar */}
+            <div className="border-t border-slate-100 px-6 py-4 bg-red-50/40 rounded-b-2xl">
+              <p className="text-xs text-red-700 font-medium mb-3">
+                🔴 Bu işlem <strong>{confirmModal.rows.length} ürünün</strong> veritabanındaki satış fiyatlarını kalıcı olarak değiştirir.
+                Emin misiniz?
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setConfirmModal({ open: false, rows: [] })}
+                  className="rounded-lg border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
+                >
+                  İptal — Geri Dön
+                </button>
+                <button
+                  type="button"
+                  onClick={doConfirmBulk}
+                  disabled={isBulkSaving}
+                  className="rounded-lg bg-red-600 px-6 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50 transition flex items-center gap-2"
+                >
+                  {isBulkSaving
+                    ? <><FiRefreshCw className="animate-spin w-4 h-4" /> Güncelleniyor…</>
+                    : `✓ Evet, ${confirmModal.rows.length} Ürünü Güncelle`
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -3,7 +3,7 @@
 // useEffect und useSearchParams hinzufügen
 import { useEffect, useTransition, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation'; // useSearchParams hinzufügen
-import { FiTrash2, FiSend, FiLoader, FiShoppingCart } from 'react-icons/fi'; // FiImage hinzugefügt
+import { FiTrash2, FiSend, FiLoader, FiShoppingCart, FiX } from 'react-icons/fi';
 import { siparisOlusturAction } from '@/app/actions/siparis-actions';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -11,42 +11,16 @@ import { Dictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 // setInitialWarenkorb aus dem Context importieren
 import { usePortal, ProduktImWarenkorb, SepetUrunu } from '@/contexts/PortalContext'; // SepetUrunu importieren
-import Link from 'next/link';
 import { getLocalizedName, formatCurrency } from '@/lib/utils';
 import { UrunKatalogu } from './UrunKatalogu';
+import {
+    hesaplaSepetSatiri, hesaplaToplamAdet, getKoliIciAdet,
+    getPaletIciKoliAdet, getPaletToplamAdet, hasPaletOption,
+} from '@/lib/pricingUtils';
 
 // Typen bleiben gleich
 type UrunWithPrice = ProduktImWarenkorb;
 type Kategori = { id: string; ad: any; ust_kategori_id: string | null };
-
-function getKademeFiyat(produkt: any, toplamAdet: number): number {
-    const paletAdet = Number(produkt.palet_ici_adet ?? produkt.palet_ici_koli_adet ?? 0) *
-                      Number(produkt.koli_ici_adet ?? 1);
-    const koliAdet = Number(produkt.koli_ici_adet ?? 1);
-
-    if (paletAdet > 0 && toplamAdet >= paletAdet) {
-        return Number(produkt.satis_fiyati_alt_bayi ?? produkt.satis_fiyati_musteri ?? 0);
-    }
-    if (toplamAdet >= 5 * koliAdet) {
-        return Number(produkt.satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri ?? 0);
-    }
-    return Number(produkt.satis_fiyati_musteri ?? produkt.partnerPreis ?? 0);
-}
-
-function getSepetItem(item: SepetUrunu) {
-    const koliAdet = Number(item.produkt.koli_ici_adet ?? 1);
-    const paletAdet = Number((item.produkt as any).palet_ici_adet ?? 0);
-    const toplamAdet = item.birim === 'palet'
-        ? item.menge * (paletAdet > 0 ? paletAdet * koliAdet : koliAdet)
-        : item.birim === 'koli'
-            ? item.menge * koliAdet
-            : item.menge;
-    const adetFiyat = item.birim === 'palet'
-        ? Number((item.produkt as any).satis_fiyati_alt_bayi ?? (item.produkt as any).satis_fiyati_musteri ?? 0)
-        : getKademeFiyat(item.produkt, toplamAdet);
-    const toplamFiyat = toplamAdet * adetFiyat;
-    return { toplamAdet, adetFiyat, toplamFiyat, koliAdet, paletAdet };
-}
 
 interface SiparisOlusturmaClientProps {
     urunler: UrunWithPrice[]; // Diese Liste enthält ALLE Produkte
@@ -123,16 +97,12 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
         startTransition(async () => {
             const itemsToSubmit = warenkorb.map(item => {
-                const koliAdet = Number(item.produkt.koli_ici_adet ?? 1);
-                const toplamAdet = item.birim === 'koli'
-                    ? item.menge * koliAdet
-                    : item.menge;
-                const { adetFiyat } = getSepetItem(item);
+                const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
 
                 return {
                     urun_id: item.produkt.id,
-                    adet: toplamAdet,
-                    o_anki_satis_fiyati: adetFiyat,
+                    adet: sepet.toplamAdet,
+                    o_anki_satis_fiyati: sepet.adetFiyat,
                 };
             });
 
@@ -155,7 +125,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
     const toplamTutar = useMemo(() =>
         warenkorb.reduce((acc, item) => {
-            const { toplamFiyat } = getSepetItem(item);
+            const { toplamFiyat } = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
             return acc + toplamFiyat;
         }, 0)
     , [warenkorb]);
@@ -176,15 +146,14 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
             </div>
 
             {/* --- Warenkorb-Anzeige (JSX unverändert, aber verwendet korrekten State) --- */}
-            <div className="lg:col-span-1 lg:sticky lg:top-24">
+            <div className="lg:col-span-1 lg:sticky lg:top-20 self-start">
                 <div className="bg-white p-6 rounded-2xl shadow-lg space-y-6 border border-gray-200">
                     <h2 className="font-serif text-2xl font-bold text-primary flex items-center gap-2"><FiShoppingCart /> {content.cartTitle || "Ihr Warenkorb"}</h2>
 
                     <div className="space-y-3 divide-y divide-gray-100 max-h-[50vh] overflow-y-auto pr-1">
                         {warenkorb.length > 0 ? warenkorb.map(item => {
-                            const koliAdet = Number(item.produkt.koli_ici_adet ?? 1);
-                            const { toplamAdet, adetFiyat, toplamFiyat } = getSepetItem(item);
-                            const isKoli = item.birim === 'koli';
+                            const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
+                            const { toplamAdet, adetFiyat, toplamFiyat, kademe, koliIciAdet, paletIciKoliAdet } = sepet;
 
                             return (
                                 <div key={item.produkt.id} className="pt-3 first:pt-0">
@@ -213,8 +182,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                             {/* Birim toggle */}
                                             <div className="flex items-center gap-1 mt-1.5 flex-wrap">
                                                 {(['koli', 'adet', 'palet'] as const).map(b => {
-                                                    const paletAdetVal = Number(item.produkt.palet_ici_adet ?? 0);
-                                                    if (b === 'palet' && paletAdetVal === 0) return null;
+                                                    if (b === 'palet' && !hasPaletOption(item.produkt)) return null;
                                                     const labels: Record<string, { de: string; tr: string }> = {
                                                         koli:  { de: 'Karton', tr: 'Koli'   },
                                                         adet:  { de: 'Stück',  tr: 'Adet'   },
@@ -239,14 +207,14 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                                         </button>
                                                     );
                                                 })}
-                                                {item.birim === 'koli' && koliAdet > 1 && (
+                                                {item.birim === 'koli' && koliIciAdet > 1 && (
                                                     <span className="text-[10px] text-gray-400 ml-1">
-                                                        1 {locale === 'de' ? 'Ktn' : 'koli'} = {koliAdet} {locale === 'de' ? 'Stk' : 'adet'}
+                                                        1 {locale === 'de' ? 'Ktn' : 'koli'} = {koliIciAdet} {locale === 'de' ? 'Stk' : 'adet'}
                                                     </span>
                                                 )}
                                                 {item.birim === 'palet' && (
                                                     <span className="text-[10px] text-gray-400 ml-1">
-                                                        1 {locale === 'de' ? 'Pal' : 'palet'} = {Number(item.produkt.palet_ici_adet ?? 0)} {locale === 'de' ? 'Stk' : 'adet'}
+                                                        1 {locale === 'de' ? 'Pal' : 'palet'} = {paletIciKoliAdet} {locale === 'de' ? 'Ktn' : 'koli'} / {getPaletToplamAdet(item.produkt)} {locale === 'de' ? 'Stk' : 'adet'}
                                                     </span>
                                                 )}
                                             </div>
@@ -284,20 +252,24 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                             </div>
 
                                             {(() => {
-                                                const koliSayisi = isKoli ? item.menge : 0;
-                                                if (!isKoli) return null;
-                                                if (koliSayisi >= 5) return (
+                                                if (kademe === 'toptanci') return (
                                                     <p className="text-[10px] text-blue-600 mt-1 font-semibold">
                                                         ✓ {locale === 'de' ? 'Mengenrabatt aktiv' : '5+ koli indirimi aktif'}
                                                     </p>
                                                 );
-                                                return (
-                                                    <p className="text-[10px] text-gray-400 mt-1">
-                                                        {locale === 'de'
-                                                            ? `Ab ${5 - koliSayisi} Karton mehr: Mengenrabatt`
-                                                            : `${5 - koliSayisi} koli daha: toplu indirim`}
+                                                if (kademe === 'palet') return (
+                                                    <p className="text-[10px] text-purple-600 mt-1 font-semibold">
+                                                        ✓ {locale === 'de' ? 'Palettenpreis' : 'Palet fiyatı'}
                                                     </p>
                                                 );
+                                                if (item.birim === 'koli' && item.menge < 5) return (
+                                                    <p className="text-[10px] text-gray-400 mt-1">
+                                                        {locale === 'de'
+                                                            ? `Ab ${5 - item.menge} Karton mehr: Mengenrabatt`
+                                                            : `${5 - item.menge} koli daha: toplu indirim`}
+                                                    </p>
+                                                );
+                                                return null;
                                             })()}
                                         </div>
                                     </div>
@@ -324,7 +296,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                     <p className="text-[11px] text-gray-400 mt-0.5">
                                         {locale === 'de' ? 'zzgl. MwSt.' : 'KDV hariç'} · {
                                             warenkorb.reduce((acc, item) => {
-                                                const { toplamAdet } = getSepetItem(item);
+                                                const { toplamAdet } = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
                                                 return acc + toplamAdet;
                                             }, 0)
                                         } {locale === 'de' ? 'Stk. gesamt' : 'adet toplam'}
@@ -336,9 +308,13 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                     {isPending ? <FiLoader className="animate-spin"/> : <FiSend />}
                                     {content.confirmOrderButton || "Bestellung bestätigen"}
                                 </button>
-                                <Link href={`/${locale}/portal/katalog`} className="text-center text-sm text-gray-600 hover:text-primary font-semibold">
-                                    {content.continueShopping || "Weiter einkaufen"}
-                                </Link>
+                                <button
+                                    onClick={() => { clearWarenkorb(); }}
+                                    className="flex items-center justify-center gap-1.5 text-sm text-gray-400 hover:text-red-500 font-medium transition-colors py-1"
+                                >
+                                    <FiX size={14} />
+                                    {locale === 'de' ? 'Warenkorb leeren' : 'Sepeti Temizle'}
+                                </button>
                             </div>
                         </div>
                     )}

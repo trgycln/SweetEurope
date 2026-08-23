@@ -74,7 +74,7 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
                 <Link
                     href={`/${locale}/portal/siparisler/yeni`}
                     className="relative p-2 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors"
-                    title={content.cartTitle}
+                    title={locale === 'ar' ? 'طلب جديد / السلة' : locale === 'tr' ? 'Yeni Sipariş / Sepet' : 'Neue Bestellung / Warenkorb'}
                 >
                     <FiShoppingCart size={21} />
                     {gesamtMenge > 0 && (

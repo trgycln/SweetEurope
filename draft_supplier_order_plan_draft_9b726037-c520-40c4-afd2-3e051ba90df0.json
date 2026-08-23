@@ -1,0 +1,839 @@
+{
+  "draftName": "FO Siparis Haziligi 20.05.2026 (92 kalem liste v2)",
+  "selectedSupplierId": "1d650c3f-aede-45e5-9fd9-9a058e9e05ce",
+  "search": "8691123453037",
+  "selectedProductId": "",
+  "selectedUnitType": "adet",
+  "selectedQuantity": 1,
+  "items": [
+    {
+      "id": "346a52b2-1034-48fb-b605-89b9886c8ffd-1777549412650-t547f",
+      "productId": "346a52b2-1034-48fb-b605-89b9886c8ffd",
+      "unitType": "koli",
+      "quantity": 90,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "114d0277-2b63-4ca1-b65e-ac5cb66e64c5-1777549429805-f2guv",
+      "productId": "114d0277-2b63-4ca1-b65e-ac5cb66e64c5",
+      "unitType": "koli",
+      "quantity": 40,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.4234,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "9e271277-edc5-49db-ad49-892bffb6799b-1777549439142-lyt2j",
+      "productId": "9e271277-edc5-49db-ad49-892bffb6799b",
+      "unitType": "koli",
+      "quantity": 40,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.4234,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "669a23c7-7f23-4fe6-8c3a-e78f75f28373-1777549448085-hjonv",
+      "productId": "669a23c7-7f23-4fe6-8c3a-e78f75f28373",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "024aecdc-953c-4f7e-8a6f-28427a757e9b-1777549872083-mz3yk",
+      "productId": "024aecdc-953c-4f7e-8a6f-28427a757e9b",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "fe93aa42-578a-43fb-b34d-8f6525148ae7-1777549891113-zb00c",
+      "productId": "fe93aa42-578a-43fb-b34d-8f6525148ae7",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "531facb3-06cc-453b-8367-955fcde6458e-1777549900005-ttqkc",
+      "productId": "531facb3-06cc-453b-8367-955fcde6458e",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "11924546-d75b-43d5-9562-1976c25c0489-1777549907649-taicd",
+      "productId": "11924546-d75b-43d5-9562-1976c25c0489",
+      "unitType": "koli",
+      "quantity": 25,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "5bcfaac8-3211-429b-abb2-e12ef66da2cc-1777549915986-w0o1o",
+      "productId": "5bcfaac8-3211-429b-abb2-e12ef66da2cc",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "e87a76a4-103f-410c-9e39-a6be21b7f433-1777549924945-ha123",
+      "productId": "e87a76a4-103f-410c-9e39-a6be21b7f433",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "4b56480f-b892-49a2-88f9-c7b4fab4a3ad-1777549940886-eiqqq",
+      "productId": "4b56480f-b892-49a2-88f9-c7b4fab4a3ad",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "2ea65f32-3798-49ff-9f5b-997e0ec2b1da-1777549949948-98p62",
+      "productId": "2ea65f32-3798-49ff-9f5b-997e0ec2b1da",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 6.4326,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "24dc99d5-dee1-4160-8047-43d28e07aa35-1777549958525-l9b3f",
+      "productId": "24dc99d5-dee1-4160-8047-43d28e07aa35",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.8282,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "0eb33808-ed37-43da-9b85-33144cdb4653-1777549968982-w2wrh",
+      "productId": "0eb33808-ed37-43da-9b85-33144cdb4653",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 5.6304,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "8ffa3fe9-a81f-43cc-bae7-ceabac4dbb82-1777550122115-j3fiy",
+      "productId": "8ffa3fe9-a81f-43cc-bae7-ceabac4dbb82",
+      "unitType": "koli",
+      "quantity": 30,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.4234,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "cda9db32-fc4b-4834-a12f-c21278896c09-1777550135009-tinp5",
+      "productId": "cda9db32-fc4b-4834-a12f-c21278896c09",
+      "unitType": "koli",
+      "quantity": 25,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.4234,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "2d438bd2-d047-4b8f-b163-c4d6bcd57ea5-1777550144593-31fm4",
+      "productId": "2d438bd2-d047-4b8f-b163-c4d6bcd57ea5",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 7.441,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "e666631e-587f-443e-8c4a-0311b2b72a8c-1777550153425-puekq",
+      "productId": "e666631e-587f-443e-8c4a-0311b2b72a8c",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 10.0538,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "381703aa-92f3-486e-ab39-b37b041b49e8-1777550162817-pozmp",
+      "productId": "381703aa-92f3-486e-ab39-b37b041b49e8",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 10.0538,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "b795f070-9313-4219-87e9-6de1585daaa4-1777550652779-teb3s",
+      "productId": "b795f070-9313-4219-87e9-6de1585daaa4",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "2cd6dc8e-1433-438d-8fd1-764b8d8045ce-1777550661797-hb6bw",
+      "productId": "2cd6dc8e-1433-438d-8fd1-764b8d8045ce",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "bd4e98af-6b3c-479e-a91f-4054db4163ad-1777550669929-ztwkt",
+      "productId": "bd4e98af-6b3c-479e-a91f-4054db4163ad",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "44a4ed7f-4e0c-439f-a4b3-87670fb9aff9-1777550677241-w68rk",
+      "productId": "44a4ed7f-4e0c-439f-a4b3-87670fb9aff9",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "abca0310-e8e4-407a-802c-66df1425f310-1777550684353-1j55t",
+      "productId": "abca0310-e8e4-407a-802c-66df1425f310",
+      "unitType": "koli",
+      "quantity": 7,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "c4ffaa96-dfe9-449d-930f-34d7e2905a34-1777550839550-rzzpu",
+      "productId": "c4ffaa96-dfe9-449d-930f-34d7e2905a34",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "a7ca4f25-6bda-4155-bf4c-940ed5bc7b97-1777550851589-6837l",
+      "productId": "a7ca4f25-6bda-4155-bf4c-940ed5bc7b97",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "fe96b76f-ed65-408f-b839-5e2fc6787870-1777550859357-j2nid",
+      "productId": "fe96b76f-ed65-408f-b839-5e2fc6787870",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "be97c3b8-a1c6-42ea-93f2-7e76629baaf3-1777550867629-mmovs",
+      "productId": "be97c3b8-a1c6-42ea-93f2-7e76629baaf3",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "8a644fee-e81e-4ec6-b229-55a179fbb845-1777550875030-4z5uh",
+      "productId": "8a644fee-e81e-4ec6-b229-55a179fbb845",
+      "unitType": "koli",
+      "quantity": 7,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "3368c956-7293-4a1a-8111-2fd1129d8f04-1777550882673-ja815",
+      "productId": "3368c956-7293-4a1a-8111-2fd1129d8f04",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "c9836857-d08d-4a9d-8036-60c4ec00c8fd-1777550889917-h5rol",
+      "productId": "c9836857-d08d-4a9d-8036-60c4ec00c8fd",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "af5809e6-832f-4a94-9346-dae57cd07709-1777550897561-7wknq",
+      "productId": "af5809e6-832f-4a94-9346-dae57cd07709",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "0c2f58b8-86fe-48a8-8264-8dd64627092b-1777550904993-4kwhv",
+      "productId": "0c2f58b8-86fe-48a8-8264-8dd64627092b",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "db361886-66e2-49f1-994a-c9dbe3fe5e56-1777551044877-aeurb",
+      "productId": "db361886-66e2-49f1-994a-c9dbe3fe5e56",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "00718ba0-52e7-4abd-81fe-6c930f6f3a10-1777551053237-8rbdq",
+      "productId": "00718ba0-52e7-4abd-81fe-6c930f6f3a10",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "39824918-6201-4abb-9a8d-98bd91de3946-1777551061078-yhyu7",
+      "productId": "39824918-6201-4abb-9a8d-98bd91de3946",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "20d8c1cd-897d-4e10-b952-14f11cc95dda-1777551067870-kfha4",
+      "productId": "20d8c1cd-897d-4e10-b952-14f11cc95dda",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "22c82f63-fa94-4eb5-9fdf-3ddb41afaac3-1777551074350-9mbqk",
+      "productId": "22c82f63-fa94-4eb5-9fdf-3ddb41afaac3",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "b3b08244-8d02-41b5-ad8f-7de99d05558a-1777551082062-xtfj7",
+      "productId": "b3b08244-8d02-41b5-ad8f-7de99d05558a",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "af116b86-de09-4a26-8c3c-ed7d02cd254d-1777551089926-rs8xh",
+      "productId": "af116b86-de09-4a26-8c3c-ed7d02cd254d",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "40e4e16d-3de9-49f4-8e8b-4ecac74b5459-1777583629659-21e0v",
+      "productId": "40e4e16d-3de9-49f4-8e8b-4ecac74b5459",
+      "unitType": "koli",
+      "quantity": 25,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "6fb2cc19-7613-4d13-a9f5-75fb413bd11c-1777583700405-n96op",
+      "productId": "6fb2cc19-7613-4d13-a9f5-75fb413bd11c",
+      "unitType": "koli",
+      "quantity": 40,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "34f33765-2432-48eb-b5ab-fd137d3acd35-1777583735990-8xjf8",
+      "productId": "34f33765-2432-48eb-b5ab-fd137d3acd35",
+      "unitType": "koli",
+      "quantity": 40,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "ba28055e-d1af-41e6-bc4b-4b1f047e4a89-1777583764039-m1q46",
+      "productId": "ba28055e-d1af-41e6-bc4b-4b1f047e4a89",
+      "unitType": "koli",
+      "quantity": 30,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "2f5104f0-f11f-4015-91d2-7a052bd762b2-1777584372575-n26na",
+      "productId": "2f5104f0-f11f-4015-91d2-7a052bd762b2",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "913db25a-9c07-4172-a3d5-9ac7aebb654d-1777584435209-t0mbj",
+      "productId": "913db25a-9c07-4172-a3d5-9ac7aebb654d",
+      "unitType": "koli",
+      "quantity": 30,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.2522,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "2066bf6d-5223-47db-ad55-d60143620d0a-1777584457801-shv5f",
+      "productId": "2066bf6d-5223-47db-ad55-d60143620d0a",
+      "unitType": "koli",
+      "quantity": 7,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "7fe41848-8a52-4164-a898-4dd36c9a508f-1777584474722-l3bib",
+      "productId": "7fe41848-8a52-4164-a898-4dd36c9a508f",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "64bc266a-cb89-4a62-a21f-589fdabe059b-1777584485747-cnxvg",
+      "productId": "64bc266a-cb89-4a62-a21f-589fdabe059b",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "66c5292e-4658-43ee-8a1b-1ceca47e496e-1777584508235-ckaqo",
+      "productId": "66c5292e-4658-43ee-8a1b-1ceca47e496e",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "c2b0bc4f-f98e-41d4-87ed-7d237ca8f5a9-1777584519219-kreiy",
+      "productId": "c2b0bc4f-f98e-41d4-87ed-7d237ca8f5a9",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "8068bf9f-99ad-4ec0-a6c2-b787a2cd1163-1777584541868-ii5rk",
+      "productId": "8068bf9f-99ad-4ec0-a6c2-b787a2cd1163",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "736b75c9-7111-4ea5-a5d2-3715350ef6f3-1777584551150-6dpxm",
+      "productId": "736b75c9-7111-4ea5-a5d2-3715350ef6f3",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "4eb05f19-e9d1-4e22-a5d7-07916ed70365-1777584572365-o3cc0",
+      "productId": "4eb05f19-e9d1-4e22-a5d7-07916ed70365",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "7c89fa63-e00d-4618-85c7-5913bfbdd415-1777842787972-quavk",
+      "productId": "7c89fa63-e00d-4618-85c7-5913bfbdd415",
+      "unitType": "koli",
+      "quantity": 20,
+      "gercek_alis_fiyati": 2.0093,
+      "fiyat_duzenlendi": true,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "cbc22277-3a1e-4151-a47a-ca7575ebe0a5-1778095995431-sztbt",
+      "productId": "cbc22277-3a1e-4151-a47a-ca7575ebe0a5",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 11.6362,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "b6aa45a8-d61a-4fa3-8eb3-c0375890cadc-1778096020174-ml2ii",
+      "productId": "b6aa45a8-d61a-4fa3-8eb3-c0375890cadc",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 12.696,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "5b1339ac-c72d-4b9d-843d-9daa2732100f-1778096030054-41tf3",
+      "productId": "5b1339ac-c72d-4b9d-843d-9daa2732100f",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 11.6362,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "dfb1fc66-ea0a-4a78-b4c3-3a65f1c8d2e0-1778099166547-wq6bz",
+      "productId": "dfb1fc66-ea0a-4a78-b4c3-3a65f1c8d2e0",
+      "unitType": "koli",
+      "quantity": 7,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 8.464,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "36b29090-1573-4792-af2a-32eb1c4bc862-1778099443640-mp7a1",
+      "productId": "36b29090-1573-4792-af2a-32eb1c4bc862",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.6147,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "3e1c7e88-8713-4a06-bb0d-77f1285f586f-1778099488866-5so2d",
+      "productId": "3e1c7e88-8713-4a06-bb0d-77f1285f586f",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 6.1382,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "d517bd62-9f90-4738-a770-4ac90823f7e9-1778351620226-z3zgh",
+      "productId": "d517bd62-9f90-4738-a770-4ac90823f7e9",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.78,
+      "indirim_aciklamasi": "Manuel düzenleme"
+    },
+    {
+      "id": "53ba43ac-992c-4eef-9724-035f9d724dfb-1778351631467-2nmyf",
+      "productId": "53ba43ac-992c-4eef-9724-035f9d724dfb",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.944,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "6339219d-4c9e-4389-a7cb-c8d062efee8f-1778351640074-q2orm",
+      "productId": "6339219d-4c9e-4389-a7cb-c8d062efee8f",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.048,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "0bf1dfd4-4d21-4fc2-a252-7e98c59c9028-1778351648548-7455y",
+      "productId": "0bf1dfd4-4d21-4fc2-a252-7e98c59c9028",
+      "unitType": "koli",
+      "quantity": 20,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.6864,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "8d6eda6d-cdfb-47e5-9326-3e378800760a-1778857149436-lbf0v",
+      "productId": "8d6eda6d-cdfb-47e5-9326-3e378800760a",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.1952,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "ad4bd7fd-5506-4357-93c5-8cb994cefcd3-1778857173953-19ibb",
+      "productId": "ad4bd7fd-5506-4357-93c5-8cb994cefcd3",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.1952,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "312d1588-0963-41fe-9d25-0847f1d1f41d-1778857192145-0edgw",
+      "productId": "312d1588-0963-41fe-9d25-0847f1d1f41d",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.1952,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "88220db9-78f3-4bd0-a26f-9ee5bd69dd0c-1778857215542-8r0he",
+      "productId": "88220db9-78f3-4bd0-a26f-9ee5bd69dd0c",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.1952,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "10903648-6165-4680-8189-539ba44f3d5d-1778857233093-47rtz",
+      "productId": "10903648-6165-4680-8189-539ba44f3d5d",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 3.7536,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "9ec7c997-e6fd-46d9-8d22-e3da7e74d881-1778857249639-ffi2m",
+      "productId": "9ec7c997-e6fd-46d9-8d22-e3da7e74d881",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.0259,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "1fa8f094-be2c-4c72-95ec-4406d61deb59-1778858922304-rnhva",
+      "productId": "1fa8f094-be2c-4c72-95ec-4406d61deb59",
+      "unitType": "koli",
+      "quantity": 4,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 1.4573,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "2fe1553f-c23a-4444-b29a-9d6c7bacf91f-1778858939578-8nbe9",
+      "productId": "2fe1553f-c23a-4444-b29a-9d6c7bacf91f",
+      "unitType": "koli",
+      "quantity": 4,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 1.7811,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "28a3730b-f5b1-4801-8744-a1aecb7b9f98-1778867317743-uo7te",
+      "productId": "28a3730b-f5b1-4801-8744-a1aecb7b9f98",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "298d997b-cf81-466f-baa2-432f3cb03bf9-1778867319695-fmuse",
+      "productId": "298d997b-cf81-466f-baa2-432f3cb03bf9",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "16f4e873-0ef4-415c-9576-9a4410a01f24-1778867321118-ii6vj",
+      "productId": "16f4e873-0ef4-415c-9576-9a4410a01f24",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "b802a6ee-e2fd-4d82-aa73-8cbeb198fcec-1778867322278-1dyvu",
+      "productId": "b802a6ee-e2fd-4d82-aa73-8cbeb198fcec",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "69dec99d-316d-4896-937e-779cd7c54a79-1778867323412-1wu99",
+      "productId": "69dec99d-316d-4896-937e-779cd7c54a79",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "03e6cf67-efe7-4141-9f69-87ec5e70f9fa-1778928117442-td1b2",
+      "productId": "03e6cf67-efe7-4141-9f69-87ec5e70f9fa",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "c52d8235-abae-4edf-959e-76bcc4ea669e-1778928427462-nud7c",
+      "productId": "c52d8235-abae-4edf-959e-76bcc4ea669e",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 7.6397,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "357aec8c-430f-4310-b486-de1b81bb47f3-1778928836912-3vp8t",
+      "productId": "357aec8c-430f-4310-b486-de1b81bb47f3",
+      "unitType": "koli",
+      "quantity": 30,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "c5465f50-9ab0-4649-9e1b-a4516280fce2-1778936778081-ujbmm",
+      "productId": "c5465f50-9ab0-4649-9e1b-a4516280fce2",
+      "unitType": "koli",
+      "quantity": 15,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "0bd6e288-322b-4676-8e9a-e8c75d5986b4-1778936820689-dx0bi",
+      "productId": "0bd6e288-322b-4676-8e9a-e8c75d5986b4",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "cf80047e-584b-406e-ab2e-d65dd41c5901-1778936856068-rpmri",
+      "productId": "cf80047e-584b-406e-ab2e-d65dd41c5901",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 6.3517,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "cea27501-54da-40ec-85fd-560fc06d25af-1778936876331-tmmp5",
+      "productId": "cea27501-54da-40ec-85fd-560fc06d25af",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 5.888,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "2bb2317e-ba80-461f-9a24-7fd4d702565b-1778936930148-rp31f",
+      "productId": "2bb2317e-ba80-461f-9a24-7fd4d702565b",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 5.888,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "65ec97da-0aba-4a23-ac1e-c2e34317d7fe-1778936946133-5r0hn",
+      "productId": "65ec97da-0aba-4a23-ac1e-c2e34317d7fe",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 5.888,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "cedb0279-cd0a-4cfa-8a9f-9dc745457549-1778937016641-rbhcg",
+      "productId": "cedb0279-cd0a-4cfa-8a9f-9dc745457549",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 5.888,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "fd39fc06-6857-41d3-a4f7-f5fcb535119e-1778937025496-l7hal",
+      "productId": "fd39fc06-6857-41d3-a4f7-f5fcb535119e",
+      "unitType": "koli",
+      "quantity": 5,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 5.888,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "e0e43bc5-06cb-40bb-8bb8-7fbaf48be313-1778937054440-2avy1",
+      "productId": "e0e43bc5-06cb-40bb-8bb8-7fbaf48be313",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.8115,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "ffefea8f-c4ed-40c9-b445-8d573a17af0f-1778937069242-ineky",
+      "productId": "ffefea8f-c4ed-40c9-b445-8d573a17af0f",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 2.0093,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    },
+    {
+      "id": "a46effd1-1eba-4cda-8699-5d03a2f15675-1778937111384-0mydu",
+      "productId": "a46effd1-1eba-4cda-8699-5d03a2f15675",
+      "unitType": "koli",
+      "quantity": 10,
+      "fiyat_duzenlendi": true,
+      "gercek_alis_fiyati": 4.416,
+      "indirim_aciklamasi": "%20 + %8 çift kademeli indirim"
+    }
+  ],
+  "savedAt": "2026-05-20T14:07:02.596Z"
+}

@@ -108,7 +108,7 @@ export function inferProductLineFromCategorySlug(slug?: string | null): ProductL
     return 'barista-bakery-essentials';
   }
 
-  return 'frozen-desserts';
+  return null;
 }
 
 type CategoryLike = {

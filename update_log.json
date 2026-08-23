@@ -1,0 +1,812 @@
+[
+  {
+    "pdfName": "Fo STRAWBERRY Flavored Sauce",
+    "dbName": "Çilek Aromalı Dekor Sos 750 gr",
+    "oldPrice": 1.98,
+    "newPrice": 1.98
+  },
+  {
+    "pdfName": "Fo CARAMEL Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 1.98
+  },
+  {
+    "pdfName": "Fo CHOCOLATE Flavored Sauce",
+    "dbName": "FO Çikolata Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.42
+  },
+  {
+    "pdfName": "Fo KIWI Flavored Sauce",
+    "dbName": "FO Kivi Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 1.98
+  },
+  {
+    "pdfName": "Fo BANANA Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 1.98
+  },
+  {
+    "pdfName": "Fo VANILLA Flavored Sauce",
+    "dbName": "Vanilya Aromalı Dekor Sos 750 gr",
+    "oldPrice": 1.98,
+    "newPrice": 1.98
+  },
+  {
+    "pdfName": "Fo BLUE CURACAO Flavored Sauce",
+    "dbName": "FO Turunç (Blue Curacao) Aromalı Şurup 700 ml",
+    "oldPrice": 3.06,
+    "newPrice": 1.98
+  },
+  {
+    "pdfName": "Fo MAPLE Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.25
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with CHOCOLATE",
+    "dbName": "Bitter Çikolatalı Dondurma Sosu 1 Kg",
+    "oldPrice": 3.11,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with STRAWBERRY",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 3.66
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with CARAMEL",
+    "dbName": "Karamel Aromalı Topping Dondurma Sosu 350 gr",
+    "oldPrice": 3.11,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with RASPBERRY",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 4.64
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with KIWI",
+    "dbName": "Kivili Topping Dondurma Sosu 1 kg",
+    "oldPrice": 3.66,
+    "newPrice": 3.66
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with HAZELNUT",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 5.18
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with PISTACHIO",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 7.21
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with BANANA",
+    "dbName": "Muzlu Topping Dondurma Sosu 1 kg",
+    "oldPrice": 3.11,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with ORANGE",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with WALNUT",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 6.56
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with MILKY CARAMEL",
+    "dbName": "Karamel Aromalı Topping Dondurma Sosu 350 gr",
+    "oldPrice": 3.11,
+    "newPrice": 3.66
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with WHITE CHOCOLATE",
+    "dbName": "Beyaz Çikolatalı Dondurma Sosu 1 Kg",
+    "oldPrice": 3.11,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with BLACKBERRY",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 4.37
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with MELON",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with WATERMELON",
+    "dbName": "Karpuzlu Topping Dondurma Sosu-1 kg",
+    "oldPrice": 3.11,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with GREEN APPLE",
+    "dbName": "FO Yeşil Elma Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with BLACK MULBERRY",
+    "dbName": "FO Karadut Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 3.66
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with LEMON",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 3.66
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with PEACH",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with BLUEBERRY",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 4.37
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with MILKY CHOCOLATE",
+    "dbName": "Bitter Çikolatalı Dondurma Sosu 1 Kg",
+    "oldPrice": 3.11,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with WILD BERRIES",
+    "dbName": "FO Orman Meyveli Püre Sos 1 Kg",
+    "oldPrice": 6.01,
+    "newPrice": 4.7
+  },
+  {
+    "pdfName": "Fo Ice Cream Sauce with MANGO",
+    "dbName": "Frambuazlı Dondurma Sosu 1 Kg",
+    "oldPrice": 4.64,
+    "newPrice": 3.11
+  },
+  {
+    "pdfName": "Fo Chocolate Flavored Powder Drink 1 kg.",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Vanilla Flavored Powder Drink 1 kg.",
+    "dbName": "Vanilya Aromalı İçecek Tozu / Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Strawberry Flavored Powder Drink 1 kg.",
+    "dbName": "Çilek Aromalı İçecek Tozu Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Banana Flavored Powder Drink 1 kg.",
+    "dbName": "FO Muz Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Caramel Flavored Powder Drink 1 kg.",
+    "dbName": "Vanilya Aromalı İçecek Tozu / Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 6.6
+  },
+  {
+    "pdfName": "Fo Rapsberry Flavored Powder Drink 1 kg.",
+    "dbName": "Vanilya Aromalı İçecek Tozu / Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Peach Flavored Powder Drink 1 kg.",
+    "dbName": "Vanilya Aromalı İçecek Tozu / Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Melon Flavored Powder Drink 1 kg.",
+    "dbName": "Kavun Aromalı İçecek Tozu/ Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Biscuit Powder Drink 1 kg.",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Black Biscuit Powder Drink 1 kg.",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 7.65
+  },
+  {
+    "pdfName": "Fo Mango Flavored Powder Drink 1 kg.",
+    "dbName": "Vanilya Aromalı İçecek Tozu / Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Kiwi Flavored Powder Drink 1 kg.",
+    "dbName": "FO Kivi Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 6.6
+  },
+  {
+    "pdfName": "Fo Tiramisu Flavored Powder Drink 1 kg.",
+    "dbName": "Vanilya Aromalı İçecek Tozu / Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 6.6
+  },
+  {
+    "pdfName": "Fo Yoghurt Powder Drink 1 kg.",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 6.6
+  },
+  {
+    "pdfName": "Fo MOCHA Powder Drink FRAPPE KV 1 kg.",
+    "dbName": "Matcha Yeşil Çay İçecek Tozu Milkshake 1 kg",
+    "oldPrice": 5.47,
+    "newPrice": 10.38
+  },
+  {
+    "pdfName": "Fo LATTE Powder Drink 1 kg.",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 7.2
+  },
+  {
+    "pdfName": "Fo TOFFEE LATTE Powder Drink 1 kg.",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 10.38
+  },
+  {
+    "pdfName": "Fo VANILLA LATTE Powder Drink 1 kg.",
+    "dbName": "Vanilya Aromalı İçecek Tozu / Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 10.38
+  },
+  {
+    "pdfName": "Fo Chai Tea Latte Powder Drink 1 kg",
+    "dbName": "Chai Tea Latte İçecek Tozu 1 kg",
+    "oldPrice": 5.1,
+    "newPrice": 5.1
+  },
+  {
+    "pdfName": "Fo Matcha Gren Tea Powder Drink 1 kg",
+    "dbName": "Matcha Yeşil Çay İçecek Tozu Milkshake 1 kg",
+    "oldPrice": 5.47,
+    "newPrice": 5.47
+  },
+  {
+    "pdfName": "Fo Powder Drink Base (Quatro)",
+    "dbName": "Fo Toz İçecek Bazı (Quatro)",
+    "oldPrice": 6,
+    "newPrice": 6
+  },
+  {
+    "pdfName": "Fo Blueberry Pieces Sauce 6 kg",
+    "dbName": "Yaban Mersini Taneli Sos 6 Kg",
+    "oldPrice": 34.5,
+    "newPrice": 34.5
+  },
+  {
+    "pdfName": "Fo Peach Pieces Sauce 6 kg",
+    "dbName": "Şeftali Taneli Sos 6 Kg",
+    "oldPrice": 34.5,
+    "newPrice": 34.5
+  },
+  {
+    "pdfName": "Fo Raspberry Pieces Sauce 6 kg",
+    "dbName": "FO Kivi Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 34.5
+  },
+  {
+    "pdfName": "Fo Strawberry Pieces Sauce 6 kg",
+    "dbName": "FO Çilek Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 34.5
+  },
+  {
+    "pdfName": "Fo Wildberry Pieces Sauce 6 kg",
+    "dbName": "FO Kivi Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 34.5
+  },
+  {
+    "pdfName": "Fo Powder SAHLEP Drink 1 Kg",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 5.7
+  },
+  {
+    "pdfName": "Fo Powder SAHLEP Flavored Drink 1 Kg",
+    "dbName": "Vanilya Aromalı İçecek Tozu / Milkshake- 1 Kg",
+    "oldPrice": 5.7,
+    "newPrice": 4.8
+  },
+  {
+    "pdfName": "Fo Powder CHOCOLATE Drink- HOT 1 Kg",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 6
+  },
+  {
+    "pdfName": "Fo MOCHA Powder Drink 1 kg.",
+    "dbName": "Bitter Çikolatalı İçecek Tozu - 1 kg",
+    "oldPrice": 5.7,
+    "newPrice": 10.38
+  },
+  {
+    "pdfName": "Fo BLACK MULBERRY PASTE FOR PASTRY & ICE CREAM",
+    "dbName": "Karadutlu Dondurma ve Pastacılık için Karışım 1600 g",
+    "oldPrice": 7.8,
+    "newPrice": 7.8
+  },
+  {
+    "pdfName": "Fo BLUEBERRY PASTE FOR PASTRY & ICE CREAM",
+    "dbName": "Bögürtlenli Dondurma ve Pastacılık için Karışım 1600 g",
+    "oldPrice": 8.64,
+    "newPrice": 8.64
+  },
+  {
+    "pdfName": "Fo Pistachio Kadayifi Sauce 6 Kg %",
+    "dbName": "FO Kivi Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 22.43
+  },
+  {
+    "pdfName": "FO PEACH FLAVORED TEA Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO ENERGY DRINK Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO ANISE Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO BUBBLE GUM Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO CHERRY BLOSSOM Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO POMEGRANATE Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO BLUE RASPBERRY Flavored Syrup",
+    "dbName": "FO Mavi Frambuaz Aromalı Şurup – 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO SAFFRON Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO TOFFEE NUT Flavored Syrup (WITH SUGAR)",
+    "dbName": "Fındık-Karamel Aromalı Şekerli Şurup (700 ml)",
+    "oldPrice": 3.06,
+    "newPrice": 3.06
+  },
+  {
+    "pdfName": "FO BLACKBERRY Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "Fo PASSION FRUIT Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO ELDER FLOWER Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO CHOCOLATE COOKIE Flavored Syrup",
+    "dbName": "FO Çikolata Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "Fo PINK GRAPEFRUIT Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO LYCHEE Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO CHAI TEA FLAVORED Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO SOURCHERRY Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO BROWN SUGAR Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO PUMPKIN SPICES Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO PUMPKIN Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO HIBISCUS Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO CUCUMBER Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO LAVENDER Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO RED GRAPPE Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO WILDBERRIES Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO WHITE STRAWBERRY Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO POPCORN Flavored Syrup",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 3.06
+  },
+  {
+    "pdfName": "FO MANGOSTAN FLAVORED SILVERY SYRUP 700ML",
+    "dbName": "FO Nane Aromalı Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 3.5
+  },
+  {
+    "pdfName": "FO POMELO FLAVORED SILVERY SYRUP 700ML",
+    "dbName": "FO Nane Aromalı Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 3.5
+  },
+  {
+    "pdfName": "FO ARONYA FLAVORED SILVERY SYRUP 700ML",
+    "dbName": "FO Nane Aromalı Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 3.5
+  },
+  {
+    "pdfName": "FO GOLDEN KIWI FLAVORED SILVERY SYRUP 700ML",
+    "dbName": "FO Kivi Aromalı Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 3.5
+  },
+  {
+    "pdfName": "FO KOI COCTAIL FOAMER 100 ML",
+    "dbName": "KOI Vegan Kokteyl Köpürtücü 100 ml",
+    "oldPrice": 8.63,
+    "newPrice": 8.63
+  },
+  {
+    "pdfName": "FO LEMON ICED TEA SYRUP 700 ML (Base)",
+    "dbName": "Limonlu Soğuk Çay Baz Şurubu 700 ml",
+    "oldPrice": 3,
+    "newPrice": 3
+  },
+  {
+    "pdfName": "FO PEACH ICED TEA SYRUP 700 ML (Base)",
+    "dbName": "FO Şeftali Meyveli Premium Şurup – 700 ml",
+    "oldPrice": 5.5,
+    "newPrice": 3
+  },
+  {
+    "pdfName": "FO RASPBERRY FLAVORED ICED TEA SYRUP 700 ML (Base)",
+    "dbName": "FO Mavi Frambuaz Aromalı Şurup – 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 3
+  },
+  {
+    "pdfName": "FO MANGO AND EXOTIC FRUITS FLAVORED ICED TEA SYRUP 700 ML (Base)",
+    "dbName": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 3
+  },
+  {
+    "pdfName": "FO Mint and Lime Flavored Syrup (BASE)",
+    "dbName": "Nane ve Misket Limonu Aromalı Şurup - Cool Lime (700 ml)",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO HIBISCUS AND WILDBERRY FLAVORED SYRUP (BASE)",
+    "dbName": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO ORANGE AND MANGO FLAVORED SYRUP (BASE)",
+    "dbName": "Portakal ve Mango Aromalı Şurup - Orange Mango (700 ml)",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO BLUEBERRY AND LYCHEE FLAVORED SYRUP (BASE)",
+    "dbName": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO STRAWBERRY AND ACAI FLAVORED SYRUP (BASE)",
+    "dbName": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO MANGO AND DRAGON FRUIT FLAVORED SYRUP (BASE)",
+    "dbName": "Mango ve Ejder Meyvesi Aromalı Baz Şurup 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO STRAWBERRY FLAVORED SYRUP (BASE)",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "FO GRENADINE FLAVORED SYRUP (BASE)",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 2.73
+  },
+  {
+    "pdfName": "Fo Chocolate Sauce",
+    "dbName": "FO Ahududu Meyveli Püre Sos",
+    "oldPrice": 7.65,
+    "newPrice": 13.66
+  },
+  {
+    "pdfName": "Fo White Chocolate Sauce",
+    "dbName": "Fo Beyaz Çikolata Sosu 2.5 kg",
+    "oldPrice": 13.66,
+    "newPrice": 13.66
+  },
+  {
+    "pdfName": "Fo Toffee Caramel Sauce",
+    "dbName": "FO Ahududu Meyveli Püre Sos",
+    "oldPrice": 7.65,
+    "newPrice": 10.11
+  },
+  {
+    "pdfName": "Fo Hazelnut Sauce",
+    "dbName": "FO Ahududu Meyveli Püre Sos",
+    "oldPrice": 7.65,
+    "newPrice": 15.81
+  },
+  {
+    "pdfName": "Fo Tiramisu Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 10.79
+  },
+  {
+    "pdfName": "Fo Cappuccino Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 10.11
+  },
+  {
+    "pdfName": "Fo Milky Chocolate Sauce",
+    "dbName": "FO Ahududu Meyveli Püre Sos",
+    "oldPrice": 7.65,
+    "newPrice": 13.66
+  },
+  {
+    "pdfName": "FO Sweetened Condensed Milk Sauce 2.5 kg",
+    "dbName": "Fo Beyaz Çikolata Sosu 2.5 kg",
+    "oldPrice": 13.66,
+    "newPrice": 10
+  },
+  {
+    "pdfName": "FO PISTACHIO Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 13.8
+  },
+  {
+    "pdfName": "Fo HAZELNUT Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 6.33
+  },
+  {
+    "pdfName": "FO ROSE Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 5.46
+  },
+  {
+    "pdfName": "FO SAFFRON Flavored Sauce",
+    "dbName": "FO Muz Şurubu",
+    "oldPrice": 2.73,
+    "newPrice": 5.46
+  },
+  {
+    "pdfName": "FO Lime Flavored Beverage / MARGARITA Cocktail Mix",
+    "dbName": "FO Cool Lime Mix - Nane ve Misket Limonu Aromalı İçecek 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 2.38
+  },
+  {
+    "pdfName": "FO Grenadine and Orange Flavored Beverage / COSMOPOLITAN Cocktail Mix",
+    "dbName": "FO Cool Lime Mix - Nane ve Misket Limonu Aromalı İçecek 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 2.38
+  },
+  {
+    "pdfName": "FO Grenadine and Strawberry Flavored Beverage / FRUIT Cocktail Mix",
+    "dbName": "FO Cool Lime Mix - Nane ve Misket Limonu Aromalı İçecek 700 ml",
+    "oldPrice": 2.73,
+    "newPrice": 2.38
+  },
+  {
+    "pdfName": "FO Cuban Mint & Lime Base 700ML / Fo Küba Nanesi aromalı ve Misket Limonlu Baz 700ml (Hierba de Cuba)",
+    "dbName": "Hierba De Cuba Küba Nanesi Aromalı ve Misket Limonlu Baz 700 ml",
+    "oldPrice": 3.65,
+    "newPrice": 3.65
+  },
+  {
+    "pdfName": "FO SPREADABLE CREAM Nummy Lotus -340 gr",
+    "dbName": "Nummy Antep Fıstıklı Sürülebilir Krema 360 gr",
+    "oldPrice": 7.94,
+    "newPrice": 3.17
+  },
+  {
+    "pdfName": "FO PISTACHIO CREAM SPREAD 360 gr",
+    "dbName": "Nummy Antep Fıstıklı Sürülebilir Krema 360 gr",
+    "oldPrice": 7.94,
+    "newPrice": 7.94
+  },
+  {
+    "pdfName": "Fo Caramelized Biscuit Sauce",
+    "dbName": "FO Ahududu Meyveli Püre Sos",
+    "oldPrice": 7.65,
+    "newPrice": 13.75
+  },
+  {
+    "pdfName": "Fo Black Biscuit Sauce",
+    "dbName": "FO Böğürtlen Meyveli Püre Sos",
+    "oldPrice": 6.56,
+    "newPrice": 13.75
+  },
+  {
+    "pdfName": "FO DUBAI PISTACHIO KADAIFI SAUCE 6 KG",
+    "dbName": "Dubai Antep Fıstıklı Kadayıflı Sos 6 kg",
+    "oldPrice": 22.43,
+    "newPrice": 110.4
+  },
+  {
+    "pdfName": "FO DUBAI PISTACHIO KADAIFI SAUCE 1,4 KG",
+    "dbName": "FO Kivi Meyveli Püre Sos 1 Kg",
+    "oldPrice": 3.82,
+    "newPrice": 31.4
+  },
+  {
+    "pdfName": "Fo Taro Premium sauce 2,5 kg",
+    "dbName": "Fo Beyaz Çikolata Sosu 2.5 kg",
+    "oldPrice": 13.66,
+    "newPrice": 11.5
+  },
+  {
+    "pdfName": "FO PREMIUM WHITE CHOCOLATE SAUCE 2,5KG",
+    "dbName": "Fo Beyaz Çikolata Sosu 2.5 kg",
+    "oldPrice": 13.66,
+    "newPrice": 17.25
+  },
+  {
+    "pdfName": "FO PREMIUM CARAMEL SAUCE 2,5 KG",
+    "dbName": "Fo Beyaz Çikolata Sosu 2.5 kg",
+    "oldPrice": 13.66,
+    "newPrice": 15.81
+  },
+  {
+    "pdfName": "FO PREMIUM CHOCOLATE SAUCE 2,5 KG",
+    "dbName": "Fo Beyaz Çikolata Sosu 2.5 kg",
+    "oldPrice": 13.66,
+    "newPrice": 15.81
+  },
+  {
+    "pdfName": "FO PREMIUM SALTED CARAMEL SAUCE 2,5 KG",
+    "dbName": "Karamelli Premium Sos 2,5 kg (Pompa Hediyeli)",
+    "oldPrice": 15.81,
+    "newPrice": 15.81
+  }
+]

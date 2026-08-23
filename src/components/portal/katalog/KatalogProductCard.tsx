@@ -54,9 +54,17 @@ export function getBirimFiyatKatalog(produkt: ProduktMitPreis, birim: Birim, mik
     return Number(produkt.satis_fiyati_musteri ?? produkt.partnerPreis ?? 0);
 }
 
+// palet_ici_adet = 1 paletteki KOLİ sayısı (örn. 125 koli/palet)
+// Toplam adet = palet_ici_adet × koli_ici_adet
+export function getPaletToplamAdet(produkt: ProduktMitPreis): number {
+    const koliAdet = Number((produkt as any).koli_ici_adet ?? 1);
+    const paletIciKoli = Number((produkt as any).palet_ici_koli_adet ?? (produkt as any).palet_ici_adet ?? 0);
+    return paletIciKoli * koliAdet;
+}
+
 export function getToplamAdetKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number): number {
     const koliAdet = Number((produkt as any).koli_ici_adet ?? 1);
-    if (birim === 'palet') return Number((produkt as any).palet_ici_adet ?? koliAdet) * miktar;
+    if (birim === 'palet') return getPaletToplamAdet(produkt) * miktar;
     if (birim === 'koli') return koliAdet * miktar;
     return miktar;
 }
@@ -90,19 +98,24 @@ export function SepeteEkleModal({
     const [miktar, setMiktar] = useState(1);
 
     const koliAdet = Number((produkt as any).koli_ici_adet ?? 1);
-    const paletAdet = Number((produkt as any).palet_ici_adet ?? 0);
+    // palet_ici_adet = 1 paletteki KOLİ sayısı; toplam adet = koli sayısı × koli başına adet
+    const paletIciKoli = Number((produkt as any).palet_ici_koli_adet ?? (produkt as any).palet_ici_adet ?? 0);
+    const paletToplamAdet = getPaletToplamAdet(produkt);
     const toplamAdet = getToplamAdetKatalog(produkt, birim, miktar);
     const adetFiyat = getBirimFiyatKatalog(produkt, birim, miktar);
     const toplamFiyat = toplamAdet * adetFiyat;
     const produktName = getLocalizedName(produkt.ad, locale as Locale);
 
     const birimOptions: { key: Birim; labelDe: string; labelTr: string; sub: string }[] = [
-        { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliAdet} adet` },
+        { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliAdet} ${locale === 'de' ? 'Stk.' : 'adet'}` },
         { key: 'adet', labelDe: 'Stück', labelTr: 'Adet', sub: locale === 'de' ? 'Einzeln' : 'Tekli' },
-        ...(paletAdet > 0 ? [{
+        ...(paletIciKoli > 0 ? [{
             key: 'palet' as Birim,
             labelDe: 'Palette', labelTr: 'Palet',
-            sub: `${paletAdet} adet`
+            // Göster: "125 koli" ve "750 adet" gibi
+            sub: locale === 'de'
+                ? `${paletIciKoli} Ktn. / ${paletToplamAdet} Stk.`
+                : `${paletIciKoli} koli / ${paletToplamAdet} adet`
         }] : []),
     ];
 
@@ -222,6 +235,15 @@ export function SepeteEkleModal({
                                     {formatCurrency(toplamFiyat)}
                                 </span>
                             </div>
+                            {/* Palet seçiliyse koli/adet dökümünü göster */}
+                            {birim === 'palet' && paletIciKoli > 0 && (
+                                <p className="text-[10px] text-gray-400">
+                                    {miktar} {locale === 'de' ? 'Palette' : 'palet'}
+                                    {' × '}{paletIciKoli} {locale === 'de' ? 'Ktn.' : 'koli'}
+                                    {' × '}{koliAdet} {locale === 'de' ? 'Stk.' : 'adet'}
+                                    {' = '}{toplamAdet} {locale === 'de' ? 'Stück' : 'adet'}
+                                </p>
+                            )}
                             {fiyatKademe && (
                                 <p className={`text-[11px] font-semibold ${fiyatKademe.color}`}>
                                     {fiyatKademe.label}
@@ -268,6 +290,7 @@ export function ProduktGridCard({
 
     const paletKoli = Number(produkt.palet_ici_koli_adet ?? produkt.palet_ici_adet ?? 0);
     const koliAdet = Number(produkt.koli_ici_adet ?? 0);
+    const paletToplamAdet = paletKoli * koliAdet;
     const kg = produkt.birim_agirlik_kg;
 
     const pricingRows = [
@@ -287,9 +310,11 @@ export function ProduktGridCard({
         },
         {
             label: paletKoli > 0
-                ? (locale === 'de' ? `1 Palette (${paletKoli} Ktn.)` : `1 Palet (${paletKoli} koli)`)
+                ? (locale === 'de'
+                    ? `1 Palette (${paletKoli} Ktn. = ${paletToplamAdet} Stk.)`
+                    : `1 Palet (${paletKoli} koli = ${paletToplamAdet} adet)`)
                 : (locale === 'de' ? '1 Palette' : '1 Palet'),
-            sublabel: locale === 'de' ? 'pro Karton' : 'koli fiyatı',
+            sublabel: locale === 'de' ? 'Palettenpreis' : 'palet fiyatı',
             price: produkt.satis_fiyati_alt_bayi,
             highlight: true,
         },
@@ -477,6 +502,7 @@ export function ProduktListRow({
 
     const paletKoli = Number(produkt.palet_ici_koli_adet ?? produkt.palet_ici_adet ?? 0);
     const koliAdet = Number(produkt.koli_ici_adet ?? 0);
+    const paletToplamAdet = paletKoli * koliAdet;
     const kg = produkt.birim_agirlik_kg;
 
     const pricingRows = [
@@ -496,9 +522,11 @@ export function ProduktListRow({
         },
         {
             label: paletKoli > 0
-                ? (locale === 'de' ? `1 Palette (${paletKoli} Ktn.)` : `1 Palet (${paletKoli} koli)`)
+                ? (locale === 'de'
+                    ? `1 Palette (${paletKoli} Ktn. = ${paletToplamAdet} Stk.)`
+                    : `1 Palet (${paletKoli} koli = ${paletToplamAdet} adet)`)
                 : (locale === 'de' ? '1 Palette' : '1 Palet'),
-            sublabel: locale === 'de' ? 'pro Karton' : 'koli fiyatı',
+            sublabel: locale === 'de' ? 'Palettenpreis' : 'palet fiyatı',
             price: produkt.satis_fiyati_alt_bayi,
             highlight: true,
         },

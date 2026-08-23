@@ -423,8 +423,8 @@ export function SiparislerClient({
                     : `${siparis.siparis_detay?.length} farklı ürün (${addedCount} koli) sepete eklendi!`,
                 {
                     action: {
-                        label: locale === 'de' ? 'Warenkorb öffnen' : 'Sepete Git',
-                        onClick: () => router.push(`/${locale}/portal/katalog`),
+                        label: locale === 'de' ? 'Zur Bestellung' : 'Siparişe Git',
+                        onClick: () => router.push(`/${locale}/portal/siparisler/yeni`),
                     },
                 }
             );
@@ -468,7 +468,7 @@ export function SiparislerClient({
 
                 <div className="relative z-10 flex items-center gap-3 flex-shrink-0">
                     <Link
-                        href={`/${locale}/portal/katalog`}
+                        href={`/${locale}/portal/siparisler/yeni`}
                         className="group inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                         <FiPlus size={16} className="transition-transform group-hover:rotate-90" />
@@ -876,11 +876,11 @@ export function SiparislerClient({
                                 </button>
                             ) : (
                                 <Link
-                                    href={`/${locale}/portal/katalog`}
+                                    href={`/${locale}/portal/siparisler/yeni`}
                                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-xl text-xs font-extrabold shadow-lg shadow-amber-500/25 hover:from-amber-400 hover:to-amber-500 transition-all"
                                 >
                                     <FiPlus size={15} />
-                                    <span>{locale === 'de' ? 'Katalog durchsuchen' : 'Ürün Kataloğuna Git'}</span>
+                                    <span>{locale === 'de' ? 'Neue Bestellung erstellen' : 'Yeni Sipariş Oluştur'}</span>
                                 </Link>
                             )}
                         </div>
