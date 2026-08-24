@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "gen:types": "chcp 65001 && npx supabase gen types typescript --project-id \"atydffkpyvxcmzxyibhj\" --schema public > src/lib/supabase/database.types.ts",
     "import:market": "node scripts/import-market-csv.mjs",
     "import:pasta": "node scripts/import-market-csv.mjs --file pasta.csv",
@@ -63,19 +66,26 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.62.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
     "@types/negotiator": "^0.6.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.184.1",
     "@types/uuid": "^11.0.0",
+    "@vitejs/plugin-react": "^6.1.0",
     "autoprefixer": "^10.4.19",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "jsdom": "^29.1.1",
     "postcss": "^8.4.38",
     "supabase": "^2.58.5",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

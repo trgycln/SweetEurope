@@ -4,6 +4,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { Tables } from '@/lib/supabase/database.types';
 import { getLocalizedName, Locale } from '@/lib/utils';
 import { FiTag, FiInfo, FiMail, FiDownload, FiAlertTriangle } from 'react-icons/fi';
@@ -624,10 +625,10 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                         <div className="rounded-2xl bg-slate-900 text-white p-5 flex flex-col gap-3">
                             <p className="text-xs text-slate-400">{lc.contactSub}</p>
                             <div className="flex flex-wrap gap-2">
-                                <a href={`mailto:info@sweetheaven.de?subject=${encodeURIComponent(`${lc.contact}: ${urunAdi}${urun.stok_kodu ? ` (${urun.stok_kodu})` : ''}`)}`}
+                                <Link href={`/${locale}/contact?subject=${encodeURIComponent(`${lc.contact}: ${urunAdi}${urun.stok_kodu ? ` (${urun.stok_kodu})` : ''}`)}`}
                                     className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-slate-900 font-semibold text-sm px-5 py-3 rounded-xl hover:bg-slate-100 transition-colors min-w-[160px]">
                                     <FiMail size={14} /> {lc.contact}
-                                </a>
+                                </Link>
 
                             </div>
                         </div>
@@ -1187,10 +1188,10 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                         <div className="rounded-2xl bg-slate-900 text-white p-5 flex flex-col gap-3">
                             <p className="text-xs text-slate-400">{lc.contactSub}</p>
                             <div className="flex flex-wrap gap-2">
-                                <a href={`mailto:info@sweetheaven.de?subject=${encodeURIComponent(`${lc.contact}: ${urunAdi}${urun.stok_kodu ? ` (${urun.stok_kodu})` : ''}`)}`}
+                                <Link href={`/${locale}/contact?subject=${encodeURIComponent(`${lc.contact}: ${urunAdi}${urun.stok_kodu ? ` (${urun.stok_kodu})` : ''}`)}`}
                                     className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-slate-900 font-semibold text-sm px-5 py-3 rounded-xl hover:bg-slate-100 transition-colors min-w-[160px]">
                                     <FiMail size={14} /> {lc.contact}
-                                </a>
+                                </Link>
 
                             </div>
                         </div>

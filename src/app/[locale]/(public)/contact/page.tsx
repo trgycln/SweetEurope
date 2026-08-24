@@ -1,7 +1,7 @@
 // src/app/[locale]/(public)/contact/page.tsx (Korrigiert)
 
 // KORREKTUR: 'use client' entfernt. Dies ist eine Server-Komponente.
-import React from 'react';
+import React, { Suspense } from 'react';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils';
 import { FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
@@ -73,15 +73,17 @@ export default async function KontaktPage({ params }: { params: { locale: Locale
             </div>
 
             {/* Right Column: Contact Form */}
-            <ContactFormClient
-              labels={{
-                formTitle:   content.formTitle,
-                formName:    content.formName,
-                formEmail:   content.formEmail,
-                formMessage: content.formMessage,
-                formButton:  content.formButton,
-              }}
-            />
+            <Suspense fallback={<div className="bg-white p-8 rounded-lg shadow-lg flex items-center justify-center min-h-[400px]">Lädt...</div>}>
+              <ContactFormClient
+                labels={{
+                  formTitle:   content.formTitle,
+                  formName:    content.formName,
+                  formEmail:   content.formEmail,
+                  formMessage: content.formMessage,
+                  formButton:  content.formButton,
+                }}
+              />
+            </Suspense>
           </div>
 
           {/* Map Section (unverändert) */}

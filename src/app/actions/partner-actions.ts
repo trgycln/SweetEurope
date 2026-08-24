@@ -2,7 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
-import { sendAdminEmail } from '@/lib/email';
+import { sendAdminEmail, sendCustomerEmail } from '@/lib/email';
 
 export type PartnerApplicationPayload = {
   unvan: string;
@@ -124,6 +124,66 @@ export async function submitPartnerApplication(formData: FormData): Promise<{ su
       });
     } catch (emailErr) {
       console.warn('[partner-actions] E-posta gönderilemedi:', emailErr);
+    }
+
+    // ── Müşteriye otomatik yanıt e-postası ───────────────────────────────────
+    try {
+      await sendCustomerEmail({
+        to: email,
+        subject: 'Ihre Partneranfrage bei ElysonSweets',
+        html: `
+<!DOCTYPE html>
+<html lang="de">
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f5; padding: 40px 20px; color: #1a1a1a; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <!-- Header with Logo -->
+    <div style="background-color: #1a1a1a; padding: 30px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 2px;">ELYSON SWEETS</h1>
+      <p style="color: #d1d5db; margin: 5px 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Premium B2B Partner</p>
+    </div>
+    
+    <!-- Content -->
+    <div style="padding: 40px 30px;">
+      <h2 style="margin: 0 0 20px; color: #1a1a1a; font-size: 22px;">Guten Tag ${contact_person ? contact_person : unvan},</h2>
+      
+      <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin-bottom: 20px;">
+        Vielen Dank für Ihr Interesse an einer Partnerschaft mit ElysonSweets! Wir haben Ihre Anfrage erfolgreich erhalten.
+      </p>
+      
+      <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin-bottom: 30px;">
+        Unser Team wird Ihre Angaben (<strong>${unvan}</strong>) umgehend prüfen. Wir melden uns in Kürze telefonisch oder per E-Mail bei Ihnen, um die Details und Konditionen einer möglichen Zusammenarbeit zu besprechen.
+      </p>
+      
+      <div style="background-color: #fcfcfd; border: 1px solid #f3f4f6; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+        <h3 style="margin: 0 0 10px; font-size: 14px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Ihre übermittelten Daten:</h3>
+        <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; color: #374151;">
+          <li style="margin-bottom: 8px;"><strong>Firma:</strong> ${unvan}</li>
+          <li style="margin-bottom: 8px;"><strong>E-Mail:</strong> ${email}</li>
+          ${telefon ? `<li style="margin-bottom: 8px;"><strong>Telefon:</strong> ${telefon}</li>` : ''}
+          ${sehir ? `<li style="margin-bottom: 0;"><strong>Stadt:</strong> ${sehir}</li>` : ''}
+        </ul>
+      </div>
+
+      <p style="font-size: 16px; line-height: 1.6; color: #4b5563; margin-bottom: 0;">
+        Mit freundlichen Grüßen,<br>
+        <strong>Ihr ElysonSweets Team</strong>
+      </p>
+    </div>
+    
+    <!-- Footer -->
+    <div style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #f3f4f6;">
+      <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+        ElysonSweets GmbH<br>
+        <a href="https://www.elysonsweets.de" style="color: #6b7280; text-decoration: none;">www.elysonsweets.de</a> | <a href="mailto:info@elysonsweets.de" style="color: #6b7280; text-decoration: none;">info@elysonsweets.de</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+        `
+      });
+    } catch (customerEmailErr) {
+      console.warn('[partner-actions] Müşteri onay e-postası gönderilemedi:', customerEmailErr);
     }
 
     // Sayfaları yenile

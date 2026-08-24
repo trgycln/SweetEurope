@@ -41,3 +41,32 @@ export async function sendAdminEmail({
     console.error('[email] Gönderim hatası:', err);
   }
 }
+
+export async function sendCustomerEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — müşteri e-postası gönderilmedi.');
+    return;
+  }
+
+  try {
+    await resend.emails.send({
+      from: 'ElysonSweets <info@elysonsweets.de>',
+      to,
+      subject,
+      html,
+      replyTo: 'info@elysonsweets.de',
+    });
+  } catch (err) {
+    console.error('[email] Müşteri e-posta gönderim hatası:', err);
+  }
+}
+

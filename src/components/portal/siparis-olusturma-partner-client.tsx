@@ -130,6 +130,26 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
         }, 0)
     , [warenkorb]);
 
+    const toplamKdv = useMemo(() =>
+        warenkorb.reduce((acc, item) => {
+            const kdvOrani = (item.produkt as any).kdv_orani ?? 19; // Varsayılan KDV %19
+            const { toplamFiyat } = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
+            return acc + (toplamFiyat * kdvOrani / 100);
+        }, 0)
+    , [warenkorb]);
+
+    const genelToplam = toplamTutar + toplamKdv;
+
+    const toplamKoli = useMemo(() =>
+        warenkorb.reduce((acc, item) => {
+            const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
+            // koliMiktar, 'koli' veya 'palet' seçildiyse zaten tam sayıdır, 'adet' seçildiyse koli adetine bölünür
+            // Ancak toplam sepetteki *tüm* koli boyutunu bulmak istiyoruz. Adet cinsinden toplamı koliye çevirelim:
+            const koliKismi = sepet.toplamAdet / sepet.koliIciAdet;
+            return acc + koliKismi;
+        }, 0)
+    , [warenkorb]);
+
     // --- JSX (Layout und Katalog unverändert) ---
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
@@ -286,15 +306,35 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                         <div className="pt-6 border-t border-gray-200 space-y-4">
                             {indirimOrani > 0 && <p className="text-sm font-semibold text-green-600 text-right">{content.cartDiscountApplied?.replace('{discount}', indirimOrani.toString())}</p>}
                             <div className="flex justify-between items-baseline gap-4">
+                                <span className="text-sm font-semibold text-gray-500">
+                                    {locale === 'de' ? 'Netto:' : 'Ara Toplam:'}
+                                </span>
+                                <div className="text-right">
+                                    <span className="text-lg font-bold text-gray-700">
+                                        {formatCurrency(toplamTutar, locale)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-baseline gap-4 border-b border-gray-100 pb-2">
+                                <span className="text-sm font-semibold text-gray-500">
+                                    {locale === 'de' ? 'MwSt.:' : 'KDV:'}
+                                </span>
+                                <div className="text-right">
+                                    <span className="text-lg font-bold text-gray-700">
+                                        {formatCurrency(toplamKdv, locale)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-baseline gap-4">
                                 <span className="text-lg font-bold text-primary">
-                                    {content.cartTotal || (locale === 'de' ? 'Gesamt:' : 'Toplam:')}
+                                    {content.cartTotal || (locale === 'de' ? 'Gesamt:' : 'Genel Toplam:')}
                                 </span>
                                 <div className="text-right">
                                     <span className="text-2xl font-bold text-accent">
-                                        {formatCurrency(toplamTutar, locale)}
+                                        {formatCurrency(genelToplam, locale)}
                                     </span>
                                     <p className="text-[11px] text-gray-400 mt-0.5">
-                                        {locale === 'de' ? 'zzgl. MwSt.' : 'KDV hariç'} · {
+                                        {
                                             warenkorb.reduce((acc, item) => {
                                                 const { toplamAdet } = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
                                                 return acc + toplamAdet;
@@ -303,8 +343,23 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex flex-col justify-end gap-3">
-                                <button onClick={handleSiparisOnayla} disabled={isPending} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-80 font-bold disabled:bg-opacity-60 disabled:cursor-wait">
+                            
+                            {toplamKoli < 1 && (
+                                <div className="bg-red-50 text-red-600 text-xs p-3 rounded-md font-semibold text-center border border-red-100">
+                                    {locale === 'de' 
+                                        ? 'Der Mindestbestellwert beträgt 1 Karton. Bitte fügen Sie weitere Artikel hinzu.' 
+                                        : 'Minimum sipariş miktarı 1 kolidir. Lütfen sepetinize ürün ekleyin.'}
+                                </div>
+                            )}
+
+                            <div className="bg-blue-50 text-blue-700 text-[11px] p-3 rounded-md text-center border border-blue-100 mt-2">
+                                {locale === 'de' 
+                                    ? 'Hinweis: Bei Lieferungen außerhalb des Kölner Raums werden die Versandkosten nach der Bestellung separat in der Rechnung ausgewiesen.' 
+                                    : 'Not: Teslimat adresiniz Köln bölgesi dışındaysa, kargo ücreti sipariş sonrası faturanıza ayrıca yansıtılacaktır.'}
+                            </div>
+
+                            <div className="flex flex-col justify-end gap-3 mt-4">
+                                <button onClick={handleSiparisOnayla} disabled={isPending || toplamKoli < 1} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-80 font-bold disabled:bg-opacity-60 disabled:cursor-not-allowed transition-all">
                                     {isPending ? <FiLoader className="animate-spin"/> : <FiSend />}
                                     {content.confirmOrderButton || "Bestellung bestätigen"}
                                 </button>

@@ -321,99 +321,104 @@ function CatalogCard({
             {/* Content */}
             <div className="flex flex-col flex-1 p-2.5 gap-1">
 
-                {/* Kategori + stok */}
-                <div className="flex items-center justify-between gap-1">
-                    {kategoriAdi && (
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 truncate">
-                            {kategoriAdi}
+                {/* Upper Content (Expands) */}
+                <div className="flex-1 flex flex-col gap-1">
+                    {/* Kategori + stok */}
+                    <div className="flex items-center justify-between gap-1">
+                        {kategoriAdi && (
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 truncate">
+                                {kategoriAdi}
+                            </span>
+                        )}
+                        <span className={`ml-auto flex items-center gap-1 text-[9px] font-medium flex-shrink-0 ${inStock ? 'text-emerald-600' : 'text-slate-400'}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${inStock ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                            {inStock
+                                ? (dictionary?.publicProductsPage?.available || 'Verfügbar')
+                                : (dictionary?.publicProductsPage?.onRequest || 'Auf Anfrage')}
+                        </span>
+                    </div>
+
+                    {/* EAN */}
+                    {urun.ean_gtin && (
+                        <span className="text-[9px] font-mono text-slate-400 flex items-center gap-1 leading-none">
+                            <LuBarcode size={9} /> {urun.ean_gtin}
                         </span>
                     )}
-                    <span className={`ml-auto flex items-center gap-1 text-[9px] font-medium flex-shrink-0 ${inStock ? 'text-emerald-600' : 'text-slate-400'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${inStock ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                        {inStock
-                            ? (dictionary?.publicProductsPage?.available || 'Verfügbar')
-                            : (dictionary?.publicProductsPage?.onRequest || 'Auf Anfrage')}
-                    </span>
+
+                    {/* Product name */}
+                    <Link href={`/${locale}/products/${urun.slug}`}>
+                        <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 min-h-[40px] group-hover:text-slate-600">
+                            {name}
+                        </h3>
+                    </Link>
+
+                    {/* Quantity chips */}
+                    <div className="flex flex-wrap gap-1">
+                        {koliIciAdet > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border-sky-200">
+                                <LuPackage size={9} />
+                                {koliIciAdet} {dictionary?.publicProductsPage?.piecesPerCarton || 'Stk./Ktn.'}
+                            </span>
+                        )}
+                        {paletIciKoliAdet > 0 && (
+                            <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border-violet-200">
+                                {paletIciKoliAdet} {dictionary?.publicProductsPage?.cartonsPerPallet || 'Ktn./Pal.'}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Quality/cert/dietary badges row */}
+                    <ProductDietaryBadges
+                        teknikOzellikler={urun.teknik_ozellikler as any}
+                        zertifikate={urun.zertifikate}
+                        size="sm"
+                    />
                 </div>
 
-                {/* EAN */}
-                {urun.ean_gtin && (
-                    <span className="text-[9px] font-mono text-slate-400 flex items-center gap-1 leading-none">
-                        <LuBarcode size={9} /> {urun.ean_gtin}
-                    </span>
-                )}
-
-                {/* Product name */}
-                <Link href={`/${locale}/products/${urun.slug}`}>
-                    <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 min-h-[40px] group-hover:text-slate-600">
-                        {name}
-                    </h3>
-                </Link>
-
-                {/* Quantity chips (ONCE only — no duplicate below) */}
-                <div className="flex flex-wrap gap-1">
-                    {koliIciAdet > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border-sky-200">
-                            <LuPackage size={9} />
-                            {koliIciAdet} {dictionary?.publicProductsPage?.piecesPerCarton || 'Stk./Ktn.'}
-                        </span>
-                    )}
-                    {paletIciKoliAdet > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border-violet-200">
-                            {paletIciKoliAdet} {dictionary?.publicProductsPage?.cartonsPerPallet || 'Ktn./Pal.'}
-                        </span>
-                    )}
-                </div>
-
-                {/* Quality/cert/dietary badges row */}
-                <ProductDietaryBadges
-                    teknikOzellikler={urun.teknik_ozellikler as any}
-                    zertifikate={urun.zertifikate}
-                    size="sm"
-                />
-
-                {/* Pricing area */}
-                <div className="mt-auto pt-2 border-t border-slate-100">
+                {/* Pricing area (Fixed layout at bottom) */}
+                <div className="mt-2 pt-2 border-t border-slate-100 flex flex-col justify-end" style={{ minHeight: isLoggedIn ? '96px' : '52px' }}>
                     {!isLoggedIn ? (
                         /* Guest state */
-                        <div className="space-y-2">
-                            <p className="text-xs italic text-slate-400">
+                        <div className="flex flex-col h-full">
+                            <p className="text-xs italic text-slate-400 flex-1 flex items-center">
                                 {dictionary?.publicProductsPage?.priceLogin || 'Preis auf Anfrage'}
                             </p>
                             <Link href={`/${locale}/products/${urun.slug}`}
-                                className="flex items-center justify-center gap-1 w-full px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 hover:text-slate-800 transition-colors">
+                                className="mt-auto flex items-center justify-center gap-1 w-full px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 hover:text-slate-800 transition-colors">
                                 {dictionary?.publicProductsPage?.details || 'Details'} <FiChevronRight size={11} />
                             </Link>
                         </div>
                     ) : (
                         /* Partner logged-in state */
-                        <div className="space-y-1.5">
-                            {hasAnyPrice ? (
-                                <div className="space-y-0.5">
-                                    {pricingRows.map((row, i) => {
-                                        if (!row.price || row.price <= 0) return null;
-                                        const isHighlighted = partnerTier === row.tierKey;
-                                        return (
-                                            <div key={i}
-                                                className={`flex items-center justify-between px-2 py-1 rounded-md text-[10px] transition-all duration-300
-                                                    ${isHighlighted
-                                                        ? 'bg-amber-50/80 border border-amber-200 font-bold text-amber-900 shadow-sm'
-                                                        : 'text-stone-600'}`}>
-                                                <span className={isHighlighted ? 'text-amber-700' : 'text-stone-500'}>{row.label}</span>
-                                                <span className={`font-semibold ${isHighlighted ? 'text-amber-900' : 'text-stone-800'}`}>
-                                                    {money(row.price)}
-                                                </span>
-                                            </div>
-                                        );
-                                    })}
-                                    <p className="text-[8px] text-slate-400 text-right">zzgl. MwSt.</p>
-                                </div>
-                            ) : (
-                                <p className="text-[10px] italic text-slate-400">
-                                    {dictionary?.publicProductsPage?.priceOnRequest || 'Preis auf Anfrage'}
-                                </p>
-                            )}
-                            <div className="flex gap-1.5">
+                        <div className="flex flex-col h-full">
+                            <div className="flex-1 flex flex-col justify-end mb-2">
+                                {hasAnyPrice ? (
+                                    <div className="space-y-0.5">
+                                        {pricingRows.map((row, i) => {
+                                            if (!row.price || row.price <= 0) return null;
+                                            const isHighlighted = partnerTier === row.tierKey;
+                                            return (
+                                                <div key={i}
+                                                    className={`flex items-center justify-between px-2 py-1 rounded-md text-[10px] transition-all duration-300
+                                                        ${isHighlighted
+                                                            ? 'bg-amber-50/80 border border-amber-200 font-bold text-amber-900 shadow-sm'
+                                                            : 'text-stone-600'}`}>
+                                                    <span className={isHighlighted ? 'text-amber-700' : 'text-stone-500'}>{row.label}</span>
+                                                    <span className={`font-semibold ${isHighlighted ? 'text-amber-900' : 'text-stone-800'}`}>
+                                                        {money(row.price)}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                        <p className="text-[8px] text-slate-400 text-right">zzgl. MwSt.</p>
+                                    </div>
+                                ) : (
+                                    <p className="text-[10px] italic text-slate-400 mb-1">
+                                        {dictionary?.publicProductsPage?.priceOnRequest || 'Preis auf Anfrage'}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="flex gap-1.5 mt-auto">
                                 <Link href={`/${locale}/products/${urun.slug}`}
                                     className="flex items-center justify-center gap-1 flex-1 px-2 py-1.5 text-[10px] font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 transition-colors">
                                     {dictionary?.publicProductsPage?.details || 'Details'}
@@ -526,18 +531,23 @@ function MerklisteDrawer({
                 </div>
 
                 {items.length > 0 && (
-                    <div className="px-4 py-3 border-t border-slate-200 space-y-2">
+                    <div className="px-4 py-3 border-t border-slate-200 space-y-2 bg-slate-50">
+                        {items.length > 15 && (
+                            <div className="text-[10px] text-amber-700 bg-amber-100 p-2 rounded-lg border border-amber-200 mb-2 leading-tight">
+                                ⚠️ {locale === 'tr' ? 'Çok fazla ürün eklediniz. E-posta sınırı nedeniyle siparişiniz tam iletilemeyebilir, listeyi bölerek gönderin veya doğrudan iletişime geçin.' : locale === 'en' ? 'Too many items. Your email client might truncate the message. Please send in parts or contact us directly.' : locale === 'ar' ? 'عناصر كثيرة جدا. قد يقطع بريدك الإلكتروني الرسالة. يرجى الإرسال على أجزاء أو الاتصال بنا مباشرة.' : 'Zu viele Artikel. Ihr E-Mail-Programm könnte die Nachricht abschneiden. Bitte in Teilen senden oder uns direkt kontaktieren.'}
+                            </div>
+                        )}
                         {totalValue > 0 && (
-                            <div className="flex justify-between text-xs text-slate-600">
+                            <div className="flex justify-between text-xs text-slate-600 mb-2">
                                 <span>{locale === 'tr' ? 'Tahmini toplam' : locale === 'en' ? 'Estimated total' : locale === 'ar' ? 'المجموع المقدر' : 'Geschätzter Gesamtwert'}</span>
                                 <span className="font-semibold">{money(totalValue)}</span>
                             </div>
                         )}
-                        <a href={`mailto:info@elysonsweets.de?subject=${encodeURIComponent('Anfrage / Bestellung')}&body=${buildMailBody()}`}
+                        <Link href={`/${locale}/contact?subject=${encodeURIComponent('Anfrage / Bestellung')}&body=${buildMailBody()}`}
                             className="flex items-center justify-center gap-2 w-full py-3 bg-stone-900 text-white text-sm font-semibold rounded-xl hover:bg-stone-800 hover:shadow-lg transition-all duration-300">
                             <FiSend size={14} />
                             {locale === 'tr' ? 'Talep gönder' : locale === 'en' ? 'Send request' : locale === 'ar' ? 'ارسال الطلب' : 'Anfrage senden'}
-                        </a>
+                        </Link>
                     </div>
                 )}
             </div>
@@ -568,7 +578,7 @@ function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, par
             </div>
             <ProductCarousel>
                 {urunler.map(urun => (
-                    <div key={urun.id} className="w-48 flex-shrink-0 snap-start">
+                    <div key={urun.id} className="w-48 flex-shrink-0 snap-start flex flex-col">
                         <CatalogCard
                             urun={urun}
                             locale={locale}
@@ -798,6 +808,31 @@ export function ProductGridClient({
     // Server-side arama — filteredUrunler = urunler (server zaten filtredi)
     const filteredUrunler = urunler;
 
+    // Alt kategorilere göre gruplama mantığı
+    const groupedUrunler = useMemo(() => {
+        // Eğer arama yapılıyorsa veya sadece 1 kategori grubu varsa gruplama yapmaya gerek yok
+        if (searchQuery) return null;
+
+        const groups: { catName: string; products: Urun[] }[] = [];
+        const groupMap = new Map<string, Urun[]>();
+        
+        filteredUrunler.forEach(u => {
+            const catName = u.kategori_id ? (kategoriAdlariMap.get(u.kategori_id) || 'Diğer') : 'Diğer';
+            if (!groupMap.has(catName)) {
+                groupMap.set(catName, []);
+            }
+            groupMap.get(catName)!.push(u);
+        });
+        
+        if (groupMap.size <= 1) return null;
+
+        for (const [catName, products] of groupMap.entries()) {
+            groups.push({ catName, products });
+        }
+        
+        return groups;
+    }, [filteredUrunler, kategoriAdlariMap, searchQuery]);
+
     const searchPlaceholder = dictionary?.publicProductsPage?.searchPlaceholderGrid || 'Produkt, Art.-Nr. oder EAN suchen…';
 
     // All urunler for merkliste price lookup (page + bestsellers)
@@ -946,6 +981,31 @@ export function ProductGridClient({
                 </div>
             </div>
 
+            {/* Sticky Tabs for Quick Navigation */}
+            {viewMode === 'grid' && groupedUrunler && (
+                <div className="sticky top-[72px] z-30 bg-[#FAFAFA]/95 backdrop-blur-xl py-3 border-b border-stone-200 mb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <div className="flex flex-wrap gap-2">
+                        {groupedUrunler.map((group, idx) => (
+                            <a 
+                                key={idx} 
+                                href={`#cat-group-${idx}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    const el = document.getElementById(`cat-group-${idx}`);
+                                    if (el) {
+                                        const y = el.getBoundingClientRect().top + window.scrollY - 140;
+                                        window.scrollTo({ top: y, behavior: 'smooth' });
+                                    }
+                                }}
+                                className="px-4 py-2 text-[11px] font-bold rounded-full bg-white border border-stone-200 text-stone-600 hover:border-amber-400 hover:text-amber-700 whitespace-nowrap shadow-sm transition-all"
+                            >
+                                {group.catName} <span className="text-[9px] text-stone-400 ml-1 bg-stone-100 px-1.5 py-0.5 rounded-full">{group.products.length}</span>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* ElysonSweets Empfiehlt */}
             {featuredUrunler.length > 0 && !searchQuery && !geschmackFilter && (
                 <div className={viewMode === 'grid' ? 'bg-gradient-to-br from-amber-50/80 to-amber-100/50 backdrop-blur-md border border-amber-200 rounded-3xl p-5 shadow-[0_4px_20px_rgb(0,0,0,0.02)]' : 'border border-amber-200 rounded-2xl overflow-hidden shadow-sm'}>
@@ -968,7 +1028,7 @@ export function ProductGridClient({
                                         initial="hidden"
                                         whileInView="show"
                                         viewport={{ once: true, amount: 0.1 }}
-                                        className="w-48 flex-shrink-0 will-change-transform h-full snap-start"
+                                        className="w-48 flex-shrink-0 will-change-transform flex flex-col snap-start"
                                     >
                                         <CatalogCard
                                             urun={urun}
@@ -1077,30 +1137,68 @@ export function ProductGridClient({
                 </div>
             ) : viewMode === 'grid' ? (
                 <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-                        {filteredUrunler.map((urun, index) => (
-                            <motion.div 
-                                key={urun.id} 
-                                custom={index}
-                                variants={itemVariants} 
-                                initial="hidden"
-                                whileInView="show"
-                                viewport={{ once: true, amount: 0.1 }}
-                                className="will-change-transform h-full"
-                            >
-                                <CatalogCard
-                                    urun={urun}
-                                    locale={locale}
-                                    kategoriAdlariMap={kategoriAdlariMap}
-                                    isLoggedIn={activeIsLoggedIn}
-                                    partnerTier={activePartnerTier}
-                                    onAddToMerkliste={activeIsLoggedIn ? addToMerkliste : undefined}
-                                    inMerkliste={merklisteIds.has(urun.id)}
-                                    dictionary={dictionary}
-                                />
-                            </motion.div>
-                        ))}
-                    </div>
+                    {groupedUrunler ? (
+                        <div className="space-y-10">
+                            {groupedUrunler.map((group, groupIdx) => (
+                                <div id={`cat-group-${groupIdx}`} key={groupIdx} className="bg-white/40 p-4 sm:p-5 rounded-3xl border border-white shadow-[0_4px_20px_rgb(0,0,0,0.02)] scroll-mt-36">
+                                    <h3 className="text-xl font-bold text-stone-800 mb-5 flex items-center gap-2">
+                                        <span className="w-2 h-6 bg-amber-500 rounded-full"></span>
+                                        {group.catName}
+                                        <span className="text-sm font-medium text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full ml-1">{group.products.length}</span>
+                                    </h3>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                                        {group.products.map((urun, index) => (
+                                            <motion.div 
+                                                key={urun.id} 
+                                                custom={index}
+                                                variants={itemVariants} 
+                                                initial="hidden"
+                                                whileInView="show"
+                                                viewport={{ once: true, amount: 0.1 }}
+                                                className="will-change-transform h-full"
+                                            >
+                                                <CatalogCard
+                                                    urun={urun}
+                                                    locale={locale}
+                                                    kategoriAdlariMap={kategoriAdlariMap}
+                                                    isLoggedIn={activeIsLoggedIn}
+                                                    partnerTier={activePartnerTier}
+                                                    onAddToMerkliste={activeIsLoggedIn ? addToMerkliste : undefined}
+                                                    inMerkliste={merklisteIds.has(urun.id)}
+                                                    dictionary={dictionary}
+                                                />
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                            {filteredUrunler.map((urun, index) => (
+                                <motion.div 
+                                    key={urun.id} 
+                                    custom={index}
+                                    variants={itemVariants} 
+                                    initial="hidden"
+                                    whileInView="show"
+                                    viewport={{ once: true, amount: 0.1 }}
+                                    className="will-change-transform h-full"
+                                >
+                                    <CatalogCard
+                                        urun={urun}
+                                        locale={locale}
+                                        kategoriAdlariMap={kategoriAdlariMap}
+                                        isLoggedIn={activeIsLoggedIn}
+                                        partnerTier={activePartnerTier}
+                                        onAddToMerkliste={activeIsLoggedIn ? addToMerkliste : undefined}
+                                        inMerkliste={merklisteIds.has(urun.id)}
+                                        dictionary={dictionary}
+                                    />
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
                     {pagination && <Pagination pagination={pagination} locale={locale} />}
                 </>
             ) : (

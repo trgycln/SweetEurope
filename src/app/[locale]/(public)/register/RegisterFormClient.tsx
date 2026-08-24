@@ -139,9 +139,9 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
             </div>
             <div>
                 <label htmlFor="steuernummer" className="block text-sm font-bold text-text-main/80 mb-2">
-                    Steuernummer <span className="text-gray-400 font-normal">(optional)</span>
+                    Steuernummer <span className="text-red-500">*</span>
                 </label>
-                <input id="steuernummer" name="steuernummer" type="text"
+                <input id="steuernummer" name="steuernummer" type="text" required
                     placeholder="123/456/78901"
                     className="w-full p-3 border rounded-lg bg-secondary" />
             </div>

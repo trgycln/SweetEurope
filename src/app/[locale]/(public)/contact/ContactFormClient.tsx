@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { submitContactForm } from '@/app/actions/contact-actions';
 
 export default function ContactFormClient({
@@ -16,6 +17,11 @@ export default function ContactFormClient({
 }) {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const searchParams = useSearchParams();
+  const subject = searchParams.get('subject');
+  const bodyParam = searchParams.get('body');
+  
+  const defaultMessage = [subject, bodyParam].filter(Boolean).join('\n\n');
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -95,6 +101,7 @@ export default function ContactFormClient({
             name="message"
             rows={5}
             required
+            defaultValue={defaultMessage}
             className="w-full px-4 py-3 font-sans border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
           />
         </div>

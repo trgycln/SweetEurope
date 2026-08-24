@@ -83,7 +83,7 @@ export default async function PublicUrunlerPage({
     const sp = await searchParams;
 
     const page = Math.max(1, Number.parseInt(sp.page || '1') || 1);
-    const perPage = Math.min(48, Math.max(12, Number.parseInt(sp.limit || '24') || 24));
+    let perPage = Math.min(48, Math.max(12, Number.parseInt(sp.limit || '24') || 24));
 
     const altKategoriFilter = sp.altKategori;
     const geschmackFilter = sp.geschmack;
@@ -95,6 +95,8 @@ export default async function PublicUrunlerPage({
     let seciliKategoriSlug: string | undefined;
     if (sp.kategori && sp.kategori.toLowerCase() !== 'null' && !isPublicCategorySlugHidden(sp.kategori)) {
         seciliKategoriSlug = sp.kategori;
+        // Kategori seçiliyse (veya alt kategori), ürünleri gruplayabilmek için tümünü tek sayfada gösteriyoruz (Max 1000)
+        perPage = 1000;
     }
 
     // Auth moved to client component to enable static caching of this page
@@ -357,38 +359,42 @@ export default async function PublicUrunlerPage({
 
     // ── Bestseller products (max 8) ───────────────────────────────────────────
     let bestsellerUrunler: Urun[] = [];
-    try {
-        const { data: bsData } = await (supabase as any)
-            .from('urunler')
-            .select(productSelectFields)
-            .eq('aktif', true)
-            .eq('is_bestseller', true)
-            .limit(8);
-        bestsellerUrunler = (bsData || []).filter(
-            (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
-        ) as unknown as Urun[];
-    } catch {
-        // is_bestseller column not yet added to DB — skip
-        bestsellerUrunler = [];
+    if (!seciliKategoriSlug && !sp.altKategori && !searchQuery) {
+        try {
+            const { data: bsData } = await (supabase as any)
+                .from('urunler')
+                .select(productSelectFields)
+                .eq('aktif', true)
+                .eq('is_bestseller', true)
+                .limit(8);
+            bestsellerUrunler = (bsData || []).filter(
+                (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
+            ) as unknown as Urun[];
+        } catch {
+            // is_bestseller column not yet added to DB — skip
+            bestsellerUrunler = [];
+        }
     }
 
     let featuredUrunler: Urun[] = [];
-    try {
-        let featuredQuery = (supabase as any)
-            .from('urunler')
-            .select(productSelectFields)
-            .eq('aktif', true)
-            .eq('is_featured', true);
-        if (gamFilter) {
-            featuredQuery = featuredQuery.eq('urun_gami', gamFilter);
+    if (!seciliKategoriSlug && !sp.altKategori && !searchQuery) {
+        try {
+            let featuredQuery = (supabase as any)
+                .from('urunler')
+                .select(productSelectFields)
+                .eq('aktif', true)
+                .eq('is_featured', true);
+            if (gamFilter) {
+                featuredQuery = featuredQuery.eq('urun_gami', gamFilter);
+            }
+            const { data: featuredData } = await featuredQuery
+                .order('featured_sira', { ascending: true });
+            featuredUrunler = (featuredData || []).filter(
+                (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
+            ) as unknown as Urun[];
+        } catch {
+            featuredUrunler = [];
         }
-        const { data: featuredData } = await featuredQuery
-            .order('featured_sira', { ascending: true });
-        featuredUrunler = (featuredData || []).filter(
-            (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
-        ) as unknown as Urun[];
-    } catch {
-        featuredUrunler = [];
     }
 
     // Aroma sayılarını hesapla — tüm aktif ürünlerden
@@ -465,10 +471,10 @@ export default async function PublicUrunlerPage({
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                                 {totalAllProducts} {dictionary.publicProductsPage?.totalProductsInCatalog || 'Artikel im Sortiment'}
                             </div>
-                            <a href={`mailto:info@elysonsweets.de?subject=${encodeURIComponent('Preisanfrage / B2B Katalog')}`}
+                            <Link href={`/${locale}/contact?subject=${encodeURIComponent('Preisanfrage / B2B Katalog')}`}
                                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-white border border-white/80 shadow-[0_4px_14px_0_rgb(0,0,0,0.05)] rounded-xl px-4 py-2 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)] transition-all duration-300">
                                 <FiMail size={14} className="text-amber-600" /> {dictionary.publicProductsPage?.priceRequest || 'Preisanfrage'}
-                            </a>
+                            </Link>
                         </div>
                     </div>
 
@@ -480,7 +486,7 @@ export default async function PublicUrunlerPage({
                 <div className="flex gap-6">
 
                     {/* ── Filter Sidebar ─────────────────────────────────────── */}
-                    <aside className="hidden lg:flex flex-col gap-5 w-52 flex-shrink-0">
+                    <aside className="hidden lg:flex flex-col gap-5 w-64 flex-shrink-0">
 
                         {/* Kategorien — real DB categories */}
                         <div>
@@ -516,7 +522,7 @@ export default async function PublicUrunlerPage({
                                                 <Link href={buildProductsHref({ kategori: k.slug || undefined })}
                                                     className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-sm transition-all duration-300
                                                         ${isSelected ? 'bg-amber-50 text-amber-900 font-bold shadow-sm border border-amber-100' : 'text-stone-600 hover:bg-white hover:shadow-sm'}`}>
-                                                    <span className="truncate">{getLocalizedName(k.ad, locale as any)}</span>
+                                                    <span className="leading-tight pr-2">{getLocalizedName(k.ad, locale as any)}</span>
                                                     <span className="text-[10px] text-slate-400 ml-1 flex-shrink-0">{count}</span>
                                                 </Link>
                                                 {subKats.length > 0 && (
@@ -526,7 +532,7 @@ export default async function PublicUrunlerPage({
                                                                 href={buildProductsHref({ kategori: k.slug || undefined, altKategori: sk.slug || undefined })}
                                                                 className={`flex items-center justify-between w-full px-3 py-1.5 rounded-xl text-xs transition-all duration-300
                                                                     ${sp.altKategori === sk.slug ? 'text-amber-900 font-bold bg-amber-50/50' : 'text-stone-500 hover:text-stone-900 hover:bg-white/50'}`}>
-                                                                <span className="truncate">{getLocalizedName(sk.ad, locale as any)}</span>
+                                                                <span className="leading-tight pr-2">{getLocalizedName(sk.ad, locale as any)}</span>
                                                                 <span className="text-[10px] text-slate-400">{categoryProductCounts[sk.id] || 0}</span>
                                                             </Link>
                                                         ))}
@@ -560,7 +566,7 @@ export default async function PublicUrunlerPage({
                                                 ${isActive ? 'bg-amber-50 text-amber-900 font-bold border border-amber-200 shadow-sm' : 'text-stone-600 hover:bg-white hover:shadow-sm'}`}
                                         >
                                             <span>{emoji}</span>
-                                            <span className="truncate">{label}</span>
+                                            <span className="leading-tight pr-2">{label}</span>
                                         </Link>
                                     );
                                 })}
