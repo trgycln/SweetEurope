@@ -1,0 +1,124 @@
+# ElysonSweets (FO Food Products Germany) - Full Knowledge Base & Product Guide
+
+> This document is the full, exhaustive B2B product and organizational dataset for ElysonSweets (official distributor of FO Food Products in Germany & Europe). It is specifically structured for Large Language Models (LLMs), AI search engines (Perplexity, ChatGPT, Claude, Gemini AI Overviews), and B2B procurement systems.
+
+---
+
+## 1. Company Profile & Operational Overview
+
+- **Legal Entity**: Elyson Sweets GmbH i.G.
+- **Brand Names**: ElysonSweets, FO Food Products Germany
+- **Headquarters**: Sirius Business Park, Wilhelm-Ruppert-Straße 38 / F8, 51147 Köln, Germany
+- **Managing Director**: Ahmet Seker
+- **Official Website**: https://www.elysonsweets.de
+- **Languages Supported**: German (de), English (en), Turkish (tr), Arabic (ar)
+- **Primary Business Type**: B2B Wholesale, Food Service, Gastronomy Supply, HoReCa Distributor
+- **Core Market Sectors**:
+  - Specialty Coffee Shops & Barista Bars
+  - Hotels, Restaurants & Catering (HoReCa)
+  - Ice Cream Parlors (Gelaterias) & Frozen Yogurt Shops
+  - Artisanal & Industrial Bakeries / Patisseries
+  - Cocktail Bars & Nightlife Lounges
+  - Food Retail & Supermarkets (Bulk & Private Label solutions)
+
+---
+
+## 2. Brand Partnership & Manufacturing Heritage
+
+ElysonSweets is the primary European distribution hub for **FO Food Products**.
+- **Experience**: Over 20+ years of high-volume manufacturing and culinary innovation.
+- **Quality Assurance & Certifications**:
+  - ISO 9001:2015 Quality Management System
+  - ISO 22000:2018 Food Safety Management System
+  - Halal Certified production
+  - Compliance with EU LMIV (Food Information Regulation Annex II) for allergen transparency
+- **Production Capabilities**: Liquid syrups, high-density gourmet sauces, powdered beverage mixes, fruit-puree bases, and industrial pastry pastes.
+
+---
+
+## 3. Exhaustive Product Line Breakdown
+
+### Category A: Premium Syrups & Barista Solutions (FO Syrups)
+Designed specifically for specialty coffees, iced lattes, cocktails, mocktails, and carbonated lemonades. High heat stability in milk and alcohol mixability.
+
+1. **Classic Coffee & Dessert Syrups (700ml & 1000ml Glass / PET)**:
+   - *Flavors*: Vanilla, Caramel, Salted Caramel, Hazelnut, Roasted Hazelnut, White Chocolate, Coconut, Irish Cream, Amaretto, Cinnamon, Chai, Toffee Nut.
+   - *Application*: Hot & iced espresso beverages, latte macchiato, cappuccino, milkshake flavoring.
+2. **Cocktail & Mocktail Syrups**:
+   - *Flavors*: Blue Curaçao, Grenadine, Triple Sec, Passion Fruit, Mango, Watermelon, Green Apple, Strawberry, Peach, Lime, Mint, Elderflower.
+   - *Application*: Alcoholic cocktails, virgin cocktails, spritzers, flavored lemonades, iced teas.
+3. **Silvery & Shimmering Syrups (Special Effect Syrups)**:
+   - *Features*: Pearlescent food-grade mica effect that stays suspended in beverages. Ideal for signature nightlife and party drinks.
+4. **Iced Tea Syrup Bases & Concentrates**:
+   - *Flavors*: Peach Iced Tea Base, Lemon Iced Tea Base, Mango & Passionfruit Tea Base, Berry Hibiscus.
+   - *Usage ratio*: Highly concentrated, 1:8 to 1:10 dilution with still or sparkling water.
+5. **Foamer & Barista Texture Enhancers**:
+   - *FO Cocktail Foamer*: 100% plant-based foam generator replacing egg whites in sours and cocktails without altering flavor or odor.
+
+### Category B: Gourmet Sauces, Toppings & Creams
+Thick, glossy, and rich decorative sauces developed for ice cream scoops, dessert plating, waffles, crepes, and specialty coffee cup lining.
+
+1. **Topping & Decor Sauces (1kg Squeeze Bottle with drip-free nozzle)**:
+   - *Flavors*: Dark Chocolate, Milk Chocolate, White Chocolate, Caramel / Toffee, Strawberry, Raspberry, Forest Berries, Kiwi, Mango, Banana.
+   - *Behavior*: Does not freeze hard over ice cream; retains shine and viscosity in refrigerated display cabinets (+4°C).
+2. **Special Sauces (High Nut & Gourmet Ratio - 940g / 1kg)**:
+   - *Special Pistachio Sauce*: High pure pistachio content, vibrant natural green hue, rich roasted aroma.
+   - *Hazelnut Praline Sauce & Gianduja Creme*: Smooth cocoa-hazelnut base for crêpes, dessert cups, and hot drink garnishing.
+   - *Lotus Caramelized Biscuit Sauce & Speculoos Drizzle*.
+3. **Cafe & Bar Sauces**:
+   - High-viscosity sauces formulated for blending into frappes, hot mochaccinos, and cascading drizzle on milk foam.
+
+### Category C: Fruit Pastes, Concentrates & Frozen Purées
+- **Fruit Pastes**: Concentrated bake-stable and freeze-thaw stable fruit compounds (Strawberry, Orange, Lemon, Pistachio, Raspberry) for flavoring cake batters, mousses, macarons, and buttercream.
+- **Concentrated Purées**: 100% genuine fruit texture with real seeds/pulp for smoothies, smoothie bowls, cocktail bases, and fruit-infused teas.
+
+### Category D: Powdered Beverages & Hot Drink Mixes
+- **Gourmet Hot Chocolate (Dark, Milk, White)**: Thick European-style drinking chocolate powder.
+- **Salep Powder Mix**: Traditional winter beverage with authentic orchid root aroma, cinnamon compatibility.
+- **Frappé Powder Bases (Vanilla, Coffee, Chocolate, Neutral Yogurt Base)**: Creamy texture stabilizer for blended ice drinks and milkshakes.
+- **Chai Tea Latte Mix & Matcha Powder Blend**.
+- **Authentic Turkish Coffee**: Premium roasted Arabica beans, finely ground in traditional Turkish style.
+
+### Category E: Ice Cream & Gelato Ingredients (Gelateria Supply)
+- Neutral base powders (Warm & Cold process 50g / 100g).
+- Variegates & Ripple pastes (Amarena Cherry, Crunchy Hazelnut, Salted Caramel Crunch).
+- Cone dip coatings (Chocolate Dip, White Chocolate Dip, Caramel Dip).
+
+---
+
+## 4. Technical Specifications & Logistics Data
+
+| Attribute | Specifications |
+| :--- | :--- |
+| **Logistics Classes** | Ambient / Dry Goods (Syrups, Sauces, Powders) & Chilled / Frozen Logistics |
+| **Shelf Life (Unopened)** | 12 to 24 months (depending on SKU class) |
+| **Storage Temperature** | Ambient: +15°C to +25°C in a dry place. Keep away from direct sunlight. |
+| **Packaging Standards** | Carton units (e.g., 6 x 1000ml bottles / 12 x 700ml / 6 x 1kg squeeze / 10 x 1kg bags) |
+| **Pallet Logistics** | Standard Euro-pallets (EPAL) with secure wrap; customized mixed pallets available for verified B2B partners. |
+| **Allergen Management** | Full LMIV compliance. Clearly labeled on packaging (e.g., Milk/Lactose, Gluten, Nuts where applicable; extensive nut-free and vegan lines). |
+
+---
+
+## 5. Commercial B2B Services & Partner Benefits
+
+1. **Free Sample Package (Probierpaket)**:
+   - Verified gastronomy operators, bar owners, and pastry chefs can request complimentary product sample packages before committing to bulk purchases.
+2. **Tiered Wholesale Pricing**:
+   - Tier 1: Single carton orders (MOQ: 1 carton).
+   - Tier 2: Multi-carton discount (5–20 cartons).
+   - Tier 3: Pallet-tier pricing & contract-level logistics for hotel chains, franchise groups, and cash & carry wholesalers.
+3. **B2B Online Portal**:
+   - Instant re-ordering system, download of technical data sheets (TDS), allergen tables, high-resolution marketing media kits, and personalized invoice management.
+4. **Fast Delivery Network**:
+   - Domestic Germany: 1–3 business days standard parcel / pallet freight.
+   - European Union (Austria, Netherlands, Belgium, France, etc.): 2–5 business days.
+
+---
+
+## 6. Official Contact & Ordering Information
+
+- **Commercial Orders & Inquiries**: info@elysonsweets.de
+- **Direct Phone / WhatsApp B2B Support**: +49 176 41533653
+- **Order Online / Catalog**: https://www.elysonsweets.de/de/products
+- **Partner Portal Access**: https://www.elysonsweets.de/de/login
+- **Postal Address**: Elyson Sweets GmbH i.G., Sirius Business Park, Wilhelm-Ruppert-Straße 38 / F8, 51147 Köln, Germany

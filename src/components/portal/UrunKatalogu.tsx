@@ -81,8 +81,8 @@ function SepeteEkleModal({
 
     return (
         <>
-            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <div className="fixed inset-0 z-[10000] bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none">
                 <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden pointer-events-auto">
                     {/* Header */}
                     <div className="flex items-center gap-3 p-4 border-b">

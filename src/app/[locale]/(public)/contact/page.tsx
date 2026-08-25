@@ -8,8 +8,9 @@ import { FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
 import ContactFormClient from './ContactFormClient';
 import type { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: { locale: Locale } }): Promise<Metadata> {
-  const dictionary = await getDictionary(params.locale);
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const dictionary = await getDictionary(locale);
   
   return {
     title: dictionary.seo?.contact?.title || 'Contact | Elysion Sweets',
@@ -17,16 +18,17 @@ export async function generateMetadata({ params }: { params: { locale: Locale } 
     openGraph: {
       title: dictionary.seo?.contact?.title || 'Contact | Elysion Sweets',
       description: dictionary.seo?.contact?.description || '',
-      locale: params.locale,
+      locale,
       type: 'website',
     },
   };
 }
 
 // KORREKTUR: Die Seite muss 'async' sein und 'params' empfangen
-export default async function KontaktPage({ params }: { params: { locale: Locale } }) {
+export default async function KontaktPage({ params }: { params: Promise<{ locale: Locale }> }) {
+  const { locale } = await params;
   // KORREKTUR: Wörterbuch dynamisch laden
-  const dictionary = await getDictionary(params.locale);
+  const dictionary = await getDictionary(locale);
   const content = dictionary.contactPage;
 
   return (

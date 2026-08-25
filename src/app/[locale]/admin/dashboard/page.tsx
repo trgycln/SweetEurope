@@ -677,12 +677,13 @@ export default async function AdminDashboardPage({
     params,
     searchParams,
 }: {
-    params: { locale: Locale };
-    searchParams?: { period?: string };
+    params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ period?: string }>;
 }) {
     noStore();
-    const locale     = await Promise.resolve(params).then(p => p.locale);
-    const period     = searchParams?.period ?? 'bu-ay';
+    const { locale } = await params;
+    const resolvedSearchParams = searchParams ? await searchParams : undefined;
+    const period     = resolvedSearchParams?.period ?? 'bu-ay';
     const dictionary = await getDictionary(locale);
 
     const cookieStore = await cookies();

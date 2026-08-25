@@ -1,10 +1,11 @@
 'use client';
 
-// useEffect und useSearchParams hinzufügen
-import { useEffect, useTransition, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation'; // useSearchParams hinzufügen
-import { FiTrash2, FiSend, FiLoader, FiShoppingCart, FiX } from 'react-icons/fi';
+import { useEffect, useTransition, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { FiTrash2, FiSend, FiLoader, FiShoppingCart, FiX, FiCreditCard, FiFileText, FiTruck } from 'react-icons/fi';
 import { siparisOlusturAction } from '@/app/actions/siparis-actions';
+import { createStripeCheckoutSessionAction } from '@/app/actions/stripe-actions';
+import { calculateShipping } from '@/lib/shippingUtils';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { Dictionary } from '@/dictionaries';
@@ -89,39 +90,11 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
     // +++ ENDE useEffect Hook +++
 
 
-    const handleSiparisOnayla = () => {
-        if (warenkorb.length === 0) {
-            toast.error(content.error?.cartEmpty || 'Ihr Warenkorb ist leer.');
-            return;
-        }
+    const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'rechnung'>('stripe');
 
-        startTransition(async () => {
-            const itemsToSubmit = warenkorb.map(item => {
-                const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
-
-                return {
-                    urun_id: item.produkt.id,
-                    adet: sepet.toplamAdet,
-                    o_anki_satis_fiyati: sepet.adetFiyat,
-                };
-            });
-
-            const result = await siparisOlusturAction({
-                firmaId: firma.id,
-                teslimatAdresi: firma.adres || 'Adresse nicht angegeben', // Übersetzt
-                items: itemsToSubmit,
-                kaynak: 'Müşteri Portalı'
-            });
-
-            if (result?.error) {
-                toast.error(result.error);
-            } else if (result?.success && result.orderId) {
-                toast.success("Ihre Bestellung wurde erfolgreich erstellt!"); // Übersetzt
-                clearWarenkorb();
-                router.push(`/${locale}/portal/siparisler/${result.orderId}`);
-            }
-        });
-    };
+    // Extract PLZ from address or use fallback
+    const plzMatch = firma?.adres ? firma.adres.match(/\b\d{5}\b/) : null;
+    const partnerPlz = plzMatch ? plzMatch[0] : '';
 
     const toplamTutar = useMemo(() =>
         warenkorb.reduce((acc, item) => {
@@ -132,23 +105,89 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
     const toplamKdv = useMemo(() =>
         warenkorb.reduce((acc, item) => {
-            const kdvOrani = (item.produkt as any).kdv_orani ?? 19; // Varsayılan KDV %19
+            const kdvOrani = (item.produkt as any).kdv_orani ?? 19;
             const { toplamFiyat } = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
             return acc + (toplamFiyat * kdvOrani / 100);
         }, 0)
     , [warenkorb]);
 
-    const genelToplam = toplamTutar + toplamKdv;
+    const shippingInfo = useMemo(() => {
+        return calculateShipping(toplamTutar, partnerPlz);
+    }, [toplamTutar, partnerPlz]);
+
+    const kargoTutarKdvDahil = shippingInfo.shippingCost > 0 ? shippingInfo.shippingCost * 1.19 : 0;
+    const genelToplam = toplamTutar + toplamKdv + kargoTutarKdvDahil;
 
     const toplamKoli = useMemo(() =>
         warenkorb.reduce((acc, item) => {
             const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
-            // koliMiktar, 'koli' veya 'palet' seçildiyse zaten tam sayıdır, 'adet' seçildiyse koli adetine bölünür
-            // Ancak toplam sepetteki *tüm* koli boyutunu bulmak istiyoruz. Adet cinsinden toplamı koliye çevirelim:
             const koliKismi = sepet.toplamAdet / sepet.koliIciAdet;
             return acc + koliKismi;
         }, 0)
     , [warenkorb]);
+
+    const handleSiparisOnayla = () => {
+        if (warenkorb.length === 0) {
+            toast.error(content.error?.cartEmpty || 'Ihr Warenkorb ist leer.');
+            return;
+        }
+
+        startTransition(async () => {
+            if (paymentMethod === 'stripe') {
+                const itemsToSubmit = warenkorb.map(item => {
+                    const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
+                    return {
+                        urun_id: item.produkt.id,
+                        ad: getLocalizedName(item.produkt.ad, locale) || (item.produkt as any).urun_kodu || (item.produkt as any).kod || 'Produkt',
+                        adet: sepet.toplamAdet,
+                        birimFiyatNet: sepet.adetFiyat,
+                        kdvOrani: (item.produkt as any).kdv_orani ?? 19,
+                    };
+                });
+
+                const stripeRes = await createStripeCheckoutSessionAction({
+                    firmaId: firma?.id || '',
+                    items: itemsToSubmit,
+                    deliveryPlz: partnerPlz,
+                    locale,
+                });
+
+                if (stripeRes.error) {
+                    console.error('Stripe error received:', stripeRes.error);
+                    toast.error(stripeRes.error);
+                } else if (stripeRes.url) {
+                    console.log('Redirecting to Stripe:', stripeRes.url);
+                    window.location.href = stripeRes.url;
+                }
+                return;
+            }
+
+            // Fallback to manual invoice / bank transfer
+            const itemsToSubmit = warenkorb.map(item => {
+                const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
+                return {
+                    urun_id: item.produkt.id,
+                    adet: sepet.toplamAdet,
+                    o_anki_satis_fiyati: sepet.adetFiyat,
+                };
+            });
+
+            const result = await siparisOlusturAction({
+                firmaId: firma?.id || '',
+                teslimatAdresi: firma?.adres || 'Adresse nicht angegeben',
+                items: itemsToSubmit,
+                kaynak: 'Müşteri Portalı'
+            });
+
+            if (result?.error) {
+                toast.error(result.error);
+            } else if (result?.success && result.orderId) {
+                toast.success("Ihre Bestellung auf Rechnung wurde erfolgreich erstellt!");
+                clearWarenkorb();
+                router.push(`/${locale}/portal/siparisler/${result.orderId}`);
+            }
+        });
+    };
 
     // --- JSX (Layout und Katalog unverändert) ---
     return (
@@ -165,12 +204,21 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                 />
             </div>
 
-            {/* --- Warenkorb-Anzeige (JSX unverändert, aber verwendet korrekten State) --- */}
+            {/* --- Warenkorb-Anzeige (JSX) --- */}
             <div className="lg:col-span-1 lg:sticky lg:top-20 self-start">
-                <div className="bg-white p-6 rounded-2xl shadow-lg space-y-6 border border-gray-200">
-                    <h2 className="font-serif text-2xl font-bold text-primary flex items-center gap-2"><FiShoppingCart /> {content.cartTitle || "Ihr Warenkorb"}</h2>
+                <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-lg space-y-3.5 border border-gray-200 max-h-[calc(100vh-6rem)] overflow-y-auto">
+                    <div className="flex items-center justify-between">
+                        <h2 className="font-serif text-lg lg:text-xl font-bold text-primary flex items-center gap-2">
+                            <FiShoppingCart className="text-accent" /> {content.cartTitle || (locale === 'de' ? 'Ihr Warenkorb' : 'Sepetiniz')}
+                        </h2>
+                        {warenkorb.length > 0 && (
+                            <span className="text-xs font-semibold px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                                {warenkorb.length} {locale === 'de' ? 'Artikel' : 'Ürün'}
+                            </span>
+                        )}
+                    </div>
 
-                    <div className="space-y-3 divide-y divide-gray-100 max-h-[50vh] overflow-y-auto pr-1">
+                    <div className="space-y-2.5 divide-y divide-gray-100 max-h-[24vh] overflow-y-auto pr-1">
                         {warenkorb.length > 0 ? warenkorb.map(item => {
                             const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
                             const { toplamAdet, adetFiyat, toplamFiyat, kademe, koliIciAdet, paletIciKoliAdet } = sepet;
@@ -325,6 +373,34 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                     </span>
                                 </div>
                             </div>
+
+                            {/* Versandkosten / Kargo */}
+                            <div className="flex justify-between items-baseline gap-4 border-b border-gray-100 pb-2">
+                                <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-500">
+                                    <FiTruck size={15} className="text-gray-400" />
+                                    <span>{locale === 'de' ? 'Lieferung:' : 'Teslimat:'}</span>
+                                    {shippingInfo.isKolnArea && (
+                                        <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
+                                            Köln
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="text-right">
+                                    {shippingInfo.shippingCost === 0 ? (
+                                        <span className="text-sm font-bold text-emerald-600">
+                                            {locale === 'de' ? 'Kostenlos' : 'Ücretsiz'}
+                                        </span>
+                                    ) : (
+                                        <div>
+                                            <span className="text-sm font-bold text-gray-700">
+                                                {formatCurrency(kargoTutarKdvDahil, locale)}
+                                            </span>
+                                            <span className="text-[10px] text-gray-400 ml-1">({locale === 'de' ? 'inkl. MwSt.' : 'KDV dahil'})</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="flex justify-between items-baseline gap-4">
                                 <span className="text-lg font-bold text-primary">
                                     {content.cartTotal || (locale === 'de' ? 'Gesamt:' : 'Genel Toplam:')}
@@ -352,16 +428,79 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                 </div>
                             )}
 
-                            <div className="bg-blue-50 text-blue-700 text-[11px] p-3 rounded-md text-center border border-blue-100 mt-2">
-                                {locale === 'de' 
-                                    ? 'Hinweis: Bei Lieferungen außerhalb des Kölner Raums werden die Versandkosten nach der Bestellung separat in der Rechnung ausgewiesen.' 
-                                    : 'Not: Teslimat adresiniz Köln bölgesi dışındaysa, kargo ücreti sipariş sonrası faturanıza ayrıca yansıtılacaktır.'}
+                            {/* Ödeme Yöntemi Seçimi */}
+                            <div className="pt-2">
+                                <p className="text-xs font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                                    {locale === 'de' ? 'Zahlungsart wählen:' : 'Ödeme Yöntemi Seçin:'}
+                                </p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setPaymentMethod('stripe')}
+                                        className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between ${
+                                            paymentMethod === 'stripe'
+                                                ? 'border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-600/20 text-indigo-900 shadow-sm'
+                                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <FiCreditCard className={paymentMethod === 'stripe' ? 'text-indigo-600' : 'text-gray-400'} size={18} />
+                                            <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded">
+                                                Stripe
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold">{locale === 'de' ? 'Online-Zahlung' : 'Online Ödeme'}</p>
+                                            <p className="text-[10px] text-gray-500">{locale === 'de' ? 'Kreditkarte & SEPA' : 'Kart & SEPA'}</p>
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setPaymentMethod('rechnung')}
+                                        className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between ${
+                                            paymentMethod === 'rechnung'
+                                                ? 'border-accent bg-amber-50/60 ring-2 ring-accent/20 text-amber-900 shadow-sm'
+                                                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <FiFileText className={paymentMethod === 'rechnung' ? 'text-accent' : 'text-gray-400'} size={18} />
+                                            <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
+                                                B2B
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold">{locale === 'de' ? 'Auf Rechnung' : 'Fatura ile'}</p>
+                                            <p className="text-[10px] text-gray-500">{locale === 'de' ? 'Banküberweisung' : 'Banka Havalesi'}</p>
+                                        </div>
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="flex flex-col justify-end gap-3 mt-4">
-                                <button onClick={handleSiparisOnayla} disabled={isPending || toplamKoli < 1} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-80 font-bold disabled:bg-opacity-60 disabled:cursor-not-allowed transition-all">
-                                    {isPending ? <FiLoader className="animate-spin"/> : <FiSend />}
-                                    {content.confirmOrderButton || "Bestellung bestätigen"}
+                                <button 
+                                    onClick={handleSiparisOnayla} 
+                                    disabled={isPending || toplamKoli < 1} 
+                                    className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg shadow-md font-bold disabled:opacity-60 disabled:cursor-not-allowed transition-all text-sm ${
+                                        paymentMethod === 'stripe'
+                                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20'
+                                            : 'bg-accent hover:bg-opacity-90 text-white shadow-accent/20'
+                                    }`}
+                                >
+                                    {isPending ? (
+                                        <FiLoader className="animate-spin" />
+                                    ) : paymentMethod === 'stripe' ? (
+                                        <>
+                                            <FiCreditCard size={18} />
+                                            {locale === 'de' ? 'Mit Stripe sicher bezahlen' : 'Stripe ile Güvenli Öde'}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FiSend size={18} />
+                                            {content.confirmOrderButton || (locale === 'de' ? 'Bestellung auf Rechnung senden' : 'Siparişi Fatura ile Gönder')}
+                                        </>
+                                    )}
                                 </button>
                                 <button
                                     onClick={() => { clearWarenkorb(); }}

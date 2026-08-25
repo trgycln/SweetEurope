@@ -1,0 +1,54 @@
+# ElysonSweets (FO Food Products Germany) - LLMs.txt
+> ElysonSweets is the official distributor of FO Food Products in Germany and Europe, specializing in B2B supply for HoReCa (Hotels, Restaurants, Cafés), Patisseries, Gelaterias, and Bakeries.
+
+## About ElysonSweets & FO Food Products
+- **Company**: Elyson Sweets GmbH i.G.
+- **Location**: Sirius Business Park, Wilhelm-Ruppert-Straße 38 / F8, 51147 Köln, Germany
+- **Contact**: info@elysonsweets.de | +49 176 41533653 | https://www.elysonsweets.de
+- **Managing Director**: Ahmet Seker
+- **Target Market**: Business-to-Business (B2B) - Gastronomy, HoReCa, Wholesale, Bakeries, Ice Cream Parlors
+- **Primary Brand Partner**: FO Food Products (over 20+ years of high-standard food & beverage ingredient manufacturing)
+- **Logistics & Delivery**: Ambient, chilled, and frozen logistics across Germany and the European Union. Carton & pallet-level deliveries with B2B discount tiers.
+
+---
+
+## Core Product Categories (FO Food Products)
+
+### 1. Barista & Beverage Solutions
+- **Premium Coffee Syrups & Flavored Syrups**: Vanilla, Caramel, Hazelnut, White Chocolate, Coconut, Almond, Chai, and fruity cocktail syrups.
+- **Cocktail Mixes, Bases & Purées**: Concentrated fruit purees, mojito/cocktail bases, iced tea bases.
+- **Foamer & Barista Essentials**: Professional cocktail foamer, latte art essentials, and milk texture enhancers.
+- **Powdered Drinks & Frappés**: Hot chocolate, chai latte, salep, frappe powders, milkshakes.
+- **Turkish & Specialty Coffee**: Authentic Turkish coffee blends, espresso beans, filter coffee.
+
+### 2. Saucen & Toppings (Dessert, Ice Cream & Coffee Saucen)
+- **Topping & Decor Sauces**: Chocolate, Caramel, Raspberry, Strawberry, Forest Fruit, Pistachio, Mango, White Chocolate toppings for ice cream, waffles, and cheesecakes.
+- **Special Sauces & Pastes**: Special Pistachio Sauce, Hazelnut Creme, Chocolate Hazelnut sauces designed for professional pastry chefs and baristas.
+- **Fruit Pastes & Concentrated Purées**: 100% natural aroma fruit pastes for bakery, pastry fillings, and ice cream manufacturing.
+
+### 3. Pastry, Bakery & Gelato Ingredients
+- **Patisserie & Baking Ingredients**: Glazes, pastry creams, stabilizers, cake mixes, sugar paste, and aroma compounds.
+- **Ice Cream & Gelato Bases**: Gelato bases, ripple pastes, variegates, and cone dip sauces.
+
+---
+
+## Important Links & Resources
+
+- [Home Page (DE)](https://www.elysonsweets.de/de): Main landing page with company overview and direct B2B inquiries.
+- [B2B Wholesale Catalog](https://www.elysonsweets.de/de/products): Complete product range with category filters, nutritional info, ingredients, and allergen declarations.
+- [Syrups & Barista Line](https://www.elysonsweets.de/de/products?kategori=syrups): Professional syrups and drink mixes.
+- [Sauces & Toppings](https://www.elysonsweets.de/de/products?kategori=sauces-and-ingredients): Gourmet dessert toppings, fruit sauces, and decor pastes.
+- [Powdered Beverages](https://www.elysonsweets.de/de/products?kategori=powdered-beverages): Frappé, hot chocolate, salep, and tea mixes.
+- [Partner Portal & B2B Login](https://www.elysonsweets.de/de/login): Dedicated portal for registered HoReCa partners with personalized wholesale pricing, MOQ details, and bulk order tools.
+- [Sample Package Request](https://www.elysonsweets.de/de/contact): Free trial sample packages for gastronomy and commercial business owners.
+- [Company Details & Impressum](https://www.elysonsweets.de/de/impressum): Legal information, tax status, and address.
+- [Full LLM Knowledge Document](https://www.elysonsweets.de/llms-full.txt): Comprehensive product breakdowns, logistic data, storage conditions, and allergen/ingredient guides.
+
+---
+
+## B2B Ordering & Commercial Terms
+- **Eligibility**: B2B only (§14 BGB) - cafes, coffee shops, restaurants, bakeries, ice cream parlors, caterers, and wholesalers.
+- **Minimum Order Quantity (MOQ)**: Flexible starting from 1 carton per SKU.
+- **Discounts**: Volume discounts, tiered pricing, and pallet rebates available upon registration.
+- **Payment Terms**: Prepayment, SEPA, and invoice payment (5 days net for verified partners).
+- **Shipping**: Germany & EU-wide delivery with temperature-controlled logistics when required.

@@ -82,6 +82,8 @@ export default async function RootLayout({
   return (
     <html lang={htmlLang} className={`${playfair.variable} ${lato.variable}`} suppressHydrationWarning>
       <head>
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM Knowledge Base (Short)" />
+        <link rel="alternate" type="text/plain" href="/llms-full.txt" title="LLM Knowledge Base (Full)" />
         <GoogleAnalytics />
         <script
           type="application/ld+json"
