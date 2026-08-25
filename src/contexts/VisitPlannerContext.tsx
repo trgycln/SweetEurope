@@ -21,12 +21,14 @@ interface VisitPlannerContextType {
   removeCompany: (id: string) => void;
   clearAll: () => void;
   isSelected: (id: string) => boolean;
-  generateRouteUrl: (useCurrentLocation?: boolean) => Promise<string | null>;
+  generateRouteUrls: (startPoint: 'depot' | 'location' | 'first') => Promise<string[]>;
 }
 
 const VisitPlannerContext = createContext<VisitPlannerContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'visit_planner_companies';
+export const DEPOT_ADDRESS = "Wilhelm Ruppert Straße 38, 51147 Köln";
+const BATCH_SIZE = 15; // Max waypoints per Google Maps URL to avoid limits
 
 export function VisitPlannerProvider({ children }: { children: React.ReactNode }) {
   const [selectedCompanies, setSelectedCompanies] = useState<SelectedCompany[]>([]);
@@ -73,34 +75,20 @@ export function VisitPlannerProvider({ children }: { children: React.ReactNode }
     return selectedCompanies.some(c => c.id === id);
   };
 
-  const generateRouteUrl = async (useCurrentLocation = true) => {
+  const generateRouteUrls = async (startPoint: 'depot' | 'location' | 'first'): Promise<string[]> => {
     // Helper functions
     const extractPlaceInfo = (url: string) => {
-      // Try to extract place ID or coordinates from various Google Maps URL formats
-      
-      // Format 1: https://maps.google.com/?q=lat,lng
       const coordMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-      if (coordMatch) {
-        return `${coordMatch[1]},${coordMatch[2]}`;
-      }
+      if (coordMatch) return `${coordMatch[1]},${coordMatch[2]}`;
 
-      // Format 2: https://www.google.com/maps/place/.../@lat,lng
       const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-      if (atMatch) {
-        return `${atMatch[1]},${atMatch[2]}`;
-      }
+      if (atMatch) return `${atMatch[1]},${atMatch[2]}`;
 
-      // Format 3: Place ID
       const placeMatch = url.match(/place_id=([^&]+)/);
-      if (placeMatch) {
-        return `place_id:${placeMatch[1]}`;
-      }
+      if (placeMatch) return `place_id:${placeMatch[1]}`;
 
-      // Format 4: Google Maps short link or place name
       const placeNameMatch = url.match(/maps\/place\/([^/]+)/);
-      if (placeNameMatch) {
-        return decodeURIComponent(placeNameMatch[1].replace(/\+/g, ' '));
-      }
+      if (placeNameMatch) return decodeURIComponent(placeNameMatch[1].replace(/\+/g, ' '));
 
       return null;
     };
@@ -129,33 +117,10 @@ export function VisitPlannerProvider({ children }: { children: React.ReactNode }
       });
     };
 
-    // Main logic
     const companiesWithMaps = selectedCompanies.filter(c => c.google_maps_url);
-    
-    if (companiesWithMaps.length === 0) {
-      return null;
-    }
+    if (companiesWithMaps.length === 0) return [];
 
-    if (companiesWithMaps.length === 1) {
-      // Single location - create route from current location if available
-      if (useCurrentLocation) {
-        try {
-          const position = await getCurrentPosition();
-          const origin = `${position.coords.latitude},${position.coords.longitude}`;
-          const destination = extractPlaceInfo(companiesWithMaps[0].google_maps_url!) || 
-                            getAddressString(companiesWithMaps[0]);
-          return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`;
-        } catch (error) {
-          // Fallback to just opening the location
-          return companiesWithMaps[0].google_maps_url;
-        }
-      }
-      return companiesWithMaps[0].google_maps_url;
-    }
-
-    // Multiple locations - create a route
     const waypoints: string[] = [];
-    
     for (const company of companiesWithMaps) {
       const placeInfo = extractPlaceInfo(company.google_maps_url!);
       if (placeInfo) {
@@ -165,46 +130,54 @@ export function VisitPlannerProvider({ children }: { children: React.ReactNode }
       }
     }
 
-    if (waypoints.length === 0) {
-      return null;
-    }
+    if (waypoints.length === 0) return [];
 
-    let origin: string;
-    let destination: string;
-    let intermediateWaypoints: string[];
-
-    if (useCurrentLocation) {
+    let startOrigin = '';
+    
+    if (startPoint === 'location') {
       try {
-        // Get user's current location
         const position = await getCurrentPosition();
-        origin = `${position.coords.latitude},${position.coords.longitude}`;
-        
-        // All selected companies become waypoints
-        destination = waypoints[waypoints.length - 1];
-        intermediateWaypoints = waypoints.slice(0, -1);
+        startOrigin = `${position.coords.latitude},${position.coords.longitude}`;
       } catch (error) {
         console.warn('Could not get current location, using first company as origin:', error);
-        // Fallback: use first company as origin
-        origin = waypoints[0];
-        destination = waypoints[waypoints.length - 1];
-        intermediateWaypoints = waypoints.slice(1, -1);
+        startPoint = 'first';
       }
-    } else {
-      // Use first company as origin
-      origin = waypoints[0];
-      destination = waypoints[waypoints.length - 1];
-      intermediateWaypoints = waypoints.slice(1, -1);
+    } else if (startPoint === 'depot') {
+      startOrigin = encodeURIComponent(DEPOT_ADDRESS);
     }
 
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+    if (startPoint === 'first') {
+      startOrigin = waypoints[0];
+      waypoints.shift(); // Remove first waypoint as it becomes the origin
+    }
+
+    // Split into batches
+    const urls: string[] = [];
+    let currentOrigin = startOrigin;
     
-    if (intermediateWaypoints.length > 0) {
-      url += `&waypoints=${intermediateWaypoints.join('|')}`;
+    // If only one place left and we have an origin (or if first point was used as origin and 0 left)
+    if (waypoints.length === 0) {
+       return [`https://www.google.com/maps/dir/?api=1&origin=${currentOrigin}&destination=${startOrigin}&travelmode=driving`];
     }
     
-    url += '&travelmode=driving';
+    for (let i = 0; i < waypoints.length; i += BATCH_SIZE) {
+      const batch = waypoints.slice(i, i + BATCH_SIZE);
+      const destination = batch[batch.length - 1];
+      const intermediateWaypoints = batch.slice(0, -1);
+      
+      let url = `https://www.google.com/maps/dir/?api=1&origin=${currentOrigin}&destination=${destination}`;
+      
+      if (intermediateWaypoints.length > 0) {
+        url += `&waypoints=${intermediateWaypoints.join('|')}`;
+      }
+      url += '&travelmode=driving';
+      urls.push(url);
+      
+      // Next batch's origin is this batch's destination
+      currentOrigin = destination;
+    }
 
-    return url;
+    return urls;
   };
 
   const value: VisitPlannerContextType = {
@@ -213,7 +186,7 @@ export function VisitPlannerProvider({ children }: { children: React.ReactNode }
     removeCompany,
     clearAll,
     isSelected,
-    generateRouteUrl,
+    generateRouteUrls,
   };
 
   return (
