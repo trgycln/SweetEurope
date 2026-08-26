@@ -91,6 +91,7 @@ export interface KatalogClientProps {
   locale: Locale;
   dictionary: Dictionary | null | undefined;
   totalItems: number;
+  totalCatalogCount?: number;
   totalPages: number;
   currentPage: number;
   initialSearchQuery: string;
@@ -101,6 +102,7 @@ export interface KatalogClientProps {
   initialZertifikate: string[];
   initialTat: string[];
   initialSort: string;
+  categoryCounts?: Record<string, number>;
   userRole?: string;
 }
 
@@ -113,6 +115,7 @@ export function KatalogClient({
   locale,
   dictionary,
   totalItems,
+  totalCatalogCount,
   totalPages,
   currentPage,
   initialSearchQuery,
@@ -123,6 +126,7 @@ export function KatalogClient({
   initialZertifikate,
   initialTat,
   initialSort,
+  categoryCounts = {},
   userRole,
 }: KatalogClientProps) {
   const router = useRouter();
@@ -540,7 +544,7 @@ export function KatalogClient({
                   🛍️ {locale === "de" ? "Gesamter Katalog" : "Tüm Katalog"}
                 </span>
                 <span className="text-[11px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded-full font-semibold">
-                  {totalItems}
+                  {totalCatalogCount ?? totalItems}
                 </span>
               </button>
 
@@ -687,9 +691,10 @@ export function KatalogClient({
                           ),
                         );
                       if (altKats.length === 0) {
+                        const count = categoryCounts[hauptKat.id] ?? 0;
                         return (
                           <option key={hauptKat.id} value={hauptKat.id}>
-                            {name}
+                            {name} {count > 0 ? `(${count})` : ""}
                           </option>
                         );
                       }
@@ -698,11 +703,14 @@ export function KatalogClient({
                           <option value={hauptKat.id}>
                             — {locale === "de" ? "Alle" : "Tümü"} —
                           </option>
-                          {altKats.map((alt) => (
-                            <option key={alt.id} value={alt.id}>
-                              &nbsp;&nbsp;{getLocalizedName(alt.ad, locale)}
-                            </option>
-                          ))}
+                          {altKats.map((alt) => {
+                            const count = categoryCounts[alt.id] ?? 0;
+                            return (
+                              <option key={alt.id} value={alt.id}>
+                                &nbsp;&nbsp;{getLocalizedName(alt.ad, locale)} ({count})
+                              </option>
+                            );
+                          })}
                         </optgroup>
                       );
                     })}

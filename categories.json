@@ -1,0 +1,545 @@
+[
+  {
+    "id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "created_at": "2026-05-09T18:12:27.333348+00:00",
+    "ad": {
+      "ar": "سيروب كوكتيل منكه",
+      "de": "Aromatisierte Cocktailsirupe",
+      "en": "Flavored Cocktail Syrups",
+      "tr": "Aromalı Kokteyl Şurupları"
+    },
+    "ust_kategori_id": "fef2c710-0104-42ce-a31d-726105495a1b",
+    "slug": "flavored-cocktail-syrups",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "created_at": "2026-04-09T20:39:30.930748+00:00",
+    "ad": {
+      "ar": "الصلصات",
+      "de": "Saucen",
+      "en": "Sauces",
+      "tr": "Soslar"
+    },
+    "ust_kategori_id": "5d6f7d2b-ad48-4136-89c1-27a7714e522d",
+    "slug": "cafe-bar-sauces",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "created_at": "2026-05-09T12:38:21.190754+00:00",
+    "ad": {
+      "ar": "سيروب بريميوم",
+      "de": "Premium-Sirupe",
+      "en": "Premium Syrups",
+      "tr": "Premium Şuruplar"
+    },
+    "ust_kategori_id": "fef2c710-0104-42ce-a31d-726105495a1b",
+    "slug": "premium-cocktail-syrups",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "3e216221-8697-4187-9e50-9d78fc3c9d77",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Pulvergetränke",
+      "en": "Powder Drinks",
+      "tr": "Toz İçecekler"
+    },
+    "ust_kategori_id": null,
+    "slug": "powder-drinks",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "a8b5f8e5-5ec7-409d-a25d-1147b6189c12",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Frucht- & Aromapasten",
+      "en": "Fruit & Flavor Pastes",
+      "tr": "Pasta & Aroma Pastaları"
+    },
+    "ust_kategori_id": null,
+    "slug": "fruit-pastes",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "fb37ff76-2d56-4c09-9bdb-ce0c3851fe22",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Dekor-Toppingsoßen 750 g",
+      "en": "Decor Topping Sauces 750 g",
+      "tr": "Dekor Topping Sosları 750 g"
+    },
+    "ust_kategori_id": null,
+    "slug": "topping-decor-sauces",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "0afba57c-6ad1-4586-a357-ec1c2c138911",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Eis-Toppingsoßen 1 kg",
+      "en": "Ice Cream Topping Sauces 1 kg",
+      "tr": "Dondurma Topping Sosları 1 kg"
+    },
+    "ust_kategori_id": null,
+    "slug": "topping-ice-cream-sauces",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "bea4328c-d35b-469d-9459-55ffd4045d77",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Spezialsoßen 940 g",
+      "en": "Special Sauces 940 g",
+      "tr": "Özel Soslar 940 g"
+    },
+    "ust_kategori_id": null,
+    "slug": "special-sauces-940g",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "c027925c-2358-4f42-9f84-4e7c27042ca3",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Fruchtsoßen 1 kg",
+      "en": "Fruited Sauces 1 kg",
+      "tr": "Meyveli Soslar 1 kg"
+    },
+    "ust_kategori_id": null,
+    "slug": "fruited-sauces",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "72fa1a80-65bf-4a7b-8f0d-ef4e20a90623",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Premium-Sirupe 700 ml",
+      "en": "Premium Syrups 700 ml",
+      "tr": "Premium Şuruplar 700 ml"
+    },
+    "ust_kategori_id": null,
+    "slug": "premium-syrups",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "1970014c-7bdf-4a9a-99b1-d9441c0553bb",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Cocktail-Sirupe 700 ml",
+      "en": "Cocktail Syrups 700 ml",
+      "tr": "Kokteyl Şurupları 700 ml"
+    },
+    "ust_kategori_id": null,
+    "slug": "cocktail-syrups",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "7d12bf74-e599-4449-a262-5371cbb89fba",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Silvery-Sirupe 700 ml",
+      "en": "Silvery Syrups 700 ml",
+      "tr": "Silvery Şuruplar 700 ml"
+    },
+    "ust_kategori_id": null,
+    "slug": "silvery-syrups",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "5b8f1b1f-7762-45ac-852c-bbe1d6668a05",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Eistee- & Sirup-Basen 700 ml",
+      "en": "Iced Tea & Syrup Bases 700 ml",
+      "tr": "Ice Tea ve Şurup Tabanları 700 ml"
+    },
+    "ust_kategori_id": null,
+    "slug": "iced-tea-syrup-bases",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "7d66168b-5530-4e3b-8371-6a643def69bb",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Cocktail-Mixes",
+      "en": "Cocktail Mixes",
+      "tr": "Kokteyl Karışımları"
+    },
+    "ust_kategori_id": null,
+    "slug": "cocktail-mixes",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "d6de0def-3bff-418d-a4c9-8c2c30c9a232",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Foamer",
+      "en": "Foamer",
+      "tr": "Köpürtücü"
+    },
+    "ust_kategori_id": null,
+    "slug": "foamer",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "b6e20fdf-11f7-4002-8013-eea30b739e8f",
+    "created_at": "2026-08-10T13:40:34.446514+00:00",
+    "ad": {
+      "de": "Pistazien-Kadayifi-Soße",
+      "en": "Pistachio Kadayifi Sauce",
+      "tr": "Pistachio Kadayıfı Sosu"
+    },
+    "ust_kategori_id": null,
+    "slug": "special-pistachio-sauce",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "fef2c710-0104-42ce-a31d-726105495a1b",
+    "created_at": "2025-11-06T20:07:59.32921+00:00",
+    "ad": {
+      "ar": "سيروب الكوكتيل",
+      "de": "Cocktailsirupe",
+      "en": "Cocktail Syrups",
+      "tr": "Kokteyl Şurupları"
+    },
+    "ust_kategori_id": "5d6f7d2b-ad48-4136-89c1-27a7714e522d",
+    "slug": "syrups",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "22b838a9-d8e4-41ab-9857-886e06524415",
+    "created_at": "2026-05-09T10:57:42.712637+00:00",
+    "ad": {
+      "ar": "المشروبات البودرة",
+      "de": "Getränkepulver",
+      "en": "Powdered Beverages",
+      "tr": "Toz İçecekler"
+    },
+    "ust_kategori_id": "5d6f7d2b-ad48-4136-89c1-27a7714e522d",
+    "slug": "powdered-beverages",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "21f65289-fb51-4a03-a33d-7f4c6d9d9135",
+    "created_at": "2026-05-09T11:34:02.228354+00:00",
+    "ad": {
+      "ar": "صلصات البار الفاخرة",
+      "de": "Premium Barsaucen",
+      "en": "Premium Bar Sauces",
+      "tr": "Premium Bar Sosları"
+    },
+    "ust_kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "slug": "premium-bar-sauces",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "3e20c73f-89cb-4fff-a03c-e289043e2b9c",
+    "created_at": "2026-05-09T11:43:14.240808+00:00",
+    "ad": {
+      "ar": "صلصات خاصة",
+      "de": "Spezialsaucen",
+      "en": "Special Sauces",
+      "tr": "Özel Soslar"
+    },
+    "ust_kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "slug": "special-sauces",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "121cda5f-733c-4451-aabf-294634186096",
+    "created_at": "2026-05-09T11:44:44.79184+00:00",
+    "ad": {
+      "ar": "صلصات منكهة للآيس كريم والكوكتيل",
+      "de": "Aromasaucen für Eis und Cocktails",
+      "en": "Flavored Sauces for Ice Cream and Cocktails",
+      "tr": "Dondurma ve Kokteyl İçin Aromalı Soslar"
+    },
+    "ust_kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "slug": "flavored-sauces-for-ice-cream-and-cocktails",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "a3f3199a-d270-4cc4-a304-63b24df0abca",
+    "created_at": "2026-05-09T11:45:48.849549+00:00",
+    "ad": {
+      "ar": "صلصات الوافل",
+      "de": "Waffelsaucen",
+      "en": "Waffle Sauces",
+      "tr": "Waffle Sosları"
+    },
+    "ust_kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "slug": "waffle-sauces",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "c50e6bb6-aa30-49be-ae8c-dae65608c68a",
+    "created_at": "2026-05-09T11:47:02.917303+00:00",
+    "ad": {
+      "ar": "مساحيق مشروبات منكهة (ميلك شيك - سموذي)",
+      "de": "Aromatisierte Getränkepulver (Milkshake - Smoothie)",
+      "en": "Flavored Beverage Powders (Milkshake - Smoothie)",
+      "tr": "Aromalı İçecek Tozları (Milkshake - Smoothie)"
+    },
+    "ust_kategori_id": "22b838a9-d8e4-41ab-9857-886e06524415",
+    "slug": "flavored-beverage-powders",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "0c4ad52c-b799-4afd-90e8-82721d37f469",
+    "created_at": "2026-05-09T11:48:26.878372+00:00",
+    "ad": {
+      "ar": "مساحيق مشروبات فرابيه",
+      "de": "Frappé-Getränkepulver",
+      "en": "Frappe Beverage Powders",
+      "tr": "Frappe İçecek Tozları"
+    },
+    "ust_kategori_id": "22b838a9-d8e4-41ab-9857-886e06524415",
+    "slug": "frappe-beverage-powders",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "5d6f7d2b-ad48-4136-89c1-27a7714e522d",
+    "created_at": "2025-11-06T19:14:34.846255+00:00",
+    "ad": {
+      "ar": "هوريكا (المشروبات والصلصات)",
+      "de": "HoReCa (Beverages & Sauces)",
+      "en": "HoReCa (Getränke & Saucen)",
+      "tr": "HoReCa (İçecekler & Soslar)"
+    },
+    "ust_kategori_id": null,
+    "slug": "sauces-and-ingredients",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "08016b11-945e-4b0d-bb05-172d417c9d2e",
+    "created_at": "2026-05-09T10:45:22.793117+00:00",
+    "ad": {
+      "ar": "المخابز والحلويات (الحشوات والزينة)",
+      "de": "Konditorei & Backerei (Füllungen & Dekorationen)",
+      "en": "Pastry & Bakery (Fillings & Decorations) ",
+      "tr": "Pastacılık (İç Dolgular & Dekorasyon)"
+    },
+    "ust_kategori_id": null,
+    "slug": "pastry-bakery",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "253195b6-4c1a-4503-86dd-dd3867dc7b91",
+    "created_at": "2026-05-09T18:17:59.423465+00:00",
+    "ad": {
+      "ar": "منتجات أيقونية",
+      "de": "Ikonische Produkte",
+      "en": "Iconic Products",
+      "tr": "İkonik Ürünler"
+    },
+    "ust_kategori_id": null,
+    "slug": "iconic-products",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  },
+  {
+    "id": "90320294-fb9e-4a88-8ebb-b46f3717799f",
+    "created_at": "2026-05-09T11:41:59.47691+00:00",
+    "ad": {
+      "ar": "صوصات التزيين (ديكور)",
+      "de": "Dekorsaucen",
+      "en": "Decoration Sauces",
+      "tr": "Dekor Soslar"
+    },
+    "ust_kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "slug": "decoration-sauces",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "created_at": "2026-05-09T11:39:19.300571+00:00",
+    "ad": {
+      "ar": "صلصات الفواكه (فروزن)",
+      "de": "Fruchtsaucen (Frozen)",
+      "en": "Fruit Sauces (Frozen)",
+      "tr": "Meyveli Sos (Frozen)"
+    },
+    "ust_kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "slug": "fruit-sauces",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386",
+    "created_at": "2026-05-09T11:37:51.406468+00:00",
+    "ad": {
+      "ar": "صلصات البار الاحترافية",
+      "de": "Professionelle Barsaucen",
+      "en": "Professional Bar Sauces",
+      "tr": "Profesyonel Barsos"
+    },
+    "ust_kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "slug": "professional-bar-sauces",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "193a8c4c-802f-493d-a9ee-5ca95dd13152",
+    "created_at": "2026-05-09T11:40:52.676377+00:00",
+    "ad": {
+      "ar": "صوصات التوبينج",
+      "de": "Topping-Saucen",
+      "en": "Topping Sauces",
+      "tr": "Topping Soslar"
+    },
+    "ust_kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84",
+    "slug": "ice-cream-and-dessert-sauces",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "22b03d90-b622-48f7-9357-90dab1cc5a87",
+    "created_at": "2026-05-09T11:49:55.10488+00:00",
+    "ad": {
+      "ar": "الشوكولاتة الساخنة",
+      "de": "Trinkschokolade",
+      "en": "Hot Chocolate",
+      "tr": "Sıcak Çikolata"
+    },
+    "ust_kategori_id": "22b838a9-d8e4-41ab-9857-886e06524415",
+    "slug": "hot-chocolate",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "0598dacd-5586-4b95-8f49-8eafcc8bb7b5",
+    "created_at": "2026-05-09T11:50:34.122312+00:00",
+    "ad": {
+      "ar": "سحلب",
+      "de": "Salep",
+      "en": "Salep",
+      "tr": "Salep"
+    },
+    "ust_kategori_id": "22b838a9-d8e4-41ab-9857-886e06524415",
+    "slug": "salep",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "created_at": "2026-05-09T11:51:33.771386+00:00",
+    "ad": {
+      "ar": "قاعدة مشروبات منكهة",
+      "de": "Aromatisierte Getränkebasis",
+      "en": "Flavored Beverage Base",
+      "tr": "Aromalı İçecek Bazı"
+    },
+    "ust_kategori_id": "22b838a9-d8e4-41ab-9857-886e06524415",
+    "slug": "flavored-beverage-base",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "4e8d38d9-7477-4c8c-8762-8c0a26070d1b",
+    "created_at": "2026-05-09T11:55:08.718083+00:00",
+    "ad": {
+      "ar": "أساطير الأناضول - خلطات جاهزة",
+      "de": "Anatolische Legenden - Fertigmischungen",
+      "en": "Anatolian Legends - Ready Mixes",
+      "tr": "Anadolu Efsaneleri - Hazır Mixler"
+    },
+    "ust_kategori_id": "5d6f7d2b-ad48-4136-89c1-27a7714e522d",
+    "slug": "anatolian-legends-ready-mixes",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "12fa6b47-14a6-4717-9da9-5e8b9098bba5",
+    "created_at": "2026-05-09T11:56:11.129037+00:00",
+    "ad": {
+      "ar": "بيوريه مجمد",
+      "de": "Gefrorene Pürees",
+      "en": "Frozen Purees",
+      "tr": "Donuk Püreler"
+    },
+    "ust_kategori_id": "5d6f7d2b-ad48-4136-89c1-27a7714e522d",
+    "slug": "frozen-purees",
+    "image_url": null,
+    "urun_gami": []
+  },
+  {
+    "id": "4e61d6f5-5537-4073-b37a-8f8ebe4f2f73",
+    "created_at": "2026-05-09T10:51:20.036578+00:00",
+    "ad": {
+      "ar": "الآيس كريم والجيلاتو",
+      "de": "Eisdiele & Gelateria",
+      "en": "Ice Cream & Gelato",
+      "tr": "Dondurmacılık"
+    },
+    "ust_kategori_id": null,
+    "slug": "ice-cream-gelato",
+    "image_url": null,
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ]
+  }
+]

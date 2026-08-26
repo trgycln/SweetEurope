@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
                     sehir,
                     ilce,
                     posta_kodu,
-                    google_maps_url
+                    google_maps_url,
+                    telefon,
+                    parent_firma_id
                 )
                 `
             );

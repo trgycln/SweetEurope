@@ -810,8 +810,8 @@ export function ProductGridClient({
 
     // Alt kategorilere göre gruplama mantığı
     const groupedUrunler = useMemo(() => {
-        // Eğer arama yapılıyorsa veya sadece 1 kategori grubu varsa gruplama yapmaya gerek yok
-        if (searchQuery) return null;
+        // Eğer arama yapılıyorsa veya Tüm Kategoriler seçiliyse (özel bir ana kategori seçili değilse) gruplama yapma
+        if (searchQuery || !pagination?.kategori) return null;
 
         const groups: { catName: string; products: Urun[] }[] = [];
         const groupMap = new Map<string, Urun[]>();
@@ -831,7 +831,7 @@ export function ProductGridClient({
         }
         
         return groups;
-    }, [filteredUrunler, kategoriAdlariMap, searchQuery]);
+    }, [filteredUrunler, kategoriAdlariMap, searchQuery, pagination?.kategori]);
 
     const searchPlaceholder = dictionary?.publicProductsPage?.searchPlaceholderGrid || 'Produkt, Art.-Nr. oder EAN suchen…';
 

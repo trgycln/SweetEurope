@@ -48,6 +48,7 @@ export const PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER = [
   'ice-cream-gelato',
   'pastry-bakery',
   'iconic-products',
+  'premium',
   'anatolian-legends-ready-mixes',
   'frozen-purees',
   // FO-specific categories (active once DB migration runs)

@@ -366,6 +366,7 @@ export default async function KatalogPage({
             
             // Stats & Pagination
             totalItems={totalItems}
+            totalCatalogCount={produkte.length}
             totalPages={totalPages}
             currentPage={currentPage}
             
@@ -378,7 +379,7 @@ export default async function KatalogPage({
             initialZertifikate={zertifikateParam}
             initialTat={tatParam}
             initialSort={sortBy}
-            
+            categoryCounts={categoryProductCounts}
             userRole={userRole}
         />
     );

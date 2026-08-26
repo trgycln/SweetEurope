@@ -1,14 +1,9 @@
 const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 
-const env = fs.readFileSync('.env.local', 'utf8');
-let url = '', key = '';
-env.split('\n').forEach(line => {
-  const clean = line.trim();
-  if (clean.startsWith('NEXT_PUBLIC_SUPABASE_URL=')) url = clean.split('=')[1].replace(/["']/g, '').trim();
-  if (clean.startsWith('SUPABASE_SERVICE_ROLE_KEY=')) key = clean.split('=')[1].replace(/["']/g, '').trim();
-});
-
+require('dotenv').config({ path: '.env.local' });
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(url, key);
 
 async function run() {

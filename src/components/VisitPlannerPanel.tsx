@@ -167,6 +167,7 @@ export default function VisitPlannerPanel() {
     const [isExpanded, setIsExpanded] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [generatedUrls, setGeneratedUrls] = useState<string[]>([]);
     const [order, setOrder] = useState<string[]>([]);
 
     const orderedIds = React.useMemo(() => {
@@ -203,15 +204,15 @@ export default function VisitPlannerPanel() {
     const handleRoute = async (startPoint: 'depot' | 'location' | 'first') => {
         setIsGenerating(true);
         setError(null);
+        setGeneratedUrls([]);
         try {
             const routeUrls = await generateRouteUrls(startPoint);
             if (routeUrls && routeUrls.length > 0) {
-                if (routeUrls.length > 1) {
-                    alert(`Google Maps adres limitleri nedeniyle rotanız ${routeUrls.length} parçaya bölündü. Haritalar yeni sekmelerde açılacaktır. Tarayıcınızın açılır pencere (popup) engelleyicisi varsa lütfen izin verin.`);
+                if (routeUrls.length === 1) {
+                    window.open(routeUrls[0], '_blank');
+                } else {
+                    setGeneratedUrls(routeUrls);
                 }
-                routeUrls.forEach(url => {
-                    window.open(url, '_blank');
-                });
             } else {
                 setError('Seçili firmalarda Google Maps linki bulunamadı.');
             }
@@ -371,75 +372,105 @@ export default function VisitPlannerPanel() {
 
                     {/* Footer */}
                     <div className="flex-shrink-0 border-t border-slate-100 bg-slate-50/80 p-3 space-y-2.5">
-
-                        {/* Status summary */}
-                        <div className="flex gap-3 text-[11px]">
-                            {withMaps > 0 && (
-                                <span className="text-green-600 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                                    {withMaps} harita linki var
-                                </span>
-                            )}
-                            {withoutMaps > 0 && (
-                                <span className="text-orange-500 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 bg-orange-400 rounded-full" />
-                                    {withoutMaps} linksiz firma — güzergaha dahil edilmez
-                                </span>
-                            )}
-                        </div>
-
-                        {/* Info box */}
-                        <div className="bg-blue-50 border border-blue-100 rounded-xl p-2.5 text-[11px] text-blue-700">
-                            <div className="font-semibold mb-0.5">📍 Başlangıç Noktası</div>
-                            <div>Rotanızı Depo, Konumunuz veya İlk Firma'dan başlatabilirsiniz. 15'ten fazla nokta otomatik olarak bölünür.</div>
-                        </div>
-
-                        {error && (
-                            <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-[11px] text-red-700 flex items-center gap-1.5">
-                                <FiAlertCircle size={12} /> {error}
+                        {generatedUrls.length > 0 ? (
+                            <div className="space-y-2">
+                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-[11px] text-amber-800">
+                                    <div className="font-semibold mb-1">📍 Rotalarınız Bölündü</div>
+                                    Adres sayısının fazla olması nedeniyle rotanız {generatedUrls.length} parçaya bölündü. Tarayıcı engeline takılmamak için haritaları aşağıdaki butonlara tıklayarak tek tek açabilirsiniz.
+                                </div>
+                                <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto pr-1">
+                                    {generatedUrls.map((url, i) => (
+                                        <a
+                                            key={i}
+                                            href={url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="w-full flex items-center justify-between px-3 py-2.5 bg-white border border-blue-200 text-blue-700 rounded-xl text-xs font-bold hover:bg-blue-50 transition-colors"
+                                        >
+                                            <span className="flex items-center gap-1.5"><FiMap size={14}/> {i + 1}. Rota Parçası</span>
+                                            <FiExternalLink size={14}/>
+                                        </a>
+                                    ))}
+                                </div>
+                                <button
+                                    onClick={() => setGeneratedUrls([])}
+                                    className="w-full flex items-center justify-center gap-1.5 py-2 mt-1 text-slate-500 hover:text-slate-700 text-xs font-semibold transition-colors"
+                                >
+                                    Geri Dön
+                                </button>
                             </div>
+                        ) : (
+                            <>
+                                {/* Status summary */}
+                                <div className="flex gap-3 text-[11px]">
+                                    {withMaps > 0 && (
+                                        <span className="text-green-600 flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                                            {withMaps} harita linki var
+                                        </span>
+                                    )}
+                                    {withoutMaps > 0 && (
+                                        <span className="text-orange-500 flex items-center gap-1">
+                                            <span className="w-1.5 h-1.5 bg-orange-400 rounded-full" />
+                                            {withoutMaps} linksiz firma — güzergaha dahil edilmez
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Info box */}
+                                <div className="bg-blue-50 border border-blue-100 rounded-xl p-2.5 text-[11px] text-blue-700">
+                                    <div className="font-semibold mb-0.5">📍 Başlangıç Noktası</div>
+                                    <div>Rotanızı Depo, Konumunuz veya İlk Firma'dan başlatabilirsiniz. 15'ten fazla nokta otomatik olarak bölünür.</div>
+                                </div>
+
+                                {error && (
+                                    <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 text-[11px] text-red-700 flex items-center gap-1.5">
+                                        <FiAlertCircle size={12} /> {error}
+                                    </div>
+                                )}
+
+                                {/* Primary: Route from depot */}
+                                <button
+                                    onClick={() => handleRoute('depot')}
+                                    disabled={withMaps === 0 || isGenerating}
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
+                                >
+                                    {isGenerating ? (
+                                        <><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />Oluşturuluyor...</>
+                                    ) : (
+                                        <><FiNavigation size={15} />Depodan Güzergah Oluştur</>
+                                    )}
+                                </button>
+
+                                <div className="flex gap-2">
+                                    {/* Secondary: Route from current location */}
+                                    <button
+                                        onClick={() => handleRoute('location')}
+                                        disabled={withMaps === 0 || isGenerating}
+                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        <FiMapPin size={12} /> Konumumdan
+                                    </button>
+
+                                    {/* Secondary: Route from first company */}
+                                    <button
+                                        onClick={() => handleRoute('first')}
+                                        disabled={withMaps < 2 || isGenerating}
+                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        <FiMap size={12} /> İlk Firmadan
+                                    </button>
+                                </div>
+
+                                {/* Clear */}
+                                <button
+                                    onClick={clearAll}
+                                    className="w-full flex items-center justify-center gap-1.5 py-2 text-red-500 hover:text-red-700 text-xs font-semibold transition-colors"
+                                >
+                                    <FiTrash2 size={12} /> Ziyaret Listesini Temizle
+                                </button>
+                            </>
                         )}
-
-                        {/* Primary: Route from depot */}
-                        <button
-                            onClick={() => handleRoute('depot')}
-                            disabled={withMaps === 0 || isGenerating}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
-                        >
-                            {isGenerating ? (
-                                <><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />Oluşturuluyor...</>
-                            ) : (
-                                <><FiNavigation size={15} />Depodan Güzergah Oluştur</>
-                            )}
-                        </button>
-
-                        <div className="flex gap-2">
-                            {/* Secondary: Route from current location */}
-                            <button
-                                onClick={() => handleRoute('location')}
-                                disabled={withMaps === 0 || isGenerating}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                                <FiMapPin size={12} /> Konumumdan
-                            </button>
-
-                            {/* Secondary: Route from first company */}
-                            <button
-                                onClick={() => handleRoute('first')}
-                                disabled={withMaps < 2 || isGenerating}
-                                className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                                <FiMap size={12} /> İlk Firmadan
-                            </button>
-                        </div>
-
-                        {/* Clear */}
-                        <button
-                            onClick={clearAll}
-                            className="w-full flex items-center justify-center gap-1.5 py-2 text-red-500 hover:text-red-700 text-xs font-semibold transition-colors"
-                        >
-                            <FiTrash2 size={12} /> Ziyaret Listesini Temizle
-                        </button>
                     </div>
                 </div>
             )}

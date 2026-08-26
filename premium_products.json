@@ -1,0 +1,332 @@
+[
+  {
+    "id": "c9836857-d08d-4a9d-8036-60c4ec00c8fd",
+    "slug": "fo-yesil-elma-premium-surup-700ml-fo1134",
+    "ad": {
+      "ar": "فو شراب التفاح الأخضر الفاخر 700 مل",
+      "de": "FO Grüner Apfel Fruchtsirup Premium – 700 ml",
+      "en": "FO Premium Green Apple Fruited Syrup – 700 ml",
+      "tr": "FO Yeşil Elma Meyveli Premium Şurup – 700 ml"
+    },
+    "kategori_id": "fef2c710-0104-42ce-a31d-726105495a1b"
+  },
+  {
+    "id": "44a4ed7f-4e0c-439f-a4b3-87670fb9aff9",
+    "slug": "fo-cilek-premium-surup-700ml-fo1131",
+    "ad": {
+      "ar": "فو شراب الفراولة الفاخر 700 مل",
+      "de": "FO Erdbeer-Fruchtsirup Premium – 700 ml",
+      "en": "FO Premium Strawberry Fruited Syrup – 700 ml",
+      "tr": "FO Çilek Meyveli Premium Şurup – 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "db361886-66e2-49f1-994a-c9dbe3fe5e56",
+    "slug": "fo-prem-haz-001",
+    "ad": {
+      "ar": "فو شراب بنكهة البندق الفاخر 700 مل",
+      "de": "FO Haselnuss-Sirup Premium – 700 ml",
+      "en": "FO Premium Hazelnut Flavored Syrup – 700 ml",
+      "tr": "FO Fındık Aromalı Premium Şurup – 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "be97c3b8-a1c6-42ea-93f2-7e76629baaf3",
+    "slug": "fo-karpuz-meyveli-premium-surup-700ml-fo1146",
+    "ad": {
+      "ar": "فو شراب البطيخ الفاخر 700 مل",
+      "de": "FO Wassermelone-Fruchtsirup Premium – 700 ml",
+      "en": "FO Premium Watermelon Fruited Syrup – 700 ml",
+      "tr": "FO Karpuz Meyveli Premium Şurup – 700 ml"
+    },
+    "kategori_id": "fef2c710-0104-42ce-a31d-726105495a1b"
+  },
+  {
+    "id": "9f096673-4c86-41e2-a55a-e24606be0957",
+    "slug": "fo-srp-prem-nar",
+    "ad": {
+      "ar": "فو شراب الرمان - بريميوم 700 مل",
+      "de": "FO Granatapfel Sirup - Premium 700 ml",
+      "en": "FO POMEGRANATE FRUIT SYRUP-PREMIUM 700 ML",
+      "tr": "FO Nar Meyveli Şurup - Premium 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "abca0310-e8e4-407a-802c-66df1425f310",
+    "slug": "fo-vanilya-aromal-premium-surup-700ml-fo1150",
+    "ad": {
+      "ar": "فو شراب بنكهة الفانيلا الفاخر 700 مل",
+      "de": "FO Vanille-Aromasirup Premium – 700 ml",
+      "en": "FO Premium Vanilla Flavored Syrup – 700 ml",
+      "tr": "FO Vanilya Aromalı Premium Şurup – 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "fe2b905d-ec92-46b2-94f8-97e188f8b6b7",
+    "slug": "fo-srp-prem-sef",
+    "ad": {
+      "ar": "فو شراب الخوخ - بريميوم 700 مل",
+      "de": "FO Pfirsich Sirup - Premium 700 ml",
+      "en": "FO PEACH FRUIT SYRUP-PREMIUM 700 ML",
+      "tr": "FO Şeftali Meyveli Şurup - Premium 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "bd4e98af-6b3c-479e-a91f-4054db4163ad",
+    "slug": "fo-karamel-premium-surup-700ml-fo1144",
+    "ad": {
+      "ar": "شراب الكراميل الممتاز فو 700 مل",
+      "de": "FO Karamell Premium Sirup 700ml",
+      "en": "FO KARAMELLİ ŞURUP-PREMIUM 700ML",
+      "tr": "FO Karamel Premium Şurup 700ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "3368c956-7293-4a1a-8111-2fd1129d8f04",
+    "slug": "fo-nar-premium-surup-700-ml-fo1138",
+    "ad": {
+      "ar": "فو شراب الرمان الفاخر 700 مل",
+      "de": "FO Granatapfel-Fruchtsirup Premium – 700 ml",
+      "en": "FO Grenadine Fruited Syrup – 700 ml",
+      "tr": "FO Nar Meyveli Şurup – 700 ml"
+    },
+    "kategori_id": "fef2c710-0104-42ce-a31d-726105495a1b"
+  },
+  {
+    "id": "c4ffaa96-dfe9-449d-930f-34d7e2905a34",
+    "slug": "fo-coconut-syrup",
+    "ad": {
+      "ar": "فو شراب جوز الهند الفاخر 700 مل",
+      "de": "FO Kokos-Premium-Sirup 700 ml",
+      "en": "FO Coconut Premium Syrup 700ml",
+      "tr": "FO Hindistan Cevizi Premium Şurup 700ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "e3b8c6ff-fcf2-4552-b58a-3a616b979a8b",
+    "slug": "antep-fistikli-special-sos-5-940-gr",
+    "ad": {
+      "ar": "صوص الفستق الحلبي الخاص فو 940 جم (5%)",
+      "de": "FO Pistazien-Spezialsauce 940 g (5%)",
+      "en": "FO Pistachio Special Sauce 940 g (5%)",
+      "tr": "FO Antep Fıstıklı Special Sos 940 gr (%5)"
+    },
+    "kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84"
+  },
+  {
+    "id": "38d26d7a-269e-47e7-bb2d-b5e33ffd2b24",
+    "slug": "frenk-uzumu-aromali-surup---premium-700-ml",
+    "ad": {
+      "ar": "شراب بنكهة الكشمش الأسود - بريميوم 700 مل",
+      "de": "Sirup mit schwarzem Johannisbeergeschmack – Premium 700 ml",
+      "en": "Blackcurrant Flavored Syrup - Premium 700 ml",
+      "tr": "Frenk Üzümü Aromalı Şurup - Premium 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "af5809e6-832f-4a94-9346-dae57cd07709",
+    "slug": "fo-bogurtlen-meyveli-premium-surup-700ml-fo1149",
+    "ad": {
+      "ar": "فو شراب فاكهة التوت الأسود الفاخر 700 مل",
+      "de": "FO Brombeer-Fruchtsirup Premium – 700 ml",
+      "en": "FO Premium Blackberry Fruited Syrup – 700 ml",
+      "tr": "FO Böğürtlen Meyveli Premium Şurup – 700 ml"
+    },
+    "kategori_id": "fef2c710-0104-42ce-a31d-726105495a1b"
+  },
+  {
+    "id": "9af30106-61f4-40fd-bc9e-f0b14a329ddd",
+    "slug": "kizilcik-aromali-surup---premium-700-ml",
+    "ad": {
+      "ar": "شراب بنكهة التوت البري - بريميوم 700 مل",
+      "de": "Sirup mit Cranberry-Geschmack – Premium 700 ml",
+      "en": "Cranberry Flavored Syrup - Premium 700 ml",
+      "tr": "Kızılcık Aromalı Şurup - Premium 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "5de34925-b25a-463f-ae71-b093693c38bf",
+    "slug": "karamel-aromali-surup-sekerli-700ml",
+    "ad": {
+      "ar": "شراب الكراميل بريميوم (700 مل)",
+      "de": "Premium Karamellsirup (700 ml)",
+      "en": "Premium Caramel Syrup (700 ml)",
+      "tr": "Premium Karamelli Şurup (700 ml)"
+    },
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5"
+  },
+  {
+    "id": "5b1339ac-c72d-4b9d-843d-9daa2732100f",
+    "slug": "fo-premium-cikolata-sosu-2-5-kg",
+    "ad": {
+      "ar": "صوص الشوكولاتة الفاخر 2.5 كجم",
+      "de": "Schokoladen-Premium-Sauce 2,5 kg",
+      "en": "Chocolate Premium Sauce 2.5 kg",
+      "tr": "Çikolatalı Premium Sos 2,5 kg"
+    },
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386"
+  },
+  {
+    "id": "b6aa45a8-d61a-4fa3-8eb3-c0375890cadc",
+    "slug": "fo-premium-beyaz-cikolata-sosu-2-5-kg",
+    "ad": {
+      "ar": "صوص الشوكولاتة البيضاء الفاخر 2.5 كجم",
+      "de": "Weiße Schokoladen-Premium-Sauce 2,5 kg",
+      "en": "White Chocolate Premium Sauce 2.5 kg",
+      "tr": "Beyaz Çikolatalı Premium Sos 2,5 kg"
+    },
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386"
+  },
+  {
+    "id": "b6c4cc51-5bff-47e0-ae37-6744fcceb129",
+    "slug": "murver-cicegi-aromali-surup---premium-700-ml",
+    "ad": {
+      "ar": "شراب بنكهة زهرة البيلسان - ممتاز 700 مل",
+      "de": "Sirup mit Holunderblütengeschmack – Premium 700 ml",
+      "en": "Elderflower Flavored Syrup - Premium 700 ml",
+      "tr": "Mürver Çiçeği Aromalı Şurup - Premium 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "3eaf63de-4bd7-4422-b0ed-9a18d8147677",
+    "slug": "tuzlu-karamelli-premium-sos-2-5-kg-pompa-hediyeli",
+    "ad": {
+      "ar": "صوص الكراميل المملح الفاخر 2.5 كجم",
+      "de": "Gesalzene Karamell-Premiumsauce 2,5 kg",
+      "en": "Salted Caramel Premium Sauce 2.5 kg",
+      "tr": "Tuzlu Karamelli Premium Sos 2,5 kg"
+    },
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386"
+  },
+  {
+    "id": "8a644fee-e81e-4ec6-b229-55a179fbb845",
+    "slug": "fo-mango-premium-surup-700-ml-fo1137",
+    "ad": {
+      "ar": "فو شراب المانجو الفاخر 700 مل",
+      "de": "FO Mango-Fruchtsirup Premium – 700 ml",
+      "en": "FO Premium Mango Fruited Syrup – 700 ml",
+      "tr": "FO Mango Meyveli Premium Şurup – 700 ml"
+    },
+    "kategori_id": "fef2c710-0104-42ce-a31d-726105495a1b"
+  },
+  {
+    "id": "d2830d9b-b9ff-4594-9b6f-db5da307f217",
+    "slug": "antep-fistikli-special-sos-20-940-gr",
+    "ad": {
+      "ar": "صلصة الفستق الخاصة 940 جم (20%)",
+      "de": "Pistazien-Spezialsauce 940 g (20%)",
+      "en": "Pistachio Special Sauce 940 g (20%)",
+      "tr": "Antep Fıstıklı Special Sos 940 gr (%20)"
+    },
+    "kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84"
+  },
+  {
+    "id": "7f2e3c53-24ff-4d71-aaca-2a5b0ccc1842",
+    "slug": "fo-premium-tuzlu-karamel-sosu-2-5-kg",
+    "ad": {
+      "ar": "فو صوص كراميل مملح فاخر 2.5 كج",
+      "de": "FO Premium gesalzene Karamellsauce 2,5 kg",
+      "en": "FO Premium Salted Caramel Sauce 2.5 KG",
+      "tr": "FO Premium Tuzlu Karamel Sosu 2,5 KG"
+    },
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386"
+  },
+  {
+    "id": "9a08a07e-036a-4eb5-bcf7-c9da37c8feae",
+    "slug": "greyfurt-meyveli-surup-premium-700-ml",
+    "ad": {
+      "ar": "شراب الجريب فروت – ممتاز 700 مل",
+      "de": "Grapefruit-Fruchtsirup – Premium 700 ml",
+      "en": "Grapefruit Fruit Syrup – Premium 700 ml",
+      "tr": "Greyfurt Meyveli Şurup – Premium 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "1eb128b1-1df5-4157-82e8-8cf2b638c596",
+    "slug": "speculoos-biskuvili-special-sos-940-gr",
+    "ad": {
+      "ar": "سبيكولوس صلصة البسكويت الخاصة 940 جرام",
+      "de": "Spekulatius-Keks-Spezialsauce 940 gr",
+      "en": "Speculoos Biscuit Special Sauce 940 gr",
+      "tr": "Speculoos Bisküvili Special Sos 940 gr"
+    },
+    "kategori_id": "3df0be9f-a9c0-47d7-a828-1ec2d34d5b84"
+  },
+  {
+    "id": "2cd6dc8e-1433-438d-8fd1-764b8d8045ce",
+    "slug": "fo-beyaz-cikolata-premium-surup-700ml-fo1147",
+    "ad": {
+      "ar": "شراب الشوكولاتة البيضاء بريميوم فو 700 مل",
+      "de": "FO Premium Sirup mit weißer Schokolade 700 ml",
+      "en": "FO White Chocolate Premium Syrup 700 ml",
+      "tr": "FO Beyaz Çikolatalı Premium Şurup 700 ml"
+    },
+    "kategori_id": "fef2c710-0104-42ce-a31d-726105495a1b"
+  },
+  {
+    "id": "dfb1fc66-ea0a-4a78-b4c3-3a65f1c8d2e0",
+    "slug": "fo-premium-taro-sosu-2-5-kg",
+    "ad": {
+      "ar": "صلصة القلقاس الفاخرة 2.5 كجم",
+      "de": "Premium-Sauce mit Taro-Geschmack, 2,5 kg",
+      "en": "Taro Flavored Premium Sauce 2.5 kg",
+      "tr": "Taro Aromalı Premium Sos 2,5 kg"
+    },
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386"
+  },
+  {
+    "id": "00718ba0-52e7-4abd-81fe-6c930f6f3a10",
+    "slug": "fo-ahududu-premium-surup-700ml-fo1136",
+    "ad": {
+      "ar": "فو شراب التوت الممتاز 700 مل",
+      "de": "FO Himbeer-Fruchtsirup Premium – 700 ml",
+      "en": "FO Premium Raspberry Fruited Syrup – 700 ml",
+      "tr": "FO Frambuaz Meyveli Premium Şurup – 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "fe96b76f-ed65-408f-b839-5e2fc6787870",
+    "slug": "fo-misket-limonu-premium-surup-700ml-fo1142",
+    "ad": {
+      "ar": "شراب الليمون الممتاز فو 700 مل",
+      "de": "FO Limette Premium Sirup 700ml",
+      "en": "FO MISKET LIMONLU ŞURUP-PREMIUM 700ML",
+      "tr": "FO Misket Limonu Premium Şurup 700ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  },
+  {
+    "id": "cbc22277-3a1e-4151-a47a-ca7575ebe0a5",
+    "slug": "fo-premium-karamel-sosu-2-5-kg",
+    "ad": {
+      "ar": "صوص كراميل فاخر 2.5 كجم",
+      "de": "Karamell Premium Sauce 2,5 kg",
+      "en": "Caramel Premium Sauce 2.5 kg",
+      "tr": "Karamelli Premium Sos 2,5 kg"
+    },
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386"
+  },
+  {
+    "id": "d54a0e2a-d2e5-45dc-af63-e7eb228e3ed4",
+    "slug": "carkifelek-meyveli-surup-premium-700-ml",
+    "ad": {
+      "ar": "شراب باشن فروت – ممتاز 700 مل",
+      "de": "Passionsfruchtsirup – Premium 700 ml",
+      "en": "Passion Fruit Syrup – Premium 700 ml",
+      "tr": "Çarkıfelek Meyveli Şurup – Premium 700 ml"
+    },
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf"
+  }
+]

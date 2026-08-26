@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useTransition, useMemo } from 'react';
+import { useState, useTransition, useMemo, useEffect } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { 
-    FiPackage, FiPlus, FiSearch, FiChevronRight,
+    FiPackage, FiPlus, FiSearch, FiChevronRight, FiChevronDown, FiChevronUp,
     FiAlertCircle, FiClock, FiCheck, FiTruck, FiX,
     FiArrowRight, FiLoader, FiRepeat, FiCopy,
     FiCalendar, FiMapPin, FiTrendingUp, FiShoppingBag,
-    FiCheckCircle, FiExternalLink, FiInfo
+    FiCheckCircle, FiExternalLink, FiInfo, FiLayers
 } from 'react-icons/fi';
+import { BsPinAngle, BsPinFill } from 'react-icons/bs';
 import { motion, AnimatePresence } from 'framer-motion';
 import { siparisDurumGuncelleAction } from '@/app/actions/siparis-actions';
 import Link from 'next/link';
@@ -354,6 +355,80 @@ export function SiparislerClient({
         Object.fromEntries(initialSiparisler.map(s => [s.id, s.siparis_durumu]))
     );
     const [reorderingId, setReorderingId] = useState<string | null>(null);
+    const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(
+        // Varsayılan olarak en son siparişi açık getirelim veya hepsini kapalı tutalım
+        initialSiparisler.length > 0 ? [initialSiparisler[0].id] : []
+    ));
+    const [pinnedIds, setPinnedIds] = useState<Set<string>>(new Set());
+
+    // LocalStorage'dan sabitlenen siparişleri yükle
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem('portal_pinned_orders');
+            if (saved) {
+                setPinnedIds(new Set(JSON.parse(saved)));
+            }
+        } catch {}
+    }, []);
+
+    const togglePin = (id: string, e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        setPinnedIds(prev => {
+            const next = new Set(prev);
+            const isPinnedNow = !next.has(id);
+            if (isPinnedNow) next.add(id);
+            else next.delete(id);
+
+            try {
+                localStorage.setItem('portal_pinned_orders', JSON.stringify(Array.from(next)));
+            } catch {}
+
+            const cleanId = id.substring(0, 8).toUpperCase();
+            if (isPinnedNow) {
+                toast.success(
+                    locale === 'de'
+                        ? `📌 Bestellung #${cleanId} oben angepinnt!`
+                        : `📌 Sipariş #${cleanId} başa sabitlendi!`
+                );
+            } else {
+                toast.info(
+                    locale === 'de'
+                        ? `Pin für #${cleanId} entfernt.`
+                        : `Sipariş #${cleanId} sabitlemesi kaldırıldı.`
+                );
+            }
+
+            return next;
+        });
+    };
+
+    // Sabitlenen siparişleri en üste alan sıralama
+    const sortedSiparisler = useMemo(() => {
+        if (pinnedIds.size === 0) return initialSiparisler;
+        return [...initialSiparisler].sort((a, b) => {
+            const aPinned = pinnedIds.has(a.id);
+            const bPinned = pinnedIds.has(b.id);
+            if (aPinned && !bPinned) return -1;
+            if (!aPinned && bPinned) return 1;
+            return 0;
+        });
+    }, [initialSiparisler, pinnedIds]);
+
+    const toggleExpand = (id: string, e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        setExpandedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
 
     const handleDurumUpdate = (siparisId: string, yeniDurum: string) => {
         setDurumlar(prev => ({ ...prev, [siparisId]: yeniDurum }));
@@ -369,6 +444,17 @@ export function SiparislerClient({
         }
         router.replace(`${pathname}?${params.toString()}`);
     }, 300);
+
+    const handleSelectFilterChange = (value: string, name: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', '1');
+        if (value) {
+            params.set(name, value);
+        } else {
+            params.delete(name);
+        }
+        router.replace(`${pathname}?${params.toString()}`);
+    };
 
     const handlePageChange = (newPage: number) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -432,7 +518,7 @@ export function SiparislerClient({
     };
 
     const activeFilter = searchParams.get('status') || '';
-    const hasFilters = searchParams.has('q') || searchParams.has('status');
+    const hasFilters = searchParams.has('q') || searchParams.has('status') || searchParams.has('period');
 
     const STATUS_TABS = [
         { value: '', label: { de: 'Alle', tr: 'Tümü', en: 'All' }, count: totalCount },
@@ -612,18 +698,18 @@ export function SiparislerClient({
                 </div>
             )}
 
-            {/* ── 4. Filtreleme & Arama Araç Çubuğu ──────────────────────────── */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 space-y-4">
-                <div className="flex flex-col md:flex-row items-center gap-3">
-                    {/* Arama Input */}
-                    <div className="relative w-full md:flex-1">
+            {/* ── 4. Filtreleme & Arama Araç Çubuğu (Akıllı Arama + Dönem Filtresi) ── */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3.5">
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                    {/* Çok Yönlü Akıllı Arama Input */}
+                    <div className="relative w-full flex-1">
                         <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                         <input
                             type="text"
                             placeholder={
                                 locale === 'de'
-                                    ? 'Nach Bestellnummer suchen (z. B. #SH-1024)...'
-                                    : 'Sipariş No ile ara (örn: #SH-1024)...'
+                                    ? 'Nach Bestell-Nr., Produkt (z. B. Frambuaz), Art.-Nr. oder Datum suchen...'
+                                    : 'Sipariş No, ürün adı (örn: Frambuaz), kod veya tarih ile arayın...'
                             }
                             defaultValue={searchParams.get('q') || ''}
                             onChange={(e) => handleFilterChange(e.target.value, 'q')}
@@ -631,11 +717,37 @@ export function SiparislerClient({
                         />
                     </div>
 
+                    {/* Tarih / Dönem Seçimi */}
+                    <div className="relative w-full sm:w-56 flex-shrink-0">
+                        <select
+                            value={searchParams.get('period') || ''}
+                            onChange={(e) => handleSelectFilterChange(e.target.value, 'period')}
+                            className="w-full pl-3.5 pr-8 py-2.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-colors appearance-none cursor-pointer"
+                        >
+                            <option value="">
+                                📅 {locale === 'de' ? 'Alle Zeiträume' : 'Tüm Dönemler'}
+                            </option>
+                            <option value="this_month">
+                                📅 {locale === 'de' ? 'Dieser Monat' : 'Bu Ay'}
+                            </option>
+                            <option value="last_month">
+                                📅 {locale === 'de' ? 'Letzter Monat' : 'Geçen Ay'}
+                            </option>
+                            <option value="last_3_months">
+                                📅 {locale === 'de' ? 'Letzte 3 Monate' : 'Son 3 Ay'}
+                            </option>
+                            <option value="this_year">
+                                📅 {locale === 'de' ? 'Dieses Jahr (2026)' : 'Bu Yıl (2026)'}
+                            </option>
+                        </select>
+                        <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={15} />
+                    </div>
+
                     {/* Reset Button (Varsa) */}
                     {hasFilters && (
                         <button
                             onClick={() => router.replace(pathname)}
-                            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 transition-colors flex-shrink-0"
+                            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-colors flex-shrink-0 w-full sm:w-auto justify-center"
                         >
                             <FiX size={14} />
                             <span>{locale === 'de' ? 'Filter zurücksetzen' : 'Filtreleri Temizle'}</span>
@@ -664,189 +776,313 @@ export function SiparislerClient({
                 </div>
             </div>
 
-            {/* ── 5. Sipariş Kartları Listesi ───────────────────────────────── */}
-            <div className="space-y-4">
-                {initialSiparisler.length > 0 ? (
-                    initialSiparisler.map((siparis) => {
+            {/* ── 5. Sipariş Kartları Listesi (Temiz, Derli Toplu Döküm Listesi) ─── */}
+            <div className="space-y-3">
+                {sortedSiparisler.length > 0 ? (
+                    sortedSiparisler.map((siparis) => {
                         const mevcutDurum = durumlar[siparis.id] ?? siparis.siparis_durumu;
                         const detaylar = siparis.siparis_detay || [];
                         const toplamUrunCesidi = detaylar.length;
                         const toplamKoliMiktari = detaylar.reduce((sum, d) => sum + (d.miktar || 0), 0);
-                        const displayItems = detaylar.slice(0, 4);
-                        const remainingCount = Math.max(0, toplamUrunCesidi - 4);
                         const isReordering = reorderingId === siparis.id;
+                        const isExpanded = expandedIds.has(siparis.id);
+                        const isPinned = pinnedIds.has(siparis.id);
 
                         return (
                             <motion.div
                                 key={siparis.id}
-                                initial={{ opacity: 0, y: 10 }}
+                                layout
+                                initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all overflow-hidden group"
+                                className={`bg-white rounded-2xl border transition-all overflow-hidden ${
+                                    isPinned 
+                                        ? 'border-amber-300 ring-1 ring-amber-400/30 shadow-md bg-gradient-to-r from-amber-50/15 via-white to-white' 
+                                        : 'border-slate-200 shadow-sm hover:border-slate-300'
+                                }`}
                             >
-                                {/* Kart Üst Başlık Barı */}
-                                <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                    <div className="flex items-center gap-3 flex-wrap">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-mono text-base font-extrabold text-slate-900 tracking-tight">
-                                                #{siparis.id.substring(0, 8).toUpperCase()}
-                                            </span>
-                                            <button
-                                                onClick={(e) => handleCopyId(siparis.id, e)}
-                                                title={locale === 'de' ? 'ID kopieren' : 'ID Kopyala'}
-                                                className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
-                                            >
-                                                <FiCopy size={13} />
-                                            </button>
+                                {/* ── Ana Satır (Kompakt ve Anlaşılır Başlık Çubuğu) ── */}
+                                <div 
+                                    onClick={() => toggleExpand(siparis.id)}
+                                    className="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/60 transition-colors select-none"
+                                >
+                                    {/* Sol Bölüm: No, Tarih, Durum */}
+                                    <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+                                        {/* Açma / Kapama Oku */}
+                                        <button 
+                                            onClick={(e) => toggleExpand(siparis.id, e)}
+                                            className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors flex-shrink-0"
+                                            title={isExpanded ? (locale === 'de' ? 'Einklappen' : 'Kapat') : (locale === 'de' ? 'Detailliste öffnen' : 'Dökümü Aç')}
+                                        >
+                                            {isExpanded ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+                                        </button>
+
+                                        {/* Sabitle / Pinle Butonu */}
+                                        <button
+                                            onClick={(e) => togglePin(siparis.id, e)}
+                                            title={isPinned 
+                                                ? (locale === 'de' ? 'Pin entfernen' : 'Sabitlemeyi Kaldır')
+                                                : (locale === 'de' ? 'Diese Bestellung oben anpinnen (für schnelle Nachbestellungen)' : 'Siparişi başa sabitle (hızlı tekrar sipariş için)')
+                                            }
+                                            className={`p-1.5 rounded-lg transition-all flex-shrink-0 ${
+                                                isPinned 
+                                                    ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 ring-1 ring-amber-300' 
+                                                    : 'text-slate-300 hover:text-slate-600 hover:bg-slate-100'
+                                            }`}
+                                        >
+                                            {isPinned ? <BsPinFill size={14} className="text-amber-600 rotate-45" /> : <BsPinAngle size={14} />}
+                                        </button>
+
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-mono text-base font-extrabold text-slate-900 tracking-tight">
+                                                    #{siparis.id.substring(0, 8).toUpperCase()}
+                                                </span>
+                                                <button
+                                                    onClick={(e) => handleCopyId(siparis.id, e)}
+                                                    title={locale === 'de' ? 'ID kopieren' : 'ID Kopyala'}
+                                                    className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+                                                >
+                                                    <FiCopy size={12} />
+                                                </button>
+
+                                                {/* Sabitlendi Rozeti */}
+                                                {isPinned && (
+                                                    <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-amber-100/80 text-amber-900 border border-amber-300">
+                                                        <span>📌</span>
+                                                        <span>{locale === 'de' ? 'Angepinnt' : 'Sabitlendi'}</span>
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                                                <span>{formatDate(siparis.siparis_tarihi, locale)}</span>
+                                                {formatRelativeTime(siparis.siparis_tarihi, locale) && (
+                                                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-medium">
+                                                        {formatRelativeTime(siparis.siparis_tarihi, locale)}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <StatusChip status={mevcutDurum} locale={locale} />
+                                        <div className="sm:ml-2">
+                                            <StatusChip status={mevcutDurum} locale={locale} />
+                                        </div>
 
                                         {siparis.firmalar?.unvan && (
-                                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center gap-1">
+                                            <span className="text-xs font-semibold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center gap-1">
                                                 📦 {siparis.firmalar.unvan}
                                             </span>
                                         )}
                                     </div>
 
-                                    <div className="flex items-center gap-3 text-xs text-slate-500">
-                                        <div className="flex items-center gap-1">
-                                            <FiCalendar size={13} className="text-slate-400" />
-                                            <span>{formatDate(siparis.siparis_tarihi, locale)}</span>
-                                        </div>
-                                        {formatRelativeTime(siparis.siparis_tarihi, locale) && (
-                                            <span className="px-2 py-0.5 rounded-full bg-slate-200/60 text-slate-600 font-medium">
-                                                {formatRelativeTime(siparis.siparis_tarihi, locale)}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Kart İçeriği: Zaman Çizelgesi & Ürünler & Fiyat */}
-                                <div className="p-5 space-y-5">
-                                    {/* 1. Teslimat Zaman Çizelgesi */}
-                                    <div className="px-2">
-                                        <OrderTimeline status={mevcutDurum} locale={locale} />
-                                    </div>
-
-                                    {/* 2. Sipariş Edilen Ürünler Görsel Önizlemesi */}
-                                    {detaylar.length > 0 && (
-                                        <div className="pt-2 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                            {/* Ürün Görselleri Yığını */}
-                                            <div className="flex items-center gap-3 flex-wrap">
-                                                <div className="flex items-center -space-x-2 overflow-hidden py-1">
-                                                    {displayItems.map((item, idx) => {
-                                                        const imgUrl = item.urunler?.ana_resim_url;
-                                                        const urunAdi = getUrunAdi(item.urunler?.ad, locale);
-                                                        return (
-                                                            <div
-                                                                key={idx}
-                                                                title={`${urunAdi} (${item.miktar} Koli)`}
-                                                                className="relative w-12 h-12 rounded-xl bg-white border-2 border-white shadow-sm overflow-hidden flex-shrink-0 flex items-center justify-center bg-slate-100 group-hover:scale-105 transition-transform"
-                                                            >
-                                                                {imgUrl ? (
-                                                                    <Image
-                                                                        src={imgUrl}
-                                                                        alt={urunAdi}
-                                                                        width={48}
-                                                                        height={48}
-                                                                        className="w-full h-full object-cover"
-                                                                    />
-                                                                ) : (
-                                                                    <FiPackage className="text-slate-400" size={18} />
-                                                                )}
-                                                                <span className="absolute bottom-0 right-0 bg-slate-900/80 text-white text-[9px] font-bold px-1 rounded-tl">
-                                                                    {item.miktar}
-                                                                </span>
-                                                            </div>
-                                                        );
-                                                    })}
-
-                                                    {remainingCount > 0 && (
-                                                        <div className="relative w-12 h-12 rounded-xl bg-slate-900 text-white border-2 border-white shadow-sm flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                                            +{remainingCount}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="text-xs text-slate-600">
-                                                    <span className="font-bold text-slate-800">
-                                                        {toplamUrunCesidi} {locale === 'de' ? 'Artikel' : 'Çeşit Ürün'}
-                                                    </span>
-                                                    <span className="text-slate-400 mx-1.5">·</span>
-                                                    <span>
-                                                        {toplamKoliMiktari} {locale === 'de' ? 'Kisten insgesamt' : 'Toplam Koli'}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Teslimat Adresi Özeti (Varsa) */}
-                                            {siparis.teslimat_adresi && (
-                                                <div className="flex items-center gap-1.5 text-xs text-slate-500 max-w-xs truncate">
-                                                    <FiMapPin size={13} className="text-slate-400 flex-shrink-0" />
-                                                    <span className="truncate">{siparis.teslimat_adresi}</span>
+                                    {/* Orta Bölüm: Ürün Sayısı ve Mini Küçük Resimler */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center -space-x-2 overflow-hidden py-0.5">
+                                            {detaylar.slice(0, 3).map((item, idx) => {
+                                                const imgUrl = item.urunler?.ana_resim_url;
+                                                const urunAdi = getUrunAdi(item.urunler?.ad, locale);
+                                                return (
+                                                    <div
+                                                        key={idx}
+                                                        title={`${urunAdi} (${item.miktar} Koli)`}
+                                                        className="relative w-9 h-9 rounded-lg bg-white border-2 border-white shadow-sm overflow-hidden flex-shrink-0 flex items-center justify-center bg-slate-100"
+                                                    >
+                                                        {imgUrl ? (
+                                                            <Image
+                                                                src={imgUrl}
+                                                                alt={urunAdi}
+                                                                width={36}
+                                                                height={36}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <FiPackage className="text-slate-400" size={14} />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                            {toplamUrunCesidi > 3 && (
+                                                <div className="relative w-9 h-9 rounded-lg bg-slate-800 text-white border-2 border-white shadow-sm flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                                                    +{toplamUrunCesidi - 3}
                                                 </div>
                                             )}
                                         </div>
-                                    )}
-                                </div>
 
-                                {/* Kart Alt Barı: Finansal Tutar & Aksiyon Butonları */}
-                                <div className="px-5 py-4 bg-slate-50/80 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                    {/* Sol: Tutar Bilgisi */}
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-xs text-slate-400 uppercase font-semibold">
-                                            {locale === 'de' ? 'Gesamtbetrag (Netto):' : 'Toplam Tutar (Net):'}
-                                        </span>
-                                        <span className="text-lg font-black text-slate-900">
-                                            {formatFiyat(siparis.toplam_tutar_net, locale)}
-                                        </span>
-                                        {siparis.toplam_tutar_brut && (
-                                            <span className="text-xs text-slate-400">
-                                                ({formatFiyat(siparis.toplam_tutar_brut, locale)} {locale === 'de' ? 'Brutto' : 'Brüt'})
-                                            </span>
-                                        )}
+                                        <div className="text-xs text-slate-600">
+                                            <span className="font-bold text-slate-800">{toplamUrunCesidi} {locale === 'de' ? 'Artikel' : 'Çeşit Ürün'}</span>
+                                            <span className="text-slate-400 mx-1">·</span>
+                                            <span className="text-slate-600 font-medium">{toplamKoliMiktari} {locale === 'de' ? 'Kisten' : 'Koli'}</span>
+                                        </div>
                                     </div>
 
-                                    {/* Sağ: Hızlı Aksiyon Butonları */}
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        {/* Alt Bayi Hızlı Durum Güncelleme Butonu */}
-                                        {isAltBayi && activeTab === 'musteri' && (
-                                            <HizliDurumButonu
-                                                siparisId={siparis.id}
-                                                durum={mevcutDurum}
-                                                onUpdate={handleDurumUpdate}
-                                            />
-                                        )}
+                                    {/* Sağ Bölüm: Tutar ve Butonlar */}
+                                    <div className="flex items-center justify-between lg:justify-end gap-4 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100">
+                                        <div className="text-right">
+                                            <div className="text-base font-black text-slate-900 leading-tight">
+                                                {formatFiyat(siparis.toplam_tutar_net, locale)}
+                                                <span className="text-[10px] font-normal text-slate-500 ml-1">Netto</span>
+                                            </div>
+                                            {siparis.toplam_tutar_brut && (
+                                                <div className="text-[11px] text-slate-400">
+                                                    {formatFiyat(siparis.toplam_tutar_brut, locale)} {locale === 'de' ? 'Brutto' : 'Brüt'}
+                                                </div>
+                                            )}
+                                        </div>
 
-                                        {/* Tek Tıkla Tekrar Sipariş Ver */}
-                                        {detaylar.length > 0 && (
+                                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                            {/* Tekrar Sipariş Ver Butonu */}
+                                            {detaylar.length > 0 && (
+                                                <button
+                                                    onClick={(e) => handleReorder(siparis, e)}
+                                                    disabled={isReordering}
+                                                    title={locale === 'de' ? 'Gleiche Artikel in den Warenkorb legen' : 'Aynı ürünleri sepete ekle'}
+                                                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 border border-amber-500/20 transition-all active:scale-95 disabled:opacity-50 flex-shrink-0"
+                                                >
+                                                    {isReordering ? (
+                                                        <FiLoader size={13} className="animate-spin text-amber-700" />
+                                                    ) : (
+                                                        <FiRepeat size={13} className="text-amber-700" />
+                                                    )}
+                                                    <span className="hidden sm:inline">
+                                                        {locale === 'de' ? 'Erneut' : 'Tekrarla'}
+                                                    </span>
+                                                </button>
+                                            )}
+
+                                            {/* Dökümü Aç / Kapat Butonu */}
                                             <button
-                                                onClick={(e) => handleReorder(siparis, e)}
-                                                disabled={isReordering}
-                                                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                                                onClick={(e) => toggleExpand(siparis.id, e)}
+                                                className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
+                                                    isExpanded 
+                                                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm' 
+                                                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                                }`}
                                             >
-                                                {isReordering ? (
-                                                    <FiLoader size={13} className="animate-spin text-amber-600" />
-                                                ) : (
-                                                    <FiRepeat size={13} className="text-amber-600" />
-                                                )}
-                                                <span>
-                                                    {locale === 'de' ? 'Erneut bestellen' : 'Tekrar Sipariş Ver'}
-                                                </span>
+                                                <span>{isExpanded ? (locale === 'de' ? 'Schließen' : 'Gizle') : (locale === 'de' ? 'Details' : 'Döküm')}</span>
+                                                {isExpanded ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
                                             </button>
-                                        )}
-
-                                        {/* Sipariş Detayına Git */}
-                                        <Link
-                                            href={`/${locale}/portal/siparisler/${siparis.id}`}
-                                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-sm transition-all hover:scale-105 active:scale-95"
-                                        >
-                                            <span>{locale === 'de' ? 'Details ansehen' : 'Sipariş Detayı'}</span>
-                                            <FiChevronRight size={14} />
-                                        </Link>
+                                        </div>
                                     </div>
                                 </div>
+
+                                {/* ── Açılır Sipariş Dökümü (Itemized Breakdown Table) ── */}
+                                <AnimatePresence>
+                                    {isExpanded && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="border-t border-slate-100 bg-slate-50/50"
+                                        >
+                                            <div className="p-4 sm:p-6 space-y-4">
+                                                {/* 1. Teslimat Süreci (Timeline) */}
+                                                <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                                                    <OrderTimeline status={mevcutDurum} locale={locale} />
+                                                </div>
+
+                                                {/* 2. Kalem Kalem Ürün Döküm Tablosu */}
+                                                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+                                                    <div className="px-4 py-2.5 bg-slate-100/70 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                                                        <span>{locale === 'de' ? 'Bestellte Artikel' : 'Sipariş Edilen Ürünler'}</span>
+                                                        <span>{detaylar.length} {locale === 'de' ? 'Position(en)' : 'Kalem'}</span>
+                                                    </div>
+
+                                                    <div className="divide-y divide-slate-100">
+                                                        {detaylar.map((item, idx) => {
+                                                            const urun = item.urunler;
+                                                            const urunAdi = getUrunAdi(urun?.ad, locale);
+                                                            const imgUrl = urun?.ana_resim_url;
+
+                                                            return (
+                                                                <div key={idx} className="p-3.5 sm:px-4 flex items-center justify-between gap-3 hover:bg-slate-50/50 transition-colors">
+                                                                    <div className="flex items-center gap-3 min-w-0">
+                                                                        <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                                                            {imgUrl ? (
+                                                                                <Image
+                                                                                    src={imgUrl}
+                                                                                    alt={urunAdi}
+                                                                                    width={40}
+                                                                                    height={40}
+                                                                                    className="w-full h-full object-cover"
+                                                                                />
+                                                                            ) : (
+                                                                                <FiPackage className="text-slate-400" size={16} />
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="min-w-0">
+                                                                            <p className="text-xs sm:text-sm font-bold text-slate-800 truncate">
+                                                                                {urunAdi}
+                                                                            </p>
+                                                                            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                                                                                {urun?.stok_kodu && (
+                                                                                    <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">
+                                                                                        {urun.stok_kodu}
+                                                                                    </span>
+                                                                                )}
+                                                                                <span>{item.miktar} {locale === 'de' ? 'Karton (Koli)' : 'Koli'}</span>
+                                                                                <span>×</span>
+                                                                                <span className="font-semibold">{formatFiyat(item.birim_fiyat, locale)}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="text-right flex-shrink-0">
+                                                                        <span className="text-xs sm:text-sm font-extrabold text-slate-900">
+                                                                            {formatFiyat(item.toplam_fiyat, locale)}
+                                                                        </span>
+                                                                        <span className="block text-[10px] text-slate-400">Netto</span>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+
+                                                    {/* Alt Toplam & Bilgi Satırı */}
+                                                    <div className="p-4 bg-slate-50/80 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                                                        <div className="flex items-center gap-2 text-slate-600">
+                                                            {siparis.teslimat_adresi && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <FiMapPin size={13} className="text-slate-400 flex-shrink-0" />
+                                                                    <span className="font-medium text-slate-700">{siparis.teslimat_adresi}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex items-center gap-3 sm:gap-4 self-end sm:self-auto">
+                                                            <div className="text-right">
+                                                                <span className="text-slate-500 mr-2">Net:</span>
+                                                                <span className="font-bold text-slate-800">{formatFiyat(siparis.toplam_tutar_net, locale)}</span>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <span className="text-slate-500 mr-2">Brüt (+%{siparis.kdv_orani || 7} KDV):</span>
+                                                                <span className="font-extrabold text-slate-900">{formatFiyat(siparis.toplam_tutar_brut, locale)}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* 3. Sayfa Bağlantısı */}
+                                                <div className="flex items-center justify-between pt-1">
+                                                    {isAltBayi && activeTab === 'musteri' && (
+                                                        <HizliDurumButonu
+                                                            siparisId={siparis.id}
+                                                            durum={mevcutDurum}
+                                                            onUpdate={handleDurumUpdate}
+                                                        />
+                                                    )}
+                                                    <Link
+                                                        href={`/${locale}/portal/siparisler/${siparis.id}`}
+                                                        className="inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-slate-950 hover:underline ml-auto"
+                                                    >
+                                                        <span>{locale === 'de' ? 'Vollständige Bestelldetails & Beleg ansehen' : 'Tüm Sipariş Faturasını ve Detayını Gör'}</span>
+                                                        <FiArrowRight size={13} />
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </motion.div>
                         );
                     })

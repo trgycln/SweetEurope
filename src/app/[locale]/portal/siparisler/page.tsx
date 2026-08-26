@@ -44,8 +44,69 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     const status = typeof resolvedSearchParams.status === 'string'
         ? resolvedSearchParams.status as Enums<'siparis_durumu'>
         : undefined;
-    const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : undefined;
+    const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q.trim() : undefined;
+    const period = typeof resolvedSearchParams.period === 'string' ? resolvedSearchParams.period : undefined;
     const tab = typeof resolvedSearchParams.tab === 'string' ? resolvedSearchParams.tab : 'kendi';
+
+    // ── 1. Tarih / Dönem Filtresi ──────────────────────────────
+    let dateFrom: string | undefined;
+    let dateTo: string | undefined;
+    const now = new Date();
+
+    if (period === 'this_month') {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        dateFrom = start.toISOString().split('T')[0];
+    } else if (period === 'last_month') {
+        const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const end = new Date(now.getFullYear(), now.getMonth(), 0);
+        dateFrom = start.toISOString().split('T')[0];
+        dateTo = end.toISOString().split('T')[0];
+    } else if (period === 'last_3_months') {
+        const start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+        dateFrom = start.toISOString().split('T')[0];
+    } else if (period === 'this_year') {
+        const start = new Date(now.getFullYear(), 0, 1);
+        dateFrom = start.toISOString().split('T')[0];
+    }
+
+    // ── 2. Akıllı Arama (Ürün Adı, Stok Kodu, Sipariş No, Tarih, Adres) ──
+    let matchingOrderIds: string[] | null = null;
+    if (searchQuery) {
+        const cleanQuery = searchQuery.replace(/^#/, '').toLowerCase();
+
+        // A) Ürün adı veya stok kodundan siparişleri bul
+        const { data: matchedUrunler } = await supabase
+            .from('urunler')
+            .select('id')
+            .or(`ad->>tr.ilike.%${cleanQuery}%,ad->>de.ilike.%${cleanQuery}%,ad->>en.ilike.%${cleanQuery}%,stok_kodu.ilike.%${cleanQuery}%`);
+        
+        let productOrderIds: string[] = [];
+        if (matchedUrunler && matchedUrunler.length > 0) {
+            const urunIds = matchedUrunler.map(u => u.id);
+            const { data: matchedDetails } = await supabase
+                .from('siparis_detay')
+                .select('siparis_id')
+                .in('urun_id', urunIds);
+            
+            if (matchedDetails) {
+                productOrderIds = matchedDetails.map(d => d.siparis_id).filter(Boolean);
+            }
+        }
+
+        // B) Sipariş ID, Tarih ve Teslimat Adresinden eşleşenleri bul
+        const { data: firmaOrders } = await supabase
+            .from('siparisler')
+            .select('id, siparis_tarihi, teslimat_adresi');
+
+        const directOrderIds = (firmaOrders || []).filter(o => {
+            const idMatch = o.id.toLowerCase().includes(cleanQuery);
+            const dateMatch = o.siparis_tarihi && o.siparis_tarihi.includes(cleanQuery);
+            const addrMatch = o.teslimat_adresi && o.teslimat_adresi.toLowerCase().includes(cleanQuery);
+            return idMatch || dateMatch || addrMatch;
+        }).map(o => o.id);
+
+        matchingOrderIds = Array.from(new Set([...productOrderIds, ...directOrderIds]));
+    }
 
     const from = (page - 1) * ORDERS_PER_PAGE;
     const to = from + ORDERS_PER_PAGE - 1;
@@ -66,7 +127,6 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
             kdv_orani,
             siparis_durumu,
             teslimat_adresi,
-            notlar,
             siparis_detay (
                 id,
                 urun_id,
@@ -87,7 +147,17 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
         .eq('firma_id', firmaId);
 
     if (status) kendiQuery = kendiQuery.eq('siparis_durumu', status);
-    if (searchQuery) kendiQuery = (kendiQuery as any).like('id::text', `${searchQuery}%`);
+    if (dateFrom) kendiQuery = kendiQuery.gte('siparis_tarihi', dateFrom);
+    if (dateTo) kendiQuery = kendiQuery.lte('siparis_tarihi', dateTo);
+
+    if (matchingOrderIds !== null) {
+        if (matchingOrderIds.length === 0) {
+            kendiQuery = kendiQuery.in('id', ['00000000-0000-0000-0000-000000000000']);
+        } else {
+            kendiQuery = kendiQuery.in('id', matchingOrderIds);
+        }
+    }
+
     kendiQuery = kendiQuery.order('siparis_tarihi', { ascending: false }).range(from, to);
 
     const kendiRes = await kendiQuery;
@@ -100,7 +170,6 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
         .select('id, siparis_durumu, toplam_tutar_net, siparis_tarihi')
         .eq('firma_id', firmaId);
 
-    const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
@@ -150,7 +219,6 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
                     kdv_orani,
                     siparis_durumu,
                     teslimat_adresi,
-                    notlar,
                     firmalar ( unvan ),
                     siparis_detay (
                         id,
@@ -172,7 +240,17 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
                 .in('firma_id', musteriIds);
 
             if (status) musteriQuery = musteriQuery.eq('siparis_durumu', status);
-            if (searchQuery) musteriQuery = (musteriQuery as any).like('id::text', `${searchQuery}%`);
+            if (dateFrom) musteriQuery = musteriQuery.gte('siparis_tarihi', dateFrom);
+            if (dateTo) musteriQuery = musteriQuery.lte('siparis_tarihi', dateTo);
+
+            if (matchingOrderIds !== null) {
+                if (matchingOrderIds.length === 0) {
+                    musteriQuery = musteriQuery.in('id', ['00000000-0000-0000-0000-000000000000']);
+                } else {
+                    musteriQuery = musteriQuery.in('id', matchingOrderIds);
+                }
+            }
+
             musteriQuery = musteriQuery.order('siparis_tarihi', { ascending: false }).range(from, to);
 
             const musteriRes = await musteriQuery;

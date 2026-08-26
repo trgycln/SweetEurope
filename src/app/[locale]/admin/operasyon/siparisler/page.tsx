@@ -11,15 +11,16 @@ import { Enums, Tables, Database } from '@/lib/supabase/database.types'; // Data
 import { Locale } from '@/i18n-config';
 import { redirect } from 'next/navigation';
 import { formatCurrency, formatDate } from '@/lib/utils'; // utils importieren
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
+import { cookies } from 'next/headers';
 import OrderPageWrapper from './OrderPageWrapper';
 import OrderCheckbox from './OrderCheckbox';
+import SelectAllOrdersCheckbox from './SelectAllOrdersCheckbox';
 
 export const dynamic = 'force-dynamic';
 
 // Typ für die erweiterten Siparis-Daten mit Firma
 type SiparisWithFirma = Tables<'siparisler'> & {
-    firmalar: Pick<Tables<'firmalar'>, 'unvan'> | null; // Firma-Objekt oder null (Name geändert zu 'firmalar')
+    firmalar: Pick<Tables<'firmalar'>, 'id' | 'unvan' | 'adres' | 'sehir' | 'ilce' | 'posta_kodu' | 'google_maps_url' | 'telefon' | 'parent_firma_id'> | null; // Firma-Objekt oder null
 };
 
 // Mögliche Statuswerte aus der DB (inklusive Ihrer spezifischen Werte)
@@ -85,7 +86,7 @@ export default async function AlleSiparislerPage({
         .select(`
             *,
             firmalar (
-                unvan
+                id, unvan, adres, sehir, ilce, posta_kodu, google_maps_url, telefon, parent_firma_id
             )
         `);
 
@@ -173,9 +174,9 @@ export default async function AlleSiparislerPage({
             // Später brauchen wir firmalar.unvan: separate Lookup
             const uniqueFirmaIds = Array.from(new Set(filtered.map(r => r.firma_id).filter(Boolean)));
             if (uniqueFirmaIds.length > 0) {
-                const { data: firmaRows } = await supabase.from('firmalar').select('id, unvan').in('id', uniqueFirmaIds as string[]);
-                const firmaMap = new Map((firmaRows||[]).map(f => [f.id, f.unvan]));
-                filtered = filtered.map(r => ({ ...r, firmalar: { unvan: firmaMap.get(r.firma_id) || null } }));
+                const { data: firmaRows } = await supabase.from('firmalar').select('id, unvan, adres, sehir, ilce, posta_kodu, google_maps_url, telefon, parent_firma_id').in('id', uniqueFirmaIds as string[]);
+                const firmaMap = new Map((firmaRows||[]).map(f => [f.id, f]));
+                filtered = filtered.map(r => ({ ...r, firmalar: firmaMap.get(r.firma_id) || null }));
             }
             siparislerData = filtered;
         } else {
@@ -290,8 +291,20 @@ export default async function AlleSiparislerPage({
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
-                                 {/* Checkbox sütun başlığı */}
-                                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-8"></th>
+                                 {/* Checkbox sütun başlığı (Tümünü Seç) */}
+                                 <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-8">
+                                     <SelectAllOrdersCheckbox firmalar={siparisler.map(s => s.firmalar ? {
+                                         id: s.firmalar.id,
+                                         unvan: s.firmalar.unvan || '',
+                                         adres: s.firmalar.adres || null,
+                                         sehir: s.firmalar.sehir || null,
+                                         ilce: s.firmalar.ilce || null,
+                                         posta_kodu: s.firmalar.posta_kodu || null,
+                                         google_maps_url: s.firmalar.google_maps_url || null,
+                                         telefon: s.firmalar.telefon || null,
+                                         parent_firma_id: s.firmalar.parent_firma_id || null,
+                                     } : null).filter(Boolean) as any} />
+                                 </th>
                                  {/* Spaltenüberschriften */}
                                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.orderId || 'Order No.'}</th>
                                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{content.company || 'Company'}</th>
@@ -315,7 +328,17 @@ export default async function AlleSiparislerPage({
                                     <tr key={siparis.id} className="hover:bg-gray-50/50 transition-colors">
                                         {/* Checkbox für Auswahl */}
                                         <td className="px-4 py-4 whitespace-nowrap">
-                                            <OrderCheckbox orderId={siparis.id} />
+                                            <OrderCheckbox firma={siparis.firmalar ? {
+                                                id: siparis.firmalar.id,
+                                                unvan: siparis.firmalar.unvan || '',
+                                                adres: siparis.firmalar.adres || null,
+                                                sehir: siparis.firmalar.sehir || null,
+                                                ilce: siparis.firmalar.ilce || null,
+                                                posta_kodu: siparis.firmalar.posta_kodu || null,
+                                                google_maps_url: siparis.firmalar.google_maps_url || null,
+                                                telefon: siparis.firmalar.telefon || null,
+                                                parent_firma_id: siparis.firmalar.parent_firma_id || null,
+                                            } : null} />
                                         </td>
                                         {/* Bestellnummer Link */}
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -348,10 +371,11 @@ export default async function AlleSiparislerPage({
                                             </span>
                                         </td>
                                         {/* Aktionen (Status Update Buttons) */}
-                                        <td className="px-6 py-4 text-sm space-x-2 whitespace-nowrap">
-                                             {/* Zeigt Buttons basierend auf aktuellem Status */}
-                                             {/* "Als versandt markieren" */}
-                                             {(dbStatus === 'Beklemede' || dbStatus === 'processing' || dbStatus === 'Hazırlanıyor') && ( // 'Hazırlanıyor' hinzugefügt
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap">
+                                             <div className="flex items-center gap-2">
+                                                 {/* Zeigt Buttons basierend auf aktuellem Status */}
+                                                 {/* "Als versandt markieren" */}
+                                                 {(dbStatus === 'Beklemede' || dbStatus === 'processing' || dbStatus === 'Hazırlanıyor') && ( // 'Hazırlanıyor' hinzugefügt
                                                  <StatusUpdateButton
                                                      siparisId={siparis.id}
                                                      neuerStatus="Yola Çıktı" // Nächster Status
@@ -372,6 +396,7 @@ export default async function AlleSiparislerPage({
                                              )}
                                               {/* Optional: Stornieren Button */}
                                              {/* {(dbStatus === 'Beklemede' || dbStatus === 'processing') && ( ... )} */}
+                                             </div>
                                         </td>
                                     </tr>
                                 );
