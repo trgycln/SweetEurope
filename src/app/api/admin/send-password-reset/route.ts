@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   }
 
   const email = payload.email?.trim();
-  const locale = payload.locale || 'tr';
+  const locale = payload.locale || 'de';
 
   if (!email) {
     return new NextResponse(JSON.stringify({ error: 'E-posta adresi gerekli' }), { status: 400 });

@@ -224,10 +224,10 @@ export default function ResetPasswordPage() {
     setSuccess(t.updateSuccess);
     setLoading(false);
 
-    // Auto-redirect to portal after 2 seconds
+    // Auto-redirect to portal dashboard
     setTimeout(() => {
-      window.location.href = `/${locale}/portal`;
-    }, 2000);
+      window.location.href = `/${locale}/portal/dashboard`;
+    }, 1500);
   };
 
   return (

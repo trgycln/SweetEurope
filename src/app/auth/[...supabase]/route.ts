@@ -4,7 +4,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // --- GET Funktion für Callback ---
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams, origin, pathname } = new URL(request.url)
+
+  if (pathname.includes('reset-password')) {
+    const search = request.nextUrl.search;
+    return NextResponse.redirect(`${origin}/de/auth/reset-password${search}`);
+  }
+
   const code = searchParams.get('code')
   // if "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/'

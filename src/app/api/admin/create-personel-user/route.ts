@@ -78,7 +78,7 @@ export async function POST(request: Request) {
   const isPortalRole = rol === 'Müşteri' || rol === 'Alt Bayi';
   const firmaId = payload.firma_id?.trim() || null;
   const sendInviteEmail = payload.sendInviteEmail === true;
-  const locale = payload.locale || 'tr';
+  const locale = isPortalRole ? (payload.locale || 'de') : (payload.locale || 'tr');
   const siteUrl = getSiteUrl(request);
   const redirectTo = `${siteUrl}/${locale}/auth/reset-password`;
   const allowedPanels = isPortalRole ? [] : normalizeAllowedAdminPanels(payload.allowedPanels);
