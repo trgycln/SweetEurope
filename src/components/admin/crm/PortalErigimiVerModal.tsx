@@ -65,12 +65,14 @@ export function PortalErigimiVerModal({
     };
 
     const getCustomerShareMessage = (data: ResultData) => {
-        const passLine = data.tempPassword ? `🔑 Geçici Şifreniz: ${data.tempPassword}\n` : '';
+        const passLine = data.tempPassword ? `🔑 Temporäres Passwort: ${data.tempPassword}\n` : '';
         const linkLine = data.actionLink
-            ? `🔗 Şifre Belirleme / Aktivasyon Linki: ${data.actionLink}\n`
-            : `🔗 Portal Giriş Linki: ${data.loginUrl}\n`;
+            ? `🔗 Aktivierungslink: ${data.actionLink}\n`
+            : `🔗 Portal-Login: ${data.loginUrl}\n`;
 
-        return `Merhaba Sayın ${tamAd || yetkiliKisi || firmaUnvan},\n\nElysonSweets B2B Müşteri Portalı erişiminiz tanımlanmıştır.\n\n📧 Kullanıcı Adı (E-posta): ${data.email}\n${passLine}${linkLine}\nPortala giriş yaparak siparişlerinizi verebilir, özel fiyatlarınızı ve cari özetinizi takip edebilirsiniz.\n\nİyi çalışmalar dileriz,\nElysonSweets Ekibi`;
+        const salutation = tamAd ? `Sehr geehrte(r) ${tamAd}` : yetkiliKisi ? `Sehr geehrte(r) ${yetkiliKisi}` : `Sehr geehrtes Team von ${firmaUnvan}`;
+
+        return `Guten Tag ${salutation},\n\nIhr offizieller Zugang zum Elysonsweets GmbH B2B-Kundenportal wurde erfolgreich eingerichtet.\n\n📧 Benutzername (E-Mail): ${data.email}\n${passLine}${linkLine}\nÜber das Portal können Sie Ihre exklusiven B2B-Konditionen einsehen und Bestellungen rund um die Uhr direkt online aufgeben.\n\nBei Rückfragen stehen wir Ihnen gerne zur Verfügung.\n\nMit freundlichen Grüßen,\nIhr Elysonsweets GmbH Team\nhttps://elysonsweets.de`;
     };
 
     const handleSubmit = () => {
@@ -91,7 +93,7 @@ export function PortalErigimiVerModal({
                         rol,
                         firma_id: firmaId,
                         sendInviteEmail: sendInvite,
-                        locale,
+                        locale: 'de', // Always send German emails to clients in Germany
                     }),
                 });
 

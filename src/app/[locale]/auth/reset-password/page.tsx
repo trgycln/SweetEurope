@@ -7,9 +7,97 @@ import { FiKey, FiLoader, FiMail } from 'react-icons/fi';
 
 import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 
+const TEXTS: Record<string, {
+  titleUpdate: string;
+  titleRequest: string;
+  descUpdate: string;
+  descRequest: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  sendLinkBtn: string;
+  newPassLabel: string;
+  newPassPlaceholder: string;
+  confirmPassLabel: string;
+  confirmPassPlaceholder: string;
+  savePassBtn: string;
+  minCharsError: string;
+  matchError: string;
+  requestSuccess: string;
+  updateSuccess: string;
+  backToLogin: string;
+  sending: string;
+  saving: string;
+}> = {
+  de: {
+    titleUpdate: 'Passwort festlegen',
+    titleRequest: 'Passwort zurücksetzen',
+    descUpdate: 'Legen Sie bitte Ihr persönliches Passwort für das B2B-Kundenportal fest.',
+    descRequest: 'Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen zu erhalten.',
+    emailLabel: 'E-Mail-Adresse',
+    emailPlaceholder: 'beispiel@firma.de',
+    sendLinkBtn: 'Link anfordern',
+    newPassLabel: 'Neues Passwort',
+    newPassPlaceholder: 'Mindestens 6 Zeichen',
+    confirmPassLabel: 'Passwort bestätigen',
+    confirmPassPlaceholder: 'Passwort wiederholen',
+    savePassBtn: 'Neues Passwort speichern',
+    minCharsError: 'Das Passwort muss mindestens 6 Zeichen lang sein.',
+    matchError: 'Die Passwörter stimmen nicht überein.',
+    requestSuccess: 'Ein Link zum Zurücksetzen wurde an Ihre E-Mail-Adresse gesendet.',
+    updateSuccess: 'Ihr Passwort wurde erfolgreich gespeichert. Sie können sich jetzt einloggen.',
+    backToLogin: 'Zurück zur Anmeldung',
+    sending: 'Wird gesendet...',
+    saving: 'Wird gespeichert...',
+  },
+  tr: {
+    titleUpdate: 'Şifreyi Belirle',
+    titleRequest: 'Şifre Sıfırlama',
+    descUpdate: 'Davet veya kurtarma bağlantısı ile geldiniz. Yeni şifrenizi belirleyin.',
+    descRequest: 'E-posta adresinizi girin, size şifre yenileme bağlantısı gönderelim.',
+    emailLabel: 'E-posta',
+    emailPlaceholder: 'ornek@firma.com',
+    sendLinkBtn: 'Bağlantı Gönder',
+    newPassLabel: 'Yeni Şifre',
+    newPassPlaceholder: 'En az 6 karakter',
+    confirmPassLabel: 'Şifre Tekrar',
+    confirmPassPlaceholder: 'Şifreyi tekrar yazın',
+    savePassBtn: 'Yeni Şifreyi Kaydet',
+    minCharsError: 'Şifre en az 6 karakter olmalıdır.',
+    matchError: 'Şifreler birbiriyle eşleşmiyor.',
+    requestSuccess: 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.',
+    updateSuccess: 'Şifreniz başarıyla güncellendi. Giriş sayfasına dönebilirsiniz.',
+    backToLogin: 'Giriş sayfasına dön',
+    sending: 'Gönderiliyor...',
+    saving: 'Kaydediliyor...',
+  },
+  en: {
+    titleUpdate: 'Set Password',
+    titleRequest: 'Reset Password',
+    descUpdate: 'Please set your new password for the B2B Customer Portal.',
+    descRequest: 'Enter your email address to receive a password reset link.',
+    emailLabel: 'Email Address',
+    emailPlaceholder: 'example@company.com',
+    sendLinkBtn: 'Send Reset Link',
+    newPassLabel: 'New Password',
+    newPassPlaceholder: 'Minimum 6 characters',
+    confirmPassLabel: 'Confirm Password',
+    confirmPassPlaceholder: 'Repeat your password',
+    savePassBtn: 'Save New Password',
+    minCharsError: 'Password must be at least 6 characters long.',
+    matchError: 'Passwords do not match.',
+    requestSuccess: 'A password reset link has been sent to your email address.',
+    updateSuccess: 'Your password has been successfully updated. You can now log in.',
+    backToLogin: 'Back to Login',
+    sending: 'Sending...',
+    saving: 'Saving...',
+  },
+};
+
 export default function ResetPasswordPage() {
   const params = useParams<{ locale: string }>();
-  const locale = typeof params?.locale === 'string' ? params.locale : 'tr';
+  const locale = typeof params?.locale === 'string' && TEXTS[params.locale] ? params.locale : 'de';
+  const t = TEXTS[locale] || TEXTS.de;
+
   const supabase = useMemo(() => createDynamicSupabaseClient(true), []);
 
   const [mode, setMode] = useState<'request' | 'update'>('request');
@@ -55,7 +143,7 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    setSuccess('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.');
+    setSuccess(t.requestSuccess);
     setLoading(false);
   };
 
@@ -66,13 +154,13 @@ export default function ResetPasswordPage() {
     setSuccess(null);
 
     if (password.length < 6) {
-      setError('Şifre en az 6 karakter olmalıdır.');
+      setError(t.minCharsError);
       setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Şifreler birbiriyle eşleşmiyor.');
+      setError(t.matchError);
       setLoading(false);
       return;
     }
@@ -85,29 +173,27 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    setSuccess('Şifreniz başarıyla güncellendi. Giriş sayfasına dönebilirsiniz.');
+    setSuccess(t.updateSuccess);
     setLoading(false);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl border border-slate-200">
         <div className="mb-6 text-center">
-          <h1 className="font-serif text-3xl font-bold text-primary">
-            {mode === 'update' ? 'Şifreyi Belirle' : 'Şifre Sıfırlama'}
+          <h1 className="text-2xl font-bold text-slate-800">
+            {mode === 'update' ? t.titleUpdate : t.titleRequest}
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            {mode === 'update'
-              ? 'Davet veya kurtarma bağlantısı ile geldiniz. Yeni şifrenizi belirleyin.'
-              : 'E-posta adresinizi girin, size şifre yenileme bağlantısı gönderelim.'}
+          <p className="mt-2 text-xs text-slate-500">
+            {mode === 'update' ? t.descUpdate : t.descRequest}
           </p>
         </div>
 
         {mode === 'request' ? (
           <form onSubmit={handleRequestReset} className="space-y-4">
             <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-semibold text-gray-700">
-                E-posta
+              <label htmlFor="email" className="mb-1.5 block text-xs font-bold text-slate-700">
+                {t.emailLabel}
               </label>
               <input
                 id="email"
@@ -115,25 +201,25 @@ export default function ResetPasswordPage() {
                 required
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                placeholder="ornek@firma.com"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-400 focus:border-green-500 outline-none transition-all"
+                placeholder={t.emailPlaceholder}
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-green-700 transition-colors disabled:cursor-not-allowed disabled:opacity-60 shadow-sm"
             >
               {loading ? <FiLoader className="animate-spin" /> : <FiMail />}
-              {loading ? 'Gönderiliyor...' : 'Bağlantı Gönder'}
+              {loading ? t.sending : t.sendLinkBtn}
             </button>
           </form>
         ) : (
           <form onSubmit={handleUpdatePassword} className="space-y-4">
             <div>
-              <label htmlFor="password" className="mb-2 block text-sm font-semibold text-gray-700">
-                Yeni Şifre
+              <label htmlFor="password" className="mb-1.5 block text-xs font-bold text-slate-700">
+                {t.newPassLabel}
               </label>
               <input
                 id="password"
@@ -141,13 +227,13 @@ export default function ResetPasswordPage() {
                 required
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                placeholder="En az 6 karakter"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-400 focus:border-green-500 outline-none transition-all"
+                placeholder={t.newPassPlaceholder}
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="mb-2 block text-sm font-semibold text-gray-700">
-                Şifre Tekrar
+              <label htmlFor="confirmPassword" className="mb-1.5 block text-xs font-bold text-slate-700">
+                {t.confirmPassLabel}
               </label>
               <input
                 id="confirmPassword"
@@ -155,28 +241,28 @@ export default function ResetPasswordPage() {
                 required
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                placeholder="Şifreyi tekrar yazın"
+                className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-400 focus:border-green-500 outline-none transition-all"
+                placeholder={t.confirmPassPlaceholder}
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-green-700 transition-colors disabled:cursor-not-allowed disabled:opacity-60 shadow-sm"
             >
               {loading ? <FiLoader className="animate-spin" /> : <FiKey />}
-              {loading ? 'Kaydediliyor...' : 'Yeni Şifreyi Kaydet'}
+              {loading ? t.saving : t.savePassBtn}
             </button>
           </form>
         )}
 
-        {error && <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
-        {success && <div className="mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{success}</div>}
+        {error && <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">{error}</div>}
+        {success && <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800">{success}</div>}
 
         <div className="mt-6 text-center">
-          <Link href={`/${locale}/login`} className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline">
-            Giriş sayfasına dön
+          <Link href={`/${locale}/login`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-green-700 transition-colors">
+            ← {t.backToLogin}
           </Link>
         </div>
       </div>
