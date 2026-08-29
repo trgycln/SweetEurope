@@ -118,6 +118,7 @@ export default async function FirmaOzetPage({ params }: PageProps) {
         siparisDetayRes,
         gorevAcikRes,
         gorevGecenRes,
+        portalUsersRes,
     ] = await Promise.all([
         supabase.from('firmalar')
             .select('*, sorumlu_personel:profiller!firmalar_sorumlu_personel_id_fkey(tam_ad)')
@@ -167,6 +168,10 @@ export default async function FirmaOzetPage({ params }: PageProps) {
             .select('id', { count: 'exact', head: true })
             .eq('ilgili_firma_id', firmaId)
             .eq('tamamlandi', true),
+
+        supabase.from('profiller')
+            .select('id, tam_ad, rol')
+            .eq('firma_id', firmaId),
     ]);
 
     if (firmaRes.error || !firmaRes.data) notFound();
@@ -178,6 +183,7 @@ export default async function FirmaOzetPage({ params }: PageProps) {
     const siparisDetay = (siparisDetayRes.data ?? []) as any[];
     const acikGorevler = (gorevAcikRes.data ?? []) as any[];
     const tamamlananGorevSayisi = gorevGecenRes.count ?? 0;
+    const portalUsers = (portalUsersRes.data ?? []) as any[];
 
     // Auto-mark as seen when admin views the firm
     if (firma.goruldu === false && firma.kaynak === 'Web') {
@@ -624,18 +630,18 @@ export default async function FirmaOzetPage({ params }: PageProps) {
                 return null;
             })()}
 
-            {/* ── Portal Erişimi Ver ── */}
-            {!isCustomer && (
-                <div className="flex justify-end">
-                    <PortalErigimiVerButton
-                        firmaId={firmaId}
-                        firmaUnvan={firma.unvan}
-                        firmaEmail={firma.email}
-                        yetkiliKisi={firma.yetkili_kisi}
-                        locale={locale}
-                    />
-                </div>
-            )}
+            {/* ── Portal Erişimi & Hesap Yönetimi ── */}
+            <div className="flex justify-end">
+                <PortalErigimiVerButton
+                    firmaId={firmaId}
+                    firmaUnvan={firma.unvan}
+                    firmaEmail={firma.email}
+                    yetkiliKisi={firma.yetkili_kisi}
+                    locale={locale}
+                    portalUsers={portalUsers}
+                    firmaStatus={status}
+                />
+            </div>
 
             {/* ── Hızlı İşlemler ── */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3">

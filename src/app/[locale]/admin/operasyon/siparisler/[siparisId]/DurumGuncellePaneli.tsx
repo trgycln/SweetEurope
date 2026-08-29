@@ -31,30 +31,62 @@ export default function DurumGuncellePaneli({ siparisId, mevcutDurum }: Props) {
     const [aktifDurum, setAktifDurum] = useState<string>(mevcutDurum);
 
     const isFinished = aktifDurum === 'Teslim Edildi' || aktifDurum === 'İptal Edildi' || aktifDurum === 'cancelled';
+    const isPreOrder = aktifDurum === 'Ön Sipariş';
 
-    const handleDurumDegistir = (yeniDurum: SiparisDurumu) => {
-        if (yeniDurum === aktifDurum || isFinished) return;
-
+    const handlePreOrderConvert = () => {
         startTransition(async () => {
-            const result = await siparisDurumGuncelleAction(siparisId, yeniDurum);
+            const { onSiparisiNormalSipariseDonusturAction } = await import('@/app/actions/siparis-actions');
+            const result = await onSiparisiNormalSipariseDonusturAction(siparisId);
             if (result.success) {
-                setAktifDurum(yeniDurum);
-                toast.success(`Durum "${yeniDurum}" olarak güncellendi`);
+                setAktifDurum('Hazırlanıyor');
+                toast.success('Ön sipariş başarıyla normal siparişe dönüştürüldü ve stoklar düşüldü!');
             } else {
-                toast.error(result.error || 'Hata oluştu');
+                toast.error(result.error || 'Dönüştürme başarısız');
             }
         });
     };
 
-    if (isFinished) {
+    const handlePreOrderCancel = () => {
+        const reason = window.prompt('İptal nedeni / Müşteri bilgilendirme notu (Opsiyonel):', 'Ürün tedarik edilemedi');
+        if (reason === null) return; // user cancelled prompt
+
+        startTransition(async () => {
+            const { onSiparisiIptalEtAction } = await import('@/app/actions/siparis-actions');
+            const result = await onSiparisiIptalEtAction(siparisId, reason);
+            if (result.success) {
+                setAktifDurum('İptal Edildi');
+                toast.success('Ön sipariş iptal edildi ve müşteriye bildirim gönderildi.');
+            } else {
+                toast.error(result.error || 'İptal başarısız');
+            }
+        });
+    };
+
+    if (isPreOrder) {
         return (
-            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${
-                aktifDurum === 'Teslim Edildi'
-                    ? 'bg-green-50 border border-green-200 text-green-700'
-                    : 'bg-red-50 border border-red-200 text-red-700'
-            }`}>
-                {aktifDurum === 'Teslim Edildi' ? <FiCheck size={14} /> : <FiX size={14} />}
-                {aktifDurum} — Güncelleme yapılamaz
+            <div className="space-y-3 bg-amber-50/70 border border-amber-200 p-4 rounded-xl">
+                <div className="flex items-center gap-2 text-amber-800 text-sm font-semibold">
+                    <span className="text-lg">⏳</span>
+                    <span>Bu sipariş bir <strong>Ön Sipariş / Talep</strong> kaydıdır. Henüz stok düşülmemiştir.</span>
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                    <button
+                        onClick={handlePreOrderConvert}
+                        disabled={isPending}
+                        className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                    >
+                        {isPending ? <FiLoader className="animate-spin" size={15} /> : <FiCheck size={15} />}
+                        ✅ Stok Geldi → Sevkiyata Al (Hazırlanıyor)
+                    </button>
+                    <button
+                        onClick={handlePreOrderCancel}
+                        disabled={isPending}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                    >
+                        {isPending ? <FiLoader className="animate-spin" size={15} /> : <FiX size={15} />}
+                        ❌ Tedarik Edilemedi / İptal Et
+                    </button>
+                </div>
             </div>
         );
     }

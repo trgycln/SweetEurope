@@ -1,20 +1,18 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
+import { sendPortalWelcomeEmail } from '@/lib/email';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 function getSiteUrl(request: Request): string {
-  // 1. Üretimde hosting panelinden setlenen ortam değişkeni (en güvenilir)
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
   }
-  // 2. Proxy / CDN başlıkları (Vercel, Cloudflare, Nginx vb.)
   const forwardedHost = request.headers.get('x-forwarded-host');
   const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
   if (forwardedHost) {
     return `${forwardedProto}://${forwardedHost}`;
   }
-  // 3. Fallback — lokal geliştirmede çalışır
   const { origin } = new URL(request.url);
   return origin;
 }
@@ -36,7 +34,7 @@ export async function POST(request: Request) {
     return new NextResponse(JSON.stringify({ error: 'Bu işlemi yapmaya sadece yöneticiler yetkilidir' }), { status: 403 });
   }
 
-  let payload: { email?: string; locale?: string } = {};
+  let payload: { email?: string; locale?: string; userId?: string } = {};
   try {
     payload = await request.json();
   } catch {
@@ -54,12 +52,45 @@ export async function POST(request: Request) {
   const redirectTo = `${siteUrl}/${locale}/auth/reset-password`;
   const supabaseAdmin = createSupabaseServiceClient();
 
-  const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, { redirectTo });
-
-  if (error) {
-    console.error('Şifre sıfırlama e-postası gönderilemedi:', error);
-    return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 });
+  let actionLink: string | null = null;
+  try {
+    const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email,
+      options: { redirectTo },
+    });
+    actionLink = linkData?.properties?.action_link || null;
+  } catch (err) {
+    console.error('generateLink hatası:', err);
   }
 
-  return NextResponse.json({ message: 'Şifre kurulum / sıfırlama bağlantısı e-posta olarak gönderildi.' });
+  let recipientName: string | null = null;
+  let firmName: string | null = null;
+  if (payload.userId) {
+    const { data: userProfile } = await supabaseAdmin
+      .from('profiller')
+      .select('tam_ad, firma:firmalar!profiller_firma_id_fkey(unvan)')
+      .eq('id', payload.userId)
+      .maybeSingle();
+    recipientName = userProfile?.tam_ad || null;
+    firmName = (userProfile?.firma as any)?.unvan || null;
+  }
+
+  try {
+    await sendPortalWelcomeEmail({
+      to: email,
+      recipientName,
+      firmName,
+      actionLink,
+      loginUrl: `${siteUrl}/${locale}/login`,
+      locale,
+    });
+  } catch (err) {
+    console.warn('ElysonSweets e-posta gönderim hatası:', err);
+  }
+
+  return NextResponse.json({
+    message: 'ElysonSweets resmi şifre kurulum / giriş bağlantısı e-posta olarak gönderildi.',
+    actionLink,
+  });
 }

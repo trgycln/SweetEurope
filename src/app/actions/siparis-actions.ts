@@ -28,52 +28,110 @@ type OrderItemPayload = {
     o_anki_satis_fiyati: number;
 };
 
-// Not: Admin/Team notification helper is replaced by sendNotification to unify logic
-
-// === HAUPTFUNKTION: BESTELLUNG ERSTELLEN (MIT DETAILLIERTEM LOGGING) ===
+// === HAUPTFUNKTION: BESTELLUNG ERSTELLEN ===
 export async function siparisOlusturAction(payload: {
     firmaId: string,
     teslimatAdresi: string,
     items: OrderItemPayload[],
-    kaynak: Enums<'siparis_kaynagi'>
+    kaynak: Enums<'siparis_kaynagi'>,
+    siparisTuru?: 'normal' | 'on_siparis'
 }): Promise<ActionResult> {
 
-    // --- LOGGING START ---
-    console.log("--- siparisOlusturAction gestartet ---");
-    // Logge den gesamten empfangenen Payload
-    console.log("Empfangener Payload:", JSON.stringify(payload, null, 2));
-    // Logge spezifisch die problematischen Teile
-    console.log("Payload firmaId:", payload?.firmaId);
-    console.log("Payload items vorhanden:", !!payload?.items);
-    console.log("Payload items Länge:", payload?.items?.length);
-    console.log("Payload items Inhalt (erste 2):", payload?.items?.slice(0, 2)); // Logge die ersten paar Items
-    // --- LOGGING ENDE ---
+    const isPreOrder = payload.siparisTuru === 'on_siparis';
 
-    // --- Supabase Client korrekt initialisieren ---
+    // --- Supabase Client initialisieren ---
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    // --- ENDE ---
 
     // Benutzerprüfung
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        console.error("-> Fehler: Nicht authentifiziert.");
         return { error: "Nicht authentifiziert. Bitte einloggen." };
     }
 
-    // --- VALIDIERUNG (mit zusätzlichem Logging) ---
+    // --- VALIDIERUNG ---
     if (!payload || !payload.firmaId || !payload.items || !Array.isArray(payload.items) || payload.items.length === 0) {
-        console.error("-> Fehler: Payload unvollständig!", {
-            hasPayload: !!payload,
-            hasFirmaId: !!payload?.firmaId,
-            hasItems: !!payload?.items,
-            isItemsArray: Array.isArray(payload?.items),
-            itemsLength: payload?.items?.length
-        });
         return { error: "Kunden- oder Produktinformationen fehlen." };
     }
 
-    // --- STOK KONTROLÜ (Eşzamanlılık ve Negatif Stok Koruması İçin) ---
+    // 1. ÖN SİPARİŞ (PRE-ORDER) DURUMU:
+    // Ön siparişlerde depodaki anlık stok kontrolü ve stok düşme atlanır.
+    if (isPreOrder) {
+        let toplamNet = 0;
+        payload.items.forEach(item => {
+            toplamNet += item.adet * item.o_anki_satis_fiyati;
+        });
+        const toplamBrut = Number((toplamNet * 1.19).toFixed(2)); // %19 KDV dahil
+
+        // Sipariş ana kaydını oluştur
+        const { data: orderData, error: orderError } = await (supabase as any)
+            .from('siparisler')
+            .insert({
+                firma_id: payload.firmaId,
+                teslimat_adresi: payload.teslimatAdresi,
+                siparis_durumu: 'Ön Sipariş',
+                siparis_kaynagi: payload.kaynak,
+                olusturan_kullanici_id: user.id,
+                siparis_tarihi: new Date().toISOString(),
+                toplam_tutar_net: toplamNet,
+                toplam_tutar_brut: toplamBrut,
+                kdv_orani: 19
+            })
+            .select('id')
+            .single();
+
+        if (orderError || !orderData) {
+            console.error("Ön sipariş oluşturma hatası:", orderError);
+            return { error: `Ön sipariş oluşturulamadı: ${orderError?.message || 'Veritabanı hatası'}` };
+        }
+
+        const newOrderId = orderData.id;
+
+        // Sipariş detaylarını oluştur
+        const detayInserts = payload.items.map(item => ({
+            siparis_id: newOrderId,
+            urun_id: item.urun_id,
+            miktar: item.adet,
+            birim_fiyat: item.o_anki_satis_fiyati,
+            toplam_fiyat: Number((item.adet * item.o_anki_satis_fiyati).toFixed(2))
+        }));
+
+        const { error: detayError } = await (supabase as any)
+            .from('siparis_detay')
+            .insert(detayInserts);
+
+        if (detayError) {
+            console.error("Ön sipariş detay ekleme hatası:", detayError);
+            return { error: `Ön sipariş detayları kaydedilemedi: ${detayError.message}` };
+        }
+
+        // Adminlere bildirim gönder
+        if (payload.kaynak === 'Müşteri Portalı') {
+            try {
+                const { data: firma } = await supabase.from('firmalar').select('unvan').eq('id', payload.firmaId).single();
+                const mesaj = `⏳ ${firma?.unvan || 'Bir Müşteri'} yeni bir ÖN SİPARİŞ / TALEP (#${newOrderId.substring(0, 8)}) oluşturdu.`;
+                const link = `/admin/operasyon/siparisler/${newOrderId}`;
+                await sendNotification({
+                    aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
+                    icerik: mesaj,
+                    link,
+                    preferenceKey: 'order_updates',
+                    supabaseClient: supabase
+                });
+            } catch (notifyError) {
+                console.error("Admin bildirimi gönderilemedi:", notifyError);
+            }
+        }
+
+        revalidatePath('/admin/urun-yonetimi/urunler');
+        revalidatePath(`/admin/crm/firmalar/${payload.firmaId}/siparisler`);
+        revalidatePath('/admin/operasyon/siparisler');
+        revalidatePath('/portal/siparisler');
+
+        return { success: true, orderId: newOrderId, message: "Ön sipariş başarıyla oluşturuldu." };
+    }
+
+    // 2. NORMAL SİPARİŞ DURUMU (STOK KONTROLLÜ):
     const urunIds = payload.items.map(item => item.urun_id);
     const { data: stokBilgileri, error: stokError } = await supabase
         .from('urunler')
@@ -91,14 +149,12 @@ export async function siparisOlusturAction(payload: {
             return { error: `Siparişteki bir ürün bulunamadı.` };
         }
         if ((urun.stok_miktari || 0) < item.adet) {
-            return { error: `Yetersiz stok: ${urun.ad} ürününden sadece ${urun.stok_miktari || 0} adet mevcut (İstenen: ${item.adet}). Lütfen sepetinizi güncelleyin.` };
+            const urunAd = typeof urun.ad === 'object' && urun.ad ? (urun.ad as any).tr || (urun.ad as any).de || 'Ürün' : String(urun.ad);
+            return { error: `Yetersiz stok: ${urunAd} ürününden sadece ${urun.stok_miktari || 0} adet mevcut (İstenen: ${item.adet}). Lütfen sepetinizi güncelleyin.` };
         }
     }
-    // --- ENDE VALIDIERUNG ---
 
-
-    console.log("Payload ist gültig. Rufe RPC auf...");
-    // RPC-Funktion aufrufen
+    // RPC-Funktion aufrufen (Stokları düşerek siparişi açar)
     const { data: rpcResultData, error: rpcError } = await supabase.rpc('create_order_with_items_and_update_stock', {
         p_firma_id: payload.firmaId,
         p_teslimat_adresi: payload.teslimatAdresi,
@@ -106,11 +162,9 @@ export async function siparisOlusturAction(payload: {
         p_olusturan_kullanici_id: user.id,
         p_olusturma_kaynagi: payload.kaynak
     })
-    // Annahme: RPC gibt die ID als String oder Objekt zurück
-    .select() // Wichtig, wenn RPC eine Tabelle/Zeile zurückgibt
+    .select()
     .single();
 
-    // ID aus dem Ergebnis extrahieren (Annahme: RPC gibt { order_id: '...' } oder nur die ID zurück)
     const data = rpcResultData as any;
     const newOrderId =
         typeof data === 'string'
@@ -124,38 +178,257 @@ export async function siparisOlusturAction(payload: {
 
     if (rpcError || !newOrderId) {
         console.error("Fehler beim RPC-Aufruf 'create_order_...':", rpcError);
-        console.log("RPC Ergebnisdaten (bei Fehler):", rpcResultData);
         return { error: `Datenbankfehler beim Erstellen der Bestellung.${rpcError ? ` Details: ${rpcError.message}`: ''}` };
     }
 
-    // Wenn Bestellung vom Kundenportal kommt, Admins benachrichtigen
     if (payload.kaynak === 'Müşteri Portalı') {
-       try {
-           const { data: firma } = await supabase.from('firmalar').select('unvan').eq('id', payload.firmaId).single();
-           const mesaj = `${firma?.unvan || 'Ein Partner'} hat eine neue Bestellung (#${newOrderId.substring(0,8)}) erstellt.`;
-           const link = `/admin/operasyon/siparisler/${newOrderId}`;
-           await sendNotification({
-              aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
-              icerik: mesaj,
-              link,
-              preferenceKey: 'order_updates',
-              supabaseClient: supabase
-           });
-       } catch(notifyError) {
-           console.error("Fehler beim Senden der Admin-Benachrichtigung:", notifyError);
-       }
+        try {
+            const { data: firma } = await supabase.from('firmalar').select('unvan').eq('id', payload.firmaId).single();
+            const mesaj = `${firma?.unvan || 'Ein Partner'} hat eine neue Bestellung (#${newOrderId.substring(0, 8)}) erstellt.`;
+            const link = `/admin/operasyon/siparisler/${newOrderId}`;
+            await sendNotification({
+                aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
+                icerik: mesaj,
+                link,
+                preferenceKey: 'order_updates',
+                supabaseClient: supabase
+            });
+        } catch (notifyError) {
+            console.error("Fehler beim Senden der Admin-Benachrichtigung:", notifyError);
+        }
     }
 
-    // Cache für relevante Seiten neu validieren
     revalidatePath('/admin/urun-yonetimi/urunler');
     revalidatePath(`/admin/crm/firmalar/${payload.firmaId}/siparisler`);
     revalidatePath('/admin/operasyon/siparisler');
     revalidatePath('/portal/siparisler');
 
-    console.log(`Bestellung ${newOrderId} erfolgreich erstellt.`);
     return { success: true, orderId: newOrderId };
 }
 
+// === TOPLU SİPARİŞ OLUŞTURMA (NORMAL + ÖN SİPARİŞ AYRIŞTIRICI) ===
+export async function topluSiparisOlusturAction(payload: {
+    firmaId: string,
+    teslimatAdresi: string,
+    normalItems: OrderItemPayload[],
+    onSiparisItems: OrderItemPayload[],
+    kaynak: Enums<'siparis_kaynagi'>
+}): Promise<{
+    success?: boolean;
+    error?: string;
+    normalOrderId?: string | null;
+    onSiparisOrderId?: string | null;
+    message?: string;
+}> {
+    let normalOrderId: string | null = null;
+    let onSiparisOrderId: string | null = null;
+
+    // 1. Normal Sipariş oluştur (varsa)
+    if (payload.normalItems && payload.normalItems.length > 0) {
+        const normalRes = await siparisOlusturAction({
+            firmaId: payload.firmaId,
+            teslimatAdresi: payload.teslimatAdresi,
+            items: payload.normalItems,
+            kaynak: payload.kaynak,
+            siparisTuru: 'normal'
+        });
+
+        if (normalRes.error) {
+            return { error: `Normal sipariş oluşturulamadı: ${normalRes.error}` };
+        }
+        normalOrderId = normalRes.orderId || null;
+    }
+
+    // 2. Ön Sipariş oluştur (varsa)
+    if (payload.onSiparisItems && payload.onSiparisItems.length > 0) {
+        const onSiparisRes = await siparisOlusturAction({
+            firmaId: payload.firmaId,
+            teslimatAdresi: payload.teslimatAdresi,
+            items: payload.onSiparisItems,
+            kaynak: payload.kaynak,
+            siparisTuru: 'on_siparis'
+        });
+
+        if (onSiparisRes.error) {
+            return {
+                error: `Ön sipariş oluşturulurken hata: ${onSiparisRes.error}${normalOrderId ? ' (Normal siparişiniz oluşturulmuştu).' : ''}`,
+                normalOrderId
+            };
+        }
+        onSiparisOrderId = onSiparisRes.orderId || null;
+    }
+
+    let mesaj = "Siparişiniz başarıyla oluşturuldu.";
+    if (normalOrderId && onSiparisOrderId) {
+        mesaj = "1 Normal Sevkiyat Siparişi ve 1 Ön Sipariş Talebi olmak üzere 2 ayrı sipariş başarıyla oluşturuldu.";
+    } else if (onSiparisOrderId) {
+        mesaj = "Ön sipariş talebiniz başarıyla kaydedildi.";
+    }
+
+    return {
+        success: true,
+        normalOrderId,
+        onSiparisOrderId,
+        message: mesaj
+    };
+}
+
+// === ÖN SİPARİŞİ NORMAL SİPARİŞE DÖNÜŞTÜR (STOK GELDİĞİNDE) ===
+export async function onSiparisiNormalSipariseDonusturAction(
+    siparisId: string
+): Promise<ActionResult> {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Yetkisiz işlem." };
+
+    // 1. Siparişi ve detaylarını çek
+    const { data: siparis, error: sErr } = await supabase
+        .from('siparisler')
+        .select(`
+            id,
+            firma_id,
+            siparis_durumu,
+            siparis_detay (
+                id,
+                urun_id,
+                miktar
+            )
+        `)
+        .eq('id', siparisId)
+        .single();
+
+    if (sErr || !siparis) {
+        return { error: "Sipariş bulunamadı." };
+    }
+
+    if (siparis.siparis_durumu !== 'Ön Sipariş') {
+        return { error: `Bu sipariş ön sipariş durumunda değil (Mevcut Durum: ${siparis.siparis_durumu}).` };
+    }
+
+    const detaylar = (siparis.siparis_detay || []) as any[];
+    if (detaylar.length === 0) {
+        return { error: "Sipariş kalemleri bulunamadı." };
+    }
+
+    // 2. Stokları kontrol et
+    const urunIds = detaylar.map(d => d.urun_id);
+    const { data: urunler, error: uErr } = await supabase
+        .from('urunler')
+        .select('id, stok_miktari, ad')
+        .in('id', urunIds);
+
+    if (uErr || !urunler) {
+        return { error: "Ürün stokları doğrulanamadı." };
+    }
+
+    const yetersizUrunler: string[] = [];
+    for (const d of detaylar) {
+        const urun = urunler.find(u => u.id === d.urun_id);
+        const mevcutStok = urun?.stok_miktari || 0;
+        if (mevcutStok < d.miktar) {
+            const ad = typeof urun?.ad === 'object' ? (urun.ad as any).tr || (urun.ad as any).de : (urun?.ad || 'Ürün');
+            yetersizUrunler.push(`${ad} (Gereken: ${d.miktar}, Mevcut: ${mevcutStok})`);
+        }
+    }
+
+    if (yetersizUrunler.length > 0) {
+        return {
+            error: `Stok yetersiz olduğu için normale dönüştürülemedi:\n${yetersizUrunler.join('\n')}`
+        };
+    }
+
+    // 3. Stokları düş
+    for (const d of detaylar) {
+        const urun = urunler.find(u => u.id === d.urun_id);
+        const yeniStok = (urun?.stok_miktari || 0) - d.miktar;
+        await supabase
+            .from('urunler')
+            .update({ stok_miktari: yeniStok })
+            .eq('id', d.urun_id);
+    }
+
+    // 4. Sipariş durumunu 'Hazırlanıyor' yap
+    const { error: upErr } = await supabase
+        .from('siparisler')
+        .update({ siparis_durumu: 'Hazırlanıyor' })
+        .eq('id', siparisId);
+
+    if (upErr) {
+        return { error: "Sipariş durumu güncellenemedi." };
+    }
+
+    // 5. Müşteriye bildirim gönder
+    try {
+        const mesaj = `🎉 Ön siparişiniz (#${siparisId.substring(0, 8)}) onaylandı ve depoda hazırlanmaya başlandı!`;
+        const link = `/portal/siparisler/${siparisId}`;
+        await sendNotification({
+            aliciFirmaId: siparis.firma_id,
+            icerik: mesaj,
+            link,
+            supabaseClient: supabase
+        });
+    } catch (e) {
+        console.warn('Müşteri bildirimi gönderilemedi:', e);
+    }
+
+    revalidatePath(`/admin/operasyon/siparisler/${siparisId}`);
+    revalidatePath('/admin/operasyon/siparisler');
+    revalidatePath(`/admin/crm/firmalar/${siparis.firma_id}/siparisler`);
+    revalidatePath('/portal/siparisler');
+
+    return { success: true, message: "Ön sipariş başarıyla normal siparişe dönüştürüldü ve stoklar düşüldü." };
+}
+
+// === ÖN SİPARİŞİ İPTAL ET / TEMİN EDİLEMEDİ (MÜŞTERİ BİLGİLENDİRMELİ) ===
+export async function onSiparisiIptalEtAction(
+    siparisId: string,
+    iptalSebebi?: string
+): Promise<ActionResult> {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Yetkisiz işlem." };
+
+    const { data: siparis, error: sErr } = await supabase
+        .from('siparisler')
+        .select('id, firma_id, siparis_durumu')
+        .eq('id', siparisId)
+        .single();
+
+    if (sErr || !siparis) return { error: "Sipariş bulunamadı." };
+
+    const { error: upErr } = await supabase
+        .from('siparisler')
+        .update({ siparis_durumu: 'İptal Edildi' })
+        .eq('id', siparisId);
+
+    if (upErr) return { error: "Sipariş iptal edilemedi." };
+
+    // Müşteriye açıklayıcı bildirim gönder
+    try {
+        const sebepAciklama = iptalSebebi ? ` Sebep: ${iptalSebebi}` : ' Talep edilen ürünler şu an için tedarik edilememiştir.';
+        const mesaj = `ℹ️ #${siparisId.substring(0, 8)} numaralı ön sipariş talebiniz kapatılmıştır.${sebepAciklama}`;
+        const link = `/portal/siparisler/${siparisId}`;
+        await sendNotification({
+            aliciFirmaId: siparis.firma_id,
+            icerik: mesaj,
+            link,
+            supabaseClient: supabase
+        });
+    } catch (e) {
+        console.warn('Müşteri bildirimi gönderilemedi (iptal):', e);
+    }
+
+    revalidatePath(`/admin/operasyon/siparisler/${siparisId}`);
+    revalidatePath('/admin/operasyon/siparisler');
+    revalidatePath(`/admin/crm/firmalar/${siparis.firma_id}/siparisler`);
+    revalidatePath('/portal/siparisler');
+
+    return { success: true, message: "Ön sipariş iptal edildi ve müşteriye bildirim iletildi." };
+}
 
 // === BESTELLSTATUS AKTUALISIEREN ===
 export async function siparisDurumGuncelleAction(

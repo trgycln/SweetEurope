@@ -24,11 +24,12 @@ type SiparisWithFirma = Tables<'siparisler'> & {
 };
 
 // Mögliche Statuswerte aus der DB (inklusive Ihrer spezifischen Werte)
-const DB_STATUSES: ReadonlyArray<Enums<'siparis_durumu'>> = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'Teslim Edildi', 'İptal Edildi', 'processing']; // ReadonlyArray für Sicherheit
-const OFFENE_STATUS: ReadonlyArray<Enums<'siparis_durumu'>> = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
+const DB_STATUSES: ReadonlyArray<any> = ['Beklemede', 'Hazırlanıyor', 'Ön Sipariş', 'Yola Çıktı', 'Teslim Edildi', 'İptal Edildi', 'processing'];
+const OFFENE_STATUS: ReadonlyArray<any> = ['Beklemede', 'Hazırlanıyor', 'Ön Sipariş', 'Yola Çıktı', 'processing'];
 
 // Status Icons und Farben (mit Anführungszeichen für Schlüssel mit Sonderzeichen)
 const STATUS_ICONS: Record<string, any> = {
+    'Ön Sipariş': FiClock,
     'Beklemede': FiClock,
     'Hazırlanıyor': FiClock,
     'processing': FiClock,
@@ -37,10 +38,11 @@ const STATUS_ICONS: Record<string, any> = {
     'İptal Edildi': FiXCircle
 };
 const STATUS_COLORS: Record<string, string> = {
+    'Ön Sipariş': 'text-amber-800 bg-amber-100 border border-amber-300 font-bold',
     'Beklemede': 'text-gray-600 bg-gray-100',
     'Hazırlanıyor': 'text-blue-600 bg-blue-100',
     'processing': 'text-blue-600 bg-blue-100',
-    'Yola Çıktı': 'text-purple-600 bg-purple-100', // Farbe angepasst
+    'Yola Çıktı': 'text-purple-600 bg-purple-100',
     'Teslim Edildi': 'text-green-600 bg-green-100',
     'İptal Edildi': 'text-red-600 bg-red-100'
 };

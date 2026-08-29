@@ -1,38 +1,40 @@
 // src/app/[locale]/admin/operasyon/siparisler/actions.ts
-// KORRIGIERTE VERSION (await cookies + await createClient)
 
 'use server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { revalidatePath } from 'next/cache';
 import { Enums } from '@/lib/supabase/database.types';
-import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
-
+import { cookies } from 'next/headers';
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
-// Typ für Rückgabewert definieren (optional, aber gut)
 type ActionResult = {
-    success?: string; // Erfolgsmeldung
-    error?: string;   // Fehlermeldung
+    success?: string;
+    error?: string;
 };
 
 export async function statusAendernAction(
     siparisId: string,
     neuerStatus: Enums<'siparis_durumu'>
-): Promise<ActionResult> { // Rückgabetyp verwenden
-
-    // --- KORREKTUR: Supabase Client korrekt initialisieren ---
+): Promise<ActionResult> {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    // --- ENDE KORREKTUR ---
 
-    // Optional: Benutzerprüfung (wer darf Status ändern?)
-    // const { data: { user } } = await getGlobalCachedUser(); // Funktioniert jetzt
-    // if (!user) { return { error: "Nicht authentifiziert." }; }
-    // const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-    // if (profile?.rol !== 'Yönetici' && profile?.rol !== 'Ekip Üyesi') {
-    //     return { error: "Keine Berechtigung zur Statusänderung." };
-    // }
+    // Mevcut sipariş durumunu kontrol et
+    const { data: mevcutSiparis } = await supabase
+        .from('siparisler')
+        .select('id, siparis_durumu')
+        .eq('id', siparisId)
+        .single();
+
+    if (mevcutSiparis?.siparis_durumu === 'Ön Sipariş' && (neuerStatus === 'Hazırlanıyor' || neuerStatus === 'Beklemede')) {
+        const { onSiparisiNormalSipariseDonusturAction } = await import('@/app/actions/siparis-actions');
+        const donusumRes = await onSiparisiNormalSipariseDonusturAction(siparisId);
+        if (donusumRes.error) {
+            return { error: donusumRes.error };
+        }
+        return { success: `Ön sipariş başarıyla normal siparişe dönüştürüldü ve stoklar düşüldü.` };
+    }
 
     // Status in der Datenbank aktualisieren
     const { error } = await supabase
@@ -59,7 +61,6 @@ export async function statusAendernAction(
                 ? new Date(siparis.siparis_tarihi).toLocaleDateString('tr-TR')
                 : new Date().toLocaleDateString('tr-TR');
 
-            // Aynı sipariş için daha önce otomatik belge oluşturulmuş mu kontrol et
             const { data: mevcutBelge } = await (supabase as any)
                 .from('belgeler')
                 .select('id')
@@ -82,7 +83,6 @@ export async function statusAendernAction(
                 });
             }
         } catch (belgeErr) {
-            // Belge kaydı başarısız olsa da sipariş durumu güncellendi, hata dönme
             console.error('Otomatik belge kaydı hatası:', belgeErr);
         }
     }
@@ -117,7 +117,6 @@ export async function assignSiparisPersonelAction(formData: FormData): Promise<A
 
     if (error) {
         console.error(`Sipariş atama hatası (${siparisId}):`, error);
-
         return { error: `Atama yapılamadı: ${error.message}` };
     }
 

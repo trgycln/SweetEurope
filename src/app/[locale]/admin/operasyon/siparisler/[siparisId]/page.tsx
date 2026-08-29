@@ -28,6 +28,7 @@ const getProductName = (ad: any, locale: string): string => {
 const STATUS_CONFIG: Record<string, {
     label: string; bg: string; text: string; border: string; step: number;
 }> = {
+    'Ön Sipariş':         { label: 'Ön Sipariş / Talep', bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-300', step: 0.5 },
     'Beklemede':          { label: 'Beklemede',    bg: 'bg-amber-50',   text: 'text-amber-700',  border: 'border-amber-200',  step: 1 },
     'Hazırlanıyor':       { label: 'Hazırlanıyor', bg: 'bg-blue-50',    text: 'text-blue-700',   border: 'border-blue-200',   step: 2 },
     'processing':         { label: 'İşleniyor',    bg: 'bg-blue-50',    text: 'text-blue-700',   border: 'border-blue-200',   step: 2 },

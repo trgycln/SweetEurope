@@ -3,7 +3,7 @@
 import { useEffect, useTransition, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FiTrash2, FiSend, FiLoader, FiShoppingCart, FiX, FiCreditCard, FiFileText, FiTruck } from 'react-icons/fi';
-import { siparisOlusturAction } from '@/app/actions/siparis-actions';
+import { siparisOlusturAction, topluSiparisOlusturAction } from '@/app/actions/siparis-actions';
 import { createStripeCheckoutSessionAction } from '@/app/actions/stripe-actions';
 import { calculateShipping } from '@/lib/shippingUtils';
 import Image from 'next/image';
@@ -67,13 +67,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
                     if (urun && adet > 0) {
                         itemsProcessed = true;
-                        if (adet > urun.stok_miktari) {
-                            toast.warning(stockWarningText.replace('{stock}', urun.stok_miktari.toString()));
-                            adet = urun.stok_miktari;
-                        }
-                        if (adet > 0) {
-                             initialCartItems.push({ produkt: urun, menge: adet, birim: 'koli' });
-                        }
+                        initialCartItems.push({ produkt: urun, menge: adet, birim: 'koli' });
                     }
                 }
             }
@@ -95,6 +89,9 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
     // Extract PLZ from address or use fallback
     const plzMatch = firma?.adres ? firma.adres.match(/\b\d{5}\b/) : null;
     const partnerPlz = plzMatch ? plzMatch[0] : '';
+
+    const normalItemsList = useMemo(() => warenkorb.filter(i => (i.produkt.stok_miktari ?? 0) > 0), [warenkorb]);
+    const onSiparisItemsList = useMemo(() => warenkorb.filter(i => (i.produkt.stok_miktari ?? 0) <= 0), [warenkorb]);
 
     const toplamTutar = useMemo(() =>
         warenkorb.reduce((acc, item) => {
@@ -162,29 +159,44 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                 return;
             }
 
-            // Fallback to manual invoice / bank transfer
-            const itemsToSubmit = warenkorb.map(item => {
+            // Split into Normal and Pre-Orders
+            const normalPayload: any[] = [];
+            const onSiparisPayload: any[] = [];
+
+            warenkorb.forEach(item => {
                 const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
-                return {
+                const isOutOfStock = (item.produkt.stok_miktari ?? 0) <= 0;
+                const payload = {
                     urun_id: item.produkt.id,
                     adet: sepet.toplamAdet,
                     o_anki_satis_fiyati: sepet.adetFiyat,
                 };
+                if (isOutOfStock) {
+                    onSiparisPayload.push(payload);
+                } else {
+                    normalPayload.push(payload);
+                }
             });
 
-            const result = await siparisOlusturAction({
+            const result = await topluSiparisOlusturAction({
                 firmaId: firma?.id || '',
                 teslimatAdresi: firma?.adres || 'Adresse nicht angegeben',
-                items: itemsToSubmit,
+                normalItems: normalPayload,
+                onSiparisItems: onSiparisPayload,
                 kaynak: 'Müşteri Portalı'
             });
 
             if (result?.error) {
                 toast.error(result.error);
-            } else if (result?.success && result.orderId) {
-                toast.success("Ihre Bestellung auf Rechnung wurde erfolgreich erstellt!");
+            } else if (result?.success) {
+                toast.success(result.message || (locale === 'de' ? "Ihre Bestellung wurde erfolgreich erstellt!" : "Siparişiniz başarıyla oluşturuldu!"));
                 clearWarenkorb();
-                router.push(`/${locale}/portal/siparisler/${result.orderId}`);
+                const targetId = result.normalOrderId || result.onSiparisOrderId;
+                if (targetId) {
+                    router.push(`/${locale}/portal/siparisler/${targetId}`);
+                } else {
+                    router.push(`/${locale}/portal/siparisler`);
+                }
             }
         });
     };
@@ -217,6 +229,20 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                             </span>
                         )}
                     </div>
+
+                    {/* Vorbestellung Info Banner */}
+                    {onSiparisItemsList.length > 0 && (
+                        <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-0.5">
+                            <p className="font-bold flex items-center gap-1">
+                                ⏳ {locale === 'de' ? 'Vorbestellung im Warenkorb' : 'Ön Sipariş Talebi'} ({onSiparisItemsList.length})
+                            </p>
+                            <p className="text-[11px] text-amber-700 leading-snug">
+                                {locale === 'de'
+                                    ? 'Nicht lagernde Artikel werden als separate Vorbestellung erfasst und bei Wareneingang geliefert.'
+                                    : 'Stokta olmayan ürünler ayrı bir ön sipariş olarak kaydedilir ve ürün depoya ulaştığında sevk edilir.'}
+                            </p>
+                        </div>
+                    )}
 
                     <div className="space-y-2.5 divide-y divide-gray-100 max-h-[24vh] overflow-y-auto pr-1">
                         {warenkorb.length > 0 ? warenkorb.map(item => {

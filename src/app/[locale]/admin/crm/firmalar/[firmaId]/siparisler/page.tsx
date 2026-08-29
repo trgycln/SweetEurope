@@ -17,6 +17,7 @@ type Siparis = Tables<'siparisler'>;
 
 // Icons für Status (mit korrekten Schlüsseln in Anführungszeichen)
 const STATUS_ICONS: Record<string, any> = {
+    'Ön Sipariş': FiClock,
     'Beklemede': FiClock, // In Anführungszeichen
     'Hazırlanıyor': FiClock, // In Anführungszeichen
     'Yola Çıktı': FiTruck, // War schon korrekt
@@ -30,6 +31,7 @@ const STATUS_ICONS: Record<string, any> = {
 
 // Farben für Status (mit korrekten Schlüsseln in Anführungszeichen)
 const STATUS_COLORS: Record<string, string> = {
+    'Ön Sipariş': 'text-amber-800 bg-amber-100 border border-amber-300 font-bold',
     'Beklemede': 'text-yellow-600 bg-yellow-100', // In Anführungszeichen
     'Hazırlanıyor': 'text-blue-600 bg-blue-100', // In Anführungszeichen
     'Yola Çıktı': 'text-purple-600 bg-purple-100', // War schon korrekt

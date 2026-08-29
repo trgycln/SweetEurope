@@ -328,7 +328,7 @@ export function UrunKatalogu({
                             return (
                                 <tr
                                     key={urun.id}
-                                    className={`hover:bg-gray-50/50 transition-colors ${isOutOfStock ? 'opacity-50' : ''}`}
+                                    className={`hover:bg-gray-50/50 transition-colors ${isOutOfStock ? 'bg-amber-50/15' : ''}`}
                                 >
                                     {/* Görsel */}
                                     <td className="px-3 py-2.5">
@@ -362,8 +362,8 @@ export function UrunKatalogu({
                                             )}
                                         </p>
                                         {isOutOfStock && (
-                                            <span className="text-[10px] text-red-500 font-semibold">
-                                                {t(locale, 'Nicht auf Lager', 'Out of stock', 'Stok yok', 'نفد المخزون')}
+                                            <span className="text-[10px] text-amber-700 bg-amber-100 font-bold px-1.5 py-0.2 rounded inline-block mt-0.5 border border-amber-200">
+                                                ⏳ {t(locale, 'Vorbestellung (Nicht auf Lager)', 'Pre-order (Out of stock)', 'Ön Sipariş (Stok Yok)', 'طلب مسبق (نفد المخزون)')}
                                             </span>
                                         )}
                                     </td>
@@ -397,7 +397,7 @@ export function UrunKatalogu({
                                     <td className="px-3 py-2.5 text-center">
                                         {sepetItem ? (
                                             <div className="flex flex-col items-center gap-0.5">
-                                                <div className="flex items-center gap-1 text-green-600 font-semibold text-[11px] bg-green-50 border border-green-200 rounded-full px-2 py-1">
+                                                <div className={`flex items-center gap-1 font-semibold text-[11px] rounded-full px-2 py-1 border ${isOutOfStock ? 'text-amber-800 bg-amber-50 border-amber-200' : 'text-green-600 bg-green-50 border-green-200'}`}>
                                                     <FiCheck size={11} />
                                                     {sepetItem.menge} {t(locale,
                                                         sepetItem.birim === 'koli' ? 'Ktn.' : sepetItem.birim === 'palet' ? 'Pal.' : 'Stk.',
@@ -415,16 +415,15 @@ export function UrunKatalogu({
                                             </div>
                                         ) : (
                                             <button
-                                                onClick={() => !isOutOfStock && setModalUrun(urun)}
-                                                disabled={isOutOfStock}
+                                                onClick={() => setModalUrun(urun)}
                                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                                                     isOutOfStock
-                                                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                        ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
                                                         : 'bg-accent text-white border-accent hover:bg-accent/90'
                                                 }`}
                                             >
                                                 <FiPlus size={13} />
-                                                {t(locale, 'Hinzufügen', 'Add', 'Ekle', 'إضافة')}
+                                                {isOutOfStock ? t(locale, 'Vorbestellen', 'Pre-order', 'Ön Sipariş', 'طلب مسبق') : t(locale, 'Hinzufügen', 'Add', 'Ekle', 'إضافة')}
                                             </button>
                                         )}
                                     </td>
