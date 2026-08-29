@@ -12,11 +12,14 @@ function getSiteUrl(request: Request): string {
   }
   const forwardedHost = request.headers.get('x-forwarded-host');
   const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
-  if (forwardedHost) {
+  if (forwardedHost && !forwardedHost.includes('localhost') && !forwardedHost.includes('127.0.0.1')) {
     return `${forwardedProto}://${forwardedHost}`;
   }
   const { origin } = new URL(request.url);
-  return origin;
+  if (!origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+    return origin;
+  }
+  return 'https://elysonsweets.de';
 }
 
 const VALID_ROLES = ['Yönetici', 'Personel', 'Müşteri', 'Alt Bayi'] as const;

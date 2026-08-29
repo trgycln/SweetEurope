@@ -109,17 +109,45 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const hash = typeof window !== 'undefined' ? window.location.hash : '';
-    if (hash.includes('type=recovery') || hash.includes('type=invite') || hash.includes('access_token=')) {
-      setMode('update');
-    }
+    const checkAuthStatus = async () => {
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      const search = typeof window !== 'undefined' ? window.location.search : '';
+      const searchParams = new URLSearchParams(search);
+      const code = searchParams.get('code');
+
+      if (code) {
+        try {
+          const { error: codeErr } = await supabase.auth.exchangeCodeForSession(code);
+          if (!codeErr) {
+            setMode('update');
+            return;
+          }
+        } catch (e) {
+          console.warn('exchangeCodeForSession error:', e);
+        }
+      }
+
+      if (
+        hash.includes('type=recovery') ||
+        hash.includes('type=invite') ||
+        hash.includes('access_token=') ||
+        search.includes('type=recovery')
+      ) {
+        setMode('update');
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setMode('update');
+      }
+    };
+
+    checkAuthStatus();
 
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
-        const currentHash = typeof window !== 'undefined' ? window.location.hash : '';
-        if (currentHash.includes('type=recovery') || currentHash.includes('type=invite') || currentHash.includes('access_token=')) {
-          setMode('update');
-        }
+        setMode('update');
       }
     });
 
@@ -175,6 +203,11 @@ export default function ResetPasswordPage() {
 
     setSuccess(t.updateSuccess);
     setLoading(false);
+
+    // Auto-redirect to portal after 2 seconds
+    setTimeout(() => {
+      window.location.href = `/${locale}/portal`;
+    }, 2000);
   };
 
   return (

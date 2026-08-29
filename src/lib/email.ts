@@ -7,11 +7,20 @@
 import { Resend } from 'resend';
 
 const ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'elysonsweets@gmail.com';
+const LIVE_BASE_URL = 'https://elysonsweets.de';
 
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
   if (!key) return null;
   return new Resend(key);
+}
+
+function sanitizeDomainUrl(url: string | null | undefined, fallback: string): string {
+  if (!url) return fallback;
+  return url
+    .replace(/https?:\/\/localhost:\d+/gi, LIVE_BASE_URL)
+    .replace(/https?:\/\/127\.0\.0\.1:\d+/gi, LIVE_BASE_URL)
+    .replace(/https?:\/\/localhost/gi, LIVE_BASE_URL);
 }
 
 export async function sendAdminEmail({
@@ -90,7 +99,10 @@ export async function sendPortalWelcomeEmail({
   locale = 'de',
 }: PortalWelcomeEmailParams): Promise<void> {
   const isTurkish = locale === 'tr';
-  const targetLink = actionLink || loginUrl;
+  const defaultLogin = `${LIVE_BASE_URL}/${isTurkish ? 'tr' : 'de'}/login`;
+  const cleanLoginUrl = sanitizeDomainUrl(loginUrl, defaultLogin);
+  const cleanActionLink = actionLink ? sanitizeDomainUrl(actionLink, cleanLoginUrl) : null;
+  const targetLink = tempPassword ? cleanLoginUrl : (cleanActionLink || cleanLoginUrl);
 
   const subject = isTurkish
     ? 'Elysonsweets GmbH B2B Müşteri Portalı Giriş Bilgileriniz'
@@ -141,7 +153,7 @@ export async function sendPortalWelcomeEmail({
           ` : ''}
           <tr>
             <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Portal Giriş Adresi:</td>
-            <td style="padding: 6px 0; color: #2563eb; font-weight: 600;"><a href="${loginUrl}" style="color: #2563eb; text-decoration: underline;">${loginUrl}</a></td>
+            <td style="padding: 6px 0; color: #2563eb; font-weight: 600;"><a href="${cleanLoginUrl}" style="color: #2563eb; text-decoration: underline;">${cleanLoginUrl}</a></td>
           </tr>
         </table>
       </div>
@@ -218,7 +230,7 @@ export async function sendPortalWelcomeEmail({
           ` : ''}
           <tr>
             <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Portal-Login:</td>
-            <td style="padding: 6px 0; color: #2563eb; font-weight: 600;"><a href="${loginUrl}" style="color: #2563eb; text-decoration: underline;">${loginUrl}</a></td>
+            <td style="padding: 6px 0; color: #2563eb; font-weight: 600;"><a href="${cleanLoginUrl}" style="color: #2563eb; text-decoration: underline;">${cleanLoginUrl}</a></td>
           </tr>
         </table>
       </div>
