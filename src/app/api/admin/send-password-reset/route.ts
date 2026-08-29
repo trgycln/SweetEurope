@@ -57,12 +57,18 @@ export async function POST(request: Request) {
 
   let actionLink: string | null = null;
   try {
-    const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+    const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email,
       options: { redirectTo },
     });
-    actionLink = linkData?.properties?.action_link || null;
+    if (!linkErr && linkData?.properties) {
+      if (linkData.properties.hashed_token) {
+        actionLink = `${siteUrl}/${locale}/auth/reset-password?token_hash=${linkData.properties.hashed_token}&type=recovery`;
+      } else if (linkData.properties.action_link) {
+        actionLink = linkData.properties.action_link;
+      }
+    }
   } catch (err) {
     console.error('generateLink hatası:', err);
   }

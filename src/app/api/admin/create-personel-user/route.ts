@@ -199,7 +199,7 @@ export async function POST(request: Request) {
     }
   }
 
-  // 4. Generate recovery / reset action link
+  // 4. Generate recovery / reset action link (direct link to live website)
   let actionLink: string | null = null;
   try {
     const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
@@ -207,8 +207,12 @@ export async function POST(request: Request) {
       email,
       options: { redirectTo },
     });
-    if (!linkErr && linkData?.properties?.action_link) {
-      actionLink = linkData.properties.action_link;
+    if (!linkErr && linkData?.properties) {
+      if (linkData.properties.hashed_token) {
+        actionLink = `${siteUrl}/${locale}/auth/reset-password?token_hash=${linkData.properties.hashed_token}&type=recovery`;
+      } else if (linkData.properties.action_link) {
+        actionLink = linkData.properties.action_link;
+      }
     }
   } catch (err) {
     console.error('generateLink hatası:', err);

@@ -70,9 +70,9 @@ export function PortalErigimiVerModal({
             ? `🔗 Aktivierungslink: ${data.actionLink}\n`
             : `🔗 Portal-Login: ${data.loginUrl}\n`;
 
-        const salutation = tamAd ? `Sehr geehrte(r) ${tamAd}` : yetkiliKisi ? `Sehr geehrte(r) ${yetkiliKisi}` : `Sehr geehrtes Team von ${firmaUnvan}`;
+        const salutation = tamAd ? `Sehr geehrte(r) ${tamAd},` : yetkiliKisi ? `Sehr geehrte(r) ${yetkiliKisi},` : `Sehr geehrtes Team von ${firmaUnvan},`;
 
-        return `Guten Tag ${salutation},\n\nIhr offizieller Zugang zum Elysonsweets GmbH B2B-Kundenportal wurde erfolgreich eingerichtet.\n\n📧 Benutzername (E-Mail): ${data.email}\n${passLine}${linkLine}\nÜber das Portal können Sie Ihre exklusiven B2B-Konditionen einsehen und Bestellungen rund um die Uhr direkt online aufgeben.\n\nBei Rückfragen stehen wir Ihnen gerne zur Verfügung.\n\nMit freundlichen Grüßen,\nIhr Elysonsweets GmbH Team\nhttps://elysonsweets.de`;
+        return `${salutation}\n\nIhr offizieller Zugang zum Elysonsweets GmbH B2B-Kundenportal wurde erfolgreich eingerichtet.\n\n📧 Benutzername (E-Mail): ${data.email}\n${passLine}${linkLine}\nÜber das Portal können Sie Ihre exklusiven B2B-Konditionen einsehen und Bestellungen rund um die Uhr direkt online aufgeben.\n\nBei Rückfragen stehen wir Ihnen gerne zur Verfügung.\n\nMit freundlichen Grüßen,\nIhr Elysonsweets GmbH Team\nhttps://elysonsweets.de`;
     };
 
     const handleSubmit = () => {

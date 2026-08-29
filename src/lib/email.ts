@@ -108,9 +108,14 @@ export async function sendPortalWelcomeEmail({
     ? 'Elysonsweets GmbH B2B Müşteri Portalı Giriş Bilgileriniz'
     : 'Ihr Zugang zum Elysonsweets GmbH B2B Portal ist freigeschaltet';
 
-  const salutation = isTurkish
-    ? `Merhaba ${recipientName || firmName || 'Değerli Müşterimiz'},`
-    : `Sehr geehrte Damen und Herren${recipientName ? `, sehr geehrte(r) ${recipientName}` : firmName ? `, Team von ${firmName}` : ''},`;
+  let salutation = 'Sehr geehrte Damen und Herren,';
+  if (isTurkish) {
+    salutation = `Merhaba ${recipientName || firmName || 'Değerli Müşterimiz'},`;
+  } else if (recipientName) {
+    salutation = `Sehr geehrte(r) ${recipientName},`;
+  } else if (firmName) {
+    salutation = `Sehr geehrtes Team von ${firmName},`;
+  }
 
   const html = isTurkish ? `
 <!DOCTYPE html>

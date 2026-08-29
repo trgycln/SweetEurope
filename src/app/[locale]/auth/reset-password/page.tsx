@@ -127,6 +127,26 @@ export default function ResetPasswordPage() {
         }
       }
 
+      const token_hash = searchParams.get('token_hash') || searchParams.get('token');
+      const otpType = (searchParams.get('type') || 'recovery') as any;
+
+      if (token_hash) {
+        try {
+          const { error: otpErr } = await supabase.auth.verifyOtp({
+            token_hash,
+            type: otpType,
+          });
+          if (!otpErr) {
+            setMode('update');
+            return;
+          } else {
+            console.warn('verifyOtp error:', otpErr.message);
+          }
+        } catch (e) {
+          console.warn('verifyOtp exception:', e);
+        }
+      }
+
       if (
         hash.includes('type=recovery') ||
         hash.includes('type=invite') ||
