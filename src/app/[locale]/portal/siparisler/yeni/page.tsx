@@ -1,98 +1,183 @@
 import React from 'react';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { SiparisOlusturmaPartnerClient } from "@/components/portal/siparis-olusturma-partner-client";
-import { redirect } from "next/navigation";
-import { getDictionary } from "@/dictionaries";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { notFound, redirect } from "next/navigation";
 import { Locale } from "@/i18n-config";
-import { ProduktImWarenkorb } from '@/contexts/PortalContext'; // Sicherstellen, dass dieser Typ ana_resim_url etc. kennt
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+import YeniSiparisFormu, { ProductItem, CategoryItem, PastOrder } from "@/app/[locale]/admin/crm/firmalar/[firmaId]/siparisler/yeni/YeniSiparisFormu";
+import { Tables } from "@/lib/supabase/database.types";
+
+export const dynamic = 'force-dynamic';
 
 type PageProps = {
     params: Promise<{ locale: Locale }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-type Kategori = { id: string; ad: any; ust_kategori_id: string | null };
-
-export default async function PartnerYeniSiparisPage({ params }: PageProps) {
+export default async function PortalYeniSiparisPage({ params, searchParams }: PageProps) {
     const { locale } = await params;
+    const resolvedSearchParams = await searchParams;
+    const firmaIdParam = (resolvedSearchParams?.firma_id || resolvedSearchParams?.firmaId) as string | undefined;
+
     const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return cookieStore.get(name)?.value; },
-            },
-        }
-    );
-
-    const dictionary = await getDictionary(locale);
-
-    const { data: { user }, error: userError } = await getGlobalCachedUser();
-
-    if (userError || !user) {
-        console.error("Fehler beim Abrufen des Benutzers:", userError);
-        return redirect(`/${locale}/login`);
+    const { data: { user } } = await getGlobalCachedUser();
+    if (!user) {
+        return redirect(`/${locale}/login?next=/portal/siparisler/yeni`);
     }
 
-    const { data: profile, error: profileError } = await supabase
+    // Giriş yapan kullanıcının profilini al
+    const { data: profile } = await supabase
         .from('profiller')
         .select('rol, firma_id')
         .eq('id', user.id)
         .single();
 
-    if (profileError || !profile) {
-        console.error("Fehler beim Abrufen des Profils:", profileError);
-        return redirect(`/${locale}/login?error=profile_not_found`);
-    }
-    const userRole = profile.rol;
+    const bayiFirmaId = profile?.firma_id;
 
-    // Daten parallel abrufen
-    const [urunlerRes, favorilerRes, kategorilerRes] = await Promise.all([
-        // ++ KORREKTUR HIER ++: Direkten Select der Bildspalten aus 'urunler'
-        supabase.from('urunler')
-            .select('*, kategoriler(id, ad)') // Kategorie-Infos direkt mitladen
+    // Alt bayinin bağlı müşterilerini çek (Tenant Isolation)
+    const { data: firmenListeData } = await supabase
+        .from('firmalar')
+        .select('id, unvan')
+        .or(`ust_bayi_firma_id.eq.${bayiFirmaId || '00000000-0000-0000-0000-000000000000'},sahip_id.eq.${user.id}`)
+        .neq('id', bayiFirmaId || '')
+        .order('unvan');
+
+    const firmenListe = firmenListeData || [];
+
+    let seciliFirma: { id: string; unvan: string; adres: string | null; email?: string | null; telefon?: string | null; sehir?: string | null } | null = null;
+    let aktifFirmaId = firmaIdParam;
+
+    if (firmaIdParam) {
+        const { data: fData } = await (supabase as any)
+            .from('firmalar')
+            .select('id, unvan, adres, email, telefon, sehir, ust_bayi_firma_id, sahip_id')
+            .eq('id', firmaIdParam)
+            .maybeSingle();
+
+        // Güvenlik doğrulaması: Firma alt bayiye mi ait?
+        if (fData && (fData.ust_bayi_firma_id === bayiFirmaId || fData.sahip_id === user.id || fData.id === bayiFirmaId)) {
+            seciliFirma = fData;
+            aktifFirmaId = fData.id;
+        }
+    }
+
+    // Eğer parametre yoksa ve bayi müşterileri varsa ilk müşteriyi varsayılan al
+    if (!seciliFirma && firmenListe.length > 0) {
+        const firstFirma = firmenListe[0];
+        const { data: fData } = await (supabase as any)
+            .from('firmalar')
+            .select('id, unvan, adres, email, telefon, sehir')
+            .eq('id', firstFirma.id)
+            .maybeSingle();
+        seciliFirma = fData;
+        aktifFirmaId = firstFirma.id;
+    }
+
+    // Ürünleri ve kategorileri paralel çek
+    const [urunlerRes, kategorilerRes] = await Promise.all([
+        supabase
+            .from('urunler')
+            .select('id, ad, satis_fiyati_musteri, satis_fiyati_alt_bayi, satis_fiyati_toptanci, stok_miktari, stok_kodu, ean_gtin, ana_resim_url, kategori_id, koli_ici_adet')
             .eq('aktif', true)
-            .order(`ad->>${locale}`),
-        supabase.from('favori_urunler').select('urun_id').eq('kullanici_id', user.id),
-        supabase.from('kategoriler').select('id, ad, ust_kategori_id').order(`ad->>${locale}`)
+            .order('ad->>tr', { ascending: true }),
+        supabase
+            .from('kategoriler')
+            .select('id, ad, ust_kategori_id')
+            .order('ad->>tr', { ascending: true })
     ]);
 
-    // Fehlerprüfung bleibt wichtig
-    if (urunlerRes.error) console.error("Fehler beim Laden der Produkte:", urunlerRes.error);
-    if (favorilerRes.error) console.error("Fehler beim Laden der Favoriten:", favorilerRes.error);
-    if (kategorilerRes.error) console.error("Fehler beim Laden der Kategorien:", kategorilerRes.error);
+    const urunler: ProductItem[] = urunlerRes.data || [];
+    const kategoriler: CategoryItem[] = (kategorilerRes.data || []) as CategoryItem[];
 
-    // Verarbeiten der Produktdaten (stellt sicher, dass ana_resim_url vorhanden ist)
-    const urunlerWithPrice: ProduktImWarenkorb[] = (urunlerRes.data || []).map(urun => {
-        const preis = userRole === 'Alt Bayi'
-            ? urun.satis_fiyati_alt_bayi
-            : urun.satis_fiyati_musteri;
+    // Müşteriye özel verileri çek
+    let favoriUrunIdSet: string[] = [];
+    let pastOrders: PastOrder[] = [];
+    let sikSiparisUrunIdleri: string[] = [];
+    let sonSiparisUrunIdleri: string[] = [];
 
-        // Sicherstellen, dass das Objekt dem Typ ProduktImWarenkorb entspricht
-        // Der Typ sollte ana_resim_url und ggf. galeri_resim_urls bereits enthalten
-        return {
-            ...urun,
-            partnerPreis: preis || 0,
-            ana_resim_url: urun.ana_resim_url, // Direkte Übernahme
-            galeri_resim_urls: urun.galeri_resim_urls // Direkte Übernahme
-        } as ProduktImWarenkorb; // Type Assertion zur Sicherheit
-    });
+    if (aktifFirmaId) {
+        const { data: profiles } = await supabase
+            .from('profiller')
+            .select('id')
+            .eq('firma_id', aktifFirmaId);
 
-    const favoriIdSet = new Set((favorilerRes.data || []).map(f => f.urun_id));
-    const kategoriler: Kategori[] = kategorilerRes.data || [];
+        const profileIds = profiles?.map(p => p.id) || [];
+        if (profileIds.length > 0) {
+            const { data: favs } = await supabase
+                .from('favori_urunler')
+                .select('urun_id')
+                .in('kullanici_id', profileIds);
+            favoriUrunIdSet = Array.from(new Set((favs || []).map(f => f.urun_id)));
+        }
+
+        const { data: orders } = await supabase
+            .from('siparisler')
+            .select(`
+                id,
+                siparis_no,
+                siparis_tarihi,
+                toplam_tutar_brut,
+                siparis_durumu,
+                siparis_detay:siparis_ogeleri(
+                    id,
+                    urun_id,
+                    adet,
+                    birim_fiyat,
+                    toplam_tutar
+                )
+            `)
+            .eq('firma_id', aktifFirmaId)
+            .order('siparis_tarihi', { ascending: false })
+            .limit(5);
+
+        pastOrders = (orders || []).map((o: any) => ({
+            id: o.id,
+            siparis_no: o.siparis_no,
+            siparis_tarihi: o.siparis_tarihi,
+            toplam_tutar_brut: o.toplam_tutar_brut,
+            siparis_durumu: o.siparis_durumu,
+            siparis_detay: o.siparis_detay || []
+        }));
+
+        if (pastOrders.length > 0) {
+            const allOrderDetails = pastOrders.flatMap(o => o.siparis_detay || []);
+            const itemCounts = new Map<string, number>();
+            allOrderDetails.forEach(d => {
+                if (d?.urun_id) {
+                    itemCounts.set(d.urun_id, (itemCounts.get(d.urun_id) || 0) + 1);
+                }
+            });
+            sikSiparisUrunIdleri = Array.from(itemCounts.entries())
+                .filter(([_, count]) => count >= 2)
+                .map(([id]) => id);
+
+            const lastOrder = pastOrders[0];
+            sonSiparisUrunIdleri = (lastOrder.siparis_detay || [])
+                .map(d => d.urun_id)
+                .filter(Boolean);
+        }
+    }
 
     return (
-        <SiparisOlusturmaPartnerClient
-            urunler={urunlerWithPrice}
-            kategoriler={kategoriler}
-            favoriIdSet={favoriIdSet}
-            dictionary={dictionary}
-            locale={locale}
-        />
+        <div className="space-y-4">
+            <YeniSiparisFormu
+                firmaId={aktifFirmaId || ''}
+                firma={seciliFirma}
+                varsayilanTeslimatAdresi={seciliFirma?.adres || ''}
+                urunler={urunler}
+                kategoriler={kategoriler}
+                favoriUrunIdSet={favoriUrunIdSet}
+                sikSiparisUrunIdleri={sikSiparisUrunIdleri}
+                sonSiparisUrunIdleri={sonSiparisUrunIdleri}
+                pastOrders={pastOrders}
+                firmenListe={firmenListe}
+                locale={locale}
+                isPortal={true}
+                redirectPath={`/${locale}/portal/siparisler`}
+                kaynak="Müşteri Portalı"
+            />
+        </div>
     );
 }

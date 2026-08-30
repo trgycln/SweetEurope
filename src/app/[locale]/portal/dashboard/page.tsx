@@ -169,7 +169,6 @@ export default async function PartnerDashboardPage({ params }: PageProps) {
                 <div className="space-y-6">
                     <QuickActionsCard locale={locale} dictionary={dictionary} />
                     <Announcements locale={locale} />
-                    <MarketingMaterialsWidget locale={locale} />
                 </div>
             </div>
 

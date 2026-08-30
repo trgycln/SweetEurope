@@ -1,6 +1,7 @@
 // src/app/[locale]/admin/crm/firmalar/page.tsx
 import React, { Suspense } from 'react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { redirect } from 'next/navigation';
@@ -24,8 +25,10 @@ interface PageProps {
         district?: string;
         posta_kodu?: string;
         ticari_tip?: string;
+        bayi_firma_id?: string;
         temassiz?: string;
         kaynak?: string;
+        portal_status?: string;
     }>;
 }
 
@@ -59,9 +62,12 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
 
     const ticariTipFilter = sp.ticari_tip || '';
     const isAltBayiList = ticariTipFilter === 'alt_bayi';
+    const bayiFirmaIdFilter = sp.bayi_firma_id || '';
     const searchQuery = sp.q || '';
     const statusFilterRaw = sp.status;
-    const statusFilter = statusFilterRaw === undefined ? 'MÜŞTERİ' : (statusFilterRaw === 'ALL' ? '' : statusFilterRaw);
+    const statusFilter = statusFilterRaw === undefined
+        ? (isAltBayiList || bayiFirmaIdFilter ? '' : 'MÜŞTERİ')
+        : (statusFilterRaw === 'ALL' ? '' : statusFilterRaw);
     const statusNotInFilter = sp.status_not_in?.split(',') || [];
     const kategoriFilter = sp.kategori || '';
     const cityFilter = sp.city || '';
@@ -69,6 +75,14 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     const plzFilter = sp.posta_kodu || '';
     const temassizFilter = sp.temassiz === '1';
     const kaynakFilter = sp.kaynak || '';
+    const portalStatusFilter = sp.portal_status || '';
+
+    let supabaseAdmin: ReturnType<typeof createSupabaseServiceClient> | null = null;
+    try {
+        supabaseAdmin = createSupabaseServiceClient();
+    } catch {
+        supabaseAdmin = null;
+    }
 
     // --- Location options for dropdowns ---
     let locationQuery = supabase
@@ -83,7 +97,62 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
             .not('kategori', 'eq', 'Alt Bayi');
     }
 
-    const { data: locationData } = await locationQuery;
+    const [locationRes, portalProfilesRes, altBayilerRes, subCustomersRes] = await Promise.all([
+        locationQuery,
+        (supabaseAdmin ?? supabase)
+            .from('profiller')
+            .select('id, firma_id, tam_ad, rol')
+            .not('firma_id', 'is', null),
+        supabase
+            .from('firmalar')
+            .select('id, unvan')
+            .or('ticari_tip.eq.alt_bayi,kategori.eq.Alt Bayi')
+            .order('unvan', { ascending: true }),
+        (supabase as any)
+            .from('firmalar')
+            .select('ust_bayi_firma_id')
+            .not('ust_bayi_firma_id', 'is', null),
+    ]);
+
+    const locationData = locationRes.data;
+    const allPortalProfiles = portalProfilesRes.data || [];
+    const altBayiler = altBayilerRes.data || [];
+    const altBayiMap = new Map(altBayiler.map(b => [b.id, b.unvan]));
+
+    // Bayi bazlı müşteri sayıları
+    const subCustomerCountMap = new Map<string, number>();
+    for (const row of (subCustomersRes.data || []) as any[]) {
+        if (!row.ust_bayi_firma_id) continue;
+        const count = subCustomerCountMap.get(row.ust_bayi_firma_id) || 0;
+        subCustomerCountMap.set(row.ust_bayi_firma_id, count + 1);
+    }
+
+    // Fetch Auth users for last_sign_in_at
+    const authUserMap = new Map<string, { last_sign_in_at: string | null; email: string | null }>();
+    if (supabaseAdmin) {
+        try {
+            const { data: authUsersData } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+            if (authUsersData?.users) {
+                for (const u of authUsersData.users) {
+                    authUserMap.set(u.id, {
+                        last_sign_in_at: u.last_sign_in_at ?? null,
+                        email: u.email ?? null,
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Portal auth users could not be fetched:', err);
+        }
+    }
+
+    // Map profiles by firma_id
+    const profilesByFirma = new Map<string, any[]>();
+    for (const p of allPortalProfiles) {
+        if (!p.firma_id) continue;
+        const list = profilesByFirma.get(p.firma_id) || [];
+        list.push(p);
+        profilesByFirma.set(p.firma_id, list);
+    }
 
     const uniqueCities = Array.from(new Set(locationData?.map(f => f.sehir?.trim()).filter(Boolean))).sort() as string[];
     const uniqueDistricts = Array.from(new Set(locationData?.map(f => f.ilce?.trim()).filter(Boolean))).sort() as string[];
@@ -103,6 +172,27 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
         }
     });
 
+    // Helper to calculate portal state for a firma
+    const getFirmaPortalInfo = (fId: string) => {
+        const pList = profilesByFirma.get(fId) || [];
+        if (pList.length === 0) {
+            return { portal_status: 'none' as const, portal_last_sign_in_at: null, portal_user_count: 0 };
+        }
+        let latestLogin: string | null = null;
+        for (const p of pList) {
+            const authInfo = authUserMap.get(p.id);
+            if (authInfo?.last_sign_in_at) {
+                if (!latestLogin || new Date(authInfo.last_sign_in_at) > new Date(latestLogin)) {
+                    latestLogin = authInfo.last_sign_in_at;
+                }
+            }
+        }
+        if (latestLogin) {
+            return { portal_status: 'active' as const, portal_last_sign_in_at: latestLogin, portal_user_count: pList.length };
+        }
+        return { portal_status: 'pending' as const, portal_last_sign_in_at: null, portal_user_count: pList.length };
+    };
+
     // --- Summary stats (global, unfiltered) ---
     let allFirmalar: any[] = [];
     let summaryPage = 0;
@@ -121,6 +211,17 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     const sevenDaysAgo = now - 7 * 86400000;
     const thirtyDaysAgo = now - 30 * 86400000;
 
+    let portalAktifCount = 0;
+    let portalPendingCount = 0;
+    let portalYokCount = 0;
+
+    for (const f of allFirmalar) {
+        const info = getFirmaPortalInfo(f.id);
+        if (info.portal_status === 'active') portalAktifCount++;
+        else if (info.portal_status === 'pending') portalPendingCount++;
+        else portalYokCount++;
+    }
+
     const summary = {
         toplam: allFirmalar?.length ?? 0,
         musteri: allFirmalar?.filter(f => f.status === 'MÜŞTERİ').length ?? 0,
@@ -138,6 +239,9 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
             (f.kaynak || '').toLowerCase() === 'web' &&
             ['ADAY', 'TEMAS EDİLDİ', 'NUMUNE VERİLDİ'].includes(f.status || '')
         ).length ?? 0,
+        portalAktif: portalAktifCount,
+        portalPending: portalPendingCount,
+        portalYok: portalYokCount,
     };
 
     // --- Main filtered query ---
@@ -147,12 +251,11 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
             id, unvan, status, kategori, sehir, ilce, posta_kodu,
             telefon, adres, son_etkilesim_tarihi, oncelik_puani, oncelik, etiketler,
             kaynak, goruldu, created_at, parent_firma_id, instagram_url, google_maps_url,
-            yetkili_kisi,
+            yetkili_kisi, ust_bayi_firma_id,
             sorumlu_personel:profiller!firmalar_sorumlu_personel_id_fkey(tam_ad)
         `);
 
     // Diakritik-duyarsız arama: searchQuery & cityFilter & districtFilter
-    // (`.or()` içinde regex pattern güvensiz olduğu için client-side JS filter yapacağız - aşağıda)
     if (statusFilter) {
         const mapped = canonicalize(statusFilter);
         if (mapped) query = query.eq('status', mapped as any);
@@ -179,8 +282,13 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
     } else {
         query = query
             .or('ticari_tip.eq.musteri,ticari_tip.is.null')
-            .or('kategori.neq.Alt Bayi,kategori.is.null')
-            .is('sahip_id', null);
+            .or('kategori.neq.Alt Bayi,kategori.is.null');
+    }
+
+    if (bayiFirmaIdFilter === 'merkez') {
+        query = query.is('ust_bayi_firma_id', null);
+    } else if (bayiFirmaIdFilter) {
+        query = query.eq('ust_bayi_firma_id', bayiFirmaIdFilter);
     }
 
     const orderedQuery = query.order('created_at', { ascending: false });
@@ -207,11 +315,26 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
         );
     }
 
-    let firmalar = (rawFirmalar || []).sort((a, b) => {
+    // Attach portal information and sub-dealer info to each firm
+    let firmalar = (rawFirmalar || []).map((f: any) => {
+        const pInfo = getFirmaPortalInfo(f.id);
+        const ustBayiUnvan = f.ust_bayi_firma_id ? altBayiMap.get(f.ust_bayi_firma_id) : null;
+        return {
+            ...f,
+            ...pInfo,
+            ust_bayi: ustBayiUnvan ? { id: f.ust_bayi_firma_id, unvan: ustBayiUnvan } : null,
+            bagli_musteri_sayisi: subCustomerCountMap.get(f.id) || 0,
+        };
+    }).sort((a, b) => {
         if (a.status === 'REDDEDİLDİ' && b.status !== 'REDDEDİLDİ') return 1;
         if (a.status !== 'REDDEDİLDİ' && b.status === 'REDDEDİLDİ') return -1;
         return 0;
     });
+
+    // Portal Status Filter
+    if (portalStatusFilter) {
+        firmalar = firmalar.filter((f: any) => f.portal_status === portalStatusFilter);
+    }
 
     // Diakritik-duyarsız (ı/i, ş/s, ö/o, ü/u, ç/c, ğ/g, ß/ss, ä/a ...) JS-side filtreleme
     if (searchQuery || cityFilter || districtFilter) {
@@ -232,7 +355,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
                     {isAltBayiList ? 'Alt Bayiler' : 'Firma Yönetimi (CRM)'}
                 </h1>
                 <p className="text-sm text-slate-500 mt-0.5">
-                    Müşteri adaylarını, aktif müşterileri ve temas geçmişini yönetin.
+                    Müşteri adaylarını, aktif müşterileri, portal kullanımını ve temas geçmişini yönetin.
                 </p>
             </header>
 
@@ -247,6 +370,7 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
                     currentCity={cityFilter}
                     currentDistrict={districtFilter}
                     currentPlz={plzFilter}
+                    currentPortalStatus={portalStatusFilter}
                     temassizActive={temassizFilter}
                     hasLocationFilter={hasLocationFilter}
                     kaynakFilter={kaynakFilter}
@@ -255,6 +379,8 @@ export default async function FirmalarListPage({ params, searchParams }: PagePro
                     zipCodeOptions={uniqueZipCodes}
                     zipCodeLabels={plzLabels}
                     categoryOptions={uniqueCategories}
+                    bayiOptions={altBayiler}
+                    currentBayiFirmaId={bayiFirmaIdFilter}
                 />
             </Suspense>
         </div>

@@ -41,9 +41,13 @@ export async function POST(request: Request) {
     return new NextResponse(JSON.stringify({ error: 'Yetkiniz yok' }), { status: 401 });
   }
 
-  const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).single();
-  if (profile?.rol !== 'Yönetici') {
-    return new NextResponse(JSON.stringify({ error: 'Bu işlemi yapmaya sadece yöneticiler yetkilidir' }), { status: 403 });
+  const { data: profile } = await supabase.from('profiller').select('rol, firma_id').eq('id', user.id).single();
+  const userRole = profile?.rol;
+  const isYonetici = userRole === 'Yönetici';
+  const isAltBayi = userRole === 'Alt Bayi';
+
+  if (!isYonetici && !isAltBayi) {
+    return new NextResponse(JSON.stringify({ error: 'Bu işlemi yapmaya yetkiniz yok' }), { status: 403 });
   }
 
   let payload: {
@@ -84,8 +88,39 @@ export async function POST(request: Request) {
   const allowedPanels = isPortalRole ? [] : normalizeAllowedAdminPanels(payload.allowedPanels);
   const notificationPreferences = isPortalRole ? null : normalizeInternalNotificationPreferences(payload.notificationPreferences);
 
+  let targetRole = rol;
+  if (isAltBayi) {
+    if (rol !== 'Müşteri') {
+      return new NextResponse(JSON.stringify({ error: 'Alt Bayi kullanıcıları sadece Müşteri portal hesabı oluşturabilir.' }), { status: 403 });
+    }
+    targetRole = 'Müşteri';
+  }
+
   if (isPortalRole && !firmaId) {
     return new NextResponse(JSON.stringify({ error: 'Müşteri veya alt bayi kullanıcıları mevcut bir firmaya bağlanmalıdır.' }), { status: 400 });
+  }
+
+  const supabaseAdmin = createSupabaseServiceClient();
+
+  // If Alt Bayi, verify that the target firma belongs to this Alt Bayi
+  if (isAltBayi && firmaId) {
+    const { data: targetFirma, error: targetFirmaErr } = await (supabaseAdmin as any)
+      .from('firmalar')
+      .select('id, ust_bayi_firma_id, sahip_id')
+      .eq('id', firmaId)
+      .single();
+
+    if (targetFirmaErr || !targetFirma) {
+      return new NextResponse(JSON.stringify({ error: 'Müşteri firması bulunamadı.' }), { status: 404 });
+    }
+
+    const belongsToBayi =
+      (profile?.firma_id && targetFirma.ust_bayi_firma_id === profile.firma_id) ||
+      targetFirma.sahip_id === user.id;
+
+    if (!belongsToBayi) {
+      return new NextResponse(JSON.stringify({ error: 'Bu firmaya portal erişimi verme yetkiniz yok.' }), { status: 403 });
+    }
   }
 
   // Determine password to use
@@ -99,8 +134,6 @@ export async function POST(request: Request) {
       finalPassword = `${crypto.randomUUID().slice(0, 12)}Aa1!`;
     }
   }
-
-  const supabaseAdmin = createSupabaseServiceClient();
   const userMetadata = {
     tam_ad: tam_ad || null,
     allowed_admin_panels: allowedPanels,
@@ -167,7 +200,7 @@ export async function POST(request: Request) {
   // 2. Upsert profile in profiller table
   const { error: profileError } = await supabaseAdmin.from('profiller').upsert({
     id: authUser.id,
-    rol: rol as never,
+    rol: targetRole as never,
     tam_ad: tam_ad || null,
     firma_id: firmaId,
   });
@@ -184,7 +217,7 @@ export async function POST(request: Request) {
       const currentStatus = String(currentFirma?.status || '').toUpperCase();
       const updatePayload: Record<string, any> = {};
 
-      if (rol === 'Alt Bayi') {
+      if (targetRole === 'Alt Bayi') {
         updatePayload.status = 'ALT BAYİ';
         updatePayload.sahip_id = authUser.id;
       } else if (currentStatus === 'ADAY' || !currentFirma?.status) {

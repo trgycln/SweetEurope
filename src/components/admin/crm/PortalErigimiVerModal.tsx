@@ -13,7 +13,13 @@ interface PortalErigimiVerModalProps {
     firmaEmail: string | null;
     yetkiliKisi: string | null;
     locale: string;
-    existingUsers?: Array<{ id: string; tam_ad: string | null; rol: string }>;
+    existingUsers?: Array<{
+        id: string;
+        tam_ad: string | null;
+        rol: string;
+        email?: string | null;
+        last_sign_in_at?: string | null;
+    }>;
     onClose: () => void;
     onSuccess: () => void;
 }
@@ -244,16 +250,34 @@ export function PortalErigimiVerModal({
                     <div className="p-6 space-y-4">
                         {/* Mevcut bağlı kullanıcılar varsa bilgi */}
                         {existingUsers.length > 0 && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800">
-                                <p className="font-bold mb-1">Bu firmaya bağlı mevcut {existingUsers.length} portal kullanıcısı var:</p>
-                                <ul className="list-disc list-inside space-y-0.5 text-blue-700">
+                            <div className="bg-blue-50/80 border border-blue-200 rounded-xl p-3.5 text-xs text-blue-900 space-y-2">
+                                <p className="font-bold flex items-center justify-between">
+                                    <span>Tanımlı Portal Kullanıcıları ({existingUsers.length})</span>
+                                    <span className="text-[10px] text-blue-600 font-normal">Mevcut Hesaplar</span>
+                                </p>
+                                <div className="space-y-1.5 divide-y divide-blue-100">
                                     {existingUsers.map(u => (
-                                        <li key={u.id} className="truncate">
-                                            {u.tam_ad || 'Kullanıcı'} ({u.rol})
-                                        </li>
+                                        <div key={u.id} className="pt-1.5 first:pt-0 flex flex-wrap items-center justify-between gap-1">
+                                            <div className="flex items-center gap-1.5 truncate">
+                                                <span className="font-semibold text-slate-800">{u.tam_ad || 'Kullanıcı'}</span>
+                                                {u.email && <span className="text-slate-500 text-[11px]">({u.email})</span>}
+                                                <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">{u.rol}</span>
+                                            </div>
+                                            <div className="text-[10px]">
+                                                {u.last_sign_in_at ? (
+                                                    <span className="text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                                                        🟢 Son Giriş: {new Date(u.last_sign_in_at).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-amber-700 font-semibold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                                                        🟡 Henüz giriş yapmadı
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     ))}
-                                </ul>
-                                <p className="text-[11px] text-blue-600 mt-1">Aşağıdan şifre güncelleyebilir veya yeni yetkili ekleyebilirsiniz.</p>
+                                </div>
+                                <p className="text-[11px] text-blue-600/90 pt-1">Aşağıdan şifre güncelleyebilir veya yeni yetkili ekleyebilirsiniz.</p>
                             </div>
                         )}
 

@@ -159,13 +159,6 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                     roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[],
                     panelKey: 'marketing'
                 },
-                {
-                    name: sidebarContent.marketingMaterials || 'Marketingmaterial',
-                    href: '/admin/pazarlama/materialien',
-                    icon: FiPaperclip,
-                    roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[],
-                    panelKey: 'marketing'
-                },
             ],
         },
         {

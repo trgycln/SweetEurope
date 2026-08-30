@@ -1,10 +1,11 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { FirmaDetaylarCard } from '@/components/admin/crm/FirmaDetaylarCard';
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
-export default async function FirmaDetaylarPage({
+export default async function PortalMusteriDetaylarPage({
     params
 }: {
     params: Promise<{ firmaId: string; locale: Locale }>
@@ -13,7 +14,16 @@ export default async function FirmaDetaylarPage({
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    const { data: firma, error } = await supabase
+    const { data: { user } } = await getGlobalCachedUser();
+    if (!user) return redirect(`/${locale}/login`);
+
+    const { data: profile } = await supabase
+        .from('profiller')
+        .select('rol, firma_id')
+        .eq('id', user.id)
+        .single();
+
+    const { data: firma, error } = await (supabase as any)
         .from('firmalar')
         .select(`
             *,
@@ -22,7 +32,14 @@ export default async function FirmaDetaylarPage({
         .eq('id', firmaId)
         .single();
 
-    if (error || !firma) {
+    const isAuthorized = Boolean(
+        firma && (
+            firma.sahip_id === user.id ||
+            (profile?.firma_id && firma.ust_bayi_firma_id === profile.firma_id)
+        )
+    );
+
+    if (error || !firma || !isAuthorized) {
         notFound();
     }
 
@@ -30,7 +47,7 @@ export default async function FirmaDetaylarPage({
         <FirmaDetaylarCard
             firma={firma}
             locale={locale}
-            isPortal={false}
+            isPortal={true}
         />
     );
 }

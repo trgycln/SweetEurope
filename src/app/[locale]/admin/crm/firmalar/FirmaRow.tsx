@@ -108,6 +108,11 @@ export default function FirmaRow({
                       └ Şube
                     </span>
                   )}
+                  {firma.ust_bayi?.unvan && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200 flex-shrink-0" title="Bağlı Alt Bayi">
+                      🤝 {firma.ust_bayi.unvan}
+                    </span>
+                  )}
                   <h3 className="font-serif text-xl font-bold text-primary">{firma.unvan}</h3>
                 </div>
                 {parentName && isChild && (
@@ -170,13 +175,18 @@ export default function FirmaRow({
           {isChild && (
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-300 to-transparent"></div>
           )}
-          <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`} className="hover:underline text-accent flex items-center gap-2">
+          <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`} className="hover:underline text-accent flex items-center gap-2 flex-wrap">
             {isChild && (
               <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 flex-shrink-0">
                 └ Şube
               </span>
             )}
             <span>{firma.unvan}</span>
+            {firma.ust_bayi?.unvan && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200 flex-shrink-0" title="Bağlı Alt Bayi">
+                🤝 {firma.ust_bayi.unvan}
+              </span>
+            )}
             {!isChild && firma.sube_sayisi > 0 && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
                 🏢 {firma.sube_sayisi}

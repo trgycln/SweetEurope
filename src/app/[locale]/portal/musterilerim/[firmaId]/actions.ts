@@ -4,7 +4,6 @@ import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Tables, Enums } from '@/lib/supabase/database.types';
-
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
 type FirmaKategori = Enums<'firma_kategori'>;
@@ -107,7 +106,7 @@ export async function addFirmTaskAction(firmaId: string, formData: FormData) {
     son_tarih,
     oncelik,
     tamamlandi: false,
-  }).single();
+  });
 
   if (error) return { success: false, error: error.message };
   revalidatePath(`/portal/musterilerim/${firmaId}/gorevler`);
@@ -137,10 +136,26 @@ export async function yeniKisiEkleAction(firmaId: string, formData: FormData) {
     unvan,
     email,
     telefon,
-  }).single();
+  });
 
   if (error) {
     console.error('Kişi ekleme hatası:', error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath(`/portal/musterilerim/${firmaId}/kisiler`);
+  return { success: true };
+}
+
+export async function silKisiAction(kisiId: string, firmaId: string) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  const { data: { user } } = await getGlobalCachedUser();
+  if (!user) return { success: false, error: 'Oturum bulunamadı.' };
+
+  const { error } = await supabase.from('dis_kontaklar').delete().eq('id', kisiId);
+  if (error) {
+    console.error('Kişi silme hatası:', error);
     return { success: false, error: error.message };
   }
 
@@ -166,7 +181,7 @@ export async function yeniEtkinlikEkleAction(firmaId: string, formData: FormData
     olusturan_personel_id: user.id,
     etkinlik_tipi: etkinlik_tipi as 'Not' | 'Telefon Görüşmesi' | 'Toplantı' | 'E-posta' | 'Teklif',
     aciklama,
-  }).single();
+  });
 
   if (error) {
     console.error('Etkinlik ekleme hatası:', error);

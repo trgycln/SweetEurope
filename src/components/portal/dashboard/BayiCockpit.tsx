@@ -232,7 +232,7 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
                     { label: 'Sipariş Adedi', value: String(buAySiparisAdedi), bg: 'bg-[#EAF3DE]', text: 'text-green-800', sub: 'Bu ay müşteri sipariş', icon: <FiPackage size={13} />, href: `/${locale}/portal/siparisler` },
                     { label: 'Aktif Müşteri', value: String(aktifMusteri), bg: 'bg-[#FAEEDA]', text: 'text-orange-800', sub: `${toplamFunnel} toplam temas`, icon: <FiUsers size={13} />, href: `/${locale}/portal/musterilerim` },
                     { label: 'Açık Görev', value: String(gorevAcik), bg: 'bg-[#FCEBEB]', text: gecikenGorevler.length > 0 ? 'text-red-700' : 'text-slate-800', sub: gecikenGorevler.length > 0 ? `${gecikenGorevler.length} geciken` : 'Görev sayım', icon: <FiClipboard size={13} />, href: `/${locale}/portal/gorevlerim` },
-                    { label: 'Bekleyen Talep', value: String(bekleyenTalep + kendiAcikSiparis), bg: 'bg-slate-100', text: 'text-slate-800', sub: 'Numune + bekleyen', icon: <FiAlertCircle size={13} />, href: `/${locale}/portal/taleplerim` },
+                    { label: 'Bekleyen Sipariş', value: String(kendiAcikSiparis + bekleyenTalep), bg: 'bg-slate-100', text: 'text-slate-800', sub: 'Süreçteki sipariş', icon: <FiAlertCircle size={13} />, href: `/${locale}/portal/siparisler` },
                 ].map(c => (
                     <Link
                         key={c.label}
@@ -258,7 +258,7 @@ export default async function BayiCockpit({ userId, firmaId, locale, firmaUnvan 
                         { label: 'Müşteri Sipariş', icon: <FiPackage size={16} />, href: `/${locale}/portal/musterilerim`, bg: 'bg-orange-100 text-orange-700' },
                         { label: 'Kendi Siparişim', icon: <FiBox size={16} />, href: `/${locale}/portal/siparisler/yeni`, bg: 'bg-green-100 text-green-700' },
                         { label: 'Yeni Görev', icon: <FiClipboard size={16} />, href: `/${locale}/portal/gorevlerim`, bg: 'bg-teal-100 text-teal-700' },
-                        { label: 'Numune Talep', icon: <FiArchive size={16} />, href: `/${locale}/portal/taleplerim`, bg: 'bg-purple-100 text-purple-700' },
+                        { label: 'Ürün Kataloğu', icon: <FiBox size={16} />, href: `/${locale}/portal/katalog`, bg: 'bg-purple-100 text-purple-700' },
                     ].map(a => (
                         <Link key={a.label} href={a.href}
                             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all text-sm font-medium text-slate-700 group min-h-[40px]">

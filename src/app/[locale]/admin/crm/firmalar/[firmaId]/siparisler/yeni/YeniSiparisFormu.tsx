@@ -76,6 +76,9 @@ interface YeniSiparisFormuProps {
     pastOrders: PastOrder[];
     firmenListe?: any;
     locale?: Locale;
+    isPortal?: boolean;
+    redirectPath?: string;
+    kaynak?: any;
 }
 
 type SepetUrunu = {
@@ -104,6 +107,9 @@ export default function YeniSiparisFormu({
     pastOrders = [],
     firmenListe,
     locale = 'tr',
+    isPortal = false,
+    redirectPath,
+    kaynak,
 }: YeniSiparisFormuProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
@@ -354,12 +360,13 @@ export default function YeniSiparisFormu({
                 teslimatAdresi: teslimatAdresi,
                 normalItems: normalPayload,
                 onSiparisItems: onSiparisPayload,
-                kaynak: 'Admin Paneli'
+                kaynak: kaynak || (isPortal ? 'Müşteri Portalı' : 'Admin Paneli')
             });
 
             if (result?.success) {
                 toast.success(result.message || "Sipariş başarıyla oluşturuldu!");
-                router.push(`/${locale}/admin/crm/firmalar/${hedefFirmaId}/siparisler`);
+                const targetUrl = redirectPath || (isPortal ? `/${locale}/portal/siparisler` : `/${locale}/admin/crm/firmalar/${hedefFirmaId}/siparisler`);
+                router.push(targetUrl);
             } else if (result?.error) {
                 toast.error(result.error);
             }

@@ -33,6 +33,20 @@ export default function DurumGuncellePaneli({ siparisId, mevcutDurum }: Props) {
     const isFinished = aktifDurum === 'Teslim Edildi' || aktifDurum === 'İptal Edildi' || aktifDurum === 'cancelled';
     const isPreOrder = aktifDurum === 'Ön Sipariş';
 
+    const handleDurumDegistir = (yeniDurum: SiparisDurumu) => {
+        if (yeniDurum === aktifDurum) return;
+
+        startTransition(async () => {
+            const res = await siparisDurumGuncelleAction(siparisId, yeniDurum);
+            if (res.success) {
+                setAktifDurum(yeniDurum);
+                toast.success(`Sipariş durumu "${yeniDurum}" olarak güncellendi.`);
+            } else {
+                toast.error(res.error || 'Durum güncellenirken hata oluştu.');
+            }
+        });
+    };
+
     const handlePreOrderConvert = () => {
         startTransition(async () => {
             const { onSiparisiNormalSipariseDonusturAction } = await import('@/app/actions/siparis-actions');

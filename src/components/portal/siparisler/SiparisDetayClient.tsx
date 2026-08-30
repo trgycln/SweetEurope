@@ -163,7 +163,18 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
                     </div>
 
                     {/* Aksiyonlar */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                        {/* Lieferschein / İrsaliye Yazdır Butonu */}
+                        <Link
+                            href={`/${locale}/print/lieferschein/${siparis.id}`}
+                            target="_blank"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 hover:text-accent transition-colors shadow-sm"
+                            title={locale === 'de' ? 'Lieferschein drucken' : 'İrsaliye / Teslimat Fişi Yazdır'}
+                        >
+                            <FiTruck size={14} />
+                            <span>Lieferschein</span>
+                        </Link>
+
                         <button
                             onClick={handleReorder}
                             className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm"

@@ -6,7 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import Link from 'next/link';
 import {
     FiSearch, FiGrid, FiList, FiAlertTriangle,
-    FiPlus, FiMapPin, FiClock, FiX, FiNavigation, FiChevronDown, FiChevronRight,
+    FiPlus, FiMapPin, FiClock, FiX, FiNavigation, FiChevronDown,
 } from 'react-icons/fi';
 import { FaInstagram } from 'react-icons/fa';
 import { useVisitPlanner } from '@/contexts/VisitPlannerContext';
@@ -33,6 +33,11 @@ type FirmaItem = {
     instagram_url: string | null;
     google_maps_url: string | null;
     yetkili_kisi: string | null;
+    ust_bayi?: { id: string; unvan: string } | null;
+    bagli_musteri_sayisi?: number;
+    portal_status?: 'active' | 'pending' | 'none';
+    portal_last_sign_in_at?: string | null;
+    portal_user_count?: number;
 };
 
 type FirmaGroup = {
@@ -48,6 +53,9 @@ type SummaryStats = {
     temassiz30: number;
     buHaftaYeni: number;
     gorulmemisWebBasvuru: number;
+    portalAktif: number;
+    portalPending: number;
+    portalYok: number;
 };
 
 interface Props {
@@ -60,6 +68,8 @@ interface Props {
     currentCity: string;
     currentDistrict: string;
     currentPlz: string;
+    currentPortalStatus?: string;
+    currentBayiFirmaId?: string;
     temassizActive: boolean;
     hasLocationFilter: boolean;
     kaynakFilter: string;
@@ -68,6 +78,9 @@ interface Props {
     zipCodeOptions: string[];
     zipCodeLabels: Record<string, string>;
     categoryOptions: string[];
+    bayiOptions?: Array<{ id: string; unvan: string }>;
+    baseDetailPath?: string;
+    newCustomerPath?: string;
 }
 
 type VPCompany = {
@@ -115,6 +128,23 @@ function daysSince(date: string | null): number | null {
     return Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
 }
 
+function formatPortalLastLogin(dateStr: string | null): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMin < 2) return 'Az önce';
+    if (diffMin < 60) return `${diffMin} dk önce`;
+    if (diffHours < 24) return `${diffHours} sa önce`;
+    if (diffDays === 1) return 'Dün';
+    if (diffDays < 7) return `${diffDays} gün önce`;
+    return date.toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
+}
+
 function buildGroups(firms: FirmaItem[]): FirmaGroup[] {
     const firmIds = new Set(firms.map(f => f.id));
     const parentChildMap = new Map<string, FirmaItem[]>();
@@ -132,7 +162,6 @@ function buildGroups(firms: FirmaItem[]): FirmaGroup[] {
 
     firms.forEach(f => {
         if (processedIds.has(f.id)) return;
-        // Skip if it's a child whose parent is in the list (will be handled by parent)
         if (f.parent_firma_id && firmIds.has(f.parent_firma_id)) return;
 
         const children = parentChildMap.get(f.id) || [];
@@ -141,7 +170,7 @@ function buildGroups(firms: FirmaItem[]): FirmaGroup[] {
         groups.push({ isGroup: children.length > 0, parent: f, children });
     });
 
-    // Orphaned children (parent filtered out)
+    // Orphaned children
     firms.forEach(f => {
         if (!processedIds.has(f.id)) {
             processedIds.add(f.id);
@@ -162,13 +191,48 @@ function ContactDays({ date }: { date: string | null }) {
     return <span className="text-xs text-red-500 font-semibold">{d} gün önce</span>;
 }
 
+/* ── Portal Badge Component ─────────────────────────────────────────────── */
+function PortalBadge({
+    status, lastSignIn, userCount,
+}: {
+    status?: 'active' | 'pending' | 'none';
+    lastSignIn?: string | null;
+    userCount?: number;
+}) {
+    if (status === 'active') {
+        const timeText = formatPortalLastLogin(lastSignIn || null);
+        return (
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-semibold" title={`Son Giriş: ${lastSignIn ? new Date(lastSignIn).toLocaleString('tr-TR') : 'Bilinmiyor'}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Aktif</span>
+                {timeText && <span className="text-emerald-600 font-normal">({timeText})</span>}
+            </div>
+        );
+    }
+
+    if (status === 'pending') {
+        return (
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-semibold" title="Portal hesabı tanımlandı ancak sisteme henüz hiç giriş yapılmadı">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span>Giriş Bekliyor</span>
+            </div>
+        );
+    }
+
+    return (
+        <span className="text-[11px] text-slate-300 font-light">—</span>
+    );
+}
+
 /* ── Firma Card ──────────────────────────────────────────────────────────── */
 function FirmaCard({
     firma, locale, vp,
     isChild = false, isParentInGroup = false, parentUnvan, parentId,
+    baseDetailPath = `/${locale}/admin/crm/firmalar`,
 }: {
     firma: FirmaItem; locale: string; vp: VPActions;
     isChild?: boolean; isParentInGroup?: boolean; parentUnvan?: string; parentId?: string;
+    baseDetailPath?: string;
 }) {
     const selected = vp.isSelected(firma.id);
     const status = (firma.status || 'ADAY').toUpperCase().trim();
@@ -200,11 +264,26 @@ function FirmaCard({
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                        <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`}
+                        <Link href={`${baseDetailPath}/${firma.id}`}
                             className="font-bold text-slate-800 hover:text-blue-600 text-sm leading-tight line-clamp-2">{firma.unvan}</Link>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${badge}`}>{label}</span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                        {firma.ust_bayi?.unvan && (
+                            <span className="text-[10px] font-bold text-purple-800 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded-md flex items-center gap-1 flex-shrink-0" title="Bağlı Olduğu Alt Bayi">
+                                🤝 {firma.ust_bayi.unvan}
+                            </span>
+                        )}
+                        {typeof firma.bagli_musteri_sayisi === 'number' && firma.bagli_musteri_sayisi > 0 && (
+                            <Link
+                                href={`/${locale}/admin/crm/firmalar?bayi_firma_id=${firma.id}&status=ALL`}
+                                onClick={e => e.stopPropagation()}
+                                className="text-[10px] font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1 flex-shrink-0 transition-colors"
+                                title="Bu bayiye bağlı tüm müşteri ve adayları listele"
+                            >
+                                👥 {firma.bagli_musteri_sayisi} Müşteri / Portföy
+                            </Link>
+                        )}
                         {isParentInGroup && (
                             <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">Ana Lokasyon</span>
                         )}
@@ -221,6 +300,18 @@ function FirmaCard({
                         )}
                         {(d === null || d > 30) && <span className="text-[10px] font-semibold text-red-500">⚠ Takip!</span>}
                     </div>
+
+                    {/* Portal Durum Rozeti */}
+                    {firma.portal_status && firma.portal_status !== 'none' && (
+                        <div className="mt-2">
+                            <PortalBadge
+                                status={firma.portal_status}
+                                lastSignIn={firma.portal_last_sign_in_at}
+                                userCount={firma.portal_user_count}
+                            />
+                        </div>
+                    )}
+
                     {isChild && parentUnvan && parentId && (
                         <Link href={`/${locale}/admin/crm/firmalar/${parentId}`}
                             onClick={e => e.stopPropagation()}
@@ -331,9 +422,11 @@ function GroupTableHeaderRow({
 function FirmaTableRow({
     firma, locale, vp,
     isChild = false, isParentInGroup = false, parentUnvan, parentId,
+    baseDetailPath = `/${locale}/admin/crm/firmalar`,
 }: {
     firma: FirmaItem; locale: string; vp: VPActions;
     isChild?: boolean; isParentInGroup?: boolean; parentUnvan?: string; parentId?: string;
+    baseDetailPath?: string;
 }) {
     const router = useRouter();
     const selected = vp.isSelected(firma.id);
@@ -362,9 +455,9 @@ function FirmaTableRow({
         <tr
             className={`transition-colors group cursor-pointer ${bgClass}`}
             style={trStyle}
-            onClick={() => router.push(`/${locale}/admin/crm/firmalar/${firma.id}`)}
+            onClick={() => router.push(`${baseDetailPath}/${firma.id}`)}
         >
-            {/* Checkbox — with L-shape connector for children */}
+            {/* Checkbox */}
             <td className="py-2.5 pr-2 relative" style={{ paddingLeft: isChild ? '28px' : '16px' }}>
                 {isChild && (
                     <>
@@ -386,11 +479,26 @@ function FirmaTableRow({
             </td>
 
             {/* Firma name + badges + alt bilgi */}
-            <td className="px-2 py-2.5 max-w-[200px]">
+            <td className="px-3 py-2.5 min-w-[240px]">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                    <Link href={`/${locale}/admin/crm/firmalar/${firma.id}`}
+                    <Link href={`${baseDetailPath}/${firma.id}`}
                         onClick={e => e.stopPropagation()}
-                        className="font-semibold text-slate-800 hover:text-blue-600 text-sm truncate">{firma.unvan}</Link>
+                        className="font-bold text-slate-900 hover:text-blue-600 text-sm">{firma.unvan}</Link>
+                    {firma.ust_bayi?.unvan && (
+                        <span className="text-[10px] font-bold text-purple-800 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded-md whitespace-nowrap inline-flex items-center gap-1" title="Bağlı Olduğu Alt Bayi">
+                            🤝 {firma.ust_bayi.unvan}
+                        </span>
+                    )}
+                    {typeof firma.bagli_musteri_sayisi === 'number' && firma.bagli_musteri_sayisi > 0 && (
+                        <Link
+                            href={`/${locale}/admin/crm/firmalar?bayi_firma_id=${firma.id}&status=ALL`}
+                            onClick={e => e.stopPropagation()}
+                            className="text-[10px] font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 px-2 py-0.5 rounded-md whitespace-nowrap inline-flex items-center gap-1 transition-colors"
+                            title="Bu bayiye bağlı tüm müşteri ve adayları listele"
+                        >
+                            👥 {firma.bagli_musteri_sayisi} Müşteri / Portföy
+                        </Link>
+                    )}
                     {isParentInGroup && (
                         <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
                             Ana Lokasyon
@@ -432,6 +540,15 @@ function FirmaTableRow({
             {/* Statü */}
             <td className="px-2 py-2.5 whitespace-nowrap">
                 <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${badge}`}>{label}</span>
+            </td>
+
+            {/* Portal Durumu & Son Giriş */}
+            <td className="px-2 py-2.5 whitespace-nowrap">
+                <PortalBadge
+                    status={firma.portal_status}
+                    lastSignIn={firma.portal_last_sign_in_at}
+                    userCount={firma.portal_user_count}
+                />
             </td>
 
             {/* Kategori */}
@@ -505,8 +622,13 @@ import PlzRegionModal from '@/components/admin/PlzRegionModal';
 export default function FirmaListClient({
     firmalar, summary, locale, isAltBayiList,
     currentStatus, currentKategori, currentCity, currentDistrict, currentPlz,
+    currentPortalStatus = '',
+    currentBayiFirmaId = '',
     temassizActive, hasLocationFilter, kaynakFilter,
     cityOptions, districtOptions, zipCodeOptions, zipCodeLabels, categoryOptions,
+    bayiOptions = [],
+    baseDetailPath = `/${locale}/admin/crm/firmalar`,
+    newCustomerPath = `/${locale}/admin/crm/firmalar/yeni`,
 }: Props) {
     const [viewMode, setViewMode] = useState<'card' | 'list'>('list');
     const [groupMode, setGroupMode] = useState<'grouped' | 'flat'>('grouped');
@@ -586,7 +708,7 @@ export default function FirmaListClient({
     const selectedCount = selectedCompanies.length;
 
     /* ── Render helpers ── */
-    const TABLE_COL_COUNT = 10;
+    const TABLE_COL_COUNT = 11;
 
     const renderTableGrouped = () => (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -598,6 +720,7 @@ export default function FirmaListClient({
                             <th className="pr-3 py-2 w-2" />
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Firma</th>
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Statü</th>
+                            <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Portal</th>
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Kat.</th>
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">PLZ</th>
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">İlçe</th>
@@ -651,6 +774,7 @@ export default function FirmaListClient({
                                     isChild={!!(group.parent.parent_firma_id)}
                                     parentUnvan={undefined}
                                     parentId={undefined}
+                                    baseDetailPath={baseDetailPath}
                                 />
                             );
                         })}
@@ -670,6 +794,7 @@ export default function FirmaListClient({
                             <th className="pr-3 py-2 w-2" />
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Firma</th>
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Statü</th>
+                            <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Portal</th>
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Kat.</th>
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">PLZ</th>
                             <th className="px-2 py-2 text-left text-[10px] font-semibold text-slate-500 uppercase tracking-wide">İlçe</th>
@@ -686,6 +811,7 @@ export default function FirmaListClient({
                                 locale={locale}
                                 vp={vp}
                                 isChild={!!(f.parent_firma_id)}
+                                baseDetailPath={baseDetailPath}
                             />
                         ))}
                     </tbody>
@@ -713,6 +839,7 @@ export default function FirmaListClient({
                                         locale={locale}
                                         vp={vp}
                                         isParentInGroup={true}
+                                        baseDetailPath={baseDetailPath}
                                     />
                                     {group.children.map(child => (
                                         <FirmaCard
@@ -723,6 +850,7 @@ export default function FirmaListClient({
                                             isChild={true}
                                             parentUnvan={group.parent.unvan}
                                             parentId={group.parent.id}
+                                            baseDetailPath={baseDetailPath}
                                         />
                                     ))}
                                 </div>
@@ -737,6 +865,7 @@ export default function FirmaListClient({
                         locale={locale}
                         vp={vp}
                         isChild={!!(group.parent.parent_firma_id)}
+                        baseDetailPath={baseDetailPath}
                     />
                 );
             })}
@@ -752,15 +881,101 @@ export default function FirmaListClient({
                     locale={locale}
                     vp={vp}
                     isChild={!!(f.parent_firma_id)}
+                    baseDetailPath={baseDetailPath}
                 />
             ))}
         </div>
     );
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-4">
 
-            {/* ── Üst satır: arama + istatistik + butonlar ── */}
+            {/* ── Portal & Aktivasyon KPI Kartları ── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <button
+                    type="button"
+                    onClick={() => setParam('portal_status', '')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                        !currentPortalStatus
+                            ? 'bg-slate-900 text-white border-slate-900 shadow-sm ring-2 ring-slate-900/20'
+                            : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                    }`}
+                >
+                    <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className={!currentPortalStatus ? 'text-slate-300' : 'text-slate-500'}>Tüm Firmalar</span>
+                        <span className="text-sm">👥</span>
+                    </div>
+                    <div className="text-2xl font-black mt-1">{summary.toplam}</div>
+                    <div className={`text-[11px] mt-0.5 ${!currentPortalStatus ? 'text-slate-400' : 'text-slate-400'}`}>
+                        {summary.musteri} müşteri · {summary.numune} numune
+                    </div>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setParam('portal_status', currentPortalStatus === 'active' ? '' : 'active')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                        currentPortalStatus === 'active'
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-600/20'
+                            : 'bg-white text-slate-800 border-slate-200 hover:border-emerald-300 hover:shadow-sm'
+                    }`}
+                >
+                    <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className={currentPortalStatus === 'active' ? 'text-emerald-100' : 'text-emerald-700'}>Portal Aktif</span>
+                        <span className={`w-2.5 h-2.5 rounded-full ${currentPortalStatus === 'active' ? 'bg-white' : 'bg-emerald-500'} animate-pulse`} />
+                    </div>
+                    <div className={`text-2xl font-black mt-1 ${currentPortalStatus === 'active' ? 'text-white' : 'text-emerald-700'}`}>
+                        {summary.portalAktif}
+                    </div>
+                    <div className={`text-[11px] mt-0.5 ${currentPortalStatus === 'active' ? 'text-emerald-100' : 'text-emerald-600'}`}>
+                        Portala giriş yapmış olanlar
+                    </div>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setParam('portal_status', currentPortalStatus === 'pending' ? '' : 'pending')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                        currentPortalStatus === 'pending'
+                            ? 'bg-amber-500 text-white border-amber-500 shadow-sm ring-2 ring-amber-500/20'
+                            : 'bg-white text-slate-800 border-slate-200 hover:border-amber-300 hover:shadow-sm'
+                    }`}
+                >
+                    <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className={currentPortalStatus === 'pending' ? 'text-amber-100' : 'text-amber-700'}>Giriş Bekleyen (Takip)</span>
+                        <span className={`w-2.5 h-2.5 rounded-full ${currentPortalStatus === 'pending' ? 'bg-white' : 'bg-amber-400'}`} />
+                    </div>
+                    <div className={`text-2xl font-black mt-1 ${currentPortalStatus === 'pending' ? 'text-white' : 'text-amber-600'}`}>
+                        {summary.portalPending}
+                    </div>
+                    <div className={`text-[11px] mt-0.5 ${currentPortalStatus === 'pending' ? 'text-amber-100' : 'text-amber-600'}`}>
+                        Şifre verildi, hiç girmedi
+                    </div>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setParam('portal_status', currentPortalStatus === 'none' ? '' : 'none')}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                        currentPortalStatus === 'none'
+                            ? 'bg-slate-700 text-white border-slate-700 shadow-sm ring-2 ring-slate-700/20'
+                            : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                    }`}
+                >
+                    <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className={currentPortalStatus === 'none' ? 'text-slate-300' : 'text-slate-600'}>Portalsız Firmalar</span>
+                        <span className="text-slate-300 text-xs">⚪</span>
+                    </div>
+                    <div className={`text-2xl font-black mt-1 ${currentPortalStatus === 'none' ? 'text-white' : 'text-slate-700'}`}>
+                        {summary.portalYok}
+                    </div>
+                    <div className={`text-[11px] mt-0.5 ${currentPortalStatus === 'none' ? 'text-slate-300' : 'text-slate-400'}`}>
+                        Henüz portal erişimi yok
+                    </div>
+                </button>
+            </div>
+
+            {/* ── Üst satır: arama + butonlar ── */}
             <div className="flex flex-wrap items-center gap-2">
                 <div className="relative">
                     <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
@@ -770,11 +985,8 @@ export default function FirmaListClient({
                         className="pl-8 pr-4 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white w-52" />
                 </div>
 
-                {/* İnline istatistik */}
-                <div className="flex items-center gap-3 text-xs text-slate-500 px-2">
-                    <span><strong className="text-slate-700">{summary.toplam}</strong> firma</span>
-                    <span className="text-green-600"><strong>{summary.musteri}</strong> müşteri</span>
-                    <span className="text-purple-600"><strong>{summary.numune}</strong> numune</span>
+                {/* İnline Bildirimler */}
+                <div className="flex items-center gap-2 text-xs text-slate-500 px-1">
                     {summary.gorulmemisWebBasvuru > 0 && (
                         <button
                             type="button"
@@ -840,7 +1052,7 @@ export default function FirmaListClient({
                     </button>
                 </div>
 
-                <Link href={`/${locale}/admin/crm/firmalar/yeni${isAltBayiList ? '?ticari_tip=alt_bayi' : ''}`} prefetch={false}
+                <Link href={newCustomerPath} prefetch={false}
                     className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors whitespace-nowrap">
                     <FiPlus size={13} /> Yeni Firma
                 </Link>
@@ -876,16 +1088,52 @@ export default function FirmaListClient({
                     <CompactSelect value={currentKategori} options={categoryOptions} placeholder="Kategori" onChange={v => setParam('kategori', v)} />
                 )}
 
-                {(hasLocationFilter || temassizActive) && (
+                {bayiOptions.length > 0 && (
+                    <div className="relative">
+                        <select
+                            value={currentBayiFirmaId || ''}
+                            onChange={e => setParam('bayi_firma_id', e.target.value)}
+                            className="appearance-none pl-3 pr-7 py-1.5 text-xs border border-purple-200 rounded-lg bg-purple-50/60 focus:outline-none focus:ring-2 focus:ring-purple-300 text-purple-900 font-semibold cursor-pointer min-w-[130px]"
+                        >
+                            <option value="">🏢 Tüm Portföy (Merkez + Bayiler)</option>
+                            <option value="merkez">🏛️ Sadece Merkez</option>
+                            {bayiOptions.map(b => (
+                                <option key={b.id} value={b.id}>🤝 {b.unvan}</option>
+                            ))}
+                        </select>
+                        <FiChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 text-purple-500 pointer-events-none" />
+                    </div>
+                )}
+
+                {(hasLocationFilter || temassizActive || currentPortalStatus || currentBayiFirmaId) && (
                     <button type="button" onClick={() => {
                         const p = new URLSearchParams(searchParams.toString());
-                        p.delete('city'); p.delete('district'); p.delete('posta_kodu'); p.delete('temassiz');
+                        p.delete('city'); p.delete('district'); p.delete('posta_kodu'); p.delete('temassiz'); p.delete('portal_status'); p.delete('bayi_firma_id');
                         router.replace(`${pathname}?${p.toString()}`);
                     }} className="flex items-center gap-1 text-xs text-slate-500 hover:text-red-500 border border-slate-200 rounded-lg px-2 py-1 transition-colors">
-                        <FiX size={11} /> Temizle
+                        <FiX size={11} /> Filtreleri Sıfırla
                     </button>
                 )}
             </div>
+
+            {/* ── Aktif Portal Filtresi Bilgi Bandı ── */}
+            {currentPortalStatus && (
+                <div className="bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs text-slate-700">
+                    <span className="font-medium flex items-center gap-2">
+                        <span>Filtre:</span>
+                        {currentPortalStatus === 'active' && <span className="font-bold text-emerald-700">🟢 Portala Giriş Yapmış Firmalar ({firmalar.length})</span>}
+                        {currentPortalStatus === 'pending' && <span className="font-bold text-amber-700">🟡 Giriş Bekleyen / Şifresi Verilmiş Ama Girmeyenler ({firmalar.length})</span>}
+                        {currentPortalStatus === 'none' && <span className="font-bold text-slate-700">⚪️ Henüz Portal Erişimi Olmayanlar ({firmalar.length})</span>}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => setParam('portal_status', '')}
+                        className="text-slate-500 hover:text-slate-800 font-bold"
+                    >
+                        × Temizle
+                    </button>
+                </div>
+            )}
 
             {/* ── Kaynak (Web başvurusu) bilgi bandı ── */}
             {kaynakFilter === 'web' && (
@@ -907,7 +1155,7 @@ export default function FirmaListClient({
                 </div>
             )}
 
-            {/* ── Temassız bilgi bandı ── */}
+            {/* ── Temassiz bilgi bandı ── */}
             {temassizActive && (
                 <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-center justify-between">
                     <span className="text-xs font-semibold text-amber-800 flex items-center gap-1.5">

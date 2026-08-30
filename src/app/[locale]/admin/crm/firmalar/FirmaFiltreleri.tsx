@@ -14,12 +14,13 @@ interface FirmaFiltreleriProps {
     allCitiesLabel: string;
     allDistrictsLabel: string;
     allZipCodesLabel?: string;
-    allCategoriesLabel?: string; // YENİ
+    allCategoriesLabel?: string;
     cityOptions?: string[];
     districtOptions?: string[];
     zipCodeOptions?: string[];
     zipCodeLabels?: Record<string, string>;
-    categoryOptions?: string[]; // YENİ
+    categoryOptions?: string[];
+    bayiOptions?: Array<{ id: string; unvan: string }>;
 }
 
 export default function FirmaFiltreleri({ 
@@ -31,12 +32,13 @@ export default function FirmaFiltreleri({
     allCitiesLabel,
     allDistrictsLabel,
     allZipCodesLabel = "All Zip Codes",
-    allCategoriesLabel = "All Categories", // YENİ
+    allCategoriesLabel = "All Categories",
     cityOptions = [],
     districtOptions = [],
     zipCodeOptions = [],
     zipCodeLabels = {},
-    categoryOptions = [] // YENİ
+    categoryOptions = [],
+    bayiOptions = []
 }: FirmaFiltreleriProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -104,7 +106,17 @@ export default function FirmaFiltreleri({
         replace(`${pathname}?${params.toString()}`);
     };
 
-    const handleCategoryChange = (category: string) => { // YENİ
+    const handleBayiChange = (bayiId: string) => {
+        const params = new URLSearchParams(searchParams);
+        if (bayiId) {
+            params.set('bayi_firma_id', bayiId);
+        } else {
+            params.delete('bayi_firma_id');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
+    const handleCategoryChange = (category: string) => {
         const params = new URLSearchParams(searchParams);
         if (category) {
             params.set('kategori', category);
@@ -127,6 +139,23 @@ export default function FirmaFiltreleri({
                 />
             </div>
             
+            {/* Alt Bayi Filter */}
+            {bayiOptions.length > 0 && (
+                <div className="relative flex-grow sm:flex-grow-0 sm:w-56">
+                    <select
+                        className="w-full px-4 py-2 border border-purple-200 bg-purple-50/50 text-purple-900 rounded-md focus:ring-purple-500 focus:border-purple-500 transition font-medium"
+                        onChange={(e) => handleBayiChange(e.target.value)}
+                        value={searchParams.get('bayi_firma_id')?.toString() || ''}
+                    >
+                        <option value="">🏢 Tüm Portföy (Merkez + Bayiler)</option>
+                        <option value="merkez">🏛️ Sadece Merkez Müşterileri</option>
+                        {bayiOptions.map(bayi => (
+                            <option key={bayi.id} value={bayi.id}>🤝 {bayi.unvan}</option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
             {/* Priority Filter */}
             <div className="relative flex-grow sm:flex-grow-0 sm:w-40">
                 <select

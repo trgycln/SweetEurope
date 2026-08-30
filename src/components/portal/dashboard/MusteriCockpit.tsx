@@ -438,10 +438,10 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
                             iconBg: 'bg-purple-50 text-purple-600 group-hover:bg-purple-600 group-hover:text-white',
                         },
                         {
-                            label: L.sampleRequest,
-                            sub: locale === 'de' ? 'Kostenlos testen' : 'Ücretsiz deneyin',
+                            label: locale === 'de' ? 'Meine Bestellungen' : 'Siparişlerim',
+                            sub: locale === 'de' ? 'Status & Rechnungen' : 'Durum ve faturalar',
                             icon: <FiPackage size={18} />,
-                            href: `/${locale}/portal/taleplerim`,
+                            href: `/${locale}/portal/siparisler`,
                             iconBg: 'bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white',
                         },
                         {

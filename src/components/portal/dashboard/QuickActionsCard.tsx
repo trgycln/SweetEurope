@@ -27,8 +27,8 @@ export function QuickActionsCard({ locale, dictionary }: QuickActionsCardProps) 
                 <Link href={`/${locale}/portal/siparisler/yeni`} className="flex items-center gap-3 px-4 py-3 bg-accent text-white rounded-lg shadow-sm hover:bg-opacity-90 transition-all font-bold text-sm w-full text-center justify-center">
                     <FiPlus /> {actionsContent.newOrder}
                 </Link>
-                <Link href={`/${locale}/portal/taleplerim`} className="flex items-center gap-3 px-4 py-3 bg-secondary text-primary rounded-lg shadow-sm hover:bg-bg-subtle transition-all font-bold text-sm w-full text-center justify-center border border-gray-200">
-                    <FiMessageSquare /> {actionsContent.myRequests}
+                <Link href={`/${locale}/portal/siparisler`} className="flex items-center gap-3 px-4 py-3 bg-secondary text-primary rounded-lg shadow-sm hover:bg-bg-subtle transition-all font-bold text-sm w-full text-center justify-center border border-gray-200">
+                    <FiBookOpen /> {dashboardContent.myOrdersTitle || "Siparişlerim"}
                 </Link>
                 <Link href={`/${locale}/portal/katalog`} className="flex items-center gap-3 px-4 py-3 bg-secondary text-primary rounded-lg shadow-sm hover:bg-bg-subtle transition-all font-bold text-sm w-full text-center justify-center border border-gray-200">
                     <FiBookOpen /> {actionsContent.viewCatalog}
