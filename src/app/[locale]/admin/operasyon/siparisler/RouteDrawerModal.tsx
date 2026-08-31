@@ -190,24 +190,16 @@ export default function RouteDrawerModal({
                                     return;
                                 }
 
-                                // Build Google Maps directions URL
-                                // Format: https://www.google.com/maps/dir/?api=1&origin=START&destination=END&waypoints=WAY1|WAY2|...
-                                let mapsUrl = 'https://www.google.com/maps/dir/?api=1';
-
-                                // Set origin (first address)
-                                mapsUrl += `&origin=${encodeURIComponent(addresses[0])}`;
-
-                                // Set destination (last address)
-                                mapsUrl += `&destination=${encodeURIComponent(addresses[addresses.length - 1])}`;
-
-                                // Add waypoints (middle addresses)
-                                if (addresses.length > 2) {
-                                    const waypoints = addresses.slice(1, -1).join('|');
-                                    mapsUrl += `&waypoints=${encodeURIComponent(waypoints)}`;
+                                // Google Maps supports max 10 stops per route
+                                if (addresses.length <= 10) {
+                                    const mapsUrl = `https://www.google.com/maps/dir/${addresses.map(a => encodeURIComponent(a)).join('/')}`;
+                                    window.open(mapsUrl, '_blank');
+                                } else {
+                                    // Open first batch (10 stops) and notify user
+                                    const firstBatch = addresses.slice(0, 10);
+                                    const mapsUrl = `https://www.google.com/maps/dir/${firstBatch.map(a => encodeURIComponent(a)).join('/')}`;
+                                    window.open(mapsUrl, '_blank');
                                 }
-
-                                console.log('Opening route URL:', mapsUrl);
-                                window.open(mapsUrl, '_blank');
                             }}
                             className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium"
                         >

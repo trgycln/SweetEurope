@@ -117,8 +117,13 @@ export default async function AlleSiparislerPage({
     }
 
     // ── 2. Durum Filtresi ─────────────────────────────────────────
-    if (statusParam) {
+    if (statusParam === 'hepsi') {
+        // Tümü (Ön siparişler dahil)
+    } else if (statusParam) {
         query = query.eq('siparis_durumu', statusParam);
+    } else {
+        // Varsayılan: Günlük operasyon için Normal Siparişler (Ön Siparişler hariç)
+        query = query.neq('siparis_durumu', 'Ön Sipariş');
     }
 
     // ── 3. Tarih/Dönem Filtresi ───────────────────────────────────

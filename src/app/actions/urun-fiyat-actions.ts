@@ -2,6 +2,7 @@
 'use server';
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { Tables } from '@/lib/supabase/database.types';
@@ -63,7 +64,13 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
       updateData.distributor_alis_fiyati = payload.distributor_alis_fiyati;
     }
     if (Object.prototype.hasOwnProperty.call(payload, 'urun_gami')) {
-      updateData.urun_gami = payload.urun_gami ?? null;
+      if (Array.isArray(payload.urun_gami)) {
+        updateData.urun_gami = payload.urun_gami;
+      } else if (typeof payload.urun_gami === 'string' && payload.urun_gami.trim()) {
+        updateData.urun_gami = [payload.urun_gami.trim()];
+      } else {
+        updateData.urun_gami = null;
+      }
     }
     if (typeof payload.standart_inis_maliyeti_net === 'number' && payload.standart_inis_maliyeti_net > 0) {
       (updateData as any).standart_inis_maliyeti_net = payload.standart_inis_maliyeti_net;
@@ -73,13 +80,15 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
       return { error: 'Güncellenecek bir alan yok.' };
     }
 
-    let { error } = await supabase
+    const serviceClient = createSupabaseServiceClient();
+
+    let { error } = await serviceClient
       .from('urunler')
       .update(updateData)
       .eq('id', payload.urunId);
 
     if (error && isUnsupportedPriceColumnError(error)) {
-      ({ error } = await supabase
+      ({ error } = await serviceClient
         .from('urunler')
         .update(stripUnsupportedPriceFields(updateData))
         .eq('id', payload.urunId));
@@ -280,6 +289,7 @@ export async function bulkSaveProductPricesAction(
       return { error: 'Güncellenecek ürün yok.' };
     }
 
+    const serviceClient = createSupabaseServiceClient();
     const skipped: Array<{ urunId: string; reason: string }> = [];
     let updatedCount = 0;
 
@@ -300,7 +310,16 @@ export async function bulkSaveProductPricesAction(
         updateData.distributor_alis_fiyati = item.distributor_alis_fiyati;
       }
       if (Object.prototype.hasOwnProperty.call(item, 'urun_gami')) {
-        updateData.urun_gami = item.urun_gami ?? null;
+        if (Array.isArray(item.urun_gami)) {
+          updateData.urun_gami = item.urun_gami;
+        } else if (typeof item.urun_gami === 'string' && item.urun_gami.trim()) {
+          updateData.urun_gami = [item.urun_gami.trim()];
+        } else {
+          updateData.urun_gami = null;
+        }
+      }
+      if (typeof item.standart_inis_maliyeti_net === 'number' && item.standart_inis_maliyeti_net > 0) {
+        (updateData as any).standart_inis_maliyeti_net = item.standart_inis_maliyeti_net;
       }
 
       if (Object.keys(updateData).length === 0) {
@@ -308,13 +327,13 @@ export async function bulkSaveProductPricesAction(
         continue;
       }
 
-      let { error } = await supabase
+      let { error } = await serviceClient
         .from('urunler')
         .update(updateData)
         .eq('id', item.urunId);
 
       if (error && isUnsupportedPriceColumnError(error)) {
-        ({ error } = await supabase
+        ({ error } = await serviceClient
           .from('urunler')
           .update(stripUnsupportedPriceFields(updateData))
           .eq('id', item.urunId));
@@ -322,7 +341,7 @@ export async function bulkSaveProductPricesAction(
 
       if (error) {
         console.error(`Ürün ${item.urunId} güncellenemedi:`, error);
-        skipped.push({ urunId: item.urunId, reason: 'Veritabanı hatası' });
+        skipped.push({ urunId: item.urunId, reason: error.message || 'Veritabanı hatası' });
       } else {
         updatedCount++;
       }

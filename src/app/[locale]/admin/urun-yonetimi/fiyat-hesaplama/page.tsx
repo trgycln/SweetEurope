@@ -19,7 +19,7 @@ export default async function FiyatHesaplamaPage({ params }: { params: Promise<{
 
   const { data: kategoriler } = await supabase
     .from('kategoriler')
-    .select('id, ad')
+    .select('id, ad, slug, ust_kategori_id, urun_gami')
     .order('created_at', { ascending: false });
 
   if (error) {

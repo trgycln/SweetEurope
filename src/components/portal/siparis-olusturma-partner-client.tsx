@@ -102,7 +102,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
     const toplamKdv = useMemo(() =>
         warenkorb.reduce((acc, item) => {
-            const kdvOrani = (item.produkt as any).kdv_orani ?? 19;
+            const kdvOrani = (item.produkt as any).kdv_orani ?? 7;
             const { toplamFiyat } = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
             return acc + (toplamFiyat * kdvOrani / 100);
         }, 0)
@@ -112,7 +112,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
         return calculateShipping(toplamTutar, partnerPlz);
     }, [toplamTutar, partnerPlz]);
 
-    const kargoTutarKdvDahil = shippingInfo.shippingCost > 0 ? shippingInfo.shippingCost * 1.19 : 0;
+    const kargoTutarKdvDahil = shippingInfo.shippingCost > 0 ? shippingInfo.shippingCost * 1.07 : 0;
     const genelToplam = toplamTutar + toplamKdv + kargoTutarKdvDahil;
 
     const toplamKoli = useMemo(() =>
@@ -138,7 +138,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                         ad: getLocalizedName(item.produkt.ad, locale) || (item.produkt as any).urun_kodu || (item.produkt as any).kod || 'Produkt',
                         adet: sepet.toplamAdet,
                         birimFiyatNet: sepet.adetFiyat,
-                        kdvOrani: (item.produkt as any).kdv_orani ?? 19,
+                        kdvOrani: (item.produkt as any).kdv_orani ?? 7,
                     };
                 });
 

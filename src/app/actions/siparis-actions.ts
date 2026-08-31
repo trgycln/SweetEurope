@@ -61,7 +61,7 @@ export async function siparisOlusturAction(payload: {
         payload.items.forEach(item => {
             toplamNet += item.adet * item.o_anki_satis_fiyati;
         });
-        const toplamBrut = Number((toplamNet * 1.19).toFixed(2)); // %19 KDV dahil
+        const toplamBrut = Number((toplamNet * 1.07).toFixed(2)); // %7 KDV dahil
 
         // Sipariş ana kaydını oluştur
         const { data: orderData, error: orderError } = await (supabase as any)
@@ -75,7 +75,7 @@ export async function siparisOlusturAction(payload: {
                 siparis_tarihi: new Date().toISOString(),
                 toplam_tutar_net: toplamNet,
                 toplam_tutar_brut: toplamBrut,
-                kdv_orani: 19
+                kdv_orani: 7
             })
             .select('id')
             .single();

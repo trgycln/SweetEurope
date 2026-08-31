@@ -45,19 +45,90 @@ async function getAuthenticatedClient() {
 function revalidateTaskPaths(locale?: string, firmaId?: string | null) {
     revalidatePath('/admin/gorevler');
     revalidatePath('/admin/dashboard');
+    revalidatePath('/portal/gorevlerim');
+    revalidatePath('/portal/dashboard');
 
     if (locale) {
         revalidatePath(`/${locale}/admin/gorevler`);
         revalidatePath(`/${locale}/admin/dashboard`);
+        revalidatePath(`/${locale}/portal/gorevlerim`);
+        revalidatePath(`/${locale}/portal/dashboard`);
 
         if (firmaId) {
             revalidatePath(`/${locale}/admin/crm/firmalar/${firmaId}/gorevler`);
+            revalidatePath(`/${locale}/portal/musterilerim/${firmaId}/gorevler`);
+            revalidatePath(`/${locale}/portal/musterilerim/${firmaId}`);
         }
     }
 }
 
-function getTaskDetailLink(gorevId: string, locale?: string) {
+function getTaskDetailLink(gorevId: string, locale?: string, isPortal?: boolean) {
+    if (isPortal) {
+        return locale ? `/${locale}/portal/gorevlerim` : `/portal/gorevlerim`;
+    }
     return locale ? `/${locale}/admin/gorevler/${gorevId}` : `/admin/gorevler/${gorevId}`;
+}
+
+export async function gorevHizliEkleAction(
+    data: {
+        baslik: string;
+        aciklama?: string | null;
+        son_tarih?: string | null;
+        atanan_kisi_id?: string | null;
+        ilgili_firma_id?: string | null;
+        oncelik?: GorevOncelik;
+        durum?: 'Yapılacak' | 'Devam Ediyor' | 'Tamamlandı';
+    },
+    locale?: string
+): Promise<ActionResult & { id?: string; gorev?: any }> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const baslik = data.baslik?.trim();
+    if (!baslik) return { error: 'Görev başlığı zorunludur.' };
+
+    const atananKisiId = (data.atanan_kisi_id?.trim()) || user.id;
+    const durum = data.durum || 'Yapılacak';
+    const tamamlandi = durum === 'Tamamlandı';
+    const sonTarihRaw = data.son_tarih?.trim();
+    const parsedDate = sonTarihRaw ? new Date(sonTarihRaw) : null;
+
+    const insertData: Partial<TablesUpdate<'gorevler'>> = {
+        baslik,
+        aciklama: data.aciklama ? formatLinks(data.aciklama.trim()) : null,
+        son_tarih: parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : null,
+        atanan_kisi_id: atananKisiId,
+        sahip_id: atananKisiId,
+        olusturan_kisi_id: user.id,
+        ilgili_firma_id: data.ilgili_firma_id?.trim() || null,
+        oncelik: (data.oncelik && VALID_PRIORITIES.includes(data.oncelik)) ? data.oncelik : 'Orta',
+        durum,
+        tamamlandi,
+    };
+
+    const { data: inserted, error } = await supabase
+        .from('gorevler')
+        .insert(insertData as any)
+        .select('*')
+        .single();
+
+    if (error || !inserted) {
+        console.error('Görev oluşturma hatası:', error);
+        return { error: error?.message || 'Görev oluşturulamadı.' };
+    }
+
+    if (atananKisiId !== user.id) {
+        await sendNotification({
+            aliciId: atananKisiId,
+            icerik: `Size yeni bir görev atandı: "${baslik}"`,
+            link: getTaskDetailLink(inserted.id, locale),
+            preferenceKey: 'task_assignments',
+            supabaseClient: supabase,
+        });
+    }
+
+    revalidateTaskPaths(locale, insertData.ilgili_firma_id ?? null);
+    return { success: 'Görev başarıyla oluşturuldu.', id: inserted.id, gorev: inserted };
 }
 
 export async function gorevDurumGuncelleAction(

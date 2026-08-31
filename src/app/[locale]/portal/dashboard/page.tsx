@@ -20,11 +20,14 @@ export const dynamic = 'force-dynamic';
 
 type PageProps = {
     params: Promise<{ locale: Locale }>;
+    searchParams?: Promise<{ period?: string }>;
 };
 
-export default async function PartnerDashboardPage({ params }: PageProps) {
+export default async function PartnerDashboardPage({ params, searchParams }: PageProps) {
     noStore();
     const { locale } = await params;
+    const resolvedSearchParams = searchParams ? await searchParams : undefined;
+    const period = resolvedSearchParams?.period ?? 'bu-ay';
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
@@ -68,7 +71,7 @@ export default async function PartnerDashboardPage({ params }: PageProps) {
     const firmaId = profile.firma_id;
     const userId = user.id;
 
-    // Alt Bayi için CEO Cockpit Lite göster
+    // Alt Bayi için CEO Cockpit göster
     if ((profile.rol as string) === 'Alt Bayi') {
         const { data: firmaInfo } = await supabase
             .from('firmalar').select('unvan').eq('id', firmaId).single();
@@ -78,6 +81,7 @@ export default async function PartnerDashboardPage({ params }: PageProps) {
                 firmaId={firmaId}
                 locale={locale}
                 firmaUnvan={firmaInfo?.unvan || 'Bayi'}
+                period={period}
             />
         );
     }

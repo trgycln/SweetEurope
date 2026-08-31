@@ -17,7 +17,7 @@ import Image from 'next/image';
 import { Dictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 import { useDebouncedCallback } from 'use-debounce';
-import { usePortal } from '@/contexts/PortalContext';
+import { useOptionalPortal } from '@/contexts/PortalContext';
 import { toast } from 'sonner';
 
 type SiparisItem = {
@@ -93,6 +93,15 @@ const STATUS_CONFIG: Record<string, {
     stepIndex: number;
     icon: React.ReactNode;
 }> = {
+    'Ön Sipariş': {
+        label: { de: 'Vorbestellung (Bedarf)', tr: '⏳ Ön Sipariş / Talep', en: 'Pre-Order' },
+        bg: 'bg-amber-100 dark:bg-amber-950/40',
+        text: 'text-amber-900 dark:text-amber-300 font-extrabold',
+        border: 'border-amber-400 dark:border-amber-600 ring-2 ring-amber-300/40',
+        dotBg: 'bg-amber-600',
+        stepIndex: 0.5,
+        icon: <FiClock size={13} />
+    },
     'Beklemede': {
         label: { de: 'Ausstehend', tr: 'Onay Bekliyor', en: 'Pending' },
         bg: 'bg-amber-500/10',
@@ -386,16 +395,14 @@ export function SiparislerClient({
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const { addToWarenkorb } = usePortal();
+    const portal = useOptionalPortal();
+    const addToWarenkorb = portal?.addToWarenkorb;
 
     const [durumlar, setDurumlar] = useState<Record<string, string>>(
         Object.fromEntries(initialSiparisler.map(s => [s.id, s.siparis_durumu]))
     );
     const [reorderingId, setReorderingId] = useState<string | null>(null);
-    const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(
-        // Varsayılan olarak en son siparişi açık getirelim veya hepsini kapalı tutalım
-        initialSiparisler.length > 0 ? [initialSiparisler[0].id] : []
-    ));
+    const [expandedId, setExpandedId] = useState<string | null>(null);
     const [pinnedIds, setPinnedIds] = useState<Set<string>>(new Set());
 
     // LocalStorage'dan sabitlenen siparişleri yükle
@@ -459,12 +466,8 @@ export function SiparislerClient({
             e.preventDefault();
             e.stopPropagation();
         }
-        setExpandedIds(prev => {
-            const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
-        });
+        // Tekli akordiyon: Açık olana tıklanırsa kapanır, başka birine tıklanırsa diğeri otomatik kapanıp yenisi açılır
+        setExpandedId(prev => (prev === id ? null : id));
     };
 
     const handleDurumUpdate = (siparisId: string, yeniDurum: string) => {
@@ -524,6 +527,11 @@ export function SiparislerClient({
             return;
         }
 
+        if (!addToWarenkorb) {
+            router.push(`/${locale}/admin/operasyon/siparisler/${siparis.id}`);
+            return;
+        }
+
         setReorderingId(siparis.id);
 
         let addedCount = 0;
@@ -558,12 +566,14 @@ export function SiparislerClient({
     const hasFilters = searchParams.has('q') || searchParams.has('status') || searchParams.has('period');
 
     const STATUS_TABS = [
-        { value: '', label: { de: 'Alle', tr: 'Tümü', en: 'All' }, count: totalCount },
+        { value: '', label: { de: '📦 Normal Bestellungen (Alle)', tr: '📦 Normal Siparişler (Tümü)', en: '📦 Standard Orders' } },
+        { value: 'Ön Sipariş', label: { de: '⏳ Vorbestellungen & Bedarf', tr: '⏳ Ön Siparişler & Talepler', en: '⏳ Pre-Orders & Requests' } },
         { value: 'Beklemede', label: { de: 'Ausstehend', tr: 'Onay Bekliyor', en: 'Pending' } },
         { value: 'Hazırlanıyor', label: { de: 'In Bearbeitung', tr: 'Hazırlanıyor', en: 'Processing' } },
         { value: 'Yola Çıktı', label: { de: 'Unterwegs', tr: 'Yolda', en: 'In Transit' } },
         { value: 'Teslim Edildi', label: { de: 'Geliefert', tr: 'Teslim Edildi', en: 'Delivered' } },
         { value: 'İptal Edildi', label: { de: 'Storniert', tr: 'İptal', en: 'Cancelled' } },
+        { value: 'hepsi', label: { de: '📋 Alle (inkl. Vorbestellung)', tr: '📋 Hepsi (Ön Siparişler Dahil)', en: '📋 All Records' } },
     ];
 
     return (
@@ -902,13 +912,14 @@ export function SiparislerClient({
             <div className="space-y-3">
                 {sortedSiparisler.length > 0 ? (
                     sortedSiparisler.map((siparis) => {
-                        const mevcutDurum = durumlar[siparis.id] ?? siparis.siparis_durumu;
+                        const isPinned = pinnedIds.has(siparis.id);
+                        const isExpanded = expandedId === siparis.id;
+                        const mevcutDurum = durumlar[siparis.id] || siparis.siparis_durumu;
+                        const isPreOrder = mevcutDurum === 'Ön Sipariş';
                         const detaylar = siparis.siparis_detay || [];
                         const toplamUrunCesidi = detaylar.length;
                         const toplamKoliMiktari = detaylar.reduce((sum, d) => sum + (d.miktar || 0), 0);
                         const isReordering = reorderingId === siparis.id;
-                        const isExpanded = expandedIds.has(siparis.id);
-                        const isPinned = pinnedIds.has(siparis.id);
 
                         return (
                             <motion.div
@@ -917,12 +928,27 @@ export function SiparislerClient({
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className={`bg-white rounded-2xl border transition-all overflow-hidden ${
-                                    isPinned 
-                                        ? 'border-amber-300 ring-1 ring-amber-400/30 shadow-md bg-gradient-to-r from-amber-50/15 via-white to-white' 
-                                        : 'border-slate-200 shadow-sm hover:border-slate-300'
+                                className={`rounded-2xl border transition-all overflow-hidden relative ${
+                                    isExpanded 
+                                        ? 'bg-white border-2 border-slate-900 shadow-xl ring-4 ring-slate-900/5' 
+                                        : isPreOrder
+                                        ? 'bg-amber-50/30 border-2 border-amber-300 shadow-2xs hover:border-amber-400 hover:shadow-xs'
+                                        : isPinned 
+                                        ? 'border-amber-300 ring-1 ring-amber-400/30 shadow-xs bg-white' 
+                                        : 'bg-white border-slate-200 shadow-2xs hover:border-slate-300 hover:shadow-xs'
                                 }`}
                             >
+                                {/* Ön Sipariş Dikkat Çekici Şerit */}
+                                {isPreOrder && (
+                                    <div className="bg-amber-500 text-white text-[11px] font-bold px-4 py-1 flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                            <span>⏳</span>
+                                            <span>{locale === 'de' ? 'VORBESTELLUNG / BEDARF (Warten auf Wareneingang)' : 'ÖN SİPARİŞ / TALEP (Stok Girişi Bekleniyor)'}</span>
+                                        </div>
+                                        <span className="text-[10px] font-medium opacity-90">{locale === 'de' ? 'Kein Lagerabzug' : 'Stok düşülmedi'}</span>
+                                    </div>
+                                )}
+
                                 {/* ── Ana Satır (Kompakt ve Anlaşılır Başlık Çubuğu) ── */}
                                 <div 
                                     onClick={() => toggleExpand(siparis.id)}
@@ -1194,17 +1220,26 @@ export function SiparislerClient({
                                             animate={{ height: 'auto', opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
                                             transition={{ duration: 0.2 }}
-                                            className="border-t border-slate-100 bg-slate-50/50"
+                                            className="border-t-2 border-indigo-500/40 bg-slate-100/90 shadow-inner rounded-b-2xl overflow-hidden"
                                         >
                                             <div className="p-4 sm:p-6 space-y-4">
+                                                {/* Açık Döküm Bilgilendirme Şeridi */}
+                                                <div className="flex items-center justify-between px-3 py-1.5 bg-indigo-100/80 border border-indigo-200 text-indigo-900 rounded-xl text-xs font-bold">
+                                                    <span className="flex items-center gap-1.5">
+                                                        <span>🔍</span>
+                                                        <span>{locale === 'de' ? 'Aktive Detailansicht der Bestellung' : 'Seçili Sipariş Detay ve Kalem Dökümü'} (#{siparis.id.substring(0, 8).toUpperCase()})</span>
+                                                    </span>
+                                                    <span className="text-[11px] font-semibold text-indigo-700">{detaylar.length} {locale === 'de' ? 'Positionen' : 'Kalem Ürün'}</span>
+                                                </div>
+
                                                 {/* 1. Teslimat Süreci (Timeline) */}
-                                                <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                                                <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-xs">
                                                     <OrderTimeline status={mevcutDurum} locale={locale} />
                                                 </div>
 
                                                 {/* 2. Kalem Kalem Ürün Döküm Tablosu */}
-                                                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
-                                                    <div className="px-4 py-2.5 bg-slate-100/70 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                                                <div className="bg-white rounded-2xl border-2 border-slate-200/90 overflow-hidden shadow-xs">
+                                                    <div className="px-4 py-3 bg-slate-100 border-b border-slate-200 text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center justify-between">
                                                         <span>{locale === 'de' ? 'Bestellte Artikel' : 'Sipariş Edilen Ürünler'}</span>
                                                         <span>{detaylar.length} {locale === 'de' ? 'Position(en)' : 'Kalem'}</span>
                                                     </div>

@@ -5,6 +5,7 @@ import { Tables } from '@/lib/supabase/database.types';
 import { calculateAdminPrice, PricingParams, formatPrice } from '@/lib/admin-pricing';
 import { bulkSaveProductPricesAction, bulkCreatePriceChangeRequestsAction } from '@/app/actions/urun-fiyat-actions';
 import { PRODUCT_LINE_ORDER, getProductLineLabel, inferProductLineFromCategoryId, isProductLineKey, type ProductLineKey } from '@/lib/product-lines';
+import { PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER, PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS } from '@/lib/public-category-visibility';
 
 // stok_kodu alanı tiplerde mevcut olduğu için onu ekliyoruz; yoksa optional olarak genişletiyoruz.
 // teknik_ozellikler içinden dilim/porsiyon bilgisini okuyacağız
@@ -267,6 +268,69 @@ export default function TopluGuncellemeTab({
     return name;
   };
 
+  const getCatLabel = (cat: { ad: any } | null | undefined) => {
+    if (!cat) return '';
+    return typeof cat.ad === 'string' ? cat.ad : (cat.ad as any)?.[locale] || (cat.ad as any)?.tr || (cat.ad as any)?.de || (cat.ad as any)?.en || 'Kategori';
+  };
+
+  // Kategori ürün sayıları (recursively propagate to all ancestors)
+  const categoryProductCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const parentLookup = new Map(kategoriler.map(c => [c.id, c.ust_kategori_id ?? null]));
+
+    products.forEach(p => {
+      let cur = p.kategori_id;
+      let guard = 0;
+      while (cur && guard++ < 10) {
+        counts[cur] = (counts[cur] || 0) + 1;
+        cur = parentLookup.get(cur) ?? null;
+      }
+    });
+    return counts;
+  }, [products, kategoriler]);
+
+  const categoryTree = useMemo(() => {
+    const hiddenSlugs = new Set<string>(PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS as readonly string[]);
+    const allCatIds = new Set(kategoriler.map(c => c.id));
+
+    // Yalnızca içinde ürün olan (>0) kategorileri göster
+    const validCategories = kategoriler.filter(c => (categoryProductCounts[c.id] || 0) > 0);
+
+    // Root categories: no ust_kategori_id or parent not found in kategoriler
+    const rootCats = validCategories.filter(c => (!c.ust_kategori_id || !allCatIds.has(c.ust_kategori_id)) && !hiddenSlugs.has(c.slug || ''));
+
+    rootCats.sort((a, b) => {
+      const orderA = (PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER as readonly string[]).indexOf(a.slug ?? '');
+      const orderB = (PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER as readonly string[]).indexOf(b.slug ?? '');
+      if (orderA !== -1 && orderB !== -1) return orderA - orderB;
+      if (orderA !== -1) return -1;
+      if (orderB !== -1) return 1;
+      return getCatLabel(a).localeCompare(getCatLabel(b), locale);
+    });
+
+    const getDescendantsRecursive = (parentId: string, depth = 1): Array<{ cat: typeof kategoriler[0]; depth: number; count: number }> => {
+      const directChildren = validCategories
+        .filter(c => c.ust_kategori_id === parentId)
+        .sort((a, b) => getCatLabel(a).localeCompare(getCatLabel(b), locale));
+
+      const list: Array<{ cat: typeof kategoriler[0]; depth: number; count: number }> = [];
+      for (const child of directChildren) {
+        list.push({ cat: child, depth, count: categoryProductCounts[child.id] || 0 });
+        list.push(...getDescendantsRecursive(child.id, depth + 1));
+      }
+      return list;
+    };
+
+    return rootCats.map(root => {
+      const descendants = getDescendantsRecursive(root.id, 1);
+      return {
+        root,
+        descendants,
+        count: categoryProductCounts[root.id] || 0,
+      };
+    });
+  }, [kategoriler, locale, categoryProductCounts]);
+
   // Diff renk mantığı kaldırıldı
 
   // Bulk apply handler
@@ -414,14 +478,32 @@ export default function TopluGuncellemeTab({
           </div>
           <div>
             <label className="text-xs text-gray-600 block mb-1">Kategori</label>
-            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="w-full border rounded px-3 py-2 text-sm">
-              <option value="">Tüm Kategoriler</option>
-              {kategoriler
-                .filter(k => !k.ust_kategori_id)
-                .filter(k => productLineFilter === 'all' || inferProductLineFromCategoryId(kategoriler as any, k.id) === productLineFilter)
-                .map(k => (
-                  <option key={k.id} value={k.id}>{getCategoryName(k.id)}</option>
-                ))}
+            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="w-full border rounded px-3 py-2 text-sm bg-white">
+              <option value="">Tüm Kategoriler ({products.length})</option>
+              {categoryTree
+                .filter(({ root }) => productLineFilter === 'all' || inferProductLineFromCategoryId(kategoriler as any, root.id) === productLineFilter)
+                .map(({ root, descendants, count }) => {
+                  const rootName = getCatLabel(root);
+                  if (descendants.length === 0) {
+                    return (
+                      <option key={root.id} value={root.id}>
+                        {rootName} ({count})
+                      </option>
+                    );
+                  }
+                  return (
+                    <optgroup key={root.id} label={`${rootName} (${count})`}>
+                      <option value={root.id}>
+                        — {rootName} (Tümü) ({count}) —
+                      </option>
+                      {descendants.map(({ cat, depth, count: subCount }) => (
+                        <option key={cat.id} value={cat.id}>
+                          {depth > 1 ? '\u00A0\u00A0\u00A0\u00A0└ ' : '\u00A0\u00A0'}{getCatLabel(cat)} ({subCount})
+                        </option>
+                      ))}
+                    </optgroup>
+                  );
+                })}
             </select>
           </div>
           <div className="flex items-end" />

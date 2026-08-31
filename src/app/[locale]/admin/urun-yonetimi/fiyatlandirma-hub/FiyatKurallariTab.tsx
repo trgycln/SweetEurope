@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { createPricingRuleAction, deletePricingRuleAction } from '@/app/actions/pricing-admin-actions';
+import { PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER, PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS } from '@/lib/public-category-visibility';
 
 interface Props {
   locale: string;
@@ -13,6 +14,69 @@ interface Props {
 
 export default function FiyatKurallariTab({ locale, kurallar, kategoriler, products, firmalar }: Props) {
   const [kapsam, setKapsam] = useState<'global' | 'kategori' | 'urun'>('global');
+
+  const getCatLabel = (cat: { ad: any } | null | undefined) => {
+    if (!cat) return '';
+    return typeof cat.ad === 'string' ? cat.ad : (cat.ad as any)?.[locale] || (cat.ad as any)?.tr || (cat.ad as any)?.de || (cat.ad as any)?.en || 'Kategori';
+  };
+
+  // Kategori ürün sayıları (recursively propagate to all ancestors)
+  const categoryProductCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const parentLookup = new Map(kategoriler.map(c => [c.id, c.ust_kategori_id ?? null]));
+
+    products.forEach(p => {
+      let cur = p.kategori_id;
+      let guard = 0;
+      while (cur && guard++ < 10) {
+        counts[cur] = (counts[cur] || 0) + 1;
+        cur = parentLookup.get(cur) ?? null;
+      }
+    });
+    return counts;
+  }, [products, kategoriler]);
+
+  const categoryTree = useMemo(() => {
+    const hiddenSlugs = new Set<string>(PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS as readonly string[]);
+    const allCatIds = new Set(kategoriler.map(c => c.id));
+
+    // Yalnızca içinde ürün olan (>0) kategorileri göster
+    const validCategories = kategoriler.filter(c => (categoryProductCounts[c.id] || 0) > 0);
+
+    // Root categories: no ust_kategori_id or parent not found in kategoriler
+    const rootCats = validCategories.filter(c => (!c.ust_kategori_id || !allCatIds.has(c.ust_kategori_id)) && !hiddenSlugs.has(c.slug || ''));
+
+    rootCats.sort((a, b) => {
+      const orderA = (PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER as readonly string[]).indexOf(a.slug ?? '');
+      const orderB = (PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER as readonly string[]).indexOf(b.slug ?? '');
+      if (orderA !== -1 && orderB !== -1) return orderA - orderB;
+      if (orderA !== -1) return -1;
+      if (orderB !== -1) return 1;
+      return getCatLabel(a).localeCompare(getCatLabel(b), locale);
+    });
+
+    const getDescendantsRecursive = (parentId: string, depth = 1): Array<{ cat: typeof kategoriler[0]; depth: number; count: number }> => {
+      const directChildren = validCategories
+        .filter(c => c.ust_kategori_id === parentId)
+        .sort((a, b) => getCatLabel(a).localeCompare(getCatLabel(b), locale));
+
+      const list: Array<{ cat: typeof kategoriler[0]; depth: number; count: number }> = [];
+      for (const child of directChildren) {
+        list.push({ cat: child, depth, count: categoryProductCounts[child.id] || 0 });
+        list.push(...getDescendantsRecursive(child.id, depth + 1));
+      }
+      return list;
+    };
+
+    return rootCats.map(root => {
+      const descendants = getDescendantsRecursive(root.id, 1);
+      return {
+        root,
+        descendants,
+        count: categoryProductCounts[root.id] || 0,
+      };
+    });
+  }, [kategoriler, locale, categoryProductCounts]);
 
   return (
     <div className="space-y-6">
@@ -76,11 +140,30 @@ export default function FiyatKurallariTab({ locale, kurallar, kategoriler, produ
           {kapsam === 'kategori' && (
             <div className="lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Kategori Seçin</label>
-              <select name="kategoriId" className="w-full border border-gray-300 rounded-md px-3 py-2">
+              <select name="kategoriId" className="w-full border border-gray-300 rounded-md px-3 py-2 bg-white">
                 <option value="">Seçiniz...</option>
-                {kategoriler.map((k: any) => (
-                  <option key={k.id} value={k.id}>{(k.ad as any)?.[locale] || k.ad}</option>
-                ))}
+                {categoryTree.map(({ root, descendants, count }) => {
+                  const rootName = getCatLabel(root);
+                  if (descendants.length === 0) {
+                    return (
+                      <option key={root.id} value={root.id}>
+                        {rootName} ({count})
+                      </option>
+                    );
+                  }
+                  return (
+                    <optgroup key={root.id} label={`${rootName} (${count})`}>
+                      <option value={root.id}>
+                        — {rootName} (Tümü) ({count}) —
+                      </option>
+                      {descendants.map(({ cat, depth, count: subCount }) => (
+                        <option key={cat.id} value={cat.id}>
+                          {depth > 1 ? '\u00A0\u00A0\u00A0\u00A0└ ' : '\u00A0\u00A0'}{getCatLabel(cat)} ({subCount})
+                        </option>
+                      ))}
+                    </optgroup>
+                  );
+                })}
               </select>
             </div>
           )}

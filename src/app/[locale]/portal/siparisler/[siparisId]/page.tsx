@@ -258,7 +258,7 @@ export default async function PartnerSiparisDetayPage({ params }: PageProps) {
                                     <span className="font-bold text-slate-800">{fmt(siparis.toplam_tutar_net)}</span>
                                 </div>
                                 <div>
-                                    <span className="text-slate-400 mr-2">Brüt (+%{siparis.kdv_orani || 19}):</span>
+                                    <span className="text-slate-400 mr-2">Brüt (+%{siparis.kdv_orani || 7}):</span>
                                     <span className="font-black text-slate-900 text-sm">{fmt(siparis.toplam_tutar_brut)}</span>
                                 </div>
                             </div>

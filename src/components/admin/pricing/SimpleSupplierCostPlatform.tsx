@@ -13,6 +13,7 @@ import {
   type ProductLineKey,
 } from '@/lib/product-lines';
 import { dedupeSuppliers, getCanonicalSupplierLabel, normalizeSupplierGroupKey } from '@/lib/supplier-utils';
+import { PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER, PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS } from '@/lib/public-category-visibility';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -229,7 +230,7 @@ export default function SimpleSupplierCostPlatform({
   locale, products, categories = [], suppliers = [], systemSettings,
 }: Props) {
   const [isPersisting, startPersisting] = useTransition();
-  const [selectedProfile, setSelectedProfile] = useState<SupplierProfile>('cold-chain');
+  const [selectedProfile, setSelectedProfile] = useState<SupplierProfile>('non-cold');
   const [selectedSupplierId, setSelectedSupplierId] = useState('all');
   const [productSearch, setProductSearch] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
@@ -296,6 +297,69 @@ export default function SimpleSupplierCostPlatform({
   const pName = (p: ProductLite) => getLocalizedText(p.ad, locale, 'Ürün');
   const currentShipping = profileInputs[selectedProfile].shippingPerBox;
   const currentCustoms  = profileInputs[selectedProfile].customsPct;
+
+  const getCatLabel = (cat: { ad: any } | null | undefined) => {
+    if (!cat) return '';
+    return typeof cat.ad === 'string' ? cat.ad : (cat.ad as any)?.[locale] || (cat.ad as any)?.tr || (cat.ad as any)?.de || (cat.ad as any)?.en || 'Kategori';
+  };
+
+  // Kategori ürün sayıları (recursively propagate to all ancestors)
+  const categoryProductCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const parentLookup = new Map(categories.map(c => [c.id, c.ust_kategori_id ?? null]));
+
+    products.forEach(p => {
+      let cur = p.kategori_id;
+      let guard = 0;
+      while (cur && guard++ < 10) {
+        counts[cur] = (counts[cur] || 0) + 1;
+        cur = parentLookup.get(cur) ?? null;
+      }
+    });
+    return counts;
+  }, [products, categories]);
+
+  const categoryTree = useMemo(() => {
+    const hiddenSlugs = new Set<string>(PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS as readonly string[]);
+    const allCatIds = new Set(categories.map(c => c.id));
+
+    // Yalnızca içinde ürün olan (>0) kategorileri göster (boş hayalet kategorileri gizle)
+    const validCategories = categories.filter(c => (categoryProductCounts[c.id] || 0) > 0);
+
+    // Root categories: ust_kategori_id yok veya üst kategorisi listede yok
+    const rootCats = validCategories.filter(c => (!c.ust_kategori_id || !allCatIds.has(c.ust_kategori_id)) && !hiddenSlugs.has(c.slug || ''));
+
+    rootCats.sort((a, b) => {
+      const orderA = (PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER as readonly string[]).indexOf(a.slug ?? '');
+      const orderB = (PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER as readonly string[]).indexOf(b.slug ?? '');
+      if (orderA !== -1 && orderB !== -1) return orderA - orderB;
+      if (orderA !== -1) return -1;
+      if (orderB !== -1) return 1;
+      return getCatLabel(a).localeCompare(getCatLabel(b), locale);
+    });
+
+    const getDescendantsRecursive = (parentId: string, depth = 1): Array<{ cat: typeof categories[0]; depth: number; count: number }> => {
+      const directChildren = validCategories
+        .filter(c => c.ust_kategori_id === parentId)
+        .sort((a, b) => getCatLabel(a).localeCompare(getCatLabel(b), locale));
+
+      const list: Array<{ cat: typeof categories[0]; depth: number; count: number }> = [];
+      for (const child of directChildren) {
+        list.push({ cat: child, depth, count: categoryProductCounts[child.id] || 0 });
+        list.push(...getDescendantsRecursive(child.id, depth + 1));
+      }
+      return list;
+    };
+
+    return rootCats.map(root => {
+      const descendants = getDescendantsRecursive(root.id, 1);
+      return {
+        root,
+        descendants,
+        count: categoryProductCounts[root.id] || 0,
+      };
+    });
+  }, [categories, locale, categoryProductCounts]);
 
   // ── Rows calculation ────────────────────────────────────────────────────────
   const rows = useMemo<PricingRow[]>(() => {
@@ -434,7 +498,7 @@ export default function SimpleSupplierCostPlatform({
     try {
       const res = await saveProductPricesAction({
         urunId: row.product.id,
-        urun_gami: profileToProductLine(row.profile) as any,
+        urun_gami: [profileToProductLine(row.profile)],
         satis_fiyati_alt_bayi:  r2(resolvedTierPrice(row, 'altBayi')),
         satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
         satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),
@@ -466,19 +530,32 @@ export default function SimpleSupplierCostPlatform({
 
   /** Onay modalından onaylanınca gerçek toplu kayıt */
   const doConfirmBulk = () => {
+    const rowsToSave = [...confirmModal.rows];
+    if (rowsToSave.length === 0) {
+      toast.error('Güncellenecek ürün yok.');
+      setConfirmModal({ open: false, rows: [] });
+      return;
+    }
+
+    const items = rowsToSave.map(row => ({
+      urunId: row.product.id,
+      urun_gami: [profileToProductLine(row.profile)],
+      satis_fiyati_alt_bayi:  r2(resolvedTierPrice(row, 'altBayi')),
+      satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
+      satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),
+      standart_inis_maliyeti_net: row.calculation.landedCost,
+    }));
+
     setConfirmModal({ open: false, rows: [] });
+
     startBulkSaving(async () => {
-      const items = confirmModal.rows.map(row => ({
-        urunId: row.product.id,
-        urun_gami: profileToProductLine(row.profile) as any,
-        satis_fiyati_alt_bayi:  r2(resolvedTierPrice(row, 'altBayi')),
-        satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
-        satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),
-        standart_inis_maliyeti_net: row.calculation.landedCost,
-      }));
       const res = await bulkSaveProductPricesAction({ items }, locale);
-      if (res?.error) toast.error(res.error);
-      else toast.success(`${res?.updatedCount ?? 0} ürün başarıyla güncellendi.`);
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        toast.success(`${res?.updatedCount ?? 0} ürün başarıyla güncellendi.`);
+        window.location.reload();
+      }
     });
   };
 
@@ -718,41 +795,62 @@ export default function SimpleSupplierCostPlatform({
           ))}
         </select>
 
-        {/* Ana kategori */}
+        {/* Kategori Seçimi — Standart Hiyerarşik Yapı */}
         <select
-          value={selectedAnaKatId}
+          value={selectedCategoryId}
           onChange={e => {
-            setSelectedAnaKatId(e.target.value);
-            setSelectedCategoryId(e.target.value);
-          }}
-          className="rounded-md border border-slate-200 px-2.5 py-1.5 text-sm max-w-[160px]">
-          <option value="all">Tüm kategoriler</option>
-          {categories
-            .filter(c => !c.ust_kategori_id)
-            .map(c => {
-              const label = typeof c.ad === 'string' ? c.ad : (c.ad as any)?.tr || (c.ad as any)?.de || 'Kategori';
-              return <option key={c.id} value={c.id}>{label}</option>;
-            })}
-        </select>
+            const catId = e.target.value;
+            setSelectedCategoryId(catId);
+            setSelectedAnaKatId(catId);
 
-        {/* Alt kategori — sadece ana kategori seçiliyse görünür */}
-        {selectedAnaKatId !== 'all' && (() => {
-          const altKats = categories.filter(c => c.ust_kategori_id === selectedAnaKatId);
-          if (altKats.length === 0) return null;
-          const getLabel = (cat: typeof categories[0]) =>
-            typeof cat.ad === 'string' ? cat.ad : (cat.ad as any)?.tr || (cat.ad as any)?.de || 'Alt Kategori';
-          return (
-            <select
-              value={selectedCategoryId}
-              onChange={e => setSelectedCategoryId(e.target.value)}
-              className="rounded-md border border-slate-200 px-2.5 py-1.5 text-sm max-w-[160px]">
-              <option value={selectedAnaKatId}>Tüm alt kategoriler</option>
-              {altKats.map(alt => (
-                <option key={alt.id} value={alt.id}>{getLabel(alt)}</option>
-              ))}
-            </select>
-          );
-        })()}
+            if (catId !== 'all') {
+              const scope = new Set([catId]);
+              let changed = true;
+              while (changed) {
+                changed = false;
+                for (const cat of categories) {
+                  if (cat.ust_kategori_id && scope.has(cat.ust_kategori_id) && !scope.has(cat.id)) {
+                    scope.add(cat.id);
+                    changed = true;
+                  }
+                }
+              }
+
+              const matchingRows = rows.filter(r => scope.has(r.product.kategori_id ?? ''));
+              if (matchingRows.length > 0) {
+                const hasCurrentProfile = matchingRows.some(r => r.profile === selectedProfile);
+                if (!hasCurrentProfile) {
+                  setSelectedProfile(matchingRows[0].profile);
+                }
+              }
+            }
+          }}
+          className="rounded-md border border-slate-200 px-2.5 py-1.5 text-sm min-w-[210px] max-w-[320px] bg-white text-slate-800"
+        >
+          <option value="all">Tüm kategoriler ({products.length})</option>
+          {categoryTree.map(({ root, descendants, count }) => {
+            const rootName = getCatLabel(root);
+            if (descendants.length === 0) {
+              return (
+                <option key={root.id} value={root.id}>
+                  {rootName} ({count})
+                </option>
+              );
+            }
+            return (
+              <optgroup key={root.id} label={`${rootName} (${count})`}>
+                <option value={root.id}>
+                  — {rootName} (Tümü) ({count}) —
+                </option>
+                {descendants.map(({ cat, depth, count: subCount }) => (
+                  <option key={cat.id} value={cat.id}>
+                    {depth > 1 ? '\u00A0\u00A0\u00A0\u00A0└ ' : '\u00A0\u00A0'}{getCatLabel(cat)} ({subCount})
+                  </option>
+                ))}
+              </optgroup>
+            );
+          })}
+        </select>
 
         {(productSearch || selectedSupplierId !== 'all' || selectedCategoryId !== 'all') && (
           <button type="button" onClick={() => { setProductSearch(''); setSelectedSupplierId('all'); setSelectedCategoryId('all'); setSelectedAnaKatId('all'); }}

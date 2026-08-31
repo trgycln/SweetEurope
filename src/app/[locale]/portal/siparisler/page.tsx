@@ -41,9 +41,7 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     const isAltBayi = profile.rol === 'Alt Bayi';
 
     const page = typeof resolvedSearchParams.page === 'string' ? Number(resolvedSearchParams.page) : 1;
-    const status = typeof resolvedSearchParams.status === 'string'
-        ? resolvedSearchParams.status as Enums<'siparis_durumu'>
-        : undefined;
+    const status = typeof resolvedSearchParams.status === 'string' ? resolvedSearchParams.status : undefined;
     const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q.trim() : undefined;
     const period = typeof resolvedSearchParams.period === 'string' ? resolvedSearchParams.period : undefined;
     const tab = typeof resolvedSearchParams.tab === 'string' ? resolvedSearchParams.tab : 'kendi';
@@ -146,7 +144,13 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
         `, { count: 'exact' })
         .eq('firma_id', firmaId);
 
-    if (status) kendiQuery = kendiQuery.eq('siparis_durumu', status);
+    if (status === 'hepsi') {
+        // Tümü
+    } else if (status) {
+        kendiQuery = kendiQuery.eq('siparis_durumu', status);
+    } else {
+        kendiQuery = kendiQuery.neq('siparis_durumu', 'Ön Sipariş');
+    }
     if (dateFrom) kendiQuery = kendiQuery.gte('siparis_tarihi', dateFrom);
     if (dateTo) kendiQuery = kendiQuery.lte('siparis_tarihi', dateTo);
 
@@ -239,7 +243,13 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
                 `, { count: 'exact' })
                 .in('firma_id', musteriIds);
 
-            if (status) musteriQuery = musteriQuery.eq('siparis_durumu', status);
+            if (status === 'hepsi') {
+                // Tümü
+            } else if (status) {
+                musteriQuery = musteriQuery.eq('siparis_durumu', status);
+            } else {
+                musteriQuery = musteriQuery.neq('siparis_durumu', 'Ön Sipariş');
+            }
             if (dateFrom) musteriQuery = musteriQuery.gte('siparis_tarihi', dateFrom);
             if (dateTo) musteriQuery = musteriQuery.lte('siparis_tarihi', dateTo);
 

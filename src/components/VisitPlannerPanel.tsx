@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useVisitPlanner } from '@/contexts/VisitPlannerContext';
+import { useVisitPlanner, extractCompanyLocation } from '@/contexts/VisitPlannerContext';
 import {
     FiX, FiMapPin, FiTrash2, FiNavigation, FiChevronDown,
     FiChevronUp, FiPhone, FiAlertCircle, FiArrowUp, FiArrowDown,
@@ -198,15 +198,15 @@ export default function VisitPlannerPanel() {
         setOrder(newOrder);
     };
 
-    const withMaps = orderedCompanies.filter(c => c.google_maps_url).length;
-    const withoutMaps = count - withMaps;
+    const routableCount = orderedCompanies.filter(c => extractCompanyLocation(c) !== null).length;
+    const unroutableCount = count - routableCount;
 
     const handleRoute = async (startPoint: 'depot' | 'location' | 'first') => {
         setIsGenerating(true);
         setError(null);
         setGeneratedUrls([]);
         try {
-            const routeUrls = await generateRouteUrls(startPoint);
+            const routeUrls = await generateRouteUrls(startPoint, orderedCompanies);
             if (routeUrls && routeUrls.length > 0) {
                 if (routeUrls.length === 1) {
                     window.open(routeUrls[0], '_blank');
@@ -214,7 +214,7 @@ export default function VisitPlannerPanel() {
                     setGeneratedUrls(routeUrls);
                 }
             } else {
-                setError('Seçili firmalarda Google Maps linki bulunamadı.');
+                setError('Seçili firmalarda geçerli adres veya konum bilgisi bulunamadı.');
             }
         } catch {
             setError('Güzergah oluşturulurken hata oluştu.');
@@ -242,7 +242,7 @@ export default function VisitPlannerPanel() {
                     <div>
                         <div className="font-bold text-sm leading-tight">Ziyaret Planlayıcı</div>
                         <div className="text-blue-200 text-[11px] leading-tight">
-                            {count} firma seçildi{withMaps > 0 ? ` · ${withMaps} harita linki mevcut` : ''}
+                            {count} firma seçildi{routableCount > 0 ? ` · ${routableCount} adres güzergaha hazır` : ''}
                         </div>
                     </div>
                 </div>
@@ -290,7 +290,7 @@ export default function VisitPlannerPanel() {
                                                     <div className="flex items-center gap-1.5">
                                                         <p className="font-semibold text-slate-800 text-xs truncate">{company.unvan}</p>
                                                         {!company.parent_firma_id && (
-                                                            <span className="text-[9px] text-slate-500 bg-slate-100 px-1 py-0.5 rounded-full flex-shrink-0">Ana</span>
+                                                             <span className="text-[9px] text-slate-500 bg-slate-100 px-1 py-0.5 rounded-full flex-shrink-0">Ana</span>
                                                         )}
                                                         {company.parent_firma_id && (
                                                             <span className="text-[9px] text-purple-700 bg-purple-100 px-1 py-0.5 rounded-full flex-shrink-0">Şube</span>
@@ -375,8 +375,8 @@ export default function VisitPlannerPanel() {
                         {generatedUrls.length > 0 ? (
                             <div className="space-y-2">
                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-[11px] text-amber-800">
-                                    <div className="font-semibold mb-1">📍 Rotalarınız Bölündü</div>
-                                    Adres sayısının fazla olması nedeniyle rotanız {generatedUrls.length} parçaya bölündü. Tarayıcı engeline takılmamak için haritaları aşağıdaki butonlara tıklayarak tek tek açabilirsiniz.
+                                    <div className="font-semibold mb-1">📍 Google Maps Rotalarınız Hazır</div>
+                                    Google Maps mobil/web uygulaması tek bir rotada en fazla 10 nokta desteklediği için {routableCount} adresiniz {generatedUrls.length} rota parçasına bölündü. Sırayla aşağıdaki butonlara basarak haritada açabilirsiniz:
                                 </div>
                                 <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto pr-1">
                                     {generatedUrls.map((url, i) => (
@@ -385,10 +385,13 @@ export default function VisitPlannerPanel() {
                                             href={url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="w-full flex items-center justify-between px-3 py-2.5 bg-white border border-blue-200 text-blue-700 rounded-xl text-xs font-bold hover:bg-blue-50 transition-colors"
+                                            className="w-full flex items-center justify-between px-3 py-2.5 bg-white border border-blue-200 text-blue-700 rounded-xl text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
                                         >
-                                            <span className="flex items-center gap-1.5"><FiMap size={14}/> {i + 1}. Rota Parçası</span>
-                                            <FiExternalLink size={14}/>
+                                            <span className="flex items-center gap-1.5">
+                                                <FiMap size={14} className="text-blue-600 flex-shrink-0" />
+                                                <span>{i + 1}. Rota Parçası ({i === 0 ? 'Başlangıç' : `Ara Durak ${i * 9}`} → Durak {Math.min((i + 1) * 9, routableCount)})</span>
+                                            </span>
+                                            <FiExternalLink size={14} className="flex-shrink-0" />
                                         </a>
                                     ))}
                                 </div>
@@ -403,16 +406,16 @@ export default function VisitPlannerPanel() {
                             <>
                                 {/* Status summary */}
                                 <div className="flex gap-3 text-[11px]">
-                                    {withMaps > 0 && (
+                                    {routableCount > 0 && (
                                         <span className="text-green-600 flex items-center gap-1">
                                             <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                                            {withMaps} harita linki var
+                                            {routableCount} adres rotaya eklenebilir
                                         </span>
                                     )}
-                                    {withoutMaps > 0 && (
+                                    {unroutableCount > 0 && (
                                         <span className="text-orange-500 flex items-center gap-1">
                                             <span className="w-1.5 h-1.5 bg-orange-400 rounded-full" />
-                                            {withoutMaps} linksiz firma — güzergaha dahil edilmez
+                                            {unroutableCount} adres bilgisi eksik firma
                                         </span>
                                     )}
                                 </div>
@@ -420,7 +423,7 @@ export default function VisitPlannerPanel() {
                                 {/* Info box */}
                                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-2.5 text-[11px] text-blue-700">
                                     <div className="font-semibold mb-0.5">📍 Başlangıç Noktası</div>
-                                    <div>Rotanızı Depo, Konumunuz veya İlk Firma'dan başlatabilirsiniz. 15'ten fazla nokta otomatik olarak bölünür.</div>
+                                    <div>Rotanızı Depo, Konumunuz veya İlk Firma'dan başlatabilirsiniz. 9'dan fazla durak Google Maps limitlerine uygun olarak otomatik bölünür.</div>
                                 </div>
 
                                 {error && (
@@ -432,8 +435,8 @@ export default function VisitPlannerPanel() {
                                 {/* Primary: Route from depot */}
                                 <button
                                     onClick={() => handleRoute('depot')}
-                                    disabled={withMaps === 0 || isGenerating}
-                                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
+                                    disabled={routableCount === 0 || isGenerating}
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed shadow-sm"
                                 >
                                     {isGenerating ? (
                                         <><span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />Oluşturuluyor...</>
@@ -446,7 +449,7 @@ export default function VisitPlannerPanel() {
                                     {/* Secondary: Route from current location */}
                                     <button
                                         onClick={() => handleRoute('location')}
-                                        disabled={withMaps === 0 || isGenerating}
+                                        disabled={routableCount === 0 || isGenerating}
                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                     >
                                         <FiMapPin size={12} /> Konumumdan
@@ -455,7 +458,7 @@ export default function VisitPlannerPanel() {
                                     {/* Secondary: Route from first company */}
                                     <button
                                         onClick={() => handleRoute('first')}
-                                        disabled={withMaps < 2 || isGenerating}
+                                        disabled={routableCount < 2 || isGenerating}
                                         className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                     >
                                         <FiMap size={12} /> İlk Firmadan
