@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
-import { FiFile, FiFileText, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2, FiChevronUp, FiChevronDown, FiMenu } from 'react-icons/fi';
+import { FiFile, FiFileText, FiPlus, FiPrinter, FiSave, FiSend, FiTrash2, FiChevronUp, FiChevronDown, FiMenu, FiSearch, FiArrowUp, FiArrowDown, FiCopy, FiCheck } from 'react-icons/fi';
 import { toast } from 'sonner';
 import {
   confirmOrderCreateGiderAndLogAction,
@@ -72,26 +72,41 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 2,
   }).format(value);
 
+const formatUnitCost = (value: number) =>
+  new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3,
+  }).format(value);
+
 const formatNumber = (value: number) =>
   new Intl.NumberFormat('de-DE', {
     maximumFractionDigits: 2,
   }).format(value);
 
-function getProductName(ad: ProductRow['ad'], locale: string): string {
-  if (!ad) return 'Adsız Ürün';
+function getProductLocalizedName(ad: ProductRow['ad'], lang: 'en' | 'tr' | 'de' | 'ar' = 'en'): string {
+  if (!ad) return 'Unnamed Product';
   if (typeof ad === 'string') return ad;
-  return ad[locale] || ad.tr || ad.de || ad.en || ad.ar || Object.values(ad)[0] || 'Adsız Ürün';
+  return ad[lang] || ad.en || ad.tr || ad.de || ad.ar || Object.values(ad)[0] || 'Unnamed Product';
+}
+
+function getProductName(ad: ProductRow['ad'], locale: string = 'en'): string {
+  if (!ad) return 'Unnamed Product';
+  if (typeof ad === 'string') return ad;
+  // Tedarikçi sipariş planı için varsayılan olarak İngilizce öncelikli
+  return ad.en || ad.tr || ad.de || ad[locale] || ad.ar || Object.values(ad)[0] || 'Unnamed Product';
 }
 
 /**
  * Tedarikçi sipariş listesi + çıktılar için ürün adı.
- * İngilizce öncelikli (tedarikçi tipik olarak Türk; İngilizce ortak dil).
- * Fallback: en → de → tr → ar → ilk uygun değer.
+ * İngilizce öncelikli (tedarikçi faturaları ve proformalar İngilizce ortak dil).
+ * Fallback: en → tr → de → ar → ilk uygun değer.
  */
 function getProductNameEn(ad: ProductRow['ad']): string {
   if (!ad) return 'Unnamed Product';
   if (typeof ad === 'string') return ad;
-  return ad.en || ad.de || ad.tr || ad.ar || Object.values(ad)[0] || 'Unnamed Product';
+  return ad.en || ad.tr || ad.de || ad.ar || Object.values(ad)[0] || 'Unnamed Product';
 }
 
 /** Türkçe/Almanca karakterleri ASCII'ye düşürür — arama karşılaştırması için */
@@ -214,6 +229,12 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   const [storageReady, setStorageReady] = useState(false);
   const [editingRecordId,    setEditingRecordId]    = useState<string | null>(null);
   const [draggedItemId,      setDraggedItemId]      = useState<string | null>(null);
+  const [productDisplayLang, setProductDisplayLang] = useState<'en' | 'tr' | 'de' | 'ar'>('en');
+  const [tableFilter,        setTableFilter]        = useState('');
+  const [tablePageSize,      setTablePageSize]      = useState<number>(0); // 0: Tümü
+  const [tableCurrentPage,   setTableCurrentPage]   = useState(1);
+  const [dragHandleActiveRowId, setDragHandleActiveRowId] = useState<string | null>(null);
+  const [copiedBarcode,         setCopiedBarcode]         = useState<string | null>(null);
 
   // ── Toplu indirim state ──────────────────────────────────────────────────
   const [bulkDiscMode,      setBulkDiscMode]      = useState<'single' | 'double'>('single');
@@ -244,8 +265,13 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         const haystack = productSearchText(p.ad, p.stok_kodu, p.ean_gtin);
         return haystack.includes(q);
       })
-      .sort((a, b) => getProductName(a.ad, locale).localeCompare(getProductName(b.ad, locale), 'tr'));
-  }, [products, locale, search, selectedSupplierId]);
+      .sort((a, b) =>
+        getProductLocalizedName(a.ad, productDisplayLang).localeCompare(
+          getProductLocalizedName(b.ad, productDisplayLang),
+          productDisplayLang === 'tr' ? 'tr' : 'en'
+        )
+      );
+  }, [products, search, selectedSupplierId, productDisplayLang]);
 
   const selectedSupplierName = useMemo(() => {
     if (!selectedSupplierId) return 'Seçilmedi';
@@ -422,14 +448,15 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         const product = productsById.get(item.productId);
         if (!product) return null;
 
-        const stdPricePerPiece = Number(product.distributor_alis_fiyati || 0); // standart adet fiyatı
-        const realPricePerPiece = item.fiyat_duzenlendi && item.gercek_alis_fiyati != null
+        const stdPricePerPiece = Math.round(Number(product.distributor_alis_fiyati || 0) * 1000) / 1000; // standart adet fiyatı
+        const rawRealPrice = item.fiyat_duzenlendi && item.gercek_alis_fiyati != null
           ? Number(item.gercek_alis_fiyati)
           : stdPricePerPiece;
+        const realPricePerPiece = Math.round(rawRealPrice * 1000) / 1000;
         const multiplier  = unitMultiplier(product, item.unitType); // seçili birimdeki toplam adet
-        const unitCost    = realPricePerPiece * multiplier;          // gerçek birim maliyet
-        const stdUnitCost = stdPricePerPiece  * multiplier;          // standart birim maliyet (tooltip için)
-        const lineTotal   = unitCost * item.quantity;
+        const unitCost    = Math.round(realPricePerPiece * multiplier * 1000) / 1000; // gerçek birim maliyet (3 basamak)
+        const stdUnitCost = Math.round(stdPricePerPiece  * multiplier * 1000) / 1000; // standart birim maliyet (tooltip için)
+        const lineTotal   = Math.round(unitCost * item.quantity * 100) / 100;
 
         return {
           ...item,
@@ -464,6 +491,28 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       { grandTotal: 0, totalLines: 0, totalUnits: 0, totalPallets: 0, totalWeightKg: 0 }
     );
   }, [enrichedItems]);
+
+  // Tablo içi canlı arama / filtreleme
+  const filteredTableItems = useMemo(() => {
+    if (!tableFilter.trim()) return enrichedItems;
+    const q = normalize(tableFilter.trim());
+    return enrichedItems.filter((row) => {
+      const haystack = productSearchText(row.product.ad, row.product.stok_kodu, row.product.ean_gtin);
+      return haystack.includes(q);
+    });
+  }, [enrichedItems, tableFilter]);
+
+  // Tablo sayfalama (pagination)
+  const displayedTableItems = useMemo(() => {
+    if (tablePageSize <= 0) return filteredTableItems;
+    const start = (tableCurrentPage - 1) * tablePageSize;
+    return filteredTableItems.slice(start, start + tablePageSize);
+  }, [filteredTableItems, tablePageSize, tableCurrentPage]);
+
+  const totalTablePages = useMemo(() => {
+    if (tablePageSize <= 0) return 1;
+    return Math.max(1, Math.ceil(filteredTableItems.length / tablePageSize));
+  }, [filteredTableItems.length, tablePageSize]);
 
   const templateRecords = useMemo(() => {
     return planHistory
@@ -585,6 +634,49 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
   };
 
   const clearItems = () => setItems([]);
+
+  const scrollToTop = () => {
+    const main = document.querySelector('main');
+    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const scrollToBottom = () => {
+    const el = document.getElementById('table-summary-row');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    } else {
+      const main = document.querySelector('main');
+      if (main) main.scrollTo({ top: main.scrollHeight, behavior: 'smooth' });
+      else window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  };
+
+  const copyToClipboard = async (text: string, label = 'Barkod') => {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedBarcode(text);
+      toast.success(`${label} panoya kopyalandı: ${text}`);
+      setTimeout(() => setCopiedBarcode(null), 2000);
+    } catch {
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopiedBarcode(text);
+        toast.success(`${label} panoya kopyalandı: ${text}`);
+        setTimeout(() => setCopiedBarcode(null), 2000);
+      } catch {
+        toast.error('Kopyalama başarısız oldu.');
+      }
+    }
+  };
 
   const saveSnapshot = () => {
     if (items.length === 0) return;
@@ -778,7 +870,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         return {
           ...item,
           fiyat_duzenlendi: true,
-          gercek_alis_fiyati: Math.round(real * 10000) / 10000,
+          gercek_alis_fiyati: Math.round(real * 1000) / 1000,
           indirim_aciklamasi: desc,
         };
       })
@@ -811,7 +903,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         Miktar: row.quantity,
         Palet: pallets > 0 ? Number(pallets.toFixed(2)) : 0,
         'Agirlik (kg)': kg > 0 ? Number(kg.toFixed(2)) : 0,
-        'Birim Maliyet (EUR)': Number(row.unitCost.toFixed(2)),
+        'Birim Maliyet (EUR)': Number(row.unitCost.toFixed(3)),
         'Satir Toplami (EUR)': Number(row.lineTotal.toFixed(2)),
       };
     });
@@ -868,12 +960,13 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     const { jsPDF } = await import('jspdf');
     const autoTable = (await import('jspdf-autotable')).default;
 
-    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-    const pageW = doc.internal.pageSize.getWidth();
-    const mL = 14;
-    const mR = 14;
+    // Yatay A4 format: 297mm x 210mm
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();  // 297
+    const pageH = doc.internal.pageSize.getHeight(); // 210
+    const mL = 10;
+    const mR = 10;
 
-    // jsPDF/Helvetica does not support Turkish chars; replace with ASCII equivalents.
     const sp = (t: string) =>
       t.replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
        .replace(/ş/g, 's').replace(/Ş/g, 'S')
@@ -883,11 +976,12 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
        .replace(/ç/g, 'c').replace(/Ç/g, 'C')
        .replace(/â/g, 'a').replace(/·/g, '-');
 
-    // Load watermark logo once, draw on every page via didDrawPage.
+    // Logo yükleme
     let logoDataUrl: string | null = null;
     let logoType: 'PNG' | 'JPEG' = 'PNG';
     try {
-      let r = await fetch('/logo.png?v=1', { cache: 'no-store' });
+      let r = await fetch('/logo_arka_plansiz_hazir.png?v=1', { cache: 'no-store' });
+      if (!r.ok) r = await fetch('/logo.png?v=1', { cache: 'no-store' });
       if (!r.ok) { r = await fetch('/Logo.jpg?v=1', { cache: 'no-store' }); logoType = 'JPEG'; }
       if (r.ok) {
         const blob = await r.blob();
@@ -899,142 +993,263 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
       }
     } catch { /* no-op */ }
 
+    // Her sayfaya filigran basma
     const drawWatermark = (d: typeof doc) => {
       if (!logoDataUrl) return;
-      const pw = d.internal.pageSize.getWidth();
-      const ph = d.internal.pageSize.getHeight();
       const anyD = d as any;
-      try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 0.05 })); } catch { /* no-op */ }
-      d.addImage(logoDataUrl, logoType, (pw - 130) / 2, (ph - 130) / 2, 130, 130);
+      try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 0.06 })); } catch { /* no-op */ }
+      d.addImage(logoDataUrl, logoType, (pageW - 100) / 2, (pageH - 100) / 2, 100, 100);
       try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 1 })); } catch { /* no-op */ }
     };
 
-    const today = new Date().toLocaleDateString('tr-TR');
     const docNo = `${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-${draftName.slice(0, 8).toUpperCase().replace(/[^A-Z0-9]/g, '')}`;
 
-    // ── Page-1 header ────────────────────────────────────────────────
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(15);
-    doc.setTextColor(20, 20, 20);
-    doc.text(COMPANY_NAME, mL, 17);
+    if (logoDataUrl) {
+      try {
+        doc.addImage(logoDataUrl, logoType, mL, 7, 20, 20);
+      } catch { /* no-op */ }
+    }
 
+    const brandX = logoDataUrl ? mL + 23 : mL;
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text('Satin Alma / Siparis Formu', pageW - mR, 17, { align: 'right' });
-
-    doc.setDrawColor(20, 20, 20);
-    doc.setLineWidth(0.5);
-    doc.line(mL, 20, pageW - mR, 20);
+    doc.setFontSize(13);
+    doc.setTextColor(15, 23, 42); // slate-900
+    doc.text(COMPANY_NAME, brandX, 12);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(50, 50, 50);
-    const infoY = 26;
-    doc.text(`Gonderen  : ${COMPANY_NAME}`,  mL, infoY);
-    doc.text(`E-posta   : ${COMPANY_EMAIL}`, mL, infoY + 5);
-    doc.text(`Konum     : ${COMPANY_LOCATION}`, mL, infoY + 10);
-    doc.text(`Tedarikci : ${sp(selectedSupplierName)}`, pageW - mR, infoY,      { align: 'right' });
-    doc.text(`Tarih     : ${today}`,                    pageW - mR, infoY + 5,  { align: 'right' });
-    doc.text(`Belge No  : ${docNo}`,                    pageW - mR, infoY + 10, { align: 'right' });
+    doc.setFontSize(7.8);
+    doc.setTextColor(100, 116, 139); // slate-500
+    doc.text('Wholesale, Import & Export', brandX, 16.5);
+    doc.text('Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany', brandX, 20.5);
+    doc.text('Tel: +49 157 58837093 · Email: ' + COMPANY_EMAIL, brandX, 24.5);
 
-    doc.setDrawColor(100, 100, 100);
+    // Sağ Üst: Kurumsal Belge Bilgi Kartı (Tamamen İngilizce)
+    const cardX = pageW - mR - 106;
+    const cardY = 6;
+    const cardW = 106;
+    const cardH = 22;
+
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(cardX, cardY, cardW, cardH, 2, 2, 'F');
+    doc.setDrawColor(203, 213, 225);
     doc.setLineWidth(0.3);
-    doc.line(mL, infoY + 14, pageW - mR, infoY + 14);
+    doc.roundedRect(cardX, cardY, cardW, cardH, 2, 2, 'S');
 
-    // Watermark on page 1 (drawn before table so it sits behind content)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text('COMMERCIAL PURCHASE ORDER', cardX + 4, cardY + 5.5);
+
+    doc.setFontSize(7.5);
+    doc.setTextColor(71, 85, 105);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Doc No:', cardX + 4, cardY + 10.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(docNo, cardX + 30, cardY + 10.5);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Order Date:', cardX + 4, cardY + 14.8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleDateString('en-GB'), cardX + 30, cardY + 14.8);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Supplier:', cardX + 4, cardY + 19);
+    doc.setFont('helvetica', 'normal');
+    doc.text(sp(selectedSupplierName).slice(0, 36), cardX + 30, cardY + 19);
+
+    // İlk sayfa filigranı
     drawWatermark(doc);
 
+    // Temiz sayı formatlama fonksiyonları (tam sayılarda .00 olmadan)
+    const fmtKg = (val: number) => {
+      if (val <= 0) return '-';
+      return val % 1 === 0 ? val.toFixed(0) : parseFloat(val.toFixed(2)).toString();
+    };
+    const fmtPallet = (val: number) => {
+      if (val <= 0) return '-';
+      return val % 1 === 0 ? val.toFixed(0) : parseFloat(val.toFixed(2)).toString();
+    };
+
+    // ── Tablo Gövdesi (14 Sütun, 277mm toplam, Sütunlar Kendi İçinde Ortalı) ───
     autoTable(doc, {
-      startY: infoY + 18,
+      startY: 31,
       margin: { left: mL, right: mR },
       head: [[
-        { content: 'Stok Kodu', styles: { halign: 'left' } },
-        { content: 'Barkod', styles: { halign: 'left' } },
-        { content: 'Urun Adi', styles: { halign: 'left' } },
-        { content: 'Birim', styles: { halign: 'center' } },
-        { content: 'Miktar', styles: { halign: 'right' } },
-        { content: 'Palet', styles: { halign: 'right' } },
-        { content: 'Agirlik', styles: { halign: 'right' } },
-        { content: 'B. Maliyet', styles: { halign: 'right' } },
-        { content: 'Toplam', styles: { halign: 'right' } },
+        { content: '#', styles: { halign: 'center' } },
+        { content: 'SKU / Code', styles: { halign: 'center' } },
+        { content: 'Barcode (EAN)', styles: { halign: 'center' } },
+        { content: 'Product Description', styles: { halign: 'left' } },
+        { content: 'Unit', styles: { halign: 'center' } },
+        { content: 'Box', styles: { halign: 'center' } },
+        { content: 'Pack', styles: { halign: 'center' } },
+        { content: 'Total Pcs', styles: { halign: 'center' } },
+        { content: 'Unit (kg)', styles: { halign: 'center' } },
+        { content: 'Total (kg)', styles: { halign: 'center' } },
+        { content: 'Pallets', styles: { halign: 'center' } },
+        { content: 'List Price', styles: { halign: 'center' } },
+        { content: 'Net Price', styles: { halign: 'center' } },
+        { content: 'Total EUR', styles: { halign: 'center' } },
       ]],
-      body: enrichedItems.map((row) => {
+      body: enrichedItems.map((row, index) => {
         const pallets = calcPallets(row.product, row.unitType, row.quantity);
-        const kg = calcWeightKg(row.product, row.unitType, row.quantity);
+        const piecesPerCase = Math.max(1, Number(row.product.koli_ici_adet || 1));
+        const totalPieces = row.quantity * unitMultiplier(row.product, row.unitType);
+        const unitKg = Number(row.product.birim_agirlik_kg || 0);
+        const totalKg = unitKg > 0 ? totalPieces * unitKg : 0;
+        const boxCount = row.unitType === 'koli' ? row.quantity : Math.round(totalPieces / piecesPerCase);
+
+        const stdUnitCost = row.purchaseBoxCost;
+        const netUnitCost = row.realPricePerPiece;
+
         return [
+          String(index + 1),
           row.product.stok_kodu || '-',
           row.product.ean_gtin || '-',
-          sp(getProductNameEn(row.product.ad)),
-          row.unitType,
-          String(row.quantity),
-          pallets > 0 ? formatPalletsPlain(pallets).replace(' palet', '') : '-',
-          kg > 0 ? formatWeight(kg) : '-',
-          formatCurrency(row.unitCost),
+          sp(getProductLocalizedName(row.product.ad, 'en')),
+          row.unitType === 'koli' ? 'Box' : row.unitType === 'adet' ? 'Pcs' : 'Pallet',
+          String(boxCount),
+          `x${piecesPerCase}`,
+          String(totalPieces),
+          fmtKg(unitKg),
+          fmtKg(totalKg),
+          fmtPallet(pallets),
+          formatUnitCost(stdUnitCost),
+          formatUnitCost(netUnitCost),
           formatCurrency(row.lineTotal),
         ];
       }),
       columnStyles: {
-        0: { cellWidth: 18 },                                  // Stok Kodu
-        1: { cellWidth: 28, overflow: 'linebreak' },           // Barkod (EAN-13 sığsın, kısaltma yok)
-        2: { cellWidth: 38, overflow: 'linebreak' },           // Urun Adi
-        3: { cellWidth: 14, halign: 'center' },                // Birim
-        4: { cellWidth: 14, halign: 'right' },                 // Miktar
-        5: { cellWidth: 14, halign: 'right' },                 // Palet
-        6: { cellWidth: 16, halign: 'right' },                 // Agirlik
-        7: { cellWidth: 20, halign: 'right' },                 // B. Maliyet
-        8: { cellWidth: 20, halign: 'right' },                 // Toplam
+        0:  { cellWidth: 7,  halign: 'center' },                          // #
+        1:  { cellWidth: 26, halign: 'center', fontSize: 6.8 },          // SKU (Genişletildi, tek satır)
+        2:  { cellWidth: 26, halign: 'center', fontSize: 6.8 },          // Barkod
+        3:  { cellWidth: 69, halign: 'left',   overflow: 'linebreak' },   // Description
+        4:  { cellWidth: 10, halign: 'center' },                          // Unit
+        5:  { cellWidth: 11, halign: 'center' },                          // Box
+        6:  { cellWidth: 10, halign: 'center' },                          // Pack
+        7:  { cellWidth: 14, halign: 'center' },                          // Total Pcs
+        8:  { cellWidth: 14, halign: 'center' },                          // Unit (kg)
+        9:  { cellWidth: 15, halign: 'center' },                          // Total (kg)
+        10: { cellWidth: 14, halign: 'center' },                          // Pallets
+        11: { cellWidth: 18, halign: 'center' },                          // List Price
+        12: { cellWidth: 18, halign: 'center' },                          // Net Price
+        13: { cellWidth: 25, halign: 'center', fontStyle: 'bold' },       // Total EUR
       },
-      styles: { fontSize: 8.5, cellPadding: 2, overflow: 'linebreak' },
-      headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
-      alternateRowStyles: { fillColor: [248, 248, 248] },
+      styles: {
+        fontSize: 6.8,
+        cellPadding: { top: 0.95, bottom: 0.95, left: 1.0, right: 1.0 },
+        lineColor: [226, 232, 240],
+        lineWidth: 0.1,
+        textColor: [30, 41, 59],
+        overflow: 'linebreak',
+      },
+      headStyles: {
+        fillColor: [15, 23, 42], // Koyu kurumsal lacivert
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 7.2,
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252], // Mikro kontrast çift renk (zebra)
+      },
       didDrawPage: (data) => {
         if (data.pageNumber > 1) drawWatermark(doc);
         const ph = doc.internal.pageSize.getHeight();
-        doc.setDrawColor(160, 160, 160);
+
+        // Footer
+        doc.setDrawColor(226, 232, 240);
         doc.setLineWidth(0.2);
-        doc.line(mL, ph - 11, pageW - mR, ph - 11);
-        doc.setFontSize(7.5);
+        doc.line(mL, ph - 8, pageW - mR, ph - 8);
+
+        doc.setFontSize(6.8);
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(130, 130, 130);
-        doc.text('Lutfen urun, miktar ve fiyat teyidi ile geri donus saglayiniz.', mL, ph - 7);
-        doc.text(`Sayfa ${data.pageNumber}`, pageW - mR, ph - 7, { align: 'right' });
+        doc.setTextColor(148, 163, 184);
+        doc.text('ElysonSweets GmbH · Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany · Tel: +49 157 58837093 · info@elysonsweets.de', mL, ph - 4.5);
+        doc.text(`Page ${data.pageNumber} of ${doc.getNumberOfPages()}`, pageW - mR, ph - 4.5, { align: 'right' });
       },
     });
 
-    const finalY = (doc as any).lastAutoTable?.finalY || infoY + 18;
-    doc.setFontSize(10);
+    // ── Tablo Sonu: Kurumsal Özet ve Onay Kutusu (Aynı Sayfaya Sığdırma Garantili) ──
+    const finalY = (doc as any).lastAutoTable?.finalY || 35;
+    const boxH = 20.5;
+    const maxBottom = pageH - 10; // Footer öncesi güvenli limit (200mm)
+    let sumY = finalY + 2.5;
+
+    // Eğer son sayfada 21 mm bile yer kalmamışsa yeni sayfaya geç
+    if (sumY + boxH > maxBottom) {
+      doc.addPage('a4', 'landscape');
+      drawWatermark(doc);
+      sumY = 15;
+    }
+
+    // Sol: Teslimat Notu ve Yetkili Onay Alanı
+    doc.setDrawColor(203, 213, 225);
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(mL, sumY, 150, boxH, 1.5, 1.5, 'FD');
+
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(20, 20, 20);
-    doc.text(`Genel Toplam : ${formatCurrency(totals.grandTotal)}`, pageW - mR, finalY + 8, { align: 'right' });
+    doc.setFontSize(7.2);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Delivery & Shipping Address:', mL + 3, sumY + 4.5);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`${totals.totalLines} kalem  /  ${totals.totalUnits} toplam birim`, mL, finalY + 8);
+    doc.setTextColor(71, 85, 105);
+    doc.text('ElysonSweets GmbH, Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany', mL + 42, sumY + 4.5);
+    doc.text('Please confirm item specifications, pricing, and dispatch schedule.', mL + 3, sumY + 9);
 
-    const pdfPaletStr = totals.totalPallets < 0.01
-      ? '-'
-      : totals.totalPallets % 1 === 0
-        ? `${totals.totalPallets.toFixed(0)} palet`
-        : `~${totals.totalPallets.toFixed(2)} palet`;
-    const pdfAgirlikStr = totals.totalWeightKg <= 0
-      ? '-'
-      : totals.totalWeightKg >= 1000
-        ? `${(totals.totalWeightKg / 1000).toFixed(2)} t`
-        : `${totals.totalWeightKg.toFixed(1)} kg`;
-    doc.text(`Toplam Palet: ${pdfPaletStr}`, mL, finalY + 14);
-    doc.text(`Toplam Agirlik: ${pdfAgirlikStr}`, mL, finalY + 20);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 116, 139);
+    doc.text('Authorized Signature & Stamp: _____________________________________', mL + 3, sumY + 16);
 
-    doc.save(`elysonsweets-siparis-formu-${new Date().toISOString().slice(0, 10)}.pdf`);
+    // Sağ: Toplamlar Kartı
+    const sumCardX = pageW - mR - 115;
+    doc.setFillColor(241, 245, 249);
+    doc.roundedRect(sumCardX, sumY, 115, boxH, 1.5, 1.5, 'F');
+    doc.setDrawColor(203, 213, 225);
+    doc.roundedRect(sumCardX, sumY, 115, boxH, 1.5, 1.5, 'S');
+
+    const totalBoxesCalc = enrichedItems.reduce((s, r) => s + (r.unitType === 'koli' ? r.quantity : Math.round(r.quantity * unitMultiplier(r.product, r.unitType) / Math.max(1, Number(r.product.koli_ici_adet || 1)))), 0);
+    const totalPcsCalc = enrichedItems.reduce((s, r) => s + r.quantity * unitMultiplier(r.product, r.unitType), 0);
+    const totalWeightStr = totals.totalWeightKg <= 0 ? '-' : `${fmtKg(totals.totalWeightKg)} kg`;
+    const totalPalletsStr = totals.totalPallets < 0.01 ? '-' : `${fmtPallet(totals.totalPallets)} Pallets`;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(71, 85, 105);
+
+    doc.text('Total Items / Pcs:', sumCardX + 4, sumY + 4.5);
+    doc.text(`${totals.totalLines} Items · ${totalBoxesCalc.toLocaleString('en-US')} Boxes (${totalPcsCalc.toLocaleString('en-US')} Pcs)`, sumCardX + 34, sumY + 4.5);
+
+    doc.text('Net Weight / Pallets:', sumCardX + 4, sumY + 9);
+    doc.text(`${totalWeightStr}  /  ${totalPalletsStr}`, sumCardX + 34, sumY + 9);
+
+    // Genel Toplam Vurgusu (Temiz, ferah ve yüksek kontrastlı tasarım)
+    doc.setFillColor(238, 242, 255); // indigo-50
+    doc.roundedRect(sumCardX + 2, sumY + 12, 111, 7.5, 1.2, 1.2, 'F');
+    doc.setDrawColor(199, 210, 254); // indigo-200 sınır
+    doc.setLineWidth(0.3);
+    doc.roundedRect(sumCardX + 2, sumY + 12, 111, 7.5, 1.2, 1.2, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.2);
+    doc.setTextColor(30, 27, 75); // Koyu lacivert başlık
+    doc.text('GRAND TOTAL (EUR):', sumCardX + 5, sumY + 17);
+
+    doc.setFontSize(9.5);
+    doc.setTextColor(30, 64, 175); // Net koyu mavi tutar
+    doc.text(formatCurrency(totals.grandTotal), sumCardX + 108, sumY + 17, { align: 'right' });
+
+    doc.save(`elysonsweets-purchase-order-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   const exportSupplierPdf = async () => {
     const { jsPDF } = await import('jspdf');
     const autoTable = (await import('jspdf-autotable')).default;
 
-    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-    const pageW = doc.internal.pageSize.getWidth();
-    const mL = 14;
-    const mR = 14;
+    // Yatay A4 format: 297mm x 210mm
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();  // 297
+    const pageH = doc.internal.pageSize.getHeight(); // 210
+    const mL = 10;
+    const mR = 10;
 
     const sp = (t: string) =>
       t.replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
@@ -1048,7 +1263,8 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     let logoDataUrl: string | null = null;
     let logoType: 'PNG' | 'JPEG' = 'PNG';
     try {
-      let r = await fetch('/logo.png?v=1', { cache: 'no-store' });
+      let r = await fetch('/logo_arka_plansiz_hazir.png?v=1', { cache: 'no-store' });
+      if (!r.ok) r = await fetch('/logo.png?v=1', { cache: 'no-store' });
       if (!r.ok) { r = await fetch('/Logo.jpg?v=1', { cache: 'no-store' }); logoType = 'JPEG'; }
       if (r.ok) {
         const blob = await r.blob();
@@ -1062,119 +1278,219 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
 
     const drawWatermark = (d: typeof doc) => {
       if (!logoDataUrl) return;
-      const pw = d.internal.pageSize.getWidth();
-      const ph = d.internal.pageSize.getHeight();
       const anyD = d as any;
-      try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 0.05 })); } catch { /* no-op */ }
-      d.addImage(logoDataUrl, logoType, (pw - 130) / 2, (ph - 130) / 2, 130, 130);
+      try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 0.06 })); } catch { /* no-op */ }
+      d.addImage(logoDataUrl, logoType, (pageW - 100) / 2, (pageH - 100) / 2, 100, 100);
       try { if (typeof anyD.GState === 'function') anyD.setGState(new anyD.GState({ opacity: 1 })); } catch { /* no-op */ }
     };
 
-    const today = new Date().toLocaleDateString('tr-TR');
-    const docNo = `${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-TL`;
+    const todayEn = new Date().toLocaleDateString('en-GB');
+    const docNo = `${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-SPEC`;
 
-    // ── Page-1 header ────────────────────────────────────────────────
+    // ── Header (Sol: Logo + Firma, Sağ: Kurumsal Belge Kartı) ───────────
+    if (logoDataUrl) {
+      try {
+        doc.addImage(logoDataUrl, logoType, mL, 7, 20, 20);
+      } catch { /* no-op */ }
+    }
+
+    const brandX = logoDataUrl ? mL + 23 : mL;
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(15);
-    doc.setTextColor(20, 20, 20);
-    doc.text(COMPANY_NAME, mL, 17);
-
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text('Urun Talep Listesi', pageW - mR, 17, { align: 'right' });
-
-    doc.setDrawColor(20, 20, 20);
-    doc.setLineWidth(0.5);
-    doc.line(mL, 20, pageW - mR, 20);
+    doc.setFontSize(13);
+    doc.setTextColor(15, 23, 42);
+    doc.text(COMPANY_NAME, brandX, 12);
 
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(50, 50, 50);
-    const infoY = 26;
-    doc.text(`Gonderen  : ${COMPANY_NAME}`,  mL, infoY);
-    doc.text(`E-posta   : ${COMPANY_EMAIL}`, mL, infoY + 5);
-    doc.text(`Konum     : ${COMPANY_LOCATION}`, mL, infoY + 10);
-    doc.text(`Tedarikci : ${sp(selectedSupplierName)}`, pageW - mR, infoY,      { align: 'right' });
-    doc.text(`Tarih     : ${today}`,                    pageW - mR, infoY + 5,  { align: 'right' });
-    doc.text(`Belge No  : ${docNo}`,                    pageW - mR, infoY + 10, { align: 'right' });
+    doc.setFontSize(7.8);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Wholesale, Import & Export', brandX, 16.5);
+    doc.text('Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany', brandX, 20.5);
+    doc.text('Tel: +49 157 58837093 · Email: ' + COMPANY_EMAIL, brandX, 24.5);
 
-    doc.setDrawColor(100, 100, 100);
+    // Sağ Üst: Lojistik / Tedarikçi Belge Kartı (Tamamen İngilizce)
+    const cardX = pageW - mR - 106;
+    const cardY = 6;
+    const cardW = 106;
+    const cardH = 22;
+
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(cardX, cardY, cardW, cardH, 2, 2, 'F');
+    doc.setDrawColor(203, 213, 225);
     doc.setLineWidth(0.3);
-    doc.line(mL, infoY + 14, pageW - mR, infoY + 14);
+    doc.roundedRect(cardX, cardY, cardW, cardH, 2, 2, 'S');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text('PACKING & SUPPLY SPECIFICATION', cardX + 4, cardY + 5.5);
+
+    doc.setFontSize(7.5);
+    doc.setTextColor(71, 85, 105);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Doc No:', cardX + 4, cardY + 10.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(docNo, cardX + 30, cardY + 10.5);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date:', cardX + 4, cardY + 14.8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(todayEn, cardX + 30, cardY + 14.8);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Supplier:', cardX + 4, cardY + 19);
+    doc.setFont('helvetica', 'normal');
+    doc.text(sp(selectedSupplierName).slice(0, 36), cardX + 30, cardY + 19);
 
     drawWatermark(doc);
 
+    const fmtKg = (val: number) => {
+      if (val <= 0) return '-';
+      return val % 1 === 0 ? val.toFixed(0) : parseFloat(val.toFixed(2)).toString();
+    };
+    const fmtPallet = (val: number) => {
+      if (val <= 0) return '-';
+      return val % 1 === 0 ? val.toFixed(0) : parseFloat(val.toFixed(2)).toString();
+    };
+
+    // ── Tablo Gövdesi (Fiyatsız - 12 Sütun, 277mm, Ortalı Sütunlar) ─────────
     autoTable(doc, {
-      startY: infoY + 18,
+      startY: 31,
       margin: { left: mL, right: mR },
       head: [[
-        { content: 'Stok Kodu', styles: { halign: 'left' } },
-        { content: 'Barkod', styles: { halign: 'left' } },
-        { content: 'Urun Adi', styles: { halign: 'left' } },
-        { content: 'Birim', styles: { halign: 'center' } },
-        { content: 'Miktar', styles: { halign: 'right' } },
-        { content: 'Palet', styles: { halign: 'right' } },
-        { content: 'Agirlik', styles: { halign: 'right' } },
+        { content: '#', styles: { halign: 'center' } },
+        { content: 'SKU / Code', styles: { halign: 'center' } },
+        { content: 'Barcode (EAN-13)', styles: { halign: 'center' } },
+        { content: 'Product Description', styles: { halign: 'left' } },
+        { content: 'Unit', styles: { halign: 'center' } },
+        { content: 'Boxes', styles: { halign: 'center' } },
+        { content: 'Pack', styles: { halign: 'center' } },
+        { content: 'Total Pcs', styles: { halign: 'center' } },
+        { content: 'Unit (kg)', styles: { halign: 'center' } },
+        { content: 'Total (kg)', styles: { halign: 'center' } },
+        { content: 'Pallets', styles: { halign: 'center' } },
+        { content: 'Check', styles: { halign: 'center' } },
       ]],
-      body: enrichedItems.map((row) => {
+      body: enrichedItems.map((row, index) => {
         const pallets = calcPallets(row.product, row.unitType, row.quantity);
-        const kg = calcWeightKg(row.product, row.unitType, row.quantity);
+        const piecesPerCase = Math.max(1, Number(row.product.koli_ici_adet || 1));
+        const totalPieces = row.quantity * unitMultiplier(row.product, row.unitType);
+        const unitKg = Number(row.product.birim_agirlik_kg || 0);
+        const totalKg = unitKg > 0 ? totalPieces * unitKg : 0;
+        const boxCount = row.unitType === 'koli' ? row.quantity : Math.round(totalPieces / piecesPerCase);
+
         return [
+          String(index + 1),
           row.product.stok_kodu || '-',
           row.product.ean_gtin || '-',
-          sp(getProductNameEn(row.product.ad)),
-          row.unitType,
-          String(row.quantity),
-          pallets > 0 ? formatPalletsPlain(pallets).replace(' palet', '') : '-',
-          kg > 0 ? formatWeight(kg) : '-',
+          sp(getProductLocalizedName(row.product.ad, 'en')),
+          row.unitType === 'koli' ? 'Box' : row.unitType === 'adet' ? 'Pcs' : 'Pallet',
+          String(boxCount),
+          `x${piecesPerCase}`,
+          String(totalPieces),
+          fmtKg(unitKg),
+          fmtKg(totalKg),
+          fmtPallet(pallets),
+          '[   ]', // Depo ve yükleme teyit kutusu
         ];
       }),
       columnStyles: {
-        0: { cellWidth: 20 },                                  // Stok Kodu
-        1: { cellWidth: 30, overflow: 'linebreak' },           // Barkod (EAN-13 sığsın)
-        2: { cellWidth: 58, overflow: 'linebreak' },           // Urun Adi
-        3: { cellWidth: 18, halign: 'center' },                // Birim
-        4: { cellWidth: 18, halign: 'right' },                 // Miktar
-        5: { cellWidth: 18, halign: 'right' },                 // Palet
-        6: { cellWidth: 20, halign: 'right' },                 // Agirlik
+        0:  { cellWidth: 8,   halign: 'center' },                          // #
+        1:  { cellWidth: 26,  halign: 'center', fontSize: 6.8 },          // SKU (Tek satır)
+        2:  { cellWidth: 28,  halign: 'center', fontSize: 6.8 },          // Barkod
+        3:  { cellWidth: 85,  halign: 'left',   overflow: 'linebreak' },   // Description
+        4:  { cellWidth: 12,  halign: 'center' },                          // Unit
+        5:  { cellWidth: 16,  halign: 'center' },                          // Boxes
+        6:  { cellWidth: 12,  halign: 'center' },                          // Pack
+        7:  { cellWidth: 18,  halign: 'center' },                          // Total Pcs
+        8:  { cellWidth: 18,  halign: 'center' },                          // Unit (kg)
+        9:  { cellWidth: 18,  halign: 'center' },                          // Total (kg)
+        10: { cellWidth: 18,  halign: 'center' },                          // Pallets
+        11: { cellWidth: 18,  halign: 'center' },                          // Check
       },
-      styles: { fontSize: 8.5, cellPadding: 2, overflow: 'linebreak' },
-      headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: 'bold', fontSize: 8.5 },
-      alternateRowStyles: { fillColor: [248, 248, 248] },
+      styles: {
+        fontSize: 6.8,
+        cellPadding: { top: 0.95, bottom: 0.95, left: 1.0, right: 1.0 },
+        lineColor: [226, 232, 240],
+        lineWidth: 0.1,
+        textColor: [30, 41, 59],
+        overflow: 'linebreak',
+      },
+      headStyles: {
+        fillColor: [15, 23, 42],
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 7.2,
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252],
+      },
       didDrawPage: (data) => {
         if (data.pageNumber > 1) drawWatermark(doc);
         const ph = doc.internal.pageSize.getHeight();
-        doc.setDrawColor(160, 160, 160);
+
+        doc.setDrawColor(226, 232, 240);
         doc.setLineWidth(0.2);
-        doc.line(mL, ph - 11, pageW - mR, ph - 11);
-        doc.setFontSize(7.5);
+        doc.line(mL, ph - 8, pageW - mR, ph - 8);
+
+        doc.setFontSize(6.8);
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(130, 130, 130);
-        doc.text('Lutfen miktar onaylayarak geri donus saglayiniz.', mL, ph - 7);
-        doc.text(`Sayfa ${data.pageNumber}`, pageW - mR, ph - 7, { align: 'right' });
+        doc.setTextColor(148, 163, 184);
+        doc.text('ElysonSweets GmbH · Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany · Logistics & Cargo Specification', mL, ph - 4.5);
+        doc.text(`Page ${data.pageNumber} of ${doc.getNumberOfPages()}`, pageW - mR, ph - 4.5, { align: 'right' });
       },
     });
 
-    const finalY = (doc as any).lastAutoTable?.finalY || infoY + 18;
-    doc.setFontSize(9);
+    const finalY = (doc as any).lastAutoTable?.finalY || 35;
+    const boxH = 20.5;
+    const maxBottom = pageH - 10;
+    let sumY = finalY + 2.5;
+
+    if (sumY + boxH > maxBottom) {
+      doc.addPage('a4', 'landscape');
+      drawWatermark(doc);
+      sumY = 15;
+    }
+
+    // Sol: Sevkiyat ve Depo Onay Notu (Tamamen İngilizce)
+    doc.setDrawColor(203, 213, 225);
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(mL, sumY, 150, boxH, 1.5, 1.5, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(15, 23, 42);
+    doc.text('Logistics & Warehouse Verification:', mL + 3, sumY + 4.5);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 100, 100);
-    doc.text(`${totals.totalLines} kalem  /  ${totals.totalUnits} toplam birim`, mL, finalY + 8);
+    doc.setTextColor(71, 85, 105);
+    doc.text('All goods must be complete, undamaged, and comply with EU pallet packaging standards.', mL + 3, sumY + 9);
 
-    const spPaletStr = totals.totalPallets < 0.01
-      ? '-'
-      : totals.totalPallets % 1 === 0
-        ? `${totals.totalPallets.toFixed(0)} palet`
-        : `~${totals.totalPallets.toFixed(2)} palet`;
-    const spAgirlikStr = totals.totalWeightKg <= 0
-      ? '-'
-      : totals.totalWeightKg >= 1000
-        ? `${(totals.totalWeightKg / 1000).toFixed(2)} t`
-        : `${totals.totalWeightKg.toFixed(1)} kg`;
-    doc.text(`Toplam Palet: ${spPaletStr}`, mL, finalY + 14);
-    doc.text(`Toplam Agirlik: ${spAgirlikStr}`, mL, finalY + 20);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 116, 139);
+    doc.text('Warehouse Inspector: ____________________________   Signature: ______________', mL + 3, sumY + 16);
 
-    doc.save(`tedarikci-talep-listesi-${sp(selectedSupplierName).replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`);
+    // Sağ: Lojistik Özet Kartı
+    const sumCardX = pageW - mR - 115;
+    doc.setFillColor(241, 245, 249);
+    doc.roundedRect(sumCardX, sumY, 115, boxH, 1.5, 1.5, 'F');
+    doc.setDrawColor(203, 213, 225);
+    doc.roundedRect(sumCardX, sumY, 115, boxH, 1.5, 1.5, 'S');
+
+    const totalBoxesCalc = enrichedItems.reduce((s, r) => s + (r.unitType === 'koli' ? r.quantity : Math.round(r.quantity * unitMultiplier(r.product, r.unitType) / Math.max(1, Number(r.product.koli_ici_adet || 1)))), 0);
+    const totalPcsCalc = enrichedItems.reduce((s, r) => s + r.quantity * unitMultiplier(r.product, r.unitType), 0);
+    const totalWeightStr = totals.totalWeightKg <= 0 ? '-' : `${fmtKg(totals.totalWeightKg)} kg`;
+    const totalPalletsStr = totals.totalPallets < 0.01 ? '-' : `${fmtPallet(totals.totalPallets)} Pallets`;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.2);
+    doc.setTextColor(71, 85, 105);
+
+    doc.text('Total Items / Pcs:', sumCardX + 4, sumY + 4.5);
+    doc.text(`${totals.totalLines} Items · ${totalBoxesCalc.toLocaleString('en-US')} Boxes (${totalPcsCalc.toLocaleString('en-US')} Pcs)`, sumCardX + 34, sumY + 4.5);
+
+    doc.text('Total Net Weight / Pallets:', sumCardX + 4, sumY + 10);
+    doc.text(`${totalWeightStr}  /  ${totalPalletsStr}`, sumCardX + 34, sumY + 10);
+
+    doc.save(`elysonsweets-supply-specification-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   return (
@@ -1264,7 +1580,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             </div>
 
             <div className="md:col-span-4">
-              <label className="mb-1 block text-xs font-medium text-slate-600">Ürün seç</label>
+              <label className="mb-1 block text-xs font-medium text-slate-600">Ürün seç (İngilizce)</label>
               <select
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
@@ -1274,7 +1590,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                 <option value="">Listeden seç</option>
                 {filteredProducts.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {(p.stok_kodu ? `${p.stok_kodu} - ` : '') + getProductName(p.ad, locale)}{!p.aktif ? ' [Pasif]' : ''}
+                    {(p.stok_kodu ? `${p.stok_kodu} - ` : '') + getProductNameEn(p.ad)}{!p.aktif ? ' [Pasif]' : ''}
                   </option>
                 ))}
               </select>
@@ -1324,7 +1640,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                 <li key={product.id} className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-white">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-slate-900">
-                      {product.stok_kodu ? `${product.stok_kodu} – ` : ''}{getProductName(product.ad, locale)}
+                      {product.stok_kodu ? `${product.stok_kodu} – ` : ''}{getProductNameEn(product.ad)}
                       {!product.aktif ? <span className="ml-1 text-xs text-rose-500">(Pasif)</span> : null}
                     </p>
                     <p className="text-xs text-slate-500">Adet: {formatCurrency(Number(product.distributor_alis_fiyati || 0))} · Koli: {formatCurrency(Number(product.distributor_alis_fiyati || 0) * Math.max(1, Number(product.koli_ici_adet || 1)))}</p>
@@ -1357,7 +1673,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                     className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
                   >
                     <FiPlus className="opacity-50" />
-                    {product.stok_kodu ? `${product.stok_kodu} · ` : ''}{getProductName(product.ad, locale)}
+                    {product.stok_kodu ? `${product.stok_kodu} · ` : ''}{getProductNameEn(product.ad)}
                     <span className="ml-0.5 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">{freq}×</span>
                   </button>
                 ))}
@@ -1590,9 +1906,38 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
 
         <div className="relative z-10 mb-4 rounded-xl border border-gray-200 bg-gray-50 p-4 print:border-0 print:bg-white print:p-0">
           <div className="space-y-3">
-            <div className="flex flex-wrap items-end justify-between gap-2 border-b border-gray-200 pb-2">
-              <p className="text-2xl font-extrabold tracking-wide text-gray-900">{COMPANY_NAME}</p>
-              <p className="text-sm font-semibold text-gray-700">Satın Alma Sipariş Formu</p>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 pb-3">
+              <div>
+                <p className="text-2xl font-extrabold tracking-wide text-gray-900">{COMPANY_NAME}</p>
+                <p className="text-xs text-gray-500">Satın Alma Sipariş Formu</p>
+              </div>
+
+              {/* Dil Seçici Buton Grubu */}
+              <div className="no-print flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
+                <span className="text-xs text-gray-500 font-medium px-2 flex items-center gap-1">
+                  🌐 İsim Dili:
+                </span>
+                {[
+                  { code: 'en', label: '🇬🇧 EN', title: 'İngilizce (Varsayılan)' },
+                  { code: 'tr', label: '🇹🇷 TR', title: 'Türkçe' },
+                  { code: 'de', label: '🇩🇪 DE', title: 'Almanca' },
+                  { code: 'ar', label: '🇸🇦 AR', title: 'Arapça' },
+                ].map((l) => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    title={l.title}
+                    onClick={() => setProductDisplayLang(l.code as any)}
+                    className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                      productDisplayLang === l.code
+                        ? 'bg-primary text-white shadow-sm ring-2 ring-primary/20'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid gap-2 text-sm text-gray-700 sm:grid-cols-2">
@@ -1610,242 +1955,397 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
           </div>
         </div>
 
-        <div className="relative z-10 overflow-x-auto">
-          <table className="min-w-full border-separate border-spacing-0 text-sm">
-            <thead>
-              <tr className="bg-gray-50 text-left text-gray-700">
-                <th className="rounded-tl-lg border-b border-gray-200 px-2 py-2 w-12 text-center">#</th>
-                <th className="border-b border-gray-200 px-3 py-2">Stok Kodu</th>
-                <th className="border-b border-gray-200 px-3 py-2">Ürün</th>
-                <th className="border-b border-gray-200 px-3 py-2">Birim</th>
-                <th className="border-b border-gray-200 px-3 py-2 text-right">Miktar</th>
-                <th className="border-b border-gray-200 px-3 py-2 text-right">Palet</th>
-                <th className="border-b border-gray-200 px-3 py-2 text-right">Ağırlık</th>
-                <th className="border-b border-gray-200 px-3 py-2 text-right">Birim Maliyet</th>
-                <th className="border-b border-gray-200 px-3 py-2 text-right">Satır Toplamı</th>
-                <th className="no-print rounded-tr-lg border-b border-gray-200 px-3 py-2 text-right">İşlem</th>
+        {/* ─── Hızlı Filtre, Sayfalama ve Gezinme Araç Çubuğu ───────────────── */}
+        <div className="no-print mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/90 p-2.5 shadow-xs">
+          <div className="flex flex-1 items-center gap-2.5 min-w-[280px] max-w-lg">
+            <div className="relative w-full">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+              <input
+                type="text"
+                value={tableFilter}
+                onChange={(e) => {
+                  setTableFilter(e.target.value);
+                  setTableCurrentPage(1);
+                }}
+                placeholder="Listede hızlı ara (Ürün adı, kod veya barkod)..."
+                className="w-full rounded-lg border border-slate-300 bg-white pl-9 pr-8 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
+              />
+              {tableFilter && (
+                <button
+                  type="button"
+                  onClick={() => setTableFilter('')}
+                  title="Aramayı temizle"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-bold"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            <span className="shrink-0 text-xs font-semibold text-slate-600 bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+              {filteredTableItems.length} / {enrichedItems.length} ürün
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Sayfa Boyutu */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-medium">Görünüm:</span>
+              <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 shadow-2xs text-xs">
+                {[
+                  { value: 0, label: `Tümü (${enrichedItems.length})` },
+                  { value: 25, label: '25' },
+                  { value: 50, label: '50' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setTablePageSize(opt.value);
+                      setTableCurrentPage(1);
+                    }}
+                    className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
+                      tablePageSize === opt.value
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Hızlı Atlama Kısayolları */}
+            <div className="flex items-center gap-1.5 pl-2 border-l border-slate-200">
+              <button
+                type="button"
+                onClick={scrollToTop}
+                title="Sayfa Başına Çık"
+                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 flex items-center gap-1 shadow-2xs transition-colors"
+              >
+                <FiArrowUp size={13} /> Başa
+              </button>
+              <button
+                type="button"
+                onClick={scrollToBottom}
+                title="Toplamlara / Listenin Sonuna İn"
+                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 flex items-center gap-1 shadow-2xs transition-colors"
+              >
+                <FiArrowDown size={13} /> Sona
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tablo Konteyneri: max-h kısıtlaması kaldırıldı; sayfa akıcı kayar, çift dikey scroll ve yatay taşma engellenir */}
+        <div className="relative z-10 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-xs custom-scrollbar">
+          <table className="w-full border-separate border-spacing-0 text-sm">
+            <thead className="sticky top-0 z-20 bg-slate-900 text-white shadow-sm">
+              <tr className="text-left">
+                <th className="border-b border-slate-800 px-2 py-2.5 w-12 text-center text-xs font-semibold uppercase tracking-wider text-slate-300">#</th>
+                <th className="border-b border-slate-800 px-2.5 py-2.5 w-24 text-xs font-semibold uppercase tracking-wider text-slate-300 whitespace-nowrap">Stok Kodu</th>
+                <th className="border-b border-slate-800 px-3 py-2.5 min-w-[190px] text-xs font-semibold uppercase tracking-wider text-slate-300">Ürün Tanımı</th>
+                <th className="border-b border-slate-800 px-2 py-2.5 w-20 text-center text-xs font-semibold uppercase tracking-wider text-slate-300 whitespace-nowrap">Birim</th>
+                <th className="border-b border-slate-800 px-2 py-2.5 w-20 text-right text-xs font-semibold uppercase tracking-wider text-slate-300 whitespace-nowrap">Miktar</th>
+                <th className="border-b border-slate-800 px-2 py-2.5 w-16 text-right text-xs font-semibold uppercase tracking-wider text-slate-300 whitespace-nowrap">Palet</th>
+                <th className="border-b border-slate-800 px-2 py-2.5 w-20 text-right text-xs font-semibold uppercase tracking-wider text-slate-300 whitespace-nowrap">Ağırlık</th>
+                <th className="border-b border-slate-800 px-2.5 py-2.5 w-28 text-right text-xs font-semibold uppercase tracking-wider text-slate-300 whitespace-nowrap">Birim Maliyet</th>
+                <th className="border-b border-slate-800 px-3 py-2.5 w-24 text-right text-xs font-semibold uppercase tracking-wider text-slate-300 whitespace-nowrap">Satır Toplamı</th>
+                <th className="no-print border-b border-slate-800 px-2.5 py-2.5 w-24 text-right text-xs font-semibold uppercase tracking-wider text-slate-300 whitespace-nowrap">İşlem</th>
               </tr>
             </thead>
             <tbody>
-              {enrichedItems.length === 0 && (
+              {displayedTableItems.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-3 py-10 text-center text-gray-500">
-                    Henüz ürün eklenmedi.
+                  <td colSpan={10} className="px-3 py-10 text-center text-slate-500">
+                    {tableFilter ? `"${tableFilter}" aramasıyla eşleşen ürün bulunamadı.` : 'Henüz ürün eklenmedi.'}
                   </td>
                 </tr>
               )}
-              {enrichedItems.map((row, index) => (
-                <tr key={row.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, row.id)}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, row.id)}
-                  onDragEnd={handleDragEnd}
-                  className={`border-b border-gray-100 align-top transition-colors ${row.isModified ? 'bg-orange-50' : ''} ${draggedItemId === row.id ? 'opacity-50 bg-gray-100' : ''}`}>
-                  <td className="px-2 py-2 text-gray-400">
-                    <div className="flex items-center gap-1.5 pt-0.5">
-                      <span className="no-print cursor-move hover:text-gray-600" title="Sürükle bırak ile taşı">
-                        <FiMenu size={16} />
-                      </span>
-                      <span className="text-xs font-semibold text-gray-500 w-4 text-center">{index + 1}</span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2 font-mono text-xs text-gray-600">{row.product.stok_kodu || '-'}</td>
-                  <td className="px-3 py-2">
-                    <Link
-                      href={`/${locale}/admin/urun-yonetimi/urunler/${row.product.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-medium text-gray-900 hover:text-accent hover:underline transition-colors no-print"
-                      title="Ürün kartına git (yeni sekmede)"
-                    >
-                      {getProductNameEn(row.product.ad)}
-                    </Link>
-                    <span className="print-only font-medium text-gray-900">{getProductNameEn(row.product.ad)}</span>
-                    <p className="text-xs text-gray-500">
-                      Adet: {formatCurrency(row.purchaseBoxCost)} · Çarpan: x{formatNumber(row.multiplier)}
-                      {row.isModified && (
-                        <span className="ml-1 text-orange-600 font-semibold">· Düzenlenmiş</span>
-                      )}
-                    </p>
-                    {row.isModified && row.indirim_aciklamasi && (
-                      <p className="text-xs text-orange-500 mt-0.5">{row.indirim_aciklamasi}</p>
-                    )}
-                  </td>
-                  <td className="px-3 py-2">
-                    <select
-                      value={row.unitType}
-                      onChange={(e) => updateRow(row.id, { unitType: e.target.value as UnitType })}
-                      className="rounded-md border border-gray-300 px-2 py-1"
-                    >
-                      <option value="adet">Adet</option>
-                      <option value="koli">Koli</option>
-                      <option value="palet">Palet</option>
-                    </select>
-                    <span className="print-only text-sm font-medium text-gray-800">{row.unitType}</span>
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    <input
-                      type="number"
-                      min={1}
-                      step={1}
-                      value={row.quantity}
-                      onChange={(e) => updateRow(row.id, { quantity: Number(e.target.value || 1) })}
-                      className="w-20 rounded-md border border-gray-300 px-2 py-1 text-right"
-                    />
-                    <span className="print-only text-sm font-medium text-gray-800">{row.quantity}</span>
-                  </td>
-                  {/* Palet sütunu */}
-                  <td className="px-3 py-2 text-right whitespace-nowrap">
-                    {(() => {
-                      const pallets = calcPallets(row.product, row.unitType, row.quantity);
-                      const paletPerUrun = Number(row.product.palet_ici_adet || 0);
-                      return (
-                        <div>
-                          <p className={`text-sm font-semibold ${pallets > 0 ? 'text-indigo-700' : 'text-gray-400'}`}>
-                            {formatPalletsPlain(pallets)}
-                          </p>
-                          {paletPerUrun > 0 && pallets > 0 && (
-                            <p className="text-[10px] text-slate-400">1 palet = {paletPerUrun} koli</p>
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </td>
-                  {/* Ağırlık sütunu */}
-                  <td className="px-3 py-2 text-right whitespace-nowrap">
-                    {(() => {
-                      const kg = calcWeightKg(row.product, row.unitType, row.quantity);
-                      const unitKg = Number(row.product.birim_agirlik_kg || 0);
-                      return (
-                        <div>
-                          <p className={`text-sm font-semibold ${kg > 0 ? 'text-slate-700' : 'text-gray-400'}`}>
-                            {formatWeight(kg)}
-                          </p>
-                          {unitKg > 0 && (
-                            <p className="text-[10px] text-slate-400">{unitKg.toFixed(2)} kg/adet</p>
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </td>
-                  {/* Birim Maliyet — düzenlenebilir */}
-                  <td className="px-3 py-2 text-right">
-                    <div className="no-print flex items-center justify-end gap-1">
-                      <div className="relative group">
-                        <input
-                          type="number"
-                          min={0}
-                          step={0.0001}
-                          value={row.isModified && row.gercek_alis_fiyati != null
-                            ? row.gercek_alis_fiyati
-                            : row.purchaseBoxCost}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            if (!Number.isFinite(val) || val < 0) return;
-                            const isChanged = Math.abs(val - row.purchaseBoxCost) > 0.00001;
-                            updateRow(row.id, {
-                              gercek_alis_fiyati: isChanged ? val : null,
-                              fiyat_duzenlendi: isChanged,
-                              indirim_aciklamasi: isChanged ? 'Manuel düzenleme' : null,
-                            });
+              {displayedTableItems.map((row, index) => {
+                const actualIndex = tablePageSize > 0 ? (tableCurrentPage - 1) * tablePageSize + index : index;
+                const isRowDraggable = dragHandleActiveRowId === row.id;
+                return (
+                  <tr key={row.id}
+                    draggable={isRowDraggable}
+                    onDragStart={(e) => handleDragStart(e, row.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, row.id)}
+                    onDragEnd={() => {
+                      handleDragEnd();
+                      setDragHandleActiveRowId(null);
+                    }}
+                    className={`border-b border-slate-100 align-middle transition-colors ${row.isModified ? 'bg-orange-50/70' : 'even:bg-slate-50/60'} hover:bg-blue-50/50 ${draggedItemId === row.id ? 'opacity-50 bg-gray-100' : ''}`}>
+                    <td className="px-2 py-2 text-gray-400">
+                      <div className="flex items-center justify-center gap-1">
+                        <span
+                          className="no-print cursor-grab active:cursor-grabbing hover:text-slate-900 text-slate-400 p-1 rounded hover:bg-slate-200/70 transition-colors"
+                          title="Sürükle bırak ile sıralamayı değiştir"
+                          onMouseEnter={() => setDragHandleActiveRowId(row.id)}
+                          onMouseLeave={() => {
+                            if (!draggedItemId) setDragHandleActiveRowId(null);
                           }}
-                          className={`w-24 rounded-md border px-2 py-1 text-right text-sm font-medium transition-colors ${
-                            row.isModified
-                              ? 'border-orange-400 bg-orange-100 text-orange-800'
-                              : 'border-gray-300 bg-white text-gray-800'
-                          }`}
-                          title={row.isModified ? `Standart: ${formatCurrency(row.stdUnitCost)}` : 'Standart fiyat'}
-                        />
+                        >
+                          <FiMenu size={13} />
+                        </span>
+                        <span className="text-xs font-semibold text-slate-600 w-5 text-center select-none">{actualIndex + 1}</span>
+                      </div>
+                    </td>
+                    <td className="px-2.5 py-2 font-mono text-[11px] text-slate-600 whitespace-nowrap select-all">
+                      {row.product.stok_kodu ? (
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(row.product.stok_kodu!, 'Stok kodu')}
+                          title="Stok kodunu kopyalamak için tıkla (veya seçip Ctrl+C)"
+                          className="group/code hover:text-slate-900 inline-flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <span>{row.product.stok_kodu}</span>
+                          <FiCopy size={9} className="opacity-0 group-hover/code:opacity-70 text-slate-400 transition-opacity no-print" />
+                        </button>
+                      ) : (
+                        '-'
+                      )}
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex flex-col min-w-0">
+                        <Link
+                          href={`/${locale}/admin/urun-yonetimi/urunler/${row.product.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-xs text-slate-900 hover:text-primary hover:underline transition-colors no-print line-clamp-2"
+                          title="Ürün kartına git (yeni sekmede)"
+                        >
+                          {getProductLocalizedName(row.product.ad, productDisplayLang)}
+                        </Link>
+                        <span className="print-only font-semibold text-slate-900">{getProductLocalizedName(row.product.ad, productDisplayLang)}</span>
+
+                        <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-slate-500 mt-0.5">
+                          {typeof row.product.ad === 'object' && (
+                            productDisplayLang === 'en' ? (
+                              row.product.ad?.tr ? <span className="text-slate-400 truncate max-w-[220px]">TR: {row.product.ad.tr}</span> : null
+                            ) : (
+                              row.product.ad?.en ? <span className="text-slate-400 truncate max-w-[220px]">EN: {row.product.ad.en}</span> : null
+                            )
+                          )}
+                          {row.product.ean_gtin && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyToClipboard(row.product.ean_gtin!, 'Barkod');
+                              }}
+                              title="Barkodu kopyalamak için tıkla (veya seçip Ctrl+C)"
+                              className="group/barcode inline-flex items-center gap-1 font-mono bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 px-1.5 py-0.5 rounded text-[9.5px] font-medium border border-slate-200 select-all cursor-pointer transition-colors"
+                            >
+                              <span>{row.product.ean_gtin}</span>
+                              {copiedBarcode === row.product.ean_gtin ? (
+                                <FiCheck size={10} className="text-emerald-600 shrink-0" />
+                              ) : (
+                                <FiCopy size={9} className="text-slate-400 group-hover/barcode:text-slate-700 transition-colors shrink-0 no-print" />
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-2 py-2 text-center">
+                      <select
+                        value={row.unitType}
+                        onChange={(e) => updateRow(row.id, { unitType: e.target.value as UnitType })}
+                        className="rounded-md border border-slate-300 px-1.5 py-1 text-xs bg-white text-slate-800 font-medium focus:ring-1 focus:ring-primary focus:border-primary"
+                      >
+                        <option value="adet">Adet</option>
+                        <option value="koli">Koli</option>
+                        <option value="palet">Palet</option>
+                      </select>
+                      <span className="print-only text-xs font-medium text-gray-800">{row.unitType}</span>
+                    </td>
+                    <td className="px-2 py-2 text-right whitespace-nowrap">
+                      <input
+                        type="number"
+                        min={1}
+                        step={1}
+                        value={row.quantity}
+                        onChange={(e) => updateRow(row.id, { quantity: Number(e.target.value || 1) })}
+                        className="w-16 rounded-md border border-slate-300 px-1.5 py-1 text-right text-xs font-bold text-slate-800 bg-white focus:ring-1 focus:ring-primary focus:border-primary"
+                      />
+                      <span className="print-only text-xs font-medium text-gray-800">{row.quantity}</span>
+                      <p className="text-[10px] text-slate-400 mt-0.5 font-medium">x{formatNumber(row.multiplier)} ad</p>
+                    </td>
+                    <td className="px-2 py-2 text-right font-medium text-slate-700 whitespace-nowrap text-xs">
+                      {formatPalletsPlain(calcPallets(row.product, row.unitType, row.quantity))}
+                    </td>
+                    <td className="px-2 py-2 text-right whitespace-nowrap text-xs">
+                      {(() => {
+                        const totalKg = calcWeightKg(row.product, row.unitType, row.quantity);
+                        const unitKg = Number(row.product.birim_agirlik_kg || 0);
+                        return (
+                          <div>
+                            <span className="font-semibold text-slate-800">{formatWeight(totalKg)}</span>
+                            {unitKg > 0 && (
+                              <p className="text-[10px] text-slate-400 mt-0.5">{unitKg.toFixed(2)} kg/ad</p>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </td>
+                    <td className="px-2.5 py-2 text-right whitespace-nowrap">
+                      <div className="no-print flex items-center justify-end gap-1">
+                        <div className="relative group">
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.001}
+                            value={row.isModified && row.gercek_alis_fiyati != null
+                              ? Number(row.gercek_alis_fiyati).toFixed(3)
+                              : Number(row.purchaseBoxCost).toFixed(3)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!Number.isFinite(val) || val < 0) return;
+                              const roundedVal = Math.round(val * 1000) / 1000;
+                              const isChanged = Math.abs(roundedVal - row.purchaseBoxCost) > 0.0005;
+                              updateRow(row.id, {
+                                gercek_alis_fiyati: isChanged ? roundedVal : null,
+                                fiyat_duzenlendi: isChanged,
+                                indirim_aciklamasi: isChanged ? 'Manuel düzenleme' : null,
+                              });
+                            }}
+                            className={`w-20 rounded-md border px-1.5 py-1 text-right text-xs font-semibold transition-colors ${
+                              row.isModified
+                                ? 'border-orange-400 bg-orange-100/80 text-orange-800 focus:ring-orange-400'
+                                : 'border-slate-300 bg-white text-slate-800 focus:ring-primary'
+                            }`}
+                            title={row.isModified ? `Standart: ${formatUnitCost(row.stdUnitCost)}` : 'Standart fiyat'}
+                          />
+                          {row.isModified && (
+                            <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                              Standart: {formatUnitCost(row.stdUnitCost)}
+                            </span>
+                          )}
+                        </div>
                         {row.isModified && (
-                          <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-1.5 py-0.5 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                            Standart: {formatCurrency(row.stdUnitCost)}
-                          </span>
+                          <button type="button"
+                            onClick={() => resetRowPrice(row.id)}
+                            title="Standart fiyata sıfırla"
+                            className="rounded p-1 text-orange-500 hover:bg-orange-100 hover:text-orange-700 text-xs leading-none transition-colors">
+                            ↺
+                          </button>
                         )}
                       </div>
-                      {row.isModified && (
-                        <button type="button"
-                          onClick={() => resetRowPrice(row.id)}
-                          title="Standart fiyata sıfırla"
-                          className="rounded p-1 text-orange-500 hover:bg-orange-100 hover:text-orange-700 text-sm leading-none">
-                          ↺
-                        </button>
+                      <span className="print-only text-xs font-medium text-gray-800">{formatUnitCost(row.unitCost)}</span>
+                      {row.isModified && row.indirim_aciklamasi && (
+                        <p className="text-[9.5px] font-medium text-orange-600 mt-0.5 leading-tight truncate max-w-[125px] ml-auto" title={row.indirim_aciklamasi}>
+                          {row.indirim_aciklamasi}
+                        </p>
                       )}
-                    </div>
-                    <span className="print-only text-sm font-medium text-gray-800">{formatCurrency(row.unitCost)}</span>
-                  </td>
-                  <td className="px-3 py-2 text-right font-semibold text-primary">{formatCurrency(row.lineTotal)}</td>
-                  <td className="no-print px-3 py-2 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() => moveItem(row.id, 'up')}
-                        disabled={index === 0}
-                        title="Yukarı taşı"
-                        className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        <FiChevronUp size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => moveItem(row.id, 'down')}
-                        disabled={index === enrichedItems.length - 1}
-                        title="Aşağı taşı"
-                        className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        <FiChevronDown size={16} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeItem(row.id)}
-                        title="Sil"
-                        className="inline-flex items-center gap-1 rounded-md border border-rose-200 px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
-                      >
-                        <FiTrash2 /> <span className="hidden sm:inline">Sil</span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-3 py-2 text-right font-bold text-primary text-xs whitespace-nowrap">{formatCurrency(row.lineTotal)}</td>
+                    <td className="no-print px-2.5 py-2 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => moveItem(row.id, 'up')}
+                          disabled={actualIndex === 0}
+                          title="Yukarı taşı"
+                          className="inline-flex items-center justify-center rounded border border-slate-200 bg-white p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <FiChevronUp size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveItem(row.id, 'down')}
+                          disabled={actualIndex === enrichedItems.length - 1}
+                          title="Aşağı taşı"
+                          className="inline-flex items-center justify-center rounded border border-slate-200 bg-white p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <FiChevronDown size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(row.id)}
+                          title="Sil"
+                          className="inline-flex items-center rounded border border-rose-200 bg-rose-50/50 p-1 text-xs font-medium text-rose-700 hover:bg-rose-100 transition-colors"
+                        >
+                          <FiTrash2 size={13} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
             {enrichedItems.length > 0 && (
-              <tfoot>
-                <tr className="bg-gray-50">
-                  <td colSpan={7} className="px-3 py-3 text-sm text-gray-600">
-                    {selectedSupplierName} · {totals.totalLines} kalem · {totals.totalUnits} toplam birim
+              <tfoot id="table-summary-row">
+                <tr className="bg-slate-100/90 font-semibold border-t-2 border-slate-300">
+                  <td colSpan={7} className="px-3 py-2.5 text-xs text-slate-700">
+                    <span className="font-bold text-slate-900">{selectedSupplierName}</span> · {totals.totalLines} kalem · {totals.totalUnits} toplam koli/birim
                   </td>
-                  <td className="px-3 py-3 text-right text-sm font-medium text-gray-700">Genel Toplam</td>
-                  <td className="px-3 py-3 text-right text-lg font-bold text-primary">{formatCurrency(totals.grandTotal)}</td>
-                  <td className="px-3 py-3" />
+                  <td className="px-3 py-2.5 text-right text-xs font-bold text-slate-700">Genel Toplam</td>
+                  <td className="px-3 py-2.5 text-right text-base font-extrabold text-primary">{formatCurrency(totals.grandTotal)}</td>
+                  <td className="px-3 py-2.5" />
                 </tr>
                 {/* Palet + Ağırlık özeti satırı */}
-                <tr className="bg-indigo-50 border-t-2 border-indigo-200">
-                  <td colSpan={10} className="rounded-b-lg px-3 py-3">
-                    <div className="flex flex-wrap items-start gap-x-8 gap-y-2">
-                      {/* Palet */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">🏭</span>
-                        <div>
-                          <span className="text-sm font-bold text-indigo-900">Toplam Palet: </span>
-                          <span className="text-lg font-extrabold text-indigo-700">
+                <tr className="bg-indigo-50/90 border-t border-indigo-200">
+                  <td colSpan={10} className="rounded-b-lg px-4 py-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-6">
+                        {/* Palet */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-base">🏭</span>
+                          <span className="text-xs font-bold text-indigo-900">Toplam Palet: </span>
+                          <span className="text-sm font-extrabold text-indigo-700">
                             {totals.totalPallets < 0.01 ? '—' : totals.totalPallets % 1 === 0
                               ? `${totals.totalPallets.toFixed(0)} palet`
                               : `~${totals.totalPallets.toFixed(2)} palet`}
                           </span>
                         </div>
-                      </div>
-                      {/* Toplam ağırlık */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">⚖️</span>
-                        <div>
-                          <span className="text-sm font-bold text-indigo-900">Toplam Ağırlık: </span>
-                          <span className="text-lg font-extrabold text-indigo-700">
+                        {/* Toplam ağırlık */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-base">⚖️</span>
+                          <span className="text-xs font-bold text-indigo-900">Toplam Ağırlık: </span>
+                          <span className="text-sm font-extrabold text-indigo-700">
                             {totals.totalWeightKg <= 0
-                              ? <span className="text-slate-400 text-sm font-normal">(ürünlerde birim_agirlik_kg girilmemiş)</span>
+                              ? <span className="text-slate-400 text-xs font-normal">(ürünlerde birim_agirlik_kg girilmemiş)</span>
                               : formatWeight(totals.totalWeightKg)}
                           </span>
                         </div>
                       </div>
+
+                      {/* Sayfalama Butonları (Pagination bar) */}
+                      {tablePageSize > 0 && totalTablePages > 1 && (
+                        <div className="no-print flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setTableCurrentPage((p) => Math.max(1, p - 1))}
+                            disabled={tableCurrentPage === 1}
+                            className="px-2 py-1 text-xs rounded border border-slate-300 bg-white font-medium disabled:opacity-40 hover:bg-slate-50"
+                          >
+                            Önceki
+                          </button>
+                          {Array.from({ length: totalTablePages }, (_, i) => i + 1).map((page) => (
+                            <button
+                              key={page}
+                              type="button"
+                              onClick={() => setTableCurrentPage(page)}
+                              className={`h-6 w-6 rounded text-xs font-bold transition-all ${
+                                tableCurrentPage === page
+                                  ? 'bg-slate-900 text-white'
+                                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => setTableCurrentPage((p) => Math.min(totalTablePages, p + 1))}
+                            disabled={tableCurrentPage === totalTablePages}
+                            className="px-2 py-1 text-xs rounded border border-slate-300 bg-white font-medium disabled:opacity-40 hover:bg-slate-50"
+                          >
+                            Sonraki
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -1859,7 +2359,85 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         </p>
       </section>
 
+      {/* ─── Yapışkan Alt Özet ve Hızlı Aksiyon Çubuğu (Floating Sticky Summary Bar) ─── */}
+      {enrichedItems.length > 0 && (
+        <div className="no-print sticky bottom-3 z-30 rounded-2xl border border-slate-200/90 bg-white/95 p-3 sm:px-5 sm:py-3 shadow-xl backdrop-blur-md transition-all">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* Metrik Rozetleri */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+              <div className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 font-semibold text-slate-800">
+                <span>📦</span>
+                <span>{totals.totalLines} Kalem</span>
+                <span className="text-slate-400 font-normal">({totals.totalUnits} koli/birim)</span>
+              </div>
+
+              <div className="flex items-center gap-1.5 rounded-lg bg-indigo-50 px-2.5 py-1 font-semibold text-indigo-900 border border-indigo-100">
+                <span>🏭</span>
+                <span>{totals.totalPallets < 0.01 ? '—' : totals.totalPallets % 1 === 0 ? `${totals.totalPallets.toFixed(0)} palet` : `~${totals.totalPallets.toFixed(2)} palet`}</span>
+              </div>
+
+              <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-900 border border-emerald-100">
+                <span>⚖️</span>
+                <span>{totals.totalWeightKg <= 0 ? '—' : formatWeight(totals.totalWeightKg)}</span>
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-3 py-1 border border-amber-300">
+                <span className="text-xs font-bold uppercase tracking-wide text-amber-900">Toplam:</span>
+                <span className="text-base font-extrabold text-primary">{formatCurrency(totals.grandTotal)}</span>
+              </div>
+            </div>
+
+            {/* Hızlı Aksiyonlar */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={exportSupplierPdf}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-xs transition-colors"
+                title="Tedarikçiye Gönderilecek Fiyatsız PDF"
+              >
+                <FiSend size={13} />
+                <span>Tedarikçiye Gönder</span>
+              </button>
+              <button
+                type="button"
+                onClick={exportPdf}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-xs transition-colors"
+                title="Fiyatlı PDF İndir"
+              >
+                <FiFileText size={13} />
+                <span className="hidden sm:inline">PDF</span>
+              </button>
+              <button
+                type="button"
+                onClick={scrollToTop}
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 shadow-xs transition-colors"
+                title="Sayfa Başına Çık"
+              >
+                <FiArrowUp size={13} />
+                <span className="hidden sm:inline">Başa</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 6px;
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f8fafc;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+
         .form-watermark {
           position: absolute;
           inset: 0;
@@ -1915,9 +2493,18 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             display: inline !important;
           }
 
+          #print-order-list table {
+            font-size: 10.5px !important;
+          }
+
+          #print-order-list th,
+          #print-order-list td {
+            padding: 3px 5px !important;
+          }
+
           @page {
-            size: A4 portrait;
-            margin: 12mm;
+            size: A4 landscape;
+            margin: 8mm;
           }
         }
       `}</style>

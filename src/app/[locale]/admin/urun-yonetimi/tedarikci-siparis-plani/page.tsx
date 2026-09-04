@@ -53,7 +53,7 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
     supabase
       .from('urunler')
       .select('id, ad, stok_kodu, ean_gtin, distributor_alis_fiyati, koli_ici_adet, palet_ici_adet, birim_agirlik_kg, tedarikci_id, aktif')
-      .order(`ad->>${locale}`, { ascending: true })
+      .order('ad->>en', { ascending: true })
       .limit(5000),
     supabase.from('tedarikciler').select('id, unvan').order('unvan', { ascending: true }).limit(1000),
   ]);
@@ -78,10 +78,10 @@ export default async function TedarikciSiparisPlaniPage({ params }: PageProps) {
   const suppliers = (suppliersRes.data || []) as SupplierRow[];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <header className="mb-6">
-        <h1 className="font-serif text-4xl font-bold text-primary mb-2">📦 Tedarikçi Sipariş Planı</h1>
-        <p className="text-gray-600">
+    <div className="w-full max-w-[1720px] mx-auto space-y-4">
+      <header className="mb-4">
+        <h1 className="font-serif text-3xl md:text-4xl font-bold text-primary mb-1">📦 Tedarikçi Sipariş Planı</h1>
+        <p className="text-sm text-gray-600">
           Tedarikçiye verilecek sipariş listesini adet, koli veya palet bazında oluşturun. Bu ekran yalnızca planlama
           içindir, stok kayıtlarını değiştirmez.
         </p>

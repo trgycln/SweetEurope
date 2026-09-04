@@ -58,37 +58,42 @@ export default function EditableUrunRowClient({ urun, tierPrices, locale, conten
                 </Link>
             </td>
 
-            {/* Ürün adı + kodu */}
-            <td className="px-3 py-2 max-w-[220px]">
+            {/* Ürün adı + kodu / barkod */}
+            <td className="px-3 py-2 min-w-[250px]">
                 <Link href={`/${locale}/admin/urun-yonetimi/urunler/${urun.id}`}
-                    className="font-medium text-slate-900 hover:text-slate-600 hover:underline leading-snug block truncate">
+                    className="font-medium text-slate-900 hover:text-slate-600 hover:underline leading-snug block">
                     {urunAdi}
                 </Link>
-                {urun.stok_kodu && (
-                    <span className="text-[11px] font-mono text-slate-400">{urun.stok_kodu}</span>
-                )}
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    {urun.stok_kodu && (
+                        <span className="text-[11px] font-mono text-slate-400">
+                            {urun.stok_kodu}
+                        </span>
+                    )}
+                    {urun.ean_gtin && (
+                        <span className="inline-flex items-center gap-1 font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200" title="Barkod (EAN/GTIN)">
+                            <span className="text-slate-400 font-sans font-medium">EAN:</span> {urun.ean_gtin}
+                        </span>
+                    )}
+                </div>
             </td>
 
-            {/* Kategori */}
-            <td className="px-3 py-2 text-xs text-slate-600 max-w-[140px]">
-                <span className="truncate block">{kategoriAdi}</span>
-            </td>
-
-            {/* Gam */}
-            <td className="px-3 py-2 text-xs text-slate-500 whitespace-nowrap">
-                {urun.urun_gami && Array.isArray(urun.urun_gami) && urun.urun_gami.length > 0 ? (
-                    <div className="flex gap-1 flex-wrap">
+            {/* Kategori & Gam */}
+            <td className="px-3 py-2 text-xs text-slate-600 max-w-[160px]">
+                <span className="font-medium text-slate-800 truncate block">{kategoriAdi}</span>
+                {urun.urun_gami && Array.isArray(urun.urun_gami) && urun.urun_gami.length > 0 && (
+                    <div className="flex gap-1 flex-wrap mt-0.5">
                         {urun.urun_gami.map(gam => (
-                            <span key={gam} className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            <span key={gam} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
                                 {gam === 'barista' ? 'Barista' :
-                                 gam === 'dondurma' ? 'Eis & Gelato' :
+                                 gam === 'dondurma' ? 'Eis' :
                                  gam === 'pastaci' ? 'Konditorei' :
                                  gam === 'icecek' ? 'Getränke' :
                                  gam}
                             </span>
                         ))}
                     </div>
-                ) : '—'}
+                )}
             </td>
 
             {/* Stok */}

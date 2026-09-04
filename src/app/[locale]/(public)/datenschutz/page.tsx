@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const dictionary = await getDictionary(locale as any);
   return {
     title: `${dictionary.datenschutzPage.title} | ElysonSweets`,
-    description: 'Datenschutzerklärung der Elyson Sweets GmbH i.G. gemäß DSGVO.',
+    description: 'Datenschutzerklärung der Elyson Sweets GmbH gemäß DSGVO.',
   };
 }
 
@@ -32,7 +32,7 @@ export default async function DatenschutzPage({ params }: { params: Promise<{ lo
               <h2 className="text-xl font-bold font-serif text-primary mb-3">{t.section1Title}</h2>
               <p className="text-sm text-gray-700 leading-relaxed mb-3">{t.section1Intro}</p>
               <div className="pl-4 border-l-2 border-accent text-sm text-gray-700 space-y-0.5">
-                <p>Elyson Sweets GmbH i.G.</p>
+                <p>Elyson Sweets GmbH</p>
                 <p>Sirius Business Park</p>
                 <p>Wilhelm-Ruppert-Straße 38 / F8</p>
                 <p>51147 Köln</p>

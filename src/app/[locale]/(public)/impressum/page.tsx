@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const dictionary = await getDictionary(locale as any);
   return {
     title: `${dictionary.impressumPage.title} | ElysonSweets`,
-    description: 'Impressum der Elyson Sweets GmbH i.G. gemäß § 5 TMG.',
+    description: 'Impressum der Elyson Sweets GmbH gemäß § 5 TMG.',
   };
 }
 
@@ -29,7 +29,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
 
             <div>
               <h2 className="text-xl font-bold font-serif text-primary mb-3">{t.legalNote}</h2>
-              <p>Elyson Sweets GmbH i.G.</p>
+              <p>Elyson Sweets GmbH</p>
               <p>Sirius Business Park</p>
               <p>Wilhelm-Ruppert-Straße 38 / F8</p>
               <p>51147 Köln</p>

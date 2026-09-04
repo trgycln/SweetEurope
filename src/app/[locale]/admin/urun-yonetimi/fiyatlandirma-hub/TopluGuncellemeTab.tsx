@@ -7,9 +7,9 @@ import { bulkSaveProductPricesAction, bulkCreatePriceChangeRequestsAction } from
 import { PRODUCT_LINE_ORDER, getProductLineLabel, inferProductLineFromCategoryId, isProductLineKey, type ProductLineKey } from '@/lib/product-lines';
 import { PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER, PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS } from '@/lib/public-category-visibility';
 
-// stok_kodu alanı tiplerde mevcut olduğu için onu ekliyoruz; yoksa optional olarak genişletiyoruz.
+// stok_kodu ve ean_gtin alanları tiplerde mevcut olduğu için ekliyoruz
 // teknik_ozellikler içinden dilim/porsiyon bilgisini okuyacağız
-type ProductLite = Pick<Tables<'urunler'>, 'id' | 'ad' | 'kategori_id' | 'distributor_alis_fiyati' | 'satis_fiyati_alt_bayi' | 'satis_fiyati_musteri' | 'aktif' | 'urun_gami'> & { stok_kodu?: string | null; teknik_ozellikler?: any | null };
+type ProductLite = Pick<Tables<'urunler'>, 'id' | 'ad' | 'kategori_id' | 'distributor_alis_fiyati' | 'satis_fiyati_alt_bayi' | 'satis_fiyati_musteri' | 'aktif' | 'urun_gami'> & { stok_kodu?: string | null; ean_gtin?: string | null; teknik_ozellikler?: any | null };
 
 interface Props {
   locale: string;
@@ -109,13 +109,24 @@ export default function TopluGuncellemeTab({
       filtered = filtered.filter((p) => inferProductLine(p) === productLineFilter);
     }
 
-    // Search (by name or product code)
+    // Search (by name in all languages, product code or barcode)
     if (search.trim()) {
       const term = search.trim().toLowerCase();
+      const cleanTerm = term.replace(/\s+/g, '');
       filtered = filtered.filter(p => {
-        const name = (p.ad as any)?.[locale] || (typeof p.ad === 'string' ? p.ad : '');
+        const names = typeof p.ad === 'object' && p.ad !== null
+          ? Object.values(p.ad).filter(Boolean).map(v => String(v).toLowerCase())
+          : [String(p.ad || '').toLowerCase()];
         const code = p.stok_kodu ? String(p.stok_kodu).toLowerCase() : '';
-        return name.toLowerCase().includes(term) || code.includes(term);
+        const barcode = (p as any).ean_gtin ? String((p as any).ean_gtin).toLowerCase() : '';
+        const cleanBarcode = barcode.replace(/\s+/g, '');
+        const tekBarcode = (p as any).teknik_ozellikler?.barkod ? String((p as any).teknik_ozellikler.barkod).toLowerCase() : '';
+
+        return names.some(n => n.includes(term)) ||
+          code.includes(term) ||
+          barcode.includes(term) ||
+          (cleanBarcode.length > 0 && cleanBarcode.includes(cleanTerm)) ||
+          tekBarcode.includes(term);
       });
     }
 
@@ -596,6 +607,11 @@ export default function TopluGuncellemeTab({
                           {product.stok_kodu && (
                             <code className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-mono border border-gray-200">
                               {product.stok_kodu}
+                            </code>
+                          )}
+                          {product.ean_gtin && (
+                            <code className="px-1.5 py-0.5 bg-amber-50 text-amber-700 rounded text-[10px] font-mono border border-amber-200" title="Barkod (EAN)">
+                              {product.ean_gtin}
                             </code>
                           )}
                           <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-[10px] font-medium border border-blue-100">

@@ -158,6 +158,7 @@ export default async function UrunlerListPage({
             ad,
             ana_resim_url,
             stok_kodu,
+            ean_gtin,
             stok_miktari,
             stok_esigi,
             satis_fiyati_musteri,
@@ -400,7 +401,6 @@ export default async function UrunlerListPage({
                                     <th className="w-10 px-3 py-2.5"></th>
                                     <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Ürün</th>
                                     <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Kategori</th>
-                                    <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Gam</th>
                                     <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Stok</th>
                                     <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Aktif</th>
                                     <th className="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-orange-500" title="Bestseller">🏆</th>

@@ -6,7 +6,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const dictionary = await getDictionary(locale as any);
   return {
     title: `${dictionary.agbPage.title} | ElysonSweets`,
-    description: 'Allgemeine Geschäftsbedingungen der Elyson Sweets GmbH i.G. für gewerbliche Kunden.',
+    description: 'Allgemeine Geschäftsbedingungen der Elyson Sweets GmbH für gewerbliche Kunden.',
   };
 }
 

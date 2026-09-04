@@ -46,6 +46,7 @@ type ProductLite = {
   tedarikci_url?: string | null;
   koli_ici_adet?: number | null;
   palet_ici_adet?: number | null;
+  ean_gtin?: string | null;
 };
 
 type SupplierProfile = 'cold-chain' | 'non-cold';
@@ -133,30 +134,60 @@ function getLocalizedText(raw: unknown, locale: string, fallback = 'Ürün') {
 function normalizeSearch(str: string): string {
   return str
     .toLowerCase()
-    .replace(/ç/g, 'c').replace(/Ç/g, 'c')
-    .replace(/ş/g, 's').replace(/Ş/g, 's')
-    .replace(/ğ/g, 'g').replace(/Ğ/g, 'g')
-    .replace(/ı/g, 'i').replace(/İ/g, 'i')
-    .replace(/ö/g, 'o').replace(/Ö/g, 'o')
-    .replace(/ü/g, 'u').replace(/Ü/g, 'u')
-    .replace(/â/g, 'a').replace(/î/g, 'i')
-    .replace(/û/g, 'u');
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ç/g, 'c').replace(/ş/g, 's')
+    .replace(/ğ/g, 'g').replace(/ı/g, 'i')
+    .replace(/ö/g, 'o').replace(/ü/g, 'u')
+    .replace(/â/g, 'a').replace(/î/g, 'i').replace(/û/g, 'u')
+    .trim();
 }
 
+/**
+ * Geniş arama: barkod, stok kodu, tüm dillerdeki ürün adı, teknik özellikler.
+ * Türkçe karakter duyarsız, büyük/küçük harf duyarsız.
+ */
 function searchMatch(query: string, product: ProductLite, locale: string): boolean {
   if (!query.trim()) return true;
-  const q = normalizeSearch(query);
 
-  if (normalizeSearch(product.stok_kodu || '').includes(q)) return true;
+  // Boşlukları temizleyerek token bazlı arama (her kelime ayrı aranır)
+  const tokens = query.trim().split(/\s+/).map(normalizeSearch).filter(Boolean);
+  if (tokens.length === 0) return true;
 
+  // Arama yapılacak tüm metin parçaları
+  const haystack: string[] = [];
+
+  // Stok kodu
+  if (product.stok_kodu) haystack.push(normalizeSearch(product.stok_kodu));
+
+  // EAN / barkod (boşluksuz da dene)
+  if ((product as any).ean_gtin) {
+    const ean = String((product as any).ean_gtin);
+    haystack.push(normalizeSearch(ean));
+    haystack.push(ean.replace(/\s+/g, ''));
+  }
+
+  // Ürün adı — tüm diller
   const ad = product.ad;
   if (ad && typeof ad === 'object') {
     for (const val of Object.values(ad)) {
-      if (val && normalizeSearch(String(val)).includes(q)) return true;
+      if (val) haystack.push(normalizeSearch(String(val)));
     }
-  } else if (typeof ad === 'string' && normalizeSearch(ad).includes(q)) return true;
+  } else if (typeof ad === 'string' && ad) {
+    haystack.push(normalizeSearch(ad));
+  }
 
-  return false;
+  // Teknik özelliklerden barkod (bazı ürünlerde ekstra alan)
+  const tek = product.teknik_ozellikler as Record<string, unknown> | null | undefined;
+  if (tek && typeof tek === 'object') {
+    for (const key of ['barkod', 'barcode', 'ean', 'gtin']) {
+      if (tek[key]) haystack.push(normalizeSearch(String(tek[key])));
+    }
+  }
+
+  // Tüm haystackı birleştir ve her token en az birinde geçmeli
+  const combined = haystack.join(' ');
+  return tokens.every(token => combined.includes(token));
 }
 
 function profileToProductLine(profile: SupplierProfile): ProductLineKey {
@@ -233,6 +264,8 @@ export default function SimpleSupplierCostPlatform({
   const [selectedProfile, setSelectedProfile] = useState<SupplierProfile>('non-cold');
   const [selectedSupplierId, setSelectedSupplierId] = useState('all');
   const [productSearch, setProductSearch] = useState('');
+  // Ürün adı dil seçimi — varsayılan olarak İngilizce (en)
+  const [nameLocale, setNameLocale] = useState<string>('en');
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
   const [selectedAnaKatId, setSelectedAnaKatId] = useState('all');
   const [productProfileOverrides, setProductProfileOverrides] = useState<Record<string, SupplierProfile>>({});
@@ -294,7 +327,7 @@ export default function SimpleSupplierCostPlatform({
     [suppliers]
   );
 
-  const pName = (p: ProductLite) => getLocalizedText(p.ad, locale, 'Ürün');
+  const pName = (p: ProductLite) => getLocalizedText(p.ad, nameLocale, 'Ürün');
   const currentShipping = profileInputs[selectedProfile].shippingPerBox;
   const currentCustoms  = profileInputs[selectedProfile].customsPct;
 
@@ -364,7 +397,7 @@ export default function SimpleSupplierCostPlatform({
   // ── Rows calculation ────────────────────────────────────────────────────────
   const rows = useMemo<PricingRow[]>(() => {
     return [...products]
-      .sort((a, b) => pName(a).localeCompare(pName(b), 'tr'))
+      .sort((a, b) => pName(a).localeCompare(pName(b), nameLocale))
       .map(product => {
         const rawLine = Array.isArray(product.urun_gami) ? product.urun_gami[0] : product.urun_gami;
         const storedLine: ProductLineKey = isProductLineKey(rawLine)
@@ -391,7 +424,7 @@ export default function SimpleSupplierCostPlatform({
         });
         return { product, profile, line, purchase, calculation };
       });
-  }, [products, locale, categories, productProfileOverrides, profileInputs, operationalPct, taxPct, altBayiPct, koliBazliPct, cokKoliPct, paletPct, roundStep]);
+  }, [products, nameLocale, categories, productProfileOverrides, profileInputs, operationalPct, taxPct, altBayiPct, koliBazliPct, cokKoliPct, paletPct, roundStep]);
 
   const categoryScope = useMemo(() => {
     if (selectedCategoryId === 'all') return null;
@@ -783,9 +816,27 @@ export default function SimpleSupplierCostPlatform({
           </button>
         </div>
 
+        {/* Ürün adı dil seçimi */}
+        <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-0.5" title="Ürün adlarının gösterim dili">
+          {(['tr', 'de', 'en', 'ar'] as const).map(lang => (
+            <button
+              key={lang}
+              type="button"
+              onClick={() => setNameLocale(lang)}
+              className={`rounded-md px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide transition ${
+                nameLocale === lang
+                  ? 'bg-white text-indigo-700 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              {lang === 'tr' ? '🇹🇷 TR' : lang === 'de' ? '🇩🇪 DE' : lang === 'en' ? '🇬🇧 EN' : '🇸🇦 AR'}
+            </button>
+          ))}
+        </div>
+
         <input type="search" value={productSearch} onChange={e => setProductSearch(e.target.value)}
-          placeholder="Ürün / kod ara…"
-          className="w-44 rounded-md border border-slate-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-slate-400" />
+          placeholder="Ürün / barkod / kod ara…"
+          className="w-52 rounded-md border border-slate-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-slate-400" />
 
         <select value={selectedSupplierId} onChange={e => setSelectedSupplierId(e.target.value)}
           className="rounded-md border border-slate-200 px-2.5 py-1.5 text-sm max-w-[160px]">
