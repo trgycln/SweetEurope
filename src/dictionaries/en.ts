@@ -1322,7 +1322,7 @@ export const dictionary: Partial<Dictionary> = {
     formButton: 'Send Message',
     detailsTitle: 'Direct Contact',
     address: 'Wilhelm-Ruppert-Straße 38 / F8, 51147 Köln, Germany',
-    phone: '+49 (0) 123 456 789',
+    phone: '+49 2203 9899714',
     email: 'info@ElysonSweets.de',
   },
   orderStatuses: {

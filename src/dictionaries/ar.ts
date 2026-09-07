@@ -1308,7 +1308,7 @@ export const dictionary: Partial<Dictionary> = {
     formButton: 'إرسال الرسالة',
     detailsTitle: 'اتصال مباشر',
     address: 'Wilhelm-Ruppert-Straße 38 / F8, 51147 Köln, ألمانيا',
-    phone: '+49 (0) 123 456 789',
+    phone: '+49 2203 9899714',
     email: 'info@ElysonSweets.de',
   },
   orderStatuses: {

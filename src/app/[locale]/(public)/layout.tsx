@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { getDictionary } from '@/dictionaries';
 import { Header } from '@/components/Header';
 import Footer from '@/components/Footer';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import { Toaster } from 'sonner';
 
 export default async function LocaleLayout({
@@ -35,6 +36,7 @@ export default async function LocaleLayout({
       <Header dictionary={dictionary} />
       <main>{children}</main>
       <Footer dictionary={dictionary} locale={locale} />
+      <WhatsAppButton locale={locale} />
     </>
   );
 }

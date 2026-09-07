@@ -204,6 +204,7 @@ const DRAFT_STORAGE_KEY = 'tedarikci-siparis-plani:draft:v1';
 const HISTORY_STORAGE_KEY = 'tedarikci-siparis-plani:history:v1';
 const COMPANY_NAME = 'ElysonSweets GmbH';
 const COMPANY_EMAIL = 'info@elysonsweets.de';
+const COMPANY_PHONE = '+49 2203 9899714';
 const COMPANY_LOCATION = 'Koln, Deutschland';
 
 function formatDateTime(value: string): string {
@@ -1021,7 +1022,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     doc.setTextColor(100, 116, 139); // slate-500
     doc.text('Wholesale, Import & Export', brandX, 16.5);
     doc.text('Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany', brandX, 20.5);
-    doc.text('Tel: +49 157 58837093 · Email: ' + COMPANY_EMAIL, brandX, 24.5);
+    doc.text('Tel: ' + COMPANY_PHONE + ' · Email: ' + COMPANY_EMAIL, brandX, 24.5);
 
     // Sağ Üst: Kurumsal Belge Bilgi Kartı (Tamamen İngilizce)
     const cardX = pageW - mR - 106;
@@ -1163,7 +1164,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
         doc.setFontSize(6.8);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(148, 163, 184);
-        doc.text('ElysonSweets GmbH · Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany · Tel: +49 157 58837093 · info@elysonsweets.de', mL, ph - 4.5);
+        doc.text(`ElysonSweets GmbH · Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany · Tel: ${COMPANY_PHONE} · info@elysonsweets.de`, mL, ph - 4.5);
         doc.text(`Page ${data.pageNumber} of ${doc.getNumberOfPages()}`, pageW - mR, ph - 4.5, { align: 'right' });
       },
     });
@@ -1305,7 +1306,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
     doc.setTextColor(100, 116, 139);
     doc.text('Wholesale, Import & Export', brandX, 16.5);
     doc.text('Wilhelm-Ruppert-Str. 38 / F8, 51147 Koln, Germany', brandX, 20.5);
-    doc.text('Tel: +49 157 58837093 · Email: ' + COMPANY_EMAIL, brandX, 24.5);
+    doc.text('Tel: ' + COMPANY_PHONE + ' · Email: ' + COMPANY_EMAIL, brandX, 24.5);
 
     // Sağ Üst: Lojistik / Tedarikçi Belge Kartı (Tamamen İngilizce)
     const cardX = pageW - mR - 106;

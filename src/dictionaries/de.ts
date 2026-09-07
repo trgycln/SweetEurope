@@ -1389,7 +1389,7 @@ statusOptions: {
     formButton: 'Nachricht Senden',
     detailsTitle: 'Direkter Kontakt',
     address: 'Wilhelm-Ruppert-Straße 38 / F8, 51147 Köln, Deutschland',
-    phone: '+49 (0) 123 456 789',
+    phone: '+49 2203 9899714',
     email: 'info@ElysonSweets.de',
   },
   orderStatuses: {

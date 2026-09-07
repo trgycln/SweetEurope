@@ -28,7 +28,7 @@ let md = `# ElysonSweets (FO Food Products Germany) - Full B2B Product Catalog &
 ## Company & Distribution Hub
 - **Distributor**: Elyson Sweets GmbH i.G.
 - **Headquarters**: Sirius Business Park, Wilhelm-Ruppert-Straße 38 / F8, 51147 Köln, Germany
-- **Contact**: info@elysonsweets.de | +49 176 41533653 | https://www.elysonsweets.de
+- **Contact**: info@elysonsweets.de | +49 2203 9899714 | https://www.elysonsweets.de
 - **Managing Director**: Ahmet Seker
 - **Target Audience**: B2B Only (§14 BGB) - Cafés, Bakeries, Hotels, Restaurants, Gelaterias, Bars, Wholesalers
 - **Ordering**: MOQ: 1 carton | Volume Discounts | Free Sample Packages (Probierpaket) for Gastronomy

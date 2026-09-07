@@ -101,7 +101,9 @@ export default async function RootLayout({
               },
               "contactPoint": {
                 "@type": "ContactPoint",
-                "contactType": "customer service"
+                "contactType": "customer service",
+                "telephone": "+49 2203 9899714",
+                "email": "info@elysonsweets.de"
               }
             })
           }}

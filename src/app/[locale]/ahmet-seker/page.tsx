@@ -39,8 +39,8 @@ export default function DigitalCard() {
 
         {/* Links Grid */}
         <div className="space-y-4 pt-4">
-          <LinkBox href="tel:+4917641533653" icon="📞" text="Jetzt anrufen" />
-          <LinkBox href="https://wa.me/4917641533653" icon="💬" text="WhatsApp Nachricht" />
+          <LinkBox href="tel:+4922039899714" icon="📞" text="Jetzt anrufen" />
+          <LinkBox href="https://wa.me/4922039899714" icon="💬" text="WhatsApp Nachricht" />
           <LinkBox href="mailto:info@elysonsweets.de" icon="✉️" text="E-Mail senden" />
           <LinkBox href="https://maps.google.com/?q=Wilhelm-Ruppert-Str.+38+F/8,+51147+Köln" icon="📍" text="Route planen" />
           <LinkBox href="https://www.elysonsweets.de" icon="🌐" text="Webseite besuchen" />

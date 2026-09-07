@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { Header } from '@/components/Header';
 import { getDictionary } from '@/dictionaries';
 import Footer from '@/components/Footer'; 
+import WhatsAppButton from '@/components/WhatsAppButton';
 
 // DEĞİŞİKLİK: Fonksiyon imzasını güncelledik.
 export default async function LocaleLayout({
@@ -23,7 +24,8 @@ export default async function LocaleLayout({
       <main className="bg-gray-50">
         {children}
       </main>
-      <Footer dictionary={dictionary} />
+      <Footer dictionary={dictionary} locale={locale} />
+      <WhatsAppButton locale={locale} />
     </div>
   );
 }

@@ -4,7 +4,7 @@
 import React, { Suspense } from 'react';
 import { getDictionary } from '@/dictionaries';
 import { Locale } from '@/lib/utils';
-import { FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
+import { FaEnvelope, FaMapMarkerAlt, FaPhone, FaWhatsapp } from 'react-icons/fa';
 import ContactFormClient from './ContactFormClient';
 import type { Metadata } from 'next';
 
@@ -68,7 +68,14 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
                   <FaPhone className="text-accent text-2xl mt-1" />
                   <div>
                     <h3 className="font-bold font-sans text-primary">Telefon</h3>
-                    <a href="tel:+4917641533653" className="font-sans hover:text-accent transition-colors block">+49 176 41533653</a>
+                    <a href="tel:+4922039899714" className="font-sans hover:text-accent transition-colors block">+49 2203 9899714</a>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <FaWhatsapp className="text-[#25D366] text-2xl mt-1" />
+                  <div>
+                    <h3 className="font-bold font-sans text-primary">WhatsApp Business</h3>
+                    <a href="https://wa.me/4922039899714" target="_blank" rel="noopener noreferrer" className="font-sans hover:text-accent transition-colors block">+49 2203 9899714</a>
                   </div>
                 </div>
               </div>

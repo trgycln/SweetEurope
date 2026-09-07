@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaInstagram, FaLinkedin, FaWhatsapp, FaPhone } from 'react-icons/fa';
 
 const FO_CATEGORY_SLUGS = [
   { slug: 'sauces-and-ingredients', key: 'catHorecaLabel',  fallback: 'HoReCa – Gesamtsortiment' },
@@ -39,21 +39,27 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
             <p className="text-sm text-secondary/70 leading-relaxed mb-4">
               {f.description}
             </p>
-            <div className="text-sm text-secondary/60 space-y-1">
+            <div className="text-sm text-secondary/60 space-y-1.5">
               <a
                 href="https://maps.google.com/?q=Wilhelm-Ruppert-Stra%C3%9Fe+38%2C+51147+K%C3%B6ln%2C+Deutschland"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block hover:text-accent transition-colors cursor-pointer"
+                className="flex items-center gap-2 hover:text-accent transition-colors cursor-pointer"
                 title="Google Maps"
               >
-                📍 {f.location}
+                <span>📍</span> <span>{f.location}</span>
               </a>
-              <a href="mailto:info@elysonsweets.de" className="block hover:text-accent transition-colors">
-                ✉ info@elysonsweets.de
+              <a href="tel:+4922039899714" className="flex items-center gap-2 hover:text-accent transition-colors">
+                <FaPhone className="text-xs text-accent" /> <span>+49 2203 9899714</span>
+              </a>
+              <a href="mailto:info@elysonsweets.de" className="flex items-center gap-2 hover:text-accent transition-colors">
+                <span>✉</span> <span>info@elysonsweets.de</span>
               </a>
             </div>
             <div className="flex items-center gap-3 mt-4">
+              <a href="https://wa.me/4922039899714" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="hover:text-[#25D366] transition-colors" title="WhatsApp Business: +49 2203 9899714">
+                <FaWhatsapp size={20} />
+              </a>
               <a href="https://instagram.com/elysonsweets.de" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-accent transition-colors">
                 <FaInstagram size={20} />
               </a>

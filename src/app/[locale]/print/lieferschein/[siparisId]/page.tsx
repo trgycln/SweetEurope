@@ -78,7 +78,7 @@ export default async function LieferscheinPage({ params }: PageProps) {
         sehir: 'Köln',
         ulke: 'Deutschland',
         email: 'info@elysonsweets.de | elysonsweets@gmail.com',
-        telefon: '+49 176 12345678',
+        telefon: '+49 2203 9899714',
         isBayi: false
     };
 

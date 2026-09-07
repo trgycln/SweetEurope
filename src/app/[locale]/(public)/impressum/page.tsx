@@ -43,7 +43,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
 
             <div>
               <h2 className="text-xl font-bold font-serif text-primary mb-3">{t.contactLabel}</h2>
-              <p>Telefon: <a href="tel:+4917641533653" className="hover:text-accent transition-colors">+49 176 41533653</a></p>
+              <p>Telefon: <a href="tel:+4922039899714" className="hover:text-accent transition-colors">+49 2203 9899714</a></p>
               <p>E-Mail: <a href="mailto:info@elysonsweets.de" className="hover:text-accent transition-colors">info@elysonsweets.de</a></p>
               <p>Website: <a href="https://www.elysonsweets.de" className="hover:text-accent transition-colors">www.elysonsweets.de</a></p>
             </div>
