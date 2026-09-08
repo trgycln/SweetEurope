@@ -20,7 +20,7 @@ type Musteri = {
 type Urun = {
     id: string; ad: any; stok_kodu: string | null; ana_resim_url: string | null;
     satis_fiyati_musteri: number | null; satis_fiyati_toptanci: number | null;
-    satis_fiyati_alt_bayi: number | null; stok_miktari: number | null;
+    satis_fiyati_alt_bayi: number | null; satis_fiyati_palet?: number | null; stok_miktari: number | null;
     koli_ici_adet: number | null; palet_ici_adet: number | null;
 };
 type SepetItem = { urun: Urun; miktar: number; birim: Birim };
@@ -45,7 +45,7 @@ function fmt(v: number | null | undefined): string {
 }
 
 function getAdetFiyat(urun: Urun, birim: Birim, miktar: number): number {
-    if (birim === 'palet') return Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_musteri ?? 0);
+    if (birim === 'palet') return Number(urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
     if (birim === 'koli' && miktar >= 5) return Number(urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
     return Number(urun.satis_fiyati_musteri ?? 0);
 }
@@ -78,7 +78,7 @@ function SepeteEkleModal({ urun, locale, onClose, onAdd }: {
     const satisFiyatlari = [
         { label: `1 ${locale === 'de' ? 'Ktn.' : 'koli'}`, fiyat: urun.satis_fiyati_musteri, color: 'text-slate-700' },
         { label: `5+ ${locale === 'de' ? 'Ktn.' : 'koli'}`, fiyat: urun.satis_fiyati_toptanci, color: 'text-blue-700' },
-        ...(paletAdet > 0 ? [{ label: locale === 'de' ? 'Palette' : 'Palet', fiyat: urun.satis_fiyati_alt_bayi, color: 'text-purple-700' }] : []),
+        ...(paletAdet > 0 ? [{ label: locale === 'de' ? 'Palette' : 'Palet', fiyat: urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci, color: 'text-purple-700' }] : []),
     ];
 
     return (

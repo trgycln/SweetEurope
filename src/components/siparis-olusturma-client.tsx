@@ -13,10 +13,10 @@ import { toast } from 'sonner';
 import { Locale } from '@/i18n-config';
 
 // ── Tipler ────────────────────────────────────────────────────────────────
-type ProductOption = Pick<Tables<'urunler'>,
+export type ProductOption = Pick<Tables<'urunler'>,
     'id' | 'ad' | 'stok_kodu' | 'ana_resim_url' |
     'satis_fiyati_musteri' | 'satis_fiyati_toptanci' |
-    'satis_fiyati_alt_bayi' | 'stok_miktari' |
+    'satis_fiyati_alt_bayi' | 'satis_fiyati_palet' | 'stok_miktari' |
     'koli_ici_adet' | 'palet_ici_adet'
 >;
 type FirmaWithFinanz = Tables<'firmalar'> & {
@@ -57,12 +57,12 @@ function formatFiyat(v: number | null | undefined): string {
 
 function getAdetFiyat(urun: ProductOption, birim: Birim, miktar: number, userRole: UserRole, indirimOrani: number): number {
     let base: number;
-    if (birim === 'palet') {
-        base = Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_musteri ?? 0);
+    if (userRole === 'Alt Bayi') {
+        base = Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_palet ?? urun.satis_fiyati_musteri ?? 0);
+    } else if (birim === 'palet') {
+        base = Number(urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
     } else if (birim === 'koli' && miktar >= 5) {
         base = Number(urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
-    } else if (userRole === 'Alt Bayi') {
-        base = Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_musteri ?? 0);
     } else {
         base = Number(urun.satis_fiyati_musteri ?? 0);
     }
@@ -420,8 +420,8 @@ export function SiparisOlusturmaClient({
                                                 : <span className="text-gray-300">—</span>}
                                         </td>
                                         <td className="px-4 py-3 text-right text-sm font-semibold text-purple-700 whitespace-nowrap">
-                                            {urun.satis_fiyati_alt_bayi
-                                                ? formatFiyat(Number(urun.satis_fiyati_alt_bayi) * (1 - indirimOrani / 100))
+                                            {(userRole === 'Alt Bayi' ? urun.satis_fiyati_alt_bayi : (urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci))
+                                                ? formatFiyat(Number(userRole === 'Alt Bayi' ? urun.satis_fiyati_alt_bayi : (urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci)) * (1 - indirimOrani / 100))
                                                 : <span className="text-gray-300">—</span>}
                                         </td>
                                         <td className="px-4 py-3 text-right">

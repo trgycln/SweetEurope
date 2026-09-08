@@ -19,6 +19,7 @@ import UrunExcelImportPanel from './UrunExcelImportPanel';
 import UrunExcelExportPanel from './UrunExcelExportPanel';
 import StokHesaplaButton from './StokHesaplaButton';
 import { getGlobalCachedUser, getCachedProfile, getCachedCategories, getCachedSuppliers, getCachedPricingSettings } from '@/lib/admin/cache-utils';
+import { calculateHubPrices } from '@/lib/pricing/hub-pricing-engine';
 
 export const dynamic = 'force-dynamic';
 
@@ -111,26 +112,16 @@ export default async function UrunlerListPage({
 
     // Fetch pricing parameters for tier price calculation (Cached)
     const pricingSettings = await getCachedPricingSettings();
-    const _shipFrozen = pricingSettings.pricing_shipping_frozen_per_box ?? (350 / 384);
-    const _shipDry = pricingSettings.pricing_shipping_non_cold_per_box ?? 0.45;
-    const _custFrozen = pricingSettings.pricing_customs_frozen_percent ?? pricingSettings.pricing_customs_percent ?? 15;
-    const _opPct = pricingSettings.pricing_operational_percent ?? 15;
-    const _altBayiMargin = pricingSettings.pricing_alt_bayi_margin ?? pricingSettings.pricing_tier1_margin_percent ?? 5;
-    const _koliBazliMargin = pricingSettings.pricing_koli_bazli_margin ?? pricingSettings.pricing_tier3_margin_percent ?? 50;
-    const _cokKoliMargin = pricingSettings.pricing_cok_koli_margin ?? pricingSettings.pricing_tier2_margin_percent ?? 30;
-    const _paletMargin = pricingSettings.pricing_palet_margin ?? 15;
 
-    const calcTierPrices = (alis: number | null | undefined) => {
-        const a = Number(alis) || 0;
+    const calcTierPrices = (urunItem: any) => {
+        const a = Number(urunItem.distributor_alis_fiyati) || 0;
         if (a <= 0) return { altBayi: null, koliBazli: null, cokKoli: null, palet: null };
-        const ship = _shipFrozen;
-        const landed = (a + ship) * (1 + _custFrozen / 100) * (1 + _opPct / 100);
-        const r = (n: number) => Math.round(n * 100) / 100;
+        const calc = calculateHubPrices(urunItem, allKategoriler, pricingSettings);
         return {
-            altBayi: r(landed * (1 + _altBayiMargin / 100)),
-            koliBazli: r(landed * (1 + _koliBazliMargin / 100)),
-            cokKoli: r(landed * (1 + _cokKoliMargin / 100)),
-            palet: r(landed * (1 + _paletMargin / 100)),
+            altBayi: calc.altBayiNet,
+            koliBazli: calc.koliBazliNet,
+            cokKoli: calc.cokKoliNet,
+            palet: calc.paletNet,
         };
     };
 
@@ -163,6 +154,11 @@ export default async function UrunlerListPage({
             stok_esigi,
             satis_fiyati_musteri,
             satis_fiyati_alt_bayi,
+            satis_fiyati_toptanci,
+            satis_fiyati_palet,
+            standart_inis_maliyeti_net,
+            gumruk_vergi_orani_yuzde,
+            almanya_kdv_orani,
             aktif,
             is_bestseller,
             is_featured,
@@ -420,7 +416,9 @@ export default async function UrunlerListPage({
                                     <EditableUrunRowClient
                                         key={urun.id}
                                         urun={urun}
-                                        tierPrices={calcTierPrices(urun.distributor_alis_fiyati)}
+                                        tierPrices={calcTierPrices(urun)}
+                                        pricingSettings={pricingSettings}
+                                        categories={allKategoriler}
                                         locale={locale}
                                         content={content}
                                         isAdmin={isAdmin}

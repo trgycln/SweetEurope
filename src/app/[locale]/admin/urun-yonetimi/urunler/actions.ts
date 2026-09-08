@@ -610,6 +610,11 @@ export async function quickUpdateUrunAction(
         aktif?: boolean;
         is_bestseller?: boolean;
         is_featured?: boolean;
+        satis_fiyati_alt_bayi?: number | null;
+        satis_fiyati_musteri?: number | null;
+        satis_fiyati_toptanci?: number | null;
+        satis_fiyati_palet?: number | null;
+        standart_inis_maliyeti_net?: number | null;
     }
 ): Promise<FormState> {
     const cookieStore = await cookies();
@@ -638,6 +643,21 @@ export async function quickUpdateUrunAction(
     }
     if (updates.is_featured !== undefined) {
         updateData.is_featured = updates.is_featured;
+    }
+    if (updates.satis_fiyati_alt_bayi !== undefined) {
+        updateData.satis_fiyati_alt_bayi = updates.satis_fiyati_alt_bayi;
+    }
+    if (updates.satis_fiyati_musteri !== undefined) {
+        updateData.satis_fiyati_musteri = updates.satis_fiyati_musteri;
+    }
+    if (updates.satis_fiyati_toptanci !== undefined) {
+        updateData.satis_fiyati_toptanci = updates.satis_fiyati_toptanci;
+    }
+    if (updates.satis_fiyati_palet !== undefined) {
+        updateData.satis_fiyati_palet = updates.satis_fiyati_palet;
+    }
+    if (updates.standart_inis_maliyeti_net !== undefined) {
+        updateData.standart_inis_maliyeti_net = updates.standart_inis_maliyeti_net;
     }
 
     const { data, error } = await supabase

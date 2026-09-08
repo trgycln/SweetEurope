@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
     FiSearch, FiX, FiChevronDown, FiChevronRight,
-    FiAlertTriangle, FiPlus, FiLock, FiEdit2, FiFolder
+    FiAlertTriangle, FiPlus, FiLock, FiEdit2, FiFolder, FiTrash2
 } from 'react-icons/fi';
 import { toast } from 'sonner';
 
@@ -42,6 +42,15 @@ type Stats = {
     sozlesmeler: number;
 };
 
+export type KategoriNode = {
+    id: string;
+    label: string;
+    icon: string;
+    sira?: number;
+    varsayilan?: boolean;
+    children?: { id: string; label: string }[];
+};
+
 interface Props {
     belgeler: Belge[];
     stats: Stats;
@@ -49,24 +58,19 @@ interface Props {
     firmalar: Firma[];
     tirlar: Tir[];
     locale: string;
+    initialKlasorler?: KategoriNode[];
 }
 
 /* ── Category tree ─────────────────────────────────────────────────────── */
-type KategoriNode = {
-    id: string;
-    label: string;
-    icon: string;
-    children?: { id: string; label: string }[];
-};
-
-const KATEGORI_AGACI: KategoriNode[] = [
-    { id: 'gelen_evrak_dosyasi', label: 'Gelen Evrak Dosyası', icon: '📥' },
-    { id: 'giden_evrak_dosyasi', label: 'Giden Evrak Dosyası', icon: '📤' },
-    { id: 'sozlesmeler_dosyasi', label: 'Sözleşmeler Dosyası', icon: '📋' },
-    { id: 'kurulus_evraklari', label: 'Resmi Kuruluş Evrakları', icon: '🏛️' },
-    { id: 'personel_ozluk_dosyalari', label: 'Personel Özlük Dosyaları', icon: '👥' },
-    { id: 'sertifikalar', label: 'Sertifikalar (HACCP vs.)', icon: '🏅' },
-    { id: 'diger', label: 'Diğer Klasörler', icon: '📁' },
+export const VARSAYILAN_KATEGORILER: KategoriNode[] = [
+    { id: 'gelen_evrak_dosyasi', label: 'Gelen Evrak Dosyası', icon: '📥', sira: 10, varsayilan: true },
+    { id: 'giden_evrak_dosyasi', label: 'Giden Evrak Dosyası', icon: '📤', sira: 20, varsayilan: true },
+    { id: 'sozlesmeler_dosyasi', label: 'Sözleşmeler Dosyası', icon: '📋', sira: 30, varsayilan: true },
+    { id: 'arac_dosyasi', label: 'Araç Dosyası & Evrakları', icon: '🚗', sira: 35, varsayilan: true },
+    { id: 'kurulus_evraklari', label: 'Resmi Kuruluş Evrakları', icon: '🏛️', sira: 40, varsayilan: true },
+    { id: 'personel_ozluk_dosyalari', label: 'Personel Özlük Dosyaları', icon: '👥', sira: 50, varsayilan: true },
+    { id: 'sertifikalar', label: 'Sertifikalar (HACCP vs.)', icon: '🏅', sira: 60, varsayilan: true },
+    { id: 'diger', label: 'Diğer Klasörler', icon: '📁', sira: 999, varsayilan: true },
 ];
 
 const TEDARIKCI_OPTIONS = ['FO', 'Sweet Heaven Gıda A.Ş.', 'Diğer'];
@@ -99,16 +103,182 @@ function SummaryCard({
     );
 }
 
+/* ── AddFolderModal ─────────────────────────────────────────────────── */
+function AddFolderModal({
+    onClose,
+    onSuccess,
+}: {
+    onClose: () => void;
+    onSuccess: (yeniKlasor: KategoriNode) => void;
+}) {
+    const [label, setLabel] = useState('');
+    const [icon, setIcon] = useState('🚗');
+    const [customId, setCustomId] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    const HAZIR_EMOJILER = ['🚗', '🚛', '📋', '🏛️', '👥', '🏅', '🧾', '⚖️', '🏢', '🔧', '📦', '📑', '🏷️', '📁', '💻', '💡'];
+
+    // Label değiştikçe otomatik ID öner
+    const handleLabelChange = (val: string) => {
+        setLabel(val);
+        const trMap: Record<string, string> = {
+            'ç': 'c', 'Ç': 'c', 'ğ': 'g', 'Ğ': 'g', 'ı': 'i', 'I': 'i', 'İ': 'i',
+            'ö': 'o', 'Ö': 'o', 'ş': 's', 'Ş': 's', 'ü': 'u', 'Ü': 'u'
+        };
+        const slug = val
+            .split('')
+            .map(c => trMap[c] || c)
+            .join('')
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '');
+        setCustomId(slug);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!label.trim()) {
+            toast.error('Lütfen bir klasör adı girin');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const res = await fetch('/api/belgeler/klasorler', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    label: label.trim(),
+                    icon: icon.trim() || '📁',
+                    id: customId.trim() || undefined,
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Klasör oluşturulamadı');
+
+            toast.success('Yeni klasör başarıyla oluşturuldu');
+            onSuccess(data.klasor);
+            onClose();
+        } catch (err: any) {
+            toast.error(err.message || 'Klasör kaydedilemedi');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return createPortal(
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-in fade-in duration-150">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
+                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xl">📁</span>
+                        <h3 className="text-base font-bold text-slate-800">Yeni Klasör Oluştur</h3>
+                    </div>
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                        <FiX size={18} />
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="p-5 space-y-4">
+                    <div>
+                        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+                            Klasör Adı <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            value={label}
+                            onChange={e => handleLabelChange(e.target.value)}
+                            placeholder="Ör: Araç Dosyası, Gümrük Evrakları..."
+                            required
+                            autoFocus
+                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                            Klasör Simgesi / Emoji
+                        </label>
+                        <div className="flex items-center gap-2 mb-2">
+                            <input
+                                type="text"
+                                value={icon}
+                                onChange={e => setIcon(e.target.value)}
+                                className="w-14 text-center text-xl py-1 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            />
+                            <span className="text-xs text-slate-400">Aşağıdan hızlıca seçebilir veya dilediğiniz emojiyi yazabilirsiniz</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                            {HAZIR_EMOJILER.map(emoji => (
+                                <button
+                                    key={emoji}
+                                    type="button"
+                                    onClick={() => setIcon(emoji)}
+                                    className={`w-8 h-8 rounded-lg text-base flex items-center justify-center transition-all ${
+                                        icon === emoji
+                                            ? 'bg-blue-600 text-white shadow-sm scale-110 font-bold'
+                                            : 'hover:bg-white hover:shadow-xs'
+                                    }`}
+                                >
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">
+                            Sistem Tanıtıcı Kodu (Slug)
+                        </label>
+                        <input
+                            type="text"
+                            value={customId}
+                            onChange={e => setCustomId(e.target.value)}
+                            placeholder="arac_dosyasi"
+                            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-600 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                        />
+                        <p className="text-[10px] text-slate-400 mt-0.5">Klasör adından otomatik üretilir.</p>
+                    </div>
+
+                    <div className="flex gap-3 pt-3 border-t border-slate-100">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            disabled={saving}
+                            className="flex-1 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                        >
+                            İptal
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={saving || !label.trim()}
+                            className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                            {saving ? 'Oluşturuluyor...' : '📁 Klasörü Oluştur'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>,
+        document.body
+    );
+}
+
 /* ── CategorySidebar ───────────────────────────────────────────────────── */
 function CategorySidebar({
     selected, onSelect,
-    toplam, kategoriSayilari, kategoriSuresiBitenler,
+    toplam, kategoriSayilari,
+    klasorler,
+    onAddFolder,
+    onDeleteFolder,
 }: {
     selected: string;
     onSelect: (id: string) => void;
     toplam: number;
     kategoriSayilari: Record<string, number>;
-    kategoriSuresiBitenler?: Record<string, number>;
+    klasorler: KategoriNode[];
+    onAddFolder: () => void;
+    onDeleteFolder?: (id: string, label: string) => void;
 }) {
     return (
         <div className="space-y-1">
@@ -123,32 +293,55 @@ function CategorySidebar({
                 </span>
             </button>
 
-            <div className="pt-2 pb-0.5">
-                <p className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Klasörler</p>
+            <div className="pt-3 pb-1 px-3 flex items-center justify-between">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Klasörler</p>
+                <button
+                    onClick={onAddFolder}
+                    className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-1.5 py-0.5 rounded flex items-center gap-0.5 transition-colors"
+                    title="Yeni Klasör Ekle"
+                >
+                    <FiPlus size={12} /> Yeni Klasör
+                </button>
             </div>
 
-            {KATEGORI_AGACI.map(kat => (
-                <div key={kat.id}>
-                    <button
-                        onClick={() => onSelect(kat.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${selected === kat.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-slate-100 text-slate-700'}`}
-                    >
-                        <span className="flex items-center gap-2">
-                            {kat.icon} {kat.label}
-                        </span>
-                        <div className="flex items-center gap-1">
-                            <span className="text-xs text-slate-400">{kategoriSayilari[kat.id] || 0}</span>
-                        </div>
-                    </button>
-                </div>
-            ))}
+            <div className="space-y-0.5">
+                {klasorler.map(kat => (
+                    <div key={kat.id} className="group relative flex items-center">
+                        <button
+                            onClick={() => onSelect(kat.id)}
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors pr-8 ${selected === kat.id ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-slate-100 text-slate-700'}`}
+                        >
+                            <span className="flex items-center gap-2 truncate" title={kat.label}>
+                                <span className="flex-shrink-0">{kat.icon}</span>
+                                <span className="truncate">{kat.label}</span>
+                            </span>
+                            <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+                                <span className="text-xs text-slate-400">{kategoriSayilari[kat.id] || 0}</span>
+                            </div>
+                        </button>
+                        {!kat.varsayilan && onDeleteFolder && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDeleteFolder(kat.id, kat.label);
+                                }}
+                                title="Klasörü Sil"
+                                className="absolute right-1 opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"
+                            >
+                                <FiTrash2 size={12} />
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
 
 /* ── AddModal ───────────────────────────────────────────────────────── */
 function AddModal({
-    onClose, onSuccess, firmalar, tirlar, defaultKategori, belgeler
+    onClose, onSuccess, firmalar, tirlar, defaultKategori, belgeler,
+    klasorler, onOpenNewFolderModal,
 }: {
     onClose: () => void;
     onSuccess: (belge: Belge) => void;
@@ -156,10 +349,12 @@ function AddModal({
     tirlar: Tir[];
     defaultKategori?: string;
     belgeler: Belge[];
+    klasorler: KategoriNode[];
+    onOpenNewFolderModal: () => void;
 }) {
     const [form, setForm] = useState({
         ad: '',
-        kategori: defaultKategori || 'gelen_evrak_dosyasi',
+        kategori: defaultKategori || (klasorler[0]?.id ?? 'gelen_evrak_dosyasi'),
         sira_no: '',
         evrak_tarihi: '',
         tedarikci_adi: '',
@@ -252,16 +447,26 @@ function AddModal({
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Kategori (Klasör Tipi) <span className="text-red-500">*</span>
-                            </label>
+                            <div className="flex items-center justify-between mb-1">
+                                <label className="block text-sm font-medium text-slate-700">
+                                    Kategori (Klasör) <span className="text-red-500">*</span>
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={onOpenNewFolderModal}
+                                    className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5"
+                                    title="Yeni klasör oluştur"
+                                >
+                                    <FiPlus size={10} /> Yeni
+                                </button>
+                            </div>
                             <select
                                 value={form.kategori}
                                 onChange={e => setForm(p => ({ ...p, kategori: e.target.value }))}
                                 required
-                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
                             >
-                                {KATEGORI_AGACI.map(k => (
+                                {klasorler.map(k => (
                                     <option key={k.id} value={k.id}>{k.icon} {k.label}</option>
                                 ))}
                             </select>
@@ -346,12 +551,15 @@ function AddModal({
 /* ── EditModal ─────────────────────────────────────────────────────────── */
 function EditModal({
     belge, firmalar, tirlar, onClose, onSuccess,
+    klasorler, onOpenNewFolderModal,
 }: {
     belge: Belge;
     firmalar: Firma[];
     tirlar: Tir[];
     onClose: () => void;
     onSuccess: (updated: Belge) => void;
+    klasorler: KategoriNode[];
+    onOpenNewFolderModal: () => void;
 }) {
     const [form, setForm] = useState({
         ad: belge.ad,
@@ -428,16 +636,26 @@ function EditModal({
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
-                                Kategori <span className="text-red-500">*</span>
-                            </label>
+                            <div className="flex items-center justify-between mb-1">
+                                <label className="block text-sm font-medium text-slate-700">
+                                    Kategori <span className="text-red-500">*</span>
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={onOpenNewFolderModal}
+                                    className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5"
+                                    title="Yeni klasör oluştur"
+                                >
+                                    <FiPlus size={10} /> Yeni
+                                </button>
+                            </div>
                             <select
                                 value={form.kategori}
                                 onChange={e => setForm(p => ({ ...p, kategori: e.target.value }))}
                                 required
-                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
                             >
-                                {KATEGORI_AGACI.map(k => (
+                                {klasorler.map(k => (
                                     <option key={k.id} value={k.id}>{k.icon} {k.label}</option>
                                 ))}
                             </select>
@@ -520,6 +738,7 @@ function EditModal({
 /* ── BelgeRow ─────────────────────────────────────────────────────────── */
 function BelgeRow({
     belge, locale, firmalar, tirlar, onDelete, onUpdate,
+    klasorler, onOpenNewFolderModal,
 }: {
     belge: Belge;
     locale: string;
@@ -527,19 +746,22 @@ function BelgeRow({
     tirlar: Tir[];
     onDelete: (id: string) => void;
     onUpdate: (belge: Belge) => void;
+    klasorler: KategoriNode[];
+    onOpenNewFolderModal: () => void;
 }) {
     const [deleting, setDeleting] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
 
     // Kategori adını bul
     const findKategoriLabel = (id: string): string => {
-        for (const k of KATEGORI_AGACI) {
-            if (k.id === id) return k.label;
+        const found = klasorler.find(k => k.id === id);
+        if (found) return found.label;
+        for (const k of klasorler) {
             for (const c of k.children ?? []) {
                 if (c.id === id) return c.label;
             }
         }
-        return id;
+        return id.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
     };
 
     const handleDelete = async () => {
@@ -564,6 +786,8 @@ function BelgeRow({
                     belge={belge}
                     firmalar={firmalar}
                     tirlar={tirlar}
+                    klasorler={klasorler}
+                    onOpenNewFolderModal={onOpenNewFolderModal}
                     onClose={() => setEditOpen(false)}
                     onSuccess={updated => { onUpdate(updated); setEditOpen(false); }}
                 />
@@ -658,12 +882,15 @@ export default function BelgeYonetimClient({
     belgeler: initialBelgeler, stats: initialStats,
     kategoriSayilari,
     firmalar, tirlar, locale,
+    initialKlasorler,
 }: Props) {
     const [belgeler, setBelgeler] = useState<Belge[]>(initialBelgeler);
+    const [klasorler, setKlasorler] = useState<KategoriNode[]>(initialKlasorler || VARSAYILAN_KATEGORILER);
     const [selectedKategori, setSelectedKategori] = useState('tumu');
     const [searchTerm, setSearchTerm] = useState('');
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
     const [uploadDefaultKategori, setUploadDefaultKategori] = useState('gelen_evrak_dosyasi');
+    const [folderModalOpen, setFolderModalOpen] = useState(false);
 
     // Active filter chips
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set());
@@ -741,8 +968,6 @@ export default function BelgeYonetimClient({
         return counts;
     }, [belgeler]);
 
-
-
     const handleDelete = (id: string) => {
         setBelgeler(prev => prev.filter(b => b.id !== id));
     };
@@ -755,27 +980,66 @@ export default function BelgeYonetimClient({
         setBelgeler(prev => [newBelge, ...prev]);
     };
 
+    const handleCreateFolderSuccess = (yeniKlasor: KategoriNode) => {
+        setKlasorler(prev => {
+            if (prev.some(k => k.id === yeniKlasor.id)) return prev;
+            return [...prev, yeniKlasor].sort((a, b) => (a.sira ?? 100) - (b.sira ?? 100));
+        });
+        setSelectedKategori(yeniKlasor.id);
+        setUploadDefaultKategori(yeniKlasor.id);
+    };
+
+    const handleDeleteFolder = async (id: string, label: string) => {
+        const belgelerInCat = belgeler.filter(b => b.kategori === id);
+        if (belgelerInCat.length > 0) {
+            toast.error(`"${label}" klasöründe ${belgelerInCat.length} adet evrak var. Önce bu klasördeki evrakları silin veya düzenleyin.`);
+            return;
+        }
+
+        if (!confirm(`"${label}" klasörünü silmek istediğinizden emin misiniz?`)) return;
+
+        try {
+            const res = await fetch(`/api/belgeler/klasorler?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Klasör silinemedi');
+
+            setKlasorler(prev => prev.filter(k => k.id !== id));
+            if (selectedKategori === id) {
+                setSelectedKategori('tumu');
+            }
+            toast.success(`"${label}" klasörü silindi`);
+        } catch (err: any) {
+            toast.error(err.message || 'Klasör silinemedi');
+        }
+    };
+
     const FILTER_CHIPS = [
         { id: 'bu_ay', label: '📅 Bu Ay Eklenen', color: 'blue' },
     ];
 
     return (
         <div className="space-y-4">
-
-
-
             {/* ── Header ── */}
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800">Evrak Fihristi</h1>
                     <p className="text-sm text-slate-500 mt-0.5">
-                        Gelen/giden evrak, sözleşmeler ve resmi kuruluş belgelerinin fiziksel takibi
+                        Gelen/giden evrak, araç, sözleşmeler ve resmi kuruluş belgelerinin fiziksel takibi
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => { setUploadDefaultKategori('gelen_evrak_dosyasi'); setUploadModalOpen(true); }}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors"
+                        onClick={() => setFolderModalOpen(true)}
+                        className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors shadow-xs"
+                    >
+                        <FiFolder size={15} className="text-amber-500" /> Yeni Klasör
+                    </button>
+                    <button
+                        onClick={() => { 
+                            setUploadDefaultKategori(selectedKategori !== 'tumu' ? selectedKategori : (klasorler[0]?.id || 'gelen_evrak_dosyasi')); 
+                            setUploadModalOpen(true); 
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
                     >
                         <FiPlus size={14} /> Yeni Evrak Kaydı
                     </button>
@@ -790,6 +1054,8 @@ export default function BelgeYonetimClient({
                     onClick={() => toggleChip('bu_ay')} />
                 <SummaryCard icon="🤝" label="Sözleşmeler" value={stats.sozlesmeler} color="green"
                     onClick={() => setSelectedKategori('sozlesmeler_dosyasi')} />
+                <SummaryCard icon="🚗" label="Araç Evrakları" value={currentKategoriSayilari['arac_dosyasi'] || 0} color="orange"
+                    onClick={() => setSelectedKategori('arac_dosyasi')} />
             </div>
 
             {/* ── Ana içerik: sidebar + liste ── */}
@@ -801,6 +1067,9 @@ export default function BelgeYonetimClient({
                         onSelect={setSelectedKategori}
                         toplam={belgeler.length}
                         kategoriSayilari={currentKategoriSayilari}
+                        klasorler={klasorler}
+                        onAddFolder={() => setFolderModalOpen(true)}
+                        onDeleteFolder={handleDeleteFolder}
                     />
                 </aside>
 
@@ -871,7 +1140,10 @@ export default function BelgeYonetimClient({
                                 <p className="text-slate-600 font-semibold text-sm">Evrak kaydı bulunamadı</p>
                                 <p className="text-slate-400 text-xs mt-1">Filtre kriterini değiştirin veya yeni evrak kaydedin.</p>
                                 <button
-                                    onClick={() => setUploadModalOpen(true)}
+                                    onClick={() => {
+                                        setUploadDefaultKategori(selectedKategori !== 'tumu' ? selectedKategori : (klasorler[0]?.id || 'gelen_evrak_dosyasi'));
+                                        setUploadModalOpen(true);
+                                    }}
                                     className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
                                 >
                                     <FiPlus size={14} /> İlk Evrak Kaydını Ekle
@@ -896,6 +1168,8 @@ export default function BelgeYonetimClient({
                                                 locale={locale}
                                                 firmalar={firmalar}
                                                 tirlar={tirlar}
+                                                klasorler={klasorler}
+                                                onOpenNewFolderModal={() => setFolderModalOpen(true)}
                                                 onDelete={handleDelete}
                                                 onUpdate={handleUpdate}
                                             />
@@ -908,7 +1182,7 @@ export default function BelgeYonetimClient({
                 </div>
             </div>
 
-            {/* ── Add modal ── */}
+            {/* ── Add Document Modal ── */}
             {uploadModalOpen && (
                 <AddModal
                     onClose={() => setUploadModalOpen(false)}
@@ -917,6 +1191,16 @@ export default function BelgeYonetimClient({
                     tirlar={tirlar}
                     defaultKategori={uploadDefaultKategori}
                     belgeler={belgeler}
+                    klasorler={klasorler}
+                    onOpenNewFolderModal={() => setFolderModalOpen(true)}
+                />
+            )}
+
+            {/* ── Add Folder Modal ── */}
+            {folderModalOpen && (
+                <AddFolderModal
+                    onClose={() => setFolderModalOpen(false)}
+                    onSuccess={handleCreateFolderSuccess}
                 />
             )}
         </div>

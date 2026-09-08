@@ -21,7 +21,9 @@ interface UrunFiyatBilgi {
     satis_fiyati_musteri?: number | null;
     satis_fiyati_toptanci?: number | null;
     satis_fiyati_alt_bayi?: number | null;
+    satis_fiyati_palet?: number | null;
     partnerPreis?: number | null;
+    userRole?: string | null;
 }
 
 // ── Yardımcı getter'lar ──────────────────────────────────────────────
@@ -80,21 +82,28 @@ export function hesaplaToplamAdet(urun: UrunFiyatBilgi, birim: Birim, miktar: nu
  * @param urun       Ürün bilgisi
  * @param birim      Seçilen birim
  * @param koliMiktar Koli cinsinden miktar (birim='palet' ise palet × paletIciKoli)
+ * @param userRole   Kullanıcı rolü (Alt Bayi ise en ucuz bayi fiyatı geçerlidir)
  */
 export function hesaplaBirimFiyat(
     urun: UrunFiyatBilgi,
     birim: Birim,
     koliMiktar: number,
+    userRole?: string | null,
 ): number {
-    // Palet seçilmişse → palet (alt_bayi) fiyatı
-    if (birim === 'palet') {
-        return Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
+    const role = userRole ?? urun.userRole;
+    // 1) Alt Bayi ise: her zaman satis_fiyati_alt_bayi alır (paletten de ucuz)
+    if (role === 'Alt Bayi') {
+        return Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
     }
-    // 5+ koli → toptan fiyat
+    // 2) Normal müşteri palet seçtiğinde: satis_fiyati_palet alır (alt bayiden pahalı, toptandan ucuz)
+    if (birim === 'palet') {
+        return Number(urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
+    }
+    // 3) 5+ koli → toptan fiyat
     if (birim === 'koli' && koliMiktar >= 5) {
         return Number(urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
     }
-    // Standart fiyat
+    // 4) Standart 1-4 koli fiyatı
     return Number(urun.satis_fiyati_musteri ?? urun.partnerPreis ?? 0);
 }
 
@@ -135,12 +144,13 @@ export function hesaplaSepetSatiri(
     urun: UrunFiyatBilgi,
     birim: Birim,
     miktar: number,
+    userRole?: string | null,
 ): SepetHesap {
     const koliIciAdet = getKoliIciAdet(urun);
     const paletIciKoliAdet = getPaletIciKoliAdet(urun);
     const toplamAdet = hesaplaToplamAdet(urun, birim, miktar);
     const koliMiktar = hesaplaKoliMiktar(urun, birim, miktar);
-    const adetFiyat = hesaplaBirimFiyat(urun, birim, koliMiktar);
+    const adetFiyat = hesaplaBirimFiyat(urun, birim, koliMiktar, userRole);
     const toplamFiyat = toplamAdet * adetFiyat;
     const kademe = getAktifKademe(birim, koliMiktar);
 

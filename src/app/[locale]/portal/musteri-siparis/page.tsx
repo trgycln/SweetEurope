@@ -50,7 +50,7 @@ export default async function MusteriSiparisPage({ params, searchParams }: PageP
             .select(`
                 id, ad, stok_kodu, ana_resim_url,
                 satis_fiyati_musteri, satis_fiyati_toptanci,
-                satis_fiyati_alt_bayi, stok_miktari,
+                satis_fiyati_alt_bayi, satis_fiyati_palet, stok_miktari,
                 koli_ici_adet, palet_ici_adet
             `)
             .eq('aktif', true)

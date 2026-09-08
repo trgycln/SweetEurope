@@ -2534,6 +2534,7 @@ export type Database = {
           satis_fiyati_alt_bayi: number
           satis_fiyati_musteri: number
           satis_fiyati_toptanci: number | null
+          satis_fiyati_palet: number | null
           slug: string | null
           son_gercek_inis_maliyeti_net: number | null
           son_maliyet_sapma_yuzde: number | null
@@ -2593,6 +2594,7 @@ export type Database = {
           satis_fiyati_alt_bayi?: number
           satis_fiyati_musteri?: number
           satis_fiyati_toptanci?: number | null
+          satis_fiyati_palet?: number | null
           slug?: string | null
           son_gercek_inis_maliyeti_net?: number | null
           son_maliyet_sapma_yuzde?: number | null
@@ -2652,6 +2654,7 @@ export type Database = {
           satis_fiyati_alt_bayi?: number
           satis_fiyati_musteri?: number
           satis_fiyati_toptanci?: number | null
+          satis_fiyati_palet?: number | null
           slug?: string | null
           son_gercek_inis_maliyeti_net?: number | null
           son_maliyet_sapma_yuzde?: number | null

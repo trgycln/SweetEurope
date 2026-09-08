@@ -44,9 +44,12 @@ export const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string }> = 
 
 export type Birim = 'adet' | 'koli' | 'palet';
 
-export function getBirimFiyatKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number): number {
+export function getBirimFiyatKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number, userRole?: string): number {
+    if (userRole === 'Alt Bayi') {
+        return Number((produkt as any).satis_fiyati_alt_bayi ?? (produkt as any).satis_fiyati_palet ?? (produkt as any).satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri ?? 0);
+    }
     if (birim === 'palet') {
-        return Number((produkt as any).satis_fiyati_alt_bayi ?? produkt.satis_fiyati_musteri ?? 0);
+        return Number((produkt as any).satis_fiyati_palet ?? (produkt as any).satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri ?? 0);
     }
     if (birim === 'koli' && miktar >= 5) {
         return Number((produkt as any).satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri ?? 0);
@@ -315,13 +318,13 @@ export function ProduktGridCard({
                     : `1 Palet (${paletKoli} koli = ${paletToplamAdet} adet)`)
                 : (locale === 'de' ? '1 Palette' : '1 Palet'),
             sublabel: locale === 'de' ? 'Palettenpreis' : 'palet fiyatı',
-            price: produkt.satis_fiyati_alt_bayi,
+            price: (produkt as any).satis_fiyati_palet ?? produkt.satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri,
             highlight: true,
         },
     ];
 
     // Nur zeige "Ihr Preis" wenn unterschiedlich von letztem Tier price
-    const showIhrPreis = produkt.partnerPreis !== null && produkt.partnerPreis !== produkt.satis_fiyati_alt_bayi;
+    const showIhrPreis = produkt.partnerPreis !== null && produkt.partnerPreis !== ((produkt as any).satis_fiyati_palet ?? produkt.satis_fiyati_alt_bayi);
 
     return (
         <Link
@@ -527,13 +530,13 @@ export function ProduktListRow({
                     : `1 Palet (${paletKoli} koli = ${paletToplamAdet} adet)`)
                 : (locale === 'de' ? '1 Palette' : '1 Palet'),
             sublabel: locale === 'de' ? 'Palettenpreis' : 'palet fiyatı',
-            price: produkt.satis_fiyati_alt_bayi,
+            price: (produkt as any).satis_fiyati_palet ?? produkt.satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri,
             highlight: true,
         },
     ];
 
     const showIhrPreis = produkt.partnerPreis !== null &&
-        produkt.partnerPreis !== produkt.satis_fiyati_alt_bayi;
+        produkt.partnerPreis !== ((produkt as any).satis_fiyati_palet ?? produkt.satis_fiyati_alt_bayi);
 
     // Stok durumu
     const stokMiktar = produkt.stok_miktari ?? 0;

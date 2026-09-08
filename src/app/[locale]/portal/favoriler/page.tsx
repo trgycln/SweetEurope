@@ -39,7 +39,7 @@ export default async function FavorilerPage({ params }: PageProps) {
             urunler(
                 id, ad, slug, ana_resim_url, stok_kodu,
                 koli_ici_adet, palet_ici_adet, stok_miktari, aktif,
-                satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
+                satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi, satis_fiyati_palet,
                 kategori_id, kategoriler(ad)
             )
         `)

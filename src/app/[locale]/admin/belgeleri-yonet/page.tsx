@@ -98,6 +98,56 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
     });
 
 
+    // Klasörleri getir (belge_klasorleri tablosundan veya varsayılanlar)
+    const VARSAYILAN_KLASORLER = [
+        { id: 'gelen_evrak_dosyasi', label: 'Gelen Evrak Dosyası', icon: '📥', sira: 10, varsayilan: true },
+        { id: 'giden_evrak_dosyasi', label: 'Giden Evrak Dosyası', icon: '📤', sira: 20, varsayilan: true },
+        { id: 'sozlesmeler_dosyasi', label: 'Sözleşmeler Dosyası', icon: '📋', sira: 30, varsayilan: true },
+        { id: 'arac_dosyasi', label: 'Araç Dosyası & Evrakları', icon: '🚗', sira: 35, varsayilan: true },
+        { id: 'kurulus_evraklari', label: 'Resmi Kuruluş Evrakları', icon: '🏛️', sira: 40, varsayilan: true },
+        { id: 'personel_ozluk_dosyalari', label: 'Personel Özlük Dosyaları', icon: '👥', sira: 50, varsayilan: true },
+        { id: 'sertifikalar', label: 'Sertifikalar (HACCP vs.)', icon: '🏅', sira: 60, varsayilan: true },
+        { id: 'diger', label: 'Diğer Klasörler', icon: '📁', sira: 999, varsayilan: true },
+    ];
+
+    let klasorler: any[] = [...VARSAYILAN_KLASORLER];
+    try {
+        const { data: dbKlasorler, error: klasorError } = await supabase
+            .from('belge_klasorleri')
+            .select('id, label, icon, sira, varsayilan')
+            .order('sira', { ascending: true });
+
+        if (dbKlasorler && !klasorError && dbKlasorler.length > 0) {
+            klasorler = [...dbKlasorler];
+            const mevcutIds = new Set(klasorler.map((k: any) => k.id));
+            for (const vk of VARSAYILAN_KLASORLER) {
+                if (!mevcutIds.has(vk.id)) {
+                    klasorler.push(vk);
+                }
+            }
+        }
+    } catch {
+        // Tablo henüz yoksa varsayılanlar kullanılır
+    }
+
+    // belgeler tablosunda kullanılan ama listede bulunmayan kategorileri de otomatik tespit et
+    const existingCatIds = new Set(klasorler.map((k: any) => k.id));
+    belgeler.forEach(b => {
+        if (b.kategori && !existingCatIds.has(b.kategori)) {
+            existingCatIds.add(b.kategori);
+            const title = b.kategori.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+            klasorler.push({
+                id: b.kategori,
+                label: title,
+                icon: '📁',
+                sira: 500,
+                varsayilan: false
+            });
+        }
+    });
+
+    klasorler.sort((a, b) => (a.sira ?? 100) - (b.sira ?? 100));
+
     return (
         <BelgeYonetimClient
             belgeler={belgeler as any}
@@ -106,6 +156,7 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
             firmalar={firmalar ?? []}
             tirlar={tirlar ?? []}
             locale={locale}
+            initialKlasorler={klasorler}
         />
     );
 }

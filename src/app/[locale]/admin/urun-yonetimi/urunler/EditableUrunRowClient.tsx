@@ -4,8 +4,28 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatCurrency, getLocalizedName } from "@/lib/utils";
 import { quickUpdateUrunAction } from "./actions";
+import { calculateHubPrices } from "@/lib/pricing/hub-pricing-engine";
+import { Locale } from "@/i18n-config";
 
-export default function EditableUrunRowClient({ urun, tierPrices, locale, content, isAdmin, canSeePurchasePrice }) {
+export default function EditableUrunRowClient({
+    urun,
+    tierPrices,
+    pricingSettings,
+    categories,
+    locale,
+    content,
+    isAdmin,
+    canSeePurchasePrice
+}: {
+    urun: any;
+    tierPrices: any;
+    pricingSettings?: any;
+    categories?: any[];
+    locale: Locale;
+    content: any;
+    isAdmin: boolean;
+    canSeePurchasePrice: boolean;
+}) {
     const [alisFiyati, setAlisFiyati] = React.useState(urun.distributor_alis_fiyati ?? 0);
     const [stokMiktari, setStokMiktari] = React.useState(urun.stok_miktari ?? 0);
     const [aktif, setAktif] = React.useState(urun.aktif ?? true);
@@ -19,6 +39,18 @@ export default function EditableUrunRowClient({ urun, tierPrices, locale, conten
         || stokMiktari !== (urun.stok_miktari ?? 0)
         || aktif !== (urun.aktif ?? true);
 
+    const currentTierPrices = React.useMemo(() => {
+        if (!alisFiyati || alisFiyati <= 0) return { altBayi: null, koliBazli: null, cokKoli: null, palet: null, landedCost: null };
+        const calc = calculateHubPrices({ ...urun, distributor_alis_fiyati: alisFiyati }, categories, pricingSettings);
+        return {
+            altBayi: calc.altBayiNet,
+            koliBazli: calc.koliBazliNet,
+            cokKoli: calc.cokKoliNet,
+            palet: calc.paletNet,
+            landedCost: calc.landedCost,
+        };
+    }, [alisFiyati, urun, categories, pricingSettings]);
+
     async function handleSave() {
         setLoading(true);
         setError("");
@@ -27,7 +59,12 @@ export default function EditableUrunRowClient({ urun, tierPrices, locale, conten
             const result = await quickUpdateUrunAction(urun.id, {
                 distributor_alis_fiyati: alisFiyati,
                 stok_miktari: stokMiktari,
-                aktif: aktif
+                aktif: aktif,
+                satis_fiyati_alt_bayi: currentTierPrices.altBayi,
+                satis_fiyati_musteri: currentTierPrices.koliBazli,
+                satis_fiyati_toptanci: currentTierPrices.cokKoli,
+                satis_fiyati_palet: currentTierPrices.palet,
+                standart_inis_maliyeti_net: currentTierPrices.landedCost,
             });
             if (result && result.success) {
                 setSuccess(true);
@@ -184,22 +221,22 @@ export default function EditableUrunRowClient({ urun, tierPrices, locale, conten
 
             {/* Alt Bayi */}
             <td className="px-3 py-2 text-right">
-                <span className="text-sm font-medium text-blue-800">{tierPrices?.altBayi != null ? formatCurrency(tierPrices.altBayi, locale) : '—'}</span>
+                <span className="text-sm font-medium text-blue-800">{currentTierPrices?.altBayi != null ? formatCurrency(currentTierPrices.altBayi, locale) : '—'}</span>
             </td>
 
             {/* Koli Bazlı */}
             <td className="px-3 py-2 text-right">
-                <span className="text-sm font-medium text-violet-800">{tierPrices?.koliBazli != null ? formatCurrency(tierPrices.koliBazli, locale) : '—'}</span>
+                <span className="text-sm font-medium text-violet-800">{currentTierPrices?.koliBazli != null ? formatCurrency(currentTierPrices.koliBazli, locale) : '—'}</span>
             </td>
 
             {/* 5 Koli+ */}
             <td className="px-3 py-2 text-right">
-                <span className="text-sm font-medium text-emerald-800">{tierPrices?.cokKoli != null ? formatCurrency(tierPrices.cokKoli, locale) : '—'}</span>
+                <span className="text-sm font-medium text-emerald-800">{currentTierPrices?.cokKoli != null ? formatCurrency(currentTierPrices.cokKoli, locale) : '—'}</span>
             </td>
 
             {/* Palet Bazlı */}
             <td className="px-3 py-2 text-right">
-                <span className="text-sm font-medium text-orange-700">{tierPrices?.palet != null ? formatCurrency(tierPrices.palet, locale) : '—'}</span>
+                <span className="text-sm font-medium text-orange-700">{currentTierPrices?.palet != null ? formatCurrency(currentTierPrices.palet, locale) : '—'}</span>
             </td>
 
             {/* Kaydet + Detay */}

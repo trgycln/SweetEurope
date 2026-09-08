@@ -27,6 +27,7 @@ type ProductLite = {
   satis_fiyati_alt_bayi?: number | null;
   satis_fiyati_toptanci?: number | null;
   satis_fiyati_musteri?: number | null;
+  satis_fiyati_palet?: number | null;
   teknik_ozellikler?: Record<string, unknown> | null;
   urun_gami?: string[] | null;
   stok_kodu?: string | null;
@@ -74,10 +75,10 @@ interface Props {
 // ─── Tier config ──────────────────────────────────────────────────────────────
 
 const TIERS = [
-  { key: 'altBayi',   label: '1 Palet',     color: 'blue',   dbField: 'satis_fiyati_alt_bayi'  },
+  { key: 'altBayi',   label: 'Alt Bayi',    color: 'blue',   dbField: 'satis_fiyati_alt_bayi'  },
   { key: 'koliBazli', label: '1 Koli',      color: 'violet', dbField: 'satis_fiyati_musteri'   },
   { key: 'cokKoli',   label: '5 Koli+',     color: 'emerald',dbField: 'satis_fiyati_toptanci'  },
-  { key: 'palet',     label: 'Palet',       color: 'orange', dbField: null                     },
+  { key: 'palet',     label: 'Palet Bazlı', color: 'orange', dbField: 'satis_fiyati_palet'     },
 ] as const;
 
 type TierKey = typeof TIERS[number]['key'];
@@ -463,6 +464,7 @@ export default function SimpleSupplierCostPlatform({
     altBayi:   'satis_fiyati_alt_bayi',
     koliBazli: 'satis_fiyati_musteri',
     cokKoli:   'satis_fiyati_toptanci',
+    palet:     'satis_fiyati_palet',
   };
 
   /** Ürünün DB'deki mevcut fiyatını döndürür (varsa) */
@@ -535,6 +537,7 @@ export default function SimpleSupplierCostPlatform({
         satis_fiyati_alt_bayi:  r2(resolvedTierPrice(row, 'altBayi')),
         satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
         satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),
+        satis_fiyati_palet:     r2(resolvedTierPrice(row, 'palet')),
         standart_inis_maliyeti_net: row.calculation.landedCost,
       }, locale);
       if (res?.error) toast.error(res.error);
@@ -576,6 +579,7 @@ export default function SimpleSupplierCostPlatform({
       satis_fiyati_alt_bayi:  r2(resolvedTierPrice(row, 'altBayi')),
       satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
       satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),
+      satis_fiyati_palet:     r2(resolvedTierPrice(row, 'palet')),
       standart_inis_maliyeti_net: row.calculation.landedCost,
     }));
 
@@ -994,21 +998,10 @@ export default function SimpleSupplierCostPlatform({
                           }
                         </td>
 
-                        {/* Tier cells: editable for DB-backed tiers, read-only display for palet */}
+                        {/* Tier cells: editable for DB-backed tiers */}
                         {TIERS.map(tier => {
                           const auto = row.calculation[`${tier.key}Net`] as number;
                           const colors = TIER_COLOR[tier.key];
-
-                          // Palet sütunu: DB alanı yok, sadece referans gösterim
-                          if (tier.dbField === null) {
-                            return (
-                              <td key={tier.key} className="px-2 py-2">
-                                <div className="w-full rounded-md border border-dashed border-orange-200 bg-orange-50/40 px-2 py-1.5 text-sm text-right font-mono text-orange-700 italic" title="Referans fiyat — kaydedilmez">
-                                  {noPurchase ? <span className="text-slate-300">—</span> : Number.isFinite(auto) ? auto.toFixed(2) : '—'}
-                                </div>
-                              </td>
-                            );
-                          }
 
                           const hasOv = hasManualOverride(row.product.id, tier.key);
                           const resolvedPrice = resolvedTierPrice(row, tier.key);

@@ -27,6 +27,7 @@ interface Urun {
     satis_fiyati_musteri: number | null;
     satis_fiyati_toptanci: number | null;
     satis_fiyati_alt_bayi: number | null;
+    satis_fiyati_palet?: number | null;
     kategori_id: string | null;
     kategoriler?: { ad: any } | null;
     favori_eklenme_tarihi: string;
@@ -43,9 +44,9 @@ interface Props {
 
 // ── Fiyat hesabı ─────────────────────────────────────────────────────────
 function getAdetFiyat(u: Urun, birim: Birim, miktar: number, userRole: string): number {
-    if (birim === 'palet') return Number(u.satis_fiyati_alt_bayi ?? u.satis_fiyati_musteri ?? 0);
+    if (userRole === 'Alt Bayi') return Number(u.satis_fiyati_alt_bayi ?? u.satis_fiyati_palet ?? u.satis_fiyati_toptanci ?? u.satis_fiyati_musteri ?? 0);
+    if (birim === 'palet') return Number(u.satis_fiyati_palet ?? u.satis_fiyati_toptanci ?? u.satis_fiyati_musteri ?? 0);
     if (birim === 'koli' && miktar >= 5) return Number(u.satis_fiyati_toptanci ?? u.satis_fiyati_musteri ?? 0);
-    if (userRole === 'Alt Bayi') return Number(u.satis_fiyati_alt_bayi ?? u.satis_fiyati_musteri ?? 0);
     return Number(u.satis_fiyati_musteri ?? 0);
 }
 
@@ -323,10 +324,10 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
                                                 <span className="font-semibold">{fmt(Number(u.satis_fiyati_toptanci))}</span>
                                             </div>
                                         )}
-                                        {u.satis_fiyati_alt_bayi && paletAdet > 0 && (
+                                        {(userRole === 'Alt Bayi' ? u.satis_fiyati_alt_bayi : (u.satis_fiyati_palet ?? u.satis_fiyati_toptanci)) && paletAdet > 0 && (
                                             <div className="flex justify-between text-purple-700">
                                                 <span>{locale === 'de' ? 'Palette' : 'Palet'} ({paletAdet})</span>
-                                                <span className="font-semibold">{fmt(Number(u.satis_fiyati_alt_bayi))}</span>
+                                                <span className="font-semibold">{fmt(Number(userRole === 'Alt Bayi' ? u.satis_fiyati_alt_bayi : (u.satis_fiyati_palet ?? u.satis_fiyati_toptanci)))}</span>
                                             </div>
                                         )}
                                     </div>
@@ -488,9 +489,9 @@ export default function FavorilerClient({ favoriler, locale, userRole, firmaId }
                                                 5+ {locale === 'de' ? 'Ktn.' : 'koli'}: <strong>{fmt(Number(u.satis_fiyati_toptanci))}</strong>
                                             </span>
                                         )}
-                                        {u.satis_fiyati_alt_bayi && paletAdet > 0 && (
+                                        {(userRole === 'Alt Bayi' ? u.satis_fiyati_alt_bayi : (u.satis_fiyati_palet ?? u.satis_fiyati_toptanci)) && paletAdet > 0 && (
                                             <span className="text-[11px] text-purple-700">
-                                                {locale === 'de' ? 'Pal.' : 'Palet'}: <strong>{fmt(Number(u.satis_fiyati_alt_bayi))}</strong>
+                                                {locale === 'de' ? 'Pal.' : 'Palet'}: <strong>{fmt(Number(userRole === 'Alt Bayi' ? u.satis_fiyati_alt_bayi : (u.satis_fiyati_palet ?? u.satis_fiyati_toptanci)))}</strong>
                                             </span>
                                         )}
                                     </div>

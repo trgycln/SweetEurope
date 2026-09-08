@@ -12,6 +12,7 @@ export type SavePricesPayload = {
   satis_fiyati_alt_bayi?: number | null;
   satis_fiyati_toptanci?: number | null;
   satis_fiyati_musteri?: number | null;
+  satis_fiyati_palet?: number | null;
   distributor_alis_fiyati?: number | null;
   urun_gami?: string[] | null;
   standart_inis_maliyeti_net?: number | null;
@@ -59,6 +60,9 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
     }
     if (typeof payload.satis_fiyati_toptanci === 'number') {
       updateData.satis_fiyati_toptanci = payload.satis_fiyati_toptanci;
+    }
+    if (typeof payload.satis_fiyati_palet === 'number') {
+      updateData.satis_fiyati_palet = payload.satis_fiyati_palet;
     }
     if (typeof payload.distributor_alis_fiyati === 'number') {
       updateData.distributor_alis_fiyati = payload.distributor_alis_fiyati;
@@ -305,6 +309,9 @@ export async function bulkSaveProductPricesAction(
       }
       if (typeof item.satis_fiyati_toptanci === 'number') {
         updateData.satis_fiyati_toptanci = item.satis_fiyati_toptanci;
+      }
+      if (typeof item.satis_fiyati_palet === 'number') {
+        updateData.satis_fiyati_palet = item.satis_fiyati_palet;
       }
       if (typeof item.distributor_alis_fiyati === 'number') {
         updateData.distributor_alis_fiyati = item.distributor_alis_fiyati;
