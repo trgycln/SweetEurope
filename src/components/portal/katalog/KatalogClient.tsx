@@ -177,7 +177,11 @@ export function KatalogClient({
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("katalog-view-mode");
-      if (saved === "grid") setViewMode("grid");
+      if (saved === "list" || saved === "grid") {
+        setViewMode(saved);
+      } else {
+        setViewMode("list");
+      }
     }
   }, []);
 
@@ -427,6 +431,10 @@ export function KatalogClient({
         toast.success(
           locale === "de"
             ? `✓ ${addedCount} Artikel aus der letzten Bestellung in den Warenkorb geladen!`
+            : locale === "en"
+            ? `✓ ${addedCount} items from last order loaded into cart!`
+            : locale === "ar"
+            ? `✓ تم تحميل ${addedCount} منتجات من الطلب الأخير إلى السلة!`
             : `✓ Son siparişinizdeki ${addedCount} ürün sepete yüklendi!`,
         );
       }
@@ -451,6 +459,10 @@ export function KatalogClient({
         toast.success(
           locale === "de"
             ? `✓ ${count} verschiedene Artikel erfolgreich in den Warenkorb gelegt!`
+            : locale === "en"
+            ? `✓ ${count} different items added to cart!`
+            : locale === "ar"
+            ? `✓ تمت إضافة ${count} عناصر مختلفة إلى السلة!`
             : `✓ ${count} farklı ürün başarıyla sepete eklendi!`,
         );
       }
@@ -541,7 +553,14 @@ export function KatalogClient({
                 }`}
               >
                 <span>
-                  🛍️ {locale === "de" ? "Gesamter Katalog" : "Tüm Katalog"}
+                  🛍️{" "}
+                  {locale === "de"
+                    ? "Gesamter Katalog"
+                    : locale === "en"
+                    ? "Full Catalog"
+                    : locale === "ar"
+                    ? "كامل الكتالوج"
+                    : "Tüm Katalog"}
                 </span>
                 <span className="text-[11px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded-full font-semibold">
                   {totalCatalogCount ?? totalItems}
@@ -560,6 +579,10 @@ export function KatalogClient({
                   <span className="animate-pulse">⚡</span>
                   {locale === "de"
                     ? "Mein Stamm-Sortiment"
+                    : locale === "en"
+                    ? "Routine Orders"
+                    : locale === "ar"
+                    ? "قائمة طلباتي الدورية"
                     : "Rutin Sipariş Listem"}
                 </span>
                 <span
@@ -589,13 +612,23 @@ export function KatalogClient({
                       <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-full">
                         {locale === "de"
                           ? "1-Klick Nachbestellung"
+                          : locale === "en"
+                          ? "1-Click Reorder"
+                          : locale === "ar"
+                          ? "إعادة طلب بنقرة واحدة"
                           : "Tek Tıkla Tekrar Sipariş"}
                       </span>
                       <span className="text-xs text-stone-400 font-medium">
                         {new Date(
                           lastOrderData.siparis_tarihi,
                         ).toLocaleDateString(
-                          locale === "de" ? "de-DE" : "tr-TR",
+                          locale === "de"
+                            ? "de-DE"
+                            : locale === "en"
+                            ? "en-GB"
+                            : locale === "ar"
+                            ? "ar-EG"
+                            : "tr-TR",
                           { day: "2-digit", month: "short", year: "numeric" },
                         )}
                       </span>
@@ -603,9 +636,19 @@ export function KatalogClient({
                     <h3 className="font-bold text-stone-900 text-sm sm:text-base mt-0.5 truncate">
                       {locale === "de"
                         ? "Letzte Bestellung wiederholen"
+                        : locale === "en"
+                        ? "Repeat Last Order"
+                        : locale === "ar"
+                        ? "تكرار الطلب الأخير"
                         : "Son Siparişinizi Tekrarlayın"}{" "}
                       ({lastOrderData.siparis_detay.length}{" "}
-                      {locale === "de" ? "Artikel" : "Kalem"})
+                      {locale === "de"
+                        ? "Artikel"
+                        : locale === "en"
+                        ? "Items"
+                        : locale === "ar"
+                        ? "عنصر"
+                        : "Kalem"})
                     </h3>
                     <p className="text-xs text-stone-500 line-clamp-1 mt-0.5">
                       {lastOrderData.siparis_detay
@@ -625,7 +668,11 @@ export function KatalogClient({
                   <FiShoppingCart size={15} />
                   <span>
                     {locale === "de"
-                      ? "Son Siparişi Sepete Aktar"
+                      ? "Letzte Bestellung in den Warenkorb"
+                      : locale === "en"
+                      ? "Reorder to Cart"
+                      : locale === "ar"
+                      ? "إضافة الطلب الأخير إلى السلة"
                       : "Son Siparişi Sepete Aktar"}
                   </span>
                 </button>
@@ -801,7 +848,7 @@ export function KatalogClient({
                             : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
                         }`}
                       >
-                        {b.short}
+                        {((b as any)[locale === "tr" ? "shortTr" : locale === "en" ? "shortEn" : locale === "ar" ? "shortAr" : "shortDe"]) || b.short}
                       </button>
                     ))}
 
@@ -923,7 +970,7 @@ export function KatalogClient({
                           key={key}
                           className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${b.bg}`}
                         >
-                          {b.short}
+                          {((b as any)[locale === "tr" ? "shortTr" : locale === "en" ? "shortEn" : locale === "ar" ? "shortAr" : "shortDe"]) || b.short}
                           <button onClick={() => toggleBadge(key)}>
                             <FiX size={10} />
                           </button>
@@ -972,7 +1019,13 @@ export function KatalogClient({
               <div className="flex items-center justify-between text-sm text-gray-500 px-1">
                 <span>
                   {totalItems}{" "}
-                  {locale === "de" ? "Produkte gefunden" : "ürün bulundu"}
+                  {locale === "de"
+                    ? "Produkte gefunden"
+                    : locale === "en"
+                    ? "products found"
+                    : locale === "ar"
+                    ? "منتج تم العثور عليه"
+                    : "ürün bulundu"}
                 </span>
               </div>
 
@@ -986,7 +1039,7 @@ export function KatalogClient({
               ) : (
                 <>
                   {viewMode === "grid" ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-stretch">
                       {initialProdukte.map((produkt) => (
                         <ProduktKarteWithFavorite
                           key={produkt.id}

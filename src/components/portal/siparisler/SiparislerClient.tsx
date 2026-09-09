@@ -415,6 +415,28 @@ export function SiparislerClient({
         } catch {}
     }, []);
 
+    // Stripe ödeme sonrası başarılı dönüş bildirimi
+    useEffect(() => {
+        if (searchParams.get('payment_status') === 'success') {
+            portal?.clearWarenkorb();
+            toast.success(
+                locale === 'de'
+                    ? 'Zahlung erfolgreich! Ihre Bestellung wurde entgegengenommen.'
+                    : locale === 'tr'
+                    ? 'Ödemeniz başarıyla tamamlandı! Siparişiniz alındı.'
+                    : 'Payment successful! Your order has been placed.'
+            );
+        } else if (searchParams.get('payment_status') === 'cancelled') {
+            toast.info(
+                locale === 'de'
+                    ? 'Zahlungsvorgang abgebrochen.'
+                    : locale === 'tr'
+                    ? 'Ödeme işlemi iptal edildi.'
+                    : 'Payment cancelled.'
+            );
+        }
+    }, [searchParams]);
+
     const togglePin = (id: string, e?: React.MouseEvent) => {
         if (e) {
             e.preventDefault();

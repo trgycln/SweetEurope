@@ -52,24 +52,26 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
      const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1, birim: 'koli' | 'adet' | 'palet' = 'koli') => {
          setWarenkorb(prevWarenkorb => {
              const existingItemIndex = prevWarenkorb.findIndex(item => item.produkt.id === produkt.id);
-             let angeforderteMenge = menge; // Menge, die hinzugefügt werden soll
+             let angeforderteMenge = Math.max(1, menge); // Menge, die hinzugefügt werden soll
 
-             // Stokprüfung für die angeforderte Menge
-              if (angeforderteMenge > produkt.stok_miktari) {
-                  toast.warning(`Stok yetersiz! İstenen miktar stoğu aşıyor (Maks: ${produkt.stok_miktari}). Miktar ${produkt.stok_miktari} olarak ayarlandı.`);
-                  angeforderteMenge = produkt.stok_miktari;
-              }
-              if (angeforderteMenge <= 0) return prevWarenkorb; // Nichts hinzufügen bei 0 oder weniger
+             const isPreOrder = (produkt.stok_miktari ?? 0) <= 0;
+
+             // Stokprüfung für die angeforderte Menge (nur bei Artikeln auf Lager)
+             if (!isPreOrder && angeforderteMenge > (produkt.stok_miktari ?? 0)) {
+                 toast.warning(`Stok yetersiz! İstenen miktar stoğu aşıyor (Maks: ${produkt.stok_miktari}). Miktar ${produkt.stok_miktari} olarak ayarlandı.`);
+                 angeforderteMenge = produkt.stok_miktari ?? 0;
+             }
+             if (!isPreOrder && angeforderteMenge <= 0) return prevWarenkorb;
 
              if (existingItemIndex > -1) {
                  // Produkt ist bereits im Warenkorb, Menge erhöhen
                  const vorhandeneMenge = prevWarenkorb[existingItemIndex].menge;
-                 let neueGesamtMenge = vorhandeneMenge + angeforderteMenge; // Addiere die angeforderte Menge
+                 let neueGesamtMenge = vorhandeneMenge + angeforderteMenge;
 
-                 // Erneute Stokprüfung für die Gesamtmenge
-                 if (neueGesamtMenge > produkt.stok_miktari) {
+                 // Erneute Stokprüfung für die Gesamtmenge (nur bei lagernden Artikeln)
+                 if (!isPreOrder && neueGesamtMenge > (produkt.stok_miktari ?? 0)) {
                      toast.warning(`Stok yetersiz! Sepetteki ve eklenen miktar stoğu aşıyor (Maks: ${produkt.stok_miktari}). Sepetteki miktar ${produkt.stok_miktari} olarak ayarlandı.`);
-                     neueGesamtMenge = produkt.stok_miktari; // Gesamtmenge auf Maximum begrenzen
+                     neueGesamtMenge = produkt.stok_miktari ?? 0;
                  }
 
                  // Warenkorb aktualisieren
@@ -77,7 +79,7 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
                  updatedWarenkorb[existingItemIndex] = { ...updatedWarenkorb[existingItemIndex], menge: neueGesamtMenge, birim };
                  return updatedWarenkorb;
              } else {
-                 // Produkt ist neu, hinzufügen (angeforderteMenge wurde bereits geprüft)
+                 // Produkt ist neu, hinzufügen
                  return [...prevWarenkorb, { produkt, menge: angeforderteMenge, birim }];
              }
          });

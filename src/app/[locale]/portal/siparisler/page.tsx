@@ -7,6 +7,7 @@ import { SiparislerClient } from '@/components/portal/siparisler/SiparislerClien
 import { Enums } from '@/lib/supabase/database.types';
 import { unstable_noStore as noStore } from 'next/cache';
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+import { confirmStripePaymentAction } from '@/app/actions/stripe-actions';
 
 const ORDERS_PER_PAGE = 12;
 
@@ -21,6 +22,15 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     noStore();
     const { locale } = await params;
     const resolvedSearchParams = await searchParams;
+
+    // Check and confirm Stripe payment if redirected from checkout
+    if (resolvedSearchParams.payment_status === 'success' && typeof resolvedSearchParams.session_id === 'string') {
+        try {
+            await confirmStripePaymentAction(resolvedSearchParams.session_id, resolvedSearchParams.order_id as string | undefined);
+        } catch (e) {
+            console.error('Failed to confirm Stripe payment in portal/siparisler:', e);
+        }
+    }
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);

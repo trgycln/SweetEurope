@@ -8,6 +8,10 @@ import ReferanslarClient from './ReferanslarClient';
 
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
+export const metadata = {
+    title: 'Referanslar & İrtibat Rehberi | Operasyon | Elyson Sweets Admin',
+};
+
 export default async function ReferanslarPage({
     params,
 }: {

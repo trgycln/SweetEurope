@@ -35,37 +35,37 @@ interface PortalUrunDetayProps {
     dictionary: Dictionary;
 }
 
-// Map für technische Details (unverändert)
-const ozelliklerMap = [
-    { key: 'paket_icerigi', label: 'Paketinhalt', icon: <FiPackage/>, suffix: '' },
-    { key: 'net_agirlik_kg', label: 'Nettogewicht', icon: <FiMaximize/>, suffix: ' kg' },
-    { key: 'brut_agirlik_kg', label: 'Bruttogewicht', icon: <FiBox/>, suffix: ' kg' },
-    { key: 'raf_omru_ay', label: 'Haltbarkeit', icon: <FiClipboard/>, suffix: ' Monate' },
+// Map für technische Details
+const getOzelliklerMap = (locale: Locale) => [
+    { key: 'paket_icerigi', label: locale === 'de' ? 'Paketinhalt' : locale === 'en' ? 'Package Content' : locale === 'ar' ? 'محتوى العبوة' : 'Paket İçeriği', icon: <FiPackage/>, suffix: '' },
+    { key: 'net_agirlik_kg', label: locale === 'de' ? 'Nettogewicht' : locale === 'en' ? 'Net Weight' : locale === 'ar' ? 'الوزن الصافي' : 'Net Ağırlık', icon: <FiMaximize/>, suffix: ' kg' },
+    { key: 'brut_agirlik_kg', label: locale === 'de' ? 'Bruttogewicht' : locale === 'en' ? 'Gross Weight' : locale === 'ar' ? 'الوزن الإجمالي' : 'Brüt Ağırlık', icon: <FiBox/>, suffix: ' kg' },
+    { key: 'raf_omru_ay', label: locale === 'de' ? 'Haltbarkeit' : locale === 'en' ? 'Shelf Life' : locale === 'ar' ? 'مدة الصلاحية' : 'Raf Ömrü', icon: <FiClipboard/>, suffix: locale === 'de' ? ' Monate' : locale === 'en' ? ' Months' : locale === 'ar' ? ' شهر' : ' Ay' },
 ];
 
 // LagerStatusAnzeige
 const LagerStatusAnzeige = ({ menge, schwelle, dictionary, locale, tukenmeTarihi }: { menge: number | null, schwelle: number | null, dictionary: Dictionary, locale: Locale, tukenmeTarihi: string | null }) => {
     const currentMenge = menge ?? 0;
-    const warnSchwelle = schwelle ?? 0;
+    const warnSchwelle = (schwelle !== null && schwelle !== undefined && schwelle > 0) ? schwelle : 10;
     const content = (dictionary as any)?.portal?.productDetailPage || {};
 
-    let status: { text: string; color: string; icon: React.ReactNode; showCount: boolean };
+    let status: { text: string; color: string; icon: React.ReactNode };
 
     const durum = computeTedarikDurumu(currentMenge, tukenmeTarihi);
     if (durum === 'talep_uzerine') {
-        status = { text: locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok', color: "text-violet-600", icon: <FiAlertTriangle />, showCount: false };
+        status = { text: locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok', color: "text-violet-600", icon: <FiAlertTriangle /> };
     } else if (durum === 'tukendi') {
-        status = { text: locale === 'de' ? 'Ausverkauft' : 'Tükendi', color: "text-red-600", icon: <FiXCircle />, showCount: false };
+        status = { text: locale === 'de' ? 'Ausverkauft' : 'Tükendi', color: "text-red-600", icon: <FiXCircle /> };
     } else if (currentMenge <= warnSchwelle) {
-        status = { text: content.availabilityLowStock || (locale === 'de' ? 'Wenig Bestand' : 'Az stok'), color: "text-yellow-600", icon: <FiAlertTriangle />, showCount: true };
+        status = { text: content.availabilityLowStock || (locale === 'de' ? 'Wenig Bestand' : 'Az stok'), color: "text-amber-600", icon: <FiAlertTriangle /> };
     } else {
-        status = { text: content.availabilityInStock || (locale === 'de' ? 'Auf Lager' : 'Stokta var'), color: "text-green-600", icon: <FiCheckCircle />, showCount: true };
+        status = { text: content.availabilityInStock || (locale === 'de' ? 'Auf Lager' : 'Stokta var'), color: "text-green-600", icon: <FiCheckCircle /> };
     }
 
     return (
         <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${status.color}`}>
             {status.icon}
-            {status.text} {status.showCount ? `(${currentMenge})` : ''}
+            {status.text}
         </span>
     );
 };
@@ -84,8 +84,8 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
     const aciklama = getLocalizedName(urun.aciklamalar, locale);
     const kategorieAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, locale) : '';
 
-    // Technische Details (unverändert)
-    const gosterilecekOzellikler = urun.teknik_ozellikler ? ozelliklerMap .filter(item => (urun.teknik_ozellikler as any)[item.key] !== null && (urun.teknik_ozellikler as any)[item.key] !== undefined && (urun.teknik_ozellikler as any)[item.key] !== '') .map(item => ({...item, value: (urun.teknik_ozellikler as any)[item.key]})) : [];
+    // Technische Details
+    const gosterilecekOzellikler = urun.teknik_ozellikler ? getOzelliklerMap(locale).filter(item => (urun.teknik_ozellikler as any)[item.key] !== null && (urun.teknik_ozellikler as any)[item.key] !== undefined && (urun.teknik_ozellikler as any)[item.key] !== '').map(item => ({...item, value: (urun.teknik_ozellikler as any)[item.key]})) : [];
     // Hauptbild (unverändert)
     const hauptBildUrl = urun.ana_resim_url || (urun.galeri_resim_urls && urun.galeri_resim_urls.length > 0 ? urun.galeri_resim_urls[0] : '/placeholder.png');
     
@@ -104,7 +104,15 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
             setMenge(1); // Minimum 1
         } else if (neueMenge > maxStok) {
             setMenge(maxStok); // Maximum ist Lagerbestand
-            toast.warning(`Stok yetersiz! Maksimum ${maxStok} adet eklenebilir.`);
+            toast.warning(
+                locale === 'de'
+                    ? `Nicht genügend Lagerbestand! Maximal ${maxStok} Stück verfügbar.`
+                    : locale === 'en'
+                    ? `Insufficient stock! Maximum ${maxStok} units available.`
+                    : locale === 'ar'
+                    ? `المخزون غير كافٍ! الحد الأقصى المتاح ${maxStok} قطعة.`
+                    : `Stok yetersiz! Maksimum ${maxStok} adet eklenebilir.`
+            );
         } else {
             setMenge(neueMenge);
         }
@@ -117,7 +125,15 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
             return;
         }
         if (partnerPreis === null) {
-            toast.error("Für dieses Produkt ist kein Preis verfügbar.");
+            toast.error(
+                locale === 'de'
+                    ? "Für dieses Produkt ist kein Preis verfügbar."
+                    : locale === 'en'
+                    ? "No price available for this product."
+                    : locale === 'ar'
+                    ? "لا يوجد سعر متاح لهذا المنتج."
+                    : "Bu ürün için fiyat mevcut değil."
+            );
             return;
         }
 

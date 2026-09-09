@@ -11,11 +11,11 @@ import { ProductDietaryBadges } from "@/components/DietaryStickers";
 
 // Badge-Konfiguration (aus public catalog adaptiert)
 export const BADGE_DEFS = [
-    { key: 'vegan', short: 'Vegan', icon: '🌱', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-    { key: 'laktosefrei', short: 'Laktosefrei', icon: '🥛', bg: 'bg-sky-50 text-sky-800 border-sky-200' },
-    { key: 'glutenfrei', short: 'Glutenfrei', icon: '🌾', bg: 'bg-amber-50 text-amber-800 border-amber-200' },
-    { key: 'ohne_zucker', short: 'Zuckerfrei', icon: '💎', bg: 'bg-indigo-50 text-indigo-800 border-indigo-200' },
-    { key: 'bio', short: 'Bio', icon: '🍃', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+    { key: 'vegan', short: 'Vegan', shortDe: 'Vegan', shortTr: 'Vegan', shortEn: 'Vegan', shortAr: 'نباتي', icon: '🌱', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+    { key: 'laktosefrei', short: 'Laktosefrei', shortDe: 'Laktosefrei', shortTr: 'Laktozsuz', shortEn: 'Lactose Free', shortAr: 'خالٍ من اللاكتوز', icon: '🥛', bg: 'bg-sky-50 text-sky-800 border-sky-200' },
+    { key: 'glutenfrei', short: 'Glutenfrei', shortDe: 'Glutenfrei', shortTr: 'Glutensiz', shortEn: 'Gluten Free', shortAr: 'خالٍ من الغلوتين', icon: '🌾', bg: 'bg-amber-50 text-amber-800 border-amber-200' },
+    { key: 'ohne_zucker', short: 'Zuckerfrei', shortDe: 'Zuckerfrei', shortTr: 'Şekersiz', shortEn: 'Sugar Free', shortAr: 'خالٍ من السكر', icon: '💎', bg: 'bg-indigo-50 text-indigo-800 border-indigo-200' },
+    { key: 'bio', short: 'Bio', shortDe: 'Bio', shortTr: 'Organik', shortEn: 'Organic', shortAr: 'عضوي', icon: '🍃', bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
 ] as const;
 
 export const TAT_CONFIG: Record<string, { de: string; tr: string; emoji: string }> = {
@@ -360,62 +360,63 @@ export function ProduktGridCard({
             </div>
 
             {/* Content */}
-            <div className="p-4 space-y-3 flex flex-col flex-1">
-                {/* SKU + Barkod */}
-                <div className="space-y-0.5">
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <LuBarcode size={12} />
-                        <span>{produkt.stok_kodu || '—'}</span>
+            <div className="p-3.5 sm:p-4 flex flex-col flex-1">
+                {/* SKU + Barkod (Fixed height container) */}
+                <div className="min-h-[26px] flex flex-col justify-center space-y-0.5">
+                    <div className="flex items-center gap-1 text-[11px] text-gray-500 font-mono">
+                        <LuBarcode size={12} className="text-gray-400 flex-shrink-0" />
+                        <span className="truncate">{produkt.stok_kodu || '—'}</span>
                     </div>
                     {produkt.ean_gtin && (
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                            <LuBarcode size={11} />
-                            <span className="font-mono">{produkt.ean_gtin}</span>
+                        <div className="flex items-center gap-1 text-[10px] text-gray-400 font-mono">
+                            <span className="truncate">{produkt.ean_gtin}</span>
                         </div>
                     )}
                 </div>
 
-                {/* Stok durumu */}
-                {(() => {
-                  const miktar = produkt.stok_miktari ?? 0;
-                  const esik = produkt.stok_esigi ?? 10;
-                  const durum = computeTedarikDurumu(miktar, (produkt as any).stok_tukenme_tarihi);
-                  
-                  if (durum === 'talep_uzerine') {
-                      return (
-                          <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-violet-500 inline-block"/>
-                            {locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok'}
-                          </span>
+                {/* Stok durumu (Fixed height) */}
+                <div className="h-6 flex items-center mt-1">
+                    {(() => {
+                      const miktar = produkt.stok_miktari ?? 0;
+                      const esik = produkt.stok_esigi ?? 10;
+                      const durum = computeTedarikDurumu(miktar, (produkt as any).stok_tukenme_tarihi);
+                      
+                      if (durum === 'talep_uzerine') {
+                          return (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
+                                <span className="w-1.5 h-1.5 rounded-full bg-violet-500 inline-block"/>
+                                {locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok'}
+                              </span>
+                          );
+                      }
+                      if (durum === 'tukendi') return (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"/>
+                          {locale === 'de' ? 'Ausverkauft' : 'Tükendi'}
+                        </span>
                       );
-                  }
-                  if (durum === 'tukendi') return (
-                    <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"/>
-                      {locale === 'de' ? 'Ausverkauft' : 'Tükendi'}
-                    </span>
-                  );
-                  if (miktar <= esik) return (
-                    <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"/>
-                      {locale === 'de' ? 'Wenig Bestand' : 'Az stok'}
-                    </span>
-                  );
-                  return (
-                    <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"/>
-                      {locale === 'de' ? 'Auf Lager' : 'Stokta var'}
-                    </span>
-                  );
-                })()}
+                      if (miktar <= esik) return (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"/>
+                          {locale === 'de' ? 'Wenig Bestand' : 'Az stok'}
+                        </span>
+                      );
+                      return (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"/>
+                          {locale === 'de' ? 'Auf Lager' : 'Stokta var'}
+                        </span>
+                      );
+                    })()}
+                </div>
 
-                {/* Name */}
-                <h3 className="font-semibold text-primary text-sm line-clamp-2 min-h-[40px]" title={produktName}>
+                {/* Name (Fixed 2-line height for perfect alignment across all cards) */}
+                <h3 className="font-semibold text-primary text-sm line-clamp-2 h-10 leading-tight flex items-start mt-1.5" title={produktName}>
                     {produktName}
                 </h3>
 
-                {/* Quantity & Weight Chips */}
-                <div className="flex flex-wrap gap-1">
+                {/* Quantity & Weight Chips (Normalized container) */}
+                <div className="flex flex-wrap items-center gap-1 min-h-[22px] mt-2">
                     {koliAdet > 0 && (
                         <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
                             <LuPackage size={9} />
@@ -434,49 +435,59 @@ export function ProduktGridCard({
                     )}
                 </div>
 
-                {/* Quality / Dietary Badges */}
-                <ProductDietaryBadges
-                    teknikOzellikler={produkt.teknik_ozellikler as any}
-                    zertifikate={produkt.zertifikate}
-                    size="sm"
-                />
+                {/* Quality / Dietary Badges (Reserved height so card heights stay strictly aligned) */}
+                <div className="min-h-[24px] flex items-center mt-1.5">
+                    <ProductDietaryBadges
+                        teknikOzellikler={produkt.teknik_ozellikler as any}
+                        zertifikate={produkt.zertifikate}
+                        size="sm"
+                    />
+                </div>
 
-                {/* Pricing */}
-                <div className="border-t border-gray-100 pt-2 space-y-1 mt-auto">
+                {/* Pricing Tiers Table */}
+                <div className="border-t border-gray-100 pt-2 space-y-1 mt-2.5 min-h-[64px] flex flex-col justify-center">
                     {pricingRows.map((row, i) => {
                         const mobileHidden = i > 0;
                         return row.price ? (
-                            <div key={i} className={`flex items-center justify-between px-1 py-0.5 rounded text-[10px] ${
-                                row.highlight ? 'bg-blue-50 border border-blue-100' : ''
+                            <div key={i} className={`flex items-center justify-between px-1.5 py-0.5 rounded text-[10px] ${
+                                row.highlight ? 'bg-blue-50/80 border border-blue-100 text-blue-900' : 'text-gray-600'
                             } ${mobileHidden ? 'hidden sm:flex' : ''}`}>
-                                <div className="flex flex-col">
-                                    <span className={`font-semibold ${row.highlight ? 'text-blue-800' : 'text-gray-600'}`}>
+                                <div className="flex flex-col min-w-0">
+                                    <span className={`truncate font-medium ${row.highlight ? 'text-blue-800 font-semibold' : 'text-gray-600'}`}>
                                         {row.label}
                                     </span>
-                                    <span className="text-[9px] text-gray-400">{row.sublabel}</span>
+                                    <span className="text-[9px] text-gray-400 leading-none">{row.sublabel}</span>
                                 </div>
-                                <span className={`font-bold ${row.highlight ? 'text-blue-700' : 'text-gray-800'}`}>
+                                <span className={`font-bold ml-1 flex-shrink-0 ${row.highlight ? 'text-blue-700' : 'text-gray-800'}`}>
                                     {formatCurrency(row.price)}
                                 </span>
                             </div>
                         ) : null;
                     })}
-                    {showIhrPreis && (
-                        <div className="flex justify-between items-center px-1 py-0.5 bg-indigo-50 border border-indigo-200 rounded text-[10px] text-indigo-900 font-bold">
-                            <span>{locale === 'de' ? 'Ihr Preis' : 'Size Özel'}</span>
-                            <span>{formatCurrency(produkt.partnerPreis)}</span>
-                        </div>
-                    )}
                 </div>
 
-                {/* Hızlı sepete ekle */}
-                <button
-                  onClick={onQuickAdd}
-                  className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-colors"
-                >
-                  <FiShoppingCart size={13} />
-                  {locale === 'de' ? 'In den Warenkorb' : 'Sepete Ekle'}
-                </button>
+                {/* Card Footer: Always pinned to bottom with mt-auto, perfectly aligned across all cards */}
+                <div className="mt-auto pt-2.5 border-t border-gray-100 flex items-center justify-between gap-2">
+                    <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] text-gray-400 font-medium uppercase tracking-wide leading-none">
+                            {showIhrPreis ? (locale === 'de' ? 'Ihr Preis' : 'Size Özel') : (locale === 'de' ? 'pro Karton' : 'koli fiyatı')}
+                        </span>
+                        <span className="text-sm sm:text-base font-bold text-gray-900 tracking-tight leading-tight mt-0.5">
+                            {formatCurrency(showIhrPreis ? produkt.partnerPreis : produkt.satis_fiyati_musteri)}
+                        </span>
+                    </div>
+
+                    {/* Sleek, modern Add-to-Cart Action Button */}
+                    <button
+                        onClick={onQuickAdd}
+                        title={locale === 'de' ? 'In den Warenkorb legen' : 'Sepete ekle'}
+                        aria-label={locale === 'de' ? 'In den Warenkorb legen' : 'Sepete ekle'}
+                        className="h-8 sm:h-8.5 px-3 rounded-lg bg-accent text-white hover:bg-accent/90 shadow-xs hover:shadow hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-1.5 flex-shrink-0 group/btn"
+                    >
+                        <FiShoppingCart size={14} className="group-hover/btn:-rotate-12 transition-transform duration-200" />
+                        <span className="text-xs font-bold leading-none">+</span>
+                    </button>
+                </div>
             </div>
         </Link>
     );

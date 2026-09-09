@@ -95,8 +95,8 @@ export const dictionary = {
         lowStock: 'Wenig Lagerbestand',
         outOfStock: 'Nicht auf Lager',
         addToCart: "In den Warenkorb", // Button-Text
-        addedToCart: "sepete eklendi!", // Toast-Nachricht (oder "zum Warenkorb hinzugefügt!")
-        stockNotAvailable: "Stok yetersiz! Maksimum %{stock} adet.", // Warnung
+        addedToCart: "zum Warenkorb hinzugefügt!", // Toast-Nachricht
+        stockNotAvailable: "Nicht genügend Lagerbestand! Maximal %{stock} Stück.", // Warnung
         productOutOfStock: "Dieses Produkt ist nicht auf Lager.",
       },
       noProductsFound: 'Keine Produkte für diese Kriterien gefunden.',
@@ -1055,21 +1055,28 @@ statusOptions: {
     followUs: 'Folgen Sie uns',
   },
   hero: {
-    title: 'Handwerkskunst, die ',
-    highlight: 'Ihre Gäste verzaubert.',
-    subtitle: 'Erlesene Patisserie-Kreationen, die Luxus neu definieren – zugänglich für Ihr Unternehmen.',
+    kicker: 'B2B Großhandel & HoReCa-Partner | Deutschland & EU',
+    title: 'Geschmack, der ',
+    highlight: 'Ihre Drinks & Kreationen veredelt.',
+    subtitle: 'Professionelle Sirupe, Saucen und Fruchtpürees für Bars, Baristas und Gastronomie.',
     button: 'Partner Werden',
     b2bNote: 'Verkauf nur an Gewerbetreibende / B2B Only',
-    mainHeadline: 'Köln’s neuer Partner für Premium-Desserts',
-    subHeadline: 'Wir bringen exklusive ElysonSweets Qualität in Ihr Café.',
-    valueProposition: 'Fordern Sie jetzt Ihr kostenloses Probierpaket an und überzeugen Sie sich von unserer Qualität.',
-    ctaButton: 'Produkte entdecken',
+    mainHeadline: 'Premium-Sirupe, Barsaucen & Fruchtpürees für Gastronomie & Bars',
+    subHeadline: 'Ihr verlässlicher B2B-Partner für professionelle Baristas & Barkeeper: Exklusive Cocktailsirupe, Kaffeesirupe, Gourmet-Barsaucen und hochwertige Fruchtpürees der Marke FO – direkt ab Lager mit schnellem Versand.',
+    valueProposition: 'Über 100+ intensive Aromen für Signature-Drinks & Kaffeespezialitäten: Konstante Spitzenqualität, direkte Großhandelskonditionen und flexible Abnahme ab 1 Karton.',
+    ctaButton: 'Sortiment entdecken',
     badgeMoq: 'Mindestbestellung: 1 Karton (MOQ)',
     badgePalette: 'Palettenrabatt verfügbar',
-    badgeShipping: 'Versand DE / EU',
-    btnProducts: 'Produkte entdecken',
+    badgeShipping: 'Schneller Versand DE / EU',
+    btnProducts: 'Sortiment entdecken',
     btnTrial: 'Probierpaket anfragen',
-    btnPricelist: 'Preisliste anfordern (PDF)',
+    btnPricelist: 'B2B-Preisliste (PDF)',
+    categories: {
+      cocktailSyrups: 'Cocktail-Sirupe',
+      coffeeSyrups: 'Kaffee- & Baristasirupe',
+      barSauces: 'Gourmet-Barsaucen',
+      fruitPurees: 'Fruchtpürees & Mixers',
+    },
   },
   productReviews: {
     noReviews: 'Noch keine Bewertungen',

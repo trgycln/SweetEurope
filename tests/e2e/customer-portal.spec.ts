@@ -101,9 +101,9 @@ test.describe('Customer Portal & Payment Flows', () => {
       await page.waitForTimeout(500);
     }
 
-    // 2. Click "+ Hinzufügen" to open the unit modal if item not already in cart
-    const addBtn = page.locator('button:not([disabled]):has-text("Hinzufügen"), button:not([disabled]):has-text("Ekle")').first();
-    if (await addBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    // 2. Click "+ Hinzufügen" or "+ Vorbestellen" to open the unit modal if item not already in cart
+    const addBtn = page.locator('button:not([disabled]):has-text("Vorbestellen"), button:not([disabled]):has-text("Hinzufügen"), button:not([disabled]):has-text("Ekle")').first();
+    if (await addBtn.isVisible({ timeout: 4000 }).catch(() => false)) {
       await addBtn.click();
       await page.waitForTimeout(500);
       const modalConfirmBtn = page.locator('button:has-text("In den Warenkorb"), button:has-text("Sepete Ekle")').last();
