@@ -14,6 +14,17 @@ function escapeICalText(str: string): string {
         .replace(/\r/g, '');
 }
 
+function foldLine(line: string): string {
+    if (line.length <= 60) return line;
+    let folded = line.substring(0, 60);
+    let i = 60;
+    while (i < line.length) {
+        folded += '\r\n ' + line.substring(i, i + 59);
+        i += 59;
+    }
+    return folded;
+}
+
 function formatDateToICal(dateStr: string): string {
     const d = new Date(dateStr);
     const yyyy = d.getFullYear();
@@ -140,7 +151,7 @@ export async function GET(req: NextRequest) {
 
         lines.push('END:VCALENDAR');
 
-        const icsContent = lines.join('\r\n');
+        const icsContent = lines.map(foldLine).join('\r\n');
 
         return new NextResponse(icsContent, {
             status: 200,
