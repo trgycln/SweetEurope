@@ -1,0 +1,34 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Elyson Sweets//Gorev Takvimi//TR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Elyson - Test Görevleri
+X-WR-CALDESC:Elyson Sweets sisteminde size atanan görevler v
+ e son tarihler.
+X-WR-TIMEZONE:Europe/Berlin
+REFRESH-INTERVAL;VALUE=DURATION:PT15M
+X-PUBLISHED-TTL:PT15M
+BEGIN:VEVENT
+UID:task-12345@elysonsweets.de
+DTSTAMP:20260912T135206Z
+DTSTART;VALUE=DATE:20260913
+DTEND;VALUE=DATE:20260914
+SUMMARY:Test Görevi
+DESCRIPTION:Durum: Yapılacak\nÖncelik: Orta\nMüşteri / Firma
+ : Test Firması\n\nNotlar / Açıklama:\nBu çok uzun bir açıkl
+ amadır. Çok çok uzun bir açıklamadır. Apple Calendar'ın pat
+ lamaması için bunun katlanması gerekir. Apple Calendar'ın p
+ atlamaması için bunun katlanması gerekir. Apple Calendar'ın
+  patlamaması için bunun katlanması gerekir. Apple Calendar'
+ ın patlamaması için bunun katlanması gerekir.\n\nGörevi Aç:
+  https://elysonsweets.de/tr/admin/gorevler
+URL:https://elysonsweets.de/tr/admin/gorevler
+STATUS:CONFIRMED
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Yarın teslim/bitiş: Test Görevi
+TRIGGER:-P1D
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -659,7 +659,8 @@ export async function getUserCalendarUrlAction(): Promise<{
     const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://elysonsweets.de';
     
     const cleanOrigin = origin.replace(/\/+$/, '');
-    const path = `/api/calendar/gorevler?token=${token}`;
+    const timestamp = Date.now();
+    const path = `/api/calendar/gorevler?token=${token}&_t=${timestamp}`;
     const httpsUrl = `${cleanOrigin}${path}`;
     const webcalUrl = httpsUrl.replace(/^https?:\/\//i, 'webcal://');
 

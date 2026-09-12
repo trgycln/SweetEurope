@@ -110,7 +110,6 @@ export async function GET(req: NextRequest) {
                 `Öncelik: ${task.oncelik || 'Orta'}`,
             ];
             if (firmUnvan) descParts.push(`Müşteri / Firma: ${firmUnvan}`);
-            if (task.aciklama) descParts.push(`\nNotlar / Açıklama:\n${task.aciklama.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')}`);
             descParts.push(`\nGörevi Aç: ${detailLink}`);
 
             lines.push(
