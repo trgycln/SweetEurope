@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123340764",
+  "barkod": "8691123340764",
+  "urun_adi": {
+    "de": "FO Erdbeer Fruchtsauce - Frozen 1 kg",
+    "en": "FO Strawberry Fruited Sauce - Frozen 1 kg",
+    "tr": "FO Çilek Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة الفراولة مع قطع الفاكهة مثلجة من إف أوه 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "FO Erdbeer Fruchtsauce enthält 50 % echte Erdbeeren und eignet sich ideal für die Zubereitung von Frozen Drinks, Smoothies, Eiscreme, Desserts und Cocktails. Sie verleiht Ihren Kreationen einen intensiven Erdbeergeschmack und eine ansprechende Konsistenz.",
+    "en": "FO Strawberry Fruited Sauce contains 50% real strawberries, perfect for preparing frozen drinks, smoothies, ice cream, desserts, and cocktails. It adds rich strawberry flavor and excellent texture to your beverages and desserts.",
+    "tr": "%50 gerçek çilek içeren FO Çilek Meyveli Sos; frozen içecekler, smoothie'ler, dondurmalar, tatlılar ve kokteyller için idealdir. İçecek ve tatlılarınıza doğal çilek lezzeti ve mükemmel kıvam katar.",
+    "ar": "تحتوي صلصة الفراولة مع قطع الفاكهة من إف أوه على 50٪ فراولة طبيعية، وهي مثالية لتحضير المشروبات المثلجة، السموذي، الآيس كريم، الحلويات والكوكتيلات. تضفي طعماً غنياً وقواماً رائعاً لابتكاراتك."
+  },
+  "kullanim_alanlari": {
+    "de": "Praktische Anwendung: Für Frozen Drinks 1 Teil Sauce mit 3 Teilen Crasheis im Hochleistungsmixer mixen. Auch ideal als Topping für Eiscreme, Kuchen, Waffeln, Pfannkuchen und Dessertvariationen.",
+    "en": "Practical application: For frozen drinks, mix 1 part sauce with 3 parts crushed ice in a high-speed blender. Also ideal as a topping for ice cream, cakes, waffles, pancakes, and various desserts.",
+    "tr": "Pratik kullanım: Frozen hazırlamak için yüksek hızlı blenderda 1 ölçü sos ile 3 ölçü kırılmış buz karıştırılır. Ayrıca dondurma, pasta, waffle, pankek ve tatlı süslemelerinde topping olarak kullanılır.",
+    "ar": "تطبيق عملي: لتحضير المشروبات المثلجة، يخلط جزء واحد من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. كما أنها مثالية لتزيين الآيس كريم، الكيك، الوافل، البان كيك والحلويات."
+  },
+  "icindekiler": {
+    "de": "Erdbeere (50 %), Zucker (48 %), Modifizierte Maisstärke (1 %), Weinsäure, Trisodiumcitrat [E 334, E 331iii] (0,6 %), Aroma (Erdbeere) (0,29 %), Salz, Kaliumsorbat [E 202] (0,1 %), Farbstoffe (Allurarot AC [E 129], Carmoisin [E 122]) (0,02 %).",
+    "en": "Strawberry (50%), Sugar (48%), Modified corn starch (1%), Tartaric acid, Trisodium citrate [E 334, E 331iii] (0.6%), Flavoring (Strawberry) (0.29%), Salt, Potassium sorbate [E 202] (0.1%), Colorants (Allura red [E 129], Carmoisine [E 122]) (0.02%).",
+    "tr": "Çilek (%50), Şeker (%48), Modifiye mısır nişastası (%1), Tartarik asit, Trisodyum sitrat [E 334, E 331iii] (%0,6), Aroma verici (Çilek) (%0,29), Tuz, Potasyum sorbat [E 202] (%0,1), Renklendiriciler (Allura red [E 129], Karmoizin [E 122]) (%0,02).",
+    "ar": "فراولة (50٪)، سكر (48٪)، نشا الذرة المعدل (1٪)، حمض الطرطريك، سترات ثلاثي الصوديوم [E 334, E 331iii] (0.6٪)، نكهة (فراولة) (0.29٪)، ملح، سوربات البوتاسيوم [E 202] (0.1٪)، ملونات (أحمر علورا [E 129]، كارمويسين [E 122]) (0.02٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direktem Sonnenlicht schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry place. Protect from direct sunlight. Refrigerate after opening.",
+    "tr": "Serin ve kuru yerde muhafaza ediniz. Doğrudan güneş ışığından koruyunuz. Açıldıktan sonra buzdolabında saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف. يُحفظ بعيداً عن أشعة الشمس المباشرة. يحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 984,
+      "energie_kcal": 235,
+      "fett": 0.2,
+      "kohlenhydrate": 55.6,
+      "davon_zucker": 53.6,
+      "eiweiss": 0.6,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.7,
+  "gtip": "200799390019",
+  "palet_ici_koli": 90
+}

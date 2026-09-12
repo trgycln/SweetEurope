@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Entdecken Sie die exquisite FO Sakura und Weißer Pfirsich aromatisierte Basis für die professionelle Gastronomie und Cafés. Diese hochwertige Kreation besticht durch ihr authentisches Geschmacksprofil, eine intensive Aromenkonzentration und eine perfekt homogenisierte Struktur für erfrischende Kaltgetränke. Ideal geeignet für Cafés und Bars, um anspruchsvollen Gästen ein einzigartiges Geschmackserlebnis zu bieten.",
+    "en": "Discover the exquisite FO Sakura and White Peach Flavored Base, specially crafted for professional gastronomy and cafes. This premium creation captivates with its authentic flavor profile, high concentration, and homogenized structure designed for refreshing cold drinks. It provides cafes and bars with an exceptional ingredient to elevate signature beverage menus.",
+    "tr": "Kafe ve barlar için özel olarak geliştirilen FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup, profesyonel işletmeler için üstün kalite sunar. Otantik lezzet profili, yüksek konsantrasyonu ve homojen yapısıyla serinletici soğuk içeceklerin vazgeçilmezidir. Müşterilerinize benzersiz bir içecek deneyimi sunmak için ideal bir tercihtir.",
+    "ar": "اكتشف أساس نكهة الساكورا والخوخ الأبيض الفاخر من FO، المصمم خصيصاً للمقاهي والمطاعم المهنية. تتميز هذه الخثارة عالية الجودة بملف نكهة أصيل وتركيز عالٍ وهيكل متجانس للمشروبات الباردة المنعشة. تعد خياراً مثالياً لتقديم تجربة تذوق استثنائية لضيوفك."
+  },
+  "hazirlanisi": {
+    "de": "Für eine 450ml Tasse: 1 Messlöffel (40ml) Basis optional mit 5 Messlöffeln (200ml) Wasser verdünnen und mit reichlich Eis servieren.",
+    "en": "For a 450ml cup: 1 scope (40ml) base is diluted optionally with 5 scopes (200ml) of water and served with plenty of ice.",
+    "tr": "450 ml'lik bardak için: 1 ölçü (40 ml) baz, isteğe bağlı olarak 5 ölçü (200 ml) su ile seyreltilir ve bol buz ile servis edilir.",
+    "ar": "لكوب سعة 450 مل: يتم تخفيف مغرفة واحدة (40 مل) من الأساس اختيارياً بـ 5 مغارف (200 مل) من الماء وتُقدم مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Es wird für die Zubereitung von Kaltgetränken verwendet.",
+    "en": "It is used to prepare cold drinks.",
+    "tr": "Soğuk içeceklerin hazırlanmasında kullanılır.",
+    "ar": "يستخدم لتحضير المشروبات الباردة."
+  },
+  "saklama_kosullari": {
+    "de": "Es sollte in der Originalverpackung bei 20-22 °C unter trockenen Bedingungen gelagert und direktes Sonnenlicht vermieden werden. Das Produkt hat eine Haltbarkeit von 3 Jahren unter den beschriebenen Lagerbedingungen in der geschlossenen Verpackung.",
+    "en": "It should be stored in its original packaging, 20-22º C under dry conditions, and direct sunlight should be avoided. The product has a shelf life of 3 years under the described storing conditions and in its closed packaging.",
+    "z": "Orijinal ambalajında, 20-22°C'de kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır. Ürün, belirtilen saklama koşullarında kapalı ambalajında 3 yıl raf ömrüne sahiptir.",
+    "ar": "يجب تخزينه في عبوته الأصلية، درجات حرارة 20-22 درجة مئوية في ظروف جافة، ويجب تجنب أشعة الشمس المباشرة. المنتج لديه صلاحية لمدة 3 سنوات تحت ظروف التخزين المذكورة وفي عبوته المغلقة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulator (Citronensäure, Kaliumcitrat), Aromen (Sakura, Weißer Pfirsich), Konservierungsmittel (Kaliumsorbat, Natriumbenzoat), Farbstoff (Hibiskusextrakt)",
+    "en": "Sugar, Water, Acidity Regulator (Citric Acid, Potassium Citrate), Flavouring (Sakura, White Peach), Preservative (Potassium Sorbate, Sodium Benzoate), Colorant (Hibiscus Extract)",
+    "tr": "Şeker, Su, Asitliği Düzenleyici (Sitrik Asit, Potasyum Sitrat), Aroma Verici (Sakura, Beyaz Şeftali), Koruyucu (Potasyum Sorbat, Sodyum Benzoat), Renklendirici (Hibiskus Ekstraktı)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 977,
+      "energie_kcal": 233,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 55.3,
+      "davon_zucker": 55.3,
+      "eiweiss": 0.0,
+      "salz": 0.008
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

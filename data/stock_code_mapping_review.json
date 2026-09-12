@@ -1,0 +1,738 @@
+[
+  {
+    "slug": "fo-apollo-karsk-meyveli-icecek-baz-800-ml",
+    "name_tr": "FO Karışık Meyveli İçecek – Apollo 800 ML",
+    "name_de": "FO Mehrfruchtgetränk – Apollo 800 ML",
+    "proposed": "FO-ANT-001",
+    "current": "SP-FP-APOLLO800",
+    "ean": "8691123475596"
+  },
+  {
+    "slug": "fo-dionysos-karsk-meyveli-icecek-baz-800-ml",
+    "name_tr": "FO Karışık Meyve Aromalı İçecek – Dionysus 800 ml",
+    "name_de": "FO Mixed Fruit Drink – Dionysus 800ml",
+    "proposed": "FO-ANT-002",
+    "current": "SP-FP-8691123475619",
+    "ean": "8691123475619"
+  },
+  {
+    "slug": "fo-helios-karsk-meyveli-icecek-baz-800-ml",
+    "name_tr": "FO Karışık Meyveli İçecek – Helios 800 ml",
+    "name_de": "FO Mischfruchtgetränk – Helios 800 ml",
+    "proposed": "FO-ANT-003",
+    "current": "SP-FP-8691123475633",
+    "ean": "8691123475633"
+  },
+  {
+    "slug": "fo-zeus-karsk-meyveli-icecek-baz-800-ml",
+    "name_tr": "FO Karışık Meyveli İçecek – Zeus 800 ml",
+    "name_de": "FO Mischfruchtgetränk – Zeus 800 ml",
+    "proposed": "FO-ANT-004",
+    "current": "SP-FP-ZEUS800",
+    "ean": "8691123475626"
+  },
+  {
+    "slug": "fo-herakles-karsk-meyveli-icecek-baz-800-ml",
+    "name_tr": "FO Karışık Meyve Aromalı İçecek – Heracles 800ML",
+    "name_de": "FO Mixed Fruit Drink – Heracles 800ML",
+    "proposed": "FO-ANT-005",
+    "current": "SP-FP-8691123475640",
+    "ean": "8691123475640"
+  },
+  {
+    "slug": "fo-beyaz-cikolata-sosu",
+    "name_tr": "FO Beyaz Çikolatalı Profesyonel Sos 2,5 kg (Pompa Hediyeli)",
+    "name_de": "FO Weiße Schokoladensauce 2,5 kg (mit Pumpe)",
+    "proposed": "FO-CBS-001",
+    "current": "SP-FP-8691123465283",
+    "ean": "8691123465283"
+  },
+  {
+    "slug": "fo-premium-beyaz-cikolata-sosu-2-5-kg",
+    "name_tr": "FO Premium Beyaz Çikolatalı Sos 2,5 kg",
+    "name_de": "FO Premium Weiße Schokoladensauce 2,5 kg",
+    "proposed": "FO-CBS-002",
+    "current": "SP-FP-8691123471475",
+    "ean": "8691123471475"
+  },
+  {
+    "slug": "fo-premium-karamel-sosu-2-5-kg",
+    "name_tr": "FO PREMIUM KARAMEL SOS 2,5 KG",
+    "name_de": "FO PREMIUM KARAMELL SAUCE 2,5 KG",
+    "proposed": "FO-CBS-003",
+    "current": "SP-FP-8691123471093",
+    "ean": "8691123471093"
+  },
+  {
+    "slug": "fo-premium-cikolata-sosu-2-5-kg",
+    "name_tr": "FO Premium Çikolata Sosu 2,5 kg",
+    "name_de": "FO Premium Schokoladensauce 2,5 kg",
+    "proposed": "FO-CBS-004",
+    "current": "SP-FP-8691123471468",
+    "ean": "8691123471468"
+  },
+  {
+    "slug": "madagaskar-vanilya-aromali-sos-1-kg---eclipse",
+    "name_tr": "FO Madagaskar Vanilya Aromalı Sos 1 Kg - Eclipse",
+    "name_de": "FO Madagascar Vanille Aromatisierte Sosse 1 Kg - Eclipse",
+    "proposed": "FO-CBS-011",
+    "current": "SP-FP-8691123473905",
+    "ean": "8691123473905"
+  },
+  {
+    "slug": "antep-fistikli-special-sos-5-940-gr",
+    "name_tr": "Fo Pistachio Verde Sos %5 940g",
+    "name_de": "Fo Pistazien Verde Sauce 5% 940g",
+    "proposed": "FO-CBS-016",
+    "current": "SP-FP-8691123467454",
+    "ean": "8691123467454"
+  },
+  {
+    "slug": "fo-cikolata-aromali-dekor-sos-750gr",
+    "name_tr": "Fo Çikolata Aromalı Sos 750 g",
+    "name_de": "Fo Schokoladengeschmack Sosse 750 g",
+    "proposed": "FO-CBS-018",
+    "current": "SP-FP-8691123462244",
+    "ean": "8691123462244"
+  },
+  {
+    "slug": "patlayan-sekerli-special-sos-1000-gr",
+    "name_tr": "FO Patlayan Şekerli Special Sos 1 kg",
+    "name_de": "FO Popping Candy Sosse - Speziell 1 kg",
+    "proposed": "FO-CBS-020",
+    "current": "SP-FP-8691123471444",
+    "ean": "8691123471444"
+  },
+  {
+    "slug": "cilek-aromali-dekor-sos-750-gr",
+    "name_tr": "FO Çilek Aromalı Dekor Sos 750 gr",
+    "name_de": "FO Erdbeergeschmack Dekorsauce 750 g",
+    "proposed": "FO-CBS-033",
+    "current": "SP-FP-8691123343000",
+    "ean": "8691123343000"
+  },
+  {
+    "slug": "beyaz-cikolatali-dondurma-sosu-1kg",
+    "name_tr": "Beyaz Çikolatalı Dondurma Sosu 1 Kg",
+    "name_de": "Weiße Schokoladeneissauce 1 kg",
+    "proposed": "FO-DND-055",
+    "current": "FO-DND-055",
+    "ean": "8691123449719"
+  },
+  {
+    "slug": "fo-koi-kokteyl-kopurtucu-100-ml",
+    "name_tr": "FO KOI KOKTEYL KÖPÜRTÜCÜ 100 ML",
+    "name_de": "FO KOI COCKTAIL FOAMER 100 ML",
+    "proposed": "FO-IKN-001",
+    "current": "SP-FP-8691123470218",
+    "ean": "8691123470218"
+  },
+  {
+    "slug": "fo-blue-yaban-mersini-mavi-ahududu-aromal-surup-700-ml",
+    "name_tr": "Fo Elektrik Çiçeği ve Yaban Mersini Aromalı Baz 700 ml",
+    "name_de": "Fo Electric Flower und Blaubeere Aromatisierte Basis 700 ml",
+    "proposed": "FO-IKN-002",
+    "current": "SP-FP-75152",
+    "ean": "8691123475152"
+  },
+  {
+    "slug": "fo-sorrel-icecek-karsm-madam-sorrel-1000-gr",
+    "name_tr": "FO Madame Sorrel Kuzukulaklı İçecek Karışımı 1000 gr",
+    "name_de": "FO Madame Sorrel Sauerampfer-Getränkekonzentrat 1000 g",
+    "proposed": "FO-IKN-003",
+    "current": "SP-FP-8691123475886",
+    "ean": "8691123475886"
+  },
+  {
+    "slug": "fo-cikolata-surubu-fo1153",
+    "name_tr": "FO Çikolata Aromalı Şurup 70 CL",
+    "name_de": "FO Schokoladenaromatisierter Sirup 70 cl",
+    "proposed": "FO-KSR-001",
+    "current": "SP-FP-120182",
+    "ean": "8691123120182"
+  },
+  {
+    "slug": "fo-kiwi-sirup-70-cl",
+    "name_tr": "FO Kivi Aromalı Şurup 70 cl",
+    "name_de": "FO Kiwi-Sirup 70 cl",
+    "proposed": "FO-KSR-002",
+    "current": "SP-FP-8691123120038",
+    "ean": "8691123120038"
+  },
+  {
+    "slug": "fo-blue-curacao-surubu-fo1158",
+    "name_tr": "FO Blue Curacao Aromalı Şurup 70 cl",
+    "name_de": "FO Blue Curacao Sirup 70 cl",
+    "proposed": "FO-KSR-003",
+    "current": "SP-FP-8691123120021",
+    "ean": "8691123120021"
+  },
+  {
+    "slug": "fo-kavun-surubu-fo1159",
+    "name_tr": "FO Karpuz Aromalı Şurup 70 cl",
+    "name_de": "FO Wassermelone Aromatisierter Sirup 70 cl",
+    "proposed": "FO-KSR-004",
+    "current": "SP-FP-8691123120519",
+    "ean": "8691123120519"
+  },
+  {
+    "slug": "fo-gruner-apfel-aromatisierter-sirup-70-cl",
+    "name_tr": "FO Yeşil Elma Aromalı Şurup 70 cl",
+    "name_de": "FO Grüner Apfel Aromatisierter Sirup 70 cl",
+    "proposed": "FO-KSR-005",
+    "current": "SP-FP-120588",
+    "ean": "8691123120588"
+  },
+  {
+    "slug": "fo-gruner-apfel-sirup-70-cl",
+    "name_tr": "FO Yeşil Elma Aromalı Şurup 70 cl",
+    "name_de": "FO Grüner Apfel Sirup 70 cl",
+    "proposed": "FO-KSR-006",
+    "current": "SP-FP-8691123120663",
+    "ean": "8691123120663"
+  },
+  {
+    "slug": "fo-hibiskus-surubu-fo1230",
+    "name_tr": "FO Hibiskus Aromalı Şurup 700 ml",
+    "name_de": "FO Hibiskus-Sirup 700 ml",
+    "proposed": "FO-KSR-007",
+    "current": "SP-FP-8691123473264",
+    "ean": "8691123473264"
+  },
+  {
+    "slug": "fo-kuba-nanesi-und-misket-limonu-baz-700-ml",
+    "name_tr": "FO Küba Nanesi ve Misket Limonu Baz Şurup 700ml",
+    "name_de": "FO Kubanische Minze & Limette Basissirup 700ml",
+    "proposed": "FO-KSR-008",
+    "current": "SP-FP-CUBANMINT-700",
+    "ean": "8691123475084"
+  },
+  {
+    "slug": "fo-beyaz-cikolata-aromal-surup-sekersiz-700-ml",
+    "name_tr": "Fo Beyaz Çikolata Aromalı Şurup 700 ml",
+    "name_de": "Fo White Chocolate Flavored Syrup 700 ml",
+    "proposed": "FO-KSR-009",
+    "current": "SP-FP-8691123463517",
+    "ean": "8691123463517"
+  },
+  {
+    "slug": "fo-cikolata-aromal-surup-sekersiz-700-ml",
+    "name_tr": "Fo Çikolata Aromalı Şurup 70 cl",
+    "name_de": "Fo Schokoladenaromatisierter Sirup 70 cl",
+    "proposed": "FO-KSR-010",
+    "current": "SP-FP-8691123463500",
+    "ean": "8691123463500"
+  },
+  {
+    "slug": "fo-fndk-aromal-surup-sekersiz-700-ml",
+    "name_tr": "Fo Fındık Aromalı Şurup 700 ml - Şekersiz",
+    "name_de": "Fo Haselnussaromatisierter Sirup 700 ml - Zuckerfrei",
+    "proposed": "FO-KSR-011",
+    "current": "SP-FP-8691123463494",
+    "ean": "8691123463494"
+  },
+  {
+    "slug": "fo-karamel-aromal-surup-sekersiz-700-ml",
+    "name_tr": "Fo Karamel Aromalı Şurup 700 ML - Şekersiz",
+    "name_de": "Fo Karamellgeschmack Sirup 700 ML - Zuckerfrei",
+    "proposed": "FO-KSR-012",
+    "current": "SP-FP-8691123463470",
+    "ean": "8691123463470"
+  },
+  {
+    "slug": "fo-vanilya-aromal-surup-sekersiz-700-ml",
+    "name_tr": "Fo Vanilya Aromalı Şurup - Şekersiz 700 ml",
+    "name_de": "Fo Vanille Aromatisierter Sirup - Zuckerfrei 700 ml",
+    "proposed": "FO-KSR-013",
+    "current": "SP-FP-8691123463487",
+    "ean": "8691123463487"
+  },
+  {
+    "slug": "fo-sakura-und-weisser-pfirsich-aromatisierter-basis-sirup-70-cl",
+    "name_tr": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 70 cl",
+    "name_de": "FO Sakura und Weißer Pfirsich Aromatisierter Basis Sirup 70 cl",
+    "proposed": "FO-KSR-015",
+    "current": "SP-FP-70120137",
+    "ean": "8691123120137"
+  },
+  {
+    "slug": "fo-sakura-ve-beyaz-seftali-aromal-baz-surup-700-ml",
+    "name_tr": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 700 ml",
+    "name_de": "FO Sakura und Weißer Pfirsich aromatisierte Basis 700 ml",
+    "proposed": "FO-KSR-014",
+    "current": "SP-FP-469663",
+    "ean": "8691123469663"
+  },
+  {
+    "slug": "fo-mavi-frambuaz-aromal-surup-700-ml",
+    "name_tr": "FO Mavi Frambuaz Aromalı Şurup 70 cl",
+    "name_de": "FO Blaues Himbeer-Aroma Sirup 70 cl",
+    "proposed": "FO-KSR-016",
+    "current": "SP-FP-BLURASP70",
+    "ean": "8691123453105"
+  },
+  {
+    "slug": "fo-kokosgeschmack-sirup-blanc-70-cl",
+    "name_tr": "FO Hindistan Cevizi Aromalı Şurup (Blanc) 70 cl",
+    "name_de": "FO Kokosgeschmack Sirup (Blanc) 70 cl",
+    "proposed": "FO-KSR-017",
+    "current": "SP-FP-8691123120052",
+    "ean": "8691123120052"
+  },
+  {
+    "slug": "fo-nane-ve-limon-aromal-surup-700-ml",
+    "name_tr": "FO Mojito Aromalı Şurup 70 cl",
+    "name_de": "FO Mojito Sirup mit Geschmack 70 cl",
+    "proposed": "FO-KSR-018",
+    "current": "SP-FP-MOJITO-700",
+    "ean": "8691123449320"
+  },
+  {
+    "slug": "cilekli-surup-700-ml",
+    "name_tr": "FO Çilek Aromalı Şurup 70 cl",
+    "name_de": "FO Erdbeeraromatisierter Sirup 70 cl",
+    "proposed": "FO-KSR-019",
+    "current": "SP-FP-STR-70",
+    "ean": "8691123120700"
+  },
+  {
+    "slug": "fo-vanille-aromatisierter-sirup-70-cl",
+    "name_tr": "FO Vanilya Aromalı Şurup 70 cl",
+    "name_de": "FO Vanille Aromatisierter Sirup 70 cl",
+    "proposed": "FO-KSR-022",
+    "current": "SP-FP-120106",
+    "ean": "8691123120106"
+  },
+  {
+    "slug": "fo-mango-geschmacks-sirup-70-cl",
+    "name_tr": "FO Mango Aromalı Şurup 70 cl",
+    "name_de": "FO Mango Geschmacks-Sirup 70 cl",
+    "proposed": "FO-KSR-032",
+    "current": "SP-FP-8691123120229",
+    "ean": "8691123120229"
+  },
+  {
+    "slug": "fo-brombeer-flavored-sirup-70-cl",
+    "name_tr": "FO Böğürtlen Aromalı Şurup 70 cl",
+    "name_de": "FO Brombeer Flavored Sirup 70 cl",
+    "proposed": "FO-KSR-059",
+    "current": "SP-FP-8691123120717",
+    "ean": "8691123120717"
+  },
+  {
+    "slug": "fo-toffee-nuss-aromatisierter-sirup-700-ml",
+    "name_tr": "FO Toffee Cevizi Aromalı Şurup 700 ml",
+    "name_de": "FO Toffee-Nuss Aromatisierter Sirup 700 ml",
+    "proposed": "FO-KSR-066",
+    "current": "SP-FP-8691123120618",
+    "ean": "8691123120618"
+  },
+  {
+    "slug": "fo-srp-karamel",
+    "name_tr": "FO Karamel Aromalı Şurup 70 CL",
+    "name_de": "FO Karamell Flavored Sirup 70 CL",
+    "proposed": "FO-KSR-070",
+    "current": "SP-FP-CARAMEL-70",
+    "ean": "8691123120236"
+  },
+  {
+    "slug": "hindistan-cevizi-aromali-surup-regular-700ml",
+    "name_tr": "FO Regular Hindistan Cevizi Aromalı Şurup 70 cl",
+    "name_de": "FO Regulärer Kokosnusshaltiger Sirup 70 cl",
+    "proposed": "FO-KSR-079",
+    "current": "SP-FP-8691123120243",
+    "ean": "8691123120243"
+  },
+  {
+    "slug": "fo-cilek-meyveli-pure-sos-fo1110",
+    "name_tr": "FO Çilek Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Erdbeer Fruchtsauce - Frozen 1 kg",
+    "proposed": "FO-MYS-001",
+    "current": "SP-FP-8691123340764",
+    "ean": "8691123340764"
+  },
+  {
+    "slug": "fo-ahududu-meyveli-pure-sos-fo1111",
+    "name_tr": "FO Frambuaz Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Himbeer Fruchtsauce - Frozen 1 kg",
+    "proposed": "FO-MYS-002",
+    "current": "SP-FP-8691123340771",
+    "ean": "8691123340771"
+  },
+  {
+    "slug": "fo-karadut-meyveli-pure-sos-fo1112",
+    "name_tr": "FO Karadut Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Maulbeer Fruchtpüree Sauce - Frozen 1 kg",
+    "proposed": "FO-MYS-003",
+    "current": "SP-FP-8691123340788",
+    "ean": "8691123340788"
+  },
+  {
+    "slug": "fo-bogurtlen-meyveli-pure-sos-fo1113",
+    "name_tr": "FO Böğürtlen Meyveli Sos (Frozen) 1 kg",
+    "name_de": "FO Brombeere Fruchtsauce (Frozen) 1 kg",
+    "proposed": "FO-MYS-004",
+    "current": "SP-FP-8691123340795",
+    "ean": "8691123340795"
+  },
+  {
+    "slug": "fo-kivi-meyveli-pure-sos-fo1114",
+    "name_tr": "FO Kivi Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Kiwi Fruchtsauce - Frozen 1 kg",
+    "proposed": "FO-MYS-005",
+    "current": "SP-FP-8691123340931",
+    "ean": "8691123340931"
+  },
+  {
+    "slug": "fo-mango-meyveli-pure-sos-fo1116",
+    "name_tr": "FO Mangolu Meyveli Sos 1 kg",
+    "name_de": "FO Mango Fruchtsoße 1 kg",
+    "proposed": "FO-MYS-006",
+    "current": "SP-FP-MNG-1000",
+    "ean": "8691123340948"
+  },
+  {
+    "slug": "fo-kavun-meyveli-pure-sos-fo1117",
+    "name_tr": "FO Kavun Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Melonenfruchtsoße - Frozen 1 kg",
+    "proposed": "FO-MYS-007",
+    "current": "SP-FP-8691123340917",
+    "ean": "8691123340917"
+  },
+  {
+    "slug": "fo-karpuz-meyveli-pure-sos-fo1118",
+    "name_tr": "FO Karpuz Meyveli Sos (Frozen) 1 kg",
+    "name_de": "FO Wassermelone Fruchtsauce (Frozen) 1 kg",
+    "proposed": "FO-MYS-008",
+    "current": "SP-FP-8691123340955",
+    "ean": "8691123340955"
+  },
+  {
+    "slug": "fo-seftali-meyveli-pure-sos-fo1119",
+    "name_tr": "FO Şeftali Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Pfirsich Fruchtsauce (Frozen) 1 kg",
+    "proposed": "FO-MYS-009",
+    "current": "SP-FP-8691123340962",
+    "ean": "8691123340962"
+  },
+  {
+    "slug": "fo-yesil-elma-meyveli-pure-sos-fo1120",
+    "name_tr": "FO Yeşil Elma Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Grüner Apfel Fruchtsoße 1 kg",
+    "proposed": "FO-MYS-010",
+    "current": "SP-FP-8691123340979",
+    "ean": "8691123340979"
+  },
+  {
+    "slug": "fo-muz-meyveli-pure-sos-fo1121",
+    "name_tr": "FO Muz Meyveli Sos 1 kg",
+    "name_de": "FO Bananen Fruchtsauce 1 kg",
+    "proposed": "FO-MYS-011",
+    "current": "SP-FP-BANANA-1KG",
+    "ean": "8691123340986"
+  },
+  {
+    "slug": "fo-limon-meyveli-pure-sos-fo1122",
+    "name_tr": "FO Limon Meyveli Sos 1 kg",
+    "name_de": "FO Zitronen-Fruchtsauce 1 kg",
+    "proposed": "FO-MYS-012",
+    "current": "SP-FP-8691123340993",
+    "ean": "8691123340993"
+  },
+  {
+    "slug": "fo-hindistan-cevizi-meyveli-pure-sos-1-kg-fo1123",
+    "name_tr": "FO Hindistan Cevizi Meyveli Sos 1 kg",
+    "name_de": "FO Kokosnuss Fruchtsauce 1 kg",
+    "proposed": "FO-MYS-013",
+    "current": "SP-FP-COCO1KG",
+    "ean": "8691123444127"
+  },
+  {
+    "slug": "fo-orman-meyveleri-pure-sos-1-kg-fo1124",
+    "name_tr": "FO Orman Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Waldbeeren Fruchtsauce 1 kg",
+    "proposed": "FO-MYS-014",
+    "current": "SP-FP-8691123444134",
+    "ean": "8691123444134"
+  },
+  {
+    "slug": "fo-passionsfrucht-sauce-1-kg",
+    "name_tr": "FO Passiflora (Çarkıfelek Meyvesi) Sosu 1 kg",
+    "name_de": "FO Passionsfrucht-Sauce 1 kg",
+    "proposed": "FO-MYS-015",
+    "current": "SP-FO-PFS1KG",
+    "ean": "8691123444656"
+  },
+  {
+    "slug": "fo-yaban-mersini-meyveli-pure-sos-1-kg-fo1127",
+    "name_tr": "FO Yaban Mersini Taneli Sos 1 Kg",
+    "name_de": "FO Blaubeer Fruchtsoße 1 Kg",
+    "proposed": "FO-MYS-016",
+    "current": "SP-FP-8691123444851",
+    "ean": "8691123444851"
+  },
+  {
+    "slug": "fo-ananas-meyveli-pure-sos-1-kg-fo1128",
+    "name_tr": "FO Ananas Meyveli Sos - Frozen 1 kg",
+    "name_de": "FO Ananas Fruchtpüree Sauce (Frozen) 1 kg",
+    "proposed": "FO-MYS-017",
+    "current": "SP-FP-8691123448620",
+    "ean": "8691123448620"
+  },
+  {
+    "slug": "chocolate-sauce-2-5kg",
+    "name_tr": "FO Profesyonel Çikolata Sosu 2,5 kg",
+    "name_de": "FO Schokoladensauce Professional 2,5 kg",
+    "proposed": "FO-MYS-018",
+    "current": "SP-FP-FO-CHOC-2500",
+    "ean": "8691123468864"
+  },
+  {
+    "slug": "toffee-caramel-sauce",
+    "name_tr": "FO Tofi Karamel Sos 2,5 kg",
+    "name_de": "FO Toffee Karamellsauce 2,5 kg",
+    "proposed": "FO-MYS-019",
+    "current": "SP-FP-8691123355065",
+    "ean": "8691123355065"
+  },
+  {
+    "slug": "fo-cilek-premium-surup-700ml-fo1131",
+    "name_tr": "FO Çilek Aromalı Premium Kokteyl Şurubu 700 ml",
+    "name_de": "FO Erdbeere Premium Cocktailsirup 700 ml",
+    "proposed": "FO-PKS-001",
+    "current": "SP-FP-8691123470942",
+    "ean": "8691123470942"
+  },
+  {
+    "slug": "fo-ahududu-premium-surup-700ml-fo1136",
+    "name_tr": "FO Ahududu Meyveli Şurup - Premium 700ml",
+    "name_de": "FO Himbeere Fruchtsirup - Premium 700ml",
+    "proposed": "FO-PKS-002",
+    "current": "SP-FP-8691123470959",
+    "ean": "8691123470959"
+  },
+  {
+    "slug": "fo-misket-limonu-premium-surup-700ml-fo1142",
+    "name_tr": "FO Misket Limonu Meyveli Şurup 700 ml - Premium",
+    "name_de": "FO Limetten Fruchtsirup 700 ml - Premium",
+    "proposed": "FO-PKS-003",
+    "current": "SP-FP-8691123471840",
+    "ean": "8691123471840"
+  },
+  {
+    "slug": "fo-karamel-premium-surup-700ml-fo1144",
+    "name_tr": "FO Karamel Aromalı Premium Şurup 700 ml",
+    "name_de": "FO Karamell-Aroma Premium Sirup 700 ml",
+    "proposed": "FO-PKS-004",
+    "current": "SP-FP-8691123471055",
+    "ean": "8691123471055"
+  },
+  {
+    "slug": "fo-cikolatal-premium-surup-700ml-fo1148",
+    "name_tr": "FO Çikolata Aromalı Şurup - Premium 700 ml",
+    "name_de": "FO Schokoladensirup - Premium 700 ml",
+    "proposed": "FO-PKS-005",
+    "current": "SP-FP-8691123471833",
+    "ean": "8691123471833"
+  },
+  {
+    "slug": "fo-vanilya-aromal-premium-surup-700ml-fo1150",
+    "name_tr": "FO Vanilya Aromalı Şurup - Şekersiz 700 ml",
+    "name_de": "FO Vanille Aroma Sirup - Zuckerfrei 700 ml",
+    "proposed": "FO-PKS-006",
+    "current": "SP-FP-8691123470980",
+    "ean": "8691123470980"
+  },
+  {
+    "slug": "fo-coconut-syrup",
+    "name_tr": "FO Hindistan Cevizi Aromalı Şurup - Premium 700 ml",
+    "name_de": "FO Kokosnuss Sirup - Premium 700 ml",
+    "proposed": "FO-PKS-007",
+    "current": "SP-FP-8691123471888",
+    "ean": "8691123471888"
+  },
+  {
+    "slug": "fo-prem-haz-001",
+    "name_tr": "FO Fındık Aromalı Şurup Premium 700ml",
+    "name_de": "FO Haselnuss-Aroma-Sirup Premium 700ml",
+    "proposed": "FO-PKS-008",
+    "current": "SP-FP-8691123471017",
+    "ean": "8691123471017"
+  },
+  {
+    "slug": "fo-beyaz-cikolata-premium-surup-700ml-fo1147",
+    "name_tr": "FO Beyaz Çikolata Şurubu - Premium 700 ml",
+    "name_de": "FO Weißer Schokoladensirup - Premium 700 ml",
+    "proposed": "FO-PKS-029",
+    "current": "SP-FP-8691123471857",
+    "ean": "8691123471857"
+  },
+  {
+    "slug": "fo-premium-taro-sosu-2-5-kg",
+    "name_tr": "FO Taro Aromalı Premium Sos 2,5 kg (Pompa Hediyeli)",
+    "name_de": "FO Premium Taro Aromatisierte Sauce 2,5 kg (Inklusive Pumpe)",
+    "proposed": "FO-PRF-002",
+    "current": "SP-FP-8691123471086",
+    "ean": "8691123471086"
+  },
+  {
+    "slug": "nane-ve-misket-limonu-aromali-icecek-700-ml",
+    "name_tr": "Fo Nane ve Limon Aromalı İçecek Şurubu 700 ml",
+    "name_de": "Fo Minz- und Limetten-Geschmack Getränkesirup 700 ml",
+    "proposed": "FO-SOS-009",
+    "current": "SP-FP-8691123462916",
+    "ean": "8691123462916"
+  },
+  {
+    "slug": "fo-srp-prem-sef",
+    "name_tr": "FO Sakura ve Beyaz Şeftali Aromalı Premium Şurup 700 ml",
+    "name_de": "FO Sakura und Weißer Pfirsich Aroma Premium Sirup 700 ml",
+    "proposed": "FO-SRP-001",
+    "current": "SP-FP-8691123470966",
+    "ean": "8691123470966"
+  },
+  {
+    "slug": "fo-yesil-elma-premium-surup-700ml-fo1134",
+    "name_tr": "FO Yeşil Elma Meyveli Şurup - Premium 700ml",
+    "name_de": "FO Grüner Apfel Fruchtsirup - Premium 700ml",
+    "proposed": "FO-SRP-002",
+    "current": "SP-FP-8691123471871",
+    "ean": "8691123471871"
+  },
+  {
+    "slug": "fo-mango-premium-surup-700-ml-fo1137",
+    "name_tr": "FO Mango Aromalı Premium Şurup 700 ml",
+    "name_de": "FO Mango Premium Sirup 700 ml",
+    "proposed": "FO-SRP-003",
+    "current": "SP-FP-MANGO-700",
+    "ean": "8691123470973"
+  },
+  {
+    "slug": "fo-nar-premium-surup-700-ml-fo1138",
+    "name_tr": "FO Nar Çiçeği (Grenadine) Aromalı Şurup 70 cl",
+    "name_de": "FO Grenadinen Aromatisierter Sirup 70 cl",
+    "proposed": "FO-SRP-004",
+    "current": "SP-FP-8691123120014",
+    "ean": "8691123120014"
+  },
+  {
+    "slug": "fo-srp-prem-nar",
+    "name_tr": "FO Nar Meyveli Premium Şurup 700 ml",
+    "name_de": "FO Granatapfel Fruchtsirup Premium 700 ml",
+    "proposed": "FO-SRP-024",
+    "current": "SP-FP-8691123471024",
+    "ean": "8691123471024"
+  },
+  {
+    "slug": "fo-karpuz-meyveli-premium-surup-700ml-fo1146",
+    "name_tr": "FO Karpuz Meyveli Şurup – Premium 700ml",
+    "name_de": "FO Wassermelone Fruchtsirup – Premium 700ml",
+    "proposed": "FO-SRP-005",
+    "current": "SP-FP-8691123472885",
+    "ean": "8691123472885"
+  },
+  {
+    "slug": "fo-weisser-schokolade-aromatisierter-sirup-70-cl",
+    "name_tr": "FO Beyaz Çikolata Aromalı Şurup 70 CL",
+    "name_de": "FO Weißer Schokolade Aromatisierter Sirup 70 CL",
+    "proposed": "FO-SRP-006",
+    "current": "SP-FP-120571",
+    "ean": "8691123120571"
+  },
+  {
+    "slug": "fo-bogurtlen-meyveli-premium-surup-700ml-fo1149",
+    "name_tr": "FO Böğürtlen Meyveli Şurup Premium 700ml",
+    "name_de": "FO Brombeere Fruchtsirup Premium 700ml",
+    "proposed": "FO-SRP-007",
+    "current": "SP-FP-8691123473707",
+    "ean": "8691123473707"
+  },
+  {
+    "slug": "fo-muz-surubu-fo1165",
+    "name_tr": "FO Muz Aromalı Şurup 700 ml",
+    "name_de": "FO Bananen-Aroma-Sirup 700 ml",
+    "proposed": "FO-SRP-008",
+    "current": "SP-FP-8691123120076",
+    "ean": "8691123120076"
+  },
+  {
+    "slug": "fo-bahce-nanesi-surubu-fo1195",
+    "name_tr": "FO Nane Aromalı Şurup 700 ml",
+    "name_de": "FO Pfefferminz-Sirup 700 ml",
+    "proposed": "FO-SRP-009",
+    "current": "SP-FP-8691123120090",
+    "ean": "8691123120090"
+  },
+  {
+    "slug": "fo-spearmint-flavored-syrup-70-cl",
+    "name_tr": "FO Nane Aromalı Şurup 70 cl",
+    "name_de": "FO Spearmint Flavored Syrup 70 cl",
+    "proposed": "FO-SRP-029",
+    "current": "SP-FP-120564",
+    "ean": "8691123120564"
+  },
+  {
+    "slug": "fo-srp-spearmint",
+    "name_tr": "FO Tatlı Nane Aromalı Şurup 700 ml",
+    "name_de": "FO Grüne Minze Sirup 700 ml",
+    "proposed": "FO-SRP-030",
+    "current": "fo-srp-spearmint",
+    "ean": "8691123473394"
+  },
+  {
+    "slug": "fo-toz-icecek-baz-quatro-fo1021",
+    "name_tr": "FO Toz İçecek Bazı (Quatro) 1 kg",
+    "name_de": "FO Pulver Getränkebasis (Quatro) 1 kg",
+    "proposed": "FO-TIZ-001",
+    "current": "SP-FP-8691123453037",
+    "ean": "8691123453037"
+  },
+  {
+    "slug": "kavun-aromali-icecek-tozu--milkshake--1-kg",
+    "name_tr": "FO Kavun Aromalı İçecek Tozu - Milkshake 1 kg",
+    "name_de": "FO Melonen Aromatisiertes Pulvergetränk - Milkshake 1 kg",
+    "proposed": "FO-TIZ-003",
+    "current": "SP-FP-8691123449566",
+    "ean": "8691123449566"
+  },
+  {
+    "slug": "cilek-aromali-icecek-tozu-milkshake--1-kg",
+    "name_tr": "FO Çilek Aromalı İçecek Tozu 1 kg",
+    "name_de": "FO Erdbeergeschmack Pulvergetränk 1 kg",
+    "proposed": "FO-TIZ-008",
+    "current": "SP-FP-8691123449511",
+    "ean": "8691123449511"
+  },
+  {
+    "slug": "vanilya-aromali-icecek-tozu-milkshake-1-kg",
+    "name_tr": "FO Vanilya Aromalı İçecek Tozu - Milkshake 1 kg",
+    "name_de": "FO Vanille Aromatisiertes Pulver Getränk 1 kg",
+    "proposed": "FO-TIZ-019",
+    "current": "SP-FP-8691123449504",
+    "ean": "8691123449504"
+  },
+  {
+    "slug": "bitter-cikolatali-icecek-tozu-1-kg",
+    "name_tr": "FO Çikolatalı Toz İçecek - Milkshake 1 kg",
+    "name_de": "FO Schokoladenaromatisiertes Pulvergetränk 1 kg",
+    "proposed": "FO-TIZ-020",
+    "current": "SP-FP-8691123449498",
+    "ean": "8691123449498"
+  },
+  {
+    "slug": "chai-tea-latte-icecek-tozu-1-kg",
+    "name_tr": "Fo Chai Tea Latte Toz İçecek 1 kg",
+    "name_de": "Fo Chai Tea Latte Pulver Getränk 1 kg",
+    "proposed": "FO-TIZ-023",
+    "current": "SP-FP-8691123461117",
+    "ean": "8691123461117"
+  },
+  {
+    "slug": "matcha-yesil-cay-icecek-tozu---milkshake-1-kg",
+    "name_tr": "Fo Matcha Yeşil Çay Tozu İçecek 1 kg",
+    "name_de": "Fo Matcha Green Tea Powder Drink 1 kg",
+    "proposed": "FO-TIZ-024",
+    "current": "SP-FP-8691123470379",
+    "ean": "8691123470379"
+  }
+]

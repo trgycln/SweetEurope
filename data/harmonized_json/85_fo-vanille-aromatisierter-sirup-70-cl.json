@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Dieser zuckerfreie Vanillesirup von FO bietet ein intensives, authentisches Vanillearoma bei minimalem Kaloriengehalt. Dank seiner hochkonzentrierten Formel verleiht er Kaffeespezialitäten, Smoothies und Desserts eine elegante, cremige Note. Ideal für professionelle Cafés und Bars, die ihren Kunden kalorienbewusste, aber geschmacksintensive Premium-Getränke anbieten möchten.",
+    "en": "This sugar-free vanilla syrup by FO delivers an intense, authentic vanilla flavor profile with minimal calories. Its highly concentrated formula adds an elegant, creamy depth to specialty coffees, smoothies, and desserts. Perfect for professional cafes and bars looking to provide calorie-conscious yet flavor-rich premium beverage options.",
+    "tr": "FO şekersiz vanilya şurubu, minimum kalori ile yoğun ve otantik bir vanilya lezzeti sunar. Yüksek konsantrasyonlu formülü sayesinde kahve çeşitlerine, smoothie'lere ve tatlılara zarif ve kremsi bir derinlik katar. Kalori bilincine sahip müşterilerine lezzet odaklı premium içecek seçenekleri sunmak isteyen profesyonel kafe ve barlar için idealdir.",
+    "ar": "يقدم شراب الفانيليا الخالي من السكر من FO نكهة فانيليا أصلية ومكثفة مع سعرات حرارية قليلة جداً. بفضل تركيبته عالية التركيز، يضفي عمقاً كريمياً وأنيقاً على القهوة المتخصصة والعصائر والحلويات. مثالي للمقاهي والبارات الاحترافية التي تسعى لتقديم خيارات مشروبات متميزة وغنية بالنكهة مع مراعاة السعرات الحرارية."
+  },
+  "hazirlanisi": {
+    "de": "Verwenden Sie eine Dosierung von 1,5-2 cl für heiße und kalte Getränke. Für eine direkte Zubereitung als Erfrischungsgetränk mit Wasser oder Milch im Verhältnis 1:8 mischen.",
+    "en": "Use a dosage of 1.5-2 cl for hot and cold drinks. For direct consumption, dilute with water or milk at a ratio of 1:8.",
+    "tr": "Sıcak ve soğuk içeceklerde 1,5-2 cl dozajında kullanınız. Doğrudan tüketim için su veya süt ile 1/8 oranında seyrelterek hazırlayınız.",
+    "ar": "استخدم جرعة تتراوح بين 1.5 إلى 2 سنتيلتر للمشروبات الساخنة والباردة. للاستهلاك المباشر، قم بتخفيفه بالماء أو الحليب بنسبة 1:8."
+  },
+  "kullanim_alanlari": {
+    "de": "Latte, Cappuccino, Filterkaffee, Eiskaffee, Frappé, Milchshakes, Smoothies, Frozen Drinks, Cocktails, heiße und kalte Tees sowie diverse Desserts wie Kuchen und Kekse.",
+    "en": "Latte, cappuccino, filter coffee, iced latte, frappe, milkshakes, smoothies, frozen drinks, cocktails, hot and cold teas, and various desserts such as cakes and cookies.",
+    "tr": "Latte, cappuccino, filtre kahve, buzlu latte, frappe, milkshake, smoothie, frozen, kokteyller, sıcak ve soğuk çaylar ile kek ve kurabiye gibi her türlü tatlı.",
+    "ar": "لاتيه، كابتشينو، قهوة مفلترة، لاتيه مثلج، فرابيه، ميلك شيك، سموذي، مشروبات مثلجة، كوكتيلات، شاي ساخن وبارد، ومختلف الحلويات مثل الكعك والبسكويت."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre bei sachgemäßer Lagerung.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Shelf life: 2 years under described conditions.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Belirtilen koşullarda 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Wasser, Polydextrose (E 1200), Aroma (Vanille), Verdickungsmittel (CMC E 466), Säureregulator (Weinsäure E 334), Süßungsmittel (Sucralose E 955, Acesulfam K E 950), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211).",
+    "en": "Water, Polydextrose (E 1200), Flavoring (Vanilla), Thickener (CMC E 466), Acidity Regulator (Tartaric Acid E 334), Sweeteners (Sucralose E 955, Acesulfame K E 950), Preservatives (Potassium Sorbate E 202, Sodium Benzoate E 211).",
+    "tr": "Su, Polidekstroz (E 1200), Aroma verici (Vanilya), Kıvam artırıcı (CMC E 466), Asitlik düzenleyici (Tartarik asit E 334), Tatlandırıcılar (Sukraloz E 955, Asesülfam K E 950), Koruyucular (Potasyum sorbat E 202, Sodyum benzoat E 211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 62,
+      "energie_kcal": 15,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 0.5,
+      "davon_zucker": 0.3,
+      "eiweiss": 0,
+      "salz": 0.018
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

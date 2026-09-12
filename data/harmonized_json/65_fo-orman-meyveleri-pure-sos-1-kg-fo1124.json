@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Waldbeeren Fruchtsauce bietet eine intensive Komposition aus Erdbeeren, Himbeeren, Blaubeeren und Brombeeren mit einem hohen Fruchtanteil. Diese professionelle Sauce überzeugt durch ihre authentische Farbe, ein vollmundiges Aroma und eine ideale Konsistenz für die gehobene Gastronomie. Sie ist die perfekte Wahl, um Desserts, Eiscremes und Backwaren geschmacklich zu veredeln und optisch aufzuwerten.",
+    "en": "FO Wild Berries Fruited Sauce offers an intense composition of strawberries, raspberries, blueberries, and blackberries with a high fruit content. This professional-grade sauce stands out for its authentic color, full-bodied aroma, and ideal consistency for high-end gastronomy. It is the perfect choice to enhance the flavor and visual appeal of desserts, ice creams, and pastries.",
+    "tr": "FO Orman Meyveli Sos, çilek, ahududu, yaban mersini ve böğürtlenin yoğun ve dengeli birleşiminden oluşan yüksek meyve oranlı profesyonel bir sostur. Otantik rengi, dolgun aroması ve ideal kıvamı ile üst segment gastronomi işletmeleri için geliştirilmiştir. Tatlılar, dondurmalar ve pastacılık ürünlerine hem lezzet hem de görsel zenginlik katmak için mükemmel bir tercihtir.",
+    "ar": "يقدم صوص فواكه الغابة من FO تركيبة مكثفة من الفراولة والتوت والبلوبيري والعليق مع نسبة عالية من الفاكهة. يتميز هذا الصوص الاحترافي بلونه الأصيل ونكهته الغنية وقوامه المثالي للمطاعم والمقاهي الراقية. إنه الخيار الأمثل لإضافة نكهة مميزة وجاذبية بصرية للحلويات والآيس كريم والمخبوزات."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen zerstoßenem Eis in einem Hochleistungsmixer mixen. Für Cocktails (alkoholisch/alkoholfrei): Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 volume of sauce with 3 volumes of crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya su ile seyrelterek kullanın.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصوص مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات الكحولية وغير الكحولية: يُستخدم مباشرة أو يُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Fruchteis, Frozen-Getränke, Cocktails, Mocktails, Cremes, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Ice cream, milky desserts, pastries, pies, cakes, waffles, fruit ice cream, frozen drinks, cocktails, mocktails, creams, whipped cream, jellies, and candies.",
+    "tr": "Dondurma, sütlü tatlılar, pastalar, börekler, kekler, waffle, meyveli dondurma, frozen içecekler, kokteyller, mocktail, kremalar, şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكيك، الوافل، آيس كريم الفواكه، المشروبات المثلجة، الكوكتيلات، الموكتيل، الكريمات، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Erdbeere (20%), Himbeere (10%), Blaubeere (10%), Brombeere (10%), modifizierte Maisstärke, Säureregulatoren (Weinsäure E334, Trinatriumcitrat E331iii), Aroma (Erdbeere, Himbeere, Blaubeere, Brombeere), Salz, Konservierungsmittel (Kaliumsorbat E202), Farbstoffe (Ponceau 4R E124, Brillantblau E133).",
+    "en": "Sugar, Strawberry (20%), Raspberry (10%), Blueberry (10%), Blackberry (10%), Modified corn starch, Acidity regulators (Tartaric acid E334, Trisodium citrate E331iii), Flavoring (Strawberry, Raspberry, Blueberry, Blackberry), Salt, Preservative (Potassium sorbate E202), Colourants (Ponceau 4R E124, Brillant blue E133).",
+    "tr": "Şeker, Çilek (%20), Ahududu (%10), Yaban Mersini (%10), Böğürtlen (%10), Modifiye mısır nişastası, Asitlik düzenleyiciler (Tartarik asit E334, Trisodyum sitrat E331iii), Aroma vericiler (Çilek, Ahududu, Yaban Mersini, Böğürtlen), Tuz, Koruyucu (Potasyum sorbat E202), Renklendiriciler (Ponceau 4R E124, Brillant blue E133)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 991,
+      "energie_kcal": 237,
+      "fett": 0.1,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 56.1,
+      "davon_zucker": 54.2,
+      "eiweiss": 0.5,
+      "salz": 0.0
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

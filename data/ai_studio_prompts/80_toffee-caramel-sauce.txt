@@ -1,0 +1,85 @@
+=== GOOGLE AI STUDIO INSTRUCTION ===
+Temperature: 0
+Model: Gemini 2.5 Pro or Gemini 1.5 Pro (or Gemini 3.8/3.5 Flash)
+
+--- SYSTEM INSTRUCTIONS ---
+You are a precision food scientist, barista master, and multilingual B2B catalog copywriter for ElysonSweets (Germany).
+Your task is to harmonize, verify, and write rich, authoritative B2B product documentation from the provided Product Specification (.doc) and Official Label (.pdf).
+
+ABSOLUTE RULES (TEMPERATURE 0):
+1. ZERO HALLUCINATION for technical, ingredients, allergen, and nutritional data: Only use information stated in the source documents. If not present, output null.
+2. In 'aciklamalar': Write a rich, professional, mouth-watering B2B description (3-4 comprehensive sentences) highlighting flavor profile, high concentration, mouthfeel, and benefits for cafes/bars. Provide in 'de', 'en', 'tr', 'ar'.
+3. In 'hazirlanisi': Provide precise mixing ratios, dilution instructions, and barista recipes (e.g. for cold drinks, cocktails, mocktails, ice usage, pump dosages) in 'de', 'en', 'tr', 'ar'.
+4. In 'kullanim_alanlari': Provide a comprehensive list of usage areas (cocktails, lemonades, smoothies, ice tea, desserts, coffees) in 'de', 'en', 'tr', 'ar'.
+5. In 'saklama_kosullari': Provide exact storage and shelf-life guidance in 'de', 'en', 'tr', 'ar'.
+6. In 'inhaltsstoffe': Provide exact ingredients in 'de', 'en', 'tr'.
+7. In 'allergene': Provide boolean map of EU 14 allergens.
+8. In 'naehrwerte': Provide exact nutritional values per 100g/100ml.
+
+Output ONLY valid JSON matching the exact schema below. No markdown formatting outside the JSON, no extra text.
+
+--- EXPECTED JSON SCHEMA ---
+{
+  "aciklamalar": {
+    "de": "string (Reichhaltige B2B Produktbeschreibung)",
+    "en": "string (Rich B2B product description)",
+    "tr": "string (Zengin B2B ürün açıklaması)",
+    "ar": "string (وصف غني للمنتج)"
+  },
+  "hazirlanisi": {
+    "de": "string (Genaue Dosierung & Barista Zubereitungsempfehlung, z.B. 1 Teil Basis + 4 Teile Wasser/Eis)",
+    "en": "string (Precise dosage & preparation instructions, e.g. 1 part base + 4 parts water/ice)",
+    "tr": "string (Kesin dozaj ve barista hazırlama talimatı, örn: 1 ölçü baz + 4 ölçü su ve bol buz)",
+    "ar": "string (طريقة التحضير الدقيقة والجرعة)"
+  },
+  "kullanim_alanlari": {
+    "de": "string (Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Desserts)",
+    "en": "string (Versatile application areas: Cocktails, mocktails, iced teas, lemonades, desserts)",
+    "tr": "string (Geniş kullanım alanları: Kokteyller, mocktail, soğuk çaylar, limonatalar, tatlılar)",
+    "ar": "string (مجالات الاستخدام المتنوعة)"
+  },
+  "saklama_kosullari": {
+    "de": "string (Lagerungshinweise)",
+    "en": "string (Storage instructions)",
+    "tr": "string (Saklama koşulları)",
+    "ar": "string (شروط التخزين)"
+  },
+  "inhaltsstoffe": {
+    "de": "string | null",
+    "en": "string | null",
+    "tr": "string | null"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": "number | null",
+      "energie_kcal": "number | null",
+      "fett": "number | null",
+      "davon_gesaettigt": "number | null",
+      "kohlenhydrate": "number | null",
+      "davon_zucker": "number | null",
+      "eiweiss": "number | null",
+      "salz": "number | null"
+    }
+  },
+  "allergene": {
+    "gluten": "boolean",
+    "milch": "boolean",
+    "soja": "boolean",
+    "nuesse": "boolean",
+    "eier": "boolean"
+  }
+}
+
+--- PRODUCT TO HARMONIZE ---
+Product ID: 2d438bd2-d047-4b8f-b163-c4d6bcd57ea5
+Name TR: FO Tofi Karamel Sos 2,5 kg
+Name DE: FO Toffee Karamellsauce 2,5 kg
+Name EN: FO Toffee Caramel Sauce 2.5 kg
+Barcode (EAN): 8691123355065
+SKU: SP-FP-8691123355065
+
+[SOURCE 1: OFFICIAL SPECIFICATION (.DOC)]
+PROFESSIONAL SAUCE PRODUCT SPECIFICATIONDocument No  : SP-FP-3261st Issue : 02.01.2013Revision No : 04Revision Date: 11.06.2025Page No : 1 / 11. GENERAL CHARACTERISTICS:Trade Mark                               : FO FOOD PRODUCTS Product Name                           : TOFFEE CARAMEL  SAUCEPackaging Amount/Type         : 2,5  kg  PE BottleShipment                                   : Shipped in closed cartoon packaging on lorries with closed containers.Intended Area Type of Usage : Generally used in human nutrition, may be used for zesting hot and cold drinks or coating ice cream, milky dessert, cakes,                                                      tarts and inside the waffles. Also, maybe used in making fruited ice cream and frozen. As well as maybe used to give                                                       color and flavor to pastry and cake dough, pies, cream, whipped cream, jellys and candy. As a sauce, gives a delicious                                                       taste to the product applied. Saves time and labour since it is applied directly. Application is very practical.Type of Usage                           : Applied directly.Storing Conditions                   : It should be stored in its original packaging, 20-22º C under dry conditions, and direct sunlight should be avoided. Shelf life                                     : The shelf life under defined storing conditions and in unopened packaging is 2 year.2.PRODUCT INGREDIENTS :INGREDIENTSCLASSEC CODEMAX. DOSAGEPERCENTAGESugar ———48 %Caramel Sauce(water, sugar, skimmed milk powder, butter)———25 %Water———11,2 %Glucose syrup———5%GlycerineHumectantE 422—5%Modified Corn Starch———5 %Citric Acid, Trisodium citrateAcidity RegulatorE 330 E 331iii—0,3 %Soy Lecithin EmulsifierE 322QS0,2 %Potassium SorbatePreservativeE 2021g/kg0,1 %Salt———0,1%Flavoring (Vanilla)Flavoring——0,1 %3.NUTRITIONAL INFORMATION:  (Energy and Nutrition Facts 100 g)*;Energy1180kj/283kcalTotal Fat4,1 g-Saturated2,6 gCholesterol0,0 gTotal Carbohydrate58,3 gSugar52,3 gStarch5,0 gDietary Fibre0,0 gProtein2,6 gSodium/salt0,2 g/0,5g         *( According to European Regulation  (EU) No 1169/2011)4.  PHYSICAL CHARACTERISTICS:Color/Taste/Odor: It has  authentic caramel  color, taste and odor. Appearance          : In a homogeneous structure. Does not have physically distinct. Does not include foreign materials.5.  CHEMICAL CHARACTERISTICS:pH : 6.1 ( 0.2Brix: 67 ( 2.06.    : CONTAMINANTS:Aflatoxin B1 (ppb)Max.2Aflatoxin B1+B2+G1+G2 (ppb)Max. 4Aflatoxin M1(ppb)Max. 0,05Cadmium (Cd) (mg/kg)Max. 0,05Arsenic (As) (mg/kg)Max.0,2Mercury (Hg) (mg/kg)Max. 0,1Lead ( Pb) (mg/kg)Max. 0,027.  MICROBIOLOGICAL CHARACTERISTICS:MICROORGANISM NAMEMICROBIOLOGICAL VALUEANALYSIS METHODSalmonella0/25 g-mlEN/ISO 6579E.Coli0/g-mlISO 16649-2/38.ALLERGEN ALERT: Contains milk, dairy product and soy. (According to European Regulation (EU) No 1169/2011)9.GMO DECLARATION: OZMER PASTACILIK A.S. declares under its responsibility that the product of this chart is produced with no GMO. ( According to European Regulation 2003/1829/CE,2003/1830/CE and subsequent modification. 10.REFERENCES: OZMER PASTACILIK A.S. declares under its responsibility that the product of this chart is in accordance with the law in force;    * European Regulation 1333/2008/EC        * Commission Regulation (EU) 2023/915    * European Regulation 2073/2005/EC        * European Regulation 396/2005/EC and subsequent modifications.PREPARED BY :REVIEWED BY :APPROVED BY :R&D Manager  Quality Management ManagerGeneral  Manager***Reviewed by the Quality Department on 23.06.2026***
+
+[SOURCE 2: OFFICIAL PRODUCT LABEL (.PDF)]
+No label PDF found.

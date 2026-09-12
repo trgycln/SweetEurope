@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Erdbeer Fruchtsauce bietet ein intensives, authentisches Erdbeeraroma mit einer hohen Fruchtkonzentration, die jedem Getränk eine luxuriöse Textur verleiht. Sie ist ideal für professionelle Bars und Cafés, um Cocktails, Smoothies und Desserts mit einer natürlichen, leuchtenden Farbe und einem vollmundigen Geschmacksprofil aufzuwerten. Dank ihrer vielseitigen Konsistenz lässt sie sich perfekt in kalte sowie warme Anwendungen integrieren und sorgt für eine gleichbleibend hohe Qualität.",
+    "en": "FO Strawberry Fruited Sauce delivers an intense, authentic strawberry profile with high fruit concentration, providing a luxurious texture to any beverage. It is ideal for professional bars and cafes to elevate cocktails, smoothies, and desserts with a natural, vibrant color and a full-bodied flavor profile. Its versatile consistency allows for perfect integration into both cold and hot applications, ensuring consistent high-quality results.",
+    "tr": "FO Çilek Meyveli Sos, yüksek meyve konsantrasyonu ile yoğun ve otantik bir çilek aroması sunarak içeceklere lüks bir doku kazandırır. Profesyonel bar ve kafeler için ideal olan bu ürün, kokteylleri, smoothie'leri ve tatlıları doğal, canlı bir renk ve dolgun bir lezzet profili ile zenginleştirir. Çok yönlü kıvamı sayesinde hem soğuk hem de sıcak uygulamalara mükemmel uyum sağlar ve tutarlı, yüksek kaliteli sonuçlar garanti eder.",
+    "ar": "يقدم صوص الفراولة من FO نكهة فراولة أصلية ومكثفة بتركيز عالٍ من الفاكهة، مما يضفي قواماً فاخراً على أي مشروب. إنه مثالي للمقاهي والبارات الاحترافية لتعزيز الكوكتيلات والعصائر والحلويات بلون طبيعي نابض بالحياة ونكهة غنية. بفضل قوامه المتعدد الاستخدامات، يمكن دمجه بسهولة في المشروبات الباردة والساخنة، مما يضمن نتائج عالية الجودة باستمرار."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen zerstoßenem Eis im Hochleistungsmixer mixen. Für Cocktails, Limonaden, Eistees und Smoothies: Im Verhältnis 1:4 mit Wasser oder Soda mischen.",
+    "en": "For frozen drinks: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender. For cocktails, lemonades, iced teas, and smoothies: Dilute in a 1:4 ratio with water or soda.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Kokteyller, limonatalar, soğuk çaylar ve smoothie'ler için: Su veya soda ile 1/4 oranında seyreltin.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصوص مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات والليمونادة والشاي المثلج والعصائر: خفف بنسبة 1:4 مع الماء أو الصودا."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Limonaden, Eistees, Smoothies, Milchshakes, Desserts, Eiscreme, Gebäck, Torten, Waffeln, Schlagsahne.",
+    "en": "Cocktails, mocktails, lemonades, iced teas, smoothies, milkshakes, desserts, ice cream, pastries, cakes, waffles, whipped cream.",
+    "tr": "Kokteyller, mocktail, limonatalar, soğuk çaylar, smoothie'ler, milkshake'ler, tatlılar, dondurma, pastacılık ürünleri, kekler, waffle, krem şanti.",
+    "ar": "الكوكتيلات، الموكتيلات، الليمونادة، الشاي المثلج، العصائر، الميلك شيك، الحلويات، الآيس كريم، المعجنات، الكعك، الوافل، الكريمة المخفوقة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Produktion bei ungeöffneter Verpackung.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 2 years from production in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında üretimden itibaren 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان من تاريخ الإنتاج في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Erdbeere (50%), Zucker (48%), modifizierte Maisstärke, Säureregulatoren (Weinsäure E334, Trinatriumcitrat E331iii), Aroma (Erdbeere), Salz, Konservierungsstoff (Kaliumsorbat E202), Farbstoffe (Allurarot E129, Carmoisin E122).",
+    "en": "Strawberry (50%), Sugar (48%), Modified corn starch, Acidity regulators (Tartaric acid E334, Trisodium citrate E331iii), Flavoring (Strawberry), Salt, Preservative (Potassium sorbate E202), Colourants (Allura red E129, Carmoisine E122).",
+    "tr": "Çilek (%50), Şeker (%48), Modifiye mısır nişastası, Asitlik düzenleyiciler (Tartarik asit E334, Trisodyum sitrat E331iii), Aroma verici (Çilek), Tuz, Koruyucu (Potasyum sorbat E202), Renklendiriciler (Allura kırmızısı E129, Karmoisin E122)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 984,
+      "energie_kcal": 235,
+      "fett": 0.2,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 55.6,
+      "davon_zucker": 53.6,
+      "eiweiss": 0.6,
+      "salz": 0.0
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

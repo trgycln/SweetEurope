@@ -1,0 +1,59 @@
+{
+  "stok_kodu": "SP-FP-8691123120014",
+  "barkod": "8691123120014",
+  "urun_adi": {
+    "de": "FO Grenadinen Aromatisierter Sirup 70 cl",
+    "en": "FO Grenadine Flavored Syrup 70 cl",
+    "tr": "FO Nar Çiçeği (Grenadine) Aromalı Şurup 70 cl",
+    "ar": "شراب بنكهة الرمان من فو 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Grenadinen-Sirup von FO, ideal für die Zubereitung von Cocktails oder zum Verdünnen mit Wasser (1/8) als Erfrischungsgetränk.",
+    "en": "High quality FO Grenadine flavored syrup, ideal for making cocktails or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyller yapmak veya doğrudan içmek için suyla seyreltmek (1/8) için ideal olan yüksek kaliteli FO Grenadin aromalı şurup.",
+    "ar": "شراب عالي الجودة بنكهة الرمان من فو، مثالي لتحضير الكوكتيلات أو تخفيفه بالماء (1/8) للشرب مباشرة."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails oder zum Verdünnen mit Wasser (1/8) zum direkten Trinken verwendet.",
+    "en": "Used to make cocktail or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek amacıyla su ile seyreltilerek (1/8) kullanılır.",
+    "ar": "يستخدم لتحضير الكوكتيل أو تخفيفه بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62 %), Wasser (37 %), Aroma (Grenadinen) (0,5 %), Zitronensäure [E 330] (0,4 %), Allurarot, Carmoisin [E 129, E 122] (0,06 %), Kaliumsorbat [E 202] (0,025 %), Natriumbenzoat [E 211] (0,015%). *Die Menge an Carmoisin (E 122) darf 50 mg/l nicht überschreiten.",
+    "en": "Sugar (62 %), Water (37%), Flavoring (Grenadine) (0,5%), Citric Acid [E 330] (0,4%), Allura Red, Carmoisine [E 129, E 122] (0,06%), Potassium Sorbate [E 202] (0,025%), Sodium Benzoate [E 211] (0,015%). *The amount of Carmoisine (E 122) mustn't be higher than 50 mg/lt.",
+    "tr": "Şeker (%62), Su (%37), Aroma Verici (Grenadin) (%0,5), Sitrik Asit [E 330] (%0,4), Allura Red, Karmoizin [E 129, E 122] (%0,06), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015). *Karmoizin (E 122) miktarı 50 mg/lt'den fazla olmamalıdır.",
+    "ar": "سكر (62%)، ماء (37%)، منكهات (رمان) (0.5%)، حمض الستريك [E 330] (0.4%)، أحمر ألورا، كارمويزين [E 129, E 122] (0.06%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%). * يجب ألا تزيد كمية الكارمويزين (E 122) عن 50 ملغ/لتر."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru yerde saklayın.",
+    "ar": "يخزن في مكان بارد وجاف بعيدا عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "kohlenhydrate": 82,
+      "davon_zucker": 82,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "cins": "70 cl / Glass bottle"
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 15
+}

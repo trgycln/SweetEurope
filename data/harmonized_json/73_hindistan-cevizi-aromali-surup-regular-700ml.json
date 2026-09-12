@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Regular Kokosnusssirup bietet ein authentisches, tropisches Geschmacksprofil mit einer hohen Konzentration für professionelle Anwendungen. Seine homogene Textur sorgt für eine perfekte Einbindung in Cocktails, Kaffeespezialitäten und Desserts. Ideal für Bars und Cafés, die ihren Kreationen eine cremige, exotische Note verleihen möchten.",
+    "en": "FO Regular Coconut Syrup delivers an authentic, tropical flavor profile with high concentration for professional use. Its homogenized texture ensures seamless integration into cocktails, specialty coffees, and desserts. Perfect for bars and cafes looking to add a creamy, exotic touch to their signature creations.",
+    "tr": "FO Regular Hindistan Cevizi Şurubu, profesyonel kullanımlar için yüksek konsantrasyona sahip otantik ve tropikal bir lezzet profili sunar. Homojen yapısı, kokteyllere, özel kahvelere ve tatlılara mükemmel uyum sağlar. Kremsi ve egzotik bir dokunuş arayan kafe ve barlar için idealdir.",
+    "ar": "يقدم شراب جوز الهند FO Regular نكهة استوائية أصلية بتركيز عالٍ للاستخدام المهني. يضمن قوامه المتجانس اندماجاً مثالياً في الكوكتيلات، ومشروبات القهوة المتخصصة، والحلويات. مثالي للمقاهي والبارات التي تسعى لإضافة لمسة كريمية وغريبة إلى إبداعاتها."
+  },
+  "hazirlanisi": {
+    "de": "Für den direkten Verzehr mit Wasser im Verhältnis 1:8 verdünnen. Ideal für Cocktails und Mocktails: Dosierung je nach gewünschter Intensität anpassen. Mit reichlich Eis servieren, um das tropische Aroma optimal zu entfalten.",
+    "en": "For direct consumption, dilute with water at a ratio of 1:8. Ideal for cocktails and mocktails: adjust dosage according to desired intensity. Serve with plenty of ice to best release the tropical aroma.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kokteyller ve mocktail'ler için idealdir: yoğunluğa göre dozajı ayarlayın. Tropikal aromayı en iyi şekilde ortaya çıkarmak için bol buz ile servis edin.",
+    "ar": "للاستهلاك المباشر، يُخفف بالماء بنسبة 1:8. مثالي للكوكتيلات والموكتيلات: اضبط الجرعة حسب الكثافة المطلوبة. يُقدم مع الكثير من الثلج لإبراز النكهة الاستوائية بشكل مثالي."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Kaffeespezialitäten, Eistees, Limonaden, Desserts.",
+    "en": "Cocktails, mocktails, specialty coffees, iced teas, lemonades, desserts.",
+    "tr": "Kokteyller, mocktail'ler, özel kahveler, soğuk çaylar, limonatalar, tatlılar.",
+    "ar": "الكوكتيلات، الموكتيلات، القهوة المتخصصة، الشاي المثلج، الليمونادة، الحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre ab Herstellungsdatum bei korrekter Lagerung.",
+    "en": "Store in original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life: 3 years under described storage conditions.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Belirtilen saklama koşullarında 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Glukose-Fruktose-Sirup, Wasser, Aroma (Kokosnuss), Säureregulator (Citronensäure E330), Konservierungsstoffe (Kaliumsorbat E202, Natriumbenzoat E211).",
+    "en": "Glucose-Fructose Syrup, Water, Flavoring (Coconut), Acidity Regulator (Citric Acid E330), Preservatives (Potassium Sorbate E202, Sodium Benzoate E211).",
+    "tr": "Glikoz-Fruktoz Şurubu, Su, Aroma verici (Hindistan Cevizi), Asitlik düzenleyici (Sitrik Asit E330), Koruyucular (Potasyum Sorbat E202, Sodyum Benzoat E211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1120,
+      "energie_kcal": 268,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 65.4,
+      "davon_zucker": 32.4,
+      "eiweiss": 0,
+      "salz": 0.3
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

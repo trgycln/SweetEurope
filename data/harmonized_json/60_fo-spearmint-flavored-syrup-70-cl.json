@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "FO Spearmint Flavored Syrup bietet ein authentisches, erfrischendes Minzaroma mit optimaler Konzentration für professionelle Cafés und Bars. Der Sirup zeichnet sich durch seine homogene Struktur und hervorragende Löslichkeit aus, ideal zur Veredelung von Cocktails und Erfrischungsgetränken. Er verleiht jeder Kreation eine klare, belebende Note und überzeugt durch höchste Qualität in der Gastronomie. Perfekt geeignet für den intensiven Einsatz im Bar- und Restaurantbetrieb.",
+    "en": "FO Spearmint Flavored Syrup delivers an authentic, refreshing spearmint flavor with high concentration designed for professional cafes and bars. The syrup features a homogenized structure and excellent mixability, perfect for elevating cocktails and refreshing beverages. It imparts a clean, invigorating profile to every creation, ensuring top-tier consistency for demanding hospitality environments. Ideal for daily high-volume use in bars, cafes, and restaurants.",
+    "tr": "FO Nane Aromalı Şurup, profesyonel kafe ve barlar için ideal konsantrasyona sahip otantik, ferahlatıcı bir nane lezzeti sunar. Homojen yapısı ve mükemmel çözünürlüğü sayesinde kokteylleri ve serinletici içecekleri zenginleştirmek için mükemmeldir. Her yaratıma net, canlandırıcı bir profil kazandırarak yoğun gastronomi operasyonlarında üstün tutarlılık sağlar. Bar ve restoranlarda yüksek hacimli günlük kullanım için idealdir.",
+    "ar": "يقدم شراب النعناع المنكه من FO نكهة نعناع منعشة وأصلية بتركيز مثالي مصمم للمقاهي والبارات المهنية. يتميز الشراب بقوام متجانس وقدرة ممتازة على المزيج، وهو مثالي لارتقاء الكوكتيلات والمشروبات المنعشة. يضفي طابعاً نقياً ومنعشاً على كل إبداع، مما يضمن اتساقاً فائقاً لبيئات الضيافة المتطلبة. مثالي للاستخدام اليومي عالي الكثافة في البارات والمقاهي."
+  },
+  "hazirlanisi": {
+    "de": "Verwendbar zur Zubereitung von alkoholischen oder alkoholfreien Cocktails oder direkt nach Verdünnung mit Wasser im Verhältnis 1 Teil Basis auf 8 Teile Wasser (1/8).",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly, or mixed for alcoholic and non-alcoholic beverages.",
+    "tr": "Kokteyl yapmak veya doğrudan içilmek üzere su ile (1/8 oranında) sereltilerek ya da alkollü/alkolsüz içeceklerin hazırlanmasında kullanılır.",
+    "ar": "يستخدم لصنع الكوكتيلات أو مخففاً بالماء بنسبة (1/8) للشرب مباشرة، أو لتحضير المشروبات الكحولية وغير الكحولية."
+  },
+  "kullanim_alanlari": {
+    "de": "Alkoholische und alkoholfreie Cocktails, verdünnte Erfrischungsgetränke.",
+    "en": "Alcoholic and non-alcoholic cocktails, diluted refreshing drinks.",
+    "tr": "Alkollü ve alkolsüz kokteyller, seyreltilmiş serinletici içecekler.",
+    "ar": "الكوكتيلات الكحولية وغير الكحولية، المشروبات المنعشة المخففة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern, direkte Sonneneinstrahlung vermeiden.",
+    "en": "Store in its original packaging, 20-22 °C under dry conditions, and direct sunlight should be avoided.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır.",
+    "ar": "يخزن في عبوته الأصلية، في درجة حرارة 20-22 مئوية في ظروف جافة، ويجب تجنب أشعة الشمس المباشرة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Aroma (Minze), Säureregulator (Citronensäure E 330), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211)",
+    "en": "Sugar, Water, Flavoring (Spearmint), Citric Acid (Acidity Regulator E 330), Potassium Sorbate (Preservative E 202), Sodium Benzoate (Preservative E 211)",
+    "tr": "Şeker, Su, Aroma Verici (Nane), Sitrik Asit (Asitlik Düzenleyici E 330), Potasyum Sorbat (Koruyucu E 202), Sodyum Benzoat (Koruyucu E 211)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 338,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 82.4,
+      "davon_zucker": 82.4,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

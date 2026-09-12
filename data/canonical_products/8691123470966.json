@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123470966",
+  "barkod": "8691123470966",
+  "urun_adi": {
+    "de": "FO Sakura und Weißer Pfirsich Aroma Premium Sirup 700 ml",
+    "en": "FO Sakura and White Peach Flavored Premium Syrup 700 ml",
+    "tr": "FO Sakura ve Beyaz Şeftali Aromalı Premium Şurup 700 ml",
+    "ar": "شراب فو الممتاز بنكهة الساكورا والخوخ الأبيض 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Ein Premium-Basissirup, hergestellt aus der einzigartigen Harmonie von Sakura und weißem Pfirsich, ideal für Cocktails, Eistees und erfrischende Getränke.",
+    "en": "A premium base syrup crafted with the unique harmony of sakura and white peach, ideal for cocktails, iced teas, and refreshing beverages.",
+    "tr": "Sakura ve beyaz şeftalinin eşsiz uyumuyla üretilmiş, kokteyller, soğuk çaylar ve ferahlatıcı içecekler için ideal premium baz şurup.",
+    "ar": "شراب أساسي ممتاز مصنوع من التناغم الفريد بين الساكورا والخوخ الأبيض، مثالي للكوكتيلات والشاي المثلج والمشروبات المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Eistees, alkoholische und alkoholfreie Getränke, Bars, Cafés und Gastronomie. Anwendung: Für einen 450-ml-Becher; 1 Messlöffel (40 ml) Basissirup wird optional mit 5 Messlöffeln (200 ml) Wasser verdünnt und mit reichlich Eis serviert.",
+    "en": "Cocktails, iced teas, alcoholic and non-alcoholic beverages, bars, cafes, and food service. Usage: For a 450ml cup; dilute 1 scoop (40ml) of base syrup with 5 scoops (200ml) of water and serve with plenty of ice.",
+    "tr": "Kokteyller, soğuk çaylar, alkollü ve alkolsüz içecekler, barlar, kafeler ve ev dışı tüketim. Kullanım: 450 ml'lik bir bardak için; 1 ölçek (40 ml) şurup isteğe bağlı olarak 5 ölçek (200 ml) su ile seyreltilir ve bol buzla servis edilir.",
+    "ar": "الكوكتيلات، الشاي المثلج، المشروبات الكحولية وغير الكحولية، الحانات، المقاهي، وخدمات الأغذية. طريقة الاستخدام: لكوب سعة 450 مل؛ يتم تخفيف مكيال واحد (40 مل) من الشراب الأساسي بـ 5 مكاييل (200 مل) من الماء ويقدم مع الكثير من الثلج."
+  },
+  "icindekiler": {
+    "de": "Zucker (56%), Wasser (40,099%), Säuerungsmittel (Citronensäure, Kaliumcitrat [E 330, E 332ii (3,46%)]), Aromen (Sakura, Weißer Pfirsich) (0,4%), Konservierungsstoffe (Kaliumsorbat [E 202] 0,25 g/l (0,025%), Natriumbenzoat [E 211] (0,015%)), Hibiskusextrakt (0,001%).",
+    "en": "Sugar (56%), Water (40.099%), Acid (Citric Acid, Potassium Citrate [E 330, E 332ii (3.46%)]), Flavourings (Sakura, White Peach) (0.4%), Preservatives (Potassium Sorbate [E 202] 0.25 g/l (0.025%), Sodium Benzoate [E 211] (0.015%)), Hibiscus Extract (0.001%).",
+    "tr": "Şeker (%56), Su (%40,099), Asitlik Düzenleyici (Sitrik Asit, Potasyum Sitrat [E 330, E 332ii (%3,46)]), Aroma Vericiler (Sakura, Beyaz Şeftali) (%0,4), Koruyucular (Potasyum Sorbate [E 202] 0,25 g/l (%0,025), Sodyum Benzoat [E 211] (%0,015)), Hibiskus Ekstratı (%0,001).",
+    "ar": "سكر (56%)، ماء (40.099%)، حمض (حمض الستريك، سترات البوتاسيوم [E 330، E 332ii (3.46%)]، منكهات (ساكورا، خوخ أبيض) (0.4%)، مواد حافظة (سوربات البوتاسيوم [E 202] 0.25 جم/لتر (0.025%)، بنزوات الصوديوم [E 211] (0.015%))، مستخلص الكركديه (0.001%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen den Deckel geschlossen halten.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep the lid closed after opening.",
+    "tr": "Serin, kuru ve güneş ışığı almayan bir yerde muhafaza ediniz. Açıldıktan sonra kapağını kapalı tutunuz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. يُحفظ الغطاء مغلقًا بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 975,
+      "energie_kcal": 233,
+      "fett": 0,
+      "kohlenhydrate": 55.3,
+      "davon_zucker": 55.3,
+      "eiweiss": 0,
+      "salz": 0.008
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

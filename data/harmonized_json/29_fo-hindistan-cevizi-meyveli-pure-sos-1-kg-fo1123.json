@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Kokosnuss Fruchtsauce bietet ein authentisches, tropisches Geschmackserlebnis mit einem hohen Anteil an Kokosnuss-Püree. Ihre homogene Textur mit feinen Kokospartikeln verleiht Desserts, Gebäck und Getränken eine luxuriöse Note. Ideal für professionelle Cafés und Bars, um Eiscreme, Waffeln oder Cocktails mit einer intensiven, natürlichen Kokosnote zu veredeln.",
+    "en": "FO Coconut Fruited Sauce delivers an authentic, tropical flavor profile with a high concentration of real coconut puree. Its smooth, homogenous texture featuring delicate coconut particles adds a premium touch to desserts, pastries, and beverages. Perfect for professional cafes and bars looking to elevate ice cream, waffles, or cocktails with an intense, natural coconut essence.",
+    "tr": "FO Hindistan Cevizi Meyveli Sos, yüksek oranda gerçek hindistan cevizi püresi ile otantik ve tropikal bir lezzet profili sunar. Homojen yapısı ve içerisindeki hindistan cevizi parçacıkları, tatlılara, hamur işlerine ve içeceklere lüks bir dokunuş katar. Profesyonel kafe ve barlar için dondurma, waffle veya kokteylleri yoğun ve doğal bir hindistan cevizi aromasıyla zenginleştirmek için idealdir.",
+    "ar": "تقدم صلصة جوز الهند من FO نكهة استوائية أصلية مع تركيز عالٍ من هريس جوز الهند الحقيقي. يضفي قوامها المتجانس الذي يحتوي على حبيبات جوز الهند الدقيقة لمسة فاخرة على الحلويات والمخبوزات والمشروبات. مثالية للمقاهي والبارات الاحترافية لتعزيز الآيس كريم والوافل والكوكتيلات بنكهة جوز الهند الطبيعية والمكثفة."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen gestoßenem Eis in einem Hochleistungsmixer mixen. Für Cocktails: Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender. For cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Kokteyller için: Doğrudan uygulayın veya isteğe bağlı olarak su ile seyrelterek kullanın.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات: تُستخدم مباشرة أو تُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Fruchteis, Frozen-Getränke, alkoholische und alkoholfreie Cocktails, Cremes, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Ice cream, milky desserts, pastries, pies, cakes, waffles, fruited ice cream, frozen drinks, alcoholic and non-alcoholic cocktails, creams, whipped cream, jellies, and candy.",
+    "tr": "Dondurma, sütlü tatlılar, hamur işleri, pastalar, kekler, waffle, meyveli dondurma, frozen içecekler, alkollü ve alkolsüz kokteyller, kremalar, şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكعك، الوافل، الآيس كريم بالفواكه، المشروبات المثلجة، الكوكتيلات الكحولية وغير الكحولية، الكريمات، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung an einem trockenen Ort bei 20-22 °C lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Herstellung bei ungeöffneter Verpackung.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 2 years in unopened packaging.",
+    "tr": "Orijinal ambalajında, kuru ortamda 20-22°C sıcaklıkta saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında 2 yıldır.",
+    "ar": "تُحفظ في عبوتها الأصلية في ظروف جافة عند درجة حرارة 20-22 درجة مئوية. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Kokosnuss-Püree (30%), Wasser, modifizierte Maisstärke, Säureregulatoren (Trinatriumcitrat, Weinsäure), Aroma (Kokosnuss), Salz, Konservierungsstoff (Kaliumsorbat).",
+    "en": "Sugar, Coconut puree (30%), Water, Modified corn starch, Acidity regulators (Trisodium citrate, Tartaric acid), Flavoring (Coconut), Salt, Preservative (Potassium sorbate).",
+    "tr": "Şeker, Hindistan cevizi püresi (%30), Su, Modifiye mısır nişastası, Asitlik düzenleyiciler (Trisodyum sitrat, Tartarik asit), Aroma verici (Hindistan cevizi), Tuz, Koruyucu (Potasyum sorbat)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 993,
+      "energie_kcal": 237,
+      "fett": 1.9,
+      "davon_gesaettigt": 1.7,
+      "kohlenhydrate": 53.5,
+      "davon_zucker": 50.5,
+      "eiweiss": 0.2,
+      "salz": 0.02
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

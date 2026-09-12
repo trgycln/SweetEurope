@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Bananen Fruchtsauce bietet ein intensives, authentisches Bananenaroma mit einer homogenen Textur und echten Fruchtstücken. Diese hochkonzentrierte Sauce ist ideal für professionelle Cafés und Bars, um Desserts, Eiscreme und Getränke geschmacklich zu veredeln. Sie überzeugt durch ihre vielseitige Anwendbarkeit und verleiht Kreationen eine professionelle, fruchtige Note.",
+    "en": "FO Banana Fruited Sauce delivers an intense, authentic banana flavor with a smooth, homogeneous texture containing real fruit pieces. This highly concentrated sauce is perfect for professional cafes and bars to elevate desserts, ice cream, and beverages. It offers exceptional versatility and adds a premium, fruity finish to any culinary creation.",
+    "tr": "FO Muz Meyveli Sos, gerçek meyve parçacıkları içeren homojen yapısı ile yoğun ve otantik bir muz aroması sunar. Profesyonel kafe ve barlar için özel olarak geliştirilen bu yüksek konsantrasyonlu sos, dondurma, tatlı ve içeceklerinize üstün bir lezzet derinliği katar. Çok yönlü kullanım imkanıyla sunumlarınıza profesyonel ve meyvemsi bir dokunuş sağlar.",
+    "ar": "يقدم صوص الموز من FO نكهة موز أصلية ومكثفة مع قوام متجانس يحتوي على قطع فاكهة حقيقية. هذا الصوص عالي التركيز مثالي للمقاهي والبارات الاحترافية لتعزيز نكهة الحلويات والآيس كريم والمشروبات. يتميز بتعدد استخداماته ويضفي لمسة فاكهة احترافية ومميزة على إبداعاتك."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen zerstoßenem Eis in einem Hochleistungsmixer mixen. Für alkoholische und alkoholfreie Cocktails: Direkt anwenden oder nach Bedarf mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya su ile seyrelterek kullanın.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصوص مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات الكحولية وغير الكحولية: يُستخدم مباشرة أو يُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Frozen-Getränke, alkoholische und alkoholfreie Cocktails, Tortenfüllungen, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Ice cream, milky desserts, pastry, pies, cakes, waffles, frozen drinks, alcoholic and non-alcoholic cocktails, fillings for cakes, whipped cream, jellies, and candies.",
+    "tr": "Dondurma, sütlü tatlılar, pastalar, börekler, kekler, waffle, frozen içecekler, alkollü ve alkolsüz kokteyller, pasta dolguları, krem şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكعك، الوافل، المشروبات المثلجة، الكوكتيلات الكحولية وغير الكحولية، حشوات الكيك، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta ve kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Banane (20%), modifizierte Maisstärke, Säureregulatoren (Weinsäure E334, Trinatriumcitrat E331iii), Salz, Aroma (Banane), Konservierungsstoff (Kaliumsorbat E202), Farbstoff (Riboflavin E101).",
+    "en": "Sugar, Water, Banana (20%), Modified corn starch, Acidity regulators (Tartaric acid E334, Tri sodium citrate E331iii), Salt, Flavoring (Banana), Preservative (Potassium sorbate E202), Colourant (Riboflavine E101).",
+    "tr": "Şeker, Su, Muz (%20), Modifiye mısır nişastası, Asitlik düzenleyiciler (Tartarik asit E334, Trinatrium sitrat E331iii), Tuz, Aroma verici (Muz), Koruyucu (Potasyum sorbat E202), Renklendirici (Riboflavin E101)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1130,
+      "energie_kcal": 270,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 66.1,
+      "davon_zucker": 49.4,
+      "eiweiss": 0.2,
+      "salz": 0.13
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123340962",
+  "barkod": "8691123340962",
+  "urun_adi": {
+    "de": "FO Pfirsich Fruchtsauce (Frozen) 1 kg",
+    "en": "FO Peach Fruited Sauce (Frozen) 1 kg",
+    "tr": "FO Şeftali Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة الخوخ بالفواكه من إف أوه (فروزن) 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "FO Pfirsich Fruchtsauce ist ideal für die Zubereitung von Frozen Drinks, Smoothies, Desserts und Eiscreme. Mit 50 % Fruchtgehalt bietet sie einen intensiven und natürlichen Pfirsichgeschmack.",
+    "en": "FO Peach Fruited Sauce is perfect for preparing frozen drinks, smoothies, desserts, and ice cream toppings. Containing 50% real peach, it provides a rich and natural fruit flavor.",
+    "tr": "FO Şeftali Meyveli Sos, frozen içecekler, smoothie'ler, tatlılar ve dondurma sunumları için mükemmel bir tercihtir. %50 gerçek şeftali içeriği ile yoğun ve doğal bir meyve lezzeti sunar.",
+    "ar": "تعتبر صلصة الخوخ بالفواكه من إف أوه مثالية لتحضير المشروبات المثلجة (الفروزن)، والسموذي، والحلويات، وتزيين الآيس كريم. تحتوي على 50% من الخوخ الطبيعي لمنح طعم فواكه غني وطبيعي."
+  },
+  "kullanim_alanlari": {
+    "de": "Sehr praktische Anwendung. Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen Crasheis in einem Hochleistungsmixer mixen. Auch für Smoothies, Eiscreme, Cocktails und Desserts geeignet.",
+    "en": "Very practical application. For frozen drinks: mix 1 volume sauce with 3 volumes crushed ice in a high-speed blender. Also suitable for smoothies, ice creams, cocktails, and desserts.",
+    "tr": "Pratik kullanım. Frozen hazırlığı için: Yüksek hızlı blenderda 1 ölçek sos ile 3 ölçek kırılmış buz karıştırılarak hazırlanır. Ayrıca smoothie, dondurma, kokteyl ve tatlı sunumlarında kullanılır.",
+    "ar": "تطبيق عملي للغاية. لتحضير المشروبات المثلجة: يُخلط مقدار واحد من الصلصة مع 3 مقادير من الثلج المجروش في خلاط عالي السرعة. مناسبة أيضاً للسموذي، والآيس كريم، والكوكتيلات، والحلويات."
+  },
+  "icindekiler": {
+    "de": "Pfirsich (50 %), Zucker (47,695 %), Modifizierte Maisstärke (1 %), Weinsäure, Trisodiumcitrat [E 334, E 331iii] (0,6 %), Pfirsicharoma (0,3 %), Salz (0,3 %), Kaliumsorbat [E 202] (0,1 %), Farbstoffe [E 102, E 110] (0,005 %).",
+    "en": "Peach (50 %), Sugar (47.695 %), Modified corn starch (1 %), Tartaric acid, Trisodium citrate [E 334, E 331iii] (0.6 %), Flavoring (Peach) (0.3 %), Salt (0.3 %), Potassium sorbate [E 202] (0.1 %), Colourants [E 102, E 110] (0.005 %).",
+    "tr": "Şeftali (%50), Şeker (%47,695), Modifiye mısır nişastası (%1), Tartarik asit, Trisodyum sitrat [E 334, E 331iii] (%0,6), Aroma verici (Şeftali) (%0,3), Tuz (%0,3), Potasyum sorbat [E 202] (%0,1), Renklendiriciler [E 102, E 110] (%0,005).",
+    "ar": "خوخ (50%)، سكر (47.695%)، نشا الذرة المعدل (1%)، حمض التارتاريك، سترات ثلاثي الصوديوم [E 334, E 331iii] (0.6%)، نكهة الخوخ (0.3%)، ملح (0.3%)، سوربات البوتاسيوم [E 202] (0.1%)، ملونات [E 102, E 110] (0.005%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direktem Sonnenlicht schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Refrigerate after opening.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzakta muhafaza ediniz. Açıldıktan sonra buzdolabında saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 976,
+      "energie_kcal": 233,
+      "fett": 0,
+      "kohlenhydrate": 56.5,
+      "davon_zucker": 52.6,
+      "eiweiss": 0.4,
+      "salz": 0.015
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200799390019",
+  "palet_ici_koli": 25
+}

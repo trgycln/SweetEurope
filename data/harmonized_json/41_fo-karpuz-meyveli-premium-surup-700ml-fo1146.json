@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Wassermelone Fruchtsirup bietet ein intensives, authentisches Geschmacksprofil sonnengereifter Wassermelonen. Mit seiner hohen Konzentration und perfekten Textur verleiht er Cocktails, Limonaden und Desserts eine erfrischende, fruchtige Note. Ideal für professionelle Bars und Cafés, die Wert auf gleichbleibende Qualität und exzellente Ergiebigkeit legen.",
+    "en": "FO Watermelon Fruit Syrup delivers an intense, authentic flavor profile of sun-ripened watermelons. With its high concentration and perfect texture, it adds a refreshing, fruity note to cocktails, lemonades, and desserts. Ideal for professional bars and cafes that value consistent quality and excellent yield.",
+    "tr": "FO Karpuz Meyveli Şurup, güneş görmüş karpuzların yoğun ve otantik lezzet profilini sunar. Yüksek konsantrasyonu ve mükemmel dokusu ile kokteyllere, limonatalara ve tatlılara ferahlatıcı, meyvemsi bir dokunuş katar. Tutarlı kalite ve mükemmel verim arayan profesyonel bar ve kafeler için idealdir.",
+    "ar": "يقدم شراب البطيخ من FO نكهة مكثفة وأصلية للبطيخ الناضج تحت أشعة الشمس. بفضل تركيزه العالي وقوامه المثالي، يضفي لمسة منعشة وفاكهية على الكوكتيلات والمشروبات الغازية والحلويات. مثالي للمقاهي والبارات الاحترافية التي تبحث عن جودة ثابتة وإنتاجية ممتازة."
+  },
+  "hazirlanisi": {
+    "de": "Für ein erfrischendes Getränk 1 Teil Sirup mit 8 Teilen Wasser oder Soda mischen. Ideal für Cocktails, Mocktails oder als Basis für Eistees. Mit reichlich Eis servieren, um das volle Aroma zu entfalten.",
+    "en": "For a refreshing drink, mix 1 part syrup with 8 parts water or soda. Ideal for cocktails, mocktails, or as a base for iced teas. Serve with plenty of ice to fully release the aroma.",
+    "tr": "Serinletici bir içecek için 1 ölçü şurubu 8 ölçü su veya soda ile karıştırın. Kokteyller, mocktail'ler veya soğuk çaylar için baz olarak idealdir. Aromayı tam olarak ortaya çıkarmak için bol buz ile servis edin.",
+    "ar": "للحصول على مشروب منعش، اخلط جزءاً واحداً من الشراب مع 8 أجزاء من الماء أو الصودا. مثالي للكوكتيلات والمشروبات غير الكحولية أو كقاعدة للشاي المثلج. يُقدم مع الكثير من الثلج لإبراز النكهة بالكامل."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Eistees, Limonaden, Smoothies, Desserts, Kaffeespezialitäten.",
+    "en": "Cocktails, mocktails, iced teas, lemonades, smoothies, desserts, coffee specialties.",
+    "tr": "Kokteyller, mocktail'ler, soğuk çaylar, limonatalar, smoothie'ler, tatlılar, kahve çeşitleri.",
+    "ar": "الكوكتيلات، المشروبات غير الكحولية، الشاي المثلج، الليمونادة، العصائر (سموذي)، الحلويات، ومشروبات القهوة المتخصصة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre ab Produktion.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 3 years from production.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Üretimden itibaren 3 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات من تاريخ الإنتاج."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulator (Citronensäure E330), Aroma (Wassermelone), Farbstoff (Allurarot E129), Konservierungsstoffe (Kaliumsorbat E202, Natriumbenzoat E211).",
+    "en": "Sugar, Water, Acidity Regulator (Citric Acid E330), Flavoring (Watermelon), Colorant (Allura Red E129), Preservatives (Potassium Sorbate E202, Sodium Benzoate E211).",
+    "tr": "Şeker, Su, Asitlik Düzenleyici (Sitrik Asit E330), Aroma Verici (Karpuz), Renklendirici (Allura Red E129), Koruyucular (Potasyum Sorbat E202, Sodyum Benzoat E211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 82.1,
+      "davon_zucker": 82.1,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

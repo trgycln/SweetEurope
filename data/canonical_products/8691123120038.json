@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123120038",
+  "barkod": "8691123120038",
+  "urun_adi": {
+    "de": "FO Kiwi-Sirup 70 cl",
+    "en": "FO Kiwi Flavored Syrup 70 cl",
+    "tr": "FO Kivi Aromalı Şurup 70 cl",
+    "ar": "شراب مركز بنكهة الكيوي فو 70 سنتيلتر"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Sirup mit intensivem Kiwi-Geschmack, ideal für Cocktails, Mocktails und Erfrischungsgetränke. Verleiht Ihren Getränken eine lebendige grüne Farbe und ein fruchtiges Aroma.",
+    "en": "High-quality syrup with intense kiwi flavor, ideal for cocktails, mocktails, and refreshing drinks. Adds a vibrant green color and a fruity aroma to your beverages.",
+    "tr": "Kokteyller, alkolsüz kokteyller ve ferahlatıcı içecekler için ideal, yoğun kivi aromalı yüksek kaliteli şurup. İçeceklerinize canlı yeşil bir renk ve meyvemsi bir aroma katar.",
+    "ar": "شراب عالي الجودة بنكهة الكيوي المركزة، مثالي للكوكتيلات والمشروبات المنعشة. يضفي لوناً أخضر حيوياً ونكهة فاكهية مميزة لمشروباتك."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder im Verhältnis 1:8 mit Wasser verdünnt direkt getrunken.",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içmek için su ile (1/8 oranında) seyreltilir.",
+    "ar": "يستخدم لتحضير الكوكتيلات أو يخفف بالماء بنسبة (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,15%), Citronensäure [E 330] (0,4%), Aroma (Kiwi) (0,4%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Tartrazin, Brillantblau FCF [E 102, E 133] (0,01%).",
+    "en": "Sugar (62%), Water (37.15%), Citric Acid [E 330] (0.4%), Flavoring (Kiwi) (0.4%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%), Tartrazine, Brilliant Blue [E 102, E 133] (0.01%).",
+    "tr": "Şeker (%62), Su (%37,15%), Sitrik Asit [E 330] (%0,4%), Aroma Verici (Kivi) (%0,4%), Potasyum Sorbat [E 202] (%0,025%), Sodyum Benzoat [E 211] (%0,015%), Tartrazin, Parlak Mavi [E 102, E 133] (%0,01%).",
+    "ar": "سكر (62٪)، ماء (37.15٪)، حمض الستريك [E 330] (0.4٪)، نكهة (الكيوي) (0.4٪)، سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪)، تارترازين، أزرق براق [E 102, E 133] (0.01٪)."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort vor direkter Sonneneinstrahlung geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru bir yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months / 36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "kohlenhydrate": 82.4,
+      "davon_zucker": 82.4,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 5
+}

@@ -11,9 +11,9 @@ import {
     FiDownload, FiX, FiShoppingBag, FiPlus, FiMinus, FiSend,
 } from 'react-icons/fi';
 import { LuPackage, LuBarcode, LuThermometerSnowflake, LuThermometer } from 'react-icons/lu';
-import { getBadgeText } from '@/lib/labels';
 import { motion } from 'framer-motion';
 import { ProductDietaryBadges } from '@/components/DietaryStickers';
+import { UniversalProductCard } from '@/components/products/UniversalProductCard';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,17 +46,8 @@ interface ProductGridClientProps {
 type MerklisteItem = { urunId: string; menge: number };
 
 const itemVariants: any = {
-    hidden: { opacity: 0, y: 40, scale: 0.95 },
-    show: (i: number) => ({ 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        transition: { 
-            ease: [0.25, 1, 0.5, 1], 
-            duration: 0.8,
-            delay: (i % 10) * 0.08 
-        } 
-    })
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { duration: 0.15 } }
 };
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -185,7 +176,7 @@ function ProductCarousel({ children }: { children: React.ReactNode }) {
             {/* Left Button */}
             <button
                 onClick={(e) => { e.preventDefault(); scroll('left'); }}
-                className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-white/95 backdrop-blur-sm border border-stone-200 text-stone-600 w-10 h-10 rounded-full shadow-[0_4px_12px_rgb(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-stone-50 hover:scale-105 hover:text-amber-600 hidden md:flex items-center justify-center"
+                className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 border border-stone-200 text-stone-800 w-10 h-10 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-amber-500 hover:text-white hover:scale-105 hover:border-amber-500 hidden md:flex items-center justify-center"
                 aria-label="Scroll left"
             >
                 <FiChevronLeft size={22} />
@@ -194,7 +185,7 @@ function ProductCarousel({ children }: { children: React.ReactNode }) {
             {/* Scrollable Container */}
             <div 
                 ref={scrollRef} 
-                className="flex gap-3 overflow-x-auto pb-3 pt-1 px-2 -mx-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth"
+                className="flex gap-4 overflow-x-auto pb-3 pt-1 px-2 -mx-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth"
             >
                 {children}
             </div>
@@ -202,7 +193,7 @@ function ProductCarousel({ children }: { children: React.ReactNode }) {
             {/* Right Button */}
             <button
                 onClick={(e) => { e.preventDefault(); scroll('right'); }}
-                className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-white/95 backdrop-blur-sm border border-stone-200 text-stone-600 w-10 h-10 rounded-full shadow-[0_4px_12px_rgb(0,0,0,0.1)] opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-stone-50 hover:scale-105 hover:text-amber-600 hidden md:flex items-center justify-center"
+                className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 border border-stone-200 text-stone-800 w-10 h-10 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-amber-500 hover:text-white hover:scale-105 hover:border-amber-500 hidden md:flex items-center justify-center"
                 aria-label="Scroll right"
             >
                 <FiChevronRight size={22} />
@@ -226,7 +217,7 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
         const tempMin = urun.lagertemperatur_min_celsius;
         const label = (tempMin != null && tempMax != null) ? `${tempMin}–${tempMax}°C` : (locale === 'tr' ? 'Soğuk' : locale === 'ar' ? 'مبرد' : locale === 'en' ? 'Chilled' : 'Kühlware');
         return (
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-[0_2px_8px_rgba(16,185,129,0.15)]">
+            <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xs">
                 <LuThermometer size={9} /> {label}
             </span>
         );
@@ -235,7 +226,6 @@ function StorageBadge({ urun, locale }: { urun: Urun; locale: string }) {
 }
 
 // ─── Main Catalog Card ────────────────────────────────────────────────────────
-
 function CatalogCard({
     urun, locale, kategoriAdlariMap, isLoggedIn, partnerTier, onAddToMerkliste, inMerkliste, dictionary,
 }: {
@@ -248,195 +238,21 @@ function CatalogCard({
     inMerkliste?: boolean;
     dictionary?: any;
 }) {
-    const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
-    const name = urun.ad?.[locale] || urun.ad?.['de'] || urun.ad?.['tr'] || '';
     const kategoriAdi = urun.kategori_id ? kategoriAdlariMap.get(urun.kategori_id) : '';
-
-    const koliIciAdet = Number(urun.koli_ici_adet ?? 0);
-    const paletIciKoliAdet = Number(urun.palet_ici_adet ?? 0);
-
-    const inStock = (urun.stok_miktari ?? 0) > 0;
-    const isNeues = isNew(urun);
-    const isBestseller = urun.is_bestseller === true;
-    const isFeatured = urun.is_featured === true;
-
-    // 3-tier pricing rows
-    const pricingRows = [
-        {
-            label: dictionary?.publicProductsPage?.oneCarton || (locale === 'tr' ? '1 Koli' : locale === 'en' ? '1 Carton' : locale === 'ar' ? '1 كرتونة' : '1 Karton'),
-            price: urun.satis_fiyati_musteri,
-            tierKey: 'koli_bazli',
-        },
-        {
-            label: dictionary?.publicProductsPage?.from5Cartons || (locale === 'tr' ? '5 Koli+' : locale === 'en' ? '5 Cartons+' : locale === 'ar' ? '5 كراتين+' : 'Ab 5 Kartons'),
-            price: urun.satis_fiyati_toptanci,
-            tierKey: 'cok_koli',
-        },
-        {
-            label: paletIciKoliAdet > 0
-                ? (locale === 'tr' ? `1 Palet (${paletIciKoliAdet} koli)` : locale === 'en' ? `1 Pallet (${paletIciKoliAdet} ctns)` : locale === 'ar' ? `1 منصة (${paletIciKoliAdet} كرتونة)` : `1 Palette (${paletIciKoliAdet} Ktn.)`)
-                : (locale === 'tr' ? '1 Palet' : locale === 'en' ? '1 Pallet' : locale === 'ar' ? '1 منصة' : '1 Palette'),
-            price: urun.satis_fiyati_alt_bayi,
-            tierKey: 'palet',
-        },
-    ];
-
-    const hasAnyPrice = pricingRows.some(r => r.price != null && r.price > 0);
-
     return (
-        <div className="group h-full flex flex-col bg-white/80 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 will-change-transform shadow-[0_4px_20px_rgb(0,0,0,0.03)]">
-
-            {/* Image area */}
-            <Link href={`/${locale}/products/${urun.slug}`} className="block relative h-36 bg-slate-50 overflow-hidden flex-shrink-0 will-change-transform">
-                {urun.ana_resim_url ? (
-                    <Image src={urun.ana_resim_url} alt={name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                        className="object-contain p-1 group-hover:scale-105 transition-transform duration-300" unoptimized />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <FiPackage className="w-10 h-10 text-slate-300" />
-                    </div>
-                )}
-
-
-                {/* Status badges — top right, stacked */}
-                <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
-                    {isBestseller && (
-                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white shadow-sm">
-                            🏆 Bestseller
-                        </span>
-                    )}
-                    {isFeatured && !isBestseller && (
-                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white shadow-sm">
-                            Empfohlen
-                        </span>
-                    )}
-                </div>
-
-                {/* Storage badge — top left */}
-                <div className="absolute top-2 left-2">
-                    <StorageBadge urun={urun} locale={locale} />
-                </div>
-            </Link>
-
-            {/* Content */}
-            <div className="flex flex-col flex-1 p-2.5 gap-1">
-
-                {/* Upper Content (Expands) */}
-                <div className="flex-1 flex flex-col gap-1">
-                    {/* Kategori + stok */}
-                    <div className="flex items-center justify-between gap-1">
-                        {kategoriAdi && (
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 truncate">
-                                {kategoriAdi}
-                            </span>
-                        )}
-                        <span className={`ml-auto flex items-center gap-1 text-[9px] font-medium flex-shrink-0 ${inStock ? 'text-emerald-600' : 'text-slate-400'}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${inStock ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                            {inStock
-                                ? (dictionary?.publicProductsPage?.available || 'Verfügbar')
-                                : (dictionary?.publicProductsPage?.onRequest || 'Auf Anfrage')}
-                        </span>
-                    </div>
-
-                    {/* EAN */}
-                    {urun.ean_gtin && (
-                        <span className="text-[9px] font-mono text-slate-400 flex items-center gap-1 leading-none">
-                            <LuBarcode size={9} /> {urun.ean_gtin}
-                        </span>
-                    )}
-
-                    {/* Product name */}
-                    <Link href={`/${locale}/products/${urun.slug}`}>
-                        <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 min-h-[40px] group-hover:text-slate-600">
-                            {name}
-                        </h3>
-                    </Link>
-
-                    {/* Quantity chips */}
-                    <div className="flex flex-wrap gap-1">
-                        {koliIciAdet > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border-sky-200">
-                                <LuPackage size={9} />
-                                {koliIciAdet} {dictionary?.publicProductsPage?.piecesPerCarton || 'Stk./Ktn.'}
-                            </span>
-                        )}
-                        {paletIciKoliAdet > 0 && (
-                            <span className="inline-flex items-center gap-1 text-[9px] font-semibold border px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border-violet-200">
-                                {paletIciKoliAdet} {dictionary?.publicProductsPage?.cartonsPerPallet || 'Ktn./Pal.'}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Quality/cert/dietary badges row */}
-                    <ProductDietaryBadges
-                        teknikOzellikler={urun.teknik_ozellikler as any}
-                        zertifikate={urun.zertifikate}
-                        size="sm"
-                    />
-                </div>
-
-                {/* Pricing area (Fixed layout at bottom) */}
-                <div className="mt-2 pt-2 border-t border-slate-100 flex flex-col justify-end" style={{ minHeight: isLoggedIn ? '96px' : '52px' }}>
-                    {!isLoggedIn ? (
-                        /* Guest state */
-                        <div className="flex flex-col h-full">
-                            <p className="text-xs italic text-slate-400 flex-1 flex items-center">
-                                {dictionary?.publicProductsPage?.priceLogin || 'Preis auf Anfrage'}
-                            </p>
-                            <Link href={`/${locale}/products/${urun.slug}`}
-                                className="mt-auto flex items-center justify-center gap-1 w-full px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 hover:text-slate-800 transition-colors">
-                                {dictionary?.publicProductsPage?.details || 'Details'} <FiChevronRight size={11} />
-                            </Link>
-                        </div>
-                    ) : (
-                        /* Partner logged-in state */
-                        <div className="flex flex-col h-full">
-                            <div className="flex-1 flex flex-col justify-end mb-2">
-                                {hasAnyPrice ? (
-                                    <div className="space-y-0.5">
-                                        {pricingRows.map((row, i) => {
-                                            if (!row.price || row.price <= 0) return null;
-                                            const isHighlighted = partnerTier === row.tierKey;
-                                            return (
-                                                <div key={i}
-                                                    className={`flex items-center justify-between px-2 py-1 rounded-md text-[10px] transition-all duration-300
-                                                        ${isHighlighted
-                                                            ? 'bg-amber-50/80 border border-amber-200 font-bold text-amber-900 shadow-sm'
-                                                            : 'text-stone-600'}`}>
-                                                    <span className={isHighlighted ? 'text-amber-700' : 'text-stone-500'}>{row.label}</span>
-                                                    <span className={`font-semibold ${isHighlighted ? 'text-amber-900' : 'text-stone-800'}`}>
-                                                        {money(row.price)}
-                                                    </span>
-                                                </div>
-                                            );
-                                        })}
-                                        <p className="text-[8px] text-slate-400 text-right">zzgl. MwSt.</p>
-                                    </div>
-                                ) : (
-                                    <p className="text-[10px] italic text-slate-400 mb-1">
-                                        {dictionary?.publicProductsPage?.priceOnRequest || 'Preis auf Anfrage'}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="flex gap-1.5 mt-auto">
-                                <Link href={`/${locale}/products/${urun.slug}`}
-                                    className="flex items-center justify-center gap-1 flex-1 px-2 py-1.5 text-[10px] font-semibold rounded-lg border border-slate-300 text-slate-600 hover:border-slate-500 transition-colors">
-                                    {dictionary?.publicProductsPage?.details || 'Details'}
-                                </Link>
-                                <button
-                                    onClick={() => onAddToMerkliste?.(urun.id)}
-                                    className={`flex items-center justify-center gap-1 flex-1 px-2 py-1.5 text-[10px] font-semibold rounded-lg transition-colors
-                                        ${inMerkliste
-                                            ? 'bg-amber-600 text-white border border-amber-600 shadow-md shadow-amber-600/20'
-                                            : 'bg-stone-900 text-white hover:bg-stone-800 shadow-md shadow-stone-900/10'}`}>
-                                    {inMerkliste ? (dictionary?.publicProductsPage?.cartAdded || '✓ Gemerkt') : (dictionary?.publicProductsPage?.cartAdd || '＋ Merkliste')}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+        <UniversalProductCard
+            urun={urun}
+            locale={locale}
+            kategoriAdi={kategoriAdi}
+            detailHref={`/${locale}/products/${urun.slug}`}
+            isLoggedIn={isLoggedIn}
+            partnerTier={partnerTier}
+            inMerkliste={inMerkliste}
+            onAction={onAddToMerkliste ? () => onAddToMerkliste(urun.id) : undefined}
+            actionType="cart"
+            actionTooltip={locale === 'tr' ? 'Listeye / Sepete Ekle' : 'Zur Merkliste hinzufügen'}
+            dictionary={dictionary}
+        />
     );
 }
 
@@ -571,14 +387,14 @@ function BestsellerSection({ urunler, locale, kategoriAdlariMap, isLoggedIn, par
     return (
         <div className="mb-8">
             <div className="flex items-center gap-3 mb-3">
-                <h2 className="text-base font-bold text-slate-800">
-                    {locale === 'tr' ? 'En Çok Satanlar' : locale === 'en' ? 'Our Bestsellers' : locale === 'ar' ? 'الأكثر مبيعاً' : 'Unsere Bestseller'} 🏆
+                <h2 className="text-base font-bold text-amber-900 flex items-center gap-2">
+                    <span>🏆</span> {locale === 'tr' ? 'En Çok Satanlar' : locale === 'en' ? 'Our Bestsellers' : locale === 'ar' ? 'الأكثر مبيعاً' : 'Unsere Bestseller'}
                 </h2>
-                <div className="h-px flex-1 bg-gradient-to-r from-orange-200 to-transparent" />
+                <div className="h-px flex-1 bg-gradient-to-r from-amber-300 to-transparent" />
             </div>
             <ProductCarousel>
                 {urunler.map(urun => (
-                    <div key={urun.id} className="w-48 flex-shrink-0 snap-start flex flex-col">
+                    <div key={urun.id} className="w-[240px] sm:w-[260px] flex-shrink-0 snap-start flex flex-col">
                         <CatalogCard
                             urun={urun}
                             locale={locale}
@@ -659,20 +475,21 @@ function CatalogRow({ urun, locale, kategoriAdlariMap, isLoggedIn }: {
     return (
         <Link href={`/${locale}/products/${urun.slug}`}
             className="group grid grid-cols-[40px_2.5fr_1fr_80px_80px_120px_100px_40px] items-center gap-3 px-4 py-2 hover:bg-slate-50 transition-colors cursor-pointer">
-            <div className="relative w-10 h-10 rounded-md overflow-hidden bg-slate-50 flex-shrink-0 will-change-transform">
+            <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-stone-50 flex-shrink-0 flex items-center justify-center border border-stone-200">
                 {urun.ana_resim_url ? (
-                    <Image src={urun.ana_resim_url} alt={name} fill sizes="40px" className="object-contain p-0.5" unoptimized />
+                    <Image src={`/api/isolate-image?url=${encodeURIComponent(urun.ana_resim_url)}`} alt={name} fill sizes="40px" className="object-contain p-0.5 drop-shadow-xs" unoptimized />
                 ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <FiPackage className="w-4 h-4 text-slate-300" />
+                        <FiPackage className="w-4 h-4 text-stone-400" />
                     </div>
                 )}
             </div>
             <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-slate-600">{name}</p>
+                <p className="text-sm font-semibold text-stone-900 truncate group-hover:text-amber-700">{name}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                    {urun.ean_gtin && <span className="text-[10px] font-mono text-slate-400">{urun.ean_gtin}</span>}
-                    <span className="text-[10px] text-slate-400">{kategoriAdi}</span>
+                    {urun.stok_kodu && <span className="text-[10px] font-mono font-bold text-amber-900 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">Art.: {urun.stok_kodu}</span>}
+                    {urun.ean_gtin && <span className="text-[10px] font-mono text-stone-400">{urun.ean_gtin}</span>}
+                    <span className="text-[10px] text-stone-400">{kategoriAdi}</span>
                 </div>
             </div>
             <StorageBadge urun={urun} locale={locale} />
@@ -876,30 +693,30 @@ export function ProductGridClient({
                     {/* Arama kutusu + Görünüm toggle */}
                     <div className="flex items-center gap-2">
                         <div className="relative flex-1">
-                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" />
+                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 w-4 h-4 pointer-events-none" />
                             <input
                                 type="text"
                                 placeholder={searchPlaceholder}
                                 value={searchTerm}
                                 onChange={e => handleSearch(e.target.value)}
-                                className="w-full pl-9 pr-8 py-2.5 text-sm border-2 border-stone-100 rounded-2xl bg-white focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 shadow-sm hover:border-stone-200 transition-all placeholder:text-stone-400"
+                                className="w-full pl-9 pr-8 py-2 text-sm bg-white border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all placeholder:text-stone-400 shadow-xs"
                             />
                             {searchTerm && (
                                 <button onClick={() => handleSearch('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs">
                                     ✕
                                 </button>
                             )}
                         </div>
-                        <div className="flex rounded-xl border border-stone-200 bg-white overflow-hidden shadow-sm flex-shrink-0">
+                        <div className="flex rounded-xl border border-stone-200 bg-white shadow-xs overflow-hidden flex-shrink-0">
                             <button onClick={() => setViewMode('grid')}
                                 title={dictionary?.publicProductsPage?.gridTitle || 'Gitteransicht'}
-                                className={`p-2.5 transition-all duration-300 ${viewMode === 'grid' ? 'bg-stone-900 text-white' : 'text-stone-500 hover:bg-stone-50'}`}>
+                                className={`p-2.5 transition-all duration-200 ${viewMode === 'grid' ? 'bg-stone-900 text-white' : 'text-stone-500 hover:bg-stone-100'}`}>
                                 <FiGrid size={15} />
                             </button>
                             <button onClick={() => setViewMode('list')}
                                 title={dictionary?.publicProductsPage?.listTitle || 'Listenansicht'}
-                                className={`p-2.5 transition-all duration-300 ${viewMode === 'list' ? 'bg-stone-900 text-white' : 'text-stone-500 hover:bg-stone-50'}`}>
+                                className={`p-2.5 transition-all duration-200 ${viewMode === 'list' ? 'bg-stone-900 text-white' : 'text-stone-500 hover:bg-stone-100'}`}>
                                 <FiList size={15} />
                             </button>
                         </div>
@@ -983,7 +800,7 @@ export function ProductGridClient({
 
             {/* Sticky Tabs for Quick Navigation */}
             {viewMode === 'grid' && groupedUrunler && (
-                <div className="sticky top-[72px] z-30 bg-[#FAFAFA]/95 backdrop-blur-xl py-3 border-b border-stone-200 mb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+                <div className="sticky top-[72px] z-30 bg-white/95 backdrop-blur-xl py-3 border-b border-stone-200/80 mb-3 -mx-4 px-4 sm:mx-0 sm:px-0 shadow-xs">
                     <div className="flex flex-wrap gap-2">
                         {groupedUrunler.map((group, idx) => (
                             <a 
@@ -997,9 +814,9 @@ export function ProductGridClient({
                                         window.scrollTo({ top: y, behavior: 'smooth' });
                                     }
                                 }}
-                                className="px-4 py-2 text-[11px] font-bold rounded-full bg-white border border-stone-200 text-stone-600 hover:border-amber-400 hover:text-amber-700 whitespace-nowrap shadow-sm transition-all"
+                                className="px-4 py-2 text-[11px] font-bold rounded-full bg-stone-100 border border-stone-200 text-stone-700 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900 whitespace-nowrap shadow-xs transition-all"
                             >
-                                {group.catName} <span className="text-[9px] text-stone-400 ml-1 bg-stone-100 px-1.5 py-0.5 rounded-full">{group.products.length}</span>
+                                {group.catName} <span className="text-[9px] text-stone-500 ml-1 bg-white px-1.5 py-0.5 rounded-full border border-stone-200">{group.products.length}</span>
                             </a>
                         ))}
                     </div>
@@ -1008,12 +825,12 @@ export function ProductGridClient({
 
             {/* ElysonSweets Empfiehlt */}
             {featuredUrunler.length > 0 && !searchQuery && !geschmackFilter && (
-                <div className={viewMode === 'grid' ? 'bg-gradient-to-br from-amber-50/80 to-amber-100/50 backdrop-blur-md border border-amber-200 rounded-3xl p-5 shadow-[0_4px_20px_rgb(0,0,0,0.02)]' : 'border border-amber-200 rounded-2xl overflow-hidden shadow-sm'}>
-                    <div className={`flex items-center gap-2 ${viewMode === 'grid' ? 'mb-3' : 'px-3 py-2 bg-amber-50'}`}>
+                <div className={viewMode === 'grid' ? 'bg-amber-50/40 border border-amber-200/80 rounded-3xl p-5 shadow-xs' : 'border border-amber-200/80 rounded-2xl overflow-hidden shadow-xs'}>
+                    <div className={`flex items-center gap-2 ${viewMode === 'grid' ? 'mb-3' : 'px-3 py-2 bg-amber-100/60'}`}>
                         <span className="text-sm font-bold text-amber-900">
                             ⭐ {dictionary?.publicProductsPage?.elysonRecommends || 'ElysonSweets empfiehlt'}
                         </span>
-                        <span className="text-xs text-amber-600">
+                        <span className="text-xs text-amber-700/80">
                             {dictionary?.publicProductsPage?.personallySelected || '– persönlich ausgewählt'}
                         </span>
                     </div>
@@ -1028,7 +845,7 @@ export function ProductGridClient({
                                         initial="hidden"
                                         whileInView="show"
                                         viewport={{ once: true, amount: 0.1 }}
-                                        className="w-48 flex-shrink-0 will-change-transform flex flex-col snap-start"
+                                        className="w-[240px] sm:w-[260px] flex-shrink-0 flex flex-col snap-start"
                                     >
                                         <CatalogCard
                                             urun={urun}
@@ -1122,16 +939,16 @@ export function ProductGridClient({
 
             {/* Ürün sayısı */}
             {filteredUrunler.length > 0 && (
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-stone-500">
                     {locale === 'tr' ? `${filteredUrunler.length} ürün` : locale === 'en' ? `${filteredUrunler.length} items` : locale === 'ar' ? `${filteredUrunler.length} منتجات` : `${filteredUrunler.length} Artikel`}
                 </p>
             )}
 
             {/* Content */}
             {filteredUrunler.length === 0 ? (
-                <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
-                    <FiPackage className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                    <p className="text-sm font-medium text-slate-500">
+                <div className="text-center py-16 bg-white rounded-2xl border border-stone-200 shadow-xs">
+                    <FiPackage className="w-12 h-12 text-stone-300 mx-auto mb-4" />
+                    <p className="text-base font-medium text-stone-600">
                         {dictionary?.publicProductsPage?.noProductsFound || 'Keine Produkte gefunden'}
                     </p>
                 </div>
@@ -1140,13 +957,13 @@ export function ProductGridClient({
                     {groupedUrunler ? (
                         <div className="space-y-10">
                             {groupedUrunler.map((group, groupIdx) => (
-                                <div id={`cat-group-${groupIdx}`} key={groupIdx} className="bg-white/40 p-4 sm:p-5 rounded-3xl border border-white shadow-[0_4px_20px_rgb(0,0,0,0.02)] scroll-mt-36">
-                                    <h3 className="text-xl font-bold text-stone-800 mb-5 flex items-center gap-2">
-                                        <span className="w-2 h-6 bg-amber-500 rounded-full"></span>
+                                <div id={`cat-group-${groupIdx}`} key={groupIdx} className="bg-white/80 p-4 sm:p-6 rounded-3xl border border-stone-200/90 shadow-xs scroll-mt-36 relative overflow-hidden">
+                                    <h3 className="text-xl font-bold text-stone-900 mb-6 flex items-center gap-3 relative z-10">
+                                        <span className="w-1.5 h-6 bg-amber-600 rounded-full"></span>
                                         {group.catName}
-                                        <span className="text-sm font-medium text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full ml-1">{group.products.length}</span>
+                                        <span className="text-xs font-medium text-stone-600 bg-stone-100 px-2.5 py-1 rounded-full ml-2 border border-stone-200">{group.products.length} {locale === 'tr' ? 'Ürün' : 'Produkte'}</span>
                                     </h3>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-4 relative z-10">
                                         {group.products.map((urun, index) => (
                                             <motion.div 
                                                 key={urun.id} 

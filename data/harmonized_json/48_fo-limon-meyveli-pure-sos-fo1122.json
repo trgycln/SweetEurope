@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Zitronen-Fruchtsauce bietet eine hochkonzentrierte, authentische Zitronennote mit echten Fruchtpartikeln für ein intensives Geschmackserlebnis. Ihre homogene Textur und leuchtende Farbe machen sie zur idealen Wahl für professionelle Cafés und Bars, um Desserts, Eiscreme oder Cocktails geschmacklich und optisch aufzuwerten. Dank ihrer vielseitigen Anwendbarkeit ist sie ein unverzichtbares Premium-Produkt für kreative Barkeeper und Konditoren.",
+    "en": "FO Lemon Fruited Sauce delivers a highly concentrated, authentic lemon profile enriched with real fruit particles for a vibrant taste experience. Its smooth, homogeneous texture and brilliant color make it the perfect choice for professional cafes and bars to elevate desserts, ice cream, and cocktails. This versatile, premium sauce is an essential tool for creative bartenders and pastry chefs seeking consistent quality.",
+    "tr": "FO Limon Meyveli Sos, gerçek meyve parçacıklarıyla zenginleştirilmiş, yüksek konsantrasyonlu ve otantik bir limon lezzeti sunar. Homojen yapısı ve canlı rengi, profesyonel kafe ve barlarda tatlıları, dondurmaları ve kokteylleri hem lezzet hem de görsel açıdan mükemmelleştirmek için idealdir. Çok yönlü kullanım imkanıyla, yaratıcı baristalar ve pastacılar için vazgeçilmez bir premium üründür.",
+    "ar": "تقدم صلصة الليمون من FO نكهة ليمون مركزة وأصلية غنية بقطع الفاكهة الحقيقية لتجربة تذوق متميزة. بفضل قوامها المتجانس ولونها الزاهي، تعد الخيار الأمثل للمقاهي والبارات الاحترافية لتعزيز نكهة وشكل الحلويات والآيس كريم والكوكتيلات. هذا المنتج الفاخر ومتعدد الاستخدامات هو أداة أساسية للطهاة وخبراء المشروبات الذين يبحثون عن جودة ثابتة."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen zerstoßenem Eis in einem Hochleistungsmixer mixen. Für alkoholische und alkoholfreie Cocktails: Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya isteğe bağlı olarak su ile seyrelterek kullanın.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات الكحولية وغير الكحولية: تُستخدم مباشرة أو تُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Fruchteis, Frozen-Getränke, Cocktails, Mocktails, Limonaden, Eistees, Cremes, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Ice cream, milky desserts, pastries, pies, cakes, waffles, fruited ice cream, frozen drinks, cocktails, mocktails, lemonades, iced teas, creams, whipped cream, jellies, and candy.",
+    "tr": "Dondurma, sütlü tatlılar, hamur işleri, pastalar, kekler, waffle, meyveli dondurma, frozen içecekler, kokteyller, mocktail, limonatalar, soğuk çaylar, kremalar, şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكعك، الوافل، الآيس كريم بالفواكه، المشروبات المثلجة، الكوكتيلات، الموكتيل، الليمونادة، الشاي المثلج، الكريمات، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta ve kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıl.",
+    "ar": "تُحفظ في عبوتها الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Zitrone (40%), Wasser, modifizierte Maisstärke (Verdickungsmittel E401), Säureregulatoren (Citronensäure E330, Trikaliumcitrat E332ii), Zitronenaroma-Emulsion (Wasser, Verdickungsmittel E414, E445, Aroma, Säureregulator E330, Antioxidationsmittel E307, Konservierungsstoff E211, Farbstoffe E104, E110), Aroma (Zitrone), Konservierungsstoff (Kaliumsorbat E202), Farbstoff (Chinolingelb E104).",
+    "en": "Sugar, Lemon (40%), Water, Modified corn starch (Thickener E401), Acidity regulators (Citric Acid E330, Tripotassium citrate E332ii), Lemon flavored emission (Water, thickener E414, E445, flavour, Acidity regulator E330, Antioxidant E307, Preservative E211, Colour E104, E110), Flavoring (Lemon), Preservative (Potassium Sorbate E202), Colour (Quinoline Yellow E104).",
+    "tr": "Şeker, Limon (%40), Su, Modifiye mısır nişastası (Kıvam artırıcı E401), Asitlik düzenleyiciler (Sitrik asit E330, Trikalsiyum sitrat E332ii), Limon aromalı emülsiyon (Su, kıvam artırıcı E414, E445, aroma, asitlik düzenleyici E330, antioksidan E307, koruyucu E211, renklendirici E104, E110), Aroma verici (Limon), Koruyucu (Potasyum sorbat E202), Renklendirici (Kinolin sarısı E104)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1030,
+      "energie_kcal": 246,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 58,
+      "davon_zucker": 54.9,
+      "eiweiss": 0.1,
+      "salz": 0.018
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "FO Kubanische Minze & Limette Basissirup bietet eine erfrischende und authentische Geschmackskombination aus echter Key-Limette und kubanischer Minze für professionelle Bars und Cafés. Dank seiner hohen Konzentration und perfekten Homogenität verleiht er Cocktails, Mocktails und Limonaden ein unvergleichlich lebendiges Aroma. Erleben Sie eine harmonische Balance aus spritziger Zitrusnote und kühler Frische, die jede Kreation geschmacklich bereichert. Ein unverzichtbares Premium-Produkt für anspruchsvolle Barkeeper und Gastronomen.",
+    "en": "FO Cuban Mint Lime Base Syrup delivers a refreshing and authentic flavor profile combining real key lime juice and Cuban mint for professional bars and cafes. Thanks to its high concentration and perfect homogeneity, it imparts an incomparably vibrant aroma to cocktails, mocktails, and lemonades. Experience a harmonious balance of zesty citrus notes and cool freshness that elevates every drink creation. An essential premium product for demanding bartenders and hospitality professionals.",
+    "tr": "FO Küba Nanesi ve Misket Limonu Baz Şurup, profesyonel kafe ve barlar için gerçek misket limonu suyu ve Küba nanesini birleştiren ferahlatıcı ve otantik bir lezzet profili sunar. Yüksek konsantrasyonu ve mükemmel homojenliği sayesinde kokteyllere, mocktaillere ve limonatalara kıyaslanamaz canlılıkta bir aroma kazandırır. Her içecek yaratımını yukarı taşıyan, canlandırıcı narenciye notaları ile serin ferahlığın uyumlu dengesini deneyimleyin. Talepkar barmenler ve işletmeciler için vazgeçilmez bir premium üründür.",
+    "ar": "يقدم شراب القاعدة بالنعناع الكูبي والليمون الحامض من FO نكهة منعشة وأصلية تجمع بين عصير الليمون الحقيقي ونعناع كوبا للمقاهي والبارات الاحترافية. بفضل تركيزه العالي وتجانسه المثالي، يضفي نكهة نابضة بالحياة لا تقارن على الكوكتيلات والموكتيلات والليمونادة. استمتع بتوازن متناغم من نكهات الحمضيات المنعشة والانتعاش البارد الذي يرفع مستوى كل ابداع للمشروبات. منتج ممتاز لا غنى عنه للسعاة والمهنيين في قطاع الضيافة."
+  },
+  "hazirlanisi": {
+    "de": "Zur direkten Verzehr und Erfrischung im Verhältnis 1 Teil Basis mit 5 Teilen Wasser verdünnen. Ideal mit reichlich Eis für die Zubereitung von alkoholischen und alkoholfreien Cocktails, Limonaden und Longdrinks.",
+    "en": "Dilute 1 part of the base with 5 parts of water for direct consumption and refreshment. Ideal with plenty of ice for preparing alcoholic and non-alcoholic cocktails, lemonades, and long drinks.",
+    "tr": "Doğrudan tüketim ve serinletici içecekler hazırlamak için 1 ölçü baz şurubu 5 ölçü su ile seyreltin. Alkollü veya alkolsüz kokteyller, limonatalar ve uzun içecekler (long drink) için bol buz ile birlikte kullanımı idealdir.",
+    "ar": "يخفف جزء واحد من القاعدة مع 5 أجزاء من الماء للاستهلاك المباشر والانتعاش. مثالي مع الكثير من الثلج لتحضير الكوكتيلات الكحولية وغير الكحولية والليمونادة والمشروبات الطويلة."
+  },
+  "kullanim_alanlari": {
+    "de": "Alkoholische und alkoholfreie Cocktails, Mocktails, Eistees, Limonaden, Longdrinks und erfrischende Erfrischungsgetränke.",
+    "en": "Alcoholic and non-alcoholic cocktails, mocktails, iced teas, lemonades, long drinks, and refreshing beverages.",
+    "tr": "Alkollü ve alkolsüz kokteyller, mocktail'ler, soğuk çaylar, limonatalar, long drinkler ve ferahlatıcı içecekler.",
+    "ar": "الكوكتيلات الكحولية وغير الكحولية، الموكتيلات، الشاي المثلج، الليمونادة، المشروبات الطويلة، والمشروبات المنعشة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern. Vor direkter Sonneneinstrahlung schützen. Nach dem Öffnen unter den gleichen Bedingungen lagern; das Produkt hat eine Haltbarkeit von 2 Jahren in geschlossener Verpackung.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Store under the same conditions after opening; the product has a shelf life of 2 years in its closed packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C'de kuru koşullarda saklayın. Direkt güneş ışığından kaçının. Kapalı ambalajında belirtilen saklama koşullarında raf ömrü 2 yıldır.",
+    "ar": "يخزن في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. يحفظ في نفس الظروف، ومدة صلاحية المنتج هي سنتان في عبوته المغلقة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Key-Limettensaft (3,4%), natürliches Aroma (kubanische Minze), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211).",
+    "en": "Sugar, water, key lime juice (3,4%), natural flavoring (Cuban mint), preservatives (potassium sorbate E 202, sodium benzoate E 211).",
+    "tr": "Şeker, su, misket limonu suyu (%3,4), doğal aroma verici (Küba nanesi), koruyucular (potasyum sorbat E 202, sodyum benzoat E 211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1310,
+      "energie_kcal": 313,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 75.7,
+      "davon_zucker": 75.4,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Das FO Ananas Fruchtpüree bietet eine intensive, authentische Ananasnote mit einer homogenen Textur und echten Fruchtstückchen. Dank seiner hohen Konzentration und stabilen Konsistenz ist es ideal für professionelle Anwendungen in Cafés und Bars geeignet. Es verleiht Desserts, Gebäck und Getränken eine exotische, fruchtige Tiefe und sorgt für eine erstklassige geschmackliche Konsistenz.",
+    "en": "FO Pineapple Fruited Sauce delivers an intense, authentic pineapple profile with a smooth, homogenous texture and real fruit pieces. Its high concentration and stable consistency make it a professional-grade essential for cafes and bars. It adds an exotic, vibrant depth to desserts, pastries, and beverages, ensuring consistent, premium flavor in every application.",
+    "tr": "FO Ananas Meyveli Sos, yoğun ve otantik ananas lezzetini, homojen yapısı ve gerçek meyve parçacıklarıyla sunar. Yüksek konsantrasyonu ve stabil kıvamı sayesinde kafeler ve barlar için profesyonel bir çözüm ortağıdır. Tatlılara, hamur işlerine ve içeceklere egzotik bir derinlik katarak her uygulamada üstün lezzet standardı sağlar.",
+    "ar": "يقدم صوص الأناناس من FO نكهة الأناناس الأصلية والمكثفة مع قوام متجانس وقطع فاكهة حقيقية. بفضل تركيزه العالي وقوامه المستقر، يعد خياراً مثالياً للمقاهي والبارات المحترفة. يضفي عمقاً استوائياً غنياً على الحلويات والمخبوزات والمشروبات، مما يضمن جودة ونكهة ممتازة في كل استخدام."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen zerstoßenem Eis in einem Hochleistungsmixer mixen. Für Cocktails (alkoholisch/alkoholfrei): Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya su ile seyrelterek kullanın.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصوص مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات (الكحولية وغير الكحولية): يمكن استخدامه مباشرة أو تخفيفه بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Fruchteis, Frozen-Getränke, Cocktails, Mocktails, Cremes, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Ice cream, milky desserts, pastries, pies, cakes, waffles, fruited ice cream, frozen drinks, cocktails, mocktails, creams, whipped cream, jellies, and candy.",
+    "tr": "Dondurma, sütlü tatlılar, hamur işleri, pastalar, kekler, waffle, meyveli dondurma, frozen içecekler, kokteyller, mocktail, kremalar, şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكعك، الوافل، الآيس كريم بالفواكه، المشروبات المثلجة، الكوكتيلات، الموكتيلات، الكريمات، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Produktion bei ungeöffneter Verpackung.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Shelf life: 2 years in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Ananas (30%), modifizierte Maisstärke, Säureregulatoren (Trinatriumcitrat, Weinsäure), Aroma (Ananas), Salz, Konservierungsstoff (Kaliumsorbat), Farbstoff (Tartrazin).",
+    "en": "Sugar, Pineapple (30%), modified corn starch, acidity regulators (Trisodium citrate, Tartaric acid), flavoring (Pineapple), salt, preservative (Potassium sorbate), coloring (Tartrazine).",
+    "tr": "Şeker, Ananas (%30), modifiye mısır nişastası, asitlik düzenleyiciler (Trisodyum sitrat, Tartarik asit), aroma verici (Ananas), tuz, koruyucu (Potasyum sorbat), renklendirici (Tartrazin)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1030,
+      "energie_kcal": 247,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 60.2,
+      "davon_zucker": 56.6,
+      "eiweiss": 0.3,
+      "salz": 0
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

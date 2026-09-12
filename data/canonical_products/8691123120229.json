@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-8691123120229",
+  "barkod": "8691123120229",
+  "urun_adi": {
+    "de": "FO Mango Geschmacks-Sirup 70 cl",
+    "en": "FO Mango Flavored Syrup 70 cl",
+    "tr": "FO Mango Aromalı Şurup 70 cl",
+    "ar": "شراب نكهة المانجو FO 70 مل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Mangosirup, ideal für Cocktails oder direkt verdünnt mit Wasser zu genießen.",
+    "en": "High quality mango flavored syrup, ideal for making cocktails or diluted with water to drink directly.",
+    "tr": "Kokteyller için ideal olan veya doğrudan içmek için suyla seyreltilebilen yüksek kaliteli mango aromalı şurup.",
+    "ar": "شراب عالي الجودة بنكهة المانجو، مثالي لصنع الكوكتيلات أو تخفيفه بالماء للشرب مباشرة."
+  },
+  "kullanim_alanlari": {
+    "de": "Zur Zubereitung von Cocktails oder direkt mit Wasser verdünnt (1/8) zu trinken.",
+    "en": "Used to make cocktail or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içmek için suyla seyreltilir (1/8).",
+    "ar": "يستخدم لصنع الكوكتيل أو مخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,438%), Aromen (Mango) (0,5%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Farbstoffe (Brown HT, Tartrazin, Brilliantblau [E 155, E 102, E 133]) (0,012%), Citronensäure [E 330] (0,01%)",
+    "en": "Sugar (62%), Water (37.438%), Flavoring (Mango) (0.5%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%), Colorants (Brown HT, Tartrazine, Brilliant Blue [E 155, E 102, E 133]) (0.012%), Citric Acid [E 330] (0.01%)",
+    "de_alt": "Zucker (62%), Wasser (37,438%), Aroma (Mango) (0,5%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Braun HT*, Tartrazin, Brilliantblau [E 155, E 102, E 133] (0,012%), Citronensäure [E 330] (0,01%)",
+    "tr": "Şeker (%62), Su (%37,438), Aroma Verici (Mango) (%0,5), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015), Renklendiriciler (Kahverengi HT, Tartrazin, Parlak Mavi [E 155, E 102, E 133]) (%0,012), Sitrik Asit [E 330] (%0,01)",
+    "ar": "سكر (62%)، ماء (37.438%)، منكهات (مانجو) (0.5%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)، ملونات (براون إتش تي، تارترازين، بريليانت بلو [E 155, E 102, E 133]) (0.012%)، حامض الستريك [E 330] (0.01%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direkter Sonneneinstrahlung schützen.",
+    "en": "Store in a cool and dry place, protect from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayınız, doğrudan güneş ışığından koruyunuz.",
+    "ar": "يخزن في مكان بارد وجاف، ويحمي من أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay / Months / Monate / أشهر",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0.5,
+      "kohlenhydrate": 82,
+      "davon_zucker": 82,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "malzeme": "Glasflasche / Glass bottle / Cam Şişe"
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 20
+}

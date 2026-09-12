@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-COCO1KG",
+  "barkod": "8691123444127",
+  "urun_adi": {
+    "de": "FO Kokosnuss Fruchtsauce 1 kg",
+    "en": "FO Coconut Fruited Sauce 1 kg",
+    "tr": "FO Hindistan Cevizi Meyveli Sos 1 kg",
+    "ar": "صلصة الفواكه بجوز الهند فو 1 كغ"
+  },
+  "aciklamalar": {
+    "de": "Praktische und köstliche Kokosnuss-Fruchtsauce für Frozen Beverages und Desserts.",
+    "en": "Practical and delicious coconut fruited sauce designed for frozen beverages and desserts.",
+    "tr": "Frozen içecekler ve tatlılar için özel olarak geliştirilmiş pratik ve lezzetli hindistan cevizli meyveli sos.",
+    "ar": "صلصة فواكه بجوز الهند عملية وشهية مصممة خصيصاً للمشروبات المجمدة والحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Die Anwendung ist sehr praktisch. Kann als Frozen zubereitet werden, indem 1 Volumenteil Sauce mit 3 Volumenteilen Crushed Ice gemischt wird.",
+    "en": "Application is very practical. Frozen can be prepared as 1 volume sauce mixed with 3 volume crushed ice.",
+    "tr": "Uygulaması oldukça pratiktir. 1 ölçü sos ve 3 ölçü kırılmış buz ile karıştırılarak frozen olarak hazırlanabilir.",
+    "ar": "الاستخدام عملي للغاية. يمكن تحضير المشروبات المجمدة (فروزن) عن طريق خلط 1 جزء من الصلصة مع 3 أجزاء من الثلج المجروش."
+  },
+  "icindekiler": {
+    "de": "Şeker (%39,5), Hindistan cevizi püresi (%30), Su (%30), Modifiye mısır nişastası (%0,1), Trisodyum sitrat, Tartarik asit, E 331iii, E334 (%0,1), Aroma verici (Hindistan cevizi) (%0,1), Tuz (%0,1), Potasyum Sorbat [E 202] (%0,1)",
+    "en": "Sugar (39,5 %), Coconut puree (30 %), Water (30 %), Modified corn starch (0,1 %), Trisodium citrate, Tartaric acid, E 331iii, E334 (0,1 %), Flavoring (Coconut) (0,1 %), Salt (0,1 %), Potassium Sorbate [E 202] (0,1 %)",
+    "tr": "Şeker (%39,5), Hindistan cevizi püresi (%30), Su (%30), Modifiye mısır nişastası (%0,1), Trisodyum sitrat, Tartarik asit, E 331iii, E334 (%0,1), Aroma verici (Hindistan cevizi) (%0,1), Tuz (%0,1), Potasyum Sorbat [E 202] (%0,1)",
+    "ar": "سكر (39.5٪)، هريس جوز الهند (30٪)، ماء (30٪)، نشا الذرة المعدل (0.1٪)، سيترات ثلاثي الصوديوم، حمض الطرطريك، E 331iii، E334 (0.1٪)، منكه (جوز الهند) (0.1٪)، ملح (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort lagern.",
+    "en": "Store in a cool and dry place.",
+    "tr": "Serin ve kuru yerde saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 993,
+      "energie_kcal": 237,
+      "fett": 1.9,
+      "kohlenhydrate": 53.5,
+      "davon_zucker": 50.5,
+      "eiweiss": 0.2,
+      "salz": 0.02
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200799390019",
+  "palet_ici_koli": 10
+}

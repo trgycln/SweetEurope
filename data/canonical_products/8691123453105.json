@@ -1,0 +1,59 @@
+{
+  "stok_kodu": "SP-FP-BLURASP70",
+  "barkod": "8691123453105",
+  "urun_adi": {
+    "de": "FO Blaues Himbeer-Aroma Sirup 70 cl",
+    "en": "FO Blue Raspberry Flavored Syrup 70 cl",
+    "tr": "FO Mavi Frambuaz Aromalı Şurup 70 cl",
+    "ar": "شراب بنكهة التوت الأزرق من فو 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger blauer Himbeersirup, ideal zur Zubereitung von Cocktails oder zum Verdünnen mit Wasser für erfrischende Getränke.",
+    "en": "High quality blue raspberry flavored syrup, ideal for making cocktails or diluting with water for refreshing drinks.",
+    "tr": "Kokteyller hazırlamak veya doğrudan içmek için suyla seyreltmek üzere ideal, yüksek kaliteli mavi frambuaz aromalı şurup.",
+    "ar": "شراب عالي الجودة بنكهة التوت الأزرق، مثالي لتحضير الكوكتيلات أو تخفيفه بالماء للمشروبات المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder direkt mit Wasser (1/8) verdünnt getrunken.",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içmek için su ile seyreltilir (1/8).",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (1/8) للشربه مباشرة."
+  },
+  "icindekiler": {
+    "de": "Glukose-Fruktose-Sirup (74%), Wasser (25,335%), Aroma (Himbeere) (0,3%), Citronensäure [E 330] (0,3%), Brilliantblau [E 133] (0,025%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Glucose-Fructose Syrup (74%), Water (25.335%), Flavoring (Raspberry) (0.3%), Citric Acid [E 330] (0.3%), Brilliant Blue [E 133] (0.025%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)",
+    "de_tr": "Glikoz-Fruktoz Şurubu (%74), Su (%25,335), Aroma Verici (Ahududu) (%0,3), Sitrik Asit [E 330] (%0,3), Parlak Mavi [E 133] (%0,025), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "tr": "Glikoz-Fruktoz Şurubu (%74), Su (%25,335), Aroma Verici (Frambuaz) (%0,3), Sitrik Asit [E 330] (%0,3), Parlak Mavi [E 133] (%0,025), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "شراب الجلوكوز والفركتوز (74%)، ماء (25.335%)، منكه (توت العليق) (0.3%)، حامض الستريك [E 330] (0.3%)، أزرق بريليانت [E 133] (0.025%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru yerde saklayınız.",
+    "ar": "يخزن في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1120,
+      "energie_kcal": 268,
+      "fett": 0,
+      "kohlenhydrate": 65.1,
+      "davon_zucker": 32.3,
+      "eiweiss": 0,
+      "salz": 0.3
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 20
+}

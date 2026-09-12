@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123340795",
+  "barkod": "8691123340795",
+  "urun_adi": {
+    "de": "FO Brombeere Fruchtsauce (Frozen) 1 kg",
+    "en": "FO Blackberry Fruited Sauce (Frozen) 1 kg",
+    "tr": "FO Böğürtlen Meyveli Sos (Frozen) 1 kg",
+    "ar": "صلصة التوت الأسود بالفاكهة (فروزن) من إف أوه 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "FO Brombeere Fruchtsauce (%50 Fruchtgehalt) ist eine professionelle Saucelösung, die einen reichen Brombeergeschmack und eine natürliche Textur für Frozen Drinks, Cocktails, Eiscreme und Dessertpräsentationen bietet.",
+    "en": "FO Blackberry Fruited Sauce (50% fruit content) is a premium professional sauce designed to deliver rich blackberry flavor and real fruit texture in frozen beverages, cocktails, ice cream, and specialty desserts.",
+    "tr": "FO Böğürtlen Meyveli Sos (%50 meyve oranı), dondurulmuş içecekler (frozen), kokteyller, dondurma ve tatlı sunumlarında zengin böğürtlen lezzeti ve doğal taneli doku sunan profesyonel bir sos çözümüdür.",
+    "ar": "صلصة التوت الأسود بالفاكهة من إف أوه (محتوى فاكهة 50%) هي منتج احترافي عالي الجودة يمنح نكهة التوت الأسود الغنية والقوام الطبيعي للمشروبات المثلجة (الفروزن)، الكوكتيلات، الآيس كريم، والحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Frozen Drinks (1 Teil Sauce auf 3 Teile Crasheis im Hochleistungsmixer), Cocktails, Eiscreme, Pfannkuchen, Waffeln und Dessert-Toppings.",
+    "en": "Frozen drinks (prepare 1 part sauce with 3 parts crushed ice in a high-speed blender), cocktails, ice creams, pancakes, waffles, and dessert toppings.",
+    "tr": "Frozen içecekler (yüksek hızlı blenderda 1 ölçü sos ve 3 ölçü kırılmış buz karıştırılarak), kokteyller, dondurmalar, krep, waffle ve tatlı süslemeleri.",
+    "ar": "المشروبات المثلجة (تحضر بمزج مقدار واحد من الصلصة مع 3 مقادير من الثلج المجروش في خلاط سريع)، الكوكتيلات، الآيس كريم، البان كيك، الوافل، وتزيين الحلويات."
+  },
+  "icindekiler": {
+    "de": "Brombeere (50%), Zucker (48%), Modifizierte Maisstärke (1%), Trisodiumcitrat, Weinsäure [E 331iii, E 334] (0,5%), Aroma (Brombeere) (0,29%), Salz (0,1%), Kaliumsorbat [E 202] (0,1%), Carmoisin, Brillantblau FCF [E 122, E 133] (0,01%).",
+    "en": "Blackberry (50%), Sugar (48%), Modified corn starch (1%), Trisodium citrate, Tartaric acid [E 331iii, E 334] (0.5%), Flavoring (Blackberry) (0.29%), Salt (0.1%), Potassium sorbate [E 202] (0.1%), Carmoisine, Brilliant Blue [E 122, E 133] (0.01%).",
+    "tr": "Böğürtlen (%50), Şeker (%48), Modifiye mısır nişastası (%1), Trisodyum sitrat, Tartarik asit [E 331iii, E 334] (%0,5), Aroma verici (Böğürtlen) (%0,29), Tuz (%0,1), Potasyum sorbat [E 202] (%0,1), Karmoizin, Brilliant Blue [E 122, E 133] (%0,01).",
+    "ar": "توت أسود (50%)، سكر (48%)، نشا الذرة المعدل (1%)، سترات ثلاثي الصوديوم، حمض التارتاريك [E 331iii, E 334] (0.5%)، نكهة (توت أسود) (0.29%)، ملح (0.1%)، سوربات البوتاسيوم [E 202] (0.1%)، كارمويسين، أزرق براق [E 122, E 133] (0.01%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und geruchlos lagern. Vor direkter Sonneneinstrahlung schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry, and odorless place. Keep away from direct sunlight. Refrigerate after opening.",
+    "tr": "Serin, kuru ve kokusuz bir yerde saklayınız. Doğrudan güneş ışığından koruyunuz. Açıldıktan sonra buzdolabında muhafaza ediniz.",
+    "ar": "يحفظ في مكان بارد وجاف وخالٍ من الرائحة. يحمى من أشعة الشمس المباشرة. يُحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 994,
+      "energie_kcal": 238,
+      "fett": 0.1,
+      "kohlenhydrate": 56.2,
+      "davon_zucker": 54.9,
+      "eiweiss": 0.7,
+      "salz": 0.003
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 6.56,
+  "gtip": "200799390019",
+  "palet_ici_koli": 15
+}

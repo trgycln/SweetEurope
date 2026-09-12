@@ -1,0 +1,59 @@
+{
+  "stok_kodu": "SP-FP-8691123449504",
+  "barkod": "8691123449504",
+  "urun_adi": {
+    "de": "FO Vanille Aromatisiertes Pulver Getränk 1 kg",
+    "en": "FO Vanilla Flavored Powder Drink 1 kg",
+    "tr": "FO Vanilya Aromalı İçecek Tozu - Milkshake 1 kg",
+    "ar": "مسحوق مشروب بنكهة الفانيليا FO 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiges Vanille-Aromapulver zur einfachen und schnellen Zubereitung von köstlichen Milkshakes und Getränken.",
+    "en": "High quality vanilla flavored powder drink designed for easy and quick preparation of delicious milkshakes and beverages.",
+    "tr": "Lezzetli milkshake ve içeceklerin hızlı ve kolay hazırlanması için tasarlanmış yüksek kaliteli vanilya aromalı toz içecek.",
+    "ar": "مسحوق مشروب عالي الجودة بنكهة الفانيليا مصمم لتحضير سريع وسهل لميلك شيك ومشروبات لذيذة."
+  },
+  "kullanim_alanlari": {
+    "de": "Cafés, Restaurants, Hotels und für den Hausgebrauch zur Zubereitung von Milkshakes.",
+    "en": "Cafes, restaurants, hotels, and home use for preparing milkshakes.",
+    "tr": "Kafeler, restoranlar, oteller ve ev kullanımı için milkshake hazırlığı.",
+    "ar": "المقاهي، المطاعم، الفنادق، والاستخدام المنزلي لتحضير الميلك شيك."
+  },
+  "icindekiler": {
+    "de": "Zucker (91,4%), Modifizierte Maisstärke (5%), Xanthan [E 415] (1,5%), Aroma (Vanille) (1,5%), Zitronensäure [E 330] (0,3%), Siliziumdioxid, Trennmittel [E 551] (0,3%)",
+    "en": "Sugar (91,4%), Modified Corn Starch (5%), Xanthan Gum [E 415] (1,5%), Flavoring (vanilla) (1,5%), Citric Acid [E 330] (0,3%), Silicon dioxide, Anticaking agent [E 551] (0,3%)",
+    "de_tr": "Şeker (%91,4), Modifiye Mısır Nişastası (%5), Ksantan Gam [E 415] (%1,5), Aroma Verici (vanilya) (%1,5), Sitrik Asit [E 330] (%0,3), Silikon Dioksit, Topaklanmayı Önleyici [E 551] (%0,3)",
+    "tr": "Şeker (%91,4), Modifiye Mısır Nişastası (%5), Ksantan Gam [E 415] (%1,5), Aroma Verici (vanilya) (%1,5), Sitrik Asit [E 330] (%0,3), Silikon Dioksit, Topaklanmayı Önleyici [E 551] (%0,3)",
+    "ar": "سكر (91,4٪)، نشا الذرة المعدل (5٪)، صمغ الزانثان [E 415] (1,5٪)، منكه (فانيليا) (1,5٪)، حض الستريك [E 330] (0,3٪)، ثنائي أكسيد السيليكون، عامل مضاد للتكتل [E 551] (0,3٪)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen und geruchsfreien Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool, dry, and odorless place away from direct sunlight.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığı almayan, kokusuz bir ortamda saklayın.",
+    "ar": "يخزن في مكان بارد وجاف وخالٍ من الرائحة بعيدًا عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte, glutenhaltiges Getreide, Schalenfrüchte / Nüsse.",
+    "en": "Contains Dairy / Milk products, Soy products, Gluten, Tree nuts.",
+    "tr": "Süt ürünleri, Soya ürünleri, Gluten, Fındık / Fıstık / Kuruyemiş içerir.",
+    "ar": "يحتوي على منتجات الألبان، منتجات الصويا، الغلوتين، المكسرات."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1660,
+      "energie_kcal": 397,
+      "fett": 0,
+      "kohlenhydrate": 96.7,
+      "davon_zucker": 92,
+      "eiweiss": 0.2,
+      "salz": 0.2
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.7,
+  "gtip": "210690980019",
+  "palet_ici_koli": 5
+}

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123444134",
+  "barkod": "8691123444134",
+  "urun_adi": {
+    "de": "FO Waldbeeren Fruchtsauce 1 kg",
+    "en": "FO Wild Berries Fruited Sauce 1 kg",
+    "tr": "FO Orman Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة فواكه الغابة فو 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "FO Waldbeeren Fruchtsauce bietet eine köstliche Kombination aus Erdbeeren, Himbeeren, Heidelbeeren und Brombeeren. Ideal für die Zubereitung von Frozen-Getränken, Cocktails, Desserts und Eiscreme.",
+    "en": "FO Wild Berries Fruited Sauce offers a rich combination of strawberry, raspberry, blueberry, and blackberry flavors. Perfect for frozen drinks, cocktails, desserts, and ice creams.",
+    "tr": "FO Orman Meyveli Sos; çilek, ahududu, yaban mersini ve böğürtlen meyvelerinin eşsiz lezzet birleşimini sunar. Frozen içecekler, kokteyller, tatlılar ve dondurmalar için idealdir.",
+    "ar": "تقدم صلصة فواكه الغابة من فو مزيجًا غنيًا من نكهات الفراولة، التوت، البلوبيري، والبلاك بيري. مثالية لتحضير المشروبات المثلجة (فروزن)، الكوكتيلات، الحلويات والآيس كريم."
+  },
+  "kullanim_alanlari": {
+    "de": "Sehr praktische Anwendung: Für Frozen-Getränke wird 1 Teil Sauce mit 3 Teilen Crasheis gemischt. Kann auch direkt als Topping für Eiscreme, Kuchen, Waffeln und Desserts verwendet werden.",
+    "en": "Practical application: Mix 1 volume of sauce with 3 volumes of crushed ice to prepare frozen beverages. Also used directly as a topping or flavor enhancer in desserts, ice cream, cakes, and cocktails.",
+    "tr": "Pratik kullanım: Frozen içecek hazırlamak için 1 ölçü sos, 3 ölçü kırılmış buz ile karıştırılır. Ayrıca dondurma, pasta, krep, waffle ve tatlılarda sos veya lezzet verici olarak doğrudan kullanılabilir.",
+    "ar": "استخدام عملي جداً: يتم خلط حجم واحد من الصلصة مع 3 أحجام من الثلج المجروش لتحضير مشروب فروزن. كما تستخدم مباشرة كصلصة تزين أو إضافة للحلويات، الآيس كريم، الكيك، والكوكتيلات."
+  },
+  "icindekiler": {
+    "de": "Zucker (49,28%), Erdbeere (20%), Himbeere (10%), Heidelbeere (10%), Brombeere (10%), Modifizierte Maisstärke (0,2%), Weinsäure, Trisodiumcitrat [E 334, E 331iii] (0,2%), Aromen (Erdbeere, Himbeere, Heidelbeere, Brombeere) (0,1%), Salz (0,1%), Kaliumsorbat [E 202] (0,1%), Cochenillerot A [E 124] (0,017%), Brillantblau FCF [E 133] (0,003%).",
+    "en": "Sugar (49.28%), Strawberry (20%), Raspberry (10%), Blueberry (10%), Blackberry (10%), Modified corn starch (0.2%), Tartaric acid, Trisodium citrate [E 334, E 331iii] (0.2%), Flavoring (Strawberry, Raspberry, Blueberry, Blackberry) (0.1%), Salt (0.1%), Potassium sorbate [E 202] (0.1%), Ponceau 4R [E 124] (0.017%), Brilliant blue [E 133] (0.003%).",
+    "tr": "Şeker (%49,28), Çilek (%20), Ahududu (%10), Yaban Mersini (%10), Böğürtlen (%10), Modifiye mısır nişastası (%0,2), Tartarik asit, Trisodyum sitrat [E 334, E 331iii] (%0,2), Aroma vericiler (Çilek, Ahududu, Yaban Mersini, Böğürtlen) (%0,1), Tuz (%0,1), Potasyum sorbat [E 202] (%0,1), Ponso 4R [E 124] (%0,017), Brilliant blue [E 133] (%0,003).",
+    "ar": "سكر (49.28٪)، فراولة (20٪)، توت العليق (10٪)، بلوبيري (10٪)، بلاك بيري (10٪)، نشا الذرة المعدل (0.2٪)، حمض الطرطريك، سترات ثلاثي الصوديوم [E 334, E 331iii] (0.2٪)، نكهات (فراولة، توت، بلوبيري، بلاك بيري) (0.1٪)، ملح (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)، بونسي 4R [E 124] (0.017٪)، أزرق براق [E 133] (0.003٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direktem Sonnenlicht schützen.",
+    "en": "Store in a cool and dry place. Keep away from direct sunlight.",
+    "tr": "Serin ve kuru yerde muhafaza ediniz. Doğrudan güneş ışığından koruyunuz.",
+    "ar": "يحفظ في مكان بارد وجاف. يُحفظ بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 991,
+      "energie_kcal": 237,
+      "fett": 0.1,
+      "kohlenhydrate": 56.1,
+      "davon_zucker": 54.2,
+      "eiweiss": 0.5,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 6.01,
+  "gtip": "200799390019",
+  "palet_ici_koli": 40
+}

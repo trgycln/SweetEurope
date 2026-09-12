@@ -1,0 +1,59 @@
+{
+  "stok_kodu": "SP-FP-8691123120717",
+  "barkod": "8691123120717",
+  "urun_adi": {
+    "de": "FO Brombeer Flavored Sirup 70 cl",
+    "en": "FO Blackberry Flavored Syrup 70 cl",
+    "tr": "FO Böğürtlen Aromalı Şurup 70 cl",
+    "ar": "شراب بنكهة التوت الأسود FO 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger FO Brombeersirup für Cocktails, Getraenke und vielfältige kulinarische Anwendungen in einer 70-cl-Glasflasche.",
+    "en": "High quality FO Blackberry flavored syrup ideal for cocktails, beverages and various culinary uses in a 70 cl glass bottle.",
+    "tr": "Kokteyller, içecekler ve çeşitli mutfak uygulamaları için ideal, 70 cl cam şişede yüksek kaliteli FO Böğürtlen Aromalı Şurup.",
+    "ar": "شراب عالي الجودة بنكهة التوت الأسود من FO، مثالي للموكتيلات والمشروبات والعديد من الاستخدامات الطهي في زجاجة زجاجية سعة 70 سل."
+  },
+  "kullanim_alanlari": {
+    "de": "Zur Zubereitung von Cocktails oder direkt zum Trinken mit Wasser verdünnt (1/8).",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içilmek üzere suyla seyreltilir (1/8 oranında).",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62 %), Wasser (36,42 %), Aroma (Brombeere) (0,8 %), Zitronensäure [E 330] (0,7 %), Allurarot, Brilliantblau [E 129, E 133] (0,04 %), Kaliumsorbat [E 202] (0,025 %), Natriumbenzoat [E 211] (0,015 %)",
+    "en": "Sugar (62 %), Water (36.42%), Flavoring (Blackberry) (0.8 %), Citric Acid [E 330] (0.7 %), Allura Red, Brilliant Blue [E 129, E 133] (0.04 %), Potassium Sorbate [E 202] (0.025 %), Sodium Benzoate [E 211] (0.015 %)",
+    "tr": "Şeker (%62), Su (%36,42), Aroma Verici (Böğürtlen) (%0,8), Sitrik Asit [E 330] (%0,7), Allura Red, Brillant Blue [E 129, E 133] (%0,04), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "سكر (62%)، ماء (36.42%)، منكه (توت أسود) (0.8%)، حامض الستريك [E 330] (0.7%)، أحمر ألورا، أزرق بريلانت [E 129, E 133] (0.04%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direkter Sonneneinstrahlung schützen.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzakta saklayın.",
+    "ar": "يخزن في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1388,
+      "energie_kcal": 328,
+      "fett": 0,
+      "kohlenhydrate": 81.9,
+      "davon_zucker": 81.9,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "tip": "Glass bottle 70 cl"
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 10
+}

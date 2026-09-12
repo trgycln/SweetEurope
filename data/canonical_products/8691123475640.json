@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123475640",
+  "barkod": "8691123475640",
+  "urun_adi": {
+    "de": "FO Mixed Fruit Drink – Heracles 800ML",
+    "en": "FO Mixed Fruit Drink – Heracles 800ML",
+    "tr": "FO Karışık Meyve Aromalı İçecek – Heracles 800ML",
+    "ar": "مشروب الفواكه المشكلة FO – هيراكليس 800 مل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger FO Mixed Fruit Drink Heracles, ideal für die Zubereitung von Cocktails und Erfrischungsgetränken.",
+    "en": "High quality FO Mixed Fruit Drink Heracles, ideal for preparing cocktails and refreshing beverages.",
+    "tr": "Kokteyller ve ferahlatıcı içecekler hazırlamak için ideal, yüksek kaliteli FO Heracles Karışık Meyve Aromalı İçecek.",
+    "ar": "مشروب الفواكه المشكلة عالي الجودة من FO Heracles، مثالي لتحضير الكوكتيلات والمشروبات المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Erfrischungsgetränke, Bar und Gastronomie.",
+    "en": "Cocktails, mocktails, refreshing drinks, bar and gastronomy.",
+    "tr": "Kokteyller, mockteyller, serinletici içecekler, bar ve gastronomi.",
+    "ar": "الكوكتيلات، الموكتيلات، المشروبات المنعشة، البار والمطاعم."
+  },
+  "icindekiler": {
+    "de": "Fruchtsaftkonzentrate, Wasser, Zucker, Aromen.",
+    "en": "Fruit juice concentrates, water, sugar, flavorings.",
+    "tr": "Meyve suyu konsantreleri, su, şeker, aroma vericiler.",
+    "ar": "مركزات عصير الفواكه، ماء، سكر، نكهات."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direkter Sonneneinstrahlung schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool and dry place. Protect from direct sunlight. Keep refrigerated after opening.",
+    "tr": "Serin ve kuru yerde saklayınız. Doğrudan güneş ışığından koruyunuz. Açıldıktan sonra buzdolabında saklayınız.",
+    "ar": "يخزن في مكان بارد وجاف. يحمي من أشعة الشمس المباشرة. يحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1340,
+      "energie_kcal": 320,
+      "fett": 1.9,
+      "kohlenhydrate": 79.4,
+      "davon_zucker": 55.7,
+      "eiweiss": 2,
+      "salz": 0.025
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 8,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Dieser zuckerfreie Haselnuss-Sirup von Fo bietet ein intensives, authentisches Nussaroma und eine perfekt abgestimmte Textur für professionelle Anwendungen. Er ist ideal für die Veredelung von Kaffeespezialitäten wie Latte oder Cappuccino sowie für kreative Cocktails und Desserts geeignet. Dank seiner hohen Konzentration und der zuckerfreien Rezeptur ermöglicht er eine kalorienbewusste Zubereitung ohne Kompromisse beim Geschmack.",
+    "en": "This sugar-free hazelnut syrup by Fo delivers an intense, authentic nutty aroma and a perfectly balanced texture for professional use. It is ideal for enhancing coffee specialties such as lattes or cappuccinos, as well as creative cocktails and desserts. Thanks to its high concentration and sugar-free formulation, it allows for calorie-conscious preparation without compromising on flavor.",
+    "tr": "Fo şekersiz fındık aromalı şurup, yoğun ve otantik fındık lezzetiyle profesyonel kullanımlar için mükemmel bir denge sunar. Latte, cappuccino gibi kahve çeşitlerinin yanı sıra kokteyller ve tatlılar için idealdir. Yüksek konsantrasyonu ve şekersiz formülü sayesinde, lezzetten ödün vermeden kalori kontrollü içecekler hazırlamanıza olanak tanır.",
+    "ar": "يقدم شراب البندق الخالي من السكر من Fo نكهة بندق مكثفة وأصلية مع قوام متوازن تماماً للاستخدام المهني. إنه مثالي لتعزيز مشروبات القهوة المتخصصة مثل اللاتيه والكابتشينو، بالإضافة إلى الكوكتيلات والحلويات المبتكرة. بفضل تركيزه العالي وتركيبته الخالية من السكر، فإنه يسمح بتحضير مشروبات واعية بالسعرات الحرارية دون المساومة على المذاق."
+  },
+  "hazirlanisi": {
+    "de": "Verwenden Sie eine Dosierung von 1,5-2 cl für heiße und kalte Getränke. Für den direkten Verzehr kann der Sirup im Verhältnis 1:8 mit Wasser oder Milch verdünnt werden.",
+    "en": "Use a dosage of 1.5-2 cl for hot and cold drinks. For direct consumption, the syrup can be diluted with water or milk at a ratio of 1:8.",
+    "tr": "Sıcak ve soğuk içeceklerde 1,5-2 cl dozajında kullanın. Doğrudan tüketim için su veya süt ile 1/8 oranında seyreltilebilir.",
+    "ar": "استخدم جرعة تتراوح بين 1.5-2 سنتيلتر للمشروبات الساخنة والباردة. للاستهلاك المباشر، يمكن تخفيف الشراب بالماء أو الحليب بنسبة 1:8."
+  },
+  "kullanim_alanlari": {
+    "de": "Latte, Cappuccino, Filterkaffee, Eislatte, Frappé, Milchshakes, Smoothies, Frozen Drinks, Cocktails, heiße und kalte Tees, Desserts, Kuchen und Kekse.",
+    "en": "Latte, cappuccino, filter coffee, iced latte, frappe, milkshakes, smoothies, frozen drinks, cocktails, hot and cold teas, desserts, cakes, and cookies.",
+    "tr": "Latte, cappuccino, filtre kahve, buzlu latte, frappe, milkshake, smoothie, frozen, kokteyller, sıcak ve soğuk çaylar, tatlılar, kekler ve kurabiyeler.",
+    "ar": "اللاتيه، الكابتشينو، القهوة المفلترة، اللاتيه المثلج، الفرابي، مخفوق الحليب، العصائر، المشروبات المثلجة، الكوكتيلات، الشاي الساخن والبارد، الحلويات، الكعك، والبسكويت."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre bei sachgemäßer Lagerung.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 2 years under described storage conditions.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Belirtilen saklama koşullarında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Wasser, Polydextrose (E 1200), Aroma (Haselnuss), Verdickungsmittel (CMC E 466), Säureregulator (Weinsäure E 334), Süßungsmittel (Sucralose E 955, Acesulfam K E 950), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211).",
+    "en": "Water, Polydextrose (E 1200), Flavoring (Hazelnut), Thickener (CMC E 466), Acidity Regulator (Tartaric Acid E 334), Sweeteners (Sucralose E 955, Acesulfame K E 950), Preservatives (Potassium Sorbate E 202, Sodium Benzoate E 211).",
+    "tr": "Su, Polidekstroz (E 1200), Aroma verici (Fındık), Kıvam artırıcı (CMC E 466), Asitlik düzenleyici (Tartarik asit E 334), Tatlandırıcılar (Sukraloz E 955, Asesülfam K E 950), Koruyucular (Potasyum sorbat E 202, Sodyum benzoat E 211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 56,
+      "energie_kcal": 13,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 0.5,
+      "davon_zucker": 0.3,
+      "eiweiss": 0,
+      "salz": 0.018
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

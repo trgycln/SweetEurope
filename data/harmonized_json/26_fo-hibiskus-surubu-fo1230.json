@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Hibiskus-Sirup besticht durch sein authentisches Aroma, seine hohe Konzentration und eine brillante, tiefrote Farbe, die professionellen Cafés, Bars und Restaurants neue kreative Möglichkeiten eröffnet. Seine ausgewogene Süße und die florale Herbe harmonieren perfekt in anspruchsvollen Getränke- und Dessertkreationen. Er verleiht Cocktails, Mocktails und Limonaden eine exquisite Note und sorgt für ein vollmundiges, langanhaltendes Geschmackserlebnis. Perfekt geeignet für den anspruchsvollen Gastronomiebedarf zur effizienten und geschmackvollen Aufwertung des Sortiments.",
+    "en": "FO Hibiscus Flavored Syrup impresses with its authentic aroma, high concentration, and brilliant deep red color, opening up new creative possibilities for professional cafes, bars, and restaurants. Its balanced sweetness and floral tartness harmonize perfectly in sophisticated beverage and dessert creations. It gives cocktails, mocktails, and lemonades an exquisite touch and ensures a full-bodied, long-lasting flavor experience. Perfectly suited for demanding gastronomy needs to efficiently and tastefully enhance your menu.",
+    "tr": "FO Hibiskus Aromalı Şurup, otantik aroması, yüksek konsantrasyonu ve parlak koyu kırmızı rengi ile profesyonel kafe, bar ve restoranlara yeni yaratıcı imkanlar sunar. Dengeli tatlılığı ve floral ekşiliği, seçkin içecek ve tatlı kreasyonlarında mükemmel bir uyum sağlar. Kokteyller, mocktail'ler ve limonatalara zarif bir dokunuş katarak dolgun ve kalıcı bir lezzet deneyimi sunar. Menünüzü verimli ve lezzetli bir şekilde zenginleştirmek için talepkar gastronomi ihtiyaçlarına mükemmel uyum sağlar.",
+    "ar": "يتميز شراب الكركديه المنكه من FO برائحته الأصيلة وتركيزه العالي وLونه الأحمر العميق الرائع، مما يفتح إبداعات جديدة للمقاهي والبارات والمطاعم المهنية. تتناغم حلاوته المتوازنة وحموضته الزهرية بشكل مثالي في المشروبات والحلويات الراقية. يمنح الكوكتيلات والموكتيلات والليمونادا لمسة رائعة ويضمن تجربة نكهة غنية وطويلة الأمد. مناسب تماماً لاحتياجات قطاع الضيافة المتطلبة لتعزيز قائمتك بكفاءة وذوق رفيع."
+  },
+  "hazirlanisi": {
+    "de": "Zur direkten Verzehr oder Zubereitung von Getränken 1 Teil Sirup mit 8 Teilen Wasser verdünnen. Ideal für Cocktails, Limonaden und Eistees. Verwenden Sie eine geeignete Dosierpumpe für eine exakte und saubere Portionierung in der Bar.",
+    "en": "For direct consumption or preparation of drinks, dilute 1 part syrup with 8 parts water. Ideal for cocktails, lemonades, and iced teas. Use a suitable dosing pump for precise and clean portioning at the bar.",
+    "tr": "Doğrudan tüketim veya içecek hazırlamak için 1 ölçü şurubu 8 ölçü su ile seyreltin. Kokteyller, limonatalar ve soğuk çaylar için idealdir. Barda hassas ve temiz porsiyonlama için uygun bir dozaj pompası kullanın.",
+    "ar": "للاستهلاك المباشر أو تحضير المشروبات، خفف جزءاً واحداً من الشراب مع 8 أجزاء من الماء. مثالي للكوكتيلات والليمونادا والشاي المثلج. استخدم مضخة جرعات مناسبة لتحقيق تقسيم دقيق ونظيف في البار."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Eistees, Limonaden, Desserts, Shakes und als Topping.",
+    "en": "Cocktails, mocktails, iced teas, lemonades, desserts, shakes, and as a topping.",
+    "tr": "Kokteyller, mocktail, soğuk çaylar, limonatalar, tatlılar, shaked'ler ve sos olarak.",
+    "ar": "الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادا، الحلويات، المخفوقات، وكإضافة على الوجه."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern. Direkte Sonneneinstrahlung vermeiden. Nach dem Öffnen verschlossen halten.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Direct sunlight should be avoided. Keep closed after opening.",
+    "tr": "Orijinal ambalajında 20-22 °C sıcaklıkta kuru koşullarda saklayınız. Direkt güneş ışığından kaçınılmalıdır. Açıldıktan sonra kapalı tutunuz.",
+    "ar": "يحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. يغلق بإحكام بعد الفتح."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Citronensäure (Säureregulator E 330), Aroma (Hibiskus), Anthocyane (Farbstoff E 163), Kaliumsorbat (Konservierungsmittel E 202), Natriumbenzoat (Konservierungsmittel E 211)",
+    "en": "Sugar, Water, Citric Acid (Acidity Regulator E 330), Flavouring (hibiscus), Anthocyanin (Colour E 163), Potassium Sorbate (Preservative E 202), Sodium Benzoate (Preservative E 211)",
+    "tr": "Şeker, Su, Sitrik Asit (Asitlik Düzenleyici E 330), Aroma Verici (hibiskus), Antosiyanin (Renklendirici E 163), Potasyum Sorbat (Koruyucu E 202), Sodyum Benzoat (Koruyucu E 211)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 338,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 81.2,
+      "davon_zucker": 81.0,
+      "eiweiss": 0.1,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

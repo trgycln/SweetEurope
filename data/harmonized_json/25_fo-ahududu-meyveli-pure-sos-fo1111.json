@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Himbeer Fruchtsauce bietet eine außergewöhnliche Konzentration von 50% echten Himbeeren und sorgt für ein intensives, authentisches Geschmackserlebnis. Ihre homogene Textur mit feinen Fruchtstücken verleiht Desserts, Gebäck und Getränken eine professionelle Note und eine brillante Farbe. Ideal für anspruchsvolle Cafés und Bars, die Wert auf gleichbleibende Qualität und vielseitige Anwendungsmöglichkeiten legen.",
+    "en": "FO Raspberry Fruited Sauce delivers an exceptional 50% concentration of real raspberries, providing an intense and authentic flavor profile. Its homogeneous texture, enriched with fine fruit particles, adds a professional touch and vibrant color to desserts, pastries, and beverages. Perfect for high-end cafes and bars seeking consistent quality and versatile application.",
+    "tr": "%50 gerçek ahududu içeriğiyle FO Ahududu Meyveli Sos, yoğun ve otantik bir lezzet profili sunar. İçindeki meyve parçacıklarıyla zenginleştirilmiş homojen yapısı, tatlılara, hamur işlerine ve içeceklere profesyonel bir dokunuş ve canlı bir renk katar. Tutarlı kalite ve çok yönlü kullanım arayan seçkin kafe ve barlar için idealdir.",
+    "ar": "تقدم صلصة التوت من FO تركيزاً استثنائياً بنسبة 50% من التوت الحقيقي، مما يوفر نكهة مكثفة وأصلية. يضفي قوامها المتجانس، الغني بقطع الفاكهة الدقيقة، لمسة احترافية ولوناً نابضاً بالحياة على الحلويات والمعجنات والمشروبات. مثالية للمقاهي والبارات الراقية التي تبحث عن جودة ثابتة وتطبيقات متنوعة."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen zerstoßenem Eis in einem Hochleistungsmixer mixen. Für alkoholische und alkoholfreie Cocktails: Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 volume of sauce with 3 volumes of crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya arzuya göre su ile seyrelterek kullanın.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات الكحولية وغير الكحولية: تُستخدم مباشرة أو تُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Fruchteis, Frozen-Getränke, Cocktails, Mocktails, Limonaden, Eistees, Sahne, Gelees und Süßwaren.",
+    "en": "Ice cream, milky desserts, pastry, pies, cakes, waffles, fruited ice cream, frozen drinks, cocktails, mocktails, lemonades, iced teas, whipped cream, jellies, and candy.",
+    "tr": "Dondurma, sütlü tatlılar, hamur işleri, pastalar, kekler, waffle, meyveli dondurma, frozen içecekler, kokteyller, mocktail, limonatalar, soğuk çaylar, krem şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكعك، الوافل، الآيس كريم بالفواكه، المشروبات المثلجة، الكوكتيلات، الموكتيلات، الليمونادة، الشاي المثلج، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22°C under dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıl.",
+    "ar": "تُحفظ في عبوتها الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Himbeeren (50%), Zucker (48%), modifizierte Maisstärke (1%), Säureregulatoren (Trinatriumcitrat E331iii, Weinsäure E334), Aroma (Himbeere), Salz, Konservierungsmittel (Kaliumsorbat E202), Farbstoffe (Allurarot AC E129, Carmoisin E122).",
+    "en": "Raspberry (50%), Sugar (48%), Modified corn starch (1%), Acidity regulators (Trisodium citrate E331iii, Tartaric acid E334), Flavoring (Raspberry), Salt, Preservative (Potassium sorbate E202), Coloring (Allura Red E129, Carmoisine E122).",
+    "tr": "Ahududu (%50), Şeker (%48), Modifiye mısır nişastası (%1), Asitlik düzenleyiciler (Trisodyum sitrat E331iii, Tartarik asit E334), Aroma verici (Ahududu), Tuz, Koruyucu (Potasyum sorbat E202), Renklendiriciler (Allura kırmızısı E129, Karmoisin E122)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 980,
+      "energie_kcal": 234,
+      "fett": 0.2,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 55.4,
+      "davon_zucker": 54.0,
+      "eiweiss": 0.6,
+      "salz": 0.005
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

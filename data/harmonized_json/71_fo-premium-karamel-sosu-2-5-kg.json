@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Premium Karamell Sauce bietet eine unvergleichliche, samtige Textur und ein tiefes, authentisches Karamellaroma, das speziell für den professionellen Einsatz in der Gastronomie entwickelt wurde. Mit ihrer hohen Konzentration und perfekten Viskosität veredelt sie Kaffeespezialitäten, Desserts und Eiscreme mit einer luxuriösen Note. Diese Sauce ist die ideale Wahl für Baristas und Konditoren, die Wert auf gleichbleibende Qualität und exzellenten Geschmack legen.",
+    "en": "FO Premium Caramel Sauce delivers an unparalleled, velvety texture and a deep, authentic caramel flavor profile, specifically engineered for professional catering and beverage applications. With its high concentration and perfect viscosity, it elevates coffee specialties, desserts, and ice cream with a luxurious finish. This sauce is the premier choice for baristas and pastry chefs who demand consistent quality and superior taste.",
+    "tr": "FO Premium Karamel Sos, profesyonel gastronomi kullanımı için özel olarak geliştirilmiş, benzersiz kadifemsi dokusu ve derin, otantik karamel aroması ile öne çıkar. Yüksek konsantrasyonu ve mükemmel kıvamı sayesinde kahve spesiyallerini, tatlıları ve dondurmaları lüks bir dokunuşla zenginleştirir. Bu sos, tutarlı kalite ve üstün lezzet arayan baristalar ve şefler için ideal bir tercihtir.",
+    "ar": "تقدم صلصة الكراميل الفاخرة من FO قواماً مخملياً لا يضاهى ونكهة كراميل أصلية وعميقة، تم تطويرها خصيصاً للاستخدام المهني في المقاهي والمطاعم. بفضل تركيزها العالي وقوامها المثالي، تضفي لمسة فاخرة على مشروبات القهوة والحلويات والآيس كريم. تعد هذه الصلصة الخيار الأمثل للباريستا وطهاة الحلويات الذين يبحثون عن جودة ثابتة ومذاق فائق."
+  },
+  "hazirlanisi": {
+    "de": "Direkt anwendbar. Empfohlene Dosierung: 15-30 g pro Portion zur Verfeinerung von heißen und kalten Getränken. Ideal als Topping für Latte Macchiato, Frappés oder als Dekoration für Desserts.",
+    "en": "Applied directly. Recommended dosage: 15-30 g per serving to enhance hot and cold beverages. Ideal as a topping for latte macchiato, frappés, or as a decoration for desserts.",
+    "tr": "Doğrudan uygulanır. Önerilen dozaj: Sıcak ve soğuk içeceklerin lezzetini artırmak için porsiyon başına 15-30 g. Latte macchiato, frappé üzerine sos olarak veya tatlı süslemelerinde kullanım için idealdir.",
+    "ar": "تستخدم مباشرة. الجرعة الموصى بها: 15-30 جرام لكل حصة لتعزيز نكهة المشروبات الساخنة والباردة. مثالية كإضافة فوق اللاتيه ماكياتو، الفرايبي، أو لتزيين الحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Kaffeespezialitäten, Cocktails, Mocktails, Eistees, Limonaden, Eiscreme, Desserts, Gebäck.",
+    "en": "Coffee specialties, cocktails, mocktails, iced teas, lemonades, ice cream, desserts, pastries.",
+    "tr": "Kahve spesiyalleri, kokteyller, mocktail, soğuk çaylar, limonatalar, dondurma, tatlılar, hamur işleri.",
+    "ar": "مشروبات القهوة، الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الآيس كريم، الحلويات، المخبوزات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Produktion bei ungeöffneter Verpackung.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 2 years from production in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında üretimden itibaren 2 yıldır.",
+    "ar": "تُحفظ في عبوتها الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان من تاريخ الإنتاج في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Feuchthaltemittel (Glycerin E422), Magermilchpulver, Molkenpulver, modifizierte Maisstärke, Karamell (1%) [Zucker, Maltodextrin, Butter, Sonnenblumenlecithin, Salz], natürliches Aroma (Karamell), Farbstoff (Einfaches Zuckerkulör E150a), Säureregulatoren (Citronensäure E330, Kaliumcitrate E332ii), Salz, Emulgator (Sojalecithin E322), Konservierungsstoff (Kaliumsorbat E202).",
+    "en": "Sugar, Water, Humectant (Glycerine E422), Skimmed Milk Powder, Whey Powder, Modified Corn Starch, Caramel (1%) [Sugar, Maltodextrin, Butter, Sunflower lecithin, Salt], Natural Flavoring (Caramel), Colorant (Plain Caramel E150a), Acidity Regulators (Citric Acid E330, Tripotassium Citrate E332ii), Salt, Emulsifier (Soy lecithin E322), Preservative (Potassium Sorbate E202).",
+    "tr": "Şeker, Su, Nem verici (Gliserin E422), Yağsız süt tozu, Peynir altı suyu tozu, Modifiye mısır nişastası, Karamel (%1) [Şeker, Maltodekstrin, Tereyağı, Ayçiçek lesitini, Tuz], Doğal aroma verici (Karamel), Renklendirici (Sade karamel E150a), Asitlik düzenleyiciler (Sitrik asit E330, Tripotasyum sitrat E332ii), Tuz, Emülgatör (Soya lesitini E322), Koruyucu (Potasyum sorbat E202)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1040,
+      "energie_kcal": 247,
+      "fett": 0.4,
+      "davon_gesaettigt": 0.1,
+      "kohlenhydrate": 65.3,
+      "davon_zucker": 54.0,
+      "eiweiss": 2.0,
+      "salz": 0.4
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": true,
+    "soja": true,
+    "nuesse": false,
+    "eier": false
+  }
+}

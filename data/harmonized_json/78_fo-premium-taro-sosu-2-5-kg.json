@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Entdecken Sie die FO Premium Taro Aromatisierte Sauce in der praktischen 2,5 kg Flasche inklusive Pumpe, die speziell für den professionellen Einsatz in Cafés und Bars entwickelt wurde. Sie besticht durch eine hohe Konzentration, eine samtige Textur und ein authentisches Geschmacksprofil, das heißen und kalten Getränken eine besondere Note verleiht. Diese Sauce eignet sich hervorragend zur Veredelung von Kaffeespezialitäten, Desserts und kreativen Getränken. Sie bietet Baristas eine erstklassige Handhabung und gleichbleibende Qualität.",
+    "en": "Discover the FO Premium Taro Flavored Sauce in a 2,5 kg bottle with an included pump, specially crafted for professional use in cafes and bars. It features a high concentration, a smooth mouthfeel, and an authentic flavor profile that enhances hot and cold beverages. This sauce is ideal for elevating specialty coffees, desserts, and creative drinks, offering baristas exceptional handling and consistent quality.",
+    "tr": "Kafe ve barların profesyonel ihtiyaçları için özel olarak geliştirilen pompa hediyeli FO Taro Aromalı Premium Sos 2,5 kg, benzersiz lezzetiyle öne çıkar. Yüksek konsantrasyonu, kadifemsi kıvamı ve otantik aroması sayesinde sıcak ve soğuk içeceklere eşsiz bir dokunuş katar. Kahve çeşitlerini, tatlıları ve yaratıcı tarifleri zenginleştirmek için idealdir; bariatlara pratik kullanım ve standart kalite sunar.",
+    "ar": "اكتشف صلصة تارو الفاخرة بنكهة تارو من إيليسون سويتس في عبوة سعة 2.5 كجم مع مضخة متضمنة، المصممة خصيصاً للاستخدام المهني في المقاهي والبارات. تتميز بتركيز عالٍ وقوام سلس ونكهة أصلية تعزز المشروبات الساخنة والباردة. تعتبر هذه الصلصة مثالية للارتقاء بالقهوة المتخصصة والحلويات والمشروبات الإبداعية، مما يوفر للباريستا سهولة استثنائية في الاستخدام وجودة ثابتة."
+  },
+  "hazirlanisi": {
+    "de": "Empfohlen wird die Verwendung von 15-30 Gramm direkt auf oder in heißen und kalten Getränken zur Geschmacksverstärkung. Die Dosierung kann je nach gewünschter Intensität mit der mitgelieferten Pumpe angepasst werden.",
+    "en": "It is recommended to use 15-30 grams applied directly to enhance the flavor of hot and conventional cold beverages. Adjust dosage using the provided pump according to the desired intensity.",
+    "tr": "Sıcak ve soğuk içeceklerin lezzetini artırmak için doğrudan 15-30 gram uygulanması tavsiye edilir. İstenilen yoğunluğa göre ürünle birlikte gelen pompadan yararlanarak dozajı ayarlayabilirsiniz.",
+    "ar": "يوصى باستخدام 15-30 جراماً تطبق مباشجرة لتعزيز نكهة المشروبات الساخنة والباردة. اضبط الجرعة باستخدام المضخة المتوفرة وفقاً للشدة المطلوبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Heiße und kalte Getränke, Kaffeespezialitäten, Desserts.",
+    "en": "Hot and cold beverages, specialty coffees, desserts.",
+    "tr": "Sıcak ve soğuk içecekler, kahve çeşitleri, tatlılar.",
+    "ar": "المشروبات الساخنة والباردة، القهوة المتخصصة، الحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "Es sollte in der Originalverpackung bei 20-22 °C unter trockenen Bedingungen gelagert und direkte Sonneneinstrahlung vermieden werden. Die Haltbarkeit im ungeöffneten Originalgebinde beträgt 2 Jahre.",
+    "en": "It should be stored in its original packaging, 20-22 °C under dry conditions, and direct sunlight should be avoided. Shelf life in unopened packaging is 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır. Açılmamış ambalajında raf ömrü 2 yıldır.",
+    "ar": "يجب تخزينه في عبوته الأصلية، درجات حرارة 20-22 درجة مئوية في ظروف جافة، ويجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة هي سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Feuchthaltemittel (Glycerin E 422), Magermilchpulver, Molkenpulver, modifizierte Maisstärke, Aroma (Taro), Säureregulatoren (Citronensäure E 330, Trikaliumcitrat E 332ii), Emulgator (Sojalecithin E 322), Konservierungsstoff (Kaliumsorbat E 202), Hibiskusextrakt, Farbstoff (Brillantblau E 133).",
+    "en": "Sugar, Water, Humectant (Glycerine E 422), Skimmed Milk Powder, Whey Powder, Modified Corn Starch, Flavoring (Taro), Acidity Regulator (Citric Acid E 330, Tripotassium Citrate E 332ii), Emulsifier (Soy lecithin E 322), Preservative (Potassium Sorbate E 202), Hibiscus extract, Colorant (Brilliant Blue E 133).",
+    "tr": "Şeker, Su, Nem Verici (Gliserin E 422), Yağsız Süt Tozu, Peynir Altı Suyu Tozu, Modifiye Mısır Nişastası, Aroma Verici (Taro), Asitlik Düzenleyici (Sitrik Asit E 330, Trikalium Sitrat E 332ii), Emülgatör (Soya Lesitini E 322), Koruyucu (Potasyum Sorbat E 202), Hibiskus Ekstraktı, Renklendirici (Parlak Mavi E 133)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1040,
+      "energie_kcal": 249,
+      "fett": 0.2,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 64.5,
+      "davon_zucker": 55.4,
+      "eiweiss": 2.1,
+      "salz": 0.1
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": true,
+    "soja": true,
+    "nuesse": false,
+    "eier": false
+  }
+}

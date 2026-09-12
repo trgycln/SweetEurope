@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-469663",
+  "barkod": "8691123469663",
+  "urun_adi": {
+    "de": "FO Sakura und Weißer Pfirsich aromatisierte Basis 700 ml",
+    "en": "FO Sakura and White Peach Flavored Base Syrup 700 ml",
+    "tr": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 700 ml",
+    "ar": "شراب قاعدة بنكهة الساكورا والخوخ الأبيض من فو 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Sakura und Weißer Pfirsich aromatisierte Basis für Cocktails und Erfrischungsgetränke, verpackt in einer 70 cl Glasflasche.",
+    "en": "High quality Sakura and White Peach flavored base syrup for cocktails and beverages, packaged in a 70 cl glass bottle.",
+    "ar": "شراب قاعدة عالي الجودة بنكهة الساكورا والخوخ الأبيض للموكتيلات والمشروبات، معبأ في زجاجة زجاجية سعة 70 سل.",
+    "tr": "Kokteyller ve içecekler için yüksek kaliteli Sakura ve Beyaz Şeftali aromalı baz şurup, 70 cl cam şişede ambalajlanmıştır."
+  },
+  "kullanim_alanlari": {
+    "de": "Für einen 450ml Becher: 1 Portion (40ml) Basis optional mit 5 Portionen (200ml) Wasser verdünnen und mit reichlich Eis servieren.",
+    "en": "For 450ml cup; 1 scoop (40ml) base is diluted optionally with 5 scopes (200ml) of water and served with plenty of ice.",
+    "ar": "لكوب سعة 450 مل؛ تخفف مغرفة واحدة (40 مل) من القاعدة اختياريًا مع 5 مغارف (200 مل) من الماء وتُقدم مع الكثير من الثلج.",
+    "tr": "450ml'lik bardak için; 1 ölçek (40ml) baz isteğe bağlı olarak 5 ölçek (200ml) su ile seyreltilir ve bol buzla servis edilir."
+  },
+  "icindekiler": {
+    "de": "Zucker (56%), Wasser (40,099%), Citronensäure, Kaliumcitrat, E 330, E 332ii (3,46%), Aromen (Sakura, Weißer Pfirsich) (0,4%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Hibiskusextrakt (0,001%)",
+    "en": "Sugar (56%), Water (40.099%), Citric Acid, Potassium Citrate, E 330, E 332ii (3.46%), Flavouring (Sakura, White Peach) (0.4%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%), Hibiscus Extract (0.001%)",
+    "tr": "Şeker (%56), Su (%40,099), Sitrik Asit, Potasyum Sitrat, E 330, E 332ii (%3,46), Aroma Verici (Sakura, Beyaz Şeftali) (%0,4), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015), Hibiskus Ekstraktı (%0,001%)",
+    "ar": "سكر (56%)، ماء (40.099%)، حامض الستريك، سيترات البوتاسيوم، E 330، E 332ii (3.46%)، منكهات (ساكورا، خوخ أبيض) (0.4%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)، مستخلص الكركديه (0.001%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direktem Sonnenlicht schützen.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzakta saklayın.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 975,
+      "energie_kcal": 233,
+      "fett": 0,
+      "kohlenhydrate": 55.3,
+      "davon_zucker": 55.3,
+      "eiweiss": 0,
+      "salz": 0.008
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 10
+}

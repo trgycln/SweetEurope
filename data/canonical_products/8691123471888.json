@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123471888",
+  "barkod": "8691123471888",
+  "urun_adi": {
+    "de": "FO Kokosnuss Sirup - Premium 700 ml",
+    "en": "FO Coconut Syrup - Premium 700 ml",
+    "tr": "FO Hindistan Cevizi Aromalı Şurup - Premium 700 ml",
+    "ar": "شراب جوز الهند فو - بريميوم 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Kokosnusssirup mit intensivem Aroma, ideal für Cocktails, Kaffeespezialitäten und Desserts. Verleiht Ihren Getränken eine exotische Note.",
+    "en": "Premium coconut syrup with an intense aroma, ideal for cocktails, coffee specialties, and desserts. Adds an exotic touch to your beverages.",
+    "tr": "Kokteyller, kahve çeşitleri ve tatlılar için ideal, yoğun aromalı premium hindistan cevizi şurubu. İçeceklerinize egzotik bir dokunuş katar.",
+    "ar": "شراب جوز الهند الفاخر بنكهة غنية ومكثفة، مثالي للكوكتيلات، تخصصات القهوة، والحلويات. يضفي لمسة استوائية رائعة على مشروباتك."
+  },
+  "kullanim_alanlari": {
+    "de": "Zur Zubereitung von Cocktails oder verdünnt mit Wasser (1/8) direkt zu trinken. Perfekt für Kaffees, Milchshakes und Desserts.",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly. Perfect for coffees, milkshakes, and desserts.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyreltilerek kullanılır. Kahveler, milkshake'ler ve tatlılar için mükemmeldir.",
+    "ar": "يستخدم لتحضير الكوكتيلات أو يخفف بالماء بنسبة (1/8) للشرب المباشر. مثالي للقهوة، الميلك شيك، والحلويات."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (36,56%), Kokosnuss-Aromaemulsion 0,8% [Wasser, Verdickungsmittel (E 414, E 445), Säureregulator (E 330), Antioxidationsmittel (E 307), Aroma, Konservierungsstoff (E 211)], Aroma (Kokosnuss) (0,4%), Citronensäure [E 330] (0,2%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%).",
+    "en": "Sugar (62%), Water (36.56%), Coconut flavored emulsion 0.8% [Water, Thickener (E 414, E 445), Acidity regulator (E 330), Antioxidant (E 307), Flavouring, Preservative (E 211)], Flavoring (Coconut) (0.4%), Citric Acid [E 330] (0.2%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%).",
+    "tr": "Şeker (%62), Su (%36,56), Hindistan cevizi aromalı emülsiyon %0,8 [Su, Kıvam arttırıcı (E 414, E 445), Asitlik düzenleyici (E 330), Antioksidan (E 307), Aroma verici, Koruyucu (E 211)], Aroma verici (Hindistan Cevizi) (%0,4), Sitrik Asit [E 330] (%0,2), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015).",
+    "ar": "سكر (62٪)، ماء (36.56٪)، مستحلب بنكهة جوز الهند 0.8٪ [ماء، عامل تثخين (E 414، E 445)، منظم حموضة (E 330)، مضاد أكسدة (E 307)، منكهات، مادة حافظة (E 211)]، منكهات (جوز الهند) (0.4٪)، حمض الستريك [E 330] (0.2٪)، سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪)."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort vor direkter Sonneneinstrahlung geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru bir yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months / 36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1400,
+      "energie_kcal": 335,
+      "fett": 0,
+      "kohlenhydrate": 82.3,
+      "davon_zucker": 81.6,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690550000",
+  "palet_ici_koli": 5
+}

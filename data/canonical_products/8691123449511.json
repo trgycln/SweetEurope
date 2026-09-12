@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123449511",
+  "barkod": "8691123449511",
+  "urun_adi": {
+    "de": "FO Erdbeergeschmack Pulvergetränk 1 kg",
+    "en": "FO Strawberry Flavored Powder Drink 1 kg",
+    "tr": "FO Çilek Aromalı İçecek Tozu 1 kg",
+    "ar": "مسحوق مشروب بنكهة الفراولة FO 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Erfrischendes Erdbeergeschmack Pulvergetränk / Milkshake-Basis für Cafés und den Heimgebrauch.",
+    "en": "Refreshing strawberry flavored powder drink / milkshake base, ideal for cafes and home use.",
+    "tr": "Kafeler ve ev kullanımı için ideal, ferahlatıcı çilek aromalı içecek tozu / milkshake baz.",
+    "ar": "مسحوق مشروب منعش بنكهة الفراولة / قاعدة ميلك شيك، مثالي للمقاهي والاستخدام المنزلي."
+  },
+  "kullanim_alanlari": {
+    "de": "40 g (2 gehäufte Esslöffel) Pulvergetränk, 200 ml pasteurisiertes oder sterilisiertes kaltes Wasser, 10 Eiswürfel.",
+    "en": "40 g (2 heaped tablespoons) flavored beverage powder, 200 ml of pasteurized or sterilized cold water, 10 cubes of ice.",
+    "tr": "40 g (2 tepeleme yemek kaşığı) aromalı içecek tozu, 200 ml pastörize veya sterilize soğuk su, 10 adet buz küpü.",
+    "ar": "40 جم (ملعقتان كبيرتان ممتءلتان) من مسحوق المشروبات المنكهة، 200 مل من الماء البارد المبستر أو المعقم، 10 مكعبات ثلج."
+  },
+  "icindekiler": {
+    "de": "Zucker (91,251 %), modifizierte Maisstärke (5 %), Aroma (Erdbeere) (1,5 %), Xanthan [E 415] (1,4 %), Zitronensäure [E 330] (0,4 %), Siliziumdioxid, Trennmittel [E 551] (0,3 %), Einfaches Caramel [E 150a] (0,092 %), Allurarot [E 129] (0,057 %)",
+    "en": "Sugar (91.251 %), Modified Corn Starch (5 %), Flavoring (strawberry) (1.5 %), Xanthan Gum [E 415] (1.4 %), Citric Acid [E 330] (0.4 %), Silicon dioxide, Anticaking agent [E 551] (0.3 %), Plain Caramel [E 150a] (0.092 %), Allura Red [E129] (0.057 %)",
+    "tr": "Şeker (%91,251), Modifiye Mısır Nişastası (%5), Aroma Verici (çilek) (%1,5), Ksantan Gam [E 415] (%1,4), Sitrik Asit [E 330] (%0,4), Silisyum Dioksit, Topaklanmayı Önleyici [E 551] (%0,3), Düz Karamel [E 150a] (%0,092), Allura Red [E 129] (%0,057)",
+    "ar": "سكر (91.251٪)، نشا الذرة المعدل (5٪)، منكه (فراولة) (1.5٪)، صمغ الزانتان [E 415] (1.4٪)، حامض الستريك [E 330] (0.4٪)، ثنائي أكسيد السيليكون، عامل مضاد للتكتل [E 551] (0.3٪)، كاراميل سادة [E 150a] (0.092٪)، أورا ريد [E129] (0.057٪)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen und geruchsfreien Ort lagern.",
+    "en": "Store in a cool, dry and odor-free place.",
+    "tr": "Serin, kuru ve kokusuz ortamda muhafaza ediniz.",
+    "ar": "يحفظ في مكان بارد وجاف وخالٍ من الروائح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte, glutenhaltiges Getreide, Schalenfrüchte / Nüsse.",
+    "en": "Contains Dairy / Milk products, Soy products, Gluten, Tree nuts.",
+    "tr": "Süt ürünleri, Soya ürünleri, Gluten, Fındık / Fıstık / Kuruyemiş içerir.",
+    "ar": "يحتوي على منتجات الألبان، منتجات الصويا، الغلوتين، المكسرات."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1670,
+      "energie_kcal": 399,
+      "fett": 0,
+      "kohlenhydrate": 98.7,
+      "davon_zucker": 92.1,
+      "eiweiss": 0.1,
+      "salz": 0.1
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.7,
+  "gtip": "210690980019",
+  "palet_ici_koli": 5
+}

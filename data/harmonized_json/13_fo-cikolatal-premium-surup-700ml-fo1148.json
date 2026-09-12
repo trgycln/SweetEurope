@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Schokoladensirup bietet ein intensives, authentisches Kakaoprofil mit einer perfekt homogenen Textur. Er wurde speziell für den professionellen Einsatz in der Gastronomie entwickelt, um Kaffeespezialitäten, Desserts und Cocktails eine luxuriöse Schokoladennote zu verleihen. Dank seiner hohen Konzentration und exzellenten Löslichkeit ist er die ideale Wahl für Baristas und Barkeeper, die höchste Qualität und konstante Ergebnisse suchen.",
+    "en": "FO Chocolate Syrup delivers an intense, authentic cocoa profile with a perfectly homogenized texture. Specially formulated for professional gastronomy, it adds a luxurious chocolate depth to coffee specialties, desserts, and cocktails. With its high concentration and excellent solubility, it is the premier choice for baristas and bartenders seeking consistent, high-quality results.",
+    "tr": "FO Çikolata Aromalı Şurup, yoğun ve otantik kakao profili ile mükemmel homojen bir doku sunar. Profesyonel gastronomi kullanımı için özel olarak geliştirilmiş olup, kahve spesiyallerine, tatlılara ve kokteyllere lüks bir çikolata derinliği katar. Yüksek konsantrasyonu ve mükemmel çözünürlüğü sayesinde, tutarlı ve yüksek kaliteli sonuçlar arayan baristalar ve barmenler için ideal bir tercihtir.",
+    "ar": "يقدم شراب الشوكولاتة من FO نكهة كاكاو مكثفة وأصلية مع قوام متجانس تماماً. تم تطويره خصيصاً للاستخدام المهني في قطاع الضيافة، ليضفي لمسة فاخرة من الشوكولاتة على مشروبات القهوة والحلويات والكوكتيلات. بفضل تركيزه العالي وقابليته الممتازة للذوبان، يعد الخيار الأمثل للباريستا والسقاة الذين يبحثون عن جودة ثابتة ونتائج احترافية."
+  },
+  "hazirlanisi": {
+    "de": "Für den direkten Genuss mit Wasser im Verhältnis 1:8 verdünnen. Ideal zur Verfeinerung von Kaffeespezialitäten, Cocktails oder als Topping für Desserts. Vor Gebrauch schütteln.",
+    "en": "For direct consumption, dilute with water at a ratio of 1:8. Ideal for enhancing coffee specialties, cocktails, or as a dessert topping. Shake well before use.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kahve spesiyalleri, kokteyller veya tatlı sosu olarak kullanım için idealdir. Kullanmadan önce çalkalayınız.",
+    "ar": "للاستهلاك المباشر، يُخفف بالماء بنسبة 1:8. مثالي لتعزيز نكهة مشروبات القهوة والكوكتيلات أو كإضافة للحلويات. يُرج جيداً قبل الاستخدام."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Cocktails, Mocktails, Kaffeespezialitäten, Desserts, Milchshakes und als Topping.",
+    "en": "Versatile application areas: Cocktails, mocktails, coffee specialties, desserts, milkshakes, and as a topping.",
+    "tr": "Geniş kullanım alanları: Kokteyller, mocktail, kahve spesiyalleri, tatlılar, milkshake ve sos olarak kullanım.",
+    "ar": "مجالات الاستخدام المتنوعة: الكوكتيلات، الموكتيلات، مشروبات القهوة، الحلويات، مخفوق الحليب، وكإضافة للزينة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Produktion.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: 2 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Kakaopulver (5%), modifizierte Maisstärke, Aroma (Schokolade), Säureregulator (Citronensäure E330), Konservierungsstoffe (Kaliumsorbat E202, Natriumbenzoat E211).",
+    "en": "Sugar, Water, Cocoa Powder (5%), Modified corn starch, Flavoring (Chocolate), Acidity Regulator (Citric Acid E330), Preservatives (Potassium Sorbate E202, Sodium Benzoate E211).",
+    "tr": "Şeker, Su, Kakao Tozu (%5), Modifiye mısır nişastası, Aroma verici (Çikolata), Asitlik düzenleyici (Sitrik asit E330), Koruyucular (Potasyum sorbat E202, Sodyum benzoat E211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1480,
+      "energie_kcal": 352,
+      "fett": 0.5,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 84.4,
+      "davon_zucker": 82.4,
+      "eiweiss": 1.0,
+      "salz": 0.15
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

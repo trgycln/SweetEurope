@@ -1,0 +1,59 @@
+{
+  "stok_kodu": "SP-FP-8691123120052",
+  "barkod": "8691123120052",
+  "urun_adi": {
+    "de": "FO Kokosgeschmack Sirup (Blanc) 70 cl",
+    "en": "FO Coconut Flavored Syrup (Blanc) 70 cl",
+    "tr": "FO Hindistan Cevizi Aromalı Şurup (Blanc) 70 cl",
+    "ar": "شراب بنكهة جوز الهند (بلانك) 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger FO Kokosnusssirup (Blanc), ideal zur Zubereitung von Cocktails oder zum Verdünnen mit Wasser.",
+    "en": "High quality FO Coconut Flavored Syrup (Blanc), ideal for preparing cocktails or diluting with water.",
+    "ar": "شراب جوز الهند عالي الجودة (بلانك)، مثالي لتحضير الكوكتيلات أو التخفيف بالماء.",
+    "tr": "Kokteyller hazırlamak veya su ile sereltilerek doğrudan içmek için ideal, yüksek kaliteli FO Hindistan Cevizi Aromalı Şurup (Blanc)."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder direkt mit Wasser verdünnt (1/8) getrunken.",
+    "en": "Used to make cocktail or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içilmek için suyla seyreltilir (1/8).",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (36,56%), Kokosnuss-aromatisierte Emulsion 0,8%, Verdickungsmittel (E 414, E 445), Säureregulator (E 330), Antioxidationsmittel (E 307), Aroma, Konservierungsmittel (E 211), Zitronensäure (E 330), Kaliumsorbat (E 202), Natriumbenzoat (E 211).",
+    "en": "Sugar (62%), Water (36,56%), Coconut flavored emulsion 0,8% [Water, Thickener (E 414, E 445), Acidity regulator (E 330), Antioxidant (E 307), Flavouring, Preservative (E 211)], Flavoring (Coconut) (0,4%), Citric Acid [E 330] (0,2%), Potassium Sorbate [E 202], Sodium Benzoate [E 211].",
+    "tr": "Şeker (%62), Su (%36,56), Hindistan cevizi aromalı emülsiyon %0,8 [Su, Kıvam arttırıcı (E 414, E 445), Asitlik düzenleyici (E 330), Antioksidan (E 307), Aroma verici, Koruyucu (E 211)], Aroma verici (Hindistan Cevizi) (%0,4), Sitrik Asit [E 330] (%0,2), Potasyum Sorbat [E 202], Sodyum Benzoat [E 211].",
+    "ar": "سكر (62%)، ماء (36.56%)، مستحلب بنكهة جوز الهند 0.8%، مكثف (E 414, E 445)، منظم حموضة (E 330)، مضاد أكسدة (E 307)، منكه، مادة حافظة (E 211)، حامض الستريك (E 330)، سوربات البوتاسيوم (E 202)، بنزوات الصوديوم (E 211)."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru yerde saklayınız.",
+    "ar": "يخزن في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1400,
+      "energie_kcal": 335,
+      "fett": 0,
+      "kohlenhydrate": 82.3,
+      "davon_zucker": 81.6,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "tip": "70 cl / Glass bottle"
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 10
+}

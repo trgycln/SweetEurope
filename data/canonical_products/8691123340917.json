@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123340917",
+  "barkod": "8691123340917",
+  "urun_adi": {
+    "de": "FO Melonenfruchtsoße - Frozen 1 kg",
+    "en": "FO Melon Fruited Sauce - Frozen 1 kg",
+    "tr": "FO Kavun Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة FO بالشمام للمشروبات المثلجة 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "%50 echten Fruchtanteil enthaltende Melonenfruchtsoße. Perfekt geeignet für die Zubereitung von Frozen Drinks, Smoothies, Cocktails, Desserts und Eiscreme.",
+    "en": "High-quality melon fruited sauce containing 50% real fruit. Perfect for preparing frozen drinks, smoothies, cocktails, ice cream, and desserts.",
+    "tr": "%50 gerçek meyve oranı içeren yüksek kaliteli kavun meyveli sos. Frozen içecekler, kokteyller, dondurma ve tatlı yapımında mükemmel lezzet sağlar.",
+    "ar": "صلصة الشمام عالية الجودة تحتوي على 50٪ من الفاكهة الطبيعية. مثالية لإعداد المشروبات المثلجة، الكوكتيلات، الآيس كريم والحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Für Frozen-Getränke: 1 Teil Soße mit 3 Teilen Crushed Ice im Hochleistungsmixer mixen. Ebenfalls geeignet als Topping für Eiscreme, Tatlılar und Cocktails.",
+    "en": "For frozen drinks: Blend 1 volume sauce with 3 volumes crushed ice in a high-speed blender. Also ideal for ice cream, desserts, cocktails, and toppings.",
+    "tr": "Frozen içecekler için: 1 ölçü sos ile 3 ölçü kırılmış buz yüksek hızlı blenderda karıştırılarak hazırlanır. Ayrıca dondurma, tatlı ve kokteyllerde sos ve süsleme olarak kullanılır.",
+    "ar": "للمشروبات المثلجة: اخلط جزءًا واحدًا من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. مناسبة أيضاً للآيس كريم، الحلويات والكوكتيلات."
+  },
+  "icindekiler": {
+    "de": "Melone (50%), Zucker (48%), modifizierte Maisstärke (1%), Trisodiumcitrat, Weinsäure (E 331iii, E 334) (0,4%), Aroma (Melone) (0,39%), Salz (0,1%), Kaliumsorbat [E 202] (0,1%), Farbstoffe [E 102, E 110] (0,01%). *Der Gehalt an Gelborange S (E 110) darf 50 mg/kg nicht überschreiten.",
+    "en": "Melon (50%), Sugar (48%), Modified corn starch (1%), Trisodium citrate, Tartaric acid (E 331iii, E 334) (0.4%), Flavoring (Melon) (0.39%), Salt (0.1%), Potassium Sorbate [E 202] (0.1%), Coloring [E 102, E 110] (0.01%). *The amount of Sunset Yellow (E 110) mustn’t be higher than 50 mg/kg.",
+    "tr": "Kavun (%50), Şeker (%48), Modifiye mısır nişastası (%1), Trisodyum sitrat, Tartarik asit (E 331iii, E 334) (%0,4), Aroma verici (Kavun) (%0,39), Tuz (%0,1), Potasyum sorbat [E 202] (%0,1), Renklendiriciler [E 102, E 110] (%0,01). *Sunset Yellow (E 110) miktarı 50 mg/kg'ı geçmemelidir.",
+    "ar": "شمام (50٪)، سكر (48٪)، نشا الذرة المعدل (1٪)، سترات ثلاثي الصوديوم، حمض الطرطريك (E 331iii، E 334) (0.4٪)، نكهة (شمام) (0.39٪)، ملح (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)، ملونات [E 102، E 110] (0.01٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direktem Sonnenlicht schützen. Nach dem Öffnen gut verschlossen aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep package closed after opening.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzak tutunuz. Açıldıktan sonra kapağı kapalı olarak muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُحفظ مغلقاً جيداً بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 980,
+      "energie_kcal": 234,
+      "fett": 0.1,
+      "kohlenhydrate": 56.6,
+      "davon_zucker": 52.6,
+      "eiweiss": 0.3,
+      "salz": 0.06
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200799390019",
+  "palet_ici_koli": 10
+}

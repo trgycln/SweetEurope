@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123475633",
+  "barkod": "8691123475633",
+  "urun_adi": {
+    "de": "FO Mischfruchtgetränk – Helios 800 ml",
+    "en": "FO Mixed Fruit Drink – Helios 800 ml",
+    "tr": "FO Karışık Meyveli İçecek – Helios 800 ml",
+    "ar": "مشروب الفواكه المشكلة FO - هليوس 800 مل"
+  },
+  "aciklamalar": {
+    "de": "Anadolu Efsaneleri Serie – Helios, 800 ml Fertigmix Mischfruchtgetränk.",
+    "en": "Anatolian Legends Series – Helios, 800 ml Ready Mix Mixed Fruit Drink.",
+    "tr": "Anadolu Efsaneleri Serisi – Helios, 800 ml Hazır Mix Karışık Meyveli İçecek.",
+    "ar": "سلسلة أساطير الأناضول - هليوس، مشروب فواكه مشكلة جاهز 800 مل."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal zur Zubereitung von Cocktails, Mocktails und Erfrischungsgetränken.",
+    "en": "Ideal for preparing cocktails, mocktails, and refreshing beverages.",
+    "tr": "Kokteyller, mockteyller ve ferahlatıcı içeceklerin hazırlanması için idealdir.",
+    "ar": "مثالي لتحضير الكوكتيلات والمشروبات المنعشة."
+  },
+  "icindekiler": {
+    "de": "Mischfruchtzubereitung",
+    "en": "Mixed fruit preparation",
+    "tr": "Karışık meyve bileşeni",
+    "ar": "تحضير الفواكه المشكلة"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort lagern.",
+    "en": "Store in a cool and dry place.",
+    "tr": "Serin ve kuru yerde saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1290,
+      "energie_kcal": 309,
+      "fett": 1.2,
+      "kohlenhydrate": 78.6,
+      "davon_zucker": 54.2,
+      "eiweiss": 1.6,
+      "salz": 0.045
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 8,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

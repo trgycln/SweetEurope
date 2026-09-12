@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123471086",
+  "barkod": "8691123471086",
+  "urun_adi": {
+    "de": "FO Premium Taro Aromatisierte Sauce 2,5 kg (Inklusive Pumpe)",
+    "en": "FO Premium Taro Flavored Sauce 2,5 kg (Pump Included)",
+    "tr": "FO Taro Aromalı Premium Sos 2,5 kg (Pompa Hediyeli)",
+    "ar": "صلصة نكهة القلقاس الفاخرة FO 2.5 كجم (تشمل المضخة)"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Premium-Taro-Sauce zur Verfeinerung von heißen und kalten Getränken, ideal für professionelle Bars und Cafés.",
+    "en": "High-quality premium taro flavored sauce to enhance the flavor of hot and cold beverages, ideal for professional bars and cafes.",
+    "tr": "Sıcak ve soğuk içeceklerin lezzetini artırmak için ideal, profesyonel bar ve kafeler için yüksek kaliteli taro aromalı premium sos.",
+    "ar": "صلصة بنكهة القلقاس الفاخرة وعالية الجودة لتحسين نكهة المشروبات الساخنة والباردة، مثالية للبارات والمقاهي المهنية."
+  },
+  "kullanim_alanlari": {
+    "de": "Es wird empfohlen, 15-30 Gramm zu verwenden, um den Geschmack von heißen und kalten Getränken zu verbessern.",
+    "en": "Recommended to use 15-30 grams to enhance the flavor of hot and cold beverages.",
+    "tr": "Sıcak ve soğuk içeceklerin lezzetini artırmak için 15-30 gram kullanılması önerilir.",
+    "ar": "يوصى باستعمال 15-30 جرام لتحسين نكهة المشروبات الساخنة والباردة."
+  },
+  "icindekiler": {
+    "de": "Zucker (57%), Wasser (33,308%), Glycerin [E 422] (4,6%), Magermilchpulver (1,5%), Molkenpulver (1,3%), Modifizierte Maisstärke (1%), Aroma (Taro) (0,6%), Citronensäure, Trikaliumcitrat, E 330, E332ii (0,4%), Sojalecithin [E322] (0,15%), Kaliumsorbat [E 202] (0,1%), Hibiskusextrakt (0,04%), Brilliantblau [E 133] (0,002%)",
+    "en": "Sugar (57%), Water (33.308%), Glycerine [E 422] (4.6%), Skimmed Milk Powder (1.5%), Whey Powder (1.3%), Modified Corn Starch (1%), Flavoring (Taro) (0.6%), Citric Acid, Tripotassium Citrate, E 330, E332ii (0.4%), Soy lecithin [E322] (0.15%), Potassium Sorbate [E 202] (0.1%), Hibiscus extract (0.04%), Brilliant Blue [E 133] (0.002%)",
+    "tr": "Şeker (%57), Su (%33,308), Gliserin [E 422] (%4,6), Yağsız Süt Tozu (%1,5), Peynir Altı Suyu Tozu (%1,3), Modifiye Mısır Nişastası (%1), Aroma Verici (Taro) (%0,6), Sitrik Asit, Trikaliposit Sitrat, E 330, E332ii (%0,4), Soya Lesitini [E322] (%0,15), Potasyum Sorbat [E 202] (%0,1), Ebegümeci Özütü (%0,04), Parlak Mavi [E 133] (%0,002%)",
+    "ar": "سكر (57%)، ماء (33.308%)، جلسرين [E 422] (4.6%)، مسحوق الحليب القسيم (1.5%)، مسحوق مصل اللبن (1.3%)، نشا الذرة المعدل (1%)، منكهات (قلقاس) (0.6%)، حمض الستريك، سترات ثلاثي البوتاسيوم، E 330، E332ii (0.4%)، ليسيثين الصويا [E322] (0.15%)، سوربات البوتاسيوم [E 202] (0.1%)، مستخلص الكركديه (0.04%)، أزرق لامع [E 133] (0.002%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direkter Sonneneinstrahlung schützen.",
+    "en": "Store in a cool and dry place. Protect from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayınız. Doğrudan güneş ışığından koruyunuz.",
+    "ar": "يخزن في مكان بارد وجاف. يحمي من أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte.",
+    "en": "Contains Dairy / Milk products, Soy products.",
+    "tr": "Süt ürünleri, Soya ürünleri içerir.",
+    "ar": "يحتوي على منتجات الألبان، منتجات الصويا."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1040,
+      "energie_kcal": 249,
+      "fett": 0.2,
+      "kohlenhydrate": 64.5,
+      "davon_zucker": 55.4,
+      "eiweiss": 2.1,
+      "salz": 0.1
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 11.5,
+  "gtip": "210690980019",
+  "palet_ici_koli": 7
+}

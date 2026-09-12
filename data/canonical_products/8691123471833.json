@@ -1,0 +1,63 @@
+{
+  "stok_kodu": "SP-FP-8691123471833",
+  "barkod": "8691123471833",
+  "urun_adi": {
+    "de": "FO Schokoladensirup - Premium 700 ml",
+    "en": "FO Chocolate Syrup - Premium 700 ml",
+    "tr": "FO Çikolata Aromalı Şurup - Premium 700 ml",
+    "ar": "شراب فو بنكهة الشوكولاتة - بريميوم 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Schokoladensirup zur Verfeinerung von Getränken, Cocktails und Desserts. Verleiht Ihren Kreationen ein reichhaltiges und intensives Schokoladenaroma.",
+    "en": "Premium chocolate syrup designed to enrich beverages, cocktails, and desserts. Adds a rich and intense chocolate flavor to your creations.",
+    "tr": "İçeceklerinizi, kokteyllerinizi ve tatlılarınızı zenginleştirmek için tasarlanmış premium çikolata şurubu. Kreasyonlarınıza zengin ve yoğun bir çikolata aroması katar.",
+    "ar": "شراب الشوكولاتة الفاخر المصمم لإثراء المشروبات والكوكتيلات والحلويات. يضيف نكهة شوكولاتة غنية ومكثفة لإبداعاتك."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder im Verhältnis 1:8 mit Wasser verdünnt direkt getrunken. Ideal auch für Kaffeespezialitäten und Desserts.",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly. Also ideal for coffee specialties and desserts.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyreltilerek kullanılır. Ayrıca kahve çeşitleri ve tatlılar için idealdir.",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (1/8) للشرب مباشرة. مثالي أيضاً لتخصصات القهوة والحلويات."
+  },
+  "icindekiler": {
+    "de": "Zucker (72%), Wasser (21,16%), Kakaopulver (5%), Modifizierte Maisstärke (1%), Aroma (Schokolade) (0,5%), Citronensäure [E 330] (0,3%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Sugar (72%), Water (21.16%), Cocoa Powder (5%), Modified corn starch (1%), Flavoring (Chocolate) (0.5%), Citric Acid [E 330] (0.3%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)",
+    "tr": "Şeker (%72), Su (%21,16), Kakao Tozu (%5), Modifiye mısır nişastası (%1), Aroma Verici (Çikolata) (%0,5), Sitrik Asit [E 330] (%0,3), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "سكر (72٪)، ماء (21.16٪)، مسحوق الكاكاو (5٪)، نشا الذرة المعدل (1٪)، منكهات (شوكولاتة) (0.5٪)، حمض الستريك [E 330] (0.3٪)، سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort vor direkter Sonneneinstrahlung geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzakta, serin ve kuru bir yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": {
+    "de": "24 Monate",
+    "en": "24 months",
+    "tr": "24 ay",
+    "ar": "24 شهراً"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1480,
+      "energie_kcal": 352,
+      "fett": 0.5,
+      "kohlenhydrate": 84.4,
+      "davon_zucker": 82.4,
+      "eiweiss": 1,
+      "salz": 0.15
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 10
+}

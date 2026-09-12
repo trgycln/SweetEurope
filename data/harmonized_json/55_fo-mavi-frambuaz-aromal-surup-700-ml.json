@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Blaues Himbeer-Sirup bietet eine intensive, leuchtende Farbe und ein authentisches, fruchtiges Geschmacksprofil, das in jeder Bar für visuelle Highlights sorgt. Dank seiner hohen Konzentration ist er äußerst ergiebig und verleiht Cocktails, Mocktails und Limonaden eine unverwechselbare Note. Die harmonische Textur sorgt für eine exzellente Mischbarkeit und ein erstklassiges Mundgefühl in professionellen Getränkekreationen.",
+    "en": "FO Blue Raspberry Syrup delivers an intense, vibrant color and an authentic, fruity flavor profile that creates visual impact in any bar setting. Its high concentration ensures excellent yield, providing a distinct character to cocktails, mocktails, and lemonades. The harmonious texture ensures superior mixability and a premium mouthfeel for professional beverage applications.",
+    "tr": "FO Mavi Frambuaz Şurubu, yoğun ve canlı rengiyle her barda görsel bir şölen yaratırken, otantik ve meyvemsi lezzet profiliyle içeceklere derinlik katar. Yüksek konsantrasyonu sayesinde oldukça bereketli olan bu ürün, kokteyller, mocktail'ler ve limonatalar için vazgeçilmez bir bileşendir. Uyumlu yapısı, profesyonel içecek hazırlıklarında mükemmel karışabilirlik ve üstün bir ağız hissi sağlar.",
+    "ar": "يقدم شراب التوت الأزرق من FO لوناً نابضاً بالحياة ونكهة فاكهية أصلية تضفي لمسة بصرية مميزة في أي بار. بفضل تركيزه العالي، يوفر هذا المنتج كفاءة ممتازة في الاستخدام، مما يمنح الكوكتيلات والموكتيلات والمشروبات المنعشة طابعاً فريداً. يضمن قوامه المتناغم سهولة فائقة في المزج وملمساً متميزاً في المشروبات الاحترافية."
+  },
+  "hazirlanisi": {
+    "de": "Für den direkten Verzehr mit Wasser im Verhältnis 1:8 verdünnen. Ideal für Cocktails und Mocktails: Dosierung je nach gewünschter Intensität anpassen, vorzugsweise mit reichlich Eis servieren.",
+    "en": "Dilute with water at a ratio of 1:8 for direct consumption. Ideal for cocktails and mocktails: adjust dosage according to desired intensity, preferably served with plenty of ice.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kokteyller ve mocktail'ler için idealdir: İstenen yoğunluğa göre dozajı ayarlayın, tercihen bol buz ile servis edin.",
+    "ar": "يُخفف بالماء بنسبة 1:8 للاستهلاك المباشر. مثالي للكوكتيلات والموكتيلات: اضبط الجرعة حسب الكثافة المطلوبة، ويفضل تقديمه مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Limonaden, Eistees, Desserts, Kaffeespezialitäten.",
+    "en": "Cocktails, mocktails, lemonades, iced teas, desserts, coffee specialties.",
+    "tr": "Kokteyller, mocktail'ler, limonatalar, soğuk çaylar, tatlılar, kahve çeşitleri.",
+    "ar": "الكوكتيلات، الموكتيلات، الليمونادات، الشاي المثلج، الحلويات، مشروبات القهوة المتخصصة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre in geschlossener Verpackung.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 3 years in closed packaging.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Kapalı ambalajında 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات في العبوة المغلقة."
+  },
+  "inhaltsstoffe": {
+    "de": "Glukose-Fruktose-Sirup, Wasser, Aroma (Himbeere), Säureregulator (Citronensäure E330), Farbstoff (Brillantblau E133), Konservierungsstoffe (Kaliumsorbat E202, Natriumbenzoat E211).",
+    "en": "Glucose-Fructose Syrup, Water, Flavoring (Raspberry), Acidity Regulator (Citric Acid E330), Colorant (Brilliant Blue E133), Preservatives (Potassium Sorbate E202, Sodium Benzoate E211).",
+    "tr": "Glikoz-Fruktoz Şurubu, Su, Aroma verici (Frambuaz), Asitlik düzenleyici (Sitrik asit E330), Renklendirici (Parlak Mavi E133), Koruyucular (Potasyum Sorbat E202, Sodyum Benzoat E211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1120,
+      "energie_kcal": 268,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 65.1,
+      "davon_zucker": 32.3,
+      "eiweiss": 0,
+      "salz": 0.3
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

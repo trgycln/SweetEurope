@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123473905",
+  "barkod": "8691123473905",
+  "urun_adi": {
+    "de": "FO Madagascar Vanille Aromatisierte Sosse 1 Kg - Eclipse",
+    "en": "FO Madagascar Vanilla Flavored Sauce 1 Kg - Eclipse",
+    "tr": "FO Madagaskar Vanilya Aromalı Sos 1 Kg - Eclipse",
+    "ar": "صلصة بنكهة الفانيليا مدغشقر FO 1 كغ - إيكليبس"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige FO Madagaskar Vanille aromatisierte Sosse für die Gastronomie und den Hausgebrauch. Ideal zum Verfeinern von Desserts, Waffeln, Crepes und Getränken.",
+    "en": "High quality FO Madagascar Vanilla flavored sauce for professional and home use. Ideal for enhancing desserts, waffles, crepes, and beverages.",
+    "tr": "Pastacılık ve içecekler için yüksek kaliteli FO Madagaskar Vanilya aromalı sos. Tatlılar, waffle, krep ve sıcak-soğuk içecekler için idealdir.",
+    "ar": "صلصة عالية الجودة بنكهة الفانيليا مدغشقر من FO للاستخدام المهني والمنزلي. مثالية لتحسين الحلويات والوافل والكريب والمشروبات."
+  },
+  "kullanim_alanlari": {
+    "de": "Es wird empfohlen, 15-30 Gramm zu verwenden, um den Geschmack von heißen und kalten Getränken sowie Desserts zu verbessern.",
+    "en": "Recommended to use 15-30 grams to enhance the flavor of hot and cold beverages and desserts.",
+    "tr": "Sıcak ve soğuk içeceklerin ve tatlıların lezzetini artırmak için 15-30 gram kullanılması tavsiye edilir.",
+    "ar": "يوصى باستخدام 15-30 جرامًا لتحسين نكهة المشروبات الساخنة والباردة والحلويات."
+  },
+  "icindekiler": {
+    "de": "Zucker (56%), Wasser (34,85%), Glycerin [E 422] (5%), Modifizierte Maisstärke (1,5%), Pflanzenkohle, Natürlicher Farbstoff [E 153] (1%), Natürliches Aroma (Vanille), Natürliches Aroma (0,6%), Madagaskar Vanilleextrakt (0,55%), Natriumeitrate, Citronensäure, E 331iii, E 330 (0,3%), Kaliumsorbat [E 202] (0,1%), Salz (0,1%)",
+    "en": "Sugar (56%), Water (34,85%), Glycerine [E 422] (5%), Modified Corn Starch (1,5%), Black Carbon, Natural Colorant [E 153] (1%), Natural Flavoring (Vanilla), Natural Flavoring (0,6%), Madagascar Vanilla extract (0,55%), Trisodium Citrate, Citric Acid, E 331iii, E 330 (0,3%), Potassium Sorbate [E 202] (0,1%), Salt (0,1%)",
+    "tr": "Şeker (%56), Su (%34,85), Gliserin [E 422] (%5), Modifiye Mısır Nişastası (%1,5), Siyah Karbon, Doğal Renklendirici [E 153] (%1), Doğal Aroma Verici (Vanilya), Doğal Aroma Verici (%0,6), Madagaskar Vanilya Ekstraktı (%0,55), Trisodyum Sitrat, Sitrik Asit, E 331iii, E 330 (%0,3), Potasyum Sorbat [E 202] (%0,1), Tuz (%0,1)",
+    "ar": "سكر (56%)، ماء (34.85%)، جلسرين [E 422] (5%)، نشا الذرة المعدل (1.5%)، كربون أسود، ملون طبيعي [E 153] (1%)، نكهة طبيعية (فانيليا)، نكهة طبيعية (0.6%)، مستخلص فانيليا مدغشقر (0.55%)، سترات ثلاثي الصوديوم، حامض الستريك، E 331iii، E 330 (0.3%)، سوربات البوتاسيوم [E 202] (0.1%)، ملح (0.1%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direktem Sonnenlicht geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığı almayan yerde saklayın.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 996,
+      "energie_kcal": 238,
+      "fett": 0.4,
+      "kohlenhydrate": 65.6,
+      "davon_zucker": 55.6,
+      "eiweiss": 0,
+      "salz": 0.18
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 6.5,
+  "gtip": "210690980019",
+  "palet_ici_koli": 20
+}

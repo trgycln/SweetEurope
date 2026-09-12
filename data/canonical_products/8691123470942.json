@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123470942",
+  "barkod": "8691123470942",
+  "urun_adi": {
+    "de": "FO Erdbeere Premium Cocktailsirup 700 ml",
+    "en": "FO Strawberry Premium Cocktail Syrup 700 ml",
+    "tr": "FO Çilek Aromalı Premium Kokteyl Şurubu 700 ml",
+    "ar": "شراب مركز بنكهة الفراولة بريميوم من فو 700 مل"
+  },
+  "aciklamalar": {
+    "de": "FO Premium Erdbeersirup wurde speziell entwickelt, um Ihren Cocktails, Desserts und Getränken ein frisches Erdbeeraroma und eine lebendige Farbe zu verleihen. Er bietet eine perfekte Geschmacksbalance mit hochwertigem Zuckergehalt.",
+    "en": "FO Premium Strawberry Syrup is specially formulated to add fresh strawberry flavor and vibrant color to your cocktails, desserts, and beverages. It offers a perfect taste balance with its high-quality sugar content.",
+    "tr": "FO Premium Çilek Şurubu, kokteyllerinize, tatlılarınıza ve içeceklerinize taze çilek lezzeti ve canlı bir renk katmak için özel olarak formüle edilmiştir. Yüksek kaliteli şeker içeriğiyle mükemmel bir tat dengesi sunar.",
+    "ar": "تم تركيب شراب الفراولة الفاخر من فو خصيصًا لإضافة نكهة الفراولة الطازجة واللون النابض بالحياة إلى الكوكتيلات والحلويات والمشروبات. يقدم توازنًا مثاليًا للمذاق بفضل محتواه العالي من السكر عالي الجودة."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Cocktailzubereitung verwendet oder mit Wasser (Verhältnis 1:8) verdünnt direkt getrunken. Auch in Kaffee, Gebäck und Dessertsaucen bevorzugt.",
+    "en": "Used in cocktail making or diluted with water (1/8 ratio) to drink directly. Also preferred in coffees, pastry, and dessert sauces.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyrelterek kullanılır. Ayrıca kahvelerde, pastacılıkta ve tatlı soslarında tercih edilir.",
+    "ar": "يُستخدم في صنع الكوكتيلات أو يُخفف بالماء (بنسبة 1/8) للشرب مباشرة. كما يُفضل استخدامه في القهوة والحلويات وصلصات التزيين."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,12%), Aroma (Erdbeere) (0,5%), Citronensäure [E 330] (0,3%), Allurarot, Brillantblau [E 129, E133] (0,04%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%).",
+    "en": "Sugar (62%), Water (37.12%), Flavoring (Strawberry) (0.5%), Citric Acid [E 330] (0.3%), Allura Red, Brilliant Blue [E 129, E133] (0.04%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%).",
+    "tr": "Şeker (%62), Su (%37,12), Aroma Verici (Çilek) (%0,5), Sitrik Asit [E 330] (%0,3), Allura Red, Brilliant Blue [E 129, E133] (%0,04), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015).",
+    "ar": "سكر (62%)، ماء (37.12%)، منكه (فراولة) (0.5%)، حمض الستريك [E 330] (0.3%)، أحمر ألورا، أزرق براق [E 129, E133] (0.04%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen den Deckel fest verschließen.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep the cap tightly closed after opening.",
+    "tr": "Serin, kuru ve güneş ışığı almayan bir yerde muhafaza ediniz. Açıldıktan sonra kapağını sıkıca kapatınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. أغلق الغطاء بإحكام بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay / 36 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0.5,
+      "kohlenhydrate": 82.5,
+      "davon_zucker": 81.9,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 15
+}

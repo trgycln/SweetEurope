@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Entdecken Sie den zuckerfreien FO Karamell-Aroma Premium Sirup, entwickelt für professionelle Cafés und Bars zur Verfeinerung von Heiß- und Kaltgetränken. Mit seinem authentischen, reichen Geschmacksprofil und der hochkonzentrierten Formel verleiht er Lattes, Frappes, Cocktails und Desserts eine luxuriöse Note. Erhöhen Sie die Qualität Ihrer Getränkeauswahl und begeistern Sie Ihre Gäste mit gleichbleibend exzellentem Geschmack.",
+    "en": "Discover the sugar-free FO Caramel Flavored Premium Syrup, designed for professional cafes and bars to elevate hot and cold beverages. Featuring an authentic, rich flavor profile and high concentration formula, it delivers a luxurious touch to lattes, frappes, cocktails, and desserts. Enhance your beverage menu and delight your patrons with consistent, premium quality.",
+    "tr": "Profesyonel kafe ve barlar için özel olarak geliştirilen şekersiz FO Karamel Aromalı Premium Şurup, sıcak ve soğuk içeceklerinize eşsiz bir lezzet katar. Zengin aromatik profili ve yüksek konsantrasyonu sayesinde latte, frappe, kokteyl ve tatlılarda kusursuz sonuçlar verir. Menünüzü zenginleştirin ve misafirlerinize üstün kaliteyi sunun.",
+    "ar": "اكتشف شراب الكراميل الفاخر الخالي من السكر من FO، المصمم للمقاهي والبارات الاحترافية لتقوية المشروبات الساخنة والباردة. بفضل نكهته الغنية وتركيزه العالي، يضفي لمسة فاخرة على اللاتيه والفرابيه والكوكتيلات والحلويات. ارفع مستوى قائمة مشروباتك واسحر ضيوفك بجودة استثنائية."
+  },
+  "hazirlanisi": {
+    "de": "Verwenden Sie eine Dosierung von 1,5-2 cl in heißen und kalten Getränken wie Latte, Cappuccino und Cocktails. Alternativ im Verhältnis 1 Teil Basis zu 8 Teile Wasser oder Milch verdünnen, um es direkt zu genießen.",
+    "en": "Use in a dosage range of 1.5-2 cl in hot and cold drinks such as lattes, cappuccinos, and cocktails. Alternatively, dilute with water or milk at a ratio of 1 part base to 8 parts liquid (1/8) to drink directly.",
+    "tr": "Latte, kapuçino ve kokteyller gibi sıcak ve soğuk içeceklerde 1,5-2 cl dozaj aralığında kullanın. Alternatif olarak doğrudan tüketmek için 1 ölçü baz ve 8 ölçü su veya süt (1/8 oranında) ile seyreltin.",
+    "ar": "استخدم جرعة تتراوح بين 1.5-2 سنتيلتر في المشروبات الساخنة والباردة مثل اللاتيه، الكابتشينو، والكوكتيلات. بدلاً من ذلك، يُخفف بالماء أو الحليب بنسبة جزء واحد من الأساس إلى 8 أجزاء (1/8) للاستهلاك المباشر."
+  },
+  "kullanim_alanlari": {
+    "de": "Latte, Cappuccino, Filterkaffee, Ice Latte, Frappe, Milkshake, Smoothie, Frozen, Cocktails, heiße und kalte Tees, Kuchen, Kekse und Desserts.",
+    "en": "Latte, cappuccino, filter coffee, ice latte, frappe, milkshake, smoothie, frozen, cocktails, hot and cold teas, cakes, cookies, and all kinds of desserts.",
+    "tr": "Latte, kapuçino, filtre kahve, buzlu latte, frappe, milkshake, smoothie, frozen, kokteyller, sıcak ve soğuk çaylar, kekler, kurabiyeler ve her türlü tatlı.",
+    "ar": "لاتيه، كابتشينو، قهوة مفلترة، إيس لاتيه، فرابيه، ميلك شيك، سموذي، فروزن، كوكتيلات، الشاي الساخن والبارد، الكيك، الكوكيز، وجميع أنواع الحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern. Direkte Sonneneinstrahlung vermeiden. Haltbarkeit in geschlossener Verpackung beträgt 2 Jahre.",
+    "en": "It should be stored in its original packaging at 20-22 °C under dry conditions, and direct sunlight should be avoided. The shelf life is 2 years in its closed packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır. Kapalı ambalajında raf ömrü 2 yıldır.",
+    "ar": "يجب تخزينه في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة، وتجنب أشعة الشمس المباشرة. مدة الصلاحية هي عامان في عبوته المغلقة."
+  },
+  "inhaltsstoffe": {
+    "de": "Wasser, Polydextrose (Füllstoff E 1200), Aroma (Karamell), CMC (Verdickungsmittel E 466), Weinsäure (Säureregulator E 334), Sucralose (Süßungsmittel E 955), Echter Karamel (Farbstoff E 150a), Acesulfam K (Süßungsmittel E 950), Kaliumsorbat (Konservierungsmittel E 202), Natriumbenzoat (Konservierungsmittel E 211).",
+    "en": "Water, Polydextrose, Flavoring (Caramel), CMC, Tartaric Acid, Sucralose, Plain Caramel, Acesulfame K, Potassium Sorbate, Sodium Benzoate.",
+    "tr": "Su, Polidekstroz, Aroma (Karamel), CMC, Tartarik Asit, Sukraloz, Düz Karamel, Acesülfam K, Potasyum Sorbat, Sodyum Benzoat."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 55,
+      "energie_kcal": 13,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 0.5,
+      "davon_zucker": 0.3,
+      "eiweiss": 0.0,
+      "salz": 0.018
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

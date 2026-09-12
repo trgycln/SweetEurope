@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Passionsfrucht-Sauce bietet ein intensives, authentisches Geschmacksprofil mit echten Fruchtstücken und einer leuchtenden Farbe. Dank ihrer hohen Konzentration und homogenen Textur ist sie ideal für professionelle Anwendungen in Cafés und Bars geeignet. Sie verleiht Desserts, Gebäck und Getränken eine exotische Note und sorgt für eine exzellente Konsistenz bei der Weiterverarbeitung.",
+    "en": "FO Passion Fruit Sauce delivers an intense, authentic flavor profile with real fruit particles and a vibrant color. Its high concentration and homogeneous texture make it ideal for professional use in cafes and bars. It adds an exotic touch to desserts, pastries, and beverages, ensuring excellent consistency for all culinary applications.",
+    "tr": "FO Çarkıfelek Meyvesi Sosu, gerçek meyve parçacıkları ve canlı rengiyle yoğun, otantik bir lezzet profili sunar. Yüksek konsantrasyonu ve homojen yapısı sayesinde kafe ve barlarda profesyonel kullanım için idealdir. Tatlılara, hamur işlerine ve içeceklere egzotik bir dokunuş katarak mükemmel bir kıvam sağlar.",
+    "ar": "تقدم صلصة فاكهة العاطفة من FO نكهة مكثفة وأصلية مع قطع فاكهة حقيقية ولون نابض بالحياة. بفضل تركيزها العالي وقوامها المتجانس، فهي مثالية للاستخدام الاحترافي في المقاهي والبارات. تضفي لمسة استوائية على الحلويات والمخبوزات والمشروبات، مما يضمن قواماً ممتازاً لجميع التطبيقات."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen zerstoßenem Eis in einem Hochleistungsmixer mixen. Für alkoholische und alkoholfreie Cocktails: Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya su ile seyrelterek tüketin.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات الكحولية وغير الكحولية: تُستخدم مباشرة أو تُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Fruchteis, Frozen-Getränke, Cocktails, Mocktails, Limonaden, Eistees, Cremes, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Ice cream, milky desserts, pastry, pies, cakes, waffles, fruited ice cream, frozen drinks, cocktails, mocktails, lemonades, iced teas, creams, whipped cream, jellies, and candy.",
+    "tr": "Dondurma, sütlü tatlılar, hamur işleri, pastalar, kekler, waffle, meyveli dondurma, frozen içecekler, kokteyller, mocktail, limonatalar, soğuk çaylar, kremalar, krem şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكعك، الوافل، الآيس كريم بالفواكه، المشروبات المثلجة، الكوكتيلات، الموكتيلات، الليمونادة، الشاي المثلج، الكريمات، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıl.",
+    "ar": "تُحفظ في عبوتها الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Passionsfrucht (20%), modifizierte Maisstärke, Säureregulatoren (Weinsäure E334, Trinatriumcitrat E331iii), Aroma (Passionsfrucht), Salz, Konservierungsmittel (Kaliumsorbat E202), Farbstoffe (Tartrazin E102, Gelborange S E110).",
+    "en": "Sugar, Water, Passion fruit (20%), Modified corn starch, Acidity regulators (Tartaric acid E334, Trisodium citrate E331iii), Flavoring (Passion fruit), Salt, Preservative (Potassium sorbate E202), Colourants (Tartrazine E102, Sunset yellow E110).",
+    "tr": "Şeker, Su, Çarkıfelek meyvesi (20%), Modifiye mısır nişastası, Asitlik düzenleyiciler (Tartarik asit E334, Trisodyum sitrat E331iii), Aroma verici (Çarkıfelek meyvesi), Tuz, Koruyucu (Potasyum sorbat E202), Renklendiriciler (Tartrazin E102, Sunset yellow E110)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1000,
+      "energie_kcal": 239,
+      "fett": 0.1,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 56.8,
+      "davon_zucker": 54.2,
+      "eiweiss": 0.6,
+      "salz": 0.0
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

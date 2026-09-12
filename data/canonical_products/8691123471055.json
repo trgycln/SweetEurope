@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-8691123471055",
+  "barkod": "8691123471055",
+  "urun_adi": {
+    "de": "FO Karamell-Aroma Premium Sirup 700 ml",
+    "en": "FO Caramel Flavored Premium Syrup 700 ml",
+    "tr": "FO Karamel Aromalı Premium Şurup 700 ml",
+    "ar": "فو شراب بنكهة الكراميل الممتاز 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Ein kalorienarmer Premium-Sirup, der speziell entwickelt wurde, um Ihren Heiß- und Kaltgetränken ein einzigartiges Karamellaroma zu verleihen. Bietet eine leichte und köstliche Alternative mit seiner zuckerfreien Struktur.",
+    "en": "A low-calorie premium syrup specially formulated to add a unique caramel flavor to your hot and cold beverages. Offers a light and delicious alternative with its sugar-free structure.",
+    "tr": "Sıcak ve soğuk içeceklerinize eşsiz karamel lezzeti katmak için özel olarak formüle edilmiş, düşük kalorili premium şurup. Şeker ilavesiz yapısıyla hafif ve lezzetli bir alternatif sunar.",
+    "ar": "شراب ممتاز منخفض السعرات الحرارية تم تركيبه خصيصًا لإضافة نكهة الكراميل الفريدة إلى مشروباتك الساخنة والباردة. يقدم بديلاً خفيفًا ولذيذًا بتركيبته الخالية من السكر المضاف."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird in einer Dosierung von 1,5-2 cl in Heiß- und Kaltgetränken verwendet oder mit Wasser/Milch (Verhältnis 1:8) verdünnt direkt getrunken.",
+    "en": "Used in a dosage range of 1.5-2 cl in hot and cold drinks, or diluted with water/milk (1/8 ratio) to drink directly.",
+    "tr": "Sıcak ve soğuk içeceklerde 1,5-2 cl ölçeğinde veya doğrudan içmek için su/süt ile (1/8 oranında) seyrelterek kullanılır.",
+    "ar": "يستخدم بجرعة تتراوح بين 1.5 إلى 2 سنتيلتر في المشروبات الساخنة والباردة، أو مخففاً بالماء/الحليب (بنسبة 1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Wasser (87,21%), Polydextrose [E 1200] (10,5%), Aroma (Karamell) (1,3%), CMC [E 466] (0,5%), Weinsäure [E 334] (0,2%), Sucralose [E 955] (0,18%), Einfacher Zuckerkulör [E 150a] (0,04%), Acesulfam K [E 950] (0,025%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%).",
+    "en": "Water (87.21%), Polydextrose [E 1200] (10.5%), Flavoring (Caramel) (1.3%), CMC [E 466] (0.5%), Tartaric Acid [E 334] (0.2%), Sucralose [E 955] (0.18%), Plain Caramel [E 150a] (0.04%), Acesulfame K [E 950] (0.025%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%).",
+    "tr": "Su (%87,21), Polidekstroz [E 1200] (%10,5), Aroma Verici (Karamel) (%1,3), CMC [E 466] (%0,5), Tartarik Asit [E 334] (%0,2), Sukraloz [E 955] (%0,18), Sade Karamel [E 150a] (%0,04), Asesülfam K [E 950] (%0,025), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015).",
+    "ar": "ماء (87.21%)، بوليديكستروز [E 1200] (10.5%)، منكهات (كراميل) (1.3%)، سي إم سي [E 466] (0.5%)، حمض التارتاريك [E 334] (0.2%)، سكرالوز [E 955] (0.18%)، كراميل سادة [E 150a] (0.04%)، أسيسولفام ك [E 950] (0.025%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin, kuru ve güneş ışığı almayan bir yerde muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 55,
+      "energie_kcal": 13,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 0.5,
+      "davon_zucker": 0.3,
+      "ballaststoffe": 9.6,
+      "eiweiss": 0,
+      "salz": 0.018
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 15
+}

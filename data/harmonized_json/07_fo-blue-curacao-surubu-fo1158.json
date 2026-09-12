@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Blue Curacao Sirup besticht durch seine leuchtend blaue Farbe und sein authentisches, erfrischendes Aroma von Orangen und Curacao. Mit seiner hohen Konzentration und perfekten Textur verleiht er Cocktails und alkoholfreien Getränken eine professionelle Tiefe. Ideal für anspruchsvolle Bars und Cafés, die visuell beeindruckende und geschmacklich konsistente Kreationen suchen.",
+    "en": "FO Blue Curacao Flavored Syrup offers a vibrant blue hue and an authentic, refreshing profile of orange and curacao notes. Its high concentration and smooth mouthfeel ensure professional-grade consistency for both alcoholic and non-alcoholic beverages. A must-have for premium bars and cafes aiming to create visually striking and delicious signature drinks.",
+    "tr": "FO Blue Curacao Aromalı Şurup, canlı mavi rengi ve otantik portakal ve curacao aromasıyla öne çıkar. Yüksek konsantrasyonu ve mükemmel kıvamı sayesinde hem alkollü hem de alkolsüz içeceklerde profesyonel bir derinlik sağlar. Görsel olarak etkileyici ve lezzetli imza içecekler yaratmak isteyen seçkin kafe ve barlar için idealdir.",
+    "ar": "يتميز شراب بلو كوراساو من FO بلونه الأزرق النابض بالحياة ونكهته الأصلية المنعشة التي تجمع بين البرتقال والكوراساو. بفضل تركيزه العالي وقوامه المثالي، يضفي لمسة احترافية وعمقاً مميزاً على الكوكتيلات والمشروبات غير الكحولية. خيار مثالي للمقاهي والبارات الراقية التي تسعى لتقديم مشروبات مبتكرة وجذابة بصرياً."
+  },
+  "hazirlanisi": {
+    "de": "Für eine direkte Erfrischung mit Wasser im Verhältnis 1:8 verdünnen. Ideal für Cocktails und Mocktails: Dosieren Sie den Sirup nach Geschmack, um Farbe und Aroma zu intensivieren. Mit reichlich Eis servieren, um die volle Brillanz des Blue Curacao zu entfalten.",
+    "en": "For a refreshing drink, dilute with water at a ratio of 1:8. Perfect for cocktails and mocktails: add to taste to intensify color and flavor. Serve with plenty of ice to fully showcase the brilliance of the Blue Curacao.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kokteyller ve mocktail'ler için idealdir: Renk ve aromayı yoğunlaştırmak için damak tadınıza göre ekleyin. Blue Curacao'nun parlaklığını tam olarak ortaya çıkarmak için bol buz ile servis edin.",
+    "ar": "للحصول على مشروب منعش، يُخفف بالماء بنسبة 1:8. مثالي للكوكتيلات والموكتيلات: يُضاف حسب الرغبة لتعزيز اللون والنكهة. يُقدم مع الكثير من الثلج لإبراز روعة لون البلو كوراساو."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Limonaden, Eistees, Desserts, aromatisierte Kaffeespezialitäten.",
+    "en": "Cocktails, mocktails, lemonades, iced teas, desserts, flavored coffee specialties.",
+    "tr": "Kokteyller, mocktail'ler, limonatalar, soğuk çaylar, tatlılar, aromalı kahve spesiyalleri.",
+    "ar": "الكوكتيلات، الموكتيلات، الليمونادة، الشاي المثلج، الحلويات، مشروبات القهوة المنكهة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C an einem trockenen Ort lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre bei sachgemäßer Lagerung.",
+    "en": "Store in its original packaging at 20-22°C in a dry place. Avoid direct sunlight. Shelf life: 3 years under described storage conditions.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta ve kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Uygun saklama koşullarında 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في مكان جاف. تجنب التعرض المباشر لأشعة الشمس. مدة الصلاحية: 3 سنوات في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Aroma (Blue Curacao, Orange), Konservierungsstoffe (Kaliumsorbat E202, Natriumbenzoat E211), Farbstoff (Brillantblau E133), Säureregulator (Zitronensäure E330).",
+    "en": "Sugar, Water, Flavoring (Blue curacao, Orange), Preservatives (Potassium Sorbate E202, Sodium Benzoate E211), Colorant (Brilliant Blue E133), Acidity Regulator (Citric Acid E330).",
+    "tr": "Şeker, Su, Aroma verici (Blue curacao, Portakal), Koruyucular (Potasyum Sorbat E202, Sodyum Benzoat E211), Renklendirici (Brillant Mavisi E133), Asitlik Düzenleyici (Sitrik Asit E330)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 82.7,
+      "davon_zucker": 82.7,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

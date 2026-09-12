@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123467454",
+  "barkod": "8691123467454",
+  "urun_adi": {
+    "de": "Fo Pistazien Verde Sauce 5% 940g",
+    "en": "Fo Pistachio Verde Sauce 5% 940g",
+    "tr": "Fo Pistachio Verde Sos %5 940g",
+    "ar": "صلصة الفستق الأخضر فو 5% 940 جرام"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Pistaziensauce mit 5% Pistazienanteil, ideal zum direkten Auftragen auf Desserts, Gebäck und Getränke.",
+    "en": "High-quality pistachio sauce with 5% pistachio content, ideal for direct application on desserts, pastries, and beverages.",
+    "tr": "%5 antep fıstığı oranına sahip yüksek kaliteli fıstık sosu, tatlılar, hamur işleri ve içecekler üzerinde doğrudan kullanım için idealdir.",
+    "ar": "صلصة فستق عالية الجودة بنسبة 5% من الفستق، مثالية للتطبيق المباشر على الحلويات والمخبوزات والمشروبات."
+  },
+  "kullanim_alanlari": {
+    "de": "Es wird direkt auf die Produkte aufgetragen.",
+    "en": "It is applied directly on the products.",
+    "tr": "Ürünlerin üzerine doğrudan uygulanır.",
+    "ar": "توضع مباشرة على المنتجات."
+  },
+  "icindekiler": {
+    "de": "Zucker (60 %), Pflanzenöl (Sonnenblumenöl) (25,5 %), Magermilchpulver (Milch) (7,2 %), Pistazien (5 %), Sojalecithin [E 322] (1,5 %), Aroma (Pistazie), Aroma (0,6 %), Chlorophyll, Einfaches Caramel, Farbstoff [E 141, E 150a] (0,2 %)",
+    "en": "Sugar (60 %), Vegetable oil (Sunflower oil) (25.5 %), Skimmed milk powder (milk) (7.2 %), Pistachio (5 %), Soy lecithin [E 322] (1.5%), Flavouring (Pistachio), Flavouring (0.6%), Chlorophyll, Plain Caramel, Colourant [E 141, E 150a] (0.2%)",
+    "tr": "Şeker (%60), Bitkisel yağ (Ayçiçek yağı) (%25,5), Yağsız süttozu (süt) (%7,2), Antep fıstığı (%5), Soya lesitini [E 322] (%1,5), Aroma verici (Antep fıstığı), Aroma verici (%0,6), Klorofil, Düz Karamel, Renklendirici [E 141, E 150a] (%0,2)",
+    "ar": "سكر (60%)، زيت نباتي (زيت عباد الشمس) (25.5%)، مسحوق الحليب الخالي من الدسم (حليب) (7.2%)، فستق (5%)، ليسيثين الصويا [E 322] (1.5%)، منكه (فستق)، منكه (0.6%)، الكلوروفيل، كارامل عادي، ملون [E 141, E 150a] (0.2%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direkter Sonneneinstrahlung schützen.",
+    "en": "Store in a cool and dry place, protect from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayınız, doğrudan güneş ışığından koruyunuz.",
+    "ar": "تخزن في مكان بارد وجاف، وتحفظ بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte, Glutenhaltiges Getreide, Schalenfrüchte / Nüsse.",
+    "en": "Contains Dairy / Milk products, Soy products, Gluten, Tree nuts.",
+    "tr": "Süt ürünleri, Soya ürünleri, Gluten, Fındık / Fıstık / Kuruyemiş içerir.",
+    "ar": "يحتوي على منتجات الألبان, منتجات الصويا, الغلوتين, المكسرات."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 2310,
+      "energie_kcal": 553,
+      "fett": 32.1,
+      "kohlenhydrate": 62.3,
+      "davon_zucker": 0,
+      "eiweiss": 3.5,
+      "salz": 0.4
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 6.96,
+  "gtip": "210690980019",
+  "palet_ici_koli": 20
+}

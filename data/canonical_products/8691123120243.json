@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123120243",
+  "barkod": "8691123120243",
+  "urun_adi": {
+    "de": "FO Regulärer Kokosnusshaltiger Sirup 70 cl",
+    "en": "FO Regular Coconut Flavored Syrup 70 cl",
+    "tr": "FO Regular Hindistan Cevizi Aromalı Şurup 70 cl",
+    "ar": "شراب بنكهة جوز الهند العادي من إف أو 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Kokosnusssirup, ideal zur Verfeinerung von Cocktails, Getränken und Kaffeespezialitäten.",
+    "en": "High quality coconut flavored syrup, ideal for enhancing cocktails, beverages, and coffee specialties.",
+    "tr": "Kokteyller, içecekler ve kahve çeşitlerini zenginleştirmek için ideal, yüksek kaliteli Hindistan cevizi aromalı şurup.",
+    "ar": "شراب عالي الجودة بنكهة جوز الهند، مثالي لتحسين الكوكتيلات والمشروبات وتخصصات القهوة."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder direkt mit Wasser (1/8) verdünnt getrunken.",
+    "en": "Used to make cocktail or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içilmek üzere su ile seyreltilir (1/8).",
+    "ar": "يستخدم في صنع الكوكتيلات أو يُخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Glukose-Fruktose-Sirup (74%), Wasser (25,36%), Aroma (Kokosnuss) (0,4%), Citronensäure [E 330] (0,2%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Glucose-Fructose Syrup (74%), Water (25.36%), Flavoring (Coconut) (0.4%), Citric Acid [E 330] (0.2%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)",
+    "tr": "Glikoz-Fruktoz Şurubu (%74), Su (%25,36), Aroma Verici (Hindistan Cevizi) (%0,4), Sitrik Asit [E 330] (%0,2), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "شراب الجلوكوز والفركتوز (74٪)، ماء (25.36٪)، منكه (جوز الهند) (0.4٪)، حامض الستريك [E 330] (0.2٪)، سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort vor direktem Sonnenlicht geschützt lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1120,
+      "energie_kcal": 268,
+      "fett": 0,
+      "kohlenhydrate": 65.4,
+      "davon_zucker": 32.4,
+      "eiweiss": 0,
+      "salz": 0.3
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 10
+}

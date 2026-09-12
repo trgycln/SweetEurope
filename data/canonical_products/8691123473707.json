@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123473707",
+  "barkod": "8691123473707",
+  "urun_adi": {
+    "de": "FO Brombeere Fruchtsirup Premium 700ml",
+    "en": "FO Blackberry Fruit Syrup Premium 700ml",
+    "tr": "FO Böğürtlen Meyveli Şurup Premium 700ml",
+    "ar": "فو شراب مركز بنكهة التوت الأسود بريميوم 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Brombeersirup mit intensivem Geschmack und lebendiger Farbe. Ideal für Cocktails, Mocktails und Desserts.",
+    "en": "Premium blackberry fruit syrup with intense flavor and vibrant color. Perfect for cocktails, mocktails, and desserts.",
+    "tr": "Yoğun lezzeti ve canlı rengiyle premium böğürtlen meyveli şurup. Kokteyller, alkolsüz içecekler ve tatlılar için mükemmeldir.",
+    "ar": "شراب التوت الأسود الفاخر بنكهة مكثفة ولون نابض بالحياة. مثالي للكوكتيلات والمشروبات والحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Zur Zubereitung von Cocktails oder direkt zum Trinken mit Wasser verdünnt (Mischungsverhältnis 1:8).",
+    "en": "Used to make cocktails or diluted with water (1/8 ratio) to drink directly.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyrelterek kullanılır.",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (بنسبة 1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62 %), Wasser (36,42 %), Aroma (Brombeere) (0,8 %), Citronensäure [E 330] (0,7 %), Allurarot AC, Brillantblau FCF [E 129, E 133] (0,04 %), Kaliumsorbat [E 202] (0,025 %), Natriumbenzoat [E 211] (0,015 %).",
+    "en": "Sugar (62 %), Water (36.42%), Flavoring (Blackberry) (0.8 %), Citric Acid [E 330] (0.7 %), Allura Red, Brilliant Blue [E 129, E 133] (0.04 %), Potassium Sorbate [E 202] (0.025 %), Sodium Benzoate [E 211] (0.015 %).",
+    "tr": "Şeker (%62), Su (%36,42), Aroma Verici (Böğürtlen) (%0,8), Sitrik Asit [E 330] (%0,7), Allura Red, Brilliant Blue [E 129, E 133] (%0,04), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015).",
+    "ar": "سكر (62٪)، ماء (36.42٪)، نكهة (التوت الأسود) (0.8٪)، حمض الستريك [E 330] (0.7٪)، أحمر ألورا، أزرق براق [E 129, E 133] (0.04٪)، سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪)."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort vor direkter Sonneneinstrahlung geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru bir yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months / 36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1392,
+      "energie_kcal": 328,
+      "fett": 0,
+      "kohlenhydrate": 81.9,
+      "davon_zucker": 81.9,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

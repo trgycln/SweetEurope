@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "FO Toffee-Nuss Aromatisierter Sirup besticht durch sein authentisches und reichhaltiges Toffee-Nuss-Aroma, das Heiß- und Kaltgetränken eine unverwechselbare, karamellige Tiefe verleiht. Die hohe Konzentration sorgt für eine ergiebige Anwendung und eine exzellente Textur in professionellen Cafés und Bars. Er veredelt Kaffeespezialitäten wie Latte und Cappuccino ebenso perfekt wie Milkshakes, Cocktails und Desserts. Ein unverzichtbares, hochwertiges Produkt für Baristas und Gastronomen, die ihre Gäste geschmacklich begeistern möchten.",
+    "en": "FO Toffee Nut Flavored Syrup offers an authentic, rich profile that delivers a decadent caramel and nut depth to both hot and cold beverages. Its high concentration ensures exceptional yield and a luxurious mouthfeel, making it an indispensable asset for professional cafes and bars. It elevates coffee specialties such as lattes and cappuccinos, as well as milkshakes, cocktails, and desserts. An essential, high-quality ingredient for baristas and culinary experts aiming to impress.",
+    "tr": "FO Toffee Cevizi Aromalı Şurup, sıcak ve soğuk içeceklere eşsiz bir karamel ve ceviz derinliği katan otantik ve zengin bir profil sunar. Yüksek konsantrasyonu sayesinde ekonomik kullanım sağlarken profesyonel kafe ve barlarda mükemmel bir lezzet profili oluşturur. Latte ve cappuccino gibi kahve çeşitlerinin yanı sıra milkshake, kokteyl ve tatlıları kusursuz şekilde zenginleştirir. Misafirlerini etkilemek isteyen baristalar ve işletmeler için vazgeçilmez bir üründür.",
+    "ar": "يقدم شراب توفي نัท المنكه من FO نكهة غنية وأصيلة تضفي عمق الكراميل والمكسرات الفاخرة على المشروبات الساخنة والباردة. يضمن تركيزه العالي استهلاكاً اقتصادياً وملمساً استثنائياً في المقاهي والبارات الاحترافية. يعزز تخصصات القهوة مثل اللاتيه والكابتشينو، بالإضافة إلى الكوكتيلات والميلك شيك والحلويات. إنه منتج أساسي عالي الجودة للبارات والمقاهي التي تسعى لتميز طعمها."
+  },
+  "hazirlanisi": {
+    "de": "Verwenden Sie eine Dosierung von 1,5-2 cl in heißen und kalten Getränken wie Latte, Cappuccino, Frappé oder Eistee. Alternativ im Verhältnis 1:8 mit Wasser oder Milch verdünnt direkt genießen. Ideal für den Einsatz mit Standard-Pumpdosierern in der Gastronomie.",
+    "en": "Use in a dosage range of 1.5-2 cl in hot and cold drinks such as lattes, cappuccinos, frappés, or iced teas. Alternatively, dilute with water or milk in a 1/8 ratio to drink directly. Perfect for use with standard syrup pumps in commercial settings.",
+    "tr": "Latte, cappuccino, frappé veya soğuk çay gibi sıcak ve soğuk içeceklerde 1,5-2 cl dozaj aralığında kullanın. Alternatif olarak doğrudan tüketmek için su veya süt ile 1/8 oranında seyreltin. Profesyonel işletmelerde pompa ile kullanıma uygundur.",
+    "ar": "استخدم جرعة تتراوح بين 1.5 إلى 2 سنتيلتر في المشروبات الساخنة والباردة مثل اللاتيه، الكابتشينو، الفرايبي، أو الشاي المثلج. بدلاً من ذلك، يخفف بالماء أو الحليب بنسبة 1/8 للاستهلاك المباشر. مثالي للاستخدام مع مضخات الشراب القياسية."
+  },
+  "kullanim_alanlari": {
+    "de": "Latte, Cappuccino, Filterkaffee, Eislatte, Frappé, Milkshake, Smoothie, Frozen, Cocktails, heiße und kalte Tees, Kuchen, Kekse sowie direkt mit Wasser oder Milch verdünnt.",
+    "en": "Latte, cappuccino, filter coffee, iced latte, frappé, milkshake, smoothie, frozen beverages, cocktails, hot and cold teas, cakes, cookies, and diluted with water or milk.",
+    "tr": "Latte, cappuccino, filtre kahve, buzlu latte, frappé, milkshake, smoothie, frozen, kokteyller, sıcak ve soğuk çaylar, kekler, kurabiyeler ve su veya süt ile seyreltilerek tüketim.",
+    "ar": "اللاتيه، الكابتشينو، القهوة المفلترة، الآيس لاتيه، الفرايبي، الميلك شيك، السموذي، المشروبات المجمدة، الكوكتيلات، الشاي الساخن والبارد، الكيك، البسكويت، أو مخففاً بالماء أو الحليب."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern. Vor direkter Sonneneinstrahlung schützen. Nach dem Öffnen unter den gleichen Bedingungen lagern.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Direct sunlight should be avoided. Keep closed in recommended storage conditions.",
+    "tr": "Orijinal ambalajında, 20-22° C'de kuru koşullarda saklanmalıdır. Direkt güneş ışığından kaçınılmalıdır.",
+    "ar": "يخزن في عبوته الأصلية في درجات حرارة تتراوح بين 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker (62%), Wasser (36,36%), Aroma (Toffee, Nuss) (1,5%), Säuerungsmittel: Citronensäure (E 330) (0,09%), Konservierungsstoffe: Kaliumsorbat (E 202) (0,025%), Natriumbenzoat (E 211) (0,015%), Farbstoff: Einfaches Zuckerkulör (E 150a) (0,01%).",
+    "en": "Sugar (62%), Water (36.36%), Flavoring (Toffee, nut) (1.5%), Acidity Regulator: Citric Acid (E 330) (0.09%), Preservatives: Potassium Sorbate (E 202) (0.025%), Sodium Benzoate (E 211) (0.015%), Colorant: Plain Caramel (E 150a) (0.01%).",
+    "tr": "Şeker (%62), Su (%36,36), Aroma Verici (Toffee, ceviz) (%1,5), Asitlik Düzenleyici: Sitrik Asit (E 330) (%0,09), Koruyucular: Potasyum Sorbat (E 202) (%0,025), Sodyum Benzoat (E 211) (%0,015), Renklendirici: Düz Karamel (E 150a) (%0,01)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1400,
+      "energie_kcal": 335,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 81.2,
+      "davon_zucker": 80.9,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

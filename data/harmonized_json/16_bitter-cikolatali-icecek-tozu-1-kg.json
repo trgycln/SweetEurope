@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Das FO Bitter Chocolate Pulver bietet eine intensive, vollmundige Schokoladennote mit einer perfekt abgestimmten Textur für professionelle Milkshakes und Smoothies. Dank der hohen Konzentration an echtem Kakaopulver und dunkler Schokolade sorgt es für ein luxuriöses Mundgefühl, das Gäste in Cafés und Bars begeistert. Die einfache Handhabung garantiert eine gleichbleibend hohe Qualität bei jeder Zubereitung.",
+    "en": "FO Bitter Chocolate powder delivers an intense, full-bodied chocolate profile with a perfectly balanced texture for professional-grade milkshakes and smoothies. Featuring a high concentration of real cocoa and dark chocolate, it provides a luxurious mouthfeel that delights customers in cafes and bars. Its ease of use ensures consistent, premium quality in every serving.",
+    "tr": "FO Bitter Çikolatalı Toz İçecek, profesyonel milkshake ve smoothie hazırlıkları için mükemmel dengelenmiş dokusuyla yoğun ve gövdeli bir çikolata deneyimi sunar. Yüksek oranda gerçek kakao ve bitter çikolata içeriği sayesinde, kafe ve barlarda misafirlerinizi etkileyecek lüks bir ağız hissi sağlar. Kullanım kolaylığı, her serviste tutarlı ve üstün kaliteyi garanti eder.",
+    "ar": "يوفر مسحوق الشوكولاتة المرة من FO نكهة شوكولاتة غنية ومكثفة مع قوام متوازن تماماً لتحضير الميلك شيك والعصائر الاحترافية. بفضل تركيزه العالي من الكاكاو الحقيقي والشوكولاتة الداكنة، يمنح شعوراً فاخراً في الفم يسعد ضيوف المقاهي والبارات. سهولة استخدامه تضمن جودة ثابتة ومتميزة في كل كوب."
+  },
+  "hazirlanisi": {
+    "de": "Für einen perfekten Drink: 40 g (2 gehäufte Esslöffel) Pulver mit 200 ml kaltem Wasser oder Milch und 10 Eiswürfeln in einen Mixer geben. Mixen, bis das Eis zerkleinert ist, und sofort servieren.",
+    "en": "For a perfect drink: Place 40 g (2 heaped tablespoons) of powder, 200 ml of cold water or milk, and 10 ice cubes into a blender. Blend until the ice is crushed and serve immediately.",
+    "tr": "Mükemmel bir içecek için: 40 g (2 tepeleme yemek kaşığı) tozu, 200 ml soğuk su veya süt ve 10 adet buz küpünü blender'a ekleyin. Buzlar kırılana kadar karıştırın ve hemen servis yapın.",
+    "ar": "للحصول على مشروب مثالي: ضع 40 جرام (ملعقتان كبيرتان ممتلئتان) من المسحوق، و200 مل من الماء البارد أو الحليب، و10 مكعبات ثلج في الخلاط. اخلط المزيج حتى يتكسر الثلج وقدمه فوراً."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Milkshakes, Smoothies, Dessert-Toppings, Eiskaffee-Variationen.",
+    "en": "Versatile application areas: Milkshakes, smoothies, dessert toppings, iced coffee variations.",
+    "tr": "Geniş kullanım alanları: Milkshake, smoothie, tatlı sosları, buzlu kahve çeşitleri.",
+    "ar": "مجالات الاستخدام المتنوعة: الميلك شيك، العصائر (سموذي)، إضافات الحلويات، ومشروبات القهوة المثلجة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Produktion bei ungeöffneter Verpackung.",
+    "en": "Store in original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life: 2 years in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Kakaopulver (9%), Zartbitterschokoladenpulver (5%) [Kakaomasse, Zucker, Kakaobutter, Emulgator (Sonnenblumenlecithin)], modifizierte Maisstärke, Verdickungsmittel (Xanthan E415), Säureregulator (Zitronensäure E330), Trennmittel (Siliciumdioxid E551).",
+    "en": "Sugar, Cocoa powder (9%), Dark chocolate powder (5%) [Cocoa mass, Sugar, Cocoa butter, Emulsifier (Sunflower lecithin)], Modified corn starch, Thickener (Xanthan gum E415), Acidity regulator (Citric acid E330), Anticaking agent (Silicon dioxide E551).",
+    "tr": "Şeker, Kakao tozu (%9), Bitter çikolata tozu (%5) [Kakao kitlesi, Şeker, Kakao yağı, Emülgatör (Ayçiçek lesitini)], Modifiye mısır nişastası, Kıvam artırıcı (Ksantan gam E415), Asitlik düzenleyici (Sitrik asit E330), Topaklanmayı önleyici (Silikon dioksit E551)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1590,
+      "energie_kcal": 379,
+      "fett": 3.7,
+      "davon_gesaettigt": 2.1,
+      "kohlenhydrate": 77.7,
+      "davon_zucker": 74.9,
+      "eiweiss": 4.8,
+      "salz": 0.72
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": true
+  }
+}

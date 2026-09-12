@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Limetten-Minz-Sirup bietet eine erfrischende und authentische Geschmackskombination aus spritziger Limette und kühler Minze. Mit seiner hohen Konzentration und perfekten Textur ist er die ideale Basis für professionelle Kaltgetränke in Bars und Cafés. Er sorgt für ein intensives Geschmackserlebnis und eine exzellente Konsistenz in jeder Anwendung.",
+    "en": "The FO Mint and Lime Flavored Syrup delivers a refreshing and authentic flavor profile, blending zesty lime with cool mint. Designed for high-volume professional use, this concentrated base ensures consistent quality and a vibrant mouthfeel in every drink. It is the perfect solution for cafes and bars looking to elevate their cold beverage menu.",
+    "tr": "FO Misket Limonu ve Nane Aromalı Şurup, ferahlatıcı misket limonu ve serinletici nane notalarının mükemmel uyumunu sunar. Yüksek konsantrasyonlu yapısı sayesinde profesyonel kafe ve bar işletmeleri için ideal bir baz oluşturur. İçeceklerinize yoğun bir lezzet ve mükemmel bir kıvam katarak müşteri memnuniyetini artırır.",
+    "ar": "يقدم شراب FO بنكهة الليمون والنعناع مزيجاً منعشاً وأصيلاً يجمع بين حموضة الليمون وانتعاش النعناع. بفضل تركيزه العالي وقوامه المثالي، يعد هذا الشراب أساساً مثالياً للمشروبات الباردة في المقاهي والمطاعم، مما يضمن تجربة تذوق غنية ومتسقة في كل كوب."
+  },
+  "hazirlanisi": {
+    "de": "Für einen 450-ml-Becher: 1 Teil (40 ml) Sirup mit 3 bis 5 Teilen (120 ml - 200 ml) Wasser mischen und mit reichlich Eis servieren.",
+    "en": "For a 450ml cup: Mix 1 part (40ml) of base with 3 parts (120ml), 4 parts (160ml), or 5 parts (200ml) of water and serve with plenty of ice.",
+    "tr": "450 ml'lik bir bardak için: 1 ölçek (40 ml) şurubu, tercihe göre 3 ölçek (120 ml), 4 ölçek (160 ml) veya 5 ölçek (200 ml) su ile karıştırın ve bol buz ile servis edin.",
+    "ar": "لكوب سعة 450 مل: اخلط جزءاً واحداً (40 مل) من القاعدة مع 3 أجزاء (120 مل) أو 4 أجزاء (160 مل) أو 5 أجزاء (200 مل) من الماء، وقدمه مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Kaltgetränke, Cocktails, Mocktails, Limonaden, Eistees und Erfrischungsgetränke.",
+    "en": "Versatile application areas: Cold drinks, cocktails, mocktails, lemonades, iced teas, and refreshments.",
+    "tr": "Geniş kullanım alanları: Soğuk içecekler, kokteyller, mocktail, limonatalar, soğuk çaylar ve ferahlatıcı içecekler.",
+    "ar": "مجالات الاستخدام المتنوعة: المشروبات الباردة، الكوكتيلات، الموكتيلات، الليمونادة، الشاي المثلج، والمشروبات المنعشة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre bei sachgemäßer Lagerung.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 3 years under described conditions.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Uygun saklama koşullarında 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulatoren (Citronensäure, Kaliumcitrat), Aroma (Minze, Limette), Konservierungsstoffe (Kaliumsorbat, Natriumbenzoat), Farbstoff (Annatto).",
+    "en": "Sugar, Water, Acidity Regulators (Citric Acid, Potassium Citrate), Flavouring (Spearmint, Lime), Preservatives (Potassium Sorbate, Sodium Benzoate), Colorant (Annatto).",
+    "tr": "Şeker, Su, Asitlik Düzenleyiciler (Sitrik Asit, Potasyum Sitrat), Aroma Verici (Nane, Misket Limonu), Koruyucular (Potasyum Sorbat, Sodyum Benzoat), Renklendirici (Anatto)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 937,
+      "energie_kcal": 224,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 51.7,
+      "davon_zucker": 51.7,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

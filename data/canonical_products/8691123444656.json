@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FO-PFS1KG",
+  "barkod": "8691123444656",
+  "urun_adi": {
+    "de": "FO Passionsfrucht-Sauce 1 kg",
+    "en": "FO Passion Fruit Sauce 1 kg",
+    "tr": "FO Passiflora (Çarkıfelek Meyvesi) Sosu 1 kg",
+    "ar": "صلصة فاكهة العاطفة (باشن فروت) فو 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Die FO Passionsfrucht-Sauce verleiht Ihren Desserts, Eiscremes, Cocktails und Kaltgetränken mit ihrem Gehalt von 20 % echter Passionsfrucht ein natürliches und intensives exotisches Fruchtaroma. Sie bietet eine praktische und schnelle Anwendung für Gastronomie und Bars.",
+    "en": "FO Passion Fruit Sauce adds a natural and rich exotic flavor to your desserts, ice creams, cocktails, and cold beverages with its 20% real passion fruit content. It offers quick and practical preparation for kitchens and bars.",
+    "tr": "FO Passiflora Sosu, %20 gerçek çarkıfelek meyvesi içeriğiyle tatlılarınıza, dondurmalarınıza, kokteyllerinize ve soğuk içeceklerinize doğal ve yoğun bir meyve aroması katar. Pratik kullanımı sayesinde mutfaklarda ve barlarda hızlı çözümler sunar.",
+    "ar": "تمنح صلصة الباشن فروت من فو نكهة استوائية غنية وطبيعية للحلويات والآيس كريم والكوكتيلات والمشروبات الباردة بفضل احتوائها على 20% من فاكهة العاطفة الحقيقية، وتوفر تحضيرًا سريعًا وعمليًا في المطبخ والبار."
+  },
+  "kullanim_alanlari": {
+    "de": "Perfekt geeignet für Desserts, Eiscreme, Kuchen, Crepes, Pancakes, Cocktails, Kaltgetränke und Frozen-Getränke (1 Teil Sauce gemischt mit 3 Teilen Crasheis im Hochleistungsblender).",
+    "en": "Ideal for desserts, ice cream, cakes, crepes, pancakes, cocktails, cold beverages, and frozen drinks (prepare 1 part sauce mixed with 3 parts crushed ice in a high-speed blender).",
+    "tr": "Tatlılar, dondurmalar, pastalar, krep ve pankekler, kokteyller, soğuk içecekler ve frozen tariflerinde (1 ölçü sos + 3 ölçü kırılmış buz ile yüksek devirli blenderda) kullanılır.",
+    "ar": "مثالية للحلويات، الآيس كريم، الكيك، الكريب، البانكيك، الكوكتيلات، المشروبات الباردة، والمشروبات المثلجة (يتم تحضيرها بخلط جزء واحد من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط سريع)."
+  },
+  "icindekiler": {
+    "de": "Zucker (50 %), Wasser (28,285 %), Passionsfrucht (20 %), Modifizierte Maisstärke (0,5 %), Weinsäure, Trisodiumcitrat [E 334, E 331iii] (0,5 %), Aroma (Passionsfrucht) (0,5 %), Salz (0,1 %), Kaliumsorbat [E 202] (0,1 %), Farbstoffe [Tartrazin E 102, Gelborange S E 110] (0,015 %).",
+    "en": "Sugar (50%), Water (28.285%), Passion fruit (20%), Modified corn starch (0.5%), Tartaric acid, Trisodium citrate [E 334, E 331iii] (0.5%), Flavoring (Passion fruit) (0.5%), Salt (0.1%), Potassium sorbate [E 202] (0.1%), Colourants [Tartrazine E 102, Sunset Yellow E 110] (0.015%).",
+    "tr": "Şeker (%50), Su (%28,285), Passiflora / Çarkıfelek meyvesi (%20), Modifiye mısır nişastası (%0,5), Tartarik asit, Trisodyum sitrat [E 334, E 331iii] (%0,5), Aroma verici (Passiflora) (%0,5), Tuz (%0,1), Potasyum sorbat [E 202] (%0,1), Renklendiriciler [Tartrazin E 102, Sunset Yellow E 110] (%0,015).",
+    "ar": "سكر (50%)، ماء (28.285%)، فاكهة العاطفة / باشن فروت (20%)، نشا الذرة المعدل (0.5%)، حمض التارتاريك، سترات ثلاثي الصوديوم [E 334, E 331iii] (0.5%)، نكهة (باشن فروت) (0.5%)، ملح (0.1%)، سوربات البوتاسيوم [E 202] (0.1%)، ملونات [تارترازين E 102، أصفر الغروب E 110] (0.015%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direktem Sonnenlicht schützen. Nach dem Öffnen gut verschlossen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep tightly closed in the refrigerator after opening.",
+    "tr": "Serin, kuru ve güneş ışığından uzak bir yerde saklayınız. Açıldıktan sonra kapağı kapalı olarak buzdolabında muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. يُحفظ مغلقًا جيدًا في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1000,
+      "energie_kcal": 239,
+      "fett": 0.1,
+      "kohlenhydrate": 56.8,
+      "davon_zucker": 54.2,
+      "eiweiss": 0.6,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 6.01,
+  "gtip": "200799390019",
+  "palet_ici_koli": 30
+}

@@ -1,0 +1,331 @@
+=== GOOGLE AI STUDIO INSTRUCTION ===
+Temperature: 0
+Model: Gemini 2.5 Pro or Gemini 1.5 Pro (or Gemini 3.8/3.5 Flash)
+
+--- SYSTEM INSTRUCTIONS ---
+You are a precision food scientist, barista master, and multilingual B2B catalog copywriter for ElysonSweets (Germany).
+Your task is to harmonize, verify, and write rich, authoritative B2B product documentation from the provided Product Specification (.doc) and Official Label (.pdf).
+
+ABSOLUTE RULES (TEMPERATURE 0):
+1. ZERO HALLUCINATION for technical, ingredients, allergen, and nutritional data: Only use information stated in the source documents. If not present, output null.
+2. In 'aciklamalar': Write a rich, professional, mouth-watering B2B description (3-4 comprehensive sentences) highlighting flavor profile, high concentration, mouthfeel, and benefits for cafes/bars. Provide in 'de', 'en', 'tr', 'ar'.
+3. In 'hazirlanisi': Provide precise mixing ratios, dilution instructions, and barista recipes (e.g. for cold drinks, cocktails, mocktails, ice usage, pump dosages) in 'de', 'en', 'tr', 'ar'.
+4. In 'kullanim_alanlari': Provide a comprehensive list of usage areas (cocktails, lemonades, smoothies, ice tea, desserts, coffees) in 'de', 'en', 'tr', 'ar'.
+5. In 'saklama_kosullari': Provide exact storage and shelf-life guidance in 'de', 'en', 'tr', 'ar'.
+6. In 'inhaltsstoffe': Provide exact ingredients in 'de', 'en', 'tr'.
+7. In 'allergene': Provide boolean map of EU 14 allergens.
+8. In 'naehrwerte': Provide exact nutritional values per 100g/100ml.
+
+Output ONLY valid JSON matching the exact schema below. No markdown formatting outside the JSON, no extra text.
+
+--- EXPECTED JSON SCHEMA ---
+{
+  "aciklamalar": {
+    "de": "string (Reichhaltige B2B Produktbeschreibung)",
+    "en": "string (Rich B2B product description)",
+    "tr": "string (Zengin B2B ürün açıklaması)",
+    "ar": "string (وصف غني للمنتج)"
+  },
+  "hazirlanisi": {
+    "de": "string (Genaue Dosierung & Barista Zubereitungsempfehlung, z.B. 1 Teil Basis + 4 Teile Wasser/Eis)",
+    "en": "string (Precise dosage & preparation instructions, e.g. 1 part base + 4 parts water/ice)",
+    "tr": "string (Kesin dozaj ve barista hazırlama talimatı, örn: 1 ölçü baz + 4 ölçü su ve bol buz)",
+    "ar": "string (طريقة التحضير الدقيقة والجرعة)"
+  },
+  "kullanim_alanlari": {
+    "de": "string (Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Desserts)",
+    "en": "string (Versatile application areas: Cocktails, mocktails, iced teas, lemonades, desserts)",
+    "tr": "string (Geniş kullanım alanları: Kokteyller, mocktail, soğuk çaylar, limonatalar, tatlılar)",
+    "ar": "string (مجالات الاستخدام المتنوعة)"
+  },
+  "saklama_kosullari": {
+    "de": "string (Lagerungshinweise)",
+    "en": "string (Storage instructions)",
+    "tr": "string (Saklama koşulları)",
+    "ar": "string (شروط التخزين)"
+  },
+  "inhaltsstoffe": {
+    "de": "string | null",
+    "en": "string | null",
+    "tr": "string | null"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": "number | null",
+      "energie_kcal": "number | null",
+      "fett": "number | null",
+      "davon_gesaettigt": "number | null",
+      "kohlenhydrate": "number | null",
+      "davon_zucker": "number | null",
+      "eiweiss": "number | null",
+      "salz": "number | null"
+    }
+  },
+  "allergene": {
+    "gluten": "boolean",
+    "milch": "boolean",
+    "soja": "boolean",
+    "nuesse": "boolean",
+    "eier": "boolean"
+  }
+}
+
+--- PRODUCT TO HARMONIZE ---
+Product ID: 2cd6dc8e-1433-438d-8fd1-764b8d8045ce
+Name TR: FO Beyaz Çikolata Şurubu - Premium 700 ml
+Name DE: FO Weißer Schokoladensirup - Premium 700 ml
+Name EN: FO White Chocolate Syrup - Premium 700 ml
+Barcode (EAN): 8691123471857
+SKU: SP-FP-8691123471857
+
+[SOURCE 1: OFFICIAL SPECIFICATION (.DOC)]
+FLAVORED SYRUP PRODUCT SPECIFICATIONDocument No: SP-FP-10671st  issue: 19.11.2024Revision No.: 00Revision Date: -Page No.: 1/11.	GENERAL CHARACTERISTICS:Trade Mark                     : FO FOOD PRODUCTSProduct name                   : WHITE CHOCOLATE  FLAVORED SYRUP Packing type                     : 70 cl   /  Glass bottle Shipment                           : Shipped in closed cartoon packaging on lorries with closed containers. Intended Area of Usage   : Used  as human nutrition, to prepare alcoholic or  non-alcoholic cocktail  or drunk after  being  diluted.Type of Usage                   : Used  to make cocktail or  diluted with water (1/8) to drink directly.Storing Conditions           : It should be stored in its original packaging, 20-22º C under dry conditions, and direct sunlight should be avoided. Shelf life                            : The product has a shelf life of 2 years under the described storing conditions and in its closed packaging.2.PRODUCT INGREDIENTS :INGREDIENTSCLASSEC CODEMAX. DOSAGEPERCENTAGESugar———55,7%Water  ———28,76%GlycerinHumectantE 422QS6,75%Skimmed milk powder (Milk)———5,65%Modified corn starch———2,46%Flavoring (white chocolate, chocolate)Flavoring——0,54%Mono and Digliserides of fatty acidsEmulsifierE 471—0,1%Potassium SorbatePreservativeE 2020,25 gr/ lt0,025%Sodium BenzoatePreservative E 2110,15 gr/lt0,015%3.NUTRITIONAL INFORMATION:  (Energy and Nutrition Facts 100 ml )*;Energy976 kj/233 kcalTotal Fat0,3 g-of which saturated0,2 gCholesterol0,0 gTotal Carbohydrate62,3 gSugar49,6 gStarch0,0 gDietary fibre0,0 gProtein 1,8 gSodium/salt0,1 g/0,25 g  *( According to European Regulation  EU) No 1169/2011)4.  PHYSICAL CHARACTERISTICS:Color/Taste/Odor : It has authentic  white chocolate  color, taste and flavor.Appearance           : Homogenized structured. Does not have physically distinct. Does not include foreign materials.5.  CHEMICAL CHARACTERISTICS:pH     : 6,4 ( 0.2             Brix : 64 ( 2.06.  CONTAMINANTS  :Aflatoxin B1 (ppb)Max.2Aflatoxin B1+B2+G1+G2 (ppb)Max. 4Aflatoxin M1(ppb)Max. 0,05Cadmium (Cd) (mg/kg)Max. 0,02Arsenic (As) (mg/kg)Max. 0,05Mercury (Hg) (mg/kg)Max.  0,01Lead ( Pb) (mg/kg)Max. 0,037.	MICROBIOLOGICAL CHARACTERISTICS:MICROORGANISM NAMEMICROBIOLOGICAL VALUEANALYSIS METHODSalmonella0/25 g-mlEN/ISO 6579L.Monocytogenes0/25 g-mlEN/ISO 11290-1E.Coli0/25 g-mlISO 16649-2/38.ALLERGEN ALERT: Contains milk powder.(According to European Regulation EU) No 1169/2011)9.GMO DECLARATION: OZMER PASTACILIK A.S. declares under its responsibility that the product of this chart is produced with no GMO. ( According to European Regulation 2003/1829/CE,2003/1830/CE and subsequent modification.  10.REFERENCES: OZMER PASTACILIK A.S. declares under its responsibility that the product of this chart is in accordance with the law in force;    * European Regulation 1333/2008/EC    * Commission Regulation (EU) 2023/915    * European Regulation 2073/2005/EC    * European Regulation 396/2005/EC and subsequent modifications.PREPARED BY:REVIEWED BY:APPROVED BY:R&D Manager Quality Management  ManagerGeneral  Manager***Reviewed by the Quality Department on 21.05.2026***
+
+[SOURCE 2: OFFICIAL PRODUCT LABEL (.PDF)]
+            WHITE CHOCOLATE SAUCE
+INGREDIENTS: Glucose syrup, Sugar, Water, Skimmed 
+milk powder (Milk), Humectant (E 422), Butter, Modified 
+corn starch, White chocolate (1%) (Sugar, Cocoa butter, 
+Skimmed milk powder (Milk), Emulsifier (Soy Lecithin), 
+Flavouring (Vanillin)], Flavouring (White Chocolate, 
+Chocolate), Salt, Acidity regulator (E 330, E 331iii), 
+Emulsifier (Soy Lecithin), Preservative (E 202). 
+Allergen Warning: Contains milk, dairy product and soy.
+PLACE OF USAGE AND DIRECTION FOR USE:  May be used 
+for zesting hot and cold drinks or coating ice creams, 
+milky desserts, cakes, tarts and inside the waffles. Also in 
+making frozens, cake and pie doughs, creams and 
+whipped creams or for coloring and zesting the candies. 
+Service suggestion.
+Production Date (PRD), Recomended Consumption Date 
+(EXP); Batch number (BATCH NO) is on the package, 
+keep in cool and dry place.
+            BEYAZ Ç‹KOLATALI SOS
+‹Ç‹NDEK‹LER: Glukoz şurubu, Şeker, Su, 
+Yağsız süttozu (Süt), Nem verici (E 422), 
+Tereyağ, Modifiye mısır nişastası, Beyaz 
+çikolata (%1) [Şeker, Kakao yağı, Yağsız 
+süttozu (Süt), Emülgatör (Soya Lesitini), 
+Aroma verici (Vanilin)], Aroma verici 
+(Beyaz çikolata, Çikolata), Tuz, Asitlik 
+düzenleyici (E 330, E 331iii), Emülgatör 
+(Soya Lesitini),  Koruyucu (E 202).          
+Alerjen Uyarısı: Süt, süt ürünü ve soya 
+içerir.
+KULLANILDI⁄I YERLER VE KULLANIM 
+TAL‹MATI: S›cak ve soğuk içecekleri 
+lezzetlendirmek için, dondurmalar›n, 
+sütlü tatl›lar›n, pastalar›n, tartlar›n, 
+keklerin üzerinde ve waffle aras›nda 
+sos olarak kullan›l›r. Ayr›ca frozen 
+yap›m›nda, pasta ve kek hamurlar›nda, 
+krema 
+ve 
+krem 
+şantilerde, 
+şekerlemelerde renk ve tat vermek 
+amac›yla 
+kullan›labilir. 
+Servis 
+önerisidir.
+Üretim Tarihi (ÜRT), Tavsiye Edilen 
+Tüketim Tarihi (TETT) ve Parti No 
+(PN) etiket üzerindedir. Serin ve 
+kuru yerde saklayınız. 
+           SOSSE AUS WEISSER SCHOKOLADE
+ZUTATEN: 
+Glukosesirup, 
+Zucker, 
+Wasser, 
+Magermilchpulver (Milch), Feuchthaltemittel (E 422), 
+Butter, Modifizierte maisstärke, Weiße schokolade 
+(1%) [Zucker, Kakaobutter, Magermilchpulver 
+(Milch), Emulgatoren (Sojalecithin), Aroma (Vanille)], 
+Aroma (weiße Schokolade, Schokolade), Salz, 
+Säuerungsmittel             (E 330, E 331iii), Emulgatoren 
+(Sojalecithin), Konservierungsstoffe (E 202).
+Warnhinweise 
+für 
+Allergiker: Enthält 
+Milch, 
+Milchprodukte und Soja.
+DER 
+ORT 
+DER 
+VERWENDUNG 
+UND 
+DIE 
+BEDIENUNGSANLEITUNG: Es kann verwendet werden, 
+um Geschmack zu heißen und kalten Getränken zu 
+installieren, kann es als Soße in Eis, Pudding, Kuchen, 
+Torten, Biskuit und zwischen Waffeln verwendet 
+werden. Es kann auch verwendet werden, bei der 
+Herstellung von „frozen“ (eingefroren), Teig, Teig, 
+Kuchen, Geschmack und Farbe in Süßwaren, 
+Vanillesoße und Sahnehäubchen Zucker verwendet 
+wird.Rezeptvorschlag. 
+Herstellungsdatum 
+(PRD), 
+Empfohlenes Verbrauchsdatum (EXP) und Partien-Nr. 
+(BATCH NO) befinden sich auf dem Etikett. Kühl und 
+trocken lagern.
+            SALSA CON CHOCOLATE BLANCO
+INDICE: Jarabe de glucosa, Azúcar, Agua, Leche 
+desnatada en polvo (Leche), Humectante (E 422), 
+Mantequilla, Almidón de maíz modificado, Chocolate 
+blanco (1%) (Azúcar, Manteca de cacao, Leche desnatada 
+en polvo (Leche), Emulgente (Lecitina de soja), Aroma 
+(Vainillina)], Aroma (Chocolate blanco, Chocolate), Sal, 
+Correctores de la acidez (E 330, E 331iii), Emulgente 
+(Lecitina de soja), Conservadore (E 202).
+Advertencia de alérgenos: Contiene leche, productos 
+lácteos y soja.
+USO Y MODO DE EMPLEO: Se puede utilizar como salsa 
+para dar gusto a bebidas calientes y frias, encima de 
+helados, de postres a base de leche, de pasteles, de tartas 
+y de gofres. Ademas, se puede utilizar para dar gusto y 
+color a las preparaciones de helados, masa de pasteles, 
+cremas y cremas chantilly, confiterías. Una sugerencia de 
+servicio.
+La fecha de fabricación (PRD), la fecha de consumo 
+recomendada (EXP) y el número de parte (BATCH NO) 
+están en la etiqueta. Almacenar en lugar fresco y seco. 
+         SAUCE CRÉMEUSE AU CHOCOLAT BLANC
+INGREDIENTS: Sirop de glucose, Sucre, Eau, Lait en 
+poudre écrémé (Lait), Humectant (E 422), Beurre, 
+Amidon de maïs modifié, Chocolat Blanc (1%) [Sucre, 
+Beurre de cacao, Lait en poudre écrémé (Lait), 
+Émulsifiant (Lécithine de soja), Arôme (Vanilline)], 
+Arôme (Chocolat blanc, Chocolat), Sel, Correcteur 
+d’acidité (E 330, E 331iii), Émulsifiant (Lécithine de soja), 
+Conservateur (E 202).
+Avertissement sur les allergènes: Contient du lait, du 
+produit de lait et soja.
+LIEU D’UTILISATION ET MODE D’EMPLOI: S’utilise comme 
+sauce pour donner goût aux boissons chaudes et froides, 
+sur les glaces, les desserts à base de lait, les gâteaux, les 
+tartes, les cakes et les gaufres. De plus, peut aussi 
+s’utiliser pour donner goût et couleur lors des 
+préparations de glaces, des pâtes de gâteaux ou cakes, 
+des crèmes et crèmes chantilly, des confiseries. 
+Recommandation de service.
+La date de production (PRD), la date limite de 
+consommation (EXP) et le numéro de lot (BATCH NO) 
+figurent sur l’étiquette. Conserver dans un endroit frais et 
+sec.
+White Chocolate
+Sauce
+Beyaz Çikolatalı Sos
+EN
+DE
+TR
+RU
+A
+Menşei: Türkiye / Made in Turkey
+Company Registration No : TR-41-K-027696
+İşletme Kayıt No              : TR-41-K-027696
+Türk Gıda Kodeksi’ne uygun olarak üretilmiştir.
+Manufacturer / Üretici Firma:
+Özmer Pastacılık ve ‹çecek Ürünleri San. Paz. Turizm ve 
+Dış Ticaret A.Ş.
+Gebze OSB Mah. İhsan Dede Cad. No: 151 / Gebze / Kocaeli / Türkiye
+Tel: +90 (262) 673 75 51 / Pbx  Fax: +90 (262) 673 75 52  Branch Office - Antalya ‹rtibat 
+Bürosu Tel: +90 (242) 322 85 71  www.ozmerpastacilik.com.tr / www.fo.com.tr 
+www. coregida.com / www.limpo.com.tr / www.repo.com.tr / www.ozmer.com
+           СОУС БЕЛЫЙ ШОКОЛАД
+СОСТАВ: сироп глюкозы, сахар, вода, сухое 
+обезжиренное молоко (молоко), увлажнитель (E 422), 
+масло, модифицированный кукурузный крахмал, 
+белый шоколад (1%) [(сахар, масло какао, сухое 
+обезжиренное молоко (молоко), эмульгатор (соевый 
+лецитин), ароматизатор (ваниль)], ароматизатор 
+(белый 
+шоколад, 
+шоколад), 
+соль, 
+регулятор 
+кислотности (E 330, E 331iii), эмульгатор (соевый 
+лецитин),  консервант (E  202).
+Предупреждение об аллергенах: содержит молоко, 
+молочные продукты и сою.
+ИСПОЛЬЗУЕМЫЕ 
+ОБЛАСТИ 
+И 
+МЕТОД 
+ПРИМЕНЕНИЯ: 
+Применяется 
+для 
+придания 
+пикантности горячим и холодным напиткам, или для 
+декорации мороженого, тортов, вафлей, тарталеток,  
+в молочных десертов. А так же используется при 
+приготовлении замороженных напитков, тортов и 
+пирогов, кремов и взбитых кремов или для 
+окрашивания и покрытии конфет. 
+Дата 
+производства. 
+Рекомендуемая 
+дата 
+потребления  и номер партии указано на этикетке . 
+Хранить в прохладном и сухом месте. 
+ES
+FR
+ETİKET YÖNÜ
+Rulo Çap76
+ABC
+B2
+1500’li Bobin
+HEPSİ
+FO BEYAZ ÇİKOLATALI SOS 2,5kg / DIŞ TİC.
+230x110mm
+Parlak Etiket
+05.07.2023 / 03.10.2024
+Energy and Nutrition Facts 100 g;
+Enerji ve Besin Ö¤eleri 100 g;
+Energy - Enerji
+1330 kj / 318 kcal
+Total Fat - Toplam Yağ
+5,7 g
+Saturated Fat - Doymuş Yağ
+3,6 g
+Cholestorel - Kolesterol
+0,02 g
+Total Carbohydrate
+Toplam Karbonhidrat
+62,2 g
+Sugar - Şeker
+48,0 g
+Starch - Nişasta
+9,3 g
+Dietary Fibre - Selulozik Lif
+0,0 g
+Protein - Protein
+3,6 g
+Sodium - Sodyum / Salt - Tuz 0,3 g / 0,75 g
+Energy or Nutrition facts / 
+Enerji veya besin ö¤eleri
+Reference Levels /
+Referans al›m düzeyleri
+Energy - Enerji
+Fat - Yağ
+-of which Saturates - Doymuş Yağ
+Carbohydrate - Karbonhidrat
+-of which Sugars - Şekerler
+Dietary Fibre - Selulozik Lif
+Protein - Protein 
+Sodium - Sodyum / Salt - Tuz
+8400 kj / 2000 kcal
+70 g
+20 g
+260 g
+90 g
+25 g
+50 g
+2,4 g / 6 g
+Energy and Reference Levels for Some Nutrients
+(for Adults)
+Enerji ve Bazı Besin Öğeleri için Referans Alım 
+Düzeyleri (Yetişkinler için)
+Net: 2500 g
+(88,2 oz) 
+

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123355065",
+  "barkod": "8691123355065",
+  "urun_adi": {
+    "de": "FO Toffee Karamellsauce 2,5 kg",
+    "en": "FO Toffee Caramel Sauce 2.5 kg",
+    "tr": "FO Tofi Karamel Sos 2,5 kg",
+    "ar": "صلصة التوفي والكراميل فو 2.5 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Karamellsauce mit intensivem Toffee-Geschmack. Ideal zum Garnieren und Verfeinern von Heiß- und Kaltgetränken, Speiseeis, Milchdesserts und Gebäck.",
+    "en": "Premium quality caramel sauce with rich toffee flavor. Perfect for topping and flavoring hot and cold drinks, ice cream, dairy desserts, and cakes.",
+    "tr": "Yoğun tofi ve karamel lezzetine sahip profesyonel dekor ve lezzet sosu. Sıcak ve soğuk içeceklerde, dondurmalarda, sütlü tatlılarda ve pastalarda lezzetlendirme ve süsleme amacıyla kullanılır.",
+    "ar": "صلصة كراميل عالية الجودة بنكهة التوفي الغنية. مثالية لتزيين وإضافة النكهة للمشروبات الساخنة والباردة، الآيس كريم، الحلويات الحليبية، والكيك."
+  },
+  "kullanim_alanlari": {
+    "de": "Heiß- und Kaltgetränke, Speiseeis, Milchdesserts, Kuchen, Torten, Waffeln und Pfannkuchen.",
+    "en": "Hot and cold drinks, ice cream, dairy desserts, cakes, pastries, waffles, and pancakes.",
+    "tr": "Sıcak ve soğuk içecekler, dondurma, sütlü tatlılar, pastalar, kekler, krep ve waffle üretimi.",
+    "ar": "المشروبات الساخنة والباردة، الآيس كريم، الحلويات الحليبية، الكيك، المعجنات، الوافل والبان كيك."
+  },
+  "icindekiler": {
+    "de": "Zucker (48 %), Karamellsauce (Wasser, Zucker, Magermilchpulver, Butter) (25 %), Wasser (11,2 %), Glukosesirup (5 %), Glycerin [E 422] (5 %), Modifizierte Maisstärke (5 %), Zitronensäure, Trisodiumcitrat [E 330, E 331iii] (0,3 %), Sojalecithin [E 322] (0,2 %), Kaliumsorbat [E 202] (0,1 %), Salz (0,1 %), Aroma (Vanille) (0,1 %).",
+    "en": "Sugar (48%), Caramel Sauce (water, sugar, skimmed milk powder, butter) (25%), Water (11.2%), Glucose syrup (5%), Glycerine [E 422] (5%), Modified Corn Starch (5%), Citric Acid, Trisodium citrate [E 330, E 331iii] (0.3%), Soy Lecithin [E 322] (0.2%), Potassium Sorbate [E 202] (0.1%), Salt (0.1%), Flavoring (Vanilla) (0.1%).",
+    "tr": "Şeker (%48), Karamel Sos (su, şeker, yağsız süt tozu, tereyağı) (%25), Su (%11,2), Glikoz şurubu (%5), Gliserin [E 422] (%5), Modifiye Mısır Nişastası (%5), Sitrik Asit, Trisodyum Sitrat [E 330, E 331iii] (%0,3), Soya Lesitini [E 322] (%0,2), Potasyum Sorbat [E 202] (%0,1), Tuz (%0,1), Aroma Verici (Vanilya) (%0,1).",
+    "ar": "سكر (48٪)، صلصة الكراميل (ماء، سكر، حليب مجفف خالي الدسم، زبدة) (25٪)، ماء (11.2٪)، شراب الجلوكوز (5٪)، جليسرين [E 422] (5٪)، نشا الذرة المعدل (5٪)، حمض الستريك، سترات ثلاثي الصوديوم [E 330، E 331iii] (0.3٪)، ليثيسين الصويا [E 322] (0.2٪)، سوربات البوتاسيوم [E 202] (0.1٪)، ملح (0.1٪)، نكهة (فانيليا) (0.1٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor directem Sonnenlicht schützen.",
+    "en": "Store in a cool and dry place. Keep away from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayınız. Doğrudan güneş ışığına maruz bırakmayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف. يُحفظ بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte.",
+    "en": "Contains Dairy / Milk products, Soy products.",
+    "tr": "Süt ürünleri, Soya ürünleri içerir.",
+    "ar": "يحتوي على منتجات الألبان, منتجات الصويا."
+  },
+  "raf_omru": "24 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1180,
+      "energie_kcal": 283,
+      "fett": 4.1,
+      "kohlenhydrate": 58.3,
+      "davon_zucker": 52.3,
+      "eiweiss": 2.6,
+      "salz": 0.5
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 10.1,
+  "gtip": "210690980019",
+  "palet_ici_koli": 20
+}

@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-8691123470218",
+  "barkod": "8691123470218",
+  "urun_adi": {
+    "de": "FO KOI COCKTAIL FOAMER 100 ML",
+    "en": "FO KOI COCKTAIL FOAMER 100 ML",
+    "tr": "FO KOI KOKTEYL KÖPÜRTÜCÜ 100 ML",
+    "ar": "فو كوي صانع رغوة الكوكتيل 100 مل"
+  },
+  "aciklamalar": {
+    "de": "Professioneller Cocktail-Foamer für langanhaltenden und stabilen Schaum in Ihren Cocktails.",
+    "en": "Professional cocktail foamer designed for creating long-lasting and stable foam in your cocktails.",
+    "en_us": "Professional cocktail foamer designed for creating long-lasting and stable foam in your cocktails.",
+    "tr": "Kokteyllerinizde uzun süre kalıcı ve kararlı köpük oluşturmak için tasarlanmış profesyonel kokteyl köpürtücü.",
+    "ar": "صانع رغوة كوكتيل احترافي مصمم لإنشاء رغوة طويلة الأمد ومستقرة في الكوكتيلات الخاصة بك."
+  },
+  "kullanim_alanlari": {
+    "de": "Geben Sie 3 Tropfen in 250 ml Cocktail und schütteln Sie ihn 10 Sekunden lang.",
+    "en": "Add 3 drops to 250 ml cocktail and shake for 10 seconds.",
+    "tr": "250 ml kokteyle 3 damla ekleyin ve 10 saniye çalkalayın.",
+    "ar": "أضف 3 قطرات إلى 250 مل من الكوكتيل وقم رجها لمدة 10 ثوانٍ."
+  },
+  "icindekiler": {
+    "de": "Cocktail Foamer Konzentrat",
+    "en": "Cocktail Foamer Concentrate",
+    "tr": "Kokteyl Köpürtücü Konsantresi",
+    "ar": "مركز صانع رغوة الكوكتيل"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direktem Sonnenlicht schützen.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzak tutarak saklayın.",
+    "ar": "يخزن في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 0,
+      "energie_kcal": 0,
+      "fett": 0,
+      "kohlenhydrate": 0,
+      "davon_zucker": 0,
+      "eiweiss": 0,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 12,
+    "fiyat_eur": 8.63
+  },
+  "fiyat_eur": 8.63,
+  "gtip": "320419000019",
+  "palet_ici_koli": 5
+}

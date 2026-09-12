@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Wassermelone Fruchtsauce bietet ein intensives, authentisches Geschmackserlebnis mit echten Fruchtstücken. Dank ihrer hohen Konzentration und homogenen Textur ist sie ideal für professionelle Anwendungen in Cafés und Bars geeignet. Sie verleiht Desserts, Gebäck und Getränken eine leuchtende Farbe und ein erfrischendes Aroma, das Gäste begeistert.",
+    "en": "FO Watermelon Fruited Sauce delivers an intense, authentic flavor profile enriched with real fruit pieces. Its high concentration and smooth, homogeneous texture make it a premium choice for professional café and bar environments. It provides a vibrant color and refreshing watermelon essence to desserts, pastries, and beverages, ensuring consistent quality in every serving.",
+    "tr": "FO Karpuz Meyveli Sos, gerçek meyve parçacıklarıyla zenginleştirilmiş yoğun ve otantik bir lezzet deneyimi sunar. Yüksek konsantrasyonu ve homojen yapısı sayesinde kafe ve bar profesyonelleri için idealdir. Tatlılara, hamur işlerine ve içeceklere canlı bir renk ve ferahlatıcı bir aroma katarak sunumlarınızın kalitesini artırır.",
+    "ar": "يقدم صوص البطيخ من FO تجربة نكهة مكثفة وأصلية غنية بقطع الفاكهة الحقيقية. بفضل تركيزه العالي وقوامه المتجانس، يعد خياراً مثالياً للمقاهي والبارات الاحترافية. يضفي لوناً نابضاً بالحياة ونكهة البطيخ المنعشة على الحلويات والمخبوزات والمشروبات، مما يضمن جودة ثابتة في كل تقديم."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen zerstoßenem Eis in einem Hochleistungsmixer mixen. Für alkoholische und alkoholfreie Cocktails: Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water to taste.",
+    "tr": "Frozen hazırlamak için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya su ile seyrelterek tüketin.",
+    "ar": "لتحضير المشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصوص مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات الكحولية وغير الكحولية: يُستخدم مباشرة أو يُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Eiscreme, Milchdesserts, Gebäck, Torten, Waffeln und Schlagsahne.",
+    "en": "Versatile application areas: Cocktails, mocktails, iced teas, lemonades, ice cream, milky desserts, pastries, cakes, waffles, and whipped cream.",
+    "tr": "Geniş kullanım alanları: Kokteyller, mocktail, soğuk çaylar, limonatalar, dondurma, sütlü tatlılar, hamur işleri, pastalar, waffle ve krem şanti.",
+    "ar": "مجالات الاستخدام المتنوعة: الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الآيس كريم، الحلويات بالحليب، المعجنات، الكعك، الوافل، والكريمة المخفوقة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Wassermelone (50%), Zucker (48%), modifizierte Maisstärke (1%), Säureregulatoren (Trinatriumcitrat E331iii, Weinsäure E334), Salz, Konservierungsstoff (Kaliumsorbat E202), Aroma (Wassermelone), Farbstoffe (Azorubin E122, Allurarot AC E129).",
+    "en": "Watermelon (50%), Sugar (48%), Modified corn starch (1%), Acidity regulators (Trisodium citrate E331iii, Tartaric acid E334), Salt, Preservative (Potassium sorbate E202), Flavoring (Watermelon), Colorings (Carmoisine E122, Allura Red E129).",
+    "tr": "Karpuz (%50), Şeker (%48), Modifiye mısır nişastası (%1), Asitlik düzenleyiciler (Trisodyum sitrat E331iii, Tartarik asit E334), Tuz, Koruyucu (Potasyum sorbat E202), Aroma verici (Karpuz), Renklendiriciler (Azorubin E122, Allura kırmızısı E129)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 963,
+      "energie_kcal": 230,
+      "fett": 0.1,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 56.2,
+      "davon_zucker": 51.8,
+      "eiweiss": 0.1,
+      "salz": 0.02
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

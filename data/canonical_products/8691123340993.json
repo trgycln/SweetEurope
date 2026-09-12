@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-8691123340993",
+  "barkod": "8691123340993",
+  "urun_adi": {
+    "de": "FO Zitronen-Fruchtsauce 1 kg",
+    "en": "FO Lemon Fruited Sauce 1 kg",
+    "tr": "FO Limon Meyveli Sos 1 kg",
+    "ar": "صلصة الليمون بالفاكهة فو 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Zitronen-Fruchtsauce mit 40% Fruchtgehalt, ideal für Frozen Drinks, Speiseeis und Desserts. Bietet einen erfrischenden und natürlichen Zitronengeschmack.",
+    "en": "High-quality lemon fruited sauce containing 40% real lemon, perfect for frozen drinks, ice creams, and desserts. Provides a refreshing and natural citrus flavor.",
+    "tr": "%40 limon içeriğine sahip yüksek kaliteli meyveli sos. Dondurma, frozen içecekler ve tatlı sunumları için ferahlatıcı lezzet sağlar.",
+    "ar": "صلصة فاكهة الليمون عالية الجودة تحتوي على 40٪ ليمون، مثالية للمشروبات المثلجة والأيس كريم والحلويات. تمنح طعماً منعشاً وطبيعياً."
+  },
+  "kullanim_alanlari": {
+    "de": "Sehr praktische Anwendung. Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen Crasheis mischen. Auch ideal für Eiscreme, Waffeln, Pfannkuchen und Dessertdekorationen.",
+    "en": "Practical application. For frozen drinks: Mix 1 part sauce with 3 parts crushed ice. Also suitable for ice creams, waffles, pancakes, and dessert toppings.",
+    "tr": "Kullanımı oldukça pratiktir. Frozen hazırlığı için: 1 ölçek sos, 3 ölçek kırılmış buz ile karıştırılarak hazırlanabilir. Dondurma, waffle, pankek ve tatlı süslemelerinde kullanılır.",
+    "ar": "استخدام عملي للغاية. لتحضير المشروبات المثلجة: اخلط جزءًا واحدًا من الصلصة مع 3 أجزاء من الثلج المجروش. مناسبة أيضًا للأيس كريم والوافل والحلويات."
+  },
+  "icindekiler": {
+    "de": "Zucker (50%), Zitrone (40%), Wasser (5,396%), Modifizierte Maisstärke [E 401] (2%), Citronensäure, Kaliumcitrat [E 330, E 332ii] (1%), Zitronenaroma-Emulsion (Wasser, Verdickungsmittel [E 414, E 445], Aroma, Säureregulator [E 330], Antioxidationsmittel [E 307], Konservierungsstoff [E 211], Farbstoffe [E 104, E 110]) (1%), Aroma (Zitrone) (0,5%), Konservierungsstoff: Kaliumsorbat [E 202] (0,1%), Farbstoff: Chinolingelb [E 104] (0,004%).",
+    "en": "Sugar (50%), Lemon (40%), Water (5.396%), Modified corn starch [E 401] (2%), Citric Acid, Tripotassium citrate [E 330, E 332ii] (1%), Lemon flavored emulsion (Water, thickener [E 414, E 445], flavor, acidity regulator [E 330], antioxidant [E 307], preservative [E 211], color [E 104, E 110]) (1%), Flavoring (Lemon) (0.5%), Preservative: Potassium sorbate [E 202] (0.1%), Color: Quinoline yellow [E 104] (0.004%).",
+    "tr": "Şeker (%50), Limon (%40), Su (%5,396), Modifiye mısır nişastası [E 401] (%2), Sitrik asit, Tripotasyum sitrat [E 330, E 332ii] (%1), Limon aromalı emülsiyon (Su, kıvam arttırıcı [E 414, E 445], aroma verici, asitlik düzenleyici [E 330], antioksidan [E 307], koruyucu [E 211], renklendirici [E 104, E 110]) (%1), Aroma verici (Limon) (%0,5), Koruyucu: Potasyum sorbat [E 202] (%0,1), Renklendirici: Kinolin sarısı [E 104] (%0,004).",
+    "ar": "سكر (50٪)، ليمون (40٪)، ماء (5.396٪)، نشا الذرة المعدل [E 401] (2٪)، حمض الستريك، سترات ثلاثي البوتاسيوم [E 330، E 332ii] (1٪)، مستحلب بنكهة الليمون (ماء، مغلظ قوام [E 414، E 445]، نكهة، منظم حموضة [E 330]، مضاد أكسدة [E 307]، حافظ [E 211]، لون [E 104، E 110]) (1٪)، نكهة (ليمون) (0.5٪)، حافظ: سوربات البوتاسيوم [E 202] (0.1٪)، لون: أصفر الكينولين [E 104] (0.004٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor directem Sonnenlicht geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığı almayan yerde muhafaza ediniz.",
+    "ar": "يحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / Months / Monate / شهراً",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1030,
+      "energie_kcal": 246,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 58,
+      "davon_zucker": 54.9,
+      "ballaststoffe": 0.2,
+      "eiweiss": 0.1,
+      "salz": 0.018
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200791100019",
+  "palet_ici_koli": 10
+}

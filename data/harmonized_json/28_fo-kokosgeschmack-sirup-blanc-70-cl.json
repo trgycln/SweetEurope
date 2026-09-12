@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Kokos-Sirup bietet ein authentisches, intensives Aroma und eine cremige Textur, die perfekt für professionelle Bars und Cafés geeignet ist. Mit seiner hohen Konzentration verleiht er Cocktails, Mocktails und Kaffeespezialitäten eine exotische Note. Die homogene Struktur sorgt für eine exzellente Mischbarkeit und ein luxuriöses Mundgefühl in jeder Anwendung.",
+    "en": "FO Coconut Syrup delivers an authentic, intense aroma and a creamy texture, perfectly suited for professional bars and cafés. With its high concentration, it adds an exotic touch to cocktails, mocktails, and specialty coffees. The homogenized structure ensures excellent mixability and a luxurious mouthfeel in every application.",
+    "tr": "FO Hindistan Cevizi Şurubu, profesyonel bar ve kafeler için mükemmel olan otantik, yoğun bir aroma ve kremsi bir doku sunar. Yüksek konsantrasyonu sayesinde kokteyllere, mocktail'lere ve özel kahvelere egzotik bir dokunuş katar. Homojen yapısı, her uygulamada mükemmel karışabilirlik ve lüks bir ağız hissi sağlar.",
+    "ar": "يقدم شراب جوز الهند من FO نكهة أصلية ومكثفة وقواماً كريمياً، مما يجعله مثالياً للمقاهي والبارات الاحترافية. بفضل تركيزه العالي، يضفي لمسة استوائية على الكوكتيلات والموكتيلات ومشروبات القهوة المتخصصة. يضمن هيكله المتجانس سهولة المزج وقواماً فاخراً في كل استخدام."
+  },
+  "hazirlanisi": {
+    "de": "Für den direkten Genuss mit Wasser im Verhältnis 1:8 verdünnen. Ideal für Cocktails und Mocktails: Dosieren Sie den Sirup nach Geschmack, um eine exotische Kokosnote zu erzielen. Vor Gebrauch leicht schütteln.",
+    "en": "For direct consumption, dilute with water in a 1:8 ratio. Ideal for cocktails and mocktails: dose the syrup according to taste to achieve an exotic coconut note. Shake gently before use.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kokteyller ve mocktail'ler için idealdir: Egzotik bir hindistan cevizi notası elde etmek için damak tadınıza göre dozajlayın. Kullanmadan önce hafifçe çalkalayın.",
+    "ar": "للاستهلاك المباشر، يُخفف بالماء بنسبة 1:8. مثالي للكوكتيلات والموكتيلات: أضف الجرعة حسب الرغبة للحصول على نكهة جوز الهند الاستوائية. يُرج بلطف قبل الاستخدام."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Kaffeespezialitäten und Desserts.",
+    "en": "Versatile application areas: Cocktails, mocktails, iced teas, lemonades, specialty coffees, and desserts.",
+    "tr": "Geniş kullanım alanları: Kokteyller, mocktail'ler, soğuk çaylar, limonatalar, özel kahveler ve tatlılar.",
+    "ar": "مجالات الاستخدام المتنوعة: الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، مشروبات القهوة المتخصصة، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre ab Herstellungsdatum bei sachgemäßer Lagerung.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 3 years under described storage conditions.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta ve kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Belirtilen saklama koşullarında 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Kokos-Emulsion (Wasser, Verdickungsmittel E414, E445, Säureregulator E330, Antioxidationsmittel E307, Aroma, Konservierungsmittel E211), Aroma (Kokos), Säuerungsmittel (Citronensäure E330), Konservierungsmittel (Kaliumsorbat E202, Natriumbenzoat E211).",
+    "en": "Sugar, Water, Coconut flavored emulsion (Water, Thickener E414, E445, Acidity regulator E330, Antioxidant E307, Flavouring, Preservative E211), Flavoring (Coconut), Citric Acid (E330), Potassium Sorbate (E202), Sodium Benzoate (E211).",
+    "tr": "Şeker, Su, Hindistan cevizi aromalı emülsiyon (Su, Kıvam artırıcı E414, E445, Asitlik düzenleyici E330, Antioksidan E307, Aroma verici, Koruyucu E211), Aroma verici (Hindistan cevizi), Sitrik asit (E330), Potasyum sorbat (E202), Sodyum benzoat (E211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1400,
+      "energie_kcal": 335,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 82.3,
+      "davon_zucker": 81.6,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123120076",
+  "barkod": "8691123120076",
+  "urun_adi": {
+    "de": "FO Bananen-Aroma-Sirup 700 ml",
+    "en": "FO Banana Flavored Syrup 700 ml",
+    "tr": "FO Muz Aromalı Şurup 700 ml",
+    "ar": "فو شراب بنكهة الموز 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Ein Premium-Sirup, der speziell entwickelt wurde, um Ihren Cocktails, Desserts und Getränken ein einzigartiges Bananenaroma und -geschmack zu verleihen. Mit seinem intensiven Aroma und seiner idealen Konsistenz ist er perfekt für professionelle Bars und den Heimgebrauch.",
+    "en": "A premium syrup specially formulated to add a unique banana flavor and aroma to your cocktails, desserts, and beverages. With its intense aroma and ideal consistency, it is perfect for professional bars and home use.",
+    "tr": "Kokteyllerinize, tatlılarınıza ve içeceklerinize eşsiz muz lezzeti ve aroması katmak için özel olarak formüle edilmiş premium şurup. Yoğun aroması ve ideal kıvamı ile profesyonel barlar ve ev kullanımı için mükemmeldir.",
+    "ar": "شراب ممتاز تم تركيبه خصيصًا لإضافة نكهة ورائحة الموز الفريدة إلى الكوكتيلات والحلويات والمشروبات. بفضل نكهته المركزة وقوامه المثالي، فهو ممتاز للحانات المهنية والاستخدام المنزلي."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Cocktailzubereitung verwendet oder mit Wasser (Verhältnis 1:8) verdünnt direkt getrunken. Auch als Aromastoff in Kaffee, Milchshakes, Gebäck und Desserts bevorzugt.",
+    "en": "Used in cocktail making or diluted with water (1/8 ratio) for direct consumption. Also preferred as a flavoring in coffees, milkshakes, pastries, and desserts.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyreltilerek kullanılır. Ayrıca kahvelerde, milkshake'lerde, pastacılıkta ve tatlılarda aroma verici olarak tercih edilir.",
+    "ar": "يستخدم في صنع الكوكتيلات أو يخفف بالماء (بنسبة 1/8) للشرب مباشرة. كما يفضل كمادة منكهة في القهوة، والميلك شيك، والمعجنات، والحلويات."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,45%), Aroma (Banane) (0,5%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Tartrazin [E 102] (0,01%).",
+    "en": "Sugar (62%), Water (37.45%), Flavoring (Banana) (0.5%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%), Tartrazine [E 102] (0.01%).",
+    "tr": "Şeker (%62), Su (%37,45), Aroma Verici (Muz) (%0,5), Potasyum Sorbate [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015), Tartrazin [E 102] (%0,01%).",
+    "ar": "سكر (62%)، ماء (37.45%)، منكه (الموز) (0.5%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)، تارترازين [E 102] (0.01%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen den Deckel geschlossen halten.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep the lid closed after opening.",
+    "tr": "Serin, kuru ve güneş ışığı almayan bir yerde muhafaza ediniz. Açıldıktan sonra kapağı kapalı olarak saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. يُحفظ الغطاء مغلقًا بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months / 36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "kohlenhydrate": 82.5,
+      "davon_zucker": 82.5,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 5
+}

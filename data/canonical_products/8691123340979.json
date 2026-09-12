@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123340979",
+  "barkod": "8691123340979",
+  "urun_adi": {
+    "de": "FO Grüner Apfel Fruchtsoße 1 kg",
+    "en": "FO Green Apple Fruited Sauce 1 kg",
+    "tr": "FO Yeşil Elma Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة التفاح الأخضر بالفاكهة فروزن من إف أوه 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Fruchtsoße mit 50% grünem Apfelanteil. Perfekt geeignet für die Zubereitung von Frozen Drinks, Cocktails, Desserts und Eiskreationen.",
+    "en": "High-quality fruited sauce containing 50% green apple. Perfect for frozen drinks, cocktails, desserts, and ice cream toppings.",
+    "tr": "%50 yeşil elma oranına sahip yüksek kaliteli meyveli sos. Frozen içecekler, kokteyller, tatlılar ve dondurma sunumları için idealdir.",
+    "ar": "صلصة فاكهة عالية الجودة تحتوي على 50% تفاح أخضر. مثالية لتحضير المشروبات المثلجة (الفروزن)، الكوكتيلات، الحلويات وتزيين الآيس كريم."
+  },
+  "kullanim_alanlari": {
+    "de": "Für Frozen-Getränke: 1 Teil Soße mit 3 Teilen Crushed Ice im Hochleistungsmixer mixen. Auch ideal für Cocktails, Eiskreationen, Tatlılar und Gebäck.",
+    "en": "For frozen drinks: Mix 1 volume of sauce with 3 volumes of crushed ice in a high-speed blender. Also used for cocktails, ice cream, desserts, and pastries.",
+    "tr": "Frozen içecekler için: 1 ölçü sos 3 ölçü kırılmış buz ile yüksek hızlı blenderda karıştırılarak hazırlanır. Ayrıca kokteyllerde, dondurmalarda, tatlılarda ve pastacılıkta kullanılır.",
+    "ar": "للمشروبات المثلجة: يُخلط مقدار 1 من الصلصة مع 3 مقادير من الثلج المجروش في خلاط سريع. يُستخدم أيضاً في الكوكتيلات، الآيس كريم، الحلويات والمعجنات."
+  },
+  "icindekiler": {
+    "de": "Grüner Apfel (50%), Zucker (48%), Modifizierte Maisstärke (1%), Trisodiumcitrat, Weinsäure (E 331iii, E 334) (0,5%), Grüner Apfel Aroma (0,29%), Salz (0,1%), Kaliumsorbat [E 202] (0,1%), Farbstoffe [E 102, E 133] (0,01%).",
+    "en": "Green Apple (50%), Sugar (48%), Modified corn starch (1%), Trisodium citrate, Tartaric acid (E 331iii, E 334) (0.5%), Green apple flavoring (0.29%), Salt (0.1%), Potassium Sorbate [E 202] (0.1%), Colorings [E 102, E 133] (0.01%).",
+    "tr": "Yeşil Elma (%50), Şeker (%48), Modifiye mısır nişastası (%1), Trisodyum sitrat, Tartarik asit (E 331iii, E 334) (%0,5), Yeşil elma aroması (%0,29), Tuz (%0,1), Potasyum Sorbat [E 202] (%0,1), Renklendiriciler [E 102, E 133] (%0,01).",
+    "ar": "تفاح أخضر (50%)، سكر (48%)، نشا الذرة المعدل (1%)، سترات ثلاثي الصوديوم، حمض الطرطريك (E 331iii, E 334) (0.5%)، نكهة التفاح الأخضر (0.29%)، ملح (0.1%)، سوربات البوتاسيوم [E 202] (0.1%)، ملونات [E 102, E 133] (0.01%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direktem Sonnenlicht schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Refrigerate after opening.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzakta saklayınız. Açıldıktan sonra buzdolabında muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1400,
+      "energie_kcal": 334,
+      "fett": 0.2,
+      "kohlenhydrate": 78.9,
+      "davon_zucker": 77,
+      "eiweiss": 0.6,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200799390019",
+  "palet_ici_koli": 15
+}

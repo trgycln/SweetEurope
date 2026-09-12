@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Weißer Schokolade Sirup bietet ein authentisches, cremiges Geschmacksprofil mit einer hohen Konzentration, das speziell für professionelle Baristas und Barkeeper entwickelt wurde. Seine homogene Textur sorgt für eine exzellente Mischbarkeit in heißen und kalten Getränken und verleiht Kaffeespezialitäten sowie Cocktails eine luxuriöse Note. Ideal für die gehobene Gastronomie, um anspruchsvollen Gästen ein unvergleichliches Geschmackserlebnis zu bieten.",
+    "en": "FO White Chocolate Flavored Syrup delivers an authentic, creamy flavor profile with high concentration, specifically crafted for professional baristas and bartenders. Its homogenized texture ensures excellent mixability in both hot and cold beverages, adding a luxurious touch to coffee specialties and cocktails. Perfect for high-end gastronomy to provide guests with an unparalleled taste experience.",
+    "tr": "FO Beyaz Çikolata Aromalı Şurup, profesyonel baristalar ve barmenler için özel olarak geliştirilmiş, yüksek konsantrasyonlu ve otantik, kremsi bir lezzet profili sunar. Homojen yapısı, hem sıcak hem de soğuk içeceklerde mükemmel karışabilirlik sağlayarak kahve spesiyallerine ve kokteyllere lüks bir dokunuş katar. Seçkin gastronomi işletmeleri için misafirlerine benzersiz bir lezzet deneyimi sunmak adına idealdir.",
+    "ar": "يقدم شراب الشوكولاتة البيضاء من FO نكهة كريمية أصلية بتركيز عالٍ، تم تطويره خصيصًا للباريستا المحترفين والسقاة. يضمن قوامه المتجانس سهولة المزج في المشروبات الساخنة والباردة، مما يضفي لمسة فاخرة على القهوة والكوكتيلات. مثالي للمطاعم والمقاهي الراقية لتقديم تجربة تذوق لا تضاهى للضيوف."
+  },
+  "hazirlanisi": {
+    "de": "Für den direkten Verzehr mit Wasser im Verhältnis 1:8 verdünnen. Ideal zur Verfeinerung von Kaffeespezialitäten, Cocktails und Mocktails. Nach Belieben dosieren, um die gewünschte Intensität zu erreichen.",
+    "en": "Dilute with water at a ratio of 1:8 for direct consumption. Ideal for enhancing coffee specialties, cocktails, and mocktails. Dose according to preference to achieve the desired intensity.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kahve spesiyalleri, kokteyller ve mocktail'leri zenginleştirmek için idealdir. İstenilen yoğunluğu elde etmek için damak tadınıza göre dozajlayın.",
+    "ar": "يُخفف بالماء بنسبة 1:8 للاستهلاك المباشر. مثالي لتعزيز نكهة القهوة والكوكتيلات والموكتيلات. يمكن تعديل الجرعة حسب الرغبة للوصول إلى الكثافة المطلوبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Kaffeespezialitäten, Eistees, Limonaden, Desserts.",
+    "en": "Cocktails, mocktails, coffee specialties, iced teas, lemonades, desserts.",
+    "tr": "Kokteyller, mocktail'ler, kahve spesiyalleri, soğuk çaylar, limonatalar, tatlılar.",
+    "ar": "الكوكتيلات، الموكتيلات، مشروبات القهوة المتخصصة، الشاي المثلج، الليمونادة، الحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Herstellung bei korrekter Lagerung.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Shelf life: 2 years under described storage conditions.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Belirtilen saklama koşullarında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Glycerin (Feuchthaltemittel E 422), Magermilchpulver (Milch), modifizierte Maisstärke, Aroma (weiße Schokolade, Schokolade), Mono- und Diglyceride von Speisefettsäuren (Emulgator E 471), Kaliumsorbat (Konservierungsmittel E 202), Natriumbenzoat (Konservierungsmittel E 211).",
+    "en": "Sugar, Water, Glycerin (Humectant E 422), Skimmed milk powder (Milk), Modified corn starch, Flavoring (white chocolate, chocolate), Mono and Diglycerides of fatty acids (Emulsifier E 471), Potassium Sorbate (Preservative E 202), Sodium Benzoate (Preservative E 211).",
+    "tr": "Şeker, Su, Gliserin (Nem verici E 422), Yağsız süt tozu (Süt), Modifiye mısır nişastası, Aroma verici (beyaz çikolata, çikolata), Yağ asitlerinin mono ve digliseritleri (Emülgatör E 471), Potasyum Sorbat (Koruyucu E 202), Sodyum Benzoat (Koruyucu E 211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 976,
+      "energie_kcal": 233,
+      "fett": 0.3,
+      "davon_gesaettigt": 0.2,
+      "kohlenhydrate": 62.3,
+      "davon_zucker": 49.6,
+      "eiweiss": 1.8,
+      "salz": 0.25
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": true,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

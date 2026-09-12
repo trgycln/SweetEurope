@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Das FO Chai Tea Latte Pulver bietet eine authentische, aromatische Gewürzmischung, die perfekt auf die Bedürfnisse moderner Cafés abgestimmt ist. Mit seiner hohen Konzentration und cremigen Textur ermöglicht es eine schnelle und konsistente Zubereitung von Chai-Getränken höchster Qualität. Ideal für Baristas, die ihren Gästen ein wärmendes, würziges Geschmackserlebnis mit professionellem Standard bieten möchten.",
+    "en": "FO Chai Tea Latte Powder delivers an authentic, aromatic spice blend perfectly tailored for the needs of modern cafes. With its high concentration and creamy texture, it enables the quick and consistent preparation of premium-quality chai beverages. Ideal for baristas looking to provide their guests with a warming, spicy flavor experience at a professional standard.",
+    "tr": "FO Chai Tea Latte Tozu, modern kafelerin ihtiyaçlarına göre mükemmel şekilde uyarlanmış otantik ve aromatik bir baharat karışımı sunar. Yüksek konsantrasyonu ve kremsi dokusu sayesinde, üstün kaliteli chai içeceklerinin hızlı ve tutarlı bir şekilde hazırlanmasını sağlar. Misafirlerine profesyonel standartlarda, ısıtıcı ve baharatlı bir lezzet deneyimi sunmak isteyen baristalar için idealdir.",
+    "ar": "يقدم مسحوق FO Chai Tea Latte مزيجًا أصيلًا وعطريًا من التوابل المصممة خصيصًا لتلبية احتياجات المقاهي الحديثة. بفضل تركيزه العالي وقوامه الكريمي، فإنه يتيح تحضير مشروبات الشاي الممتازة بسرعة وبشكل متسق. مثالي للباريستا الذين يتطلعون إلى تقديم تجربة نكهة دافئة وحارة لضيوفهم بمعايير احترافية."
+  },
+  "hazirlanisi": {
+    "de": "Mischen Sie 30g (ca. 2 Esslöffel) Pulver mit 200ml kalter Milch. Erhitzen Sie die Mischung auf dem Herd bei niedriger Hitze, in der Mikrowelle oder schäumen Sie sie direkt mit der Dampfdüse Ihrer Kaffeemaschine auf.",
+    "en": "Mix 30g (approx. 2 tablespoons) of powder with 200ml of cold milk. Heat the mixture on the stove over low heat, in the microwave, or froth directly using the steam wand of your coffee machine.",
+    "tr": "30g (yaklaşık 2 yemek kaşığı) tozu 200ml soğuk süt ile karıştırın. Karışımı ocakta kısık ateşte, mikrodalgada veya kahve makinenizin buhar çubuğu ile ısıtarak servise hazır hale getirin.",
+    "ar": "اخلط 30 جرام (حوالي ملعقتين كبيرتين) من المسحوق مع 200 مل من الحليب البارد. قم بتسخين الخليط على الموقد على نار هادئة، أو في الميكروويف، أو استخدم عصا البخار في ماكينة القهوة لتحضيره."
+  },
+  "kullanim_alanlari": {
+    "de": "Chai Tea Latte, heiße Milchgetränke, aromatisierte Kaffeespezialitäten.",
+    "en": "Chai Tea Latte, hot milk-based beverages, flavored coffee specialties.",
+    "tr": "Chai Tea Latte, sıcak sütlü içecekler, aromalı kahve spesiyalleri.",
+    "ar": "شاي لاتيه، مشروبات الحليب الساخنة، تخصصات القهوة المنكهة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Produktion bei ungeöffneter Verpackung.",
+    "en": "Store in its original packaging at 20-22°C under dry conditions. Avoid direct sunlight. Shelf life: 2 years in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından kaçınınız. Raf ömrü: Açılmamış ambalajında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Maltodextrin, Magermilchpulver (Milch), modifizierte Maisstärke, Teepulver, Gewürzmischung, Trennmittel (Siliciumdioxid).",
+    "en": "Sugar, Maltodextrin, Skimmed milk powder (milk), Modified Corn Starch, Tea powder, Spice mix, Anti-caking agent (Silicon dioxide).",
+    "tr": "Şeker, Maltodekstrin, Yağsız süt tozu (süt), Modifiye Mısır Nişastası, Çay tozu, Baharat karışımı, Topaklanmayı önleyici (Silikon dioksit)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1670,
+      "energie_kcal": 392,
+      "fett": 0.2,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 95.5,
+      "davon_zucker": 46.1,
+      "eiweiss": 1.2,
+      "salz": 0.09
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": true
+  }
+}

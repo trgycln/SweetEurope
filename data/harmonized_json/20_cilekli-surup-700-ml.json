@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "FO Erdbeeraromatisierter Sirup bietet eine herausragende Konzentration und ein authentisches Erdbeeraroma für professionelle Cafés und Bars. Der feine, homogene Sirup veredelt Cocktails, Limonaden und Desserts mit einer perfekten Balance aus Süße und Fruchtigkeit. Dank seiner hochwertigen Formulierung lässt er sich exzellent dosieren und sorgt für ein vollmundiges Geschmackserlebnis im Glas. Ideal für Baristas und Bartender, die höchste Ansprüche an Geschmack und Qualität stellen.",
+    "en": "FO Strawberry Flavored Syrup delivers exceptional concentration and an authentic strawberry profile for professional cafés and bars. This fine, homogenized syrup elevates cocktails, lemonades, and desserts with a perfect balance of sweetness and vibrant fruitiness. Thanks to its premium formulation, it allows for precise dosing and ensures a rich, full-bodied sensory experience. Ideal for baristas and mixologists demanding top-tier flavor and consistent quality.",
+    "tr": "FO Çilek Aromalı Şurup, profesyonel kafe ve barlar için üstün konsantrasyon ve otantik çilek lezzeti sunar. Pürüzsüz ve homojen yapısıyla kokteylleri, limonataları ve tatlıları mükemmel bir tatlılık ve meyvemsilik dengesiyle zenginleştirir. Yüksek kaliteli formülü sayesinde hassas dozajlama imkanı tanır ve bardakta dolgun, zengin bir lezzet profili sağlar. Kalite ve lezzetten ödün vermeyen barmenler ve baristalar için idealdir.",
+    "ar": "يقدم شراب الفراولة المركز من FO تركيزاً استثنائياً ونكهة فراولة أصيلة للمقاهي والبارات الاحترافية. يعزز هذا الشراب الناعم والمتجانس الكوكتيلات والمشروبات والحلويات بتوازن مثالي بين الحلاوة والفاكهة. بفضل تركيبته عالية الجودة، يسمح بالجرعات الدقيقة ويضمن تجربة حسية غنية وكاملة في الكأس. مثالي للبارات والمقاهي التي تبحث عن أعلى معايير الجودة والنكهة."
+  },
+  "hazirlanisi": {
+    "de": "Zur direkten Verzehr und Zubereitung von Getränken 1 Teil Sirup mit 8 Teilen Wasser oder Eis verdünnen. Perfekt geeignet für die Verwendung mit Dosierpumpen in Cocktails, Mocktails, Limonaden und Kaffeespezialitäten.",
+    "en": "For direct consumption and beverage preparation, dilute 1 part syrup with 8 parts water or ice. Perfectly suited for use with dispensing pumps in cocktails, mocktails, lemonades, and specialty coffees.",
+    "tr": "Doğrudan tüketim ve içecek hazırlamak için 1 ölçü şurubu 8 ölçü su veya buz ile seyreltin. Kokteyller, mocktailler, limonatalar ve kahve spesiyalitelerinde pompalı dozajlama ile kullanım için mükemmeldir.",
+    "ar": "للتحضير والاستهلاك المباشر، قم بتخفيف جزء واحد من الشراب مع 8 أجزاء من الماء أو الثلج. مناسب تماماً للاستخدام مع مضخات الجرعات في الكوكتيلات والمشروبات والليمونادة والقهوة."
+  },
+  "kullanim_alanlari": {
+    "de": "Alkoholische und alkoholfreie Cocktails, Mocktails, Limonaden, Eistees, Smoothies, Kaffeespezialitäten und Desserts.",
+    "en": "Alcoholic and non-alcoholic cocktails, mocktails, lemonades, iced teas, smoothies, specialty coffees, and desserts.",
+    "tr": "Alkollü ve alkolsüz kokteyller, mocktailler, limonatalar, soğuk çaylar, smoothieler, kahve spesiyaliteleri ve tatlılar.",
+    "ar": "الكوكتيلات الكحولية وغير الكحولية، الموكتيل، الليمونادة، الشاي المثلج، السموذي، القهوة الخاصة، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern und vor direkter Sonneneinstrahlung schützen. Die geschlossene Verpackung hat eine Haltbarkeit von 3 Jahren.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions and avoid direct sunlight. The closed packaging has a shelf life of 3 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C'de kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır. Kapalı ambalajında raf ömrü 3 yıldır.",
+    "ar": "يحفظ في عبوته الأصلية في درجة حرارة 20-22 مئوية في ظروف جافة، ويجب تجنب أشعة الشمس المباشرة. العبوة المغلقة لها صلاحية لمدة 3 سنوات."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker (62%), Wasser (37,12%), Aroma (Fruchtgeschmack Erdbeere) (0,5%), Säureregulator (Citronensäure E 330) (0,3%), Farbstoff (Allurarot E 129, Brillantblau E 133) (0,04%), Konservierungsstoff (Kaliumsorbat E 202) (0,025%), Konservierungsstoff (Natriumbenzoat E 211) (0,015%)",
+    "en": "Sugar (62%), Water (37,12%), Flavoring (Strawberry) (0.5%), Acidity Regulator (Citric Acid E 330) (0.3%), Colorant (Allura Red E 129, Brilliant Blue E 133) (0.04%), Preservative (Potassium Sorbate E 202) (0.025%), Preservative (Sodium Benzoate E 211) (0.015%)",
+    "tr": "Şeker (%62), Su (%37,12), Aroma Verici (Çilek) (%0,5), Asitlik Düzenleyici (Sitrik Asit E 330) (%0,3), Renklendirici (Allura Red E 129, Brillant Blue E 133) (%0,04), Koruyucu (Potasyum Sorbat E 202) (%0,025), Koruyucu (Sodyum Benzoat E 211) (%0,015)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0.5,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 82.5,
+      "davon_zucker": 81.9,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

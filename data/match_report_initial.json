@@ -1,0 +1,632 @@
+[
+  {
+    "barcode": "8691123340764",
+    "name": "FO STRAWBERRY FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123444134",
+    "name": "FO WILD BERRIES FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340948",
+    "name": "FO MANGO FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340986",
+    "name": "FO BANANA FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340955",
+    "name": "FO WATERMELON FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340788",
+    "name": "FO BLACK MULBERRY FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340979",
+    "name": "FO GREEN APPLE FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340962",
+    "name": "FO FRUITED SAUCE PEACH 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340931",
+    "name": "FO KIWI FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340993",
+    "name": "FO LEMON FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340917",
+    "name": "FO MELON FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123444851",
+    "name": "FO BLUEBERRY FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340795",
+    "name": "FO BLACK BERRY FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123340771",
+    "name": "FO RASPBERRY FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123444656",
+    "name": "FO PASSION FRUIT SAUCE 1 KG",
+    "dbMatch": false,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123448620",
+    "name": "FO PINE APPLE FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123355065",
+    "name": "FO TOFFEE CARAMEL SAUCE 2,5 KG",
+    "dbMatch": true,
+    "specMatch": "CARAMEL SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123468864",
+    "name": "Fo Chocolate Sauce-professional 2,5 kg",
+    "dbMatch": true,
+    "specMatch": null,
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123465283",
+    "name": "Fo White Chocolate Sauce 2,5 Kg",
+    "dbMatch": true,
+    "specMatch": "DARK CHOCOLATE SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123449320",
+    "name": "FO MOJITO FLAVORED SYRUP 70 CL",
+    "dbMatch": true,
+    "specMatch": "SUGAR FREE CARAMEL FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471833",
+    "name": "FO CHOCOLATE SYRUP - PREMIUM 700 ML",
+    "dbMatch": true,
+    "specMatch": "CHOCOLATE FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471857",
+    "name": "FO WHITE CHOCOLATE SYRUP - PREMIUM 700 ML",
+    "dbMatch": true,
+    "specMatch": "SAKURA AND WHITE PEACH FLAVORED SYRUP – SAKURA & WHITE PEACH BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471055",
+    "name": "FO CARAMEL SYRUP-PREMIUM 700ML",
+    "dbMatch": true,
+    "specMatch": null,
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123470942",
+    "name": "FO STRAWBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "dbMatch": true,
+    "specMatch": "STRAWBERRY FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123470980",
+    "name": "FO VANILLA FLAVORED SYRUP-PREMIUM 700 ML",
+    "dbMatch": true,
+    "specMatch": "SUGAR FREE VANILLA FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471888",
+    "name": "FO COCONUT SYRUP - PREMIUM 700 ML",
+    "dbMatch": true,
+    "specMatch": "COCONUT FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120076",
+    "name": "FO BANANA FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "BANANA FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471840",
+    "name": "FO LIME FRUITED SYRUP 700 ML - PREMIUM",
+    "dbMatch": true,
+    "specMatch": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123472885",
+    "name": "FO WATERMELON FRUIT SYRUP–PREMIUM 700ML",
+    "dbMatch": true,
+    "specMatch": "WATERMELON FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123470973",
+    "name": "FO MANGO FRUIT SYRUP-PREMIUM 700 ML",
+    "dbMatch": true,
+    "specMatch": "MANGO FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471024",
+    "name": "FO POMEGRANATE FRUIT SYRUP-PREMIUM 700 ML",
+    "dbMatch": true,
+    "specMatch": null,
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471871",
+    "name": "FO GREEN APPLE FRUIT SYRUP-PREMIUM 700ML",
+    "dbMatch": true,
+    "specMatch": "GREEN APPLE FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123473707",
+    "name": "FO BLACKBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "dbMatch": true,
+    "specMatch": "BLACKBERRY FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120090",
+    "name": "FO PEPPERMINT FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "PEPPERMINT FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471017",
+    "name": "FO HAZELNUT FLAVORED SYRUP-PREMIUM 700ML",
+    "dbMatch": true,
+    "specMatch": "SUGAR FREE HAZELNUT FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123470959",
+    "name": "FO RASPBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "dbMatch": true,
+    "specMatch": "RASPBERRY FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120663",
+    "name": "FO PINE APPLE FLAVORED SYRUP 70 CL.",
+    "dbMatch": false,
+    "specMatch": "GREEN APPLE FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123470966",
+    "name": "FO PEACH FRUIT SYRUP-PREMIUM 700 ML",
+    "dbMatch": true,
+    "specMatch": "PEACH FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120038",
+    "name": "FO KIWI FLAVORED SYRUP 70 CL.",
+    "dbMatch": false,
+    "specMatch": "KIWI FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120021",
+    "name": "FO BLUE CURACAO FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "BLUEBERRY FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123473264",
+    "name": "FO HIBISCUS FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "HIBISCUS FLAVORED SYRUP-SUGAR",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123475084",
+    "name": "FO CUBAN MINT LIME BASE 700ML",
+    "dbMatch": true,
+    "specMatch": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123475886",
+    "name": "FO Sorrel Drink Mix – Madam Sorrel 1000 gr",
+    "dbMatch": true,
+    "specMatch": "SORREL BASED DRINK MIX",
+    "labelMatch": "FO MADAME SORREL KUZUKULAKLI KARISIM-C.pdf"
+  },
+  {
+    "barcode": "8691123475152",
+    "name": "Fo Electric Flower and Blueberry Flavored Base 700 ml",
+    "dbMatch": true,
+    "specMatch": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123473905",
+    "name": "FO MADAGASCAR VANILLA FLAVORED SAUCE 1 KG - ECLIPSE",
+    "dbMatch": true,
+    "specMatch": "TARO FLAVORED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471444",
+    "name": "FO POPPING CANDY SAUCE-SPECIAL 1 KG",
+    "dbMatch": true,
+    "specMatch": "POPPING CANDY SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123467454",
+    "name": "Fo Pistachio Verde Sauce %5 940GR",
+    "dbMatch": true,
+    "specMatch": "PISTACHIO SAUCE (%5)",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471086",
+    "name": "FO PREMIUM TARO FLAVORED SAUCE 2,5KG",
+    "dbMatch": true,
+    "specMatch": "TARO FLAVORED SAUCE",
+    "labelMatch": "YENI-PREMIUM-TARO AROMALI SOS-2,5KG-YY-C.pdf"
+  },
+  {
+    "barcode": "8691123449498",
+    "name": "FO CHOCOLATE FLAVORED POWDER DRINK 1 KG.",
+    "dbMatch": true,
+    "specMatch": "BITTER CHOCOLATE POWDER DRINK",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123449566",
+    "name": "FO MELON FLAVORED POWDER DRINK 1 KG.",
+    "dbMatch": true,
+    "specMatch": "WATERMELON FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123449504",
+    "name": "FO VANILLA FLAVORED POWDER DRINK 1 KG.",
+    "dbMatch": true,
+    "specMatch": "STRAWBERRY FLAVORED POWDER DRINK",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123449511",
+    "name": "FO STRAWBERRY FLAVORED POWDER DRINK 1 KG.",
+    "dbMatch": true,
+    "specMatch": "STRAWBERRY FLAVORED POWDER DRINK",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123461117",
+    "name": "Fo Chai Tea Latte Powder Drink 1 kg.",
+    "dbMatch": true,
+    "specMatch": "CHAI TEA LATTE POWDER DRINK",
+    "labelMatch": "FO CHAI TEA AROMALI ICECEK TOZU 1KG-C.pdf"
+  },
+  {
+    "barcode": "8691123470379",
+    "name": "Fo Matcha Gren Tea Powder Drink 1 kg",
+    "dbMatch": true,
+    "specMatch": "BITTER CHOCOLATE POWDER DRINK",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123343000",
+    "name": "FO STRAWBERRY FLAVORED SAUCE 750 GR",
+    "dbMatch": true,
+    "specMatch": "TARO FLAVORED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123462244",
+    "name": "Fo Chocolate Flavored Sauce 750 Gr",
+    "dbMatch": true,
+    "specMatch": "TARO FLAVORED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123463517",
+    "name": "Fo White Chocolate Flavored Syrup 700 ml.",
+    "dbMatch": true,
+    "specMatch": "SAKURA AND WHITE PEACH FLAVORED SYRUP – SAKURA & WHITE PEACH BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123463500",
+    "name": "Fo Chocolate Flavored Syrup 70 Cl.",
+    "dbMatch": true,
+    "specMatch": "CHOCOLATE FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123463494",
+    "name": "Fo Hazelnut Flavored Syrup 700 ML - Sugar Free",
+    "dbMatch": true,
+    "specMatch": "SUGAR FREE CARAMEL FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123463470",
+    "name": "Fo Caramel Flavored Syrup 700 ML - Sugar Free",
+    "dbMatch": true,
+    "specMatch": "SUGAR FREE CARAMEL FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123463487",
+    "name": "Fo Vanilla Flavored Syrup 700 ML - Sugar Free",
+    "dbMatch": true,
+    "specMatch": "SUGAR FREE CARAMEL FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120182",
+    "name": "FO CHOCOLATE FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "CHOCOLATE FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120571",
+    "name": "FO WHITE CHOCOLATE FLAVORED SYRUP 70 CL.",
+    "dbMatch": false,
+    "specMatch": "SAKURA AND WHITE PEACH FLAVORED SYRUP – SAKURA & WHITE PEACH BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120236",
+    "name": "FO CARAMEL FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "SUGAR FREE CARAMEL FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120700",
+    "name": "FO STRAWBERRY FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "STRAWBERRY FLAVORED POWDER DRINK",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120106",
+    "name": "FO VANILLA FLAVORED SYRUP 70 CL.",
+    "dbMatch": false,
+    "specMatch": "SUGAR FREE VANILLA FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120243",
+    "name": "FO REGULAR COCONUT FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "COCONUT FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120618",
+    "name": "FO TOFFEE NUT FLAVORED SYRUP 700 ML.",
+    "dbMatch": false,
+    "specMatch": "COCONUT FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120519",
+    "name": "FO WATERMELON FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "WATERMELON FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120229",
+    "name": "FO MANGO FLAVORED SYRUP 70 CL.",
+    "dbMatch": false,
+    "specMatch": "MANGO FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120014",
+    "name": "FO GRENADINE FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "GRENADINE FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120588",
+    "name": "FO GREEN APPLE FLAVORED SYRUP 70 CL.",
+    "dbMatch": false,
+    "specMatch": "GREEN APPLE FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120717",
+    "name": "FO BLACKBERRY FLAVORED SYRUP 70 CL",
+    "dbMatch": false,
+    "specMatch": "SUGAR FREE CARAMEL FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120564",
+    "name": "FO SPEARMINT FLAVORED SYRUP 70 CL.",
+    "dbMatch": false,
+    "specMatch": "SPEARMINT FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123453105",
+    "name": "FO BLUE RASPBERRY FLAVORED SYRUP 70 CL.",
+    "dbMatch": true,
+    "specMatch": "BLUEBERRY FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120137",
+    "name": "FO PEACH FLAVORED SYRUP 70 CL.",
+    "dbMatch": false,
+    "specMatch": "SAKURA AND WHITE PEACH FLAVORED SYRUP – SAKURA & WHITE PEACH BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123470218",
+    "name": "FO KOI COCKTAIL FOAMER 100 ML",
+    "dbMatch": true,
+    "specMatch": "FO KOI COCTAIL FOAMER-VEGAN",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123120052",
+    "name": "FO COCONUT FLAVORED SYRUP (BLANC)70 CL.",
+    "dbMatch": false,
+    "specMatch": "SUGAR FREE CARAMEL FLAVORED SYRUP",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123475596",
+    "name": "FO Mixed Fruit Drink – Apollo 800 ML",
+    "dbMatch": true,
+    "specMatch": "MIXED FRUIT BEVERAGE-APOLLO",
+    "labelMatch": "FO-APOLLO-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf"
+  },
+  {
+    "barcode": "8691123475619",
+    "name": "FO Mixed Fruit Drink – Dionysus 800ML",
+    "dbMatch": true,
+    "specMatch": "MIXED FRUIT BEVERAGE-APOLLO",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123475633",
+    "name": "FO Mixed Fruit Drink – Helios 800 ML",
+    "dbMatch": true,
+    "specMatch": "MIXED FRUIT BEVERAGE-APOLLO",
+    "labelMatch": "FO-HELIOS-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf"
+  },
+  {
+    "barcode": "8691123475626",
+    "name": "FO Mixed Fruit Drink – Zeus 800 ML",
+    "dbMatch": true,
+    "specMatch": "MIXED FRUIT BEVERAGE-APOLLO",
+    "labelMatch": "FO-ZEUS-KARISIK-MEYVELİ-İCECEK-800ML-C.pdf"
+  },
+  {
+    "barcode": "8691123475640",
+    "name": "FO Mixed Fruit Drink – Heracles 800ML",
+    "dbMatch": true,
+    "specMatch": "MIXED FRUIT BEVERAGE-APOLLO",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123444127",
+    "name": "FO COCONUT FRUITED SAUCE 1 KG",
+    "dbMatch": true,
+    "specMatch": "KIWI FRUITED SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123469663",
+    "name": "FO SAKURA AND WHITE PEACH FLAVORED BASE",
+    "dbMatch": true,
+    "specMatch": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123453037",
+    "name": "FO POWDER DRINK BASE (QUATRO) 1 KG",
+    "dbMatch": true,
+    "specMatch": "BITTER CHOCOLATE POWDER DRINK",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123462916",
+    "name": "Fo Mint and Lime Flavored Beverage 700 ml.",
+    "dbMatch": true,
+    "specMatch": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471093",
+    "name": "FO PREMIUM CARAMEL SAUCE 2,5KG",
+    "dbMatch": true,
+    "specMatch": "CARAMEL SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471475",
+    "name": "FO PREMIUM WHITE CHOCOLATE SAUCE 2,5KG",
+    "dbMatch": true,
+    "specMatch": "DARK CHOCOLATE SAUCE",
+    "labelMatch": null
+  },
+  {
+    "barcode": "8691123471468",
+    "name": "FO PREMIUM CHOCOLATE SAUCE 2,5 KG",
+    "dbMatch": true,
+    "specMatch": "DARK CHOCOLATE SAUCE",
+    "labelMatch": null
+  }
+]

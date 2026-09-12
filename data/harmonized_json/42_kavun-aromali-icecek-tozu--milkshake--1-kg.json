@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Das FO Melonen-Pulvergetränk bietet eine authentische, erfrischende Geschmacksnote für professionelle Milkshakes und Smoothies. Mit seiner hochkonzentrierten Formel sorgt es für eine cremige Textur und ein intensives Aroma, das Gäste in Cafés und Bars begeistert. Die einfache Handhabung ermöglicht eine schnelle Zubereitung bei gleichbleibend hoher Qualität.",
+    "en": "FO Melon Flavored Powder Drink delivers an authentic, refreshing taste profile perfect for professional-grade milkshakes and smoothies. Its highly concentrated formula ensures a rich, creamy mouthfeel and vibrant aroma that elevates any café or bar menu. Designed for efficiency, it allows for rapid preparation without compromising on premium quality.",
+    "tr": "FO Kavun Aromalı İçecek Tozu, profesyonel milkshake ve smoothie hazırlıkları için otantik ve ferahlatıcı bir lezzet profili sunar. Yüksek konsantrasyonlu formülü, kremsi bir doku ve yoğun bir aroma sağlayarak kafe ve bar menülerini zenginleştirir. Hızlı ve pratik hazırlanışıyla işletmeler için ideal bir çözüm ortağıdır.",
+    "ar": "يقدم مسحوق مشروب البطيخ من FO نكهة أصلية ومنعشة مثالية لتحضير الميلك شيك والعصائر (سموذي) بجودة احترافية. تضمن تركيبته عالية التركيز قواماً كريمياً غنياً ورائحة قوية تعزز من قائمة المشروبات في المقاهي والبارات. صُمم ليكون فعالاً، مما يسمح بالتحضير السريع دون المساومة على الجودة العالية."
+  },
+  "hazirlanisi": {
+    "de": "Für einen perfekten Milkshake: 40 g (2 gehäufte Esslöffel) Pulver mit 200 ml kaltem Wasser und 10 Eiswürfeln (ca. 200 ml) in einen Mixer geben. Mixen, bis das Eis zerkleinert ist, und sofort servieren.",
+    "en": "For a perfect milkshake: Place 40 g (2 heaped tablespoons) of powder, 200 ml of cold water, and 10 ice cubes (equivalent to 200 ml of water) into a blender. Blend until the ice is crushed and serve immediately.",
+    "tr": "Mükemmel bir milkshake için: 40 g (2 tepeleme yemek kaşığı) toz, 200 ml soğuk su ve 10 adet buz küpünü (yaklaşık 200 ml suya eşdeğer) blender'a ekleyin. Buzlar kırılana kadar karıştırın ve servis yapın.",
+    "ar": "لتحضير ميلك شيك مثالي: ضع 40 جرام (ملعقتان كبيرتان ممتلئتان) من المسحوق، و200 مل من الماء البارد، و10 مكعبات ثلج (تعادل 200 مل من الماء) في الخلاط. اخلط المزيج حتى يتكسر الثلج ثم قدمه فوراً."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Milkshakes, Smoothies und kreative Kaltgetränke-Kreationen.",
+    "en": "Versatile application areas: Milkshakes, smoothies, and creative cold beverage creations.",
+    "tr": "Geniş kullanım alanları: Milkshake, smoothie ve yaratıcı soğuk içecek tarifleri.",
+    "ar": "مجالات الاستخدام المتنوعة: الميلك شيك، السموذي، وابتكارات المشروبات الباردة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre bei ungeöffneter Verpackung.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Shelf life: 2 years in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, modifizierte Maisstärke, Verdickungsmittel (Xanthan E415), Aroma (Melone), Säureregulator (Citronensäure E330), Farbstoffe (Kurkumin E100, Beta-Carotin E160a), Trennmittel (Siliciumdioxid E551).",
+    "en": "Sugar, modified corn starch, thickener (xanthan gum E415), flavoring (melon), acidity regulator (citric acid E330), colorants (curcumin E100, beta-carotene E160a), anti-caking agent (silicon dioxide E551).",
+    "tr": "Şeker, modifiye mısır nişastası, kıvam artırıcı (ksantan gam E415), aroma verici (kavun), asitlik düzenleyici (sitrik asit E330), renklendiriciler (kurkumin E100, beta karoten E160a), topaklanmayı önleyici (silikon dioksit E551)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1670,
+      "energie_kcal": 399,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 98.7,
+      "davon_zucker": 92.8,
+      "eiweiss": 0.1,
+      "salz": 0.1
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": true
+  }
+}

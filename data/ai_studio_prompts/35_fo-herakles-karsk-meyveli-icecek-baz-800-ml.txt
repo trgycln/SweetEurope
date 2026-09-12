@@ -1,0 +1,85 @@
+=== GOOGLE AI STUDIO INSTRUCTION ===
+Temperature: 0
+Model: Gemini 2.5 Pro or Gemini 1.5 Pro (or Gemini 3.8/3.5 Flash)
+
+--- SYSTEM INSTRUCTIONS ---
+You are a precision food scientist, barista master, and multilingual B2B catalog copywriter for ElysonSweets (Germany).
+Your task is to harmonize, verify, and write rich, authoritative B2B product documentation from the provided Product Specification (.doc) and Official Label (.pdf).
+
+ABSOLUTE RULES (TEMPERATURE 0):
+1. ZERO HALLUCINATION for technical, ingredients, allergen, and nutritional data: Only use information stated in the source documents. If not present, output null.
+2. In 'aciklamalar': Write a rich, professional, mouth-watering B2B description (3-4 comprehensive sentences) highlighting flavor profile, high concentration, mouthfeel, and benefits for cafes/bars. Provide in 'de', 'en', 'tr', 'ar'.
+3. In 'hazirlanisi': Provide precise mixing ratios, dilution instructions, and barista recipes (e.g. for cold drinks, cocktails, mocktails, ice usage, pump dosages) in 'de', 'en', 'tr', 'ar'.
+4. In 'kullanim_alanlari': Provide a comprehensive list of usage areas (cocktails, lemonades, smoothies, ice tea, desserts, coffees) in 'de', 'en', 'tr', 'ar'.
+5. In 'saklama_kosullari': Provide exact storage and shelf-life guidance in 'de', 'en', 'tr', 'ar'.
+6. In 'inhaltsstoffe': Provide exact ingredients in 'de', 'en', 'tr'.
+7. In 'allergene': Provide boolean map of EU 14 allergens.
+8. In 'naehrwerte': Provide exact nutritional values per 100g/100ml.
+
+Output ONLY valid JSON matching the exact schema below. No markdown formatting outside the JSON, no extra text.
+
+--- EXPECTED JSON SCHEMA ---
+{
+  "aciklamalar": {
+    "de": "string (Reichhaltige B2B Produktbeschreibung)",
+    "en": "string (Rich B2B product description)",
+    "tr": "string (Zengin B2B ürün açıklaması)",
+    "ar": "string (وصف غني للمنتج)"
+  },
+  "hazirlanisi": {
+    "de": "string (Genaue Dosierung & Barista Zubereitungsempfehlung, z.B. 1 Teil Basis + 4 Teile Wasser/Eis)",
+    "en": "string (Precise dosage & preparation instructions, e.g. 1 part base + 4 parts water/ice)",
+    "tr": "string (Kesin dozaj ve barista hazırlama talimatı, örn: 1 ölçü baz + 4 ölçü su ve bol buz)",
+    "ar": "string (طريقة التحضير الدقيقة والجرعة)"
+  },
+  "kullanim_alanlari": {
+    "de": "string (Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Desserts)",
+    "en": "string (Versatile application areas: Cocktails, mocktails, iced teas, lemonades, desserts)",
+    "tr": "string (Geniş kullanım alanları: Kokteyller, mocktail, soğuk çaylar, limonatalar, tatlılar)",
+    "ar": "string (مجالات الاستخدام المتنوعة)"
+  },
+  "saklama_kosullari": {
+    "de": "string (Lagerungshinweise)",
+    "en": "string (Storage instructions)",
+    "tr": "string (Saklama koşulları)",
+    "ar": "string (شروط التخزين)"
+  },
+  "inhaltsstoffe": {
+    "de": "string | null",
+    "en": "string | null",
+    "tr": "string | null"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": "number | null",
+      "energie_kcal": "number | null",
+      "fett": "number | null",
+      "davon_gesaettigt": "number | null",
+      "kohlenhydrate": "number | null",
+      "davon_zucker": "number | null",
+      "eiweiss": "number | null",
+      "salz": "number | null"
+    }
+  },
+  "allergene": {
+    "gluten": "boolean",
+    "milch": "boolean",
+    "soja": "boolean",
+    "nuesse": "boolean",
+    "eier": "boolean"
+  }
+}
+
+--- PRODUCT TO HARMONIZE ---
+Product ID: fd39fc06-6857-41d3-a4f7-f5fcb535119e
+Name TR: FO Karışık Meyve Aromalı İçecek – Heracles 800ML
+Name DE: FO Mixed Fruit Drink – Heracles 800ML
+Name EN: FO Mixed Fruit Drink – Heracles 800ML
+Barcode (EAN): 8691123475640
+SKU: SP-FP-8691123475640
+
+[SOURCE 1: OFFICIAL SPECIFICATION (.DOC)]
+MIXED FRUIT BEVERAGES PRODUCT SPECIFICATIONDocument No: SP-FP-13271st  issue: 16.03.2026        Revision No: 02Revision Date: 01.06.2026Page No: 1 / 11.  GENERAL FEATURES:Trademark                                     : FO  FOOD PRODUCTS Product name                                 : MIXED FRUIT BEVERAGE-APOLLOPackaging Type                             : 1000 g / 800ml Polyethylene BottleDistribution Type                          : It is shipped in closed box packaging, in crated vehicles.Intended Area of Usage                : It is used in making cocktails or cocktails.Usage                                         : It is shaken with 1 measure mixed fruit drink and 1 measure other drink or water with plenty of  ice, or it is shaken 1 measure mixed fruit drink and 1,5 measure other drink or water with 1-2 ice cubes. It is shaken well before use.Storage Condition                      : In its original packaging, at an ambient temperature of 20-22ºC, closed and dry so that it will not be affected by            weather conditions. It should be stored in environments away from direct sunlight.Shelf Life                                     : Shelf life is 18 months under defined storage conditions.2. PRODUCT COMPONENTS :COMPONENT NAMECLASSEC CODEMAXIMUM DOSEPERCENTAGESugar———%36Apple Juice———35%Water———8,582%Mango———10%Pineapple———5%Humectant—E 422—2,1%Citric Acid, Potassium CitrateAcidity RegulatorE 330, E 332iiQS2%Modified Corn Starch———0,77%Natural flavoring (Mango, Coconut)Flavoring——0,5%Spice Mix (Cinnamon, Ginger, Coconut)———0,05%Potassium Sorbate, Sodium BenzoatePreservativesE 202- E2110,25 gr/lt-0,15 gr/lt0,025%  0,015%                             AnattoNatural Colorant E 160bQS0,008%3. NUTRITION TABLE: (Energy and nutrients 100 ml)*;Energy1340kj / 320 kcalTotal Fat1,9 g-of which saturated0,0 gCholesterol0,0 gTotal Carbohydrate79,4 gSugar55,7 gStarch7,6 gDietary fibre2,6 gProtein2,0 gSodium/salt0,01g/0,025g            *( According to European Regulation  (EU) No 1169/2011)4.  PHYSICAL PROPERTIES:Color/Taste/Odor : It has a unique yellow color, mango, pineapple and coconut taste and smell.Appearance           : It has a homogeneous structure and fruit particles. It does not contain foreign substances.5.  CHEMICAL PROPERTIES:pH    :  2.9 ( 0.2    -Brix  :   61 ( 2.06. CONTAMINANTS:Patulin µg/kgMax. 50Cadmium (Cd) (mg/kg)Max. 0,02Arsenic (As) (mg/kg)Max. 0,05Mercury (Hg) (mg/kg)Max.  0,01Lead ( Pb) (mg/kg)Max. 0,037. MICROBIOLOGICAL PROPERTIES :MICROORGANISM NAMEMICROBIOLOGICAL VALUEANALYSIS METHODSalmonella0/25 g-mlEN/ISO 6579L.Monocytogenes0/25 g-mlEN/ISO 11290-1E.Coli (cfu/g)0/25 g-mlISO 16649-2/38.  ALLERGEN ALERT:      Does not contain any allergen.(According to European Regulation (EU) No 1169/2011)9.  GMO DECLARATION:       OZMER PASTACILIK A.S. declares under its responsibility that the product of this chart is produced with no GMO.     (According to European Regulation 2003/1829/CE,2003/1830/CE and subsequent modification. 10.  REFERENCES:     OZMER PASTACILIK A.S. declares under its responsibility that the product of this chart is in accordance with the law in force;    * European Regulation 1333/2008/EC    * Commission Regulation (EU) 2023/915      * European Regulation 2073/2005/EC    * European Regulation 396/2005/EC and subsequent modifications.PREPARED BY:REVIEWED BY:APPROVED BY:R&D Manager Quality Management  ManagerGeneral  Manager
+
+[SOURCE 2: OFFICIAL PRODUCT LABEL (.PDF)]
+

@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Das FO Helios Mischfruchtgetränk bietet eine exklusive Komposition aus Mandarine, grünem Apfel und Guave, verfeinert mit einer würzigen Note aus Ingwer, Kurkuma und Nelken. Diese hochkonzentrierte Basis überzeugt durch ihre homogene Textur und natürliche Farbgebung, die jedem Getränk eine professionelle Tiefe verleiht. Ideal für anspruchsvolle Bars und Cafés, die ihren Gästen ein einzigartiges, exotisch-würziges Geschmackserlebnis bieten möchten.",
+    "en": "FO Helios Mixed Fruit Drink delivers an exclusive composition of mandarin, green apple, and guava, refined with a spicy blend of ginger, turmeric, and clove. This highly concentrated base features a homogeneous texture and natural color, providing professional depth to any beverage. It is the ideal choice for premium bars and cafes looking to offer their guests a unique, exotic, and spicy flavor profile.",
+    "tr": "FO Helios Karışık Meyveli İçecek; mandalina, yeşil elma ve guavanın özel birleşimini, zencefil, zerdeçal ve karanfilin baharatlı dokunuşuyla sunar. Yüksek konsantrasyonlu bu baz, homojen yapısı ve doğal rengiyle içeceklerinize profesyonel bir derinlik katar. Seçkin kafe ve barlar için egzotik ve baharatlı aromasıyla benzersiz bir lezzet deneyimi sağlar.",
+    "ar": "يقدم مشروب الفواكه المشكلة FO Helios مزيجاً حصرياً من اليوسفي والتفاح الأخضر والجوافة، مع لمسة متبلة من الزنجبيل والكركم والقرنفل. يتميز هذا المركز بقوام متجانس ولون طبيعي يضفي عمقاً احترافياً على أي مشروب. إنه الخيار الأمثل للمقاهي والبارات الراقية التي تسعى لتقديم تجربة نكهة فريدة وغريبة لضيوفها."
+  },
+  "hazirlanisi": {
+    "de": "Vor Gebrauch gut schütteln. Mischverhältnis: 1 Teil Helios mit 1 Teil Wasser oder anderem Getränk und reichlich Eis shaken, oder 1 Teil Helios mit 1,5 Teilen Wasser/Getränk und 1-2 Eiswürfeln mixen.",
+    "en": "Shake well before use. Mixing ratio: Shake 1 part Helios with 1 part water or other drink with plenty of ice, or mix 1 part Helios with 1.5 parts water/drink with 1-2 ice cubes.",
+    "tr": "Kullanmadan önce iyice çalkalayınız. Hazırlanışı: 1 ölçü Helios'u 1 ölçü su veya başka bir içecekle bol buz eşliğinde çalkalayınız veya 1 ölçü Helios'u 1,5 ölçü su/içecek ve 1-2 buz küpü ile karıştırınız.",
+    "ar": "يُرج جيداً قبل الاستخدام. نسبة الخلط: اخلط جزءاً واحداً من Helios مع جزء واحد من الماء أو مشروب آخر مع الكثير من الثلج، أو اخلط جزءاً واحداً من Helios مع 1.5 جزء من الماء/المشروب مع 1-2 مكعب ثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Desserts und Kaffeespezialitäten.",
+    "en": "Versatile application areas: Cocktails, mocktails, iced teas, lemonades, desserts, and coffee specialties.",
+    "tr": "Geniş kullanım alanları: Kokteyller, mocktail, soğuk çaylar, limonatalar, tatlılar ve kahve çeşitleri.",
+    "ar": "مجالات الاستخدام المتنوعة: الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الحلويات، ومشروبات القهوة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei einer Umgebungstemperatur von 20-22°C, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Haltbarkeit: 18 Monate.",
+    "en": "Store in original packaging at an ambient temperature of 20-22°C, in a dry place away from direct sunlight. Shelf life: 18 months.",
+    "tr": "Orijinal ambalajında, 20-22°C ortam sıcaklığında, kuru ve doğrudan güneş ışığından uzak bir ortamda saklayınız. Raf ömrü: 18 ay.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة محيطة تتراوح بين 20-22 درجة مئوية، في مكان جاف وبعيداً عن أشعة الشمس المباشرة. مدة الصلاحية: 18 شهراً."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Apfelsaft, Wasser, Mandarine, grüner Apfel, Säureregulatoren (Citronensäure, Kaliumcitrat), Feuchthaltemittel (Glycerin), modifizierte Maisstärke, natürliche Aromen (Mandarine, Guave), Gewürzmischung (Ingwer, Kurkuma, Nelke), Konservierungsstoffe (Kaliumsorbat, Natriumbenzoat), natürlicher Farbstoff (Beta-Carotin).",
+    "en": "Sugar, Apple Juice, Water, Mandarin, Green Apple, Acidity Regulators (Citric Acid, Potassium Citrate), Humectant (Glycerin), Modified Corn Starch, Natural Flavoring (Mandarin, Guava), Spice Mix (Ginger, Turmeric, Clove), Preservatives (Potassium Sorbate, Sodium Benzoate), Natural Colorant (Beta Carotene).",
+    "tr": "Şeker, Elma Suyu, Su, Mandalina, Yeşil Elma, Asitlik Düzenleyiciler (Sitrik Asit, Potasyum Sitrat), Nem Verici (Gliserin), Modifiye Mısır Nişastası, Doğal Aroma Vericiler (Mandalina, Guava), Baharat Karışımı (Zencefil, Zerdeçal, Karanfil), Koruyucular (Potasyum Sorbat, Sodyum Benzoat), Doğal Renklendirici (Beta Karoten)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1290,
+      "energie_kcal": 309,
+      "fett": 1.2,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 78.6,
+      "davon_zucker": 54.2,
+      "eiweiss": 1.6,
+      "salz": 0.045
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Grüner Apfel Sirup besticht durch sein authentisches, knackiges Aroma und eine lebendige Farbe, die an frisch gepflückte Äpfel erinnert. Mit seiner hohen Konzentration und perfekten Viskosität verleiht er Cocktails, Limonaden und Desserts eine erfrischende, säuerliche Note. Ein unverzichtbares Premium-Produkt für professionelle Bars und Cafés, das durch seine konstante Qualität und Ergiebigkeit überzeugt.",
+    "en": "FO Green Apple Flavored Syrup offers an authentic, crisp aroma and a vibrant color reminiscent of freshly picked apples. With its high concentration and perfect viscosity, it adds a refreshing, tart profile to cocktails, lemonades, and desserts. An essential premium product for professional bars and cafes, ensuring consistent quality and excellent yield.",
+    "tr": "FO Yeşil Elma Aromalı Şurup, taze toplanmış elmaların otantik, canlı aromasını ve rengini sunar. Yüksek konsantrasyonu ve mükemmel kıvamı ile kokteyllere, limonatalara ve tatlılara ferahlatıcı, hafif ekşimsi bir dokunuş katar. Profesyonel bar ve kafeler için vazgeçilmez bir ürün olup, tutarlı kalitesi ve verimliliği ile öne çıkar.",
+    "ar": "يقدم شراب التفاح الأخضر من FO نكهة أصلية ومنعشة ولوناً نابضاً بالحياة يذكرنا بالتفاح المقطوف طازجاً. بفضل تركيزه العالي وقوامه المثالي، يضفي لمسة منعشة وحامضة على الكوكتيلات والمشروبات الغازية والحلويات. منتج ممتاز لا غنى عنه للمقاهي والبارات الاحترافية، مما يضمن جودة ثابتة وإنتاجية عالية."
+  },
+  "hazirlanisi": {
+    "de": "Für den direkten Genuss mit Wasser im Verhältnis 1:8 verdünnen. Ideal für Cocktails und Mocktails: Dosierung je nach gewünschter Intensität anpassen. Vor Gebrauch schütteln und für optimale Ergebnisse auf Eis servieren.",
+    "en": "For direct consumption, dilute with water at a ratio of 1:8. Ideal for cocktails and mocktails: adjust dosage according to desired intensity. Shake before use and serve over ice for optimal results.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kokteyller ve mocktail'ler için idealdir: yoğunluğa göre dozajı ayarlayın. Kullanmadan önce çalkalayın ve en iyi sonuç için bol buz ile servis edin.",
+    "ar": "للاستهلاك المباشر، يُخفف بالماء بنسبة 1:8. مثالي للكوكتيلات والموكتيلات: اضبط الجرعة حسب الكثافة المطلوبة. يُرج قبل الاستخدام ويُقدم مع الثلج للحصول على أفضل النتائج."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Desserts, Smoothies und Kaffeespezialitäten.",
+    "en": "Versatile application areas: Cocktails, mocktails, iced teas, lemonades, desserts, smoothies, and coffee specialties.",
+    "tr": "Geniş kullanım alanları: Kokteyller, mocktail'ler, soğuk çaylar, limonatalar, tatlılar, smoothie'ler ve kahve çeşitleri.",
+    "ar": "مجالات الاستخدام المتنوعة: الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الحلويات، العصائر (سموذي)، ومشروبات القهوة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre ab Herstellung in ungeöffneter Originalverpackung.",
+    "en": "Store in its original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life: 3 years from production in closed original packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru ortamda saklayın. Doğrudan güneş ışığından koruyun. Raf ömrü: Kapalı orijinal ambalajında üretimden itibaren 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات من تاريخ الإنتاج في العبوة الأصلية المغلقة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulator (Citronensäure E330), Aroma (Grüner Apfel), Konservierungsstoffe (Kaliumsorbat E202, Natriumbenzoat E211), Farbstoffe (Tartrazin E102, Brillantblau E133).",
+    "en": "Sugar, Water, Acidity Regulator (Citric Acid E330), Flavoring (Green apple), Preservatives (Potassium Sorbate E202, Sodium Benzoate E211), Colorants (Tartrazine E102, Brilliant Blue E133).",
+    "tr": "Şeker, Su, Asitlik Düzenleyici (Sitrik Asit E330), Aroma verici (Yeşil elma), Koruyucular (Potasyum Sorbat E202, Sodyum Benzoat E211), Renklendiriciler (Tartrazin E102, Parlak Mavi E133)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 82.6,
+      "davon_zucker": 81.8,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

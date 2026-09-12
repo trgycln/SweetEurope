@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Das FO Vanille-Getränkepulver bietet eine erstklassige, authentische Vanillenote und eine perfekt abgestimmte Textur für professionelle Milkshakes und Smoothies. Dank seiner hohen Konzentration und hervorragenden Löslichkeit sorgt es für ein cremiges Mundgefühl, das Gäste in Cafés und Bars begeistert. Es ist die ideale Wahl für eine effiziente Zubereitung bei gleichbleibend hoher Qualität.",
+    "en": "FO Vanilla Flavored Powder Drink delivers a premium, authentic vanilla profile with a perfectly balanced texture for professional-grade milkshakes and smoothies. Its high concentration and excellent solubility ensure a rich, creamy mouthfeel that delights customers in cafes and bars. It is the ideal choice for efficient preparation while maintaining consistent, high-quality results.",
+    "tr": "FO Vanilya Aromalı İçecek Tozu, profesyonel milkshake ve smoothie hazırlıkları için mükemmel dengelenmiş dokusuyla otantik ve zengin bir vanilya deneyimi sunar. Yüksek konsantrasyonu ve mükemmel çözünürlüğü sayesinde kafe ve barlarda misafirlerinizi etkileyecek kremsi bir kıvam sağlar. Hızlı ve tutarlı sonuçlar için ideal bir tercihtir.",
+    "ar": "يوفر مسحوق مشروب الفانيليا من FO نكهة فانيليا أصلية ومتميزة مع قوام متوازن تماماً لتحضير الميلك شيك والسموذي بجودة احترافية. بفضل تركيزه العالي وقابليته الممتازة للذوبان، يضمن قواماً كريمياً غنياً يبهر العملاء في المقاهي والبارات، مما يجعله الخيار الأمثل لتحضير سريع ونتائج متسقة وعالية الجودة."
+  },
+  "hazirlanisi": {
+    "de": "Für einen perfekten Drink: 40 g (ca. 2 gehäufte Esslöffel) Pulver mit 200 ml pasteurisierter oder sterilisierter kalter Milch/Wasser und 10 Eiswürfeln (ca. 200 ml) in einen Mixer geben. Mixen, bis das Eis zerkleinert ist, und sofort servieren.",
+    "en": "For a perfect drink: Place 40 g (approx. 2 heaped tablespoons) of powder, 200 ml of pasteurized or sterilized cold milk/water, and 10 ice cubes (approx. 200 ml) into a blender. Blend until the ice is crushed and serve immediately.",
+    "tr": "Mükemmel bir içecek için: 40 g (yaklaşık 2 tepeleme yemek kaşığı) tozu, 200 ml pastörize veya sterilize soğuk süt/su ve 10 adet buz küpü (yaklaşık 200 ml) ile birlikte blendera ekleyin. Buzlar kırılana kadar karıştırın ve hemen servis yapın.",
+    "ar": "للحصول على مشروب مثالي: ضع 40 جرام (حوالي ملعقتين كبيرتين ممتلئتين) من المسحوق مع 200 مل من الحليب أو الماء البارد المبستر أو المعقم و10 مكعبات ثلج (تعادل 200 مل) في الخلاط. اخلط المزيج حتى يتكسر الثلج ثم قدمه فوراً."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Milkshakes, Smoothies und weitere kalte Mixgetränke.",
+    "en": "Versatile application areas: Milkshakes, smoothies, and other cold mixed beverages.",
+    "tr": "Geniş kullanım alanları: Milkshake, smoothie ve diğer soğuk karışımlı içecekler.",
+    "ar": "مجالات الاستخدام المتنوعة: الميلك شيك، السموذي، والمشروبات الباردة المخلوطة الأخرى."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre bei ungeöffneter Verpackung.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Shelf life: 2 years in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, modifizierte Maisstärke, Verdickungsmittel (Xanthan E415), Aroma (Vanille), Säureregulator (Citronensäure E330), Trennmittel (Siliciumdioxid E551).",
+    "en": "Sugar, modified corn starch, thickener (xanthan gum E415), flavoring (vanilla), acidity regulator (citric acid E330), anticaking agent (silicon dioxide E551).",
+    "tr": "Şeker, modifiye mısır nişastası, kıvam artırıcı (ksantan gam E415), aroma verici (vanilya), asitlik düzenleyici (sitrik asit E330), topaklanmayı önleyici (silikon dioksit E551)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1660,
+      "energie_kcal": 397,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 96.7,
+      "davon_zucker": 92,
+      "eiweiss": 0.2,
+      "salz": 0.2
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-CUBANMINT-700",
+  "barkod": "8691123475084",
+  "urun_adi": {
+    "de": "FO Kubanische Minze & Limette Basissirup 700ml",
+    "en": "FO Cuban Mint Lime Base Syrup 700ml",
+    "tr": "FO Küba Nanesi ve Misket Limonu Baz Şurup 700ml",
+    "ar": "مركز فـو بالنعناع الكوبي والليمون الأخضر (لايم) 700 مل"
+  },
+  "aciklamalar": {
+    "de": "FO Kubanische Minze & Limette Sirupbasis bietet die perfekte Kombination aus erfrischender kubanischer Minze und spritziger Limette. Ideal für die schnelle und konsistente Zubereitung von Cocktails (wie Mojito), Mocktails und Erfrischungsgetränken.",
+    "en": "FO Cuban Mint Lime Base delivers the authentic and refreshing blend of Cuban mint and zesty key lime. Perfect for crafting classic cocktails such as Mojitos, mocktails, and refreshing summer beverages with balanced flavor.",
+    "tr": "FO Küba Nanesi ve Misket Limonu Baz Şurubu, ferahlatıcı Küba nanesi aroması ile misket limonunun dengeli ekşiliğini bir araya getirir. Mojito başta olmak üzere tüm kokteyl, mocktail ve serinletici içeceklerin hazırlanmasında idealdir.",
+    "ar": "يقدم مركز فـو بنكهة النعناع الكوبي واللايم المزيج المنعش والمثالي لصنع المشروبات الباردة والكوكتيلات الكلاسيكية مثل الموهيتو والموكتيلات بلمسة احترافية متوازنة."
+  },
+  "kullanim_alanlari": {
+    "de": "Geeignet für alkoholische und alkoholfreie Cocktails (Mojito), Limonaden, Eistees und Erfrischungsgetränke. Empfohlene Verdünnung mit Wasser: 1/5.",
+    "en": "Used to make cocktails (e.g. Mojito), mocktails, lemonades, and flavored iced teas, or diluted directly with water at a ratio of 1:5.",
+    "tr": "Kokteyl (özellikle Mojito) ve mocktail yapımında, limonata, soğuk çay ve ferahlatıcı içeceklerin hazırlanmasında kullanılır. Doğrudan tüketim için 1/5 oranında su ile seyreltilmesi tavsiye edilir.",
+    "ar": "يُستخدم في تحضير الكوكتيلات (خاصة الموهيتو)، الموكتيلات، الليموناضة، والمشروبات المنعشة. يُخفف بالماء بنسبة 1/5 للشرب المباشر."
+  },
+  "icindekiler": {
+    "de": "Zucker (%57), Wasser (%38,36), Limettensaft (%3,4), natürliches Aroma (kubanische Minze) (%1,2), Konservierungsstoffe (Kaliumsorbat [E 202] (%0,025), Natriumbenzoat [E 211] (%0,015)).",
+    "en": "Sugar (57%), Water (38.36%), Key Lime Juice (3.4%), Natural Flavoring (Cuban Mint) (1.2%), Preservatives (Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)).",
+    "tr": "Şeker (%57), Su (%38,36), Misket Limonu Suyu (%3,4), Doğal Aroma Verici (Küba Nanesi) (%1,2), Koruyucular (Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)).",
+    "ar": "سكر (57%)، ماء (38.36%)، عصير ليمون لايم (3.4%)، نكهة طبيعية (نعناع كوبي) (1.2%)، مواد حافظة (سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%))."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen gut verschlossen aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep tightly closed after opening.",
+    "tr": "Doğrudan güneş ışığından uzakta, serin ve kuru bir yerde muhafaza ediniz. Açıldıktan sonra kapağını kapalı tutunuz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُحكم إغلاق العبوة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1310,
+      "energie_kcal": 313,
+      "fett": 0,
+      "kohlenhydrate": 75.7,
+      "davon_zucker": 75.4,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.65,
+  "gtip": "210690550000",
+  "palet_ici_koli": 20
+}

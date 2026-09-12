@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-8691123475886",
+  "barkod": "8691123475886",
+  "urun_adi": {
+    "de": "FO Madame Sorrel Sauerampfer-Getränkekonzentrat 1000 g",
+    "en": "FO Madame Sorrel Drink Mix 1000 g",
+    "tr": "FO Madame Sorrel Kuzukulaklı İçecek Karışımı 1000 gr",
+    "ar": "مركز مشروب الحميض مدام سوريل من إف أو 1000 غرام"
+  },
+  "aciklamalar": {
+    "de": "Das FO Madame Sorrel Sauerampfer-Getränkekonzentrat bietet einen erfrischenden, leicht säuerlich-aromatischen Geschmack mit echtem Sauerampfer und Zitronensaftkonzentrat. Ideal geeignet für die Zubereitung von innovativen Erfrischungsgetränken, Eistees, Limonaden und Cocktails in der Gastronomie und zu Hause.",
+    "en": "FO Madame Sorrel Drink Mix offers an exceptionally refreshing and tart herbal profile made with real sorrel and lemon concentrate. Perfectly crafted for innovative lemonades, iced teas, specialty mocktails, and cocktails in bars, cafes, and home kitchens.",
+    "tr": "FO Madame Sorrel Kuzukulaklı İçecek Karışımı, gerçek kuzukulağı ve limon konsantresi ile zenginleştirilmiş dengeli, ferahlatıcı ve ekşimsi bir lezzet sunar. Kokteyl, mocktail, ev yapımı limonata ve soğuk çay hazırlamak için ideal, ikonik bir profesyonel içecek karışımıdır.",
+    "ar": "يقدم مركز مشروب الحميض مدام سوريل من إف أو نكهة عشبية منعشة ومميزة ممزوجة بتركيز الليمون والحميض الطبيعي. مثالي لتحضير الليموناضة المبتكرة والموكتيلات والكوكتيلات والمشروبات الباردة المنعشة للمقاهي والمطاعم."
+  },
+  "kullanim_alanlari": {
+    "de": "Verdünnen Sie 1 Teil Sorrel-Getränkekonzentrat mit 6 Teilen Wasser oder Sodawasser. Vor Gebrauch gut schütteln. Hervorragend geeignet für Limonaden, Eistees, Mocktails, Signature Cocktails und Erfrischungsgetränke.",
+    "en": "Dilute 1 part sorrel drink mix with 6 parts of water or soda. Shake well before use. Ideal for lemonades, iced teas, mocktails, signature cocktails, and specialty cold beverages.",
+    "tr": "1 ölçü kuzukulaklı içecek karışımını 6 ölçü su veya soda ile seyreltiniz. Kullanmadan önce iyice çalkalayınız. Ev yapımı ferahlatıcı içecekler, limonatalar, soğuk çaylar, kokteyl ve mocktail tariflerinde kullanılır.",
+    "ar": "يُخفف مقدار واحد من مركز المشروب مع 6 مقادير من الماء أو المياه الغازية. يُرج جيداً قبل الاستخدام. مثالي لتحضير الليموناضة، الشاي المثلج، الكوكتيلات، والمشروبات الباردة المبتكرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (%50), Wasser (%25,437), Zitronensaftkonzentrat (%11), Sauerampfer (%11), Ascorbinsäure [E 300] (%2), Verdickungsmittel (Pektin, Gellangummi [E 440, E 418]) (%0,3), Konservierungsstoffe (Kaliumsorbat [E 202] (%0,14), Natriumbenzoat [E 211] (%0,08)), Farbstoffe (Beta-Carotin [E 160a] (%0,04), Blaukornblumen-Extrakt (%0,003)).",
+    "en": "Sugar (50%), Water (25.437%), Lemon Concentrate (11%), Sorrel (11%), Ascorbic acid [E 300] (2%), Thickeners (Pectin, Gellan gum [E 440, E 418]) (0.3%), Preservatives (Potassium sorbate [E 202] (0.14%), Sodium benzoate [E 211] (0.08%)), Colors (Beta-carotene [E 160a] (0.04%), Blue corn extract (0.003%)).",
+    "tr": "Şeker (%50), Su (%25,437), Limon Konsantresi (%11), Kuzukulağı (%11), Askorbik asit [E 300] (%2), Kıvam arttırıcılar (Pektin, Jellan gam [E 440, E 418]) (%0,3), Koruyucular (Potasyum sorbat [E 202] (%0,14), Sodyum benzoat [E 211] (%0,08)), Renklendiriciler (Beta-karoten [E 160a] (%0,04), Mavi kantaron çiçeği özütü (%0,003)).",
+    "ar": "سكر (50%)، ماء (25.437%)، مركز الليمون (11%)، حميض (11%)، حمض الأسكوربيك [E 300] (2%)، مغلظات القوام (بكتين، صمغ الجيلان [E 440، E 418]) (0.3%)، مواد حافظة (سوربات البوتاسيوم [E 202] (0.14%)، بنزوات الصوديوم [E 211] (0.08%))، ملونات (بيتا كاروتين [E 160a] (0.04%)، مستخلص الذرة الزرقاء (0.003%))."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen gut verschlossen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep refrigerated after opening with the lid tightly closed.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığı almayan bir yerde muhafaza ediniz. Açıldıktan sonra ağzı kapalı şekilde buzdolabında saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُحفظ في الثلاجة بعد الفتح مع إغلاق العبوة بإحكام."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 938,
+      "energie_kcal": 224,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 57.6,
+      "davon_zucker": 51.9,
+      "ballaststoffe": 0.4,
+      "eiweiss": 0.5,
+      "salz": 0.013
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 20
+}

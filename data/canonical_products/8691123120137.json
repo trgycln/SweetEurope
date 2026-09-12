@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-70120137",
+  "barkod": "8691123120137",
+  "urun_adi": {
+    "de": "FO Sakura und Weißer Pfirsich Aromatisierter Basis Sirup 70 cl",
+    "en": "FO Sakura and White Peach Flavored Base Syrup 70 cl",
+    "tr": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 70 cl",
+    "ar": "شراب أساس بنكهة الساكورا والخوخ الأبيض FO 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Bar- und Cocktail-Basis Sirup mit erfrischender Sakura- und Weißer-Pfirsich-Note, perfekt für Cocktails und Erfrischungsgetränke.",
+    "en": "High-quality bar and cocktail base syrup with refreshing sakura and white peach flavor, perfect for cocktails and refreshments.",
+    "tr": "Sakura ve beyaz şeftali notalarıyla zenginleştirilmiş, kokteyller ve ferahlatıcı içecekler için ideal yüksek kaliteli baz şurup.",
+    "ar": "شراب أساس عالي الجودة للبارات والكوكتيلات بنكهة الساكورا والخوخ الأبيض المنعشة، مثالي للكوكتيلات والمشروبات المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Für 450ml Becher; 1 Portionslöffel (40ml) Basis Sirup optional mit 5 Portionslöffeln (200ml) Wasser verdünnen und mit viel Eis servieren.",
+    "en": "For 450ml cup; 1 scoop (40ml) base is diluted optionally with 5 scopes (200ml) of water and served with plenty of ice.",
+    "ar": "للبطولة 450 مل؛ يخفف ملعقة واحدة (40 مل) من الأساس اختيارياً مع 5 ملاعق (200 مل) من الماء ويقدم مع الكثير من الثلج."
+  },
+  "icindekiler": {
+    "de": "Zucker (56%), Wasser (40,099%), Citronensäure, Kaliumcitrat, E 330, E 332ii (3,46%), Aromen (Sakura, Weißer Pfirsich) (0,4%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Hibiskusextrakt (0,001%)",
+    "en": "Sugar (56%), Water (40.099%), Citric Acid, Potassium Citrate, E 330, E 332ii (3.46%), Flavouring (Sakura, White Peach) (0.4%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%), Hibiscus Extract (0.001%)",
+    "tr": "Şeker (%56), Su (%40,099), Sitrik Asit, Potasyum Sitrat, E 330, E 332ii (%3,46), Aroma Verici (Sakura, Beyaz Şeftali) (%0,4), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015), Hibiskus Ekstraktı (%0,001%)",
+    "ar": "سكر (56%)، ماء (40.099%)، حمض الستريك، سترات البوتاسيوم، E 330، E 332ii (3.46%)، منكهات (ساكورا، خوخ أبيض) (0.4%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)، مستخلص الكركديه (0.001%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direkter Sonneneinstrahlung schützen.",
+    "en": "Store in a cool and dry place, away from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayın, doğrudan güneş ışığından koruyun.",
+    "ar": "يخزن في مكان بارد وجاف، بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 975,
+      "energie_kcal": 233,
+      "fett": 0,
+      "kohlenhydrate": 55.3,
+      "davon_zucker": 55.3,
+      "eiweiss": 0,
+      "salz": 0.008
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "tip": "70 cl / Glass bottle"
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 20
+}

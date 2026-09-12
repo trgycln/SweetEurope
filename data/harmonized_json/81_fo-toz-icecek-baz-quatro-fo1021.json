@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Pulver Getränkebasis (Quatro) ist die ideale Lösung für professionelle Cafés und Bars, um eine perfekte, cremige Konsistenz in Smoothies, Frappés, Milkshakes und Frozen-Getränken zu erzielen. Diese hochkonzentrierte Basis bietet eine hervorragende Textur und Stabilität, die Ihre Kreationen auf ein neues Level hebt. Dank der einfachen Dosierung sparen Sie wertvolle Zeit in der Zubereitung, ohne Kompromisse bei der Qualität einzugehen.",
+    "en": "The FO Powder Drink Base (Quatro) is the professional solution for cafes and bars to achieve a perfect, creamy consistency in smoothies, frappes, milkshakes, and frozen drinks. This highly concentrated base provides superior texture and stability, elevating your beverage menu. Its precise formulation ensures consistent results and efficient preparation, making it an essential tool for high-volume service.",
+    "tr": "FO Toz İçecek Bazı (Quatro), smoothie, frappe, milkshake ve frozen içeceklerde mükemmel ve kremsi bir kıvam elde etmek isteyen profesyonel kafe ve barlar için ideal bir çözümdür. Yüksek konsantrasyonlu bu baz, içeceklerinize üstün bir doku ve stabilite kazandırarak menünüzü bir üst seviyeye taşır. Kolay dozajlanabilir yapısı sayesinde, kaliteden ödün vermeden hızlı ve verimli bir hazırlık süreci sağlar.",
+    "ar": "تعد قاعدة مشروبات FO البودرة (Quatro) الحل الأمثل للمقاهي والبارات الاحترافية للحصول على قوام كريمي مثالي في السموذي، والفرابي، والميلك شيك، والمشروبات المثلجة. توفر هذه القاعدة عالية التركيز قواماً وثباتاً فائقين، مما يرتقي بمستوى مشروباتك. بفضل سهولة معايرتها، تضمن لك نتائج متسقة وتحضيراً سريعاً وفعالاً في أوقات الذروة."
+  },
+  "hazirlanisi": {
+    "de": "Für ein 300ml Glas: 20g Pulver verwenden. Für ein 400ml Glas: 30g Pulver verwenden. Für ein 500ml Glas: 40g Pulver verwenden. Mit den gewünschten Zutaten (Milch/Wasser/Eis) mixen, bis die gewünschte Konsistenz erreicht ist.",
+    "en": "For a 300ml glass: use 20g of powder. For a 400ml glass: use 30g of powder. For a 500ml glass: use 40g of powder. Blend with your chosen ingredients (milk/water/ice) until the desired consistency is achieved.",
+    "tr": "300ml bardak için: 20g toz kullanın. 400ml bardak için: 30g toz kullanın. 500ml bardak için: 40g toz kullanın. İstenilen kıvama gelene kadar süt/su/buz ile karıştırın.",
+    "ar": "لكوب سعة 300 مل: استخدم 20 جرام من البودرة. لكوب سعة 400 مل: استخدم 30 جرام من البودرة. لكوب سعة 500 مل: استخدم 40 جرام من البودرة. تخلط مع المكونات المختارة (حليب/ماء/ثلج) حتى الوصول للقوام المطلوب."
+  },
+  "kullanim_alanlari": {
+    "de": "Smoothies, Frappés, Milkshakes, Frozen-Getränke.",
+    "en": "Smoothies, frappes, milkshakes, frozen drinks.",
+    "tr": "Smoothie, frappe, milkshake, frozen içecekler.",
+    "ar": "السموذي، الفرابي، الميلك شيك، المشروبات المثلجة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Fettmilchpulver, modifizierte Maisstärke, Verdickungsmittel (Pektin E440, Carboxymethylcellulose E466), Emulgatoren (Mono- und Diglyceride von Speisefettsäuren E471, Essigsäureester von Mono- und Diglyceriden von Speisefettsäuren E472a), Trennmittel (Siliciumdioxid E551), Aroma (Vanille, Milch).",
+    "en": "Sugar, fatty milk powder, modified corn starch, thickeners (pectin E440, carboxymethyl cellulose E466), emulsifiers (mono and diglycerides of fatty acids E471, acetic acid esters of mono and diglycerides of fatty acids E472a), anticaking agent (silicon dioxide E551), flavoring (vanilla, milk).",
+    "tr": "Şeker, yağlı süt tozu, modifiye mısır nişastası, kıvam artırıcılar (pektin E440, karboksimetil selüloz E466), emülgatörler (yağ asitlerinin mono ve digliseritleri E471, yağ asitlerinin mono ve digliseritlerinin asetik asit esterleri E472a), topaklanmayı önleyici (silikon dioksit E551), aroma verici (vanilya, süt)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1910,
+      "energie_kcal": 457,
+      "fett": 12.1,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 91.8,
+      "davon_zucker": 67.2,
+      "eiweiss": 2.2,
+      "salz": 0.7
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": true
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-MNG-1000",
+  "barkod": "8691123340948",
+  "urun_adi": {
+    "de": "FO Mango Fruchtsoße 1 kg",
+    "en": "FO Mango Fruited Sauce 1 kg",
+    "tr": "FO Mangolu Meyveli Sos 1 kg",
+    "ar": "صلصة المانجو بالفاكهة فو 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "FO Mango Fruchtsoße mit 50% echten Mango-Stücken eignet sich ideal als Topping für Eiscreme, Desserts, Waffeln, Pfannkuchen und zur Zubereitung köstlicher Frozen-Getränke und Cocktails.",
+    "en": "FO Mango Fruited Sauce containing 50% real mango fruit pieces is perfect for topping ice cream, desserts, waffles, pancakes, and for preparing refreshing frozen drinks and cocktails.",
+    "tr": "%50 oranında gerçek mango meyvesi içeren FO Mangolu Meyveli Sos; dondurma, tatlı, krep, waffle ve pasta süslemelerinde ve serinletici frozen içecek hazırlığında mükemmel lezzet ve görünüm sunar.",
+    "ar": "صلصة المانجو بالفاكهة من فو التي تحتوي على 50٪ من قطع المانجو الحقيقية مثالية لتزيين الآيس كريم والحلويات والوافل والكب كيك ولتحضير المشروبات المثلجة (فروزن) والكوكتيلات المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal für Eiscreme, Desserts, Gebäck und Frozen-Getränke. Praktische Anwendung: Für Frozen-Getränke 1 Teil Soße mit 3 Teilen Crushed Ice im Hochleistungsmixer zubereiten.",
+    "en": "Ideal for ice creams, desserts, pastries, and frozen drinks. Practical use: For frozen drinks, blend 1 volume of sauce with 3 volumes of crushed ice in a high-speed blender.",
+    "tr": "Dondurmalar, tatlılar, pastacılık ürünleri ve frozen içeceklerde kullanılır. Pratik kullanım: Frozen yapımı için 1 ölçek sos ile 3 ölçek kırılmış buz yüksek hızlı blenderda karıştırılarak hazırlanabilir.",
+    "ar": "مثالية للآيس كريم والحلويات والمخبوزات والمشروبات المثلجة. الاستخدام العملي: لتحضير المشروبات المثلجة، يتم خلط مقدار واحد من الصلصة مع 3 مقادير من الثلج المجروش في خلاط عالي السرعة."
+  },
+  "icindekiler": {
+    "de": "Mango (50%), Zucker (48%), Modifizierte Maisstärke (1%), Trisodiumcitrat, Weinsäure, E 331iii, E334 (0,5%), Aroma (Mango) (0,29%), Salz (0,1%), Kaliumsorbat [E 202] (0,1%), Gelborange S*, Farbstoff [E 110] (0,01%). *Der Gehalt an Gelborange S (E110) darf 50 mg/kg nicht überschreiten.",
+    "en": "Mango (50%), Sugar (48%), Modified corn starch (1%), Trisodium citrate, Tartaric acid, E 331iii, E334 (0.5%), Flavoring (Mango) (0.29%), Salt (0.1%), Potassium Sorbate [E 202] (0.1%), Sunset yellow*, Coloring [E 110] (0.01%). *The amount of Sunset Yellow (E110) mustn’t be higher than 50 mg/kg.",
+    "tr": "Mango (%50), Şeker (%48), Modifiye mısır nişastası (%1), Trisodyum sitrat, Tartarik asit, E 331iii, E334 (%0,5), Aroma verici (Mango) (%0,29), Tuz (%0,1), Potasyum sorbat [E 202] (%0,1), Sunset yellow*, Renklendirici [E 110] (%0,01). *Sunset Yellow (E110) miktarı 50 mg/kg'dan fazla olmamalıdır.",
+    "ar": "مانجو (50٪)، سكر (48٪)، نشا الذرة المعدل (1٪)، سترات ثلاثي الصوديوم، حمض الطرطريك، E 331iii، E334 (0.5٪)، نكهة (مانجو) (0.29٪)، ملح (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)، أصفر الغروب*، مادة ملونة [E 110] (0.01٪). *يجب ألا تزيد كمية أصفر الغروب (E110) عن 50 مجم/كجم."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor directem Sonnenlicht schützen.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzakta saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 974,
+      "energie_kcal": 233,
+      "fett": 0.2,
+      "kohlenhydrate": 55.5,
+      "davon_zucker": 53.4,
+      "eiweiss": 1,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 6.01,
+  "gtip": "200799390019",
+  "palet_ici_koli": 40
+}

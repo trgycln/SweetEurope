@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123340931",
+  "barkod": "8691123340931",
+  "urun_adi": {
+    "de": "FO Kiwi Fruchtsauce - Frozen 1 kg",
+    "en": "FO Kiwi Fruited Sauce - Frozen 1 kg",
+    "tr": "FO Kivi Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة الكيوي بالفاكهة من إف أوه - فروزن 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "FO Kiwi Fruchtsauce wird aus echten Kiwis hergestellt und eignet sich perfekt für die Zubereitung von gefrorenen Getränken (Frozen Drinks), Cocktails, Desserts und Eiscreme. Sie bietet einen erfrischenden und natürlichen Kiwi-Geschmack.",
+    "en": "FO Kiwi Fruited Sauce is made with real kiwis, perfect for preparing frozen drinks, cocktails, desserts, and ice creams. Offers a refreshing and natural kiwi flavor.",
+    "tr": "Gerçek kivi parçaları içeren FO Kivi Meyveli Sos, özellikle frozen içecekler, kokteyller, tatlılar ve dondurmalar için idealdir. Ferahlatıcı ve doğal kivi lezzeti sunar.",
+    "ar": "صُنعت صلصة الكيوي بالفاكهة من إف أوه باستخدام الكيوي الحقيقي، وهي مثالية لإعداد المشروبات المثلجة (الفروزن)، والكوكتيلات، والحلويات، والآيس كريم. تمنح نكهة الكيوي المنعشة والطبيعية."
+  },
+  "kullanim_alanlari": {
+    "de": "Anwendung ist sehr praktisch: Für Frozen-Getränke 1 Teil Sauce mit 3 Teilen Crushed Ice in einem Hochleistungsmixer mixen. Auch ideal als Topping für Eiscreme, Waffeln, Pfannkuchen und Gebäck.",
+    "en": "Application is very practical: For frozen drinks, mix 1 volume of sauce with 3 volumes of crushed ice in a high-speed blender. Also ideal for ice cream toppings, waffles, pancakes, and pastry products.",
+    "tr": "Uygulaması çok pratiktir. Frozen hazırlığı için yüksek hızlı blenderda 1 ölçek sos ile 3 ölçek kırılmış buz karıştırılır. Ayrıca dondurma, waffle, pankek ve pastacılık ürünlerinde sos ve süsleme olarak kullanılır.",
+    "ar": "الاستخدام عملي للغاية: لإعداد المشروبات المثلجة (الفروزن)، يُمزج جزء واحد من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. مثالي أيضاً كطبقة علوية للآيس كريم، والوافل، والبان كيك، والحلويات."
+  },
+  "icindekiler": {
+    "de": "Kiwi (50%), Zucker (46%), modifizierte Maisstärke (3%), Trisodiumcitrat, Weinsäure, E 331iii, E 334 (0,6%), Aroma (Kiwi) (0,19%), Salz (0,1%), Kaliumsorbat [E 202] (0,1%), Tartrazin, Brillantblau, Farbstoffe [E 102, E 133] (0,01%).",
+    "en": "Kiwi (50%), Sugar (46%), Modified corn starch (3%), Trisodium citrate, Tartaric acid, E 331iii, E 334 (0.6%), Flavoring (Kiwi) (0.19%), Salt (0.1%), Potassium Sorbate [E 202] (0.1%), Tartrazine, Brilliant Blue, Coloring [E 102, E 133] (0.01%).",
+    "tr": "Kivi (%50), Şeker (%46), Modifiye mısır nişastası (%3), Trisodyum sitrat, Tartarik asit, E 331iii, E 334 (%0,6), Aroma verici (Kivi) (%0,19), Tuz (%0,1), Potasyum sorbat [E 202] (%0,1), Tartrazin, Brilliant Blue, Renklendirici [E 102, E 133] (%0,01).",
+    "ar": "كيوي (50٪)، سكر (46٪)، نشا الذرة المعدل (3٪)، سترات ثلاثي الصوديوم، حمض الطرطريك، E 331iii، E 334 (0.6٪)، نكهة (كيوي) (0.19٪)، ملح (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)، تارترازين، أزرق براق، ملونات [E 102، E 133] (0.01٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor directem Sonnenlicht schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep refrigerated after opening.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzakta saklayınız. Açıldıktan sonra buzdolabında muhafaza ediniz.",
+    "ar": "يحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 999,
+      "energie_kcal": 239,
+      "fett": 0.1,
+      "kohlenhydrate": 57.2,
+      "davon_zucker": 56.2,
+      "eiweiss": 0.7,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200799390019",
+  "palet_ici_koli": 10
+}

@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der Fo Minz- und Limetten-Sirup bietet eine erfrischende und hochkonzentrierte Geschmackskombination, die speziell für professionelle Bars und Cafés entwickelt wurde. Mit seinem authentischen Aroma und der perfekten Balance zwischen spritziger Limette und kühler Minze verleiht er Kaltgetränken eine unverwechselbare Note. Die homogene Struktur sorgt für eine einfache Handhabung und gleichbleibende Qualität bei jeder Zubereitung.",
+    "en": "The Fo Mint and Lime Flavored Syrup delivers a refreshing and highly concentrated flavor profile, specifically crafted for professional bars and cafes. Featuring an authentic taste balance between zesty lime and cool mint, it adds a distinctive character to cold beverages. Its homogenized structure ensures ease of use and consistent quality in every preparation.",
+    "tr": "Fo Nane ve Limon Aromalı İçecek Şurubu, profesyonel kafe ve barlar için özel olarak geliştirilmiş, yüksek konsantrasyonlu ve ferahlatıcı bir lezzet profili sunar. Canlı limon ve serinletici nane notalarının mükemmel dengesiyle soğuk içeceklerinize benzersiz bir karakter katar. Homojen yapısı sayesinde her hazırlıkta kolay kullanım ve tutarlı kalite sağlar.",
+    "ar": "يقدم شراب النعناع والليمون من فو نكهة منعشة ومركزة للغاية، مصممة خصيصاً للمقاهي والبارات الاحترافية. بفضل توازنه المثالي بين نكهة الليمون الحامض والنعناع المنعش، يضفي طابعاً مميزاً على المشروبات الباردة. يضمن قوامه المتجانس سهولة الاستخدام وجودة ثابتة في كل تحضير."
+  },
+  "hazirlanisi": {
+    "de": "Für einen 450-ml-Becher: 1 Teil (40 ml) Sirup mit 3 bis 5 Teilen (120 ml - 200 ml) Wasser mischen und mit reichlich Eis servieren.",
+    "en": "For a 450ml cup: Mix 1 part (40ml) of syrup with 3 to 5 parts (120ml - 200ml) of water and serve with plenty of ice.",
+    "tr": "450 ml'lik bir bardak için: 1 ölçü (40 ml) şurubu, 3 ila 5 ölçü (120 ml - 200 ml) su ile karıştırın ve bol buz ile servis edin.",
+    "ar": "لكوب سعة 450 مل: اخلط جزءاً واحداً (40 مل) من الشراب مع 3 إلى 5 أجزاء (120 مل - 200 مل) من الماء وقدمه مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal für die Zubereitung von Kaltgetränken, Cocktails, Mocktails, Limonaden und Eistees.",
+    "en": "Ideal for the preparation of cold drinks, cocktails, mocktails, lemonades, and iced teas.",
+    "tr": "Soğuk içecekler, kokteyller, mocktail'ler, limonatalar ve soğuk çayların hazırlanması için idealdir.",
+    "ar": "مثالي لتحضير المشروبات الباردة، والكوكتيلات، والموكتيلات، وعصائر الليمون، والشاي المثلج."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 3 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: 3 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulatoren (Citronensäure, Kaliumcitrat), Aroma (Minze, Limette), Konservierungsstoffe (Kaliumsorbat, Natriumbenzoat), Farbstoff (Annatto).",
+    "en": "Sugar, Water, Acidity Regulators (Citric Acid, Potassium Citrate), Flavouring (Spearmint, Lime), Preservatives (Potassium Sorbate, Sodium Benzoate), Colorant (Annatto).",
+    "tr": "Şeker, Su, Asitlik Düzenleyiciler (Sitrik Asit, Potasyum Sitrat), Aroma Verici (Nane, Limon), Koruyucular (Potasyum Sorbat, Sodyum Benzoat), Renklendirici (Annatto)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 937,
+      "energie_kcal": 224,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 51.7,
+      "davon_zucker": 51.7,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

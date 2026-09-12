@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-BANANA-1KG",
+  "barkod": "8691123340986",
+  "urun_adi": {
+    "de": "FO Bananen Fruchtsauce 1 kg",
+    "en": "FO Banana Fruited Sauce 1 kg",
+    "tr": "FO Muz Meyveli Sos 1 kg",
+    "ar": "صلصة الموز مع قطع الفاكهة فو 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Bananensauce mit echten Fruchtstücken für Frozen Drinks, Desserts, Eis und Cocktails.",
+    "en": "High-quality banana fruited sauce containing real fruit pieces, perfect for frozen beverages, desserts, ice creams, and cocktails.",
+    "tr": "Gerçek meyve parçacıkları içeren, frozen içecekler, tatlılar, dondurmalar ve kokteyller için ideal kaliteli muz meyveli sos.",
+    "ar": "صلصة فاكهة الموز عالية الجودة تحتوي على قطع فاكهة حقيقية، مثالية للمشروبات المثلجة والحلويات والآيس كريم والكوكتيلات."
+  },
+  "kullanim_alanlari": {
+    "de": "Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen Crushed Ice im Hochleistungsmixer mixen. Auch ideal für Deko, Eiscreme, Desserts und Cocktails.",
+    "en": "For frozen drinks: mix 1 volume of sauce with 3 volumes of crushed ice in a high-speed blender. Also ideal for toppings, ice cream, desserts, and cocktails.",
+    "tr": "Frozen hazırlamak için 1 ölçek sos ile 3 ölçek kırılmış buz yüksek hızlı blenderda karıştırılır. Ayrıca tatlılarda, dondurmalarda, süslemede ve kokteyllerde kullanılır.",
+    "ar": "لتحضير المشروبات المثلجة: اخلط جزءًا واحدًا من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. مثالي أيضاً للحلويات والآيس كريم والكوكتيلات."
+  },
+  "icindekiler": {
+    "de": "Zucker (55%), Wasser (20%), Banane (20%), Modifizierte Maisstärke (4,095%), Weinsäure, Trisodiumcitrat [E 334, E 331iii] (0,3%), Salz (0,3%), Aroma (Banane) (0,2%), Kaliumsorbat [E 202] (0,1%), Riboflavin, Farbstoff [E 101] (0,005%).",
+    "en": "Sugar (55%), Water (20%), Banana (20%), Modified corn starch (4.095%), Tartaric acid, Trisodium citrate [E 334, E 331iii] (0.3%), Salt (0.3%), Flavoring (Banana) (0.2%), Potassium sorbate [E 202] (0.1%), Riboflavin, Colourant [E 101] (0.005%).",
+    "tr": "Şeker (%55), Su (%20), Muz (%20), Modifiye mısır nişastası (%4,095), Tartarik asit, Trisodyum sitrat [E 334, E 331iii] (%0,3), Tuz (%0,3), Aroma verici (Muz) (%0,2), Potasyum sorbat [E 202] (%0,1), Riboflavin, Renklendirici [E 101] (%0,005).",
+    "ar": "سكر (55%)، ماء (20%)، موز (20%)، نشا الذرة المعدل (4.095%)، حمض التارتاريك، سترات ثلاثي الصوديوم [E 334، E 331iii] (0.3%)، ملح (0.3%)، نكهة (موز) (0.2%)، سوربات البوتاسيوم [E 202] (0.1%)، ريبوفلافين، ملون [E 101] (0.005%)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direktem Sonnenlicht schützen.",
+    "en": "Store in a cool, dry place. Keep away from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayınız. Doğrudan güneş ışığından koruyunuz.",
+    "ar": "يحفظ في مكان بارد وجاف. بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1130,
+      "energie_kcal": 270,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 66.1,
+      "davon_zucker": 49.4,
+      "ballaststoffe": 0.3,
+      "eiweiss": 0.2,
+      "salz": 0.13
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200799390019",
+  "palet_ici_koli": 15
+}

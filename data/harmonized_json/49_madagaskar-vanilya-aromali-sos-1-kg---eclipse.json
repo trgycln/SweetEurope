@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Madagascar Vanille-Sauce bietet ein authentisches, tiefes Vanillearoma durch die Verwendung von echtem Madagaskar-Vanilleextrakt. Diese professionelle Sauce zeichnet sich durch ihre homogene Textur und hohe Konzentration aus, die sie ideal für die Veredelung von Kaffeespezialitäten, Desserts und Eiscreme macht. Sie verleiht Ihren Kreationen eine luxuriöse Note und sorgt für eine gleichbleibend hohe Qualität in jedem Café oder Bar-Betrieb.",
+    "en": "FO Madagascar Vanilla Sauce delivers an authentic, deep vanilla profile crafted with premium Madagascar vanilla extract. This professional-grade sauce features a smooth, homogeneous texture and high concentration, making it the perfect choice for elevating coffee specialties, desserts, and ice cream. It adds a luxurious finish to your creations, ensuring consistent, high-quality results for any café or bar environment.",
+    "tr": "FO Madagaskar Vanilya Sosu, gerçek Madagaskar vanilya özü ile zenginleştirilmiş otantik ve derin bir aroma profili sunar. Homojen yapısı ve yüksek konsantrasyonu ile öne çıkan bu profesyonel sos, kahve spesiyalleri, tatlılar ve dondurmaların lezzetini mükemmelleştirmek için idealdir. İşletmenizde sunduğunuz ürünlere lüks bir dokunuş katarak, kafe ve bar menülerinizde standart üstü bir kalite sağlar.",
+    "ar": "تقدم صلصة فانيليا مدغشقر من FO نكهة فانيليا أصلية وعميقة بفضل مستخلص فانيليا مدغشقر الطبيعي. تتميز هذه الصلصة الاحترافية بقوامها المتجانس وتركيزها العالي، مما يجعلها الخيار الأمثل لتحسين نكهة القهوة والحلويات والآيس كريم. تضفي لمسة فاخرة على إبداعاتك وتضمن جودة ثابتة ومتميزة في المقاهي والبارات."
+  },
+  "hazirlanisi": {
+    "de": "Direkt anwendbar. Empfohlene Dosierung: 15-30 Gramm pro Portion zur Verfeinerung von heißen und kalten Getränken oder als Topping für Desserts.",
+    "en": "Applied directly. Recommended dosage: 15-30 grams per serving to enhance the flavor of hot and cold beverages or as a topping for desserts.",
+    "tr": "Doğrudan uygulanır. Önerilen dozaj: Sıcak ve soğuk içeceklerin lezzetini artırmak veya tatlıların üzerinde sos olarak kullanmak için porsiyon başına 15-30 gram.",
+    "ar": "تستخدم مباشرة. الجرعة الموصى بها: 15-30 جرام لكل حصة لتعزيز نكهة المشروبات الساخنة والباردة أو كإضافة للحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Kaffeespezialitäten, Eiscreme-Topping, Desserts, heiße und kalte Getränke.",
+    "en": "Coffee specialties, ice cream topping, desserts, hot and cold beverages.",
+    "tr": "Kahve spesiyalleri, dondurma sosu, tatlılar, sıcak ve soğuk içecekler.",
+    "ar": "مشروبات القهوة المتخصصة، صوص للآيس كريم، الحلويات، المشروبات الساخنة والباردة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22°C under dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıl.",
+    "ar": "تُحفظ في عبوتها الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Feuchthaltemittel (Glycerin E422), modifizierte Maisstärke, natürlicher Farbstoff (Pflanzenkohle E153), natürliches Vanillearoma, Madagaskar-Vanilleextrakt, Säureregulatoren (Trinatriumcitrat E331iii, Citronensäure E330), Konservierungsstoff (Kaliumsorbat E202), Salz.",
+    "en": "Sugar, Water, Humectant (Glycerine E422), Modified Corn Starch, Natural Colorant (Black Carbon E153), Natural Flavoring (Vanilla), Madagascar Vanilla extract, Acidity Regulators (Trisodium Citrate E331iii, Citric Acid E330), Preservative (Potassium Sorbate E202), Salt.",
+    "tr": "Şeker, Su, Nem verici (Gliserin E422), Modifiye Mısır Nişastası, Doğal Renklendirici (Bitkisel Karbon E153), Doğal Aroma Verici (Vanilya), Madagaskar Vanilya özü, Asitlik Düzenleyiciler (Trisodyum Sitrat E331iii, Sitrik Asit E330), Koruyucu (Potasyum Sorbat E202), Tuz."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 996,
+      "energie_kcal": 238,
+      "fett": 0.4,
+      "davon_gesaettigt": 0.1,
+      "kohlenhydrate": 65.6,
+      "davon_zucker": 55.6,
+      "eiweiss": 0.0,
+      "salz": 0.18
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

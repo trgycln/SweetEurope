@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123453037",
+  "barkod": "8691123453037",
+  "urun_adi": {
+    "de": "FO Pulver Getränkebasis (Quatro) 1 kg",
+    "en": "FO Powder Drink Base (Quatro) 1 kg",
+    "tr": "FO Toz İçecek Bazı (Quatro) 1 kg",
+    "ar": "قاعدة مشروبات مسحوق FO (كواترو) 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Speziell entwickeltes Getränkepulver zur Bereitstellung der gewünschten Konsistenz in Milchshakes, Frappes, Smoothies und Frozen-Getränken.",
+    "en": "Specially formulated drink powder designed to provide the desired consistency in milkshakes, frappes, smoothies, and frozen beverages.",
+    "tr": "Milkshake, frappe, smoothie ve frozen gibi içeceklerde istenilen kıvamı sağlamak için özel olarak formüle edilmiş toz içecek bazıdır.",
+    "ar": "مسحوق مشروبات مصمم خصيصاً لتوفير القوام المطلوب في الميلك شيك، الفرايب, السموذي والمشروبات المجمدة."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird verwendet, um die gewünschte Konsistenz in Milchshake, Frappe, Smoothie, Frozen zu verleihen",
+    "en": "It is used to provide the desired consistency in milkshake, frappe, smoothie, frozen",
+    "tr": "Milkshake, frappe, smoothie, frozen gibi içeceklerde istenilen kıvamı sağlamak için kullanılır",
+    "ar": "يستخدم لتوفير القوام المرغوب في الميلك شيك، الفرايب، السموذي، المشروبات المجمدة"
+  },
+  "icindekiler": {
+    "de": "Zucker (70%), Fettmilchpulver (13%), Modifizierte Maisstärke (12,2%), Pektin, Carboxymethylcellulose [E 440, E 466] (2%), Mono- und Diglyceride von Speisefettsäuren, Essigsäureester von Mono- und Diglyceriden von Speisefettsäuren [E471] [E472a], Siliciumdioxid, Trennmittel [E551] (0,3%), Vanille, Milch (0,5%)",
+    "en": "Sugar (70%), Fatty milk powder (13%), Modified Corn Starch (12.2%), Pectin, Carboxymethyl cellulose [E 440, E 466] (2%), Mono and diglycerides of fatty acids, Acetic acid esters of mono and diglycerides of fatty acids [E471] [E472a], Silicon dioxide, Anticaking agent [E551] (0.3%), Vanilla, Milk (0.5%)",
+    "tr": "Şeker (%70), Yağlı süt tozu (%13), Modifiye mısır nişastası (%12,2), Pektin, Karboksimetil selüloz [E 440, E 466] (%2), Yağ asitlerinin mono ve digliseritleri, Yağ asitlerinin mono ve digliseritlerinin asetik asit esterleri [E471] [E472a], Silisyum dioksit, Topaklanmayı önleyici [E551] (%0,3), Vanilya, Süt (%0,5)",
+    "ar": "سكر (70%)، مسحوق الحليب الدسم (13%)، نشا الذرة المعدل (12.2%)، بكتين، كاربوكسي ميثيل سليلوز [E 440, E 466] (2%)، أحادي وثنائي glycerides الأحماض الدهنية، استرات حمض الخليك لأحادي وثنائي glycerides الأحماض الدهنية [E471] [E472a]، ثاني أكسيد السيليكون، عامل مضاد للتكتل [E551] (0.3%)، فانيليا، حليب (0.5%)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzak tutarak saklayınız.",
+    "ar": "يخزن في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte, glutenhaltiges Getreide, Schalenfrüchte / Nüsse.",
+    "en": "Contains Dairy / Milk products, Soy products, Gluten, Tree nuts.",
+    "tr": "Süt ürünleri, soya ürünleri, gluten, fındık / fıstık / kuruyemiş içerir.",
+    "ar": "يحتوي على منتجات الألبان، منتجات الصويا، الغلوتين، المكسرات."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1910,
+      "energie_kcal": 457,
+      "fett": 12.1,
+      "kohlenhydrate": 91.8,
+      "davon_zucker": 67.2,
+      "eiweiss": 2.2,
+      "salz": 0.7
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 6,
+  "gtip": "210690980019",
+  "palet_ici_koli": 10
+}

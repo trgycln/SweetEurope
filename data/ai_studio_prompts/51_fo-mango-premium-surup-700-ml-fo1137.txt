@@ -1,0 +1,264 @@
+=== GOOGLE AI STUDIO INSTRUCTION ===
+Temperature: 0
+Model: Gemini 2.5 Pro or Gemini 1.5 Pro (or Gemini 3.8/3.5 Flash)
+
+--- SYSTEM INSTRUCTIONS ---
+You are a precision food scientist, barista master, and multilingual B2B catalog copywriter for ElysonSweets (Germany).
+Your task is to harmonize, verify, and write rich, authoritative B2B product documentation from the provided Product Specification (.doc) and Official Label (.pdf).
+
+ABSOLUTE RULES (TEMPERATURE 0):
+1. ZERO HALLUCINATION for technical, ingredients, allergen, and nutritional data: Only use information stated in the source documents. If not present, output null.
+2. In 'aciklamalar': Write a rich, professional, mouth-watering B2B description (3-4 comprehensive sentences) highlighting flavor profile, high concentration, mouthfeel, and benefits for cafes/bars. Provide in 'de', 'en', 'tr', 'ar'.
+3. In 'hazirlanisi': Provide precise mixing ratios, dilution instructions, and barista recipes (e.g. for cold drinks, cocktails, mocktails, ice usage, pump dosages) in 'de', 'en', 'tr', 'ar'.
+4. In 'kullanim_alanlari': Provide a comprehensive list of usage areas (cocktails, lemonades, smoothies, ice tea, desserts, coffees) in 'de', 'en', 'tr', 'ar'.
+5. In 'saklama_kosullari': Provide exact storage and shelf-life guidance in 'de', 'en', 'tr', 'ar'.
+6. In 'inhaltsstoffe': Provide exact ingredients in 'de', 'en', 'tr'.
+7. In 'allergene': Provide boolean map of EU 14 allergens.
+8. In 'naehrwerte': Provide exact nutritional values per 100g/100ml.
+
+Output ONLY valid JSON matching the exact schema below. No markdown formatting outside the JSON, no extra text.
+
+--- EXPECTED JSON SCHEMA ---
+{
+  "aciklamalar": {
+    "de": "string (Reichhaltige B2B Produktbeschreibung)",
+    "en": "string (Rich B2B product description)",
+    "tr": "string (Zengin B2B ürün açıklaması)",
+    "ar": "string (وصف غني للمنتج)"
+  },
+  "hazirlanisi": {
+    "de": "string (Genaue Dosierung & Barista Zubereitungsempfehlung, z.B. 1 Teil Basis + 4 Teile Wasser/Eis)",
+    "en": "string (Precise dosage & preparation instructions, e.g. 1 part base + 4 parts water/ice)",
+    "tr": "string (Kesin dozaj ve barista hazırlama talimatı, örn: 1 ölçü baz + 4 ölçü su ve bol buz)",
+    "ar": "string (طريقة التحضير الدقيقة والجرعة)"
+  },
+  "kullanim_alanlari": {
+    "de": "string (Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Desserts)",
+    "en": "string (Versatile application areas: Cocktails, mocktails, iced teas, lemonades, desserts)",
+    "tr": "string (Geniş kullanım alanları: Kokteyller, mocktail, soğuk çaylar, limonatalar, tatlılar)",
+    "ar": "string (مجالات الاستخدام المتنوعة)"
+  },
+  "saklama_kosullari": {
+    "de": "string (Lagerungshinweise)",
+    "en": "string (Storage instructions)",
+    "tr": "string (Saklama koşulları)",
+    "ar": "string (شروط التخزين)"
+  },
+  "inhaltsstoffe": {
+    "de": "string | null",
+    "en": "string | null",
+    "tr": "string | null"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": "number | null",
+      "energie_kcal": "number | null",
+      "fett": "number | null",
+      "davon_gesaettigt": "number | null",
+      "kohlenhydrate": "number | null",
+      "davon_zucker": "number | null",
+      "eiweiss": "number | null",
+      "salz": "number | null"
+    }
+  },
+  "allergene": {
+    "gluten": "boolean",
+    "milch": "boolean",
+    "soja": "boolean",
+    "nuesse": "boolean",
+    "eier": "boolean"
+  }
+}
+
+--- PRODUCT TO HARMONIZE ---
+Product ID: 8a644fee-e81e-4ec6-b229-55a179fbb845
+Name TR: FO Mango Aromalı Premium Şurup 700 ml
+Name DE: FO Mango Premium Sirup 700 ml
+Name EN: FO Mango Flavored Premium Syrup 700 ml
+Barcode (EAN): 8691123470973
+SKU: SP-FP-MANGO-700
+
+[SOURCE 1: OFFICIAL SPECIFICATION (.DOC)]
+FLAVORED SYRUP PRODUCT SPECIFICATIONDocument No: SP-FP-12761st  issue: 27.10.2025Revision No.: 00Revision Date: -Page No.: 1/11.	GENERAL CHARACTERISTICS:Trade Mark                      : FO FOOD PRODUCTSProduct name                   : MANGO  FLAVORED SYRUP Packing type                     : 70 cl   /  Glass bottle Shipment                           : Shipped in closed cartoon packaging on lorries with closed containers. Intended Area of Usage   : Used  as human nutrition, to prepare alcoholic or  non-alcoholic cocktail  or drunk after  being  diluted.Type of Usage                   : Used  to make cocktail or  diluted with water (1/8) to drink directly.Storing Conditions           : It should be stored in its original packaging, 20-22º C under dry conditions, and direct sunlight should be avoided. Shelf life                            : The product has a shelf life of  3 years under the described storing conditions and in its closed packaging.2.PRODUCT INGREDIENTS :INGREDIENTSCLASSEC CODEMAX.  DOSAGEPERCENTAGESugar———62%Water  ———37,438%Flavoring  (Mango)Flavoring——0,5%Potassium Sorbate PreservativeE 2020,25 gr/ lt0,025%Sodium Benzoate  Preservative E 2110,15 gr/lt0,015%Brown HT*, Tartrazin, Brilliant BlueColorantE 155, E 102, E133100mg/lt0,012%Citric AcidAcidity RegulatorE 330100mg/lt0,01%3.NUTRITIONAL INFORMATION:  (Energy and Nutrition Facts 100 ml)*;Energy1410 kj/337 kcalTotal Fat0,5 g-of which saturated0,0 gCholesterol0,0 gTotal Carbohydrate82,0 gSugar82,0 gStarch0,0 gDietary fibre0,0 gProtein0,0 gSodium/salt0,004 g/0,01 g  *( According to European Regulation  EU) No 1169/2011)4.  PHYSICAL CHARACTERISTICS:Color/Taste/Odor : It has authentic color, mango taste and flavor.Appearance           : Homogenized structured. Does not have physically distinct. Does not include foreign materials.5.  CHEMICAL CHARACTERISTICS:	-	pH   : 2.6 ± 0.2	-	Brix :  65 ± 2.06.  CONTAMINANTS  :Cadmium (Cd) (mg/kg)Max. 0,05Arsenic (As) (mg/kg)Max. 0,2Mercury (Hg) (mg/kg)Max.  0,1Lead ( Pb) (mg/kg)Max. 0,037.	MICROBIOLOGICAL CHARACTERISTICS:MICROORGANISM NAMEMICROBIOLOGICAL VALUEANALYSIS METHODSalmonella0/25 g-mlEN/ISO 6579L.Monocytogenes0/25 g-mlEN/ISO 11290-1E.Coli0/25 g-mlISO 16649-2/38.ALLERGEN ALERT: Does not contain any allergen.(According to European Regulation  EU) No 1169/2011)9.GMO DECLARATION: OZMER PASTACILIK A.S. declares under its responsibility that the product of this chart is produced with no GMO. ( According to European Regulation 2003/1829/CE,2003/1830/CE and subsequent modification. 10.REFERENCES: OZMER PASTACILIK A.S. declares under its responsibility that the product of this chart is in accordance with the law in force;    * European Regulation 1333/2008/EC    * Commission Regulation (EU) 2023/915    * European Regulation 2073/2005/EC    * European Regulation 396/2005/EC and subsequent modifications.	PREPARED BY:REVIEWED BY:APPROVED BY:R&D Manager Quality Management  ManagerGeneral   Manager***Reviewed by the Quality Department on 21.05.2026***
+
+[SOURCE 2: OFFICIAL PRODUCT LABEL (.PDF)]
+Mango Aromalı Şurup
+96x248
+Mat
+18.06.2019 / 18.09.2024
+           MANGO FLAVORED SYRUP
+INGREDIENTS: Sugar, Water, Flavouring (Mango), Acidity regulator 
+(E 330), Preservative (E 202, E 211), Colour (E 155, E 102, E 133).
+E 102: May have negative effects on the activities and attentions of 
+the children.
+Production Date (PRD), Best Before Date (EXP); Batch number 
+(BATCH NO) is on the package. Keep away from direct sunlight, keep 
+in cool and dry place.
+           MANGO AROMALI ŞURUP
+‹Ç‹NDEK‹LER: Şeker, Su, Aroma Verici (Mango), Asitlik 
+düzenleyici (E 330), Koruyucu (E 202, E 211), 
+Renklendirici (E 155, E 102, E 133).
+E 102: Çocukların aktivite ve dikkatleri üzerine 
+olumsuz etkileri bulunabilir.
+Üretim Tarihi (ÜRT), Tavsiye Edilen Tüketim Tarihi 
+(TETT) ve Parti No (PN) etiket üzerindedir. Güneş 
+ışığından uzakta, serin ve kuru yerde saklayınız.
+           SIRUP MIT MANGO AROMA
+ZUTATEN: Zucker, Wasser, Aroma (Mango), Säuerungsmittel (E 330), 
+Konservierungsstoffe (E 202, E 211), Farbstoffe (E 155, E 102, E 133).
+E 102: Kann Aktivität und Aufmerksamkeit bei Kindern beeinträchtigen.
+ANWENDUNGSGEBIETE UND GEBRAUCHSANWEISUNG:
+Ein aromatisierter Sirup, der von Verbrauchern bei der Zubereitung 
+internationaler und spezieller Cocktails und Mocktails bevorzugt wird. Es wird 
+im Verhältnis 1:8 in Limonaden, aromatisierten Eistees, Smoothies, 
+Milchshakes und anderen Erfrischungsgetränken verwendet, um diesen 
+Aroma und Geschmack zu verleihen. Es kann auch trinkfertig zubereitet 
+werden, indem es im gleichen Verhältnis mit heißem oder kaltem Wasser 
+verdünnt wird. Es kann in beliebiger Menge Desserts und Gebäck beigefügt 
+werden, um ihnen Geschmack zu verleihen. Servierempfehlung.Herstellungs-
+datum (PRD), Mindesthaltbarkeitsdatum (EXP) und Partien-Nr. (BATCH NO) 
+befinden sich auf dem Etikett. Vor Sonneneinstrahlung schützen, kühl und 
+trocken lagern.
+          JARABE CON AROMA DE MANGO
+INDICE: Azúcar, Agua, Aroma (Mango), Correctores de la acidez (E 330), 
+Conservadore (E 202, E 211), Colorante (E 155, E 102, E 133).
+E 102: Puede tener efectos negativos sobre la actividad y la atención de los 
+niños.
+LUGARES DE USO E INSTRUCCIONES DE USO:
+Es un jarabe aromatizado preferido por los usuarios en la preparación de 
+cócteles y mocktails internacionales y especiales. Se utiliza en proporción 1/8 
+en bebidas a base de soda, tés fríos aromatizados, batidos, batidos de leche y 
+limonadas para añadir aroma y sabor a la bebida. También se prepara listo 
+para beber diluyéndolo con agua caliente o fría en la misma proporción. 
+Puede añadirse a postres y productos de pastelería en las cantidades deseadas 
+para añadir sabor. Es una recomendación de servicio.
+Herstellungsdatum (PRD), Mindesthaltbarkeitsdatum (EXP) und Partien-Nr. 
+(BATCH NO) befinden sich auf dem Etikett. Vor Sonneneinstrahlung schützen, 
+kühl und trocken lagern.
+           SIROP AROMATISÉ À LA MANGUE 
+INGREDIENTS: Sucre, Eau, Arôme (Mangue), Correcteur d’acidité (E 330), 
+Conservateur (E 202, E 211), Colorant (E 155, E 102, E 133).
+E 102: Il peut disposer des effets défavorables su les activités et l’attention des 
+enfants.
+USAGE ET MODE D'EMPLOI: Ce sirop aromatisé est couramment utilisé dans la 
+préparation de cocktails et mocktails, aussi bien internationaux que 
+personnalisés. Il est également utilisé dans les boissons à base de soda, les 
+thés glacés aromatisés, les smoothies, les milkshakes et les citronnades, en 
+proportion de 1/8 pour ajouter de la saveur et de l’arôme. Il peut aussi être 
+dilué dans de l’eau chaude ou froide à parts égales pour une consommation 
+directe. On peut en ajouter à volonté aux desserts et produits de pâtisserie 
+pour en rehausser le goût. Suggestion de service.
+La date de production (PRD), la date limite de consommation (EXP) et le 
+numéro de lot (BATCH NO) figurent sur l’étiquette. Protéger du rayonnement 
+direct du soleil  et dans un endroit frais et sec.
+EN
+DE
+FR
+TR
+ES
+Sirop Aromatisé
+à la Mangue 
+Mango Aromalı Şurup
+Mango Flavored Syrup
+PLACE OF USAGE AND DIRECTION FOR USE:
+It is a flavored syrup preferred by users in the 
+preparation of international and specialty cocktails 
+and mocktails. It is used at a 1/8 ratio to add 
+flavor and taste in soda-based drinks, 
+flavored iced teas, smoothies, milkshakes, 
+and lemonades. Additionally, it can be 
+diluted with hot or cold water in the same 
+ratio to make it ready to drink. It can also 
+be added in the desired amount to desserts 
+and pastry products to enhance flavor. 
+Service suggestion.
+KULLANILDI⁄I YERLER VE KULLANMA TAL‹MATI: 
+Uluslararası ve özel kokteyllerin, mokteyllerin 
+hazırlanmasında kullanıcıların tercih ettiği aromalı 
+şuruptur. Soda bazlı içeceklerde, aromalı soğuk 
+çaylarda, smoothie, milkshake ve limonata 
+gibi içeceklerde, içeceğe aroma ve tat 
+katmak amacıyla 1/8 oranında kullanılır. 
+Ayrıca, sıcak veya soğuk su ile aynı 
+oranda sulandırılarak içime hazır hâle 
+getirilir. Tatlı çeşitlerine ve pastacılık 
+ürünlerine lezzet katmak amacıyla istenilen 
+miktarda ilave edilebilir. Servis önerisidir.
+              CИРОП МАНГО
+СОСТАВ: Сaxap, вода, ароматизатор (Манго), 
+регулятор кислотности (E 330), Консервант (E  202, 
+E  211), Краситель (Е 155, 102, E 133).
+Е 102: Может оказать отрицательное влияние на 
+активность и внимание детей.
+Рекомендации по приготовлению: Идеален 
+для 
+коктейлей, 
+моктейлей, 
+газированных 
+напитков, холодного чая, смузи, милкшейков и 
+лимонадов. Использовать в пропорции 1:8 для 
+придания вкуса и аромата.
+Также можно разбавить водой (горячей или 
+холодной) в равных частях и употреблять как 
+напиток.
+Добавляется по вкусу в десерты и кондитерские 
+изделия.
+Рекомендация по подаче.
+RU
+Company Registration No : TR-41-K-027696
+İşletme Kayıt No              : TR-41-K-027696
+Türk Gıda Kodeksi’ne uygun olarak üretilmiştir.
+Menşei: Türkiye / Made in Turkey
+Manufacturer / Üretici Firma:
+Özmer Pastacılık ve ‹çecek Ürünleri San. Paz. Turizm ve Dış Ticaret A.Ş.
+Gebze OSB Mah. İhsan Dede Cad. No:151 / Gebze / Kocaeli / Türkiye
+Tel: +90 (262) 673 75 51 / Pbx  Fax: +90 (262) 673 75 52   Branch Office - Antalya ‹rtibat Bürosu Tel: +90 (242) 322 85 71 
+www.ozmerpastacilik.com.tr / www.fo.com.tr / www. coregida.com / www.limpo.com.tr / www.repo.com.tr  
+www.ozmer.com
+• Made with Sugar
+Energy - Enerji
+Fat - Yağ
+Carbohydrate - Karbonhidrat
+-of which Saturates - Doymuş Yağ
+Cholesterol - Kolesterol
+-of which Sugars - Şekerler
+Starch - Nişasta
+Dietary Fibre - Selulozik Lif
+Protein - Protein 
+Sodium - Sodyum / Salt - Tuz
+Energy and Reference Levels for Some Nutrients(For  Adults)
+Enerji ve Bazı Besin Öğeleri için Referans Alım Düzeyleri 
+(Yetişkinler için) 
+Energy or Nutrition Facts/ 
+Enerji ve Besin Öğeleri
+Energy - Enerji
+Fat - Yağ
+-of which Saturates - Doymuş Yağ
+Carbohydrate - Karbonhidrat
+-of which Sugars - Şekerler
+Dietary Fibre - Selulozik Lif
+Protein - Protein 
+Sodium - Sodyum / Salt - Tuz
+1410 kj / 337 kcal
+82,0 g
+0,5 g
+0,0 g
+0,0 g
+82,0 g
+0,0 g
+0,0 g
+0,0 g
+0,004 g / 0,01 g
+8400 kj / 2000 kcal
+70 g
+20 g
+260 g
+90 g
+25 g
+50 g
+2,4 g / 6 g
+Reference Levels
+Referans Alım Düzeyleri
+Energy and Nutrition Facts 100 ml;
+Enerji ve Besin Öğeleri 100 ml;
+

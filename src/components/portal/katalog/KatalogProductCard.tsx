@@ -8,6 +8,7 @@ import { Locale } from "@/i18n-config";
 import { Dictionary } from "@/dictionaries";
 import { ProduktMitPreis } from "@/app/[locale]/portal/katalog/types";
 import { ProductDietaryBadges } from "@/components/DietaryStickers";
+import { UniversalProductCard } from "@/components/products/UniversalProductCard";
 
 // Badge-Konfiguration (aus public catalog adaptiert)
 export const BADGE_DEFS = [
@@ -287,209 +288,20 @@ export function ProduktGridCard({
     onToggleFavorite: (e: React.MouseEvent) => void;
     onQuickAdd: (e: React.MouseEvent) => void;
 }) {
-    const catalogContent = (dictionary as any)?.portal?.catalogPage || {};
-    const produktName = getLocalizedName(produkt.ad, locale);
-    const tekniks = (produkt.teknik_ozellikler || {}) as Record<string, unknown>;
-
-    const paletKoli = Number(produkt.palet_ici_koli_adet ?? produkt.palet_ici_adet ?? 0);
-    const koliAdet = Number(produkt.koli_ici_adet ?? 0);
-    const paletToplamAdet = paletKoli * koliAdet;
-    const kg = produkt.birim_agirlik_kg;
-
-    const pricingRows = [
-        {
-            label: locale === 'de'
-                ? `1 Karton${koliAdet > 0 ? ` (${koliAdet} Stk.)` : ''}`
-                : `1 Koli${koliAdet > 0 ? ` (${koliAdet} adet)` : ''}`,
-            sublabel: locale === 'de' ? 'pro Karton' : 'koli fiyatı',
-            price: produkt.satis_fiyati_musteri,
-            highlight: false,
-        },
-        {
-            label: locale === 'de' ? 'Ab 5 Kartons' : '5+ Koli',
-            sublabel: locale === 'de' ? 'pro Karton' : 'koli fiyatı',
-            price: produkt.satis_fiyati_toptanci,
-            highlight: false,
-        },
-        {
-            label: paletKoli > 0
-                ? (locale === 'de'
-                    ? `1 Palette (${paletKoli} Ktn. = ${paletToplamAdet} Stk.)`
-                    : `1 Palet (${paletKoli} koli = ${paletToplamAdet} adet)`)
-                : (locale === 'de' ? '1 Palette' : '1 Palet'),
-            sublabel: locale === 'de' ? 'Palettenpreis' : 'palet fiyatı',
-            price: (produkt as any).satis_fiyati_palet ?? produkt.satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri,
-            highlight: true,
-        },
-    ];
-
-    // Nur zeige "Ihr Preis" wenn unterschiedlich von letztem Tier price
-    const showIhrPreis = produkt.partnerPreis !== null && produkt.partnerPreis !== ((produkt as any).satis_fiyati_palet ?? produkt.satis_fiyati_alt_bayi);
-
     return (
-        <Link
-            href={`/${locale}/portal/katalog/${produkt.id}`}
-            className="flex flex-col h-full bg-white rounded-lg shadow border border-gray-200 overflow-hidden group relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-        >
-            {/* Favoriten-Button */}
-            <button
-                onClick={onToggleFavorite}
-                disabled={isPending}
-                title={isFavorit ? (catalogContent.toggleFavoriteRemove || "Von Favoriten entfernen") : (catalogContent.toggleFavoriteAdd || "Zu Favoriten hinzufügen")}
-                className={`absolute top-2 right-2 z-10 p-1.5 rounded-full ${isFavorit ? 'bg-red-500 text-white' : 'bg-white/70 text-gray-600 hover:bg-red-100 hover:text-red-500'} transition-colors disabled:opacity-50`}
-            >
-                <FiHeart size={16} fill={isFavorit ? 'currentColor' : 'none'} />
-            </button>
-
-            {/* Bild */}
-            <div className="relative w-full aspect-[4/3] bg-gray-50">
-                <Image
-                    src={produkt.ana_resim_url || '/placeholder.png'}
-                    alt={produktName}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                    onError={(e) => { e.currentTarget.src = '/placeholder.png'; }}
-                />
-                {!produkt.ana_resim_url && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400">
-                        <FiImage size={48} />
-                    </div>
-                )}
-            </div>
-
-            {/* Content */}
-            <div className="p-3.5 sm:p-4 flex flex-col flex-1">
-                {/* SKU + Barkod (Fixed height container) */}
-                <div className="min-h-[26px] flex flex-col justify-center space-y-0.5">
-                    <div className="flex items-center gap-1 text-[11px] text-gray-500 font-mono">
-                        <LuBarcode size={12} className="text-gray-400 flex-shrink-0" />
-                        <span className="truncate">{produkt.stok_kodu || '—'}</span>
-                    </div>
-                    {produkt.ean_gtin && (
-                        <div className="flex items-center gap-1 text-[10px] text-gray-400 font-mono">
-                            <span className="truncate">{produkt.ean_gtin}</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Stok durumu (Fixed height) */}
-                <div className="h-6 flex items-center mt-1">
-                    {(() => {
-                      const miktar = produkt.stok_miktari ?? 0;
-                      const esik = produkt.stok_esigi ?? 10;
-                      const durum = computeTedarikDurumu(miktar, (produkt as any).stok_tukenme_tarihi);
-                      
-                      if (durum === 'talep_uzerine') {
-                          return (
-                              <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
-                                <span className="w-1.5 h-1.5 rounded-full bg-violet-500 inline-block"/>
-                                {locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok'}
-                              </span>
-                          );
-                      }
-                      if (durum === 'tukendi') return (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
-                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"/>
-                          {locale === 'de' ? 'Ausverkauft' : 'Tükendi'}
-                        </span>
-                      );
-                      if (miktar <= esik) return (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"/>
-                          {locale === 'de' ? 'Wenig Bestand' : 'Az stok'}
-                        </span>
-                      );
-                      return (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700 border border-green-200">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"/>
-                          {locale === 'de' ? 'Auf Lager' : 'Stokta var'}
-                        </span>
-                      );
-                    })()}
-                </div>
-
-                {/* Name (Fixed 2-line height for perfect alignment across all cards) */}
-                <h3 className="font-semibold text-primary text-sm line-clamp-2 h-10 leading-tight flex items-start mt-1.5" title={produktName}>
-                    {produktName}
-                </h3>
-
-                {/* Quantity & Weight Chips (Normalized container) */}
-                <div className="flex flex-wrap items-center gap-1 min-h-[22px] mt-2">
-                    {koliAdet > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
-                            <LuPackage size={9} />
-                            {koliAdet} {locale === 'de' ? 'Stk./Ktn.' : 'adet/koli'}
-                        </span>
-                    )}
-                    {paletKoli > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
-                            {paletKoli} {locale === 'de' ? 'Ktn./Pal.' : 'koli/palet'}
-                        </span>
-                    )}
-                    {kg && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                            {kg} kg
-                        </span>
-                    )}
-                </div>
-
-                {/* Quality / Dietary Badges (Reserved height so card heights stay strictly aligned) */}
-                <div className="min-h-[24px] flex items-center mt-1.5">
-                    <ProductDietaryBadges
-                        teknikOzellikler={produkt.teknik_ozellikler as any}
-                        zertifikate={produkt.zertifikate}
-                        size="sm"
-                    />
-                </div>
-
-                {/* Pricing Tiers Table */}
-                <div className="border-t border-gray-100 pt-2 space-y-1 mt-2.5 min-h-[64px] flex flex-col justify-center">
-                    {pricingRows.map((row, i) => {
-                        const mobileHidden = i > 0;
-                        return row.price ? (
-                            <div key={i} className={`flex items-center justify-between px-1.5 py-0.5 rounded text-[10px] ${
-                                row.highlight ? 'bg-blue-50/80 border border-blue-100 text-blue-900' : 'text-gray-600'
-                            } ${mobileHidden ? 'hidden sm:flex' : ''}`}>
-                                <div className="flex flex-col min-w-0">
-                                    <span className={`truncate font-medium ${row.highlight ? 'text-blue-800 font-semibold' : 'text-gray-600'}`}>
-                                        {row.label}
-                                    </span>
-                                    <span className="text-[9px] text-gray-400 leading-none">{row.sublabel}</span>
-                                </div>
-                                <span className={`font-bold ml-1 flex-shrink-0 ${row.highlight ? 'text-blue-700' : 'text-gray-800'}`}>
-                                    {formatCurrency(row.price)}
-                                </span>
-                            </div>
-                        ) : null;
-                    })}
-                </div>
-
-                {/* Card Footer: Always pinned to bottom with mt-auto, perfectly aligned across all cards */}
-                <div className="mt-auto pt-2.5 border-t border-gray-100 flex items-center justify-between gap-2">
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-[9px] text-gray-400 font-medium uppercase tracking-wide leading-none">
-                            {showIhrPreis ? (locale === 'de' ? 'Ihr Preis' : 'Size Özel') : (locale === 'de' ? 'pro Karton' : 'koli fiyatı')}
-                        </span>
-                        <span className="text-sm sm:text-base font-bold text-gray-900 tracking-tight leading-tight mt-0.5">
-                            {formatCurrency(showIhrPreis ? produkt.partnerPreis : produkt.satis_fiyati_musteri)}
-                        </span>
-                    </div>
-
-                    {/* Sleek, modern Add-to-Cart Action Button */}
-                    <button
-                        onClick={onQuickAdd}
-                        title={locale === 'de' ? 'In den Warenkorb legen' : 'Sepete ekle'}
-                        aria-label={locale === 'de' ? 'In den Warenkorb legen' : 'Sepete ekle'}
-                        className="h-8 sm:h-8.5 px-3 rounded-lg bg-accent text-white hover:bg-accent/90 shadow-xs hover:shadow hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-1.5 flex-shrink-0 group/btn"
-                    >
-                        <FiShoppingCart size={14} className="group-hover/btn:-rotate-12 transition-transform duration-200" />
-                        <span className="text-xs font-bold leading-none">+</span>
-                    </button>
-                </div>
-            </div>
-        </Link>
+        <UniversalProductCard
+            urun={produkt}
+            locale={locale}
+            detailHref={`/${locale}/portal/katalog/${produkt.id}`}
+            isLoggedIn={true}
+            isFavorit={isFavorit}
+            onToggleFavorite={onToggleFavorite}
+            isFavoritePending={isPending}
+            onAction={onQuickAdd}
+            actionType="cart"
+            actionTooltip={locale === 'de' ? 'In den Warenkorb legen' : 'Sepete Ekle'}
+            dictionary={dictionary}
+        />
     );
 }
 

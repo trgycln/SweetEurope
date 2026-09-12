@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123449566",
+  "barkod": "8691123449566",
+  "urun_adi": {
+    "de": "FO Melonen Aromatisiertes Pulvergetränk - Milkshake 1 kg",
+    "en": "FO Melon Flavored Powder Drink - Milkshake 1 kg",
+    "tr": "FO Kavun Aromalı İçecek Tozu - Milkshake 1 kg",
+    "ar": "مسحوق مشروب بنكهة البطيخ من فو - ميلك شيك 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Erfrischendes Melonen-Aromagetränk und Milkshake-Pulver in professioneller Qualität.",
+    "en": "Refreshing melon flavored beverage and milkshake powder in professional quality.",
+    "tr": "Profesyonel kalitede ferahlatıcı kavun aromalı içecek ve milkshake tozu.",
+    "ar": "مشروب منعش بنكهة البطيخ ومسحوق ميلك شيك بجودة احترافية."
+  },
+  "kullanim_alanlari": {
+    "de": "40 g (2 gehäufte Esslöffel) Pulver, 200 ml pasteurisiertes oder sterilisiertes kaltes Wasser, 10 Eiswürfel.",
+    "en": "40 g (2 heaped tablespoons) flavored beverage powder, 200 ml of pasteurized or sterilized cold water, 10 cubes of ice.",
+    "tr": "40 g (2 tepeleme yemek kaşığı) içecek tozu, 200 ml pastörize veya sterilize soğuk su, 10 adet buz küpü.",
+    "ar": "40 جرام (ملعقتان كبيرتان ممتءتان) من مسحوق المشروب، 200 مل من الماء البارد المبستر أو المعقم، 10 مكعبات ثلج."
+  },
+  "icindekiler": {
+    "de": "Zucker (91,16%), Modifizierte Maisstärke (5%), Xanthan [E 415] (1,5%), Aroma (Melone) (1,5%), Citronensäure [E 330] (0,3%), Curcumin [E 100] (0,24%), Siliciumdioxid, Trennmittel [E 551] (0,2%), Beta-Carotin [E 160a] (0,1%)",
+    "en": "Sugar (91.16%), Modified Corn Starch (5%), Xanthan Gum [E 415] (1.5%), Flavoring (melon) (1.5%), Citric Acid [E 330] (0.3%), Curcumin [E 100] (0.24%), Silicon dioxide, Anticaking agent [E 551] (0.2%), Beta carotene [E 160a] (0.1%)",
+    "tr": "Şeker (%91,16), Modifiye Mısır Nişastası (%5), Ksantan Gam [E 415] (%1,5), Aroma Verici (Kavun) (%1,5), Sitrik Asit [E 330] (%0,3), Kurkumin [E 100] (%0,24), Silisyum Dioksit, Topaklanmayı Önleyici [E 551] (%0,2), Beta Karoten [E 160a] (%0,1)",
+    "ar": "سكر (91.16٪)، نشا الذرة المعدل (5٪)، صمغ الزانثان [E 415] (1.5٪)، منكه (بطيخ) (1.5٪)، حمض الستريك [E 330] (0.3٪)، كركمين [E 100] (0.24٪)، ثنائي أكسيد السيليكون، عامل مضاد للتكتل [E 551] (0.2٪)، بيتا كاروتين [E 160a] (0.1٪)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen und geruchsfreien Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool, dry and odorless place away from direct sunlight.",
+    "tr": "Serin, kuru ve kokusuz ortamda, doğrudan güneş ışığından uzakta saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف وخالٍ من الروائح بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte, glutenhaltiges Getreide, Schalenfrüchte / Nüsse.",
+    "en": "Contains Dairy / Milk products, Soy products, Gluten, Tree nuts.",
+    "tr": "Süt ürünleri, Soya ürünleri, Gluten, Fındık / Fıstık / Kuruyemiş içerir.",
+    "ar": "يحتوي على منتجات الألبان، منتجات الصويا، الغلوتين، المكسرات."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1670,
+      "energie_kcal": 399,
+      "fett": 0,
+      "kohlenhydrate": 98.7,
+      "davon_zucker": 92.8,
+      "eiweiss": 0.1,
+      "salz": 0.1
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.7,
+  "gtip": "210690980019",
+  "palet_ici_koli": 5
+}

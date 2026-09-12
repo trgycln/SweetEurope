@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Fo Pistazien Verde Sauce 5% besticht durch ihr authentisches Pistazienaroma und eine homogene Struktur mit echten Pistazienstückchen. Sie veredelt Cremes, Kaffeespezialitäten, Eiscreme und Backwaren durch ihre hohe Konzentration und hervorragende Textur. Cafés und Bars profitieren von der einfachen direkten Anwendung und der ansprechenden Farbgebung für erstklassige Kreationen.",
+    "en": "Fo Pistachio Verde Sauce 5% delivers an authentic pistachio flavor profile and a smooth, homogenous structure enriched with real pistachio particles. It elevates creams, coffee specialties, ice cream, and pastries with its rich concentration and velvety mouthfeel. Cafes and bars benefit from direct application and striking aesthetics to enhance premium menu offerings.",
+    "tr": "Fo Pistachio Verde Sos %5, otantik fıstık lezzeti ve gerçek fıstık parçacıkları içeren homojen yapısıyla öne çıkar. Yüksek konsantrasyonu ve mükemmel kıvamı sayesinde krema, kahve, dondurma ve hamur işlerinize eşsiz bir lezzet katar. Kafe ve barlar için doğrudan uygulanabilir yapısıyla birinci sınıf sunumlar hazırlamada büyük avantaj sağlar.",
+    "ar": "تتميز صوص الفستق الأخضر من فو بنسبة 5% بنكهة الفستق الأصيلة وقوامها المتجانس الغني بقطع الفستق الحقيقية. تضيف غنى وقواماً مخملياً للكريمات، ومختارات القهوة، والآيس كريم، والمعجنات بفضل تركيزها العالي. تستفيد المقاهي والبارات من سهولة استخدامها المباشر ومظهرها الجذاب لابتكار عروض مميزة."
+  },
+  "hazirlanisi": {
+    "de": "Es wird direkt auf die Produkte aufgetragen. Kann nach Bedarf in allen Arten von Cremes, Kaffee und Gebäck verwendet werden.",
+    "en": "It is applied directly on the products. Can be used as required in all types of cream, coffee, and pastries.",
+    "tr": "Ürünler üzerine doğrudan uygulanır. İhtiyaca göre her türlü krema, kahve ve hamur işlerinde kullanılabilir.",
+    "ar": "تطبق مباشرة على المنتجات. يمكن استخدامها حسب الحاجة في جميع أنواع الكريمات والقهوة والمعجنات."
+  },
+  "kullanim_alanlari": {
+    "de": "Cremes, Kaffee, Eiscreme, Backwaren, Desserts",
+    "en": "Creams, coffee, ice cream, pastries, desserts",
+    "tr": "Kremalar, kahve, dondurma, hamur işleri, tatlılar",
+    "ar": "الكريمات، القهوة، الآيس كريم، المعجنات، الحلويات"
+  },
+  "saklama_kosullari": {
+    "de": "Es sollte in der Originalverpackung bei 20-22 °C unter trockenen Bedingungen gelagert und direkte Sonneneinstrahlung vermieden werden. Haltbarkeit in ungeöffneter Verpackung beträgt 2 Jahre.",
+    "en": "It should be stored in its original packaging, 20-22°C under dry conditions, and direct sunlight should be avoided. Shelf life in unopened packaging is 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır. Açılmamış ambalajında raf ömrü 2 yıldır.",
+    "ar": "يجب تخزينها في عبوتها الأصلية في درجات حرارة تتراوح بين 20-22 درجة مئوية في ظروف جافة، مع تجنب أشعة الشمس المباشرة. صلاحية العبوة غير المغلقة هي سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Pflanzenöl (Sonnenblumenöl), Magermilchpulver (Milch), Pistazien (5%), Sojalecithin (Emulgator E 322), Aromastoff (Pistazie), Farbstoff (Chlorophyll E 141, einfacher Karamell E 150a).",
+    "en": "Sugar, Vegetable oil (Sunflower oil), Skimmed milk powder (milk), Pistachio (5%), Soy lecithin (Emulsifier E 322), Flavouring (Pistachio), Colourant (Chlorophyll E 141, Plain Caramel E 150a).",
+    "tr": "Şeker, Bitkisel yağ (Ayçiçek yağı), Yağsız süttozu (süt), Antep fıstığı (%5), Soya lesitini (Emülgatör E 322), Aroma verici (Antep fıstığı), Renklendirici (Klorofil E 141, Düz Karamel E 150a)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 2310,
+      "energie_kcal": 553,
+      "fett": 32.1,
+      "davon_gesaettigt": 3.3,
+      "kohlenhydrate": 62.3,
+      "davon_zucker": 57.6,
+      "eiweiss": 3.5,
+      "salz": 0.4
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": false
+  }
+}

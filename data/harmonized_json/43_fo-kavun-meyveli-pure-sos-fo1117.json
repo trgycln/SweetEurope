@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Melonenfruchtsoße bietet mit einem Fruchtanteil von 50 % ein authentisches, intensives Geschmackserlebnis. Ihre homogene Textur mit echten Fruchtpartikeln sorgt für eine exzellente Konsistenz in professionellen Anwendungen. Ideal für Cafés und Bars, um Desserts, Eiscremes oder Cocktails eine hochwertige, aromatische Note zu verleihen.",
+    "en": "FO Melon Fruited Sauce delivers an authentic and intense flavor profile with a 50% fruit content. Its homogeneous texture, enriched with real fruit particles, ensures consistent quality for professional applications. It is the perfect choice for cafés and bars looking to add a premium, aromatic touch to desserts, ice creams, and cocktails.",
+    "tr": "FO Kavun Meyveli Sos, %50 meyve içeriği ile otantik ve yoğun bir lezzet deneyimi sunar. Gerçek meyve parçacıkları içeren homojen yapısı, profesyonel uygulamalarda mükemmel kıvam sağlar. Kafeler ve barlar için tatlılara, dondurmalara veya kokteyllere yüksek kaliteli, aromatik bir dokunuş katmak için idealdir.",
+    "ar": "تقدم صلصة البطيخ من FO تجربة نكهة أصلية ومكثفة بفضل محتواها العالي من الفاكهة بنسبة 50%. يضمن قوامها المتجانس، المليء بقطع الفاكهة الحقيقية، جودة ثابتة للتطبيقات الاحترافية. إنها الخيار الأمثل للمقاهي والبارات لإضافة لمسة عطرية فاخرة للحلويات والآيس كريم والكوكتيلات."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Soße mit 3 Teilen gestoßenem Eis in einem Hochleistungsmixer mixen. Für alkoholische und alkoholfreie Cocktails: Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya su ile seyrelterek kullanın.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات الكحولية وغير الكحولية: تُستخدم مباشرة أو تُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscremes, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Fruchteis, Frozen-Getränke, Cocktails, Mocktails, Cremes, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Ice creams, milky desserts, pastries, pies, cakes, waffles, fruited ice cream, frozen drinks, cocktails, mocktails, creams, whipped cream, jellies, and candies.",
+    "tr": "Dondurmalar, sütlü tatlılar, pastalar, börekler, kekler, waffle, meyveli dondurma, frozen içecekler, kokteyller, mocktail, kremalar, şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكعك، الوافل، الآيس كريم بالفواكه، المشروبات المثلجة، الكوكتيلات، الموكتيلات، الكريمات، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıldır.",
+    "ar": "تُحفظ في عبوتها الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Melone (50%), Zucker (48%), modifizierte Maisstärke (1%), Säureregulatoren (Trinatriumcitrat E331iii, Weinsäure E334), Aroma (Melone), Salz, Konservierungsmittel (Kaliumsorbat E202), Farbstoffe (Tartrazin E102, Gelborange S E110).",
+    "en": "Melon (50%), Sugar (48%), Modified corn starch (1%), Acidity regulators (Trisodium citrate E331iii, Tartaric acid E334), Flavoring (Melon), Salt, Preservative (Potassium sorbate E202), Colorings (Tartrazine E102, Sunset Yellow E110).",
+    "tr": "Kavun (%50), Şeker (%48), Modifiye mısır nişastası (%1), Asitlik düzenleyiciler (Trisodyum sitrat E331iii, Tartarik asit E334), Aroma verici (Kavun), Tuz, Koruyucu (Potasyum sorbat E202), Renklendiriciler (Tartrazin E102, Sunset Yellow E110)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 980,
+      "energie_kcal": 234,
+      "fett": 0.1,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 56.6,
+      "davon_zucker": 52.6,
+      "eiweiss": 0.3,
+      "salz": 0.06
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

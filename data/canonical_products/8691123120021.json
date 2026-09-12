@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123120021",
+  "barkod": "8691123120021",
+  "urun_adi": {
+    "de": "FO Blue Curacao Sirup 70 cl",
+    "en": "FO Blue Curacao Flavored Syrup 70 cl",
+    "tr": "FO Blue Curacao Aromalı Şurup 70 cl",
+    "ar": "شراب فو بنكهة البلو كوراساو 70 سل"
+  },
+  "aciklamalar": {
+    "de": "FO Blue Curacao Sirup verleiht Cocktails, Mocktails und Getränken mit seinem lebendigen Blau und dem erfrischenden Geschmack von Curacao-Orangenschalen ein unverwechselbares Aroma und Aussehen.",
+    "en": "FO Blue Curacao Flavored Syrup adds vibrant blue color and an exotic orange peel aroma to cocktails, mocktails, lemonades, and specialty beverages.",
+    "tr": "FO Blue Curacao Aromalı Şurup, canlı mavi rengi ve karakteristik turunçgil/portakal kabuğu aroması ile kokteyl, mocktail ve içecek sunumlarına eşsiz bir tat ve görsel zenginlik katar.",
+    "ar": "يضفي شراب فو بنكهة البلو كوراساو لوناً أزرق زاهياً ونكهة قشور البرتقال المميزة على الكوكتيلات والموكتيلات والمشروبات الباردة المتنوعة."
+  },
+  "kullanim_alanlari": {
+    "de": "Alkoholische und alkoholfreie Cocktails, Longdrinks, Limonaden, Eistees, Desserts und Barspezialitäten. Empfohlene Dosierung: 1 Teil Sirup auf 8 Teile Flüssigkeit.",
+    "en": "Alcoholic and non-alcoholic cocktails, mocktails, lemonades, iced teas, specialty sodas, and confectionery. Recommended dilution ratio: 1/8 with water or mixers.",
+    "tr": "Alkollü ve alkolsüz kokteyller, mocktailler, limonatalar, frozen içecekler, gazlı içecekler ve pasta/tatlı sunumları. 1/8 oranında sulandırılarak doğrudan tüketilebilir.",
+    "ar": "الكوكتيلات الكحولية وغير الكحولية، الموكتيلات، الليموناضة، المشروبات الغازية، والمخبوزات والحلويات. يوصى بتخفيفه بنسبة 1 إلى 8 مع الماء أو السوائل الأخرى."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,438%), Aroma (Blue Curacao, Orange) (0,5%), Konservierungsstoffe (Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)), Farbstoff (Brillantblau FCF [E 133] (0,012%)), Säuerungsmittel (Citronensäure [E 330] (0,01%)).",
+    "en": "Sugar (62%), Water (37.438%), Flavoring (Blue curacao, Orange) (0.5%), Preservatives (Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)), Color (Brilliant Blue [E 133] (0.012%)), Acidity Regulator (Citric Acid [E 330] (0.01%)).",
+    "tr": "Şeker (%62), Su (%37,438), Aroma Verici (Mavi curacao, Portakal) (%0,5), Koruyucular (Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)), Renklendirici (Brillant Blue [E 133] (%0,012)), Asitlik Düzenleyici (Sitrik Asit [E 330] (%0,01)).",
+    "ar": "سكر (62%)، ماء (37.438%)، نكهات (بلو كوراساو، برتقال) (0.5%)، مواد حافظة (سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%))، ملون (أزرق براق [E 133] (0.012%))، منظم حموضة (حمض الستريك [E 330] (0.01%))."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen gut verschlossen aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep tightly closed after opening.",
+    "tr": "Serin, kuru ve güneş ışığından uzak bir yerde muhafaza ediniz. Açıldıktan sonra kapağını kapalı tutunuz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُغلق بإحكام بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay / 36 Months / 36 Monate / 36 شهرًا",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "kohlenhydrate": 82.7,
+      "davon_zucker": 82.7,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 15
+}

@@ -950,9 +950,9 @@ export const dictionary: Partial<Dictionary> = {
   },
   philosophy: {
     title: 'Our Philosophy',
-    paragraph1: 'At ElysonSweets, we believe true luxury lies in the uncompromising quality of ingredients and the passionate craftsmanship of our master confectioners.',
-    paragraph2: 'Every creation is a promise – an unforgettable taste experience born from tradition and perfected for the modern palate.',
-    imageAlt: 'A custom-made cake by ElysonSweets with no background',
+    paragraph1: 'At ElysonSweets, we have one mission: giving professional baristas, bartenders and HoReCa businesses across Germany and Europe direct access to top-quality products. As the official distributor of FO Food Products, we deliver syrups, bar sauces and fruit purees straight from our warehouse – reliably, quickly and at fair B2B prices.',
+    paragraph2: 'FO Food Products brings over 20 years of experience in professional food production: Halal-certified, BRC-approved and awarded by the Turkish Patent Institute. We deliver this quality to your door – with personal consultancy, flexible minimum order quantities and fast shipping across the entire EU.',
+    imageAlt: 'FO Food Products premium range – syrups, sauces and barista essentials for the hospitality industry',
   },
   categories: {
     title: 'Our Product Categories',
@@ -1581,4 +1581,24 @@ export const dictionary: Partial<Dictionary> = {
       "ambient": "Dry / Ambient",
       "noAllergen": "No declarable allergens."
   },
+  statsBar: {
+    expValue: "20+",
+    expLabel: "Years Experience",
+    expSub: "in the European B2B market",
+    productsValue: "400+",
+    productsLabel: "Premium Products",
+    productsSub: "Syrups, sauces & barista supplies",
+    countriesValue: "15+",
+    countriesLabel: "EU Countries Supplied",
+    countriesSub: "Reliable B2B logistics network",
+    qualityValue: "100%",
+    qualityLabel: "Certified Quality",
+    qualitySub: "Halal, BRC & ISO certified"
+  },
+  featuredProductsSection: {
+    badge: "Bestsellers",
+    title: "Premium Selection for Professionals",
+    description: "Discover our most popular syrups, purees, and bar sauces favored by leading baristas and hospitality venues across Europe.",
+    viewAll: "View All Products"
+  }
 };

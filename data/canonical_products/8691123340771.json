@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-8691123340771",
+  "barkod": "8691123340771",
+  "urun_adi": {
+    "de": "FO Himbeer Fruchtsauce - Frozen 1 kg",
+    "en": "FO Raspberry Fruited Sauce - Frozen 1 kg",
+    "tr": "FO Frambuaz Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة توت العليق (فرامبواز) من إف أوه - فروزن 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Himbeer-Fruchtsauce mit 50% echtem Fruchtanteil. Speziell entwickelt für Frozen Drinks, Eiskreationen, Desserts und Gebäck. Verleiht Ihren Produkten einen intensiven Himbeergeschmack und eine natürliche Farbe.",
+    "en": "High-quality raspberry fruited sauce containing 50% real fruit. Specially formulated for frozen beverages, ice cream, desserts, and bakery products. Adds rich raspberry flavor and vivid color.",
+    "tr": "%50 gerçek meyve içeriğine sahip yüksek kaliteli frambuaz meyveli sos. Frozen içecekler, dondurma, tatlılar ve pastacılık ürünleri için özel olarak geliştirilmiştir. Yoğun frambuaz lezzeti ve canlı renk verir.",
+    "ar": "صلصة فاكهة توت العليق عالية الجودة تحتوي على 50٪ من الفاكهة الحقيقية. مُصنعة خصيصًا للمشروبات المثلجة والآيس كريم والحلويات والمخبوزات. تمنح نكهة توت العليق الغنية ولونًا رائعًا."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal zur Zubereitung von Frozen Drinks (1 Teil Sauce mit 3 Teilen Crushed Ice im Blender mixen), Eisbechern, Desserts, Kuchen, Waffeln, Pfannkuchen und Cocktails.",
+    "en": "Ideal for preparing frozen drinks (mix 1 volume of sauce with 3 volumes of crushed ice in a high-speed blender), ice cream toppings, desserts, cakes, waffles, pancakes, and cocktails.",
+    "tr": "Frozen içeceklerin hazırlanmasında (yüksek hızlı blenderda 1 ölçü sos ile 3 ölçü kırılmış buz karıştırılarak), dondurma, tatlı, pasta, waffle, pankek ve kokteyllerde kullanılır.",
+    "ar": "مثالية لتحضير المشروبات المثلجة (مزج حجم واحد من الصلصة مع 3 أحجام من الثلج المجروش في خلاط سريع)، وتزيين الآيس كريم، والحلويات، والكعك، والوافل، والبان كيك، والكوكتيلات."
+  },
+  "icindekiler": {
+    "de": "Himbeere (50%), Zucker (48%), modifizierte Maisstärke (1%), Trisodiumcitrat, Weinsäure [E 331iii, E 334] (0,5%), Aroma (Himbeere) (0,29%), Salz (0,1%), Kaliumsorbat [E 202] (0,1%), Farbstoffe [Allurarot E 129, Carmoisin E 122] (0,01%).",
+    "en": "Raspberry (50%), Sugar (48%), Modified corn starch (1%), Trisodium citrate, Tartaric acid [E 331iii, E 334] (0.5%), Flavoring (Raspberry) (0.29%), Salt (0.1%), Potassium Sorbate [E 202] (0.1%), Colorings [Allura Red E 129, Carmoisine E 122] (0.01%).",
+    "tr": "Frambuaz (%50), Şeker (%48), Modifiye mısır nişastası (%1), Trisodyum sitrat, Tartarik asit [E 331iii, E 334] (%0,5), Aroma verici (Frambuaz) (%0,29), Tuz (%0,1), Potasyum Sorbat [E 202] (%0,1), Renklendiriciler [Allura Red E 129, Carmoisine E 122] (%0,01).",
+    "ar": "توت العليق (50٪)، سكر (48٪)، نشا الذرة المعدل (1٪)، سترات ثلاثي الصوديوم، حمض الطرطريك [E 331iii, E 334] (0.5٪)، نكهة (توت العليق) (0.29٪)، ملح (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)، ملونات [أحمر ألورا E 129، كارمويسين E 122] (0.01٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direktem Sonnenlicht schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool and dry place. Protect from direct sunlight. Refrigerate after opening.",
+    "tr": "Serin ve kuru yerde muhafaza ediniz. Doğrudan güneş ışığından koruyunuz. Açıldıktan sonra buzdolabında saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف. يحفظ بعيداً عن أشعة الشمس المباشرة. يحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Monaten / 24 Months / 24 Ay / 24 شهرًا",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 980,
+      "energie_kcal": 234,
+      "fett": 0.2,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 55.4,
+      "davon_zucker": 54,
+      "ballaststoffe": 2.5,
+      "eiweiss": 0.6,
+      "salz": 0.005
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 7.65,
+  "gtip": "200799350000",
+  "palet_ici_koli": 15
+}

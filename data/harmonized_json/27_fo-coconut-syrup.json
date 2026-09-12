@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Kokosnuss Sirup bietet ein authentisches, tropisches Geschmacksprofil mit einer cremigen Textur und intensiver Kokosnote. Dank seiner hohen Konzentration und homogenen Struktur ist er ideal für professionelle Bars und Cafés geeignet, um Getränken eine exotische Tiefe zu verleihen. Er überzeugt durch seine exzellente Löslichkeit und sorgt für ein unverwechselbares, vollmundiges Mundgefühl in jeder Kreation.",
+    "en": "FO Coconut Syrup delivers an authentic, tropical flavor profile with a creamy texture and intense coconut notes. Thanks to its high concentration and homogenized structure, it is ideal for professional bars and cafes to add exotic depth to beverages. It impresses with excellent solubility and provides a distinct, full-bodied mouthfeel in every creation.",
+    "tr": "FO Hindistan Cevizi Şurubu, kremsi dokusu ve yoğun hindistan cevizi notalarıyla otantik, tropikal bir lezzet profili sunar. Yüksek konsantrasyonu ve homojen yapısı sayesinde, profesyonel bar ve kafelerin içeceklerine egzotik bir derinlik katması için idealdir. Mükemmel çözünürlüğü ile her tarifte belirgin ve dolgun bir ağız hissi sağlar.",
+    "ar": "يقدم شراب جوز الهند من FO نكهة استوائية أصلية مع قوام كريمي ونوتات مكثفة من جوز الهند. بفضل تركيزه العالي وبنيته المتجانسة، فهو مثالي للمقاهي والبارات الاحترافية لإضافة عمق استوائي للمشروبات. يتميز بقابلية ذوبان ممتازة ويضفي قواماً غنياً ومميزاً على كل ابتكار."
+  },
+  "hazirlanisi": {
+    "de": "Für eine direkte Zubereitung mit Wasser im Verhältnis 1:8 mischen. Ideal für Cocktails, Mocktails oder als Veredelung in Kaffeespezialitäten. Vor Gebrauch leicht schütteln.",
+    "en": "For direct consumption, dilute with water in a 1:8 ratio. Ideal for cocktails, mocktails, or as a finishing touch in coffee specialties. Shake gently before use.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kokteyller, mocktail'ler veya kahve spesiyallerinde lezzet artırıcı olarak kullanım için idealdir. Kullanmadan önce hafifçe çalkalayın.",
+    "ar": "للاستهلاك المباشر، يُخفف بالماء بنسبة 1:8. مثالي للكوكتيلات، والموكتيلات، أو كإضافة نهائية لمشروبات القهوة المتخصصة. يُرج بلطف قبل الاستخدام."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Desserts und Kaffeespezialitäten.",
+    "en": "Versatile application areas: Cocktails, mocktails, iced teas, lemonades, desserts, and coffee specialties.",
+    "tr": "Geniş kullanım alanları: Kokteyller, mocktail'ler, soğuk çaylar, limonatalar, tatlılar ve kahve spesiyalleri.",
+    "ar": "مجالات الاستخدام المتنوعة: الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الحلويات، ومشروبات القهوة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre ab Herstellungsdatum bei korrekter Lagerung.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 3 years from production date under described conditions.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayın. Doğrudan güneş ışığından koruyun. Raf ömrü: Uygun saklama koşullarında üretim tarihinden itibaren 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات من تاريخ الإنتاج في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Kokosnuss-Aromaemulsion 0,8% [Wasser, Verdickungsmittel (E 414, E 445), Säureregulator (E 330), Antioxidationsmittel (E 307), Aroma, Konservierungsstoff (E 211)], Aroma (Kokosnuss), Säureregulator (Citronensäure E 330), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211).",
+    "en": "Sugar, Water, Coconut flavored emulsion 0,8% [Water, Thickener (E 414, E 445), Acidity regulator (E 330), Antioxidant (E 307), Flavouring, Preservative (E 211)], Flavoring (Coconut), Acidity Regulator (Citric Acid E 330), Preservatives (Potassium Sorbate E 202, Sodium Benzoate E 211).",
+    "tr": "Şeker, Su, Hindistan cevizi aromalı emülsiyon %0,8 [Su, Kıvam artırıcı (E 414, E 445), Asitlik düzenleyici (E 330), Antioksidan (E 307), Aroma verici, Koruyucu (E 211)], Aroma verici (Hindistan cevizi), Asitlik düzenleyici (Sitrik asit E 330), Koruyucular (Potasyum sorbat E 202, Sodyum benzoat E 211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1400,
+      "energie_kcal": 335,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 82.3,
+      "davon_zucker": 81.6,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

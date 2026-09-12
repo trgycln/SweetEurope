@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-MANGO-700",
+  "barkod": "8691123470973",
+  "urun_adi": {
+    "de": "FO Mango Premium Sirup 700 ml",
+    "en": "FO Mango Flavored Premium Syrup 700 ml",
+    "tr": "FO Mango Aromalı Premium Şurup 700 ml",
+    "ar": "فو شراب المانجو المميز 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Sirup, der entwickelt wurde, um Ihren Cocktails sowie alkoholischen und alkoholfreien Getränken den perfekten Mangogeschmack und eine lebendige Farbe zu verleihen.",
+    "en": "Premium syrup crafted to deliver the perfect mango flavor and vibrant color in your cocktails, alcoholic, and non-alcoholic beverages.",
+    "tr": "Kokteyllerinizde, alkollü ve alkolsüz içeceklerinizde mükemmel mango lezzetini ve rengini elde etmek için üretilmiş premium şurup.",
+    "ar": "شراب ممتاز تم إعداده ليمنح الكوكتيلات والمشروبات الكحولية وغير الكحولية نكهة المانجو المثالية واللون النابض بالحياة."
+  },
+  "kullanim_alanlari": {
+    "de": "Zur Zubereitung von Cocktails oder verdünnt mit Wasser (Verhältnis 1:8) zum direkten Trinken. Geeignet für Bars, Cafés und den Heimgebrauch.",
+    "en": "Used to make cocktails or diluted with water (1/8 ratio) to drink directly. Suitable for bars, cafes, and home use.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyreltilerek kullanılır. Bar, kafe ve ev kullanımları için uygundur.",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (بنسبة 1/8) للشرب مباشرة. مناسب للحانات والمقاهي والاستخدام المنزلي."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,438%), Aroma (Mango) (0,5%), Konservierungsstoffe (Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)), Farbstoffe (Braun HT, Tartrazin, Brillantblau [E 155, E 102, E 133] (0,012%)), Säuerungsmittel (Citronensäure [E 330] (0,01%)).",
+    "en": "Sugar (62%), Water (37.438%), Flavoring (Mango) (0.5%), Preservatives (Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)), Colorants (Brown HT, Tartrazine, Brilliant Blue [E 155, E 102, E 133] (0.012%)), Acid (Citric Acid [E 330] (0.01%)).",
+    "tr": "Şeker (%62), Su (%37,438), Aroma Verici (Mango) (%0,5), Koruyucu (Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)), Renklendiriciler (Brown HT, Tartrazin, Brilliant Blue [E 155, E 102, E 133] (%0,012)), Asitlik Düzenleyici (Sitrik Asit [E 330] (%0,01%)).",
+    "ar": "سكر (62٪)، ماء (37.438٪)، منكهات (مانجو) (0.5٪)، مواد حافظة (سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪))، ملونات (بني HT، تارترازين، أزرق براق [E 155، E 102، E 133] (0.012٪))، منظم حموضة (حمض الستريك [E 330] (0.01٪))."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen den Deckel fest verschließen.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep the cap tightly closed after opening.",
+    "tr": "Serin, kuru ve güneş ışığı almayan bir yerde muhafaza ediniz. Açıldıktan sonra kapağını sıkıca kapatınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. أغلق الغطاء بإحكام بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay / Months / Monate / شهراً",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0.5,
+      "kohlenhydrate": 82,
+      "davon_zucker": 82,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 7
+}

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-APOLLO800",
+  "barkod": "8691123475596",
+  "urun_adi": {
+    "de": "FO Mehrfruchtgetränk – Apollo 800 ML",
+    "en": "FO Mixed Fruit Drink – Apollo 800 ML",
+    "tr": "FO Karışık Meyveli İçecek – Apollo 800 ML",
+    "ar": "مشروب الفواكه المشكلة FO - أبولو 800 مل"
+  },
+  "aciklamalar": {
+    "de": "Aus der anatolischen Legenden-Serie, hochwertiger gebrauchsfertiger Mix für erfrischende Getränke.",
+    "en": "From the Anatolian Legends series, high-quality ready-to-use mix for refreshing beverages.",
+    "tr": "Anadolu Efsaneleri serisinden, ferahlatıcı içecekler için yüksek kaliteli hazır mix.",
+    "ar": "من سلسلة الأساطير الأناضولية، مزيج جاهز عالي الجودة للمشروبات المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal für Cocktails, Mocktails und Erfrischungsgetränke.",
+    "en": "Ideal for cocktails, mocktails, and soft drinks.",
+    "tr": "Kokteyller, mockteyller ve serinletici içecekler için idealdir.",
+    "ar": "مثالي للموكتيلات والكوكتيلات والمشروبات المنعشة."
+  },
+  "icindekiler": {
+    "de": "Fruchtkomponenten, Wasser, Zucker.",
+    "en": "Fruit components, water, sugar.",
+    "tr": "Meyve bileşenleri, su, şeker.",
+    "ar": "مكونات الفواكه، ماء، سكر."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort lagern.",
+    "en": "Store in a cool and dry place.",
+    "tr": "Serin ve kuru yerde saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1340,
+      "energie_kcal": 320,
+      "fett": 1.9,
+      "kohlenhydrate": 79.4,
+      "davon_zucker": 55.7,
+      "eiweiss": 2,
+      "salz": 0.025
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 8,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

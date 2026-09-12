@@ -1,0 +1,1262 @@
+[
+  {
+    "barcode": "8691123340764",
+    "proforma_name": "FO STRAWBERRY FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 90,
+    "unit_price_eur": 5.7,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "3.STRAWBERRY FRUITED SAUCE 1 KG.doc",
+      "product_name": "STRAWBERRY FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/cilek-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123444134",
+    "proforma_name": "FO WILD BERRIES FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 40,
+    "unit_price_eur": 6.01,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "15. WILD BERRIES FRUITED SAUCE.doc",
+      "product_name": "WILD BERRIES FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/orman-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340948",
+    "proforma_name": "FO MANGO FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 40,
+    "unit_price_eur": 6.01,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "8.MANGO  FRUITED SAUCE 1 KG.doc",
+      "product_name": "MANGO FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/mango-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340986",
+    "proforma_name": "FO BANANA FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 3.82,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "12.BANANA  FRUITED SAUCE.doc",
+      "product_name": "BANANA FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/muz-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340955",
+    "proforma_name": "FO WATERMELON FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 3.82,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "10.WATERMELON  FRUITED SAUCE 1 KG.doc",
+      "product_name": "WATERMELON FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/karpuz-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340788",
+    "proforma_name": "FO BLACK MULBERRY FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 3.82,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "6.BLACK MULBERRY  FRUITED SAUCE 1 KG.doc",
+      "product_name": "BLACK MULBERRY FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/ananas-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340979",
+    "proforma_name": "FO GREEN APPLE FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 3.82,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "11.GREEN APPLE FRUITED SAUCE.doc",
+      "product_name": "GREEN APPLE FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/yesil-elma-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340962",
+    "proforma_name": "FO FRUITED SAUCE PEACH 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 25,
+    "unit_price_eur": 3.82,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "9.PEACH  FRUITED SAUCE 1 KG.doc",
+      "product_name": "PEACH FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/seftali-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340931",
+    "proforma_name": "FO KIWI FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 3.82,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "1.KIWI FRUITED SAUCE 1 KG.doc",
+      "product_name": "KIWI FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/kivi-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340993",
+    "proforma_name": "FO LEMON FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 3.82,
+    "gtip": "200791100019",
+    "spec": {
+      "file": "13.LEMON FRUITED SAUCE.doc",
+      "product_name": "LEMON FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/limon-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340917",
+    "proforma_name": "FO MELON FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 3.82,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "5.MELON  FRUITED SAUCE 1 KG.doc",
+      "product_name": "MELON FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/kavun-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123444851",
+    "proforma_name": "FO BLUEBERRY FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 8.74,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "17.BLUEBERRY FRUITED SAUCE.doc",
+      "product_name": "BLUEBERRY FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/yaban-mersini-taneli-sos-6-kg"
+  },
+  {
+    "barcode": "8691123340795",
+    "proforma_name": "FO BLACK BERRY FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 6.56,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "7.BLACK BERRY  FRUITED SAUCE 1 KG.doc",
+      "product_name": "BLACKBERRY FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/ananas-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123340771",
+    "proforma_name": "FO RASPBERRY FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 7.65,
+    "gtip": "200799350000",
+    "spec": {
+      "file": "2.RASPBERRY  FRUITED SAUCE 1 KG.doc",
+      "product_name": "RASPBERRY FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/frambuaz-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123444656",
+    "proforma_name": "FO PASSION FRUIT SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 30,
+    "unit_price_eur": 6.01,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "14.PASSION  FRUITED SAUCE.doc",
+      "product_name": "PASSION FRUIT SAUCE"
+    },
+    "fostore_url": null
+  },
+  {
+    "barcode": "8691123448620",
+    "proforma_name": "FO PINE APPLE FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 25,
+    "unit_price_eur": 6.01,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "18.PINE APPLE FRUITED SAUCE 1 KG.doc",
+      "product_name": "PINE APPLE FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/ananas-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123355065",
+    "proforma_name": "FO TOFFEE CARAMEL SAUCE 2,5 KG",
+    "unit_weight": 2.5,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 10.1,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "2.TOFFEE CARAMEL SAUCE 2,5 KG.doc",
+      "product_name": "TOFFEE CARAMEL SAUCE"
+    },
+    "fostore_url": "https://fostore.com/karamel-aromali-dekor-sos-750-gr-1"
+  },
+  {
+    "barcode": "8691123468864",
+    "proforma_name": "Fo Chocolate Sauce-professional 2,5 kg",
+    "unit_weight": 2.5,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 13.65,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "1.DARK CHOCOLATE SAUCE 2,5 KG.doc",
+      "product_name": "DARK CHOCOLATE SAUCE"
+    },
+    "fostore_url": "https://fostore.com/fo-cikolata-aromali-dekor-sos-750gr"
+  },
+  {
+    "barcode": "8691123465283",
+    "proforma_name": "Fo White Chocolate Sauce 2,5 Kg",
+    "unit_weight": 2.5,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 13.65,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.doc",
+      "product_name": "WHITE CHOCOLATE SAUCE"
+    },
+    "fostore_url": "https://fostore.com/profesyonel-beyaz-cikolatali-sos-2-5kg"
+  },
+  {
+    "barcode": "8691123449320",
+    "proforma_name": "FO MOJITO FLAVORED SYRUP 70 CL",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "71-MOJITO MIX.doc",
+      "product_name": "MOJITO FLAVORED SYRUP"
+    },
+    "fostore_url": null
+  },
+  {
+    "barcode": "8691123471833",
+    "proforma_name": "FO CHOCOLATE SYRUP - PREMIUM 700 ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "3-CHOCOLATE  FLAVORED SYRUP.doc",
+      "product_name": "CHOCOLATE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/sekersiz-cikolata-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123471857",
+    "proforma_name": "FO WHITE CHOCOLATE SYRUP - PREMIUM 700 ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "37-WHITE CHOCOLATE FLAVORED COCKTAIL  SYRUP.doc",
+      "product_name": "WHITE CHOCOLATE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/beyaz-cikolata-surup---premium-700-ml"
+  },
+  {
+    "barcode": "8691123471055",
+    "proforma_name": "FO CARAMEL SYRUP-PREMIUM 700ML",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "1. SUGAR FREE CARAMEL FLAVORED SYRUP.doc",
+      "product_name": "SUGAR FREE CARAMEL FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/karamel-aromali-surup-sekerli-700ml"
+  },
+  {
+    "barcode": "8691123470942",
+    "proforma_name": "FO STRAWBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "FO STRAWBERRY FLAVORED SYRUP-SUGAR.doc",
+      "product_name": "STRAWBERRY FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/cilek-ve-nar-aromali-icecek---fruit-700ml"
+  },
+  {
+    "barcode": "8691123470980",
+    "proforma_name": "FO VANILLA FLAVORED SYRUP-PREMIUM 700 ML",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 7,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "2. SUGAR FREE VANILLA FLAVORED SYRUP.doc",
+      "product_name": "SUGAR FREE VANILLA FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/sekersiz-vanilya-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123471888",
+    "proforma_name": "FO COCONUT SYRUP - PREMIUM 700 ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "5-FO COCONUT FLAVORED SYRUP-BLANC-SUGAR.doc",
+      "product_name": "COCONUT FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/hindistan-cevizi-aromali-surup-blanc---sekerli-700-ml"
+  },
+  {
+    "barcode": "8691123120076",
+    "proforma_name": "FO BANANA FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "123-FO BANANA FLAVORED  SYRUP-SUGAR.doc",
+      "product_name": "BANANA FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/yesil-muz-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123471840",
+    "proforma_name": "FO LIME FRUITED SYRUP 700 ML - PREMIUM",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "1.MINT AND LIME FLAVORED SYRUP-COOL LIME BASE.doc",
+      "product_name": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE"
+    },
+    "fostore_url": "https://fostore.com/mango-meyveli-surup---premium-700-ml"
+  },
+  {
+    "barcode": "8691123472885",
+    "proforma_name": "FO WATERMELON FRUIT SYRUP–PREMIUM 700ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "128-WATERMELON FLAVORED SYRUP-SUGAR.doc",
+      "product_name": "WATERMELON FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/agave-tekila-aromali-surup-700ml"
+  },
+  {
+    "barcode": "8691123470973",
+    "proforma_name": "FO MANGO FRUIT SYRUP-PREMIUM 700 ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 7,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "FO MANGO FLAVORED  SYRUP-sugar.doc",
+      "product_name": "MANGO FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/mango-ve-ejder-meyvesi-aromali-baz-surup-700-ml"
+  },
+  {
+    "barcode": "8691123471024",
+    "proforma_name": "FO POMEGRANATE FRUIT SYRUP-PREMIUM 700 ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "PASSION FRUIT SYRUP-PREMIUM.doc",
+      "product_name": "PASSION FRUIT SYRUP - PREMIUM"
+    },
+    "fostore_url": "https://fostore.com/nar-aromali-baz-surup-700-ml-yeni"
+  },
+  {
+    "barcode": "8691123471871",
+    "proforma_name": "FO GREEN APPLE FRUIT SYRUP-PREMIUM 700ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "121-GREEN APPLE FLAVORED COCKTAIL SYRUP-SUGAR.doc",
+      "product_name": "GREEN APPLE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/yesil-elma-meyveli-surup-premium-700-ml"
+  },
+  {
+    "barcode": "8691123473707",
+    "proforma_name": "FO BLACKBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "131.BLACKBERRY FLAVORED SYRUP-SUGAR.doc",
+      "product_name": "BLACKBERRY FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/agave-tekila-aromali-surup-700ml"
+  },
+  {
+    "barcode": "8691123120090",
+    "proforma_name": "FO PEPPERMINT FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "1.MINT AND LIME FLAVORED SYRUP-COOL LIME BASE.doc",
+      "product_name": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE"
+    },
+    "fostore_url": "https://fostore.com/nane-aromali-surup-700ml"
+  },
+  {
+    "barcode": "8691123471017",
+    "proforma_name": "FO HAZELNUT FLAVORED SYRUP-PREMIUM 700ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "6. SUGAR FREE HAZELNUT FLAVORED SYRUP.doc",
+      "product_name": "SUGAR FREE HAZELNUT FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/findik-aromali-surup-sekerli-700ml"
+  },
+  {
+    "barcode": "8691123470959",
+    "proforma_name": "FO RASPBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "83.BLUE RASPBERRY FLAVOURED SYRUP.doc",
+      "product_name": "BLUE RASPBERRY FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/agave-tekila-aromali-surup-700ml"
+  },
+  {
+    "barcode": "8691123120663",
+    "proforma_name": "FO PINE APPLE FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "121-GREEN APPLE FLAVORED COCKTAIL SYRUP-SUGAR.doc",
+      "product_name": "GREEN APPLE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/yesil-elma-meyveli-surup-premium-700-ml"
+  },
+  {
+    "barcode": "8691123470966",
+    "proforma_name": "FO PEACH FRUIT SYRUP-PREMIUM 700 ML",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "12.SAKURA AND WHITE PEACH FLAVORED SYRUP- SAKURA & WHITE PEACH BASE.doc",
+      "product_name": "SAKURA AND WHITE PEACH FLAVORED SYRUP – SAKURA & WHITE PEACH BASE"
+    },
+    "fostore_url": "https://fostore.com/sakura-ve-beyaz-seftali-aromali-baz-surup-700-ml"
+  },
+  {
+    "barcode": "8691123120038",
+    "proforma_name": "FO KIWI FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "125-FO KIWI  FLAVORED  SYRUP - SUGAR.doc",
+      "product_name": "KIWI FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/altin-kivi-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123120021",
+    "proforma_name": "FO BLUE CURACAO FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "FO BLUE CURACAO FLAVORED  SYRUP-sugar.doc",
+      "product_name": "BLUE CURACAO FLAVORED SYRUP"
+    },
+    "fostore_url": null
+  },
+  {
+    "barcode": "8691123473264",
+    "proforma_name": "FO HIBISCUS FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.84,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "78.HIBISCUS FLAVORED  SYRUP-SUGAR.doc",
+      "product_name": "HIBISCUS FLAVORED SYRUP-SUGAR"
+    },
+    "fostore_url": "https://fostore.com/hibiskus-ve-orman-meyve-aromali-surup"
+  },
+  {
+    "barcode": "8691123475084",
+    "proforma_name": "FO CUBAN MINT LIME BASE 700ML",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 3.65,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "CUBAN MINT FLAVORED BASE WITH REAL KEY LIME JUICE.doc",
+      "product_name": "CUBAN MINT FLAVORED BASE WITH REAL KEY LIME JUICE"
+    },
+    "fostore_url": "https://fostore.com/nane-aromali-surup-700ml"
+  },
+  {
+    "barcode": "8691123475886",
+    "proforma_name": "FO Sorrel Drink Mix – Madam Sorrel 1000 gr",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 5.5,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "SORREL BASED DRINK MIX.doc",
+      "product_name": "SORREL BASED DRINK MIX"
+    },
+    "fostore_url": "https://fostore.com/madame-sorrel-kuzukulakli-icecek-karisimi-900-gr"
+  },
+  {
+    "barcode": "8691123475152",
+    "proforma_name": "Fo Electric Flower and Blueberry Flavored Base 700 ml",
+    "unit_weight": 0.85,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 4,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "1.MINT AND LIME FLAVORED SYRUP-COOL LIME BASE.doc",
+      "product_name": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE"
+    },
+    "fostore_url": "https://fostore.com/mavi-yaban-mersini-aromali-surup-sekerli-700-ml"
+  },
+  {
+    "barcode": "8691123473905",
+    "proforma_name": "FO MADAGASCAR VANILLA FLAVORED SAUCE 1 KG - ECLIPSE",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 6.5,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "MADAGASKAR VANILLA FLAVORED SAUCE- (COFFEE, ICE CREAM TOPPING & DESSERT SAUCE-) ECLIPSE SAUCE.DOC",
+      "product_name": "MADAGASKAR VANILLA FLAVORED SAUCE- (COFFEE, ICE CREAM TOPPING & DESSERT SAUCE-) ECLIPSE SAUCE"
+    },
+    "fostore_url": "https://fostore.com/madagaskar-vanilya-aromali-sos-1-kg---eclipse"
+  },
+  {
+    "barcode": "8691123471444",
+    "proforma_name": "FO POPPING CANDY SAUCE-SPECIAL 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 8.34,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "15.POPPING CANDY  SAUCE.doc",
+      "product_name": "POPPING CANDY SAUCE"
+    },
+    "fostore_url": "https://fostore.com/patlayan-sekerli-special-sos-1000-gr"
+  },
+  {
+    "barcode": "8691123467454",
+    "proforma_name": "Fo Pistachio Verde Sauce %5 940GR",
+    "unit_weight": 0.94,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 6.96,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "10.PISTACHIO SAUCE (%5) .doc",
+      "product_name": "PISTACHIO SAUCE (%5)"
+    },
+    "fostore_url": null
+  },
+  {
+    "barcode": "8691123471086",
+    "proforma_name": "FO PREMIUM TARO FLAVORED SAUCE 2,5KG",
+    "unit_weight": 2.5,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 7,
+    "unit_price_eur": 11.5,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "1. TARO FLAVORED PREMIUM SAUCE.DOC",
+      "product_name": "TARO FLAVORED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/profesyonel-findikli-sos-2-5kg"
+  },
+  {
+    "barcode": "8691123449498",
+    "proforma_name": "FO CHOCOLATE FLAVORED POWDER DRINK 1 KG.",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.7,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "10. CHOCOLATE POWDER DRINK.doc",
+      "product_name": "BITTER CHOCOLATE POWDER DRINK"
+    },
+    "fostore_url": "https://fostore.com/toz-icecek-bazi---quattro-baz-1-kg"
+  },
+  {
+    "barcode": "8691123449566",
+    "proforma_name": "FO MELON FLAVORED POWDER DRINK 1 KG.",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.7,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "3. MELON FLAVORED POWDER DRINK ..doc",
+      "product_name": "MELON FLAVORED POWDER DRINK"
+    },
+    "fostore_url": "https://fostore.com/kavun-aromali-icecek-tozu--milkshake--1-kg"
+  },
+  {
+    "barcode": "8691123449504",
+    "proforma_name": "FO VANILLA FLAVORED POWDER DRINK 1 KG.",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.7,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "9. VANILLA   FLAVORED POWDER DRINK.doc",
+      "product_name": "VANILLA FLAVORED POWDER DRINK"
+    },
+    "fostore_url": "https://fostore.com/toz-icecek-bazi---quattro-baz-1-kg"
+  },
+  {
+    "barcode": "8691123449511",
+    "proforma_name": "FO STRAWBERRY FLAVORED POWDER DRINK 1 KG.",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.7,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "2. STRAWBERRY FLAVORED POWDER DRINK.doc",
+      "product_name": "STRAWBERRY FLAVORED POWDER DRINK"
+    },
+    "fostore_url": "https://fostore.com/toz-icecek-bazi---quattro-baz-1-kg"
+  },
+  {
+    "barcode": "8691123461117",
+    "proforma_name": "Fo Chai Tea Latte Powder Drink 1 kg.",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 5.1,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "CHAI TEA LATTE POWDER DRINK.doc",
+      "product_name": "CHAI TEA LATTE POWDER DRINK"
+    },
+    "fostore_url": "https://fostore.com/chai-tea-latte-icecek-tozu-1-kg"
+  },
+  {
+    "barcode": "8691123470379",
+    "proforma_name": "Fo Matcha Gren Tea Powder Drink 1 kg",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 7.65,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "MATCHA GREEN TEA POWDER DRINK.doc",
+      "product_name": "MATCHA GREEN TEA POWDER DRINK"
+    },
+    "fostore_url": "https://fostore.com/chai-tea-latte-icecek-tozu-1-kg"
+  },
+  {
+    "barcode": "8691123343000",
+    "proforma_name": "FO STRAWBERRY FLAVORED SAUCE 750 GR",
+    "unit_weight": 0.75,
+    "koli_ici_adet": 12,
+    "palet_ici_koli": 4,
+    "unit_price_eur": 1.99,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "2.STRAWBERRY FLAVORED DECOR SAUCE.doc",
+      "product_name": "STRAWBERRY FLAVORED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/cilek-aromali-dekor-sos-750-gr"
+  },
+  {
+    "barcode": "8691123462244",
+    "proforma_name": "Fo Chocolate Flavored Sauce 750 Gr",
+    "unit_weight": 0.75,
+    "koli_ici_adet": 12,
+    "palet_ici_koli": 4,
+    "unit_price_eur": 2.42,
+    "gtip": "180690900000",
+    "spec": {
+      "file": "1. TARO FLAVORED PREMIUM SAUCE.DOC",
+      "product_name": "TARO FLAVORED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/karamel-aromali-dekor-sos-750-gr-1"
+  },
+  {
+    "barcode": "8691123463517",
+    "proforma_name": "Fo White Chocolate Flavored Syrup 700 ml.",
+    "unit_weight": 0.95,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "37-WHITE CHOCOLATE FLAVORED COCKTAIL  SYRUP.doc",
+      "product_name": "WHITE CHOCOLATE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/beyaz-cikolata-surup---premium-700-ml"
+  },
+  {
+    "barcode": "8691123463500",
+    "proforma_name": "Fo Chocolate Flavored Syrup 70 Cl.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 2.73,
+    "gtip": "180690900000",
+    "spec": {
+      "file": "3-CHOCOLATE  FLAVORED SYRUP.doc",
+      "product_name": "CHOCOLATE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/cikolata-aromali-surup-700ml"
+  },
+  {
+    "barcode": "8691123463494",
+    "proforma_name": "Fo Hazelnut Flavored Syrup 700 ML - Sugar Free",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "6. SUGAR FREE HAZELNUT FLAVORED SYRUP.doc",
+      "product_name": "SUGAR FREE HAZELNUT FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/findik-karamel-surup-sekerli-700-ml"
+  },
+  {
+    "barcode": "8691123463470",
+    "proforma_name": "Fo Caramel Flavored Syrup 700 ML - Sugar Free",
+    "unit_weight": 0.69,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "1. SUGAR FREE CARAMEL FLAVORED SYRUP.doc",
+      "product_name": "SUGAR FREE CARAMEL FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/findik-karamel-surup-sekerli-700-ml"
+  },
+  {
+    "barcode": "8691123463487",
+    "proforma_name": "Fo Vanilla Flavored Syrup 700 ML - Sugar Free",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "2. SUGAR FREE VANILLA FLAVORED SYRUP.doc",
+      "product_name": "SUGAR FREE VANILLA FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/sekersiz-vanilya-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123120182",
+    "proforma_name": "FO CHOCOLATE FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 50,
+    "unit_price_eur": 2.73,
+    "gtip": "180690900000",
+    "spec": {
+      "file": "3-CHOCOLATE  FLAVORED SYRUP.doc",
+      "product_name": "CHOCOLATE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/cikolata-aromali-surup-700ml"
+  },
+  {
+    "barcode": "8691123120571",
+    "proforma_name": "FO WHITE CHOCOLATE FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.95,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 30,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "37-WHITE CHOCOLATE FLAVORED COCKTAIL  SYRUP.doc",
+      "product_name": "WHITE CHOCOLATE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/sekersiz-beyaz-cikolata-aromali-surup"
+  },
+  {
+    "barcode": "8691123120236",
+    "proforma_name": "FO CARAMEL FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 50,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "1. SUGAR FREE CARAMEL FLAVORED SYRUP.doc",
+      "product_name": "SUGAR FREE CARAMEL FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/findik-karamel-surup-sekerli-700-ml"
+  },
+  {
+    "barcode": "8691123120700",
+    "proforma_name": "FO STRAWBERRY FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.925,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 50,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "FO STRAWBERRY FLAVORED SYRUP-SUGAR.doc",
+      "product_name": "STRAWBERRY FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/cilek-ve-acai-aromali-baz-surup-700-ml"
+  },
+  {
+    "barcode": "8691123120106",
+    "proforma_name": "FO VANILLA FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 50,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "2. SUGAR FREE VANILLA FLAVORED SYRUP.doc",
+      "product_name": "SUGAR FREE VANILLA FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/vanilya-aromali-surup-sekerli-700ml"
+  },
+  {
+    "barcode": "8691123120243",
+    "proforma_name": "FO REGULAR COCONUT FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "6-COCONUT REGULAR FLAVORED SYRUP.doc",
+      "product_name": "REGULAR COCONUT FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/hindistan-cevizi-aromali-surup-regular-700ml"
+  },
+  {
+    "barcode": "8691123120618",
+    "proforma_name": "FO TOFFEE NUT FLAVORED SYRUP 700 ML.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 30,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "82.TOFFEE NUT FLAVORED SUGAR SYRUP-sugar.doc",
+      "product_name": "TOFFEE NUT FLAVORED SUGAR SYRUP"
+    },
+    "fostore_url": "https://fostore.com/anason-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123120519",
+    "proforma_name": "FO WATERMELON FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 7,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "128-WATERMELON FLAVORED SYRUP-SUGAR.doc",
+      "product_name": "WATERMELON FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/karpuz-aromali-surup---sekerli-700-ml"
+  },
+  {
+    "barcode": "8691123120229",
+    "proforma_name": "FO MANGO FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "FO MANGO FLAVORED  SYRUP-sugar.doc",
+      "product_name": "MANGO FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/portakal-ve-mango-aromali-surup"
+  },
+  {
+    "barcode": "8691123120014",
+    "proforma_name": "FO GRENADINE FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "120-FO GRENADINE FLAVORED  SYRUP-SUGAR.doc",
+      "product_name": "GRENADINE FLAVORED SYRUP"
+    },
+    "fostore_url": null
+  },
+  {
+    "barcode": "8691123120588",
+    "proforma_name": "FO GREEN APPLE FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "121-GREEN APPLE FLAVORED COCKTAIL SYRUP-SUGAR.doc",
+      "product_name": "GREEN APPLE FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/yesil-elma-meyveli-surup-premium-700-ml"
+  },
+  {
+    "barcode": "8691123120717",
+    "proforma_name": "FO BLACKBERRY FLAVORED SYRUP 70 CL",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "131.BLACKBERRY FLAVORED SYRUP-SUGAR.doc",
+      "product_name": "BLACKBERRY FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/bogurtlen-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123120564",
+    "proforma_name": "FO SPEARMINT FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 15,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "129-SPEARMINT FLAVORED SYRUP-SUGAR.doc",
+      "product_name": "SPEARMINT FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/nane-aromali-surup-700ml"
+  },
+  {
+    "barcode": "8691123453105",
+    "proforma_name": "FO BLUE RASPBERRY FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "83.BLUE RASPBERRY FLAVOURED SYRUP.doc",
+      "product_name": "BLUE RASPBERRY FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/mavi-frambuaz-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123120137",
+    "proforma_name": "FO PEACH FLAVORED SYRUP 70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "12.SAKURA AND WHITE PEACH FLAVORED SYRUP- SAKURA & WHITE PEACH BASE.doc",
+      "product_name": "SAKURA AND WHITE PEACH FLAVORED SYRUP – SAKURA & WHITE PEACH BASE"
+    },
+    "fostore_url": "https://fostore.com/sakura-ve-beyaz-seftali-aromali-baz-surup-700-ml"
+  },
+  {
+    "barcode": "8691123470218",
+    "proforma_name": "FO KOI COCKTAIL FOAMER 100 ML",
+    "unit_weight": 0.1,
+    "koli_ici_adet": 12,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 8.63,
+    "gtip": "320419000019",
+    "spec": {
+      "file": "FO KOI COCTAIL FOAMER.docx",
+      "product_name": "FO KOI COCTAIL FOAMER-VEGAN"
+    },
+    "fostore_url": null
+  },
+  {
+    "barcode": "8691123120052",
+    "proforma_name": "FO COCONUT FLAVORED SYRUP (BLANC)70 CL.",
+    "unit_weight": 0.93,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "5-FO COCONUT FLAVORED SYRUP-BLANC-SUGAR.doc",
+      "product_name": "COCONUT FLAVORED SYRUP"
+    },
+    "fostore_url": "https://fostore.com/hindistan-cevizi-aromali-surup-blanc---sekerli-700-ml"
+  },
+  {
+    "barcode": "8691123475596",
+    "proforma_name": "FO Mixed Fruit Drink – Apollo 800 ML",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 8,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "2.MIXED FRUIT BEVERAGES-APOLLO.doc",
+      "product_name": "MIXED FRUIT BEVERAGE-APOLLO"
+    },
+    "fostore_url": "https://fostore.com/karisik-meyveli-icecek-apollo-800-ml"
+  },
+  {
+    "barcode": "8691123475619",
+    "proforma_name": "FO Mixed Fruit Drink – Dionysus 800ML",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 8,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "2.MIXED FRUIT BEVERAGES-APOLLO.doc",
+      "product_name": "MIXED FRUIT BEVERAGE-APOLLO"
+    },
+    "fostore_url": "https://fostore.com/cilek-ve-nar-aromali-icecek---fruit-700ml"
+  },
+  {
+    "barcode": "8691123475633",
+    "proforma_name": "FO Mixed Fruit Drink – Helios 800 ML",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 8,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "7.MIXED FRUIT BEVERAGE-HELIOS.doc",
+      "product_name": "MIXED FRUIT BEVERAGE-HELIOS"
+    },
+    "fostore_url": "https://fostore.com/karisik-meyveli-icecek-helios-800-ml"
+  },
+  {
+    "barcode": "8691123475626",
+    "proforma_name": "FO Mixed Fruit Drink – Zeus 800 ML",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 8,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "9.MIXED FRUIT BEVERAGE-ZEUS.doc",
+      "product_name": "MIXED FRUIT BEVERAGE-ZEUS"
+    },
+    "fostore_url": "https://fostore.com/karisik-meyveli-icecek-zeus-800-ml"
+  },
+  {
+    "barcode": "8691123475640",
+    "proforma_name": "FO Mixed Fruit Drink – Heracles 800ML",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 8,
+    "gtip": "210690590000",
+    "spec": {
+      "file": "2.MIXED FRUIT BEVERAGES-APOLLO.doc",
+      "product_name": "MIXED FRUIT BEVERAGE-APOLLO"
+    },
+    "fostore_url": "https://fostore.com/cilek-ve-nar-aromali-icecek---fruit-700ml"
+  },
+  {
+    "barcode": "8691123444127",
+    "proforma_name": "FO COCONUT FRUITED SAUCE 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 3.82,
+    "gtip": "200799390019",
+    "spec": {
+      "file": "16.COCONUT FRUITED SAUCE.doc",
+      "product_name": "COCONUT FRUITED SAUCE"
+    },
+    "fostore_url": "https://fostore.com/ananas-meyveli-sos-frozen-1kg"
+  },
+  {
+    "barcode": "8691123469663",
+    "proforma_name": "FO SAKURA AND WHITE PEACH FLAVORED BASE",
+    "unit_weight": 0.85,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "12.SAKURA AND WHITE PEACH FLAVORED SYRUP- SAKURA & WHITE PEACH BASE.doc",
+      "product_name": "SAKURA AND WHITE PEACH FLAVORED SYRUP – SAKURA & WHITE PEACH BASE"
+    },
+    "fostore_url": "https://fostore.com/sakura-ve-beyaz-seftali-aromali-baz-surup-700-ml"
+  },
+  {
+    "barcode": "8691123453037",
+    "proforma_name": "FO POWDER DRINK BASE (QUATRO) 1 KG",
+    "unit_weight": 1,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 6,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "POWDER DRINK BASE.doc",
+      "product_name": "POWDER DRINK BASE"
+    },
+    "fostore_url": "https://fostore.com/toz-icecek-bazi---quattro-baz-1-kg"
+  },
+  {
+    "barcode": "8691123462916",
+    "proforma_name": "Fo Mint and Lime Flavored Beverage 700 ml.",
+    "unit_weight": 0.84,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 20,
+    "unit_price_eur": 2.73,
+    "gtip": "210690550000",
+    "spec": {
+      "file": "1.MINT AND LIME FLAVORED SYRUP-COOL LIME BASE.doc",
+      "product_name": "MINT AND LIME FLAVORED SYRUP-COOL LIME BASE"
+    },
+    "fostore_url": "https://fostore.com/nane-ve-limon-aromali-surup-700-ml"
+  },
+  {
+    "barcode": "8691123471093",
+    "proforma_name": "FO PREMIUM CARAMEL SAUCE 2,5KG",
+    "unit_weight": 2.5,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 15.83,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "2. CARAMEL PREMIUM SAUCE.DOC",
+      "product_name": "CARAMEL SAUCE"
+    },
+    "fostore_url": "https://fostore.com/karamel-aromali-sos-profesyonel-2-5kg"
+  },
+  {
+    "barcode": "8691123471475",
+    "proforma_name": "FO PREMIUM WHITE CHOCOLATE SAUCE 2,5KG",
+    "unit_weight": 2.5,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 5,
+    "unit_price_eur": 17.25,
+    "gtip": "210690980019",
+    "spec": {
+      "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.doc",
+      "product_name": "WHITE CHOCOLATE SAUCE"
+    },
+    "fostore_url": "https://fostore.com/profesyonel-beyaz-cikolatali-sos-2-5kg"
+  },
+  {
+    "barcode": "8691123471468",
+    "proforma_name": "FO PREMIUM CHOCOLATE SAUCE 2,5 KG",
+    "unit_weight": 2.5,
+    "koli_ici_adet": 6,
+    "palet_ici_koli": 10,
+    "unit_price_eur": 15.83,
+    "gtip": "180620950000",
+    "spec": {
+      "file": "1.DARK CHOCOLATE SAUCE 2,5 KG.doc",
+      "product_name": "DARK CHOCOLATE SAUCE"
+    },
+    "fostore_url": "https://fostore.com/fo-cikolata-aromali-dekor-sos-750gr"
+  }
+]

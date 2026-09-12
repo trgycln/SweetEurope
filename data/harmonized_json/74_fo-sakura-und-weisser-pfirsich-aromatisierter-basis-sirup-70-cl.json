@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Entdecken Sie die exquisite Verbindung von zarter Sakura und saftigem weißem Pfirsich in diesem hochwertigen Basis-Sirup von ElysonSweets. Die perfekt ausỡngewogene Rezeptur bietet eine intensive Geschmackskonzentration mit einem erfrischend authentischen Profil und einer homogenen Struktur. Ideal für professionelle Cafés und Bars, um erfrischende, optisch ansprechende Kaltgetränke mit raffiniertem Mundgefühl zu kreieren.",
+    "en": "Experience the exquisite combination of delicate sakura and juicy white peach in this premium base syrup by ElysonSweets. The perfectly balanced formulation offers an intense flavor concentration with a refreshingly authentic profile and a homogenized structure. Ideal for professional cafes and bars to create refreshing, visually appealing cold drinks with a refined mouthfeel.",
+    "tr": "ElysonSweets'in bu premium baz şurubu ile narin sakura ve sulu beyaz şeftalinin eşsiz uyumunu keşfedin. Mükemmel dengelenmiş formülü, ferahlatıcı otantik profili ve homojen yapısıyla yoğun bir lezzet konsantrasyonu sunar. Profesyonel kafe ve barlar için rafine bir içim hissiyatı ile ferahlatıcı, görsel açıdan çekici soğuk içecekler yaratmak için idealdir.",
+    "ar": "اكتشف التناغم الرائع بين زهور الساكورا الرقيقة والخوخ الأبيض العصير في هذا الشراب الأساسي الفاخر من ElysonSweets. توفر التركيبة المتوازنة بدقة تركيزًا مكثفًا للنكهة مع ملف تعريفي أصيل ومنعش وقوام متجانس. مثالي للمقاهي والبارات المهنية لابتكار مشروبات باردة منعشة وجذابة بصريًا مع ملمس فموي راقٍ."
+  },
+  "hazirlanisi": {
+    "de": "Für einen 450ml Becher: 1 Messlöffel (40ml) Basis-Sirup optional mit 5 Messlöffeln (200ml) Wasser verdünnen und mit reichlich Eis servieren.",
+    "en": "For a 450ml cup: 1 scoop (40ml) base syrup is diluted optionally with 5 scoops (200ml) of water and served with plenty of ice.",
+    "tr": "450 ml'lik bardak için: 1 ölçek (40 ml) baz şurup, isteğe bağlı olarak 5 ölçek (200 ml) su ile seyreltilir ve bol buz ile servis edilir.",
+    "ar": "لكأس سعة 450 مل: خفف مكيالاً واحداً (40 مل) من الشراب الأساسي اختيارياً مع 5 مكاييل (200 مل) من الماء وقدمه مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Speziell für die Zubereitung von kalten Getränken wie Limonaden, Eistees, Cocktails, Mocktails und Smoothies.",
+    "en": "Used to prepare cold drinks such as lemonades, iced teas, cocktails, mocktails, and smoothies.",
+    "tr": "Limonatalar, soğuk çaylar, kokteyller, mocktail'ler ve smoothie'ler gibi soğuk içeceklerin hazırlanmasında kullanılır.",
+    "ar": "يستخدم لتحضير المشروبات الباردة مثل المشروبات الغازية، والشاي المثلج، والكوكتيلات، والموكتيلات، والسموذي."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22° C unter trockenen Bedingungen lagern und vor direktem Sonnenlicht schützen. Die geschlossene Verpackung hat eine Haltbarkeit von 3 Jahren.",
+    "en": "It should be stored in its original packaging, 20-22° C under dry conditions, and direct sunlight should be avoided. The closed packaging has a shelf life of 3 years.",
+    "tr": "Orijinal ambalajında, 20-22°C'de kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır. Kapalı ambalajında 3 yıl raf ömrüne sahiptir.",
+    "ar": "يجب تخزينه في عبوته الأصلية في درجة حرارة 20-22 مئوية في ظروف جافة، وتجنب أشعة الشمس المباشرة. العبوة المغلقة لها صلاحية لمدة 3 سنوات."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulator (Citronensäure E 330, Kaliumcitrat E 332ii), Aromen (Sakura, Weißer Pfirsich), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211), Farbstoff (Hibiskusextrakt)",
+    "en": "Sugar, Water, Acidity Regulator (Citric Acid E 330, Potassium Citrate E 332ii), Flavouring (Sakura, White Peach), Preservative (Potassium Sorbate E 202, Sodium Benzoate E 211), Colorant (Hibiscus Extract)",
+    "tr": "Şeker, Su, Asitliği Düzenleyici (Sitrik Asit E 330, Potasyum Sitrat E 332ii), Aroma Verici (Sakura, Beyaz Şeftali), Koruyucu (Potasyum Sorbat E 202, Sodyum Benzoat E 211), Renklendirici (Hibiskus Ekstresi)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 977,
+      "energie_kcal": 233,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 55.3,
+      "davon_zucker": 55.3,
+      "eiweiss": 0.0,
+      "salz": 0.008
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

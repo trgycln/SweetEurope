@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123470959",
+  "barkod": "8691123470959",
+  "urun_adi": {
+    "de": "FO Himbeere Fruchtsirup - Premium 700ml",
+    "en": "FO Raspberry Fruit Syrup - Premium 700ml",
+    "tr": "FO Ahududu Meyveli Şurup - Premium 700ml",
+    "ar": "شراب مركز بنكهة التوت الأحمر فو - بريميوم 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Sirup mit intensivem Himbeergeschmack und lebendiger Farbe. Ideal für die Zubereitung von Cocktails, Mocktails und verschiedenen Kaltgetränken in Profiqualität.",
+    "en": "Premium syrup delivering intense raspberry flavor and vibrant color. Perfect for crafting professional-grade cocktails, mocktails, and various cold beverages.",
+    "tr": "Yoğun ahududu lezzeti ve canlı rengiyle öne çıkan premium şurup. Profesyonel kalitede kokteyller, alkolsüz karışımlar ve çeşitli soğuk içecekler hazırlamak için idealdir.",
+    "ar": "شراب مركز ممتاز يتميز بنكهة التوت الأحمر المكثفة ولونه النابض بالحياة. مثالي لتحضير الكوكتيلات الاحترافية، والمشروبات الخالية من الكحول، ومختلف المشروبات الباردة."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Herstellung von Cocktails verwendet oder im Verhältnis 1:8 mit Wasser verdünnt direkt getrunken. Hervorragend geeignet für Bars, Cafés, Restaurants und den Heimgebrauch.",
+    "en": "Used to make cocktails or diluted with water (1/8 ratio) to drink directly. Excellent for bars, cafes, restaurants, and home use.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyreltilerek kullanılır. Barlar, kafeler, restoranlar ve ev dışı tüketim için mükemmeldir.",
+    "ar": "يُستخدم لتحضير الكوكتيلات أو يُخفف بالماء (بنسبة 1/8) للشرب المباشر. ممتاز للاستخدام في الحانات، المقاهي، المطاعم، والاستخدام المنزلي."
+  },
+  "icindekiler": {
+    "de": "Glukose-Fruktose-Sirup (74%), Wasser (25,335%), Aroma (Himbeere) (0,3%), Citronensäure [E 330] (0,3%), Brillantblau FCF [E 133] (0,025%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%).",
+    "en": "Glucose-Fructose Syrup (74%), Water (25.335%), Flavoring (Raspberry) (0.3%), Citric Acid [E 330] (0.3%), Brilliant Blue [E 133] (0.025%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%).",
+    "tr": "Glikoz-Fruktoz Şurubu (%74), Su (%25,335), Aroma Verici (Ahududu) (%0,3), Sitrik Asit [E 330] (%0,3), Parlak Mavi [E 133] (%0,025), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015).",
+    "ar": "شراب الجلوكوز والفركتوز (74%)، ماء (25.335%)، نكهة (التوت الأحمر) (0.3%)، حمض الستريك [E 330] (0.3%)، الأزرق البراق [E 133] (0.025%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen die Flasche stets gut verschlossen halten.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep the bottle tightly closed after opening.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru bir yerde muhafaza ediniz. Açıldıktan sonra kapağını sıkıca kapatınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُغلق الغطاء بإحكام بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1120,
+      "energie_kcal": 268,
+      "fett": 0,
+      "kohlenhydrate": 65.1,
+      "davon_zucker": 32.3,
+      "eiweiss": 0,
+      "salz": 0.3
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO KOI Cocktail Foamer verleiht Ihren Kreationen eine professionelle, stabile Schaumkrone ohne den Geschmack zu verfälschen. Diese hochkonzentrierte Formel ist ideal für Barkeeper, die bei Cocktails und Mocktails eine luxuriöse Textur und ein exzellentes Mundgefühl erzielen möchten. Dank der effizienten Dosierung ist er ein unverzichtbares Werkzeug für anspruchsvolle Bars und Cafés, die Wert auf visuelle Perfektion legen.",
+    "en": "The FO KOI Cocktail Foamer provides a professional, stable foam head to your creations without altering the flavor profile. This highly concentrated formula is ideal for bartenders seeking to achieve a luxurious texture and excellent mouthfeel in cocktails and mocktails. With its efficient dosage, it is an essential tool for high-end bars and cafes that prioritize visual perfection.",
+    "tr": "FO KOI Kokteyl Köpürtücü, kokteyllerinize ve mockteyllerinize tadını değiştirmeden profesyonel ve kalıcı bir köpük dokusu kazandırır. Yüksek konsantrasyonlu bu formül, içeceklerinde lüks bir doku ve mükemmel bir ağız hissi arayan barmenler için idealdir. Verimli dozajı sayesinde, görsel mükemmelliğe önem veren seçkin bar ve kafeler için vazgeçilmez bir yardımcıdır.",
+    "ar": "يمنح FO KOI Cocktail Foamer إبداعاتك رغوة احترافية ومستقرة دون التأثير على نكهة المشروب. هذه التركيبة عالية التركيز مثالية للسقاة الذين يسعون لتحقيق قوام فاخر وملمس ممتاز في الكوكتيلات والموكتيلات. بفضل جرعته الفعالة، يعد أداة أساسية للحانات والمقاهي الراقية التي تعطي الأولوية للكمال البصري."
+  },
+  "hazirlanisi": {
+    "de": "Geben Sie 2-3 Tropfen des Cocktail Foamers direkt in den Shaker zu den restlichen Zutaten. Trocken schütteln (ohne Eis) und anschließend mit Eis kräftig shaken, um eine dichte, langanhaltende Schaumkrone zu erzeugen.",
+    "en": "Add 2-3 drops of the Cocktail Foamer directly into the shaker with the other ingredients. Dry shake (without ice) and then shake vigorously with ice to create a dense, long-lasting foam head.",
+    "tr": "Diğer malzemelerle birlikte shaker'a 2-3 damla Kokteyl Köpürtücü ekleyin. Önce buzsuz çalkalayın (dry shake), ardından yoğun ve kalıcı bir köpük elde etmek için buzla birlikte kuvvetlice çalkalayın.",
+    "ar": "أضف 2-3 قطرات من Cocktail Foamer مباشرة إلى الشيكر مع باقي المكونات. قم بالرج الجاف (بدون ثلج) ثم رج بقوة مع الثلج للحصول على رغوة كثيفة وطويلة الأمد."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal für klassische Cocktails (z.B. Sour-Varianten), moderne Mocktails, kreative Mixgetränke und geschäumte Kaffeekreationen.",
+    "en": "Ideal for classic cocktails (e.g., sour variations), modern mocktails, creative mixed drinks, and foamed coffee creations.",
+    "tr": "Klasik kokteyller (örn. sour çeşitleri), modern mockteyller, yaratıcı karışık içecekler ve köpüklü kahve kreasyonları için idealdir.",
+    "ar": "مثالي للكوكتيلات الكلاسيكية (مثل أنواع الساور)، والموكتيلات الحديثة، والمشروبات المخلوطة المبتكرة، وإبداعات القهوة المزبدة."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen gut verschlossen halten.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep tightly closed after opening.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığından uzak bir yerde saklayın. Açıldıktan sonra ağzını sıkıca kapalı tutun.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُحفظ مغلقاً بإحكام بعد الفتح."
+  },
+  "inhaltsstoffe": {
+    "de": null,
+    "en": null,
+    "tr": null
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": null,
+      "energie_kcal": null,
+      "fett": null,
+      "davon_gesaettigt": null,
+      "kohlenhydrate": null,
+      "davon_zucker": null,
+      "eiweiss": null,
+      "salz": null
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

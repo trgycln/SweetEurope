@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123120663",
+  "barkod": "8691123120663",
+  "urun_adi": {
+    "de": "FO Grüner Apfel Sirup 70 cl",
+    "en": "FO Green Apple Flavored Syrup 70 cl",
+    "tr": "FO Yeşil Elma Aromalı Şurup 70 cl",
+    "ar": "فو شراب بنكهة التفاح الأخضر 70 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Sirup, der Ihren Cocktails, alkoholischen und alkoholfreien Getränken einen frischen grünen Apfelgeschmack und eine lebendige grüne Farbe verleiht. Hergestellt aus hochwertigem Zucker und sorgfältig ausgewählten Aromen.",
+    "en": "Premium syrup that adds a fresh green apple flavor and vibrant green color to your cocktails, alcoholic, and non-alcoholic beverages. Made with high-quality sugar and carefully selected flavorings.",
+    "tr": "Kokteyllerinize, alkollü ve alkolsüz içeceklerinize taze yeşil elma lezzeti ve canlı yeşil renk katan premium şurup. Yüksek kaliteli şeker ve özenle seçilmiş aromalarla üretilmiştir.",
+    "ar": "شراب ممتاز يضيف نكهة التفاح الأخضر الطازجة ولونًا أخضر نابضًا بالحياة إلى الكوكتيلات والمشروبات الكحولية وغير الكحولية. مصنوع من سكر عالي الجودة ونكهات مختارة بعناية."
+  },
+  "kullanim_alanlari": {
+    "de": "Zur Zubereitung von Cocktails oder verdünnt mit Wasser (Verhältnis 1:8) zum direkten Trinken.",
+    "en": "Used to make cocktails or diluted with water (1/8 ratio) to drink directly.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyreltilerek kullanılır.",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (بنسبة 1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,15%), Säuerungsmittel (Citronensäure [E 330]) (0,4%), Aroma (Grüner Apfel) (0,4%), Konservierungsstoffe (Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)), Farbstoffe (Tartrazin [E 102], Brillantblau FCF [E 133] (0,01%)).",
+    "en": "Sugar (62%), Water (37.15%), Acid (Citric Acid [E 330]) (0.4%), Flavoring (Green apple) (0.4%), Preservatives (Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)), Colors (Tartrazine [E 102], Brilliant Blue [E 133] (0.01%)).",
+    "tr": "Şeker (%62), Su (%37,15), Asitlik Düzenleyici (Sitrik Asit [E 330]) (%0,4), Aroma Verici (Yeşil Elma) (%0,4), Koruyucular (Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)), Renklendiriciler (Tartrazin [E 102], Brilliant Blue [E 133] (%0,01)).",
+    "ar": "سكر (62٪)، ماء (37.15٪)، حمض (حمض الستريك [E 330]) (0.4٪)، منكهات (تفاح أخضر) (0.4٪)، مواد حافظة (سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪))، ألوان (تارترازين [E 102]، أزرق براق [E 133] (0.01٪))."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern.",
+    "en": "Store in a cool and dry place.",
+    "tr": "Serin ve kuru yerde muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay / 36 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0,
+      "kohlenhydrate": 82.6,
+      "davon_zucker": 81.8,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 15
+}

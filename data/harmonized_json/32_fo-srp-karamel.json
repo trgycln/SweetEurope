@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Dieser zuckerfreie FO Karamell-Sirup bietet ein intensives, authentisches Karamellaroma mit einer perfekt abgestimmten Textur. Er wurde speziell für die professionelle Gastronomie entwickelt, um Heiß- und Kaltgetränken wie Lattes, Frappés und Smoothies eine luxuriöse Note zu verleihen. Dank seiner hohen Konzentration und Stabilität ist er die ideale Wahl für anspruchsvolle Baristas, die konsistente Qualität in jedem Glas garantieren möchten.",
+    "en": "This sugar-free FO Caramel Flavored Syrup delivers an intense, authentic caramel profile with a perfectly balanced mouthfeel. Engineered for professional hospitality, it adds a luxurious touch to hot and cold beverages such as lattes, frappes, and smoothies. Its high concentration and stability make it the premier choice for baristas seeking consistent, premium quality in every pour.",
+    "tr": "Bu şekersiz FO Karamel Aromalı Şurup, yoğun ve otantik karamel lezzetini mükemmel bir kıvamla sunar. Profesyonel gastronomi için özel olarak geliştirilmiş olup; latte, frappe ve smoothie gibi sıcak ve soğuk içeceklere lüks bir dokunuş katar. Yüksek konsantrasyonu ve stabilitesi sayesinde, her bardakta tutarlı kalite arayan baristalar için ideal bir tercihtir.",
+    "ar": "يقدم شراب الكراميل الخالي من السكر من FO نكهة كراميل مكثفة وأصلية مع قوام متوازن تماماً. تم تطويره خصيصاً لقطاع الضيافة المحترف ليضفي لمسة فاخرة على المشروبات الساخنة والباردة مثل اللاتيه، والفرابي، والعصائر. بفضل تركيزه العالي وثباته، يعد الخيار الأمثل للباريستا الذين يبحثون عن جودة متسقة ومتميزة في كل كوب."
+  },
+  "hazirlanisi": {
+    "de": "Verwenden Sie eine Dosierung von 1,5-2 cl für Heiß- und Kaltgetränke. Für ein direktes Getränk mit Wasser oder Milch im Verhältnis 1:8 verdünnen.",
+    "en": "Use a dosage of 1.5-2 cl for hot and cold drinks. For direct consumption, dilute with water or milk at a ratio of 1:8.",
+    "tr": "Sıcak ve soğuk içeceklerde 1,5-2 cl dozajında kullanınız. Doğrudan tüketim için su veya süt ile 1/8 oranında seyreltiniz.",
+    "ar": "استخدم جرعة تتراوح بين 1.5 إلى 2 سنتيلتر للمشروبات الساخنة والباردة. للاستهلاك المباشر، يُخفف بالماء أو الحليب بنسبة 1:8."
+  },
+  "kullanim_alanlari": {
+    "de": "Latte, Cappuccino, Filterkaffee, Eislatte, Frappé, Milchshakes, Smoothies, Frozen Drinks, Cocktails, heiße und kalte Tees, Desserts, Kuchen und Kekse.",
+    "en": "Latte, cappuccino, filter coffee, iced latte, frappe, milkshakes, smoothies, frozen drinks, cocktails, hot and cold teas, desserts, cakes, and cookies.",
+    "tr": "Latte, cappuccino, filtre kahve, buzlu latte, frappe, milkshake, smoothie, frozen, kokteyller, sıcak ve soğuk çaylar, tatlılar, kekler ve kurabiyeler.",
+    "ar": "لاتيه، كابتشينو، قهوة مفلترة، لاتيه مثلج، فرابي، ميلك شيك، سموذي، مشروبات مثلجة، كوكتيلات، شاي ساخن وبارد، حلويات، كعك، وبسكويت."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre in geschlossener Verpackung.",
+    "en": "Store in original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life: 2 years in closed packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Kapalı ambalajında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في العبوة المغلقة."
+  },
+  "inhaltsstoffe": {
+    "de": "Wasser, Polydextrose (E 1200), Aroma (Karamell), Verdickungsmittel (CMC E 466), Säureregulator (Weinsäure E 334), Süßungsmittel (Sucralose E 955), Farbstoff (Einfaches Zuckerkulör E 150a), Süßungsmittel (Acesulfam K E 950), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211).",
+    "en": "Water, Polydextrose (E 1200), Flavoring (Caramel), Thickener (CMC E 466), Acidity Regulator (Tartaric Acid E 334), Sweetener (Sucralose E 955), Colorant (Plain Caramel E 150a), Sweetener (Acesulfame K E 950), Preservatives (Potassium Sorbate E 202, Sodium Benzoate E 211).",
+    "tr": "Su, Polidekstroz (E 1200), Aroma verici (Karamel), Kıvam artırıcı (CMC E 466), Asitlik düzenleyici (Tartarik asit E 334), Tatlandırıcı (Sukraloz E 955), Renklendirici (Sade karamel E 150a), Tatlandırıcı (Asesülfam K E 950), Koruyucular (Potasyum sorbat E 202, Sodyum benzoat E 211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 55,
+      "energie_kcal": 13,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 0.5,
+      "davon_zucker": 0.3,
+      "eiweiss": 0,
+      "salz": 0.018
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

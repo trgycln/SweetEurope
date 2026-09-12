@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123471840",
+  "barkod": "8691123471840",
+  "urun_adi": {
+    "de": "FO Limetten Fruchtsirup 700 ml - Premium",
+    "en": "FO Lime Fruited Syrup 700 ml - Premium",
+    "tr": "FO Misket Limonu Meyveli Şurup 700 ml - Premium",
+    "ar": "فو شراب فاكهة الليمون الأخضر 700 مل - بريميوم"
+  },
+  "aciklamalar": {
+    "de": "Ein Premium-Sirup, der Ihren Cocktails, Mocktails und Desserts mit seinem hochwertigen Limettengeschmack und Fruchtgehalt eine erfrischende Note verleiht.",
+    "en": "A premium syrup that adds a refreshing taste to your cocktails, mocktails, and desserts with its high-quality lime flavor and fruit content.",
+    "tr": "Yüksek kaliteli misket limonu aroması ve meyve içeriği ile kokteyllerinize, alkolsüz içeceklerinize ve tatlılarınıza tazeleyici bir lezzet katan premium şurup.",
+    "ar": "شراب ممتاز يضيف طعمًا منعشًا إلى الكوكتيلات والمشروبات والحلويات بنكهة الليمون الأخضر عالية الجودة ومحتوى الفاكهة."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal für Cocktails, Mocktails, Eistees, Limonaden und Desserts. Für einen 450-ml-Becher: 1 Messlöffel (40 ml) Sirupbasis wahlweise mit 3 Messlöffeln (120 ml), 4 Messlöffeln (160 ml) oder 5 Messlöffeln Wasser oder Soda verdünnen.",
+    "en": "Ideal for cocktails, mocktails, iced teas, lemonades, and desserts. For a 450ml cup; dilute 1 scoop (40ml) of syrup base optionally with 3 scoops (120ml), 4 scoops (160ml), or 5 scoops of water or soda.",
+    "tr": "Kokteyller, alkolsüz içecekler, soğuk çaylar, limonatalar ve tatlılar için idealdir. 450 ml'lik bir bardak için; 1 ölçek (40 ml) şurup bazını isteğe göre 3 ölçek (120 ml), 4 ölçek (160 ml) veya 5 ölçek su veya soda ile seyrelterek kullanabilirsiniz.",
+    "ar": "مثالي للكوكتيلات، والمشروبات الخالية من الكحول، والشاي المثلج، والليموناضة، والحلويات. لكوب سعة 450 مل؛ قم بتخفيف مكيال واحد (40 مل) من قاعدة الشراب اختياريًا بـ 3 مكاييل (120 مل)، أو 4 مكاييل (160 مل)، أو 5 مكاييل من الماء أو الصودا."
+  },
+  "icindekiler": {
+    "de": "Zucker (55%), Wasser (38,64%), Säuerungsmittel (Citronensäure, Kaliumcitrat, E 330, E 332ii (5,5%)), Aroma (Grüne Minze, Limette) (0,8%), Konservierungsstoff (Kaliumsorbat [E 202] 0,25 g/l (0,025%)), Farbstoff (Annatto [E 160b] (0,02%)), Konservierungsstoff (Natriumbenzoat [E 211] (0,015%))",
+    "en": "Sugar (55%), Water (38.64%), Acid (Citric Acid, Potassium Citrate, E 330, E 332ii (5.5%)), Flavouring (Spearmint, Lime) (0.8%), Preservative (Potassium Sorbate [E 202] 0.25 g/l (0.025%)), Colour (Annatto [E 160b] (0.02%)), Preservative (Sodium Benzoate [E 211] (0.015%))",
+    "tr": "Şeker (%55), Su (%38,64), Asitlik Düzenleyici (Sitrik Asit, Potasyum Sitrat, E 330, E 332ii (%5,5)), Aroma Vericiler (Nane, Misket Limonu) (%0,8), Koruyucu (Potasyum Sorbate [E 202] 0,25 g/l (%0,025)), Renklendirici (Anatto [E 160b] (%0,02)), Koruyucu (Sodyum Benzoat [E 211] (%0,015%))",
+    "ar": "سكر (55%)، ماء (38.64%)، حمض (حمض الستريك، سترات البوتاسيوم، E 330، E 332ii (5.5%))، منكهات (نعناع، ليمون أخضر) (0.8%)، مادة حافظة (سوربات البوتاسيوم [E 202] 0.25 جم/لتر (0.025%))، لون (أناتو [E 160b] (0.02%))، مادة حافظة (بنزوات الصوديوم [E 211] (0.015%))"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen die Flasche fest verschlossen halten.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep the bottle tightly closed after opening.",
+    "tr": "Serin, kuru ve güneş ışığı almayan bir yerde muhafaza ediniz. Açıldıktan sonra kapağını sıkıca kapatınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. أغلق الزجاجة بإحكام بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 937,
+      "energie_kcal": 224,
+      "fett": 0,
+      "kohlenhydrate": 55,
+      "davon_zucker": 55,
+      "eiweiss": 0,
+      "salz": 0.05
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

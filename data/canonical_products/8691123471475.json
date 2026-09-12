@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123471475",
+  "barkod": "8691123471475",
+  "urun_adi": {
+    "de": "FO Premium Weiße Schokoladensauce 2,5 kg",
+    "en": "FO Premium White Chocolate Sauce 2.5 kg",
+    "tr": "FO Premium Beyaz Çikolatalı Sos 2,5 kg",
+    "ar": "صلصة الشوكولاتة البيضاء الفاخرة FO سعة 2.5 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige weiße Schokoladensauce im 2,5-kg-Kanister, ideal für den professionellen Einsatz in Cafés und Bars. Inklusive Pumpe.",
+    "en": "High quality white chocolate premium sauce in a 2.5 kg container, ideal for professional use in cafes and bars. Includes a pump.",
+    "tr": "Kafe ve barlar için profesyonel kullanıma uygun, 2,5 kg ambalajında kaliteli beyaz çikolatalı premium sos. Pompa hediyelidir.",
+    "ar": "صلصة شوكولاتة بيضاء فاخرة عالية الجودة في عبوة سعة 2.5 كجم، مثالية للاستخدام المهني في المقاهي والبارات. تتضمن مضخة هدية."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird im Allgemeinen in der menschlichen Ernährung verwendet; zum Verfeinern von heißen und kalten Getränken oder zum Überziehen von Eiscreme und Milchsesserts.",
+    "en": "Generally used in human nutrition, may be used for zesting hot and cold drinks or coating ice cream, milky dessert.",
+    "tr": "Genellikle insan beslenmesinde kullanılır; sıcak ve soğuk içeceklerin aromalandırılması, dondurma ve sütlü tatlıların kaplanması için uygundur.",
+    "ar": "تستخدم عموماً في تغذية الإنسان، ويمكن استخدامها لتنكهة المشروبات الساخنة والباردة أو لتغطية الآيس كريم والحلويات الحليبية."
+  },
+  "icindekiler": {
+    "de": "Glukosesirup (45 %), Zucker (20 %), Wasser (15,5 %), Magermilchpulver (Milch) (9 %), Glycerin [E 422] (4,5 %), Butter (3 %), modifizierte Maisstärke (1 %), weiße Schokolade (1 %) [Zucker, Kakaobutter, Magermilchpulver, Emulgator (E 322), Aromastoff (Vanillin)], Aromastoff (weiße Schokolade, Schokolade) (0,3 %), Salz (0,3 %), Zitronensäure, Trinatriumcitrat, E 330, E 331iii (0,2 %), Sojalecithin [E 332] (0,1 %), Kaliumsorbat [E 202] (0,1 %)",
+    "en": "Glucose Syrup (45 %), Sugar (20 %), Water (15.5 %), Skimmed milk powder (Milk) (9 %), Glycerine [E 422] (4.5 %), Butter (3%), Modified corn starch (1 %), White Chocolate (1 %) [Sugar, Cocoa butter, Skimmed Milk Powder, Emulsifier (E 322), Flavoring (vanillin)], Flavoring (white chocolate, chocolate) (0.3 %), Salt (0.3 %), Citric Acid, Trisodium citrate, E 330, E331iii (0.2 %), Soy lecithin [E332] (0.1%), Potassium Sorbate [E 202] (0.1 %)",
+    "tr": "Glikoz Şurubu (%45), Şeker (%20), Su (%15,5), Yağsız Süt Tozu (Süt) (%9), Gliserin [E 422] (%4,5), Tereyağı (%3), Modifiye Mısır Nişastası (%1), Beyaz Çikolata (%1) [Şeker, Kakao Yağı, Yağsız Süt Tozu, Emülgatör (E 322), Aroma Verici (vanilin)], Aroma Verici (beyaz çikolata, çikolata) (%0,3), Tuz (%0,3), Sitrik Asit, Trisodyum sitrat, E 330, E331iii (%0,2), Soya lesitini [E332] (%0,1), Potasyum Sorbat [E 202] (%0,1)",
+    "ar": "شراب الجلوكوز (45٪)، سكر (20٪)، ماء (15.5٪)، مسحوق حليب خالي الدسم (حليب) (9٪)، جلسرين [E 422] (4.5٪)، زبدة (3٪)، نشا الذرة المعدل (1٪)، شوكولاتة بيضاء (1٪) [سكر، زبدة الكاكاو، مسحوق حليب خالي الدسم، مستحلب (E 322)، منكه (فانيلين)]، منكه (شوكولاتة بيضاء، شوكولاتة) (0.3٪)، ملح (0.3٪)، حض الليمون، سترات ثلاثي الصوديوم، E 330، E331iii (0.2٪)، ليسيثين الصويا [E332] (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen und vor direktem Sonnenlicht geschützten Ort lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığı almayan ortamlarda muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte.",
+    "en": "Contains Dairy / Milk products, Soy products.",
+    "tr": "Süt ürünleri, Soya ürünleri içerir.",
+    "ar": "يحتوي على منتجات الألبان, منتجات الصويا."
+  },
+  "raf_omru": "12 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1330,
+      "energie_kcal": 318,
+      "fett": 5.7,
+      "kohlenhydrate": 62.2,
+      "davon_zucker": 48,
+      "eiweiss": 3.6,
+      "salz": 0.75
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 17.25,
+  "gtip": "210690980019",
+  "palet_ici_koli": 5
+}

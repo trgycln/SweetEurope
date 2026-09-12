@@ -1014,9 +1014,9 @@ statusOptions: {
   },
   philosophy: {
     title: 'Unsere Philosophie',
-    paragraph1: 'ElysonSweets bringt die Premium-Produkte von FO Food Products direkt nach Deutschland. Als exklusiver Distributor sorgen wir dafür, dass Cafés, Hotels und Patisserien Zugang zu hochwertigen Spezialitäten erhalten – von Sirups über Saucen bis hin zu Barista-Essentials.',
-    paragraph2: 'FO Food Products steht für über 20 Jahre Erfahrung in der Lebensmittelproduktion und kompromisslose Qualität. Wir verbinden diese Tradition mit der Nähe zu unseren deutschen Partnern: zuverlässige Lieferung, faire Konditionen und persönliche Beratung.',
-    imageAlt: 'FO Food Products Premium-Sortiment – Sirupe, Saucen und Barista-Produkte',
+    paragraph1: 'Bei ElysonSweets steht ein Ziel im Mittelpunkt: professionellen Baristas, Bartenders und HoReCa-Betrieben in Deutschland und Europa den direkten Zugang zu erstklassigen Produkten zu ermöglichen. Als offizieller Distributor von FO Food Products liefern wir Sirupe, Barsaucen und Fruchtpürees direkt ab Lager – zuverlässig, schnell und zu fairen B2B-Konditionen.',
+    paragraph2: 'FO Food Products steht für über 20 Jahre Erfahrung in der professionellen Lebensmittelproduktion: Halal-zertifiziert, BRC-geprüft und mit Türk-Patent ausgezeichnet. Wir bringen diese Qualität zu Ihnen – mit persönlicher Beratung, flexiblen Mindestmengen und schnellem Versand in der gesamten EU.',
+    imageAlt: 'FO Food Products Premium-Sortiment – Sirupe, Saucen und Barista-Produkte für die Gastronomie',
   },
   categories: {
     title: 'Unsere Produktkategorien',
@@ -1746,4 +1746,24 @@ statusOptions: {
       "ambient": "Trocken / Ambient",
       "noAllergen": "Keine deklarationspflichtigen Allergene."
   },
+  statsBar: {
+    expValue: "20+",
+    expLabel: "Jahre Erfahrung",
+    expSub: "im europäischen B2B-Markt",
+    productsValue: "400+",
+    productsLabel: "Premium Produkte",
+    productsSub: "Sirupe, Soßen & Barista-Bedarf",
+    countriesValue: "15+",
+    countriesLabel: "EU-Länder beliefert",
+    countriesSub: "Verlässliche B2B-Logistik",
+    qualityValue: "100%",
+    qualityLabel: "Geprüfte Qualität",
+    qualitySub: "Halal, BRC & ISO zertifiziert"
+  },
+  featuredProductsSection: {
+    badge: "Bestseller",
+    title: "Premium Auswahl für Profis",
+    description: "Entdecken Sie unsere beliebtesten Sirupe, Pürees und Bar-Saucen, die von führenden Baristas und Gastronomiebetrieben in ganz Europa geschätzt werden.",
+    viewAll: "Alle Produkte ansehen"
+  }
 }; // <-- DIESE KLAMMER IST DIE LETZTE.

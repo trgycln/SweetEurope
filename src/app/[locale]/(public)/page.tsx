@@ -1,10 +1,11 @@
 // app/[locale]/(public)/page.tsx
 
 import HeroSection from "@/components/HeroSection";
+import StatsBar from "@/components/StatsBar";
+import FeaturedProductsSection from "@/components/FeaturedProductsSection";
 import PhilosophySection from "@/components/PhilosophySection";
 import FoBrandAboutSection from "@/components/FoBrandAboutSection";
 import QualityPromiseSection from "@/components/QualityPromiseSection";
-import CertificationsStrip from "@/components/CertificationsStrip";
 import CtaSection from "@/components/CtaSection";
 import { getDictionary } from "@/dictionaries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -12,7 +13,10 @@ import { cookies } from "next/headers";
 import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from 'next';
-import { PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER } from "@/lib/public-category-visibility";
+import { 
+    PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER, 
+    isPublicCategorySlugHidden 
+} from "@/lib/public-category-visibility";
 
 export async function generateMetadata({ 
   params 
@@ -46,12 +50,12 @@ export default async function Home({
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
     
-    // Sadece mevcut kolonları çek
-    const { data: kategoriler, error } = await supabase
+    // Sadece ana kategoriler
+    const { data: kategoriler } = await supabase
         .from('kategoriler')
         .select('id, slug, ad, ust_kategori_id')
-        .is('ust_kategori_id', null) // Sadece ana kategoriler
-        .order('id', { ascending: true }); // id'ye göre sırala
+        .is('ust_kategori_id', null)
+        .order('id', { ascending: true });
 
     // Tüm kategorileri çek (ana + alt) - parent bilgisi için
     const { data: tumKategoriler } = await supabase
@@ -62,44 +66,42 @@ export default async function Home({
     const { data: urunler } = await supabase
         .from('urunler')
         .select('kategori_id')
-        .eq('aktif', true); // Sadece aktif ürünleri say
+        .eq('aktif', true);
 
-    // Kategori ID'lerine göre ürün sayısını hesapla (ana kategori + alt kategorilerindeki ürünler)
+    // Kategori hiyerarşisinde yukarı doğru recursive ürün sayımı
+    const kategoriParentLookup = new Map(tumKategoriler?.map(k => [k.id, k.ust_kategori_id ?? null]) || []);
     const categoryProductCounts: Record<string, number> = {};
-    const kategoriMap = new Map(tumKategoriler?.map(k => [k.id, k.ust_kategori_id]) || []);
-    
     if (urunler) {
         urunler.forEach((urun: any) => {
             const categoryId = urun.kategori_id;
             if (!categoryId) return;
-            
-            const parentId = kategoriMap.get(categoryId);
-            
-            // Alt kategoriyse, hem kendisine hem ana kategoriye say
-            if (parentId) {
-                categoryProductCounts[parentId] = (categoryProductCounts[parentId] || 0) + 1;
+            let current: string | null = categoryId;
+            let guard = 0;
+            while (current && guard++ < 10) {
+                categoryProductCounts[current] = (categoryProductCounts[current] || 0) + 1;
+                current = kategoriParentLookup.get(current) ?? null;
             }
-            // Her ürünü kendi kategorisine say
-            categoryProductCounts[categoryId] = (categoryProductCounts[categoryId] || 0) + 1;
         });
     }
     
-    // Show all real root categories, sorted by known order first then alphabetically
-    const filteredKategoriler = (kategoriler || []).sort((a, b) => {
-        const ai = PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((a.slug ?? '') as any);
-        const bi = PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER.indexOf((b.slug ?? '') as any);
-        if (ai !== -1 && bi !== -1) return ai - bi;
-        if (ai !== -1) return -1;
-        if (bi !== -1) return 1;
-        const nameA = (a.ad as any)?.de || (a.ad as any)?.tr || '';
-        const nameB = (b.ad as any)?.de || (b.ad as any)?.tr || '';
-        return nameA.localeCompare(nameB);
-    });
+    // Anasayfada sergilenecek 6 ana B2B kategorisi
+    const CORE_CATEGORY_SLUGS = [
+        'syrups',
+        'cafe-bar-sauces',
+        'powdered-beverages',
+        'premium',
+        'cocktail-mixes',
+        'foamer'
+    ];
+
+    const selectedKategoriler = CORE_CATEGORY_SLUGS
+        .map(slug => tumKategoriler?.find(k => k.slug === slug))
+        .filter((k): k is NonNullable<typeof k> => Boolean(k) && (categoryProductCounts[k.id] || 0) > 0);
 
     // Determine image_url based on file existence (prefer webp, then jpg, then jpeg/JPEG)
-    const kategorilerWithImages = filteredKategoriler.map((kategori) => {
+    const kategorilerWithImages = selectedKategoriler.map((kategori) => {
         const slug = kategori.slug || '';
-        const baseFilename = slug; // Expect image file names to match slug
+        const baseFilename = slug;
 
         const candidates = [
             `${baseFilename}.webp`,
@@ -122,20 +124,6 @@ export default async function Home({
             image_url,
             productCount: categoryProductCounts[kategori.id] || 0,
         };
-    });
-
-    // Alt kategorileri hesapla
-    const altKategorilerMap: Record<string, { id: string; slug: string | null; ad: any; productCount: number }[]> = {};
-    (tumKategoriler || []).forEach(k => {
-        if (k.ust_kategori_id) {
-            if (!altKategorilerMap[k.ust_kategori_id]) {
-                altKategorilerMap[k.ust_kategori_id] = [];
-            }
-            altKategorilerMap[k.ust_kategori_id].push({
-                ...k,
-                productCount: categoryProductCounts[k.id] || 0,
-            });
-        }
     });
 
     const organizationSchema = {
@@ -166,11 +154,12 @@ export default async function Home({
         <>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
             <HeroSection dictionary={dictionary} locale={locale} />
+            <StatsBar dictionary={dictionary} />
+            <FeaturedProductsSection dictionary={dictionary} locale={locale} />
+            <FoBrandAboutSection locale={locale} dictionary={dictionary} anaKategoriler={kategorilerWithImages} />
             <PhilosophySection dictionary={dictionary} />
-            <FoBrandAboutSection locale={locale} dictionary={dictionary} altKategorilerMap={altKategorilerMap} />
             {/* <TestimonialsSection dictionary={dictionary} /> */}
             <QualityPromiseSection dictionary={dictionary} />
-            <CertificationsStrip dictionary={dictionary} />
             <CtaSection dictionary={dictionary} locale={locale} />
         </>
     );

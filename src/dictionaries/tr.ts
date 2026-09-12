@@ -947,9 +947,9 @@ export const dictionary: Partial<Dictionary> = {
   },
   philosophy: {
     title: 'Felsefemiz',
-    paragraph1: 'ElysonSweets\'te gerçek lüksün, malzemelerin tavizsiz kalitesinde ve usta pastacılarımızın tutkulu zanaatkarlığında yattığına inanıyoruz.',
-    paragraph2: 'Her yaratım bir sözdür - gelenekten doğan ve modern damak zevki için mükemmelleştirilmiş unutulmaz bir lezzet deneyimi.',
-    imageAlt: 'ElysonSweets tarafından özel olarak hazırlanmış, arka fonsuz bir pasta görseli',
+    paragraph1: 'ElysonSweets olarak tek bir hedef doğrultusunda çalışıyoruz: Almanya ve Avrupa genelindeki profesyonel baristalar, barmenler ve HoReCa işletmelerinin kaliteli ürünlere doğrudan erişimini sağlamak. FO Food Products\'ın resmi distribütörü olarak şuruplar, bar sosları ve meyve pürelerini depodan doğrudan teslim ediyoruz — güvenilir, hızlı ve adil B2B koşullarıyla.',
+    paragraph2: 'FO Food Products, gıda sektöründe 20 yılı aşkın deneyimi, Helal sertifikası, BRC onayı ve Türk Patent ödülüyle fark yaratıyor. Biz bu kaliteyi size taşıyoruz — kişisel danışmanlık, esnek minimum sipariş miktarları ve tüm AB\'ye hızlı teslimat imkânıyla.',
+    imageAlt: 'FO Food Products Premium ürün yelpazesi – Gastronomi için şuruplar, soslar ve barista ürünleri',
   },
   categories: {
     title: 'Ürün Kategorilerimiz',
@@ -1577,7 +1577,26 @@ export const dictionary: Partial<Dictionary> = {
       "days": "gün",
       "tiefkuehl": "Derin Dondurulmuş (≤ −18 °C)",
       "kuehlware": "Soğutulmuş",
-      "ambient": "Kuru / Oda Sıcaklığı",
       "noAllergen": "Beyan edilmesi gereken alerjen bulunmamaktadır."
   },
+  statsBar: {
+    expValue: "20+",
+    expLabel: "Yıllık Deneyim",
+    expSub: "Avrupa B2B pazarında",
+    productsValue: "400+",
+    productsLabel: "Premium Ürün",
+    productsSub: "Şuruplar, soslar ve barista ürünleri",
+    countriesValue: "15+",
+    countriesLabel: "AB Ülkesine Sevkiyat",
+    countriesSub: "Güvenilir B2B lojistik ağı",
+    qualityValue: "100%",
+    qualityLabel: "Onaylı Kalite",
+    qualitySub: "Helal, BRC ve ISO sertifikalı"
+  },
+  featuredProductsSection: {
+    badge: "Çok Satanlar",
+    title: "Profesyoneller İçin Premium Seçim",
+    description: "Avrupa genelindeki seçkin baristalar ve işletmeler tarafından tercih edilen en popüler şuruplarımızı, pürelerimizi ve bar soslarımızı keşfedin.",
+    viewAll: "Tüm Ürünleri İncele"
+  }
 };

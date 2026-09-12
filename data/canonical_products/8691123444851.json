@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-8691123444851",
+  "barkod": "8691123444851",
+  "urun_adi": {
+    "de": "FO Blaubeer Fruchtsoße 1 Kg",
+    "en": "FO Blueberry Fruited Sauce 1 Kg",
+    "tr": "FO Yaban Mersini Taneli Sos 1 Kg",
+    "ar": "صلصة التوت الأزرق بقطع الفاكهة فو 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Fruchtsoße mit 50 % echten Blaubeerstücken. Verleiht Gebäck, Kuchen und Desserts eine hervorragende Textur, natürliche Farbe und reiches Aroma.",
+    "en": "High quality fruited sauce containing 50% real blueberry pieces, adding excellent appearance, natural color, and rich taste to pastries and desserts.",
+    "tr": "%50 oranında gerçek yaban mersini taneleri içeren, pastacılık ve tatlı sunumlarında mükemmel lezzet, doğal renk ve görünüm sağlayan yüksek kaliteli sos.",
+    "ar": "صلصة فاكهة عالية الجودة تحتوي على 50٪ من قطع التوت الأزرق الحقيقي، تمنح مظهرًا محببًا ولونًا طبيعيًا ونكهة غنية للحلويات والمعجنات."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal als Topping für Kuchen, Tarten, Waffeln, Eiscreme, Panna Cotta und Cheesecake. Kann auch für Kaltgetränke verwendet werden (1 Teil Soße mit 3 Teilen Crasheis).",
+    "en": "Ideal as topping for cakes, tarts, waffles, ice cream, panna cotta, and cheesecake. Can also be prepared as frozen drinks by mixing 1 part sauce with 3 parts crushed ice.",
+    "tr": "Pasta, kek, tart, waffle, dondurma, panna cotta ve cheesecake üzerinde topping olarak kullanılır. Ayrıca 1 ölçü sosa 3 ölçü kırık buz eklenerek soğuk içecek yapımında tercih edilebilir.",
+    "ar": "مثالية كغطاء أو حشوة للكيك، التارت، الوافل، الآيس كريم، البانا كوتا، والتشيز كيك. كما يمكن تحضيرها كمشروب بارد بمزج مقدار واحد من الصلصة مع 3 مقادير من الثلج المجروش."
+  },
+  "icindekiler": {
+    "de": "Blaubeere (50 %), Zucker (49,29 %), Modifizierte Maisstärke (0,2 %), Weinsäure, Trisodiumcitrat [E 334, E 331iii] (0,2 %), Blaubeeraroma (0,1 %), Salz (0,1 %), Kaliumsorbat [E 202] (0,1 %), Farbstoffe [Allurarot E 129, Brillantblau E 133] 500 mg/kg (0,01 %).",
+    "en": "Blueberry (50%), Sugar (49.29%), Modified corn starch (0.2%), Tartaric acid, Trisodium citrate [E 334, E 331iii] (0.2%), Blueberry Flavoring (0.1%), Salt (0.1%), Potassium sorbate [E 202] (0.1%), Colourants [Allura Red E 129, Brilliant Blue E 133] 500 mg/kg (0.01%).",
+    "tr": "Yaban mersini (%50), Şeker (%49,29), Modifiye mısır nişastası (%0,2), Tartarik asit, Trisodyum sitrat [E 334, E 331iii] (%0,2), Aroma verici (Yaban mersini) (%0,1), Tuz (%0,1), Potasyum sorbat [E 202] (%0,1), Renklendiriciler [Allura Red E 129, Brilliant Blue E 133] 500 mg/kg (%0,01).",
+    "ar": "توت أزرق (50٪)، سكر (49.29٪)، نشا الذرة المعدل (0.2٪)، حمض التارتاريك، سترات ثلاثي الصوديوم [E 334، E 331iii] (0.2٪)، نكهة التوت الأزرق (0.1٪)، ملح (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)، ملونات [أحمر أليورا E 129، أزرق براق E 133] 500 ملغ/كغ (0.01٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direktem Sonnenlicht geschützt lagern. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep refrigerated after opening.",
+    "tr": "Serin, kuru ve güneş ışığından uzak bir yerde saklayınız. Ambalaj açıldıktan sonra buzdolabında muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. يُحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Month / 24 Ay",
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1000,
+      "energie_kcal": 239,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 57.9,
+      "davon_zucker": 56.1,
+      "ballaststoffe": 0.8,
+      "eiweiss": 0.3,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 8.74,
+  "gtip": "200799390019",
+  "palet_ici_koli": 10
+}

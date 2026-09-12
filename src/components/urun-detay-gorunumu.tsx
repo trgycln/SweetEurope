@@ -20,7 +20,7 @@ import { DietaryStickers } from '@/components/DietaryStickers';
 // All B2B fields are now in Tables<'urunler'> after database.types.ts regeneration
 
 type Urun = Tables<'urunler'> & {
-    kategoriler?: Pick<Tables<'kategoriler'>, 'ad' | 'urun_gami' | 'id' | 'slug' | 'ust_kategori_id'> | null;
+    kategoriler?: Pick<Tables<'kategoriler'>, 'ad' | 'id' | 'slug' | 'ust_kategori_id'> | null;
 };
 
 type Sablon = Pick<Tables<'kategori_ozellik_sablonlari'>, 'alan_adi' | 'gosterim_adi'>;
@@ -144,6 +144,21 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const kategorieAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, locale) : '';
     const tekniks: Record<string, unknown> = (urun.teknik_ozellikler as any) ?? {};
 
+    const hazirlanisiRaw = (tekniks.hazirlanisi as Record<string, string> | string | null) ?? null;
+    const hazirlanisi = typeof hazirlanisiRaw === 'object' && hazirlanisiRaw !== null
+        ? (hazirlanisiRaw[locale] || hazirlanisiRaw['de'] || hazirlanisiRaw['en'] || hazirlanisiRaw['tr'] || '')
+        : (typeof hazirlanisiRaw === 'string' ? hazirlanisiRaw : '');
+
+    const kullanimRaw = (tekniks.kullanim_alanlari as Record<string, string> | string | null) ?? null;
+    const kullanimAlanlari = typeof kullanimRaw === 'object' && kullanimRaw !== null
+        ? (kullanimRaw[locale] || kullanimRaw['de'] || kullanimRaw['en'] || kullanimRaw['tr'] || '')
+        : (typeof kullanimRaw === 'string' ? kullanimRaw : '');
+
+    const saklamaRaw = (tekniks.saklama_kosullari as Record<string, string> | string | null) ?? null;
+    const saklamaKosullari = typeof saklamaRaw === 'object' && saklamaRaw !== null
+        ? (saklamaRaw[locale] || saklamaRaw['de'] || saklamaRaw['en'] || saklamaRaw['tr'] || '')
+        : (typeof saklamaRaw === 'string' ? saklamaRaw : '');
+
     const eanGtin = urun.ean_gtin ?? null;
     const herkunft = (urun.herkunftsland as Record<string, string> | null) ?? null;
     const moq: number = urun.mindest_bestellmenge ?? 1;
@@ -193,9 +208,9 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
         ? fmtWeight((unitWeightG / 1000) * koliIciAdet, null)
         : null;
 
-    const paletKoliCount = paletIciKoli ?? null;
+    const paletKoliCount = paletIciKoli ?? paletIciAdet ?? null;
     const paletAgirlik = (paletKoliCount && (unitWeightKg || unitWeightG))
-        ? fmtWeight(((unitWeightKg ?? (unitWeightG! / 1000))) * paletKoliCount, null)
+        ? fmtWeight(((unitWeightKg ?? (unitWeightG! / 1000))) * (paletKoliCount * (koliIciAdet || 1)), null)
         : null;
 
     const BADGE_KEYS = ['vegan', 'vegetarisch', 'glutenfrei', 'laktosefrei', 'bio', 'ohne_zucker'] as const;
@@ -223,6 +238,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
 
     const allImages = [urun.ana_resim_url, ...(urun.galeri_resim_urls ?? [])].filter(Boolean) as string[];
     const [activeImg, setActiveImg] = React.useState(allImages[0] ?? null);
+    const [activeTab, setActiveTab] = React.useState<'beschreibung' | 'spezifikationen' | 'logistik'>('beschreibung');
 
     const naehrwerteRaw = urun.naehrwerte as any;
     const n100 = naehrwerteRaw?.pro_100g ?? naehrwerteRaw?.pro_100ml ?? (naehrwerteRaw?.energy_kj ? {
@@ -257,7 +273,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
                     {/* ── Left: Gallery ───────────────────────────────────── */}
-                    <div>
+                    <div className="lg:sticky lg:top-24">
                         {activeImg ? (
                             <AnimatePresence mode="wait">
                                 <motion.div 
@@ -269,9 +285,6 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                     className="aspect-square w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm relative group">
                                     <Image src={activeImg} alt={urunAdi} width={800} height={800}
                                         className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" priority />
-                                    <div className="absolute bottom-4 right-4">
-                                        <DietaryStickers teknikOzellikler={urun.teknik_ozellikler as any} size="sm" />
-                                    </div>
                                 </motion.div>
                             </AnimatePresence>
                         ) : (
@@ -398,240 +411,315 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                             </div>
                         )}
 
-                        {/* ── Description ─────────────────────────────────── */}
-                        {aciklama && (
-                            <div>
-                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{lc.description}</h3>
-                                <ProductDescriptionRenderer
-                                    text={aciklama}
-                                    productTitle={urunAdi}
-                                    locale={locale}
-                                />
-                            </div>
-                        )}
-
-                        {/* ── FO Packaging & Logistics (Stück → Kiste → Palette) ────────────────────────── */}
-                        {(koliIciAdet || paletIciAdet) && (
-                            <div>
-                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
-                                    <LuWarehouse size={11} /> {lc.packaging}
-                                </h3>
-                                <div className="grid grid-cols-3 gap-2.5">
-                                    <TierCard
-                                        icon={<LuPackage size={15} />}
-                                        title={t(locale, '1 Stück', '1 Unit', '1 Adet', '١ وحدة')}
-                                        accent="bg-sky-50 border-sky-200 text-sky-800"
-                                        lines={[
-                                            fmtWeight(unitWeightKg, unitWeightG) ? `${fmtWeight(unitWeightKg, unitWeightG)}` : null,
-                                            hacimMl ? `${hacimMl} ml` : null,
-                                        ]}
-                                    />
-                                    <TierCard
-                                        icon={<LuPackage2 size={15} />}
-                                        title={t(locale, '1 Karton', '1 Case', '1 Koli', '١ كرتونة')}
-                                        accent="bg-violet-50 border-violet-200 text-violet-800"
-                                        lines={[
-                                            koliIciAdet ? t(locale, `${koliIciAdet} Stk.`, `${koliIciAdet} units`, `${koliIciAdet} adet`, `${koliIciAdet} قطع`) : null,
-                                            koliAgirlik ? `~${koliAgirlik}` : null,
-                                        ]}
-                                    />
-                                    <TierCard
-                                        icon={<LuWarehouse size={15} />}
-                                        title={t(locale, '1 Palette', '1 Pallet', '1 Palet', '١ منصة')}
-                                        accent="bg-slate-100 border-slate-300 text-slate-700"
-                                        lines={[
-                                            paletIciAdet ? t(locale, `${paletIciAdet} Karton`, `${paletIciAdet} cases`, `${paletIciAdet} koli`, `${paletIciAdet} كرتونة`) : null,
-                                            paletAgirlik ? `~${paletAgirlik}` : null,
-                                        ]}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {/* ── Bestellinformation ──────────────────────────── */}
-                        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-                            <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{lc.orderInfo}</h3>
-                            </div>
-                            <div className="divide-y divide-slate-100">
-                                <div className="flex justify-between items-center px-4 py-2.5 text-sm">
-                                    <span className="text-slate-500 font-medium">{lc.moq}</span>
-                                    <span className="font-semibold text-slate-800">{moq} {moqEinheit}</span>
-                                </div>
-                                {lieferzeitWerktage && (
-                                    <div className="flex justify-between items-center px-4 py-2.5 text-sm">
-                                        <span className="text-slate-500 font-medium">{lc.delivery}</span>
-                                        <span className="font-semibold text-slate-800">{lieferzeitWerktage} {lc.werktage}</span>
-                                    </div>
-                                )}
-                                {haltbarkeitMonate && (
-                                    <div className="flex justify-between items-center px-4 py-2.5 text-sm">
-                                        <span className="text-slate-500 font-medium">{lc.validity}</span>
-                                        <span className="font-semibold text-slate-800">{haltbarkeitMonate} {lc.months}</span>
-                                    </div>
-                                )}
-                                {herkunftLabel && (
-                                    <div className="flex justify-between items-center px-4 py-2.5 text-sm">
-                                        <span className="text-slate-500 font-medium">{lc.origin}</span>
-                                        <span className="font-semibold text-slate-800">{herkunftLabel}</span>
-                                    </div>
-                                )}
-                                {herstellerName && (
-                                    <div className="flex justify-between items-center px-4 py-2.5 text-sm">
-                                        <span className="text-slate-500 font-medium">{lc.manufacturer}</span>
-                                        <span className="font-semibold text-slate-800">
-                                            {herstellerName}{herstellerLand ? `, ${herstellerLand}` : ''}
-                                        </span>
-                                    </div>
-                                )}
+                        {/* ── Tabs Navigation ─────────────────────────────── */}
+                        <div className="border-b border-slate-200 mt-2 sticky top-[4.5rem] bg-slate-50 z-30 lg:static lg:top-auto lg:bg-transparent">
+                            <div className="flex gap-6 overflow-x-auto scrollbar-none pb-px">
+                                {(
+                                    [
+                                        { id: 'beschreibung', label: t(locale, 'Beschreibung & Anwendung', 'Description & Application', 'Açıklama & Uygulama', 'الوصف والاستخدام'), show: aciklama || hazirlanisi || kullanimAlanlari },
+                                        { id: 'spezifikationen', label: t(locale, 'Nährwerte & Allergene', 'Nutrition & Allergens', 'Besin Değerleri & Alerjenler', 'القيم الغذائية ومسببات الحساسية'), show: hasNaehrwerte || inhaltsstoffe || Object.keys(allergene).length > 0 || isAllergenFree || specRows.length > 0 },
+                                        { id: 'logistik', label: t(locale, 'Verpackung & Logistik', 'Packaging & Logistics', 'Ambalaj & Lojistik', 'التعبئة والتغليف والخدمات اللوجستية'), show: (koliIciAdet || paletIciAdet) || moq || lieferzeitWerktage || haltbarkeitMonate || herkunftLabel || herstellerName },
+                                    ] as const
+                                ).filter(tab => tab.show).map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id as any)}
+                                        className={`pb-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${activeTab === tab.id ? 'border-slate-800 text-slate-800' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
-                        {/* ── Zutaten & Allergene (EU LMIV) ──────────────── */}
-                        {(inhaltsstoffe || Object.keys(allergene).length > 0 || isAllergenFree) && (
-                            <div>
-                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
-                                    <FiAlertTriangle size={11} /> {lc.allergens}
-                                </h3>
+                        {/* ── Tab Content ─────────────────────────────────── */}
+                        <div className="min-h-[400px]">
+                            {/* TAB: Beschreibung */}
+                            {activeTab === 'beschreibung' && (
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-6 pt-4">
+                                    {/* ── Description ─────────────────────────────────── */}
+                                    {aciklama && (
+                                        <div>
+                                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{lc.description}</h3>
+                                            <ProductDescriptionRenderer
+                                                text={aciklama}
+                                                productTitle={urunAdi}
+                                                locale={locale}
+                                            />
+                                        </div>
+                                    )}
 
-                                {inhaltsstoffe && (
-                                    <div className="mb-3 p-3.5 rounded-xl border border-slate-200 bg-white">
-                                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">{lc.ingredients}</p>
-                                        <div className="text-xs text-slate-700 leading-relaxed">{formatLmivIngredients(inhaltsstoffe)}</div>
-                                    </div>
-                                )}
+                                    {/* ── Zubereitung & Dosierung (Barista Recipe & Preparation) ─── */}
+                                    {hazirlanisi && (
+                                        <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50/70 to-orange-50/40 p-4 shadow-sm">
+                                            <h3 className="text-[11px] font-bold uppercase tracking-widest text-amber-900 mb-2 flex items-center gap-1.5">
+                                                <span className="text-base">🧪</span>
+                                                {t(locale, 'Zubereitung & Dosierung', 'Preparation & Dosage', 'Hazırlanışı ve Dozaj', 'طريقة التحضير والجرعة')}
+                                            </h3>
+                                            <p className="text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-line">
+                                                {hazirlanisi}
+                                            </p>
+                                        </div>
+                                    )}
 
-                                {(Object.keys(allergene).length > 0 || isAllergenFree) && (
-                                    <div className="space-y-1.5">
-                                        {containsAllergens.length > 0 && (
-                                            <div>
-                                                <p className="text-[10px] font-bold text-red-600 mb-1.5 flex items-center gap-1">
-                                                    <FiAlertTriangle size={9} /> {lc.allergenContains}
-                                                </p>
-                                                <div className="grid grid-cols-2 gap-1">
-                                                    {containsAllergens.map(a => (
-                                                        <AllergenRow
-                                                            key={a.key}
-                                                            present={true}
-                                                            label={(a as any)[locale] || a.de}
-                                                            icon={a.icon}
-                                                        />
-                                                    ))}
+                                    {/* ── Anwendungsbereiche (Usage & Applications) ─────────────── */}
+                                    {kullanimAlanlari && (
+                                        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                            <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-2 flex items-center gap-1.5">
+                                                <span className="text-base">🍸</span>
+                                                {t(locale, 'Anwendungsbereiche', 'Application Areas', 'Kullanım Alanları', 'مجالات الاستخدام')}
+                                            </h3>
+                                            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                                                {kullanimAlanlari}
+                                            </p>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
+
+                            {/* TAB: Spezifikationen */}
+                            {activeTab === 'spezifikationen' && (
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-6 pt-4">
+                                    {/* ── Zutaten & Allergene (EU LMIV) ──────────────── */}
+                                    {(inhaltsstoffe || Object.keys(allergene).length > 0 || isAllergenFree) && (
+                                        <div>
+                                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
+                                                <FiAlertTriangle size={11} /> {lc.allergens}
+                                            </h3>
+
+                                            {inhaltsstoffe && (
+                                                <div className="mb-3 p-3.5 rounded-xl border border-slate-200 bg-white">
+                                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">{lc.ingredients}</p>
+                                                    <div className="text-xs text-slate-700 leading-relaxed">{formatLmivIngredients(inhaltsstoffe)}</div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {containsAllergens.length === 0 && Object.keys(allergene).length >= 10 && (
-                                            <div className="grid grid-cols-2 gap-1">
-                                                {ALLERGEN_DEFS.map(a => (
-                                                    <AllergenRow
-                                                        key={a.key}
-                                                        present={allergene[a.key] === true}
-                                                        label={(a as any)[locale] || a.de}
-                                                        icon={a.icon}
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
+                                            {(Object.keys(allergene).length > 0 || isAllergenFree) && (
+                                                <div className="space-y-1.5">
+                                                    {containsAllergens.length > 0 && (
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-red-600 mb-1.5 flex items-center gap-1">
+                                                                <FiAlertTriangle size={9} /> {lc.allergenContains}
+                                                            </p>
+                                                            <div className="grid grid-cols-2 gap-1">
+                                                                {containsAllergens.map(a => (
+                                                                    <AllergenRow
+                                                                        key={a.key}
+                                                                        present={true}
+                                                                        label={(a as any)[locale] || a.de}
+                                                                        icon={a.icon}
+                                                                    />
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
 
-                                        {(isAllergenFree || (containsAllergens.length === 0 && Object.keys(allergene).length < 10)) && (
-                                            <p className="text-xs text-slate-500 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                                                ✓ {lc.noAllergen}
-                                            </p>
-                                        )}
+                                                    {containsAllergens.length === 0 && Object.keys(allergene).length >= 10 && (
+                                                        <div className="grid grid-cols-2 gap-1">
+                                                            {ALLERGEN_DEFS.map(a => (
+                                                                <AllergenRow
+                                                                    key={a.key}
+                                                                    present={allergene[a.key] === true}
+                                                                    label={(a as any)[locale] || a.de}
+                                                                    icon={a.icon}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    )}
 
-                                        {traceAllergens.length > 0 && (
-                                            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-start gap-2 mt-2">
-                                                <FiAlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
-                                                <span>{lc.allergenTraces} {traceAllergens.map(k => traceLabels[k]).join(', ')}</span>
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                                    {(isAllergenFree || (containsAllergens.length === 0 && Object.keys(allergene).length < 10)) && (
+                                                        <p className="text-xs text-slate-500 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                                                            ✓ {lc.noAllergen}
+                                                        </p>
+                                                    )}
 
-                        {/* ── Nährwertangaben (EU LMIV) ─────────────────── */}
-                        {hasNaehrwerte && (
-                            <div>
-                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
-                                    <FiInfo size={11} /> {lc.nutritionTitle}
-                                </h3>
-                                <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
-                                    <div className="grid grid-cols-3 px-4 py-2 bg-slate-50 border-b border-slate-200">
-                                        <span className="text-xs text-slate-400 font-medium col-span-1" />
-                                        <span className="text-xs font-bold text-slate-700 text-right">{per100Label}</span>
-                                        {nPortion && (
-                                            <span className="text-xs font-bold text-slate-700 text-right">
-                                                {lc.nutritionPerPortion}
-                                                {nPortion.portion_gramm && <span className="font-normal text-slate-400 ml-1">({nPortion.portion_gramm} g)</span>}
-                                            </span>
-                                        )}
-                                    </div>
-                                    {[
-                                        { label: lc.energy,   k100: n100?.energie_kj, kPor: nPortion?.energie_kj, unit: 'kJ', extra100: n100?.energie_kcal, extraPor: nPortion?.energie_kcal, extraUnit: 'kcal' },
-                                        { label: lc.fat,      k100: n100?.fett, kPor: nPortion?.fett, unit: 'g' },
-                                        { label: `  ${lc.saturated}`, k100: n100?.davon_gesaettigt, kPor: nPortion?.davon_gesaettigt, unit: 'g', sub: true },
-                                        { label: lc.carbs,    k100: n100?.kohlenhydrate, kPor: nPortion?.kohlenhydrate, unit: 'g' },
-                                        { label: `  ${lc.sugars}`,    k100: n100?.davon_zucker, kPor: nPortion?.davon_zucker, unit: 'g', sub: true },
-                                        { label: lc.fiber,    k100: n100?.ballaststoffe, kPor: nPortion?.ballaststoffe, unit: 'g' },
-                                        { label: lc.protein,  k100: n100?.eiweiss, kPor: nPortion?.eiweiss, unit: 'g' },
-                                        { label: lc.salt,     k100: n100?.salz, kPor: nPortion?.salz, unit: 'g' },
-                                    ].filter(r => r.k100 !== undefined && r.k100 !== null).map((row, i) => (
-                                        <div key={i} className={`grid grid-cols-3 items-center px-4 py-2 border-b border-slate-100 last:border-0 ${(row as any).sub ? 'bg-slate-50' : ''}`}>
-                                            <span className={`text-sm ${(row as any).sub ? 'text-slate-400 text-xs pl-3' : 'text-slate-700 font-medium'}`}>
-                                                {row.label.trim()}
-                                            </span>
-                                            <span className="text-sm font-semibold text-slate-800 text-right">
-                                                {(row as any).extra100
-                                                    ? `${fmtNumber(row.k100)} kJ / ${fmtNumber((row as any).extra100)} kcal`
-                                                    : `${fmtNumber(row.k100)} ${row.unit}`}
-                                            </span>
-                                            {nPortion && (
-                                                <span className="text-sm font-semibold text-slate-600 text-right">
-                                                    {(row as any).extraPor
-                                                        ? `${fmtNumber(row.kPor)} kJ / ${fmtNumber((row as any).extraPor)} kcal`
-                                                        : `${fmtNumber(row.kPor)} ${row.unit}`}
-                                                </span>
+                                                    {traceAllergens.length > 0 && (
+                                                        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-start gap-2 mt-2">
+                                                            <FiAlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
+                                                            <span>{lc.allergenTraces} {traceAllergens.map(k => traceLabels[k]).join(', ')}</span>
+                                                        </p>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                                    )}
 
-                        {/* ── Category template specs ──────────────────────── */}
-                        {specRows.length > 0 && (
-                            <div>
-                                <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
-                                    <FiInfo size={11} /> {lc.specs}
-                                </h3>
-                                <div className="divide-y divide-slate-100 rounded-xl border border-slate-200 overflow-hidden bg-white">
-                                    {specRows.map(item => (
-                                        <div key={item.label} className="flex justify-between items-center px-4 py-2.5 text-sm">
-                                            <span className="text-slate-500 font-medium">{item.label}</span>
-                                            <span className="font-semibold text-slate-800 text-right max-w-[55%]">
-                                                {Array.isArray(item.val)
-                                                    ? (item.val as string[]).map(v => getFlavorLabel(v, locale as any)).join(', ')
-                                                    : String(item.val)}
-                                            </span>
+                                    {/* ── Nährwertangaben (EU LMIV) ─────────────────── */}
+                                    {hasNaehrwerte && (
+                                        <div>
+                                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
+                                                <FiInfo size={11} /> {lc.nutritionTitle}
+                                            </h3>
+                                            <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
+                                                <div className="grid grid-cols-3 px-4 py-2 bg-slate-50 border-b border-slate-200">
+                                                    <span className="text-xs text-slate-400 font-medium col-span-1" />
+                                                    <span className="text-xs font-bold text-slate-700 text-right">{per100Label}</span>
+                                                    {nPortion && (
+                                                        <span className="text-xs font-bold text-slate-700 text-right">
+                                                            {lc.nutritionPerPortion}
+                                                            {nPortion.portion_gramm && <span className="font-normal text-slate-400 ml-1">({nPortion.portion_gramm} g)</span>}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {[
+                                                    { label: lc.energy,   k100: n100?.energie_kj, kPor: nPortion?.energie_kj, unit: 'kJ', extra100: n100?.energie_kcal, extraPor: nPortion?.energie_kcal, extraUnit: 'kcal' },
+                                                    { label: lc.fat,      k100: n100?.fett, kPor: nPortion?.fett, unit: 'g' },
+                                                    { label: `  ${lc.saturated}`, k100: n100?.davon_gesaettigt, kPor: nPortion?.davon_gesaettigt, unit: 'g', sub: true },
+                                                    { label: lc.carbs,    k100: n100?.kohlenhydrate, kPor: nPortion?.kohlenhydrate, unit: 'g' },
+                                                    { label: `  ${lc.sugars}`,    k100: n100?.davon_zucker, kPor: nPortion?.davon_zucker, unit: 'g', sub: true },
+                                                    { label: lc.fiber,    k100: n100?.ballaststoffe, kPor: nPortion?.ballaststoffe, unit: 'g' },
+                                                    { label: lc.protein,  k100: n100?.eiweiss, kPor: nPortion?.eiweiss, unit: 'g' },
+                                                    { label: lc.salt,     k100: n100?.salz, kPor: nPortion?.salz, unit: 'g' },
+                                                ].filter(r => r.k100 !== undefined && r.k100 !== null).map((row, i) => (
+                                                    <div key={i} className={`grid grid-cols-3 items-center px-4 py-2 border-b border-slate-100 last:border-0 ${(row as any).sub ? 'bg-slate-50' : ''}`}>
+                                                        <span className={`text-sm ${(row as any).sub ? 'text-slate-400 text-xs pl-3' : 'text-slate-700 font-medium'}`}>
+                                                            {row.label.trim()}
+                                                        </span>
+                                                        <span className="text-sm font-semibold text-slate-800 text-right">
+                                                            {(row as any).extra100
+                                                                ? `${fmtNumber(row.k100)} kJ / ${fmtNumber((row as any).extra100)} kcal`
+                                                                : `${fmtNumber(row.k100)} ${row.unit}`}
+                                                        </span>
+                                                        {nPortion && (
+                                                            <span className="text-sm font-semibold text-slate-600 text-right">
+                                                                {(row as any).extraPor
+                                                                    ? `${fmtNumber(row.kPor)} kJ / ${fmtNumber((row as any).extraPor)} kcal`
+                                                                    : `${fmtNumber(row.kPor)} ${row.unit}`}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    ))}
+                                    )}
+
+                                    {/* ── Category template specs ──────────────────────── */}
+                                    {specRows.length > 0 && (
+                                        <div>
+                                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
+                                                <FiInfo size={11} /> {lc.specs}
+                                            </h3>
+                                            <div className="divide-y divide-slate-100 rounded-xl border border-slate-200 overflow-hidden bg-white">
+                                                {specRows.map(item => (
+                                                    <div key={item.label} className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                                        <span className="text-slate-500 font-medium">{item.label}</span>
+                                                        <span className="font-semibold text-slate-800 text-right max-w-[55%]">
+                                                            {Array.isArray(item.val)
+                                                                ? (item.val as string[]).map(v => getFlavorLabel(v, locale as any)).join(', ')
+                                                                : String(item.val)}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </motion.div>
+                            )}
+
+                            {/* TAB: Logistik */}
+                            {activeTab === 'logistik' && (
+                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-6 pt-4">
+                                    {/* ── FO Packaging & Logistics (Stück → Kiste → Palette) ────────────────────────── */}
+                                    {(koliIciAdet || paletIciAdet) && (
+                                        <div>
+                                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5">
+                                                <LuWarehouse size={11} /> {lc.packaging}
+                                            </h3>
+                                            <div className="grid grid-cols-3 gap-2.5">
+                                                <TierCard
+                                                    icon={<LuPackage size={15} />}
+                                                    title={t(locale, '1 Stück', '1 Unit', '1 Adet', '١ وحدة')}
+                                                    accent="bg-sky-50 border-sky-200 text-sky-800"
+                                                    lines={[
+                                                        fmtWeight(unitWeightKg, unitWeightG) ? `${fmtWeight(unitWeightKg, unitWeightG)}` : null,
+                                                        hacimMl ? `${hacimMl} ml` : null,
+                                                    ]}
+                                                />
+                                                <TierCard
+                                                    icon={<LuPackage2 size={15} />}
+                                                    title={t(locale, '1 Karton', '1 Case', '1 Koli', '١ كرتونة')}
+                                                    accent="bg-violet-50 border-violet-200 text-violet-800"
+                                                    lines={[
+                                                        koliIciAdet ? t(locale, `${koliIciAdet} Stk.`, `${koliIciAdet} units`, `${koliIciAdet} adet`, `${koliIciAdet} قطع`) : null,
+                                                        koliAgirlik ? `~${koliAgirlik}` : null,
+                                                    ]}
+                                                />
+                                                <TierCard
+                                                    icon={<LuWarehouse size={15} />}
+                                                    title={t(locale, '1 Palette', '1 Pallet', '1 Palet', '١ منصة')}
+                                                    accent="bg-slate-100 border-slate-300 text-slate-700"
+                                                    lines={[
+                                                        paletIciAdet ? (
+                                                            koliIciAdet
+                                                                ? t(locale, `${paletIciAdet} Karton (${paletIciAdet * koliIciAdet} Stk.)`, `${paletIciAdet} cases (${paletIciAdet * koliIciAdet} units)`, `${paletIciAdet} koli (${paletIciAdet * koliIciAdet} adet)`, `${paletIciAdet} كرتونة (${paletIciAdet * koliIciAdet} قطعة)`)
+                                                                : t(locale, `${paletIciAdet} Karton`, `${paletIciAdet} cases`, `${paletIciAdet} koli`, `${paletIciAdet} كرتونة`)
+                                                        ) : null,
+                                                        paletAgirlik ? `~${paletAgirlik}` : null,
+                                                    ]}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* ── Bestellinformation ──────────────────────────── */}
+                                    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                                            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{lc.orderInfo}</h3>
+                                        </div>
+                                        <div className="divide-y divide-slate-100">
+                                            <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                                <span className="text-slate-500 font-medium">{lc.moq}</span>
+                                                <span className="font-semibold text-slate-800">{moq} {moqEinheit}</span>
+                                            </div>
+                                            {lieferzeitWerktage && (
+                                                <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                                    <span className="text-slate-500 font-medium">{lc.delivery}</span>
+                                                    <span className="font-semibold text-slate-800">{lieferzeitWerktage} {lc.werktage}</span>
+                                                </div>
+                                            )}
+                                            {haltbarkeitMonate && (
+                                                <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                                    <span className="text-slate-500 font-medium">{lc.validity}</span>
+                                                    <span className="font-semibold text-slate-800">{haltbarkeitMonate} {lc.months}</span>
+                                                </div>
+                                            )}
+                                            {herkunftLabel && (
+                                                <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                                    <span className="text-slate-500 font-medium">{lc.origin}</span>
+                                                    <span className="font-semibold text-slate-800">{herkunftLabel}</span>
+                                                </div>
+                                            )}
+                                            {herstellerName && (
+                                                <div className="flex justify-between items-center px-4 py-2.5 text-sm">
+                                                    <span className="text-slate-500 font-medium">{lc.manufacturer}</span>
+                                                    <span className="font-semibold text-slate-800">
+                                                        {herstellerName}{herstellerLand ? `, ${herstellerLand}` : ''}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </div>
+
+                        {/* ── CTA (Mobile Sticky & Desktop Normal) ──────────────────────────── */}
+                        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/80 backdrop-blur-md border-t border-slate-200 shadow-[0_-8px_16px_rgba(0,0,0,0.05)] lg:relative lg:p-0 lg:bg-transparent lg:border-none lg:shadow-none lg:mt-6">
+                            <div className="container mx-auto max-w-6xl">
+                                <div className="rounded-2xl lg:bg-slate-900 lg:text-white lg:p-5 flex flex-col gap-3">
+                                    <p className="hidden lg:block text-xs text-slate-400">{lc.contactSub}</p>
+                                    <div className="flex gap-2 w-full">
+                                        <Link href={`/${locale}/contact?subject=${encodeURIComponent(`${lc.contact}: ${urunAdi}${urun.stok_kodu ? ` (${urun.stok_kodu})` : ''}`)}`}
+                                            className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-900 text-white lg:bg-white lg:text-slate-900 font-bold text-sm px-5 py-3.5 rounded-xl hover:bg-slate-800 lg:hover:bg-slate-100 transition-colors shadow-sm lg:shadow-none">
+                                            <FiMail size={16} /> {lc.contact}
+                                        </Link>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-
-                        {/* ── CTA ──────────────────────────────────────────── */}
-                        <div className="rounded-2xl bg-slate-900 text-white p-5 flex flex-col gap-3">
-                            <p className="text-xs text-slate-400">{lc.contactSub}</p>
-                            <div className="flex flex-wrap gap-2">
-                                <Link href={`/${locale}/contact?subject=${encodeURIComponent(`${lc.contact}: ${urunAdi}${urun.stok_kodu ? ` (${urun.stok_kodu})` : ''}`)}`}
-                                    className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-slate-900 font-semibold text-sm px-5 py-3 rounded-xl hover:bg-slate-100 transition-colors min-w-[160px]">
-                                    <FiMail size={14} /> {lc.contact}
-                                </Link>
-
                             </div>
                         </div>
+                        {/* Padding for mobile to account for fixed bottom bar */}
+                        <div className="h-20 lg:hidden w-full"></div>
+
 
                     </div>
                 </div>
@@ -643,10 +731,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function UrunDetayGorunumu({ urun, ozellikSablonu, locale, dict }: UrunDetayGorunumuProps) {
-    // FO ürünlerini yönlendir
-    if (urun.kategoriler?.urun_gami === 'barista-bakery-essentials') {
-        return <FoUrunDetayGorunumu urun={urun} ozellikSablonu={ozellikSablonu} locale={locale} dict={dict} />;
-    }
+    return <FoUrunDetayGorunumu urun={urun} ozellikSablonu={ozellikSablonu} locale={locale} dict={dict} />;
 
     // SweetHeaven ürünleri için mevcut bileşen
     const lc = dict?.foProductDetail || {};

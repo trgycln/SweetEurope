@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "FO Mango Premium Sirup bietet ein authentisches, intensives Geschmacksprofil reifer Mangos mit einer perfekt abgestimmten Textur. Dank seiner hohen Konzentration und idealen Viskosität verleiht er Cocktails, Mocktails und Kaffeespezialitäten eine exotische Note und ein luxuriöses Mundgefühl. Ein unverzichtbares Premium-Produkt für professionelle Bars und Cafés, das durch seine Vielseitigkeit und Ergiebigkeit überzeugt.",
+    "en": "FO Mango Flavored Premium Syrup delivers an authentic, intense profile of sun-ripened mangoes with a perfectly balanced texture. Its high concentration and ideal viscosity provide an exotic flair and luxurious mouthfeel to cocktails, mocktails, and specialty coffees. An essential premium ingredient for professional bars and cafes, designed for maximum versatility and performance.",
+    "tr": "FO Mango Aromalı Premium Şurup, olgun mangoların otantik ve yoğun lezzet profilini mükemmel bir dokuyla sunar. Yüksek konsantrasyonu ve ideal viskozitesi sayesinde kokteyllere, mocktail'lere ve kahve spesiyallerine egzotik bir dokunuş ve lüks bir ağız hissi katar. Profesyonel bar ve kafeler için vazgeçilmez, yüksek performanslı ve çok yönlü bir premium üründür.",
+    "ar": "يقدم شراب المانجو الفاخر من FO نكهة المانجو الناضجة الأصلية والمكثفة مع قوام متوازن تماماً. بفضل تركيزه العالي ولزوجته المثالية، يضفي لمسة استوائية وملمساً فاخراً على الكوكتيلات والموكتيلات ومشروبات القهوة المتخصصة. منتج أساسي للمقاهي والبارات الاحترافية، مصمم ليوفر أقصى درجات التنوع والأداء العالي."
+  },
+  "hazirlanisi": {
+    "de": "Für eine optimale Geschmacksentfaltung wird ein Mischverhältnis von 1:8 empfohlen (1 Teil Sirup auf 8 Teile Wasser/Soda). Ideal für die Zubereitung von Limonaden, Eistees, Smoothies und Cocktails. Kann auch mit heißem oder kaltem Wasser im Verhältnis 1:8 als direktes Erfrischungsgetränk serviert werden.",
+    "en": "For optimal flavor, a dilution ratio of 1:8 is recommended (1 part syrup to 8 parts water/soda). Ideal for preparing lemonades, iced teas, smoothies, and cocktails. Can also be diluted with hot or cold water at a 1:8 ratio for a ready-to-drink refreshment.",
+    "tr": "Optimum lezzet için 1:8 oranında seyreltme önerilir (1 ölçü şurup, 8 ölçü su/soda). Limonata, soğuk çay, smoothie ve kokteyl hazırlamak için idealdir. Ayrıca sıcak veya soğuk su ile 1:8 oranında karıştırılarak içime hazır bir içecek olarak da servis edilebilir.",
+    "ar": "للحصول على أفضل نكهة، يوصى بنسبة تخفيف 1:8 (جزء واحد من الشراب إلى 8 أجزاء من الماء/الصودا). مثالي لتحضير الليمونادة، والشاي المثلج، والعصائر، والكوكتيلات. يمكن أيضاً تخفيفه بالماء الساخن أو البارد بنسبة 1:8 لتقديمه كمشروب جاهز للشرب."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Cocktails, Mocktails, Limonaden, aromatisierte Eistees, Smoothies, Milchshakes, Desserts und Backwaren.",
+    "en": "Versatile application areas: Cocktails, mocktails, lemonades, flavored iced teas, smoothies, milkshakes, desserts, and pastry products.",
+    "tr": "Geniş kullanım alanları: Kokteyller, mocktail'ler, limonatalar, aromalı soğuk çaylar, smoothie'ler, milkshake'ler, tatlılar ve pastacılık ürünleri.",
+    "ar": "مجالات الاستخدام المتنوعة: الكوكتيلات، الموكتيلات، الليمونادة، الشاي المثلج المنكه، العصائر (سموذي)، مخفوق الحليب (ميلك شيك)، الحلويات، ومنتجات المخبوزات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C an einem trockenen Ort lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre ab Produktionsdatum bei sachgemäßer Lagerung.",
+    "en": "Store in original packaging at 20-22°C in a dry place. Avoid direct sunlight. Shelf life: 3 years from production date under proper storage conditions.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru bir ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Uygun saklama koşullarında üretim tarihinden itibaren 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في مكان جاف. تجنب التعرض المباشر لأشعة الشمس. مدة الصلاحية: 3 سنوات من تاريخ الإنتاج في ظل ظروف التخزين المناسبة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Aroma (Mango), Säuerungsmittel (E 330), Konservierungsstoffe (E 202, E 211), Farbstoffe (E 155, E 102, E 133).",
+    "en": "Sugar, Water, Flavouring (Mango), Acidity regulator (E 330), Preservative (E 202, E 211), Colour (E 155, E 102, E 133).",
+    "tr": "Şeker, Su, Aroma Verici (Mango), Asitlik düzenleyici (E 330), Koruyucu (E 202, E 211), Renklendirici (E 155, E 102, E 133)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0.5,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 82.0,
+      "davon_zucker": 82.0,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

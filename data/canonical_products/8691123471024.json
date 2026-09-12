@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123471024",
+  "barkod": "8691123471024",
+  "urun_adi": {
+    "de": "FO Granatapfel Fruchtsirup Premium 700 ml",
+    "en": "FO Pomegranate Fruit Syrup Premium 700 ml",
+    "tr": "FO Nar Meyveli Premium Şurup 700 ml",
+    "ar": "فو شراب مركز بنكهة الرمان بريميوم 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Granatapfel-Fruchtsirup, perfekt geeignet, um Ihren Getränken, Cocktails und Desserts ein reiches Aroma und eine lebendige Farbe zu verleihen.",
+    "en": "Premium pomegranate fruit syrup, perfect for adding rich flavor and vibrant color to your beverages, cocktails, and desserts.",
+    "tr": "İçeceklerinize, kokteyllerinize ve tatlılarınıza zengin lezzet ve canlı renk katmak için mükemmel, premium nar meyveli şurup.",
+    "ar": "شراب الرمان الفاخر، مثالي لإضافة نكهة غنية ولون نابض بالحياة إلى مشروباتك، الكوكتيلات، والحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Zur Herstellung von Cocktails oder verdünnt mit Wasser (1/8) zum direkten Trinken. Enthält 40% Fruchtsaft.",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly. Contains 40% fruit juice.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyrelterek kullanılır. %40 meyve suyu içerir.",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (1/8) للشرب مباشرة. يحتوي على 40% عصير فواكه."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (23,016%), Granatapfelsaftkonzentrat (13,5%), natürliches Aroma (Granatapfel), Aroma (0,83%), Citronensäure [E 330] (0,6%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Einfacher Zuckerkulör [E 150a] (0,014%)",
+    "en": "Sugar (62%), Water (23.016%), Pomegranate Juice Concentrate (13.5%), Natural Flavouring (Pomegranate), Flavouring (0.83%), Citric Acid [E 330] (0.6%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%), Plain Caramel [E 150a] (0.014%)",
+    "tr": "Şeker (%62), Su (%23,016), Nar Suyu Konsantresi (%13,5), Doğal Aroma Verici (Nar), Aroma Verici (%0,83), Sitrik Asit [E 330] (%0,6), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015), Sade Karamel [E 150a] (%0,014)",
+    "ar": "سكر (62%)، ماء (23.016%)، مركز عصير الرمان (13.5%)، نكهة طبيعية (الرمان)، نكهة (0.83%)، حمض الستريك [E 330] (0.6%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)، كراميل سادة [E 150a] (0.014%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direkter Sonneneinstrahlung schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep refrigerated after opening.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru bir yerde saklayınız. Açıldıktan sonra buzdolabında muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُحفظ مبرداً بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Months / 24 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1340,
+      "energie_kcal": 319,
+      "fett": 0.1,
+      "kohlenhydrate": 76,
+      "davon_zucker": 73.4,
+      "eiweiss": 0.4,
+      "salz": 0.02
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

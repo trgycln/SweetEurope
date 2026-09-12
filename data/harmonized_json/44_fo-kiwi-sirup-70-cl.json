@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "FO Kiwi-Sirup besticht durch sein authentisches Kiwi-Aroma, seine intensive Konzentration und eine harmonische Textur, die jede Kreation bereichert. Er bietet eine exzellente Süße und eine lebendige Farbgebung für professionelle Cafés und Bars. Ideal zur Verfeinerung von Cocktails, Mocktails und erfrischenden Getränken mit unverwechselbarem Geschmack. Ein unverzichtbares B2B-Produkt für anspruchsvolle Gastronomen, die Wert auf höchste Qualität legen.",
+    "en": "FO Kiwi Flavored Syrup captivates with its authentic kiwi taste, rich concentration, and smooth mouthfeel, elevating every beverage creation. It provides exceptional sweetness and vibrant coloration for professional cafes and bars. Ideal for enhancing cocktails, mocktails, and refreshing drinks with a distinct profile. An essential B2B product for demanding gastro professionals prioritizing top tier quality.",
+    "tr": "FO Kivi Aromalı Şurup, otantik kivi lezzeti, yoğun konsantrasyonu ve pürüzsüz yapısıyla her içecek hazırlığını zenginleştirir. Profesyonel kafe ve barlar için üstün bir tatlılık ve canlı renk profili sunar. Kokteyller, mocktail'ler ve ferahlatıcı içecekleri benzersiz bir dokunuşla geliştirmek için idealdir. En yüksek kaliteyi hedefleyen seçkin işletmeler için vazgeçilmez bir B2B ürünüdür.",
+    "ar": "يتميز شراب الكيوي المنكه من FO بطعمه الأصلي للكيوي وتركيزه الغني وملمسه السلس الذي يعزز كل ابتكار للمشروبات. يوفر حلاوة استثنائية ولونًا نابضًا بالحياة للمقاهي والبارات المهنية. مثالي لتحسين الكوكتيلات والموكتيلات والمشروبات المنعشة بنكهة مميزة. منتج أساسي للأعمال التجارية لمتطلبي قطاع الضيافة الذين يفضلون أعلى جودة."
+  },
+  "hazirlanisi": {
+    "de": "Verwenden Sie den Sirup zur Zubereitung von Cocktails oder verdünnt im Verhältnis von 1 Teil Sirup zu 8 Teilen Wasser für den direkten Verzehr. Perfekt dosierbar für Barista-Kreationen und erfrischende Mixgetränke mit reichlich Eis.",
+    "en": "Use the syrup for preparing cocktails or diluted with water at a ratio of 1 part syrup to 8 parts water for direct consumption. Perfectly dosable for barista creations and refreshing mixed drinks with plenty of ice.",
+    "tr": "Kokteyl yapımında veya doğrudan tüketim için 1 ölçü şurup ve 8 ölçü su ile seyreltilerek kullanılır. Barista tarifleri ve bol buzlu ferahlatıcı karışık içecekler için mükemmel dozaj imkanı sunar.",
+    "ar": "يستخدم السيروب لتحضير الكوكتيلات أو مخففاً بالماء بنسبة جزء واحد من السيروب إلى 8 أجزاء من الماء للاستهلاك المباشر. مثالي للجرعات الدقيقة في ابتكارات الباريستا والمشروبات المنعشة المخلوطة مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Alkoholische und alkoholfreie Cocktails, Mocktails, Limonaden, Eistees, Smoothies und Desserts",
+    "en": "Alcoholic and non-alcoholic cocktails, mocktails, lemonades, iced teas, smoothies, and desserts",
+    "tr": "Alkollü ve alkolsüz kokteyller, mocktail'ler, limonatalar, soğuk çaylar, smoothieler ve tatlılar",
+    "ar": "الكوكتيلات الكحولية وغير الكحولية، الموكتيلات، الليمونادة، الشاي المثلج، السموذي، والحلويات"
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit in geschlossener Originalverpackung beträgt 3 Jahre.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Shelf life in the closed original packaging is 3 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C'de kuru koşullarda saklanmalıdır. Direkt güneş ışığından kaçınılmalıdır. Kapalı orijinal ambalajında raf ömrü 3 yıldır.",
+    "ar": "يخزن في عبوته الأصلية في درجة حرارة 20-22 مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. صلاحية المنتج في عبوته الأصلية المغلقة هي 3 سنوات."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Citronensäure (Säureregulator E 330), Aroma (Kiwi), Kaliumsorbat (Konservierungsstoff E 202), Natriumbenzoat (Konservierungsstoff E 211), Tartrazin (Farbstoff E 102), Brilliantblau (Farbstoff E 133)",
+    "en": "Sugar, Water, Citric Acid (Acidity Regulator E 330), Flavoring (Kiwi), Potassium Sorbate (Preservative E 202), Sodium Benzoate (Preservative E 211), Tartrazine (Colorant E 102), Brilliant Blue (Colorant E 133)",
+    "tr": "Şeker, Su, Sitrik Asit (Asitlik Düzenleyici E 330), Aroma Verici (Kivi), Potasyum Sorbat (Koruyucu E 202), Sodyum Benzoat (Koruyucu E 211), Tartrazin (Renklendirici E 102), Parlak Mavi (Renklendirici E 133)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 82.4,
+      "davon_zucker": 82.4,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

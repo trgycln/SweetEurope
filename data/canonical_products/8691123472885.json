@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123472885",
+  "barkod": "8691123472885",
+  "urun_adi": {
+    "de": "FO Wassermelone Fruchtsirup – Premium 700ml",
+    "en": "FO Watermelon Fruit Syrup – Premium 700ml",
+    "tr": "FO Karpuz Meyveli Şurup – Premium 700ml",
+    "ar": "فو شراب فاكهة البطيخ – بريميوم 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Wassermelonensirup zur Verfeinerung von Cocktails, Mocktails und Erfrischungsgetränken. Verleiht Ihren Getränken ein intensives, natürliches Wassermelonenaroma und eine lebendige Farbe.",
+    "en": "Premium watermelon fruit syrup designed to enhance cocktails, mocktails, and refreshing beverages. Adds an intense, natural watermelon flavor and vibrant color to your drinks.",
+    "tr": "Kokteylleri, alkolsüz kokteylleri ve ferahlatıcı içecekleri zenginleştirmek için tasarlanmış premium karpuz meyveli şurup. İçeceklerinize yoğun, doğal bir karpuz aroması ve canlı bir renk katar.",
+    "ar": "شراب فاكهة البطيخ الفاخر المصمم لتحسين الكوكتيلات والمشروبات المنعشة. يضيف نكهة البطيخ الطبيعية المكثفة ولونًا نابضًا بالحياة لمشروباتك."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder mit Wasser (1/8) verdünnt direkt getrunken.",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içmek için su ile (1/8 oranında) seyreltilir.",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,32%), Citronensäure [E 330] (0,3%), Aroma (Wassermelone) (0,3%), Allurarot AC [E 129] (0,04%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%).",
+    "en": "Sugar (62%), Water (37.32%), Citric Acid [E 330] (0.3%), Flavoring (Watermelon) (0.3%), Allura Red [E 129] (0.04%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%).",
+    "tr": "Şeker (%62), Su (%37,32), Sitrik Asit [E 330] (%0,3), Aroma Verici (Karpuz) (%0,3), Allura Red [E 129] (%0,04), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015).",
+    "ar": "سكر (62٪)، ماء (37.32٪)، حمض الستريك [E 330] (0.3٪)، منكهات (البطيخ) (0.3٪)، أحمر ألورا [E 129] (0.04٪)، سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪)."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort vor direkter Sonneneinstrahlung geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru bir yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months / 36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "kohlenhydrate": 82.1,
+      "davon_zucker": 82.1,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

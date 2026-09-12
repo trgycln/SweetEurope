@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Grüner Apfel Fruchtsoße bietet ein intensives, authentisches Geschmackserlebnis mit einem Fruchtanteil von 50 %. Ihre homogene Textur mit echten Fruchtstücken verleiht Desserts, Eiscreme und Gebäck eine lebendige Farbe und ein erfrischendes Aroma. Ideal für professionelle Cafés und Bars, um Cocktails, Mocktails und Frozen-Getränke mit einer hochwertigen, säuerlich-süßen Note zu veredeln.",
+    "en": "FO Green Apple Fruited Sauce delivers an intense, authentic flavor profile with a 50% fruit content. Its homogeneous texture, enriched with real fruit pieces, provides a vibrant color and refreshing aroma to desserts, ice cream, and pastries. Perfect for professional cafes and bars to elevate cocktails, mocktails, and frozen drinks with a premium, tart-sweet finish.",
+    "tr": "FO Yeşil Elma Meyveli Sos, %50 meyve içeriği ile yoğun ve otantik bir lezzet deneyimi sunar. Gerçek meyve parçacıkları içeren homojen yapısı, tatlılara, dondurmalara ve pastacılık ürünlerine canlı bir renk ve ferahlatıcı bir aroma katar. Profesyonel kafe ve barlar için ideal olan bu sos, kokteylleri, mocktail'leri ve frozen içecekleri üstün kaliteli, mayhoş-tatlı bir dokunuşla zenginleştirir.",
+    "ar": "تقدم صلصة التفاح الأخضر من FO تجربة نكهة مكثفة وأصلية مع محتوى فاكهة بنسبة 50%. يضفي قوامها المتجانس، المليء بقطع الفاكهة الحقيقية، لوناً نابضاً بالحياة ورائحة منعشة للحلويات والآيس كريم والمخبوزات. مثالية للمقاهي والبارات الاحترافية لتعزيز الكوكتيلات والموكتيلات والمشروبات المثلجة بلمسة نهائية فاخرة وحامضة حلوة."
+  },
+  "hazirlanisi": {
+    "de": "Für Frozen-Getränke: 1 Teil Soße mit 3 Teilen zerstoßenem Eis in einem Hochleistungsmixer mixen. Für Cocktails und Mocktails: Direkt anwenden oder nach Belieben mit Wasser verdünnen.",
+    "en": "For frozen drinks: Mix 1 volume of sauce with 3 volumes of crushed ice in a high-speed blender. For alcoholic and non-alcoholic cocktails: Apply directly or dilute with water as desired.",
+    "tr": "Frozen içecekler için: 1 ölçü sosu 3 ölçü kırık buz ile yüksek devirli bir mikserde karıştırın. Alkollü ve alkolsüz kokteyller için: Doğrudan uygulayın veya isteğe bağlı olarak su ile seyrelterek tüketin.",
+    "ar": "للمشروبات المثلجة (فروزن): اخلط جزءاً واحداً من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات والموكتيلات: تُستخدم مباشرة أو تُخفف بالماء حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Milchdesserts, Gebäck, Torten, Kuchen, Waffeln, Frozen-Getränke, Cocktails, Mocktails, Eistees, Limonaden, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Ice cream, milky desserts, pastries, pies, cakes, waffles, frozen drinks, cocktails, mocktails, iced teas, lemonades, whipped cream, jellies, and candies.",
+    "tr": "Dondurma, sütlü tatlılar, pastacılık ürünleri, turtalar, kekler, waffle, frozen içecekler, kokteyller, mocktail'ler, soğuk çaylar, limonatalar, krem şanti, jöleler ve şekerlemeler.",
+    "ar": "الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكعك، الوافل، المشروبات المثلجة، الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 2 Jahre haltbar. Bei 20-22 °C trocken lagern und vor direkter Sonneneinstrahlung schützen.",
+    "en": "Shelf life is 2 years in unopened original packaging. Store at 20-22 °C in dry conditions and avoid direct sunlight.",
+    "tr": "Açılmamış orijinal ambalajında raf ömrü 2 yıldır. 20-22 °C sıcaklıkta, kuru koşullarda saklayınız ve doğrudan güneş ışığından koruyunuz.",
+    "ar": "مدة الصلاحية سنتان في العبوة الأصلية غير المفتوحة. تُحفظ في درجة حرارة 20-22 درجة مئوية في ظروف جافة وتجنب أشعة الشمس المباشرة."
+  },
+  "inhaltsstoffe": {
+    "de": "Grüner Apfel (50%), Zucker (48%), modifizierte Maisstärke (1%), Säureregulator (Trinatriumcitrat E331iii, Weinsäure E334), Aroma (Grüner Apfel), Salz, Konservierungsmittel (Kaliumsorbat E202), Farbstoffe (Tartrazin E102, Brillantblau E133).",
+    "en": "Green Apple (50%), Sugar (48%), Modified corn starch (1%), Acidity Regulator (Trisodium citrate E331iii, Tartaric acid E334), Flavoring (Green apple), Salt, Preservative (Potassium Sorbate E202), Coloring (Tartrazine E102, Brilliant Blue E133).",
+    "tr": "Yeşil Elma (%50), Şeker (%48), Modifiye mısır nişastası (%1), Asitlik düzenleyici (Trisodyum sitrat E331iii, Tartarik asit E334), Aroma verici (Yeşil elma), Tuz, Koruyucu (Potasyum sorbat E202), Renklendirici (Tartrazin E102, Parlak Mavi E133)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1400,
+      "energie_kcal": 334,
+      "fett": 0.2,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 78.9,
+      "davon_zucker": 77.0,
+      "eiweiss": 0.6,
+      "salz": 0.0
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

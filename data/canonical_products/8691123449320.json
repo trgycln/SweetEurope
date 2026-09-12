@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-MOJITO-700",
+  "barkod": "8691123449320",
+  "urun_adi": {
+    "de": "FO Mojito Sirup mit Geschmack 70 cl",
+    "en": "FO Mojito Flavored Syrup 70 cl",
+    "tr": "FO Mojito Aromalı Şurup 70 cl",
+    "ar": "شراب فـو بنكهة الموهيتو 70 مل"
+  },
+  "aciklamalar": {
+    "de": "FO Mojito Sirup verleiht Cocktails, Mocktails und Erfrischungsgetränken mit seinem belebenden Geschmack nach Limette, Pfefferminze, Menthol und Grüner Minze eine erfrischende Note.",
+    "en": "FO Mojito Flavored Syrup adds a refreshing kick to cocktails, mocktails, and soft drinks with its invigorating blend of lime, peppermint, menthol, and spearmint flavors.",
+    "tr": "FO Mojito Aromalı Şurup; ferahlatıcı misket limonu, nane, mentol ve kıvırcık nane aromaları ile kokteyllerinize, alkolsüz içeceklerinize ve meşrubatlarınıza eşsiz bir lezzet katar.",
+    "ar": "شراب فـو بنكهة الموهيتو يضفي لمسة منعشة مميزة على الكوكتيلات والمشروبات الخفيفة بفضل مزيجه المنعش من الليمون الحامض والنعناع والمنثول والنعناع المدبب."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird verwendet, indem 5 cl Mojito-Mix und Eis zu Soda in einem Cocktailglas gegeben werden. Serviert mit frischer Minze und Zitronenstücken.",
+    "en": "Used by adding 5 cl mojito mix and ice to soda in a cocktail glass. Served with fresh mint and lemon pieces.",
+    "tr": "Kokteyl bardağındaki maden suyuna 5 cl mojito miksi ve buz eklenerek kullanılır. Taze nane ve limon dilimleri ile servis edilir.",
+    "ar": "يُستخدم بإضافة 5 سنتيليتر من مزيج الموهيتو والثلج إلى الصودا في كأس كوكتيل. يُقدم مع النعناع الطازج وشرائح الليمون."
+  },
+  "icindekiler": {
+    "de": "Zucker (56%), Wasser (40,76%), Säuerungsmittel (Citronensäure [E 330] 2%), Aromen (Limette, Pfefferminze, Menthol, Grüne Minze) (1,2%), Konservierungsstoffe (Kaliumsorbat [E 202] 0,025%, Natriumbenzoat [E 211] 0,015%).",
+    "en": "Sugar (56%), Water (40.76%), Acid (Citric Acid [E 330] 2%), Flavorings (lime, peppermint, menthol, spearmint) (1.2%), Preservatives (Potassium Sorbate [E 202] 0.025%, Sodium Benzoate [E 211] 0.015%).",
+    "tr": "Şeker (%56), Su (%40,76), Asitlik Düzenleyici (Sitrik Asit [E 330] %2), Aroma Vericiler (Misket limonu, nane, mentol, kıvırcık nane) (%1,2), Koruyucular (Potasyum Sorbat [E 202] %0,025, Sodyum Benzoat [E 211] %0,015).",
+    "ar": "سكر (56٪)، ماء (40.76٪)، حمض (حمض الستريك [E 330] 2٪)، نكهات (ليمون حامض، نعناع، منثول، نعناع مدبب) (1.2٪)، مواد حافظة (سوربات البوتاسيوم [E 202] 0.025٪، بنزوات الصوديوم [E 211] 0.015٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direktem Sonnenlicht geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin, kuru ve güneş ışığından uzak bir yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay / 36 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1290,
+      "energie_kcal": 308,
+      "fett": 0,
+      "kohlenhydrate": 71.8,
+      "davon_zucker": 71.8,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 20
+}

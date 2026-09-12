@@ -1,0 +1,59 @@
+{
+  "stok_kodu": "SP-FP-8691123462916",
+  "barkod": "8691123462916",
+  "urun_adi": {
+    "de": "Fo Minz- und Limetten-Geschmack Getränkesirup 700 ml",
+    "en": "Fo Mint and Lime Flavored Beverage Syrup 700 ml",
+    "tr": "Fo Nane ve Limon Aromalı İçecek Şurubu 700 ml",
+    "ar": "شراب مشروب بنكهة النعناع والليمون من فو 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Minz- und Limetten-Geschmack Sirup, ideal für Cocktails, Getränke und Erfrischungen.",
+    "en": "High quality mint and lime flavored syrup, ideal for cocktails, beverages and refreshments.",
+    "tr": "Kokteyller, içecekler ve ferahlatıcılar için ideal, yüksek kaliteli nane ve limon aromalı şurup.",
+    "ar": "شراب عالي الجودة بنكهة النعناع والليمون، مثالي للكوكتيلات والمشروبات والمرطبات."
+  },
+  "kullanim_alanlari": {
+    "de": "Für 450ml Becher; 1 Portionslöffel (40ml) Basis optional mit 3 (120ml), 4 (160ml) oder 5 Portionslöffeln verdünnen.",
+    "en": "For 450ml cup; 1 scope (40ml) base is diluted optionally with 3 scopes (120ml), 4 scopes (160ml) or 5 scopes.",
+    "ar": "لأجل كوب 450 مل؛ يتم تخفيف مكيال واحد (40 مل) من الأساس اختيارياً بـ 3 مكاييل (120 مل)، 4 مكاييل (160 مل) أو 5 مكاييل."
+  },
+  "icindekiler": {
+    "de": "Zucker (55%), Wasser (38,64%), Zitronensäure, Kaliumcitrat, E 330, E 332ii (5,5%), Aromen (Spearmint, Limette), Aroma (0,8%), Kaliumsorbat [E 202], 0,25 g/l (0,025%), Annatto [E 160b] (0,02%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Sugar (55%), Water (38.64%), Citric Acid, Potassium Citrate, E 330, E 332ii (5.5%), Flavouring (Spearmint, Lime), Flavouring (0.8%), Potassium Sorbate [E 202], 0.25 g/lt (0.025%), Annatto [E 160b] (0.02%), Sodium Benzoate [E 211] (0.015%)",
+    "tr": "Şeker (%55), Su (%38,64), Sitrik Asit, Potasyum Sitrat, E 330, E 332ii (%5,5), Aroma Verici (Nane, Limon), Aroma Verici (%0,8), Potasyum Sorbat [E 202], 0,25 gr/lt (%0,025), Anatto [E 160b] (%0,02), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "سكر (55%)، ماء (38.64%)، حامض الستريك، سترات البوتاسيوم، E 330، E 332ii (5.5%)، منكهات (نعناع مدبب، ليمون)، منكه (0.8%)، سوربات البوتاسيوم [E 202]، 0.25 غم/لتر (0.025%)، أناتو [E 160b] (0.02%)، بنزوات الصوديوم [E 211] (0.015%)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort vor direktem Sonnenlicht geschützt lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzak tutarak saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 937,
+      "energie_kcal": 224,
+      "fett": 0,
+      "kohlenhydrate": 56,
+      "davon_zucker": 55,
+      "eiweiss": 0,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "malzeme": "Glasflasche",
+    "hacim": "70 cl"
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 20
+}

@@ -1,0 +1,59 @@
+{
+  "stok_kodu": "SP-FP-8691123340788",
+  "barkod": "8691123340788",
+  "urun_adi": {
+    "de": "FO Maulbeer Fruchtpüree Sauce - Frozen 1 kg",
+    "en": "FO Black Mulberry Fruited Sauce - Frozen 1 kg",
+    "tr": "FO Karadut Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة التوت الأسود بالفاكهة فروزن من إف أوه 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Maulbeersauce mit 50 % echtem Fruchtanteil. Ideal für die Zubereitung von Frozen Drinks, Smoothies, Cocktails, Eiscreme und Desserts.",
+    "en": "Premium black mulberry fruited sauce containing 50% real fruit. Perfectly crafted for frozen drinks, smoothies, cocktails, ice cream, and dessert toppings.",
+    "tr": "%50 gerçek meyve oranına sahip premium karadut meyveli sos. Frozen içecekler, smoothie'ler, kokteyller, dondurma ve tatlı süslemeleri için idealdir.",
+    "ar": "صلصة التوت الأسود الفاخرة التي تحتوي على 50٪ من الفاكهة الحقيقية. مثالية لإعداد المشروبات المجمدة، السموذي، الكوكتيلات، الآيس كريم وتزيين الحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Praktische Anwendung: 1 Teil Sauce mit 3 Teilen crushed Eis in einem Hochleistungsmixer mixen. Auch geeignet für Dondurma, Waffeln, Pfannkuchen, Kuchen und Bar-Getränke.",
+    "en": "Practical application: Mix 1 part sauce with 3 parts crushed ice in a high-speed blender for frozen beverages. Also suitable for ice cream, waffles, pancakes, cakes, and cocktails.",
+    "tr": "Pratik kullanım: Frozen hazırlamak için 1 ölçek sos ile 3 ölçek kırılmış buzu yüksek hızlı blenderda karıştırınız. Ayrıca dondurma, waffle, pankek, pasta ve kokteyllerde kullanılabilir.",
+    "ar": "استخدام عملي: تحضر المشروبات المجمدة بخلط جزء واحد من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط سريع. مناسبة أيضًا للآيس كريم، الوافل، البان كيك، الكيك والكوكتيلات."
+  },
+  "icindekiler": {
+    "de": "Schwarze Maulbeere (50%), Zucker (47,99%), modifizierte Maisstärke (1%), Säureregulatoren (Trisodiumcitrat, Weinsäure [E 331iii, E 334]) (0,7%), Salz (0,1%), Maulbeeraroma (0,1%), Konservierungsstoff (Kaliumsorbat [E 202]) (0,1%), Farbstoffe (Carmoisin, Brillantblau [E 122, E 133]) (0,01%).",
+    "en": "Black mulberry (50%), Sugar (47.99%), Modified corn starch (1%), Acidity regulators (Trisodium citrate, Tartaric acid [E 331iii, E 334]) (0.7%), Salt (0.1%), Black mulberry flavoring (0.1%), Preservative (Potassium sorbate [E 202]) (0.1%), Colorants (Carmoisine, Brilliant blue [E 122, E 133]) (0.01%).",
+    "tr": "Karadut (%50), Şeker (%47,99), Modifiye mısır nişastası (%1), Asitlik düzenleyiciler (Trisodyum sitrat, Tartarik asit [E 331iii, E 334]) (%0,7), Tuz (%0,1), Karadut aroması (%0,1), Koruyucu (Potasyum sorbat [E 202]) (%0,1), Renklendiriciler (Karmoazin, Brilliant blue [E 122, E 133]) (%0,01).",
+    "ar": "توت أسود (50٪)، سكر (47.99٪)، نشا الذرة المعدل (1٪)، منظمات الحموضة (سترات ثلاثي الصوديوم، حمض الطرطريك [E 331iii, E 334]) (0.7٪)، ملح (0.1٪)، نكهة التوت الأسود (0.1٪)، مادة حافظة (سوربات البوتاسيوم [E 202]) (0.1٪)، ملونات (كارمويسين، أزرق براق [E 122, E 133]) (0.01٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor directem Sonnenlicht geschützt lagern. Nach dem Öffnen vorzugsweise gekühlt aufbewahren.",
+    "en": "Store in a cool, dry place away from direct sunlight. Keep refrigerated after opening.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığı almayan bir yerde saklayınız. Açıldıktan sonra buzdolabında muhafaza edilmesi önerilir.",
+    "ar": "يحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. يُفضل حفظه في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 961,
+      "energie_kcal": 230,
+      "fett": 0.1,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 54.9,
+      "davon_zucker": 53.2,
+      "eiweiss": 1,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200799390019",
+  "palet_ici_koli": 10
+}

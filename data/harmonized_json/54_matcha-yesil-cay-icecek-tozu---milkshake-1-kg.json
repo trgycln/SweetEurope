@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Das FO Matcha Green Tea Powder Drink bietet ein authentisches, intensives Geschmackserlebnis für anspruchsvolle Cafés und Bars. Die hochwertige Rezeptur sorgt für eine perfekte, homogene Textur in Milchshakes und Frappés und garantiert eine gleichbleibend hohe Qualität bei jeder Zubereitung. Dank der einfachen Dosierung und der schnellen Löslichkeit ist es die ideale Wahl für effiziente Arbeitsabläufe in der Gastronomie.",
+    "en": "FO Matcha Green Tea Powder Drink delivers an authentic and intense flavor profile designed for professional cafes and bars. Its premium formulation ensures a perfect, homogeneous texture in milkshakes and frappes, guaranteeing consistent quality in every serving. With its easy dosage and rapid solubility, it is the ideal choice for efficient, high-volume beverage service.",
+    "tr": "FO Matcha Yeşil Çay Tozu, profesyonel kafe ve barlar için otantik ve yoğun bir lezzet deneyimi sunar. Yüksek kaliteli formülasyonu, milkshake ve frappe gibi içeceklerde mükemmel ve homojen bir doku sağlayarak her serviste tutarlı bir kaliteyi garanti eder. Kolay dozajlanabilir yapısı ve hızlı çözünürlüğü sayesinde işletmeler için verimli ve pratik bir çözüm sunar.",
+    "ar": "يقدم مسحوق شاي الماتشا الأخضر من FO تجربة نكهة أصلية ومكثفة مصممة للمقاهي والبارات الاحترافية. تضمن تركيبته المتميزة قواماً متجانساً ومثالياً في مخفوق الحليب (الميلك شيك) والفرابي، مما يضمن جودة ثابتة في كل كوب. بفضل سهولة الجرعة وسرعة الذوبان، يعد الخيار الأمثل لخدمة المشروبات بكفاءة عالية."
+  },
+  "hazirlanisi": {
+    "de": "Für einen perfekten Frappé: 40-60 g (ca. 2-3 gehäufte Esslöffel) Pulver mit 200 ml kalter Milch und 10 Eiswürfeln in einen Mixer geben. Mixen, bis das Eis zerkleinert ist und eine cremige Konsistenz erreicht wurde.",
+    "en": "For a perfect frappe: Combine 40-60 g (approx. 2-3 heaped tablespoons) of powder with 200 ml of cold milk and 10 ice cubes in a blender. Blend until the ice is crushed and the mixture is creamy.",
+    "tr": "Mükemmel bir frappe için: 40-60 g (yaklaşık 2-3 tepeleme yemek kaşığı) tozu, 200 ml soğuk süt ve 10 adet buz küpü ile birlikte blender'a ekleyin. Buzlar kırılana ve karışım kremsi bir kıvam alana kadar karıştırın.",
+    "ar": "لتحضير فرابي مثالي: امزج 40-60 جرام (حوالي 2-3 ملاعق كبيرة ممتلئة) من المسحوق مع 200 مل من الحليب البارد و10 مكعبات ثلج في الخلاط. اخلط المزيج حتى يتكسر الثلج ويصبح القوام كريمياً."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Milchshakes, Frappés und kreative Kaltgetränke.",
+    "en": "Versatile application areas: Milkshakes, frappes, and creative cold beverages.",
+    "tr": "Geniş kullanım alanları: Milkshake, frappe ve yaratıcı soğuk içecekler.",
+    "ar": "مجالات الاستخدام المتنوعة: مخفوق الحليب (الميلك شيك)، الفرابي، والمشروبات الباردة المبتكرة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre bei ungeöffneter Verpackung.",
+    "en": "Store in original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life: 2 years in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Matcha-Grünteepulver (5%), modifizierte Maisstärke, Glukosesirup, gehärtetes Pflanzenöl (Palmöl), Emulgatoren (E471, E472a), Natriumcaseinat, Stabilisator (E340), Trennmittel (E341, E551), Xanthan (E415), Aroma (Matcha-Grüntee), Farbstoffe (E160b, E163), Säureregulator (Citronensäure E330).",
+    "en": "Sugar, Matcha green tea powder (5%), Modified Corn Starch, Glucose syrup, Hydrogenated Vegetable Oil (Palm Oil), Emulsifiers (E471, E472a), Sodium caseinate, Stabilizer (E340), Anticaking agents (E341, E551), Xanthan Gum (E415), Flavoring (matcha green tea), Colorants (E160b, E163), Acidity Regulator (Citric Acid E330).",
+    "tr": "Şeker, Matcha yeşil çay tozu (%5), Modifiye Mısır Nişastası, Glikoz şurubu, Hidrojenize Bitkisel Yağ (Palm Yağı), Emülgatörler (E471, E472a), Sodyum kazeinat, Stabilizör (E340), Topaklanmayı önleyiciler (E341, E551), Ksantan gam (E415), Aroma verici (matcha yeşil çay), Renklendiriciler (E160b, E163), Asitlik düzenleyici (Sitrik asit E330)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1610,
+      "energie_kcal": 384,
+      "fett": 1.3,
+      "davon_gesaettigt": 1.1,
+      "kohlenhydrate": 91.0,
+      "davon_zucker": 87.4,
+      "eiweiss": 0.2,
+      "salz": 0.13
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": true
+  }
+}

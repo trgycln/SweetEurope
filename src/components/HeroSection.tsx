@@ -12,7 +12,7 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
     <div className="relative min-h-screen w-full flex items-center justify-center text-center overflow-hidden bg-primary">
       {!videoHasError && (
         <video
-          key="local-video-final"
+          key="local-hero-video"
           autoPlay
           loop
           muted
@@ -35,21 +35,7 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
       {/* Subtle overlay for text readability */}
       <div className="absolute top-0 left-0 w-full h-full bg-black/60 md:bg-black/50 z-10 pointer-events-none" />
 
-      {/* FO Food Products Logo - Sol Üstte */}
-      <div className="absolute top-20 left-10 md:top-24 md:left-20 z-15 pointer-events-none hidden lg:block">
-        <div className="rounded-full shadow-2xl border-8 border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden flex items-center justify-center" style={{ width: '240px', height: '240px' }}>
-          <Image src="/fologo.webp" alt="FO Food Products Logo" width={240} height={240} style={{ objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%', opacity: '0.25' }} />
-        </div>
-      </div>
-
-      {/* ElysonSweets Logo - Sağ Üstte */}
-      <div className="absolute top-20 right-10 md:top-24 md:right-20 z-15 pointer-events-none hidden lg:block">
-        <div className="rounded-full shadow-2xl border-8 border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden flex items-center justify-center" style={{ width: '240px', height: '240px' }}>
-          <Image src="/Logo.jpg" alt="ElysonSweets Logo" width={240} height={240} style={{ objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%', opacity: '0.25' }} />
-        </div>
-      </div>
-
-      <div className="relative z-20 text-white px-4 sm:px-8 md:px-12 lg:px-20 max-w-5xl mx-auto py-16 sm:py-24 flex flex-col items-center">
+      <div className="relative z-20 text-white px-4 sm:px-8 md:px-12 lg:px-20 max-w-5xl mx-auto py-16 sm:py-24 flex flex-col items-center pt-28">
         {/* Kicker Badge */}
         {dictionary.hero?.kicker && (
           <motion.div

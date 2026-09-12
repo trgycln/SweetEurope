@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Weiße Schokoladensauce bietet ein authentisches, cremiges Geschmacksprofil mit einer feinen Vanillenote. Dank ihrer homogenen Textur und hohen Konzentration eignet sie sich ideal für die professionelle Veredelung von Heiß- und Kaltgetränken sowie als dekoratives Topping. Sie spart wertvolle Zeit in der Gastronomie, da sie direkt aus der Flasche einsatzbereit ist und eine exzellente Haftung auf Desserts und Gebäck bietet.",
+    "en": "FO White Chocolate Professional Sauce delivers an authentic, creamy flavor profile with delicate notes of vanilla. Featuring a smooth, homogeneous texture and high concentration, it is ideal for professionally enhancing hot and cold beverages or as a premium topping. Designed for efficiency, it is ready to use directly from the bottle, ensuring consistent quality for desserts, waffles, and pastry applications.",
+    "tr": "FO Beyaz Çikolatalı Profesyonel Sos, otantik ve kremsi lezzet profili ile vanilya notaları sunar. Homojen yapısı ve yüksek konsantrasyonu sayesinde sıcak ve soğuk içeceklerin profesyonelce lezzetlendirilmesi veya tatlıların süslenmesi için idealdir. Doğrudan kullanıma hazır yapısı ile işletmelerde zaman tasarrufu sağlar; dondurma, waffle ve pastacılık ürünlerinde mükemmel bir doku oluşturur.",
+    "ar": "تقدم صلصة الشوكولاتة البيضاء الاحترافية من FO نكهة كريمية أصلية مع لمسات رقيقة من الفانيليا. بفضل قوامها المتجانس وتركيزها العالي، فهي مثالية لتعزيز المشروبات الساخنة والباردة باحترافية أو كإضافة مميزة للحلويات. صُممت لتوفير الوقت في المقاهي والمطاعم، حيث أنها جاهزة للاستخدام المباشر وتضمن جودة ثابتة في تزيين الوافل والآيس كريم والمخبوزات."
+  },
+  "hazirlanisi": {
+    "de": "Das Produkt ist direkt anwendungsbereit. Für Getränke nach Bedarf dosieren (z.B. 15-20ml pro Tasse). Ideal zum Garnieren von Desserts, Waffeln oder zum Einrühren in Frozen-Getränke und Milchshakes.",
+    "en": "The product is ready to use. Dose as required for beverages (e.g., 15-20ml per cup). Ideal for drizzling over desserts, waffles, or blending into frozen drinks and milkshakes.",
+    "tr": "Ürün doğrudan kullanıma hazırdır. İçecekler için ihtiyaca göre dozajlayınız (örn. fincan başına 15-20ml). Tatlılar, waffle üzerine gezdirmek veya frozen içecekler ve milkshake yapımında karıştırmak için idealdir.",
+    "ar": "المنتج جاهز للاستخدام المباشر. يُستخدم بالجرعة المطلوبة للمشروبات (مثلاً 15-20 مل لكل كوب). مثالي لتزيين الحلويات والوافل أو للخلط في المشروبات المثلجة والميلك شيك."
+  },
+  "kullanim_alanlari": {
+    "de": "Heiß- und Kaltgetränke, Eiscreme, Milchdesserts, Kuchen, Torten, Waffeln, Frozen-Getränke, Gebäckteige, Cremes, Schlagsahne, Süßwaren.",
+    "en": "Hot and cold beverages, ice cream, milky desserts, cakes, tarts, waffles, frozen drinks, pastry doughs, creams, whipped creams, confectionery.",
+    "tr": "Sıcak ve soğuk içecekler, dondurma, sütlü tatlılar, pastalar, tartlar, waffle, frozen içecekler, pasta ve kek hamurları, kremalar, krem şantiler, şekerlemeler.",
+    "ar": "المشروبات الساخنة والباردة، الآيس كريم، الحلويات بالحليب، الكعك، التارت، الوافل، المشروبات المثلجة، عجائن المعجنات، الكريمات، الكريمة المخفوقة، الحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C an einem trockenen Ort lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Produktion bei ungeöffneter Verpackung.",
+    "en": "Store in its original packaging at 20-22°C in a dry place. Avoid direct sunlight. Shelf life: 2 years from production in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında üretimden itibaren 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في مكان جاف. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان من تاريخ الإنتاج في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Glukosesirup, Zucker, Wasser, Magermilchpulver (Milch), Feuchthaltemittel (E 422), Butter, Modifizierte Maisstärke, Weiße Schokolade (1%) [Zucker, Kakaobutter, Magermilchpulver (Milch), Emulgator (Sojalecithin), Aroma (Vanillin)], Aroma (Weiße Schokolade, Schokolade), Salz, Säureregulator (E 330, E 331iii), Emulgator (Sojalecithin), Konservierungsmittel (E 202).",
+    "en": "Glucose syrup, Sugar, Water, Skimmed milk powder (Milk), Humectant (E 422), Butter, Modified corn starch, White chocolate (1%) [Sugar, Cocoa butter, Skimmed milk powder (Milk), Emulsifier (Soy Lecithin), Flavouring (Vanillin)], Flavouring (White Chocolate, Chocolate), Salt, Acidity regulator (E 330, E 331iii), Emulsifier (Soy Lecithin), Preservative (E 202).",
+    "tr": "Glukoz şurubu, Şeker, Su, Yağsız süttozu (Süt), Nem verici (E 422), Tereyağ, Modifiye mısır nişastası, Beyaz çikolata (%1) [Şeker, Kakao yağı, Yağsız süttozu (Süt), Emülgatör (Soya Lesitini), Aroma verici (Vanilin)], Aroma verici (Beyaz çikolata, Çikolata), Tuz, Asitlik düzenleyici (E 330, E 331iii), Emülgatör (Soya Lesitini), Koruyucu (E 202)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1330,
+      "energie_kcal": 318,
+      "fett": 5.7,
+      "davon_gesaettigt": 3.6,
+      "kohlenhydrate": 62.2,
+      "davon_zucker": 48.0,
+      "eiweiss": 3.6,
+      "salz": 0.75
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": true,
+    "soja": true,
+    "nuesse": false,
+    "eier": false
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123448620",
+  "barkod": "8691123448620",
+  "urun_adi": {
+    "de": "FO Ananas Fruchtpüree Sauce (Frozen) 1 kg",
+    "en": "FO Pineapple Fruited Sauce (Frozen) 1 kg",
+    "tr": "FO Ananas Meyveli Sos - Frozen 1 kg",
+    "ar": "صلصة الأناناس بالفاكهة فو (فروازن) 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "FO Ananas Fruchtpüree Sauce bietet intensiven und natürlichen Ananasgeschmack für kalte Getränke, Cocktails, Frozen-Spezialitäten und Desserts.",
+    "en": "FO Pineapple Fruited Sauce delivers a rich and natural pineapple flavor, ideal for cold beverages, cocktails, frozen drinks, and dessert toppings.",
+    "tr": "FO Ananas Meyveli Sos, soğuk içecekler, kokteyller, frozen tarifleri ve tatlılar için yoğun ve doğal ananas lezzeti sunar.",
+    "ar": "تقدم صلصة الأناناس بالفاكهة من فو طعماً غنياً وطبيعياً للأناناس، وهي مثالية للمشروبات الباردة والكوكتيلات والمشروبات المثلجة والحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Sehr praktische Anwendung. Für Frozen-Getränke: 1 Teil Sauce mit 3 Teilen Crushed Ice mischen. Auch ideal für Cocktails, Milkshakes, Eis und Desserts.",
+    "en": "Practical application. Prepare frozen drinks by mixing 1 part sauce with 3 parts crushed ice. Also suitable for cocktails, milkshakes, ice cream, and desserts.",
+    "tr": "Uygulaması çok pratiktir. 1 ölçü sos ile 3 ölçü kırılmış buz karıştırılarak frozen hazırlanabilir. Ayrıca kokteyl, milkshake, dondurma ve tatlılarda kullanılabilir.",
+    "ar": "تطبيق عملي جداً. تحضر المشروبات المثلجة بمزج جزء واحد من الصلصة مع 3 أجزاء من الثلج المجروش. مناسبة أيضاً للكوكتيلات والميلك شيك والآيس كريم والحلويات."
+  },
+  "icindekiler": {
+    "de": "Zucker (68,394%), Ananas (30%), modifizierte Maisstärke (0,8%), Säureregulatoren (Trisodiumcitrat [E 331iii], Weinsäure [E 334]) (0,3%), Ananasaroma (0,3%), Salz (0,1%), Konservierungsstoff (Kaliumsorbat [E 202]) (0,1%), Farbstoff (Tartrazin [E 102]) (0,006%).",
+    "en": "Sugar (68.394%), Pineapple (30%), Modified corn starch (0.8%), Acidity regulators (Trisodium citrate [E 331iii], Tartaric acid [E 334]) (0.3%), Flavoring (Pineapple) (0.3%), Salt (0.1%), Preservative (Potassium sorbate [E 202]) (0.1%), Color (Tartrazine [E 102]) (0.006%).",
+    "tr": "Şeker (%68,394), Ananas (%30), Modifiye mısır nişastası (%0,8), Asitlik düzenleyiciler (Trisodyum sitrat [E 331iii], Tartarik asit [E 334]) (%0,3), Aroma verici (Ananas) (%0,3), Tuz (%0,1), Koruyucu (Potasyum sorbat [E 202]) (%0,1), Renklendirici (Tartrazin [E 102]) (%0,006).",
+    "ar": "سكر (68.394٪)، أناناس (30٪)، نشا الذرة المعدل (0.8٪)، منظمات الحموضة (سترات ثلاثي الصوديوم [E 331iii]، حمض التارتاريك [E 334]) (0.3٪)، نكهة الأناناس (0.3٪)، ملح (0.1٪)، مادة حافظة (سوربات البوتاسيوم [E 202]) (0.1٪)، ملون (تارترازين [E 102]) (0.006٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direktem Sonnenlicht geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığı almayan yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1030,
+      "energie_kcal": 247,
+      "fett": 0,
+      "kohlenhydrate": 60.2,
+      "davon_zucker": 56.6,
+      "eiweiss": 0.3,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 6.01,
+  "gtip": "200799390019",
+  "palet_ici_koli": 25
+}

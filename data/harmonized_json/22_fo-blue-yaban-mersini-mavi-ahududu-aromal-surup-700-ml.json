@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Entdecken Sie die Fo Electric Flower und Blaubeere Aromatisierte Basis im praktischen 700-ml-Glasflaschenformat, ideal für professionelle Cafés und Bars. Diese hochnahrhafte und geschmacksintensive Basis besticht durch ein einzigartiges, florales und fruchtiges Profil, das Ihren Kaltgetränken eine besondere Note verleiht. Sie bietet eine exzellente Textur und hohe Konzentration für die effiziente Zubereitung von Cocktails und Erfrischungen. Perfekt geeignet, um anspruchsvollen Gästen ein unvergessliches Geschmackserlebnis zu bieten.",
+    "en": "Discover the Fo Electric Flower and Blueberry Flavored Base in a practical 700 ml glass bottle, ideal for professional cafes and bars. This highly concentrated and flavorful base impresses with a unique floral and fruity profile that adds a special touch to your cold beverages. It offers an excellent texture and high concentration for the efficient preparation of cocktails and refreshments. Perfect for delivering an unforgettable taste experience to demanding guests.",
+    "tr": "Profesyonel kafe ve barlar için ideal olan 700 ml cam şişedeki Fo Elektrik Çiçeği ve Yaban Mersini Aromalı Baz'ı keşfedin. Bu yüksek konsantrasyonlu ve aromatik baz, soğuk içeceklerinize özel bir dokunuş katan benzersiz çiçeksi ve meyvemsi profiliyle etkileyicidir. Kokteyllerin ve serinletici içeceklerin verimli bir şekilde hazırlanması için mükemmel bir doku ve yüksek yoğunluk sunar. Talepkar misafirlere unutulmaz bir lezzet deneyimi sunmak için mükemmeldir.",
+    "ar": "اكتشف أساس نكهة زهرة الكهرباء والتوت البري من فو في زجاجة زجاجية عملية سعة 700 مل، وهي مثالية للمقاهي والبارات المهنية. يثير هذا الأساس عالي التركيز والنكهة الإعجاب بملفه الفريد الزهري والفاكهي الذي يضفي لمسة خاصة على مشروباتك الباردة. يقدم قواماً ممتازاً وتركيزاً عاليًا للتحضير الفعال للكوكتيلات والمرطبات. مثالي لتقديم تجربة تذوق لا تنسى للضيوف المتطلبين."
+  },
+  "hazirlanisi": {
+    "de": "Für eine 450ml Tasse: 1 Messlöffel (40ml) Basis optional mit 3 Messlöffeln (120ml), 4 Messlöffeln (160ml) oder 5 Messlöffeln (200ml) Wasser verdünnen und mit reichlich Eis servieren.",
+    "en": "For a 450ml cup: Dilute 1 scoop (40ml) base optionally with 3 scoops (120ml), 4 scoops (160ml) or 5 scoops (200ml) of water and serve with plenty of ice.",
+    "tr": "450 ml'lik bardak için: 1 ölçü (40 ml) baz, isteğe bağlı olarak 3 ölçü (120 ml), 4 ölçü (160 ml) veya 5 ölçü (200 ml) su ile seyreltilir ve bol buz ile servis edilir.",
+    "ar": "لكوب سعة 450 مل: خفف مكيالاً واحداً (40 مل) من الأساس اختياريًا بـ 3 مكاييل (120 مل) أو 4 مكاييل (160 مل) أو 5 مكاييل (200 مل) من الماء وقدمه مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Kaltgetränke, Cocktails, Mocktails, Eistees, Limonaden, Desserts und Kaffeespezialitäten.",
+    "en": "Versatile application areas: Cold drinks, cocktails, mocktails, iced teas, lemonades, desserts, and coffee specialties.",
+    "tr": "Geniş kullanım alanları: Soğuk içecekler, kokteyller, mocktail, soğuk çaylar, limonatalar, tatlılar ve kahve çeşitleri.",
+    "ar": "مجالات الاستخدام المتنوعة: المشروبات الباردة، الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الحلويات، ومختارات القهوة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern, direkte Sonneneinstrahlung vermeiden. Nach dem Öffnen verschlossen halten.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions, avoid direct sunlight. Keep closed after opening.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta kuru koşullarda saklanmalı, doğrudan güneş ışığından kaçınılmalıdır. Açıldıktan sonra kapalı tutulmalıdır.",
+    "ar": "يخزن في عبوته الأصلية في درجة حرارة 20-22 مئوية في ظروف جافة، ويجب تجنب أشعة الشمس المباشرة. يُحفظ مغلقاً بعد الفتح."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulator (Citronensäure E330, Kaliumcitrat E332ii), Aromen (Minze, Limette), Konservierungsstoff (Kaliumsorbat E202, Natriumbenzoat E211), Farbstoff (Annatto E160b).",
+    "en": "Sugar, Water, Acidity Regulator (Citric Acid E330, Potassium Citrate E332ii), Flavouring (Spearmint, Lime), Preservative (Potassium Sorbate E202, Sodium Benzoate E211), Colorant (Anatto E160b).",
+    "tr": "Şeker, Su, Asitlik Düzenleyici (Sitrik Asit E330, Potasyum Sitrat E332ii), Aroma Verici (Nane, Misket Limonu), Koruyucu (Potasyum Sorbat E202, Sodyum Benzoat E211), Renklendirici (Anatto E160b)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 937,
+      "energie_kcal": 224,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 51.7,
+      "davon_zucker": 51.7,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

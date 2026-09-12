@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Grenadinen Sirup besticht durch sein authentisches, tiefrotes Aroma und eine perfekt ausbalancierte Süße. Mit seiner hohen Konzentration und homogenen Textur ist er die ideale Wahl für professionelle Bars und Cafés, um Cocktails, Mocktails und Erfrischungsgetränke geschmacklich zu veredeln. Er bietet eine exzellente Ergiebigkeit und sorgt für eine gleichbleibend hohe Qualität in jeder Anwendung.",
+    "en": "FO Grenadine Flavored Syrup offers an authentic, vibrant red profile with a perfectly balanced sweetness. Designed for professional bars and cafes, its high concentration and smooth, homogenized texture ensure consistent quality in every pour. It is the perfect base for elevating cocktails, mocktails, and refreshing beverages with a rich, professional finish.",
+    "tr": "FO Nar Çiçeği (Grenadine) Aromalı Şurup, otantik rengi ve mükemmel dengelenmiş tat profili ile öne çıkar. Yüksek konsantrasyonu ve homojen yapısı sayesinde profesyonel bar ve kafelerde kokteyller, mocktail'ler ve serinletici içecekler için ideal bir lezzet artırıcıdır. Her kullanımda tutarlı kalite ve üstün verimlilik sağlar.",
+    "ar": "يتميز شراب الرمان (جرينادين) من FO بنكهته الأصلية ولونه الأحمر الزاهي مع توازن مثالي في الحلاوة. بفضل تركيزه العالي وقوامه المتجانس، يعد الخيار الأمثل للمقاهي والبارات الاحترافية لتعزيز نكهة الكوكتيلات والموكتيلات والمشروبات المنعشة، مما يضمن جودة ثابتة وأداءً عالياً في كل استخدام."
+  },
+  "hazirlanisi": {
+    "de": "Für den direkten Genuss oder zur Zubereitung von Getränken wird eine Verdünnung von 1 Teil Sirup auf 8 Teile Wasser empfohlen. Ideal für Cocktails, Mocktails oder als Basis für Limonaden; einfach mit Wasser oder Soda auffüllen und nach Belieben auf Eis servieren.",
+    "en": "For direct consumption or beverage preparation, a dilution ratio of 1 part syrup to 8 parts water is recommended. Ideal for cocktails, mocktails, or as a base for lemonades; simply mix with water or soda and serve over ice as desired.",
+    "tr": "Doğrudan tüketim veya içecek hazırlığı için 1 ölçü şurubun 8 ölçü su ile seyreltilmesi önerilir. Kokteyller, mocktail'ler veya limonatalar için idealdir; su veya soda ile karıştırıp bol buz ile servis edebilirsiniz.",
+    "ar": "للاستهلاك المباشر أو تحضير المشروبات، يوصى بنسبة تخفيف تبلغ جزء واحد من الشراب إلى 8 أجزاء من الماء. مثالي للكوكتيلات والموكتيلات أو كقاعدة للمشروبات المنعشة؛ ببساطة امزجه مع الماء أو الصودا وقدمه مع الثلج حسب الرغبة."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Cocktails, Mocktails, Eistees, Limonaden, Desserts und Erfrischungsgetränke.",
+    "en": "Versatile application areas: Cocktails, mocktails, iced teas, lemonades, desserts, and refreshing beverages.",
+    "tr": "Geniş kullanım alanları: Kokteyller, mocktail'ler, soğuk çaylar, limonatalar, tatlılar ve serinletici içecekler.",
+    "ar": "مجالات الاستخدام المتنوعة: الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الحلويات، والمشروبات المنعشة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre bei sachgemäßer Lagerung.",
+    "en": "Store in its original packaging at 20-22 °C in dry conditions. Avoid direct sunlight. Shelf life: 3 years under described storage conditions.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta ve kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Uygun saklama koşullarında 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات في ظروف التخزين المذكورة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Aroma (Grenadine), Säureregulator (Citronensäure E330), Farbstoffe (Allurarot AC E129, Carmoisin E122), Konservierungsstoffe (Kaliumsorbat E202, Natriumbenzoat E211).",
+    "en": "Sugar, Water, Flavoring (Grenadine), Acidity Regulator (Citric Acid E330), Colorants (Allura Red E129, Carmoisine E122), Preservatives (Potassium Sorbate E202, Sodium Benzoate E211).",
+    "tr": "Şeker, Su, Aroma verici (Nar Çiçeği/Grenadine), Asitlik düzenleyici (Sitrik asit E330), Renklendiriciler (Allura Red E129, Carmoisine E122), Koruyucular (Potasyum sorbat E202, Sodyum benzoat E211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 82,
+      "davon_zucker": 82,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

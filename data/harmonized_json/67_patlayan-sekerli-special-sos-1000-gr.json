@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Popping Candy Sauce bietet ein einzigartiges sensorisches Erlebnis mit einem intensiven Knister-Effekt, der Ihre Desserts und Getränke belebt. Diese hochwertige, ölbasierte Sauce zeichnet sich durch ihre homogene Textur und exzellente Haftung aus, was sie ideal für professionelle Cafés und Bars macht. Sie verleiht Kreationen wie Eiscreme, Kaffeespezialitäten und Gebäck eine spielerische Note und eine unverwechselbare Textur.",
+    "en": "FO Popping Candy Sauce delivers a unique sensory experience with an intense crackling effect that elevates your desserts and beverages. This premium oil-based sauce features a smooth, homogeneous texture and excellent adhesion, making it perfect for professional cafes and bars. It adds a playful dimension and a distinct mouthfeel to creations such as ice cream, specialty coffees, and pastries.",
+    "tr": "FO Patlayan Şekerli Sos, tatlı ve içeceklerinize yoğun bir çıtırtı efekti katarak benzersiz bir duyusal deneyim sunar. Bu yüksek kaliteli, yağ bazlı sos, homojen yapısı ve mükemmel tutunma özelliği sayesinde profesyonel kafe ve barlar için idealdir. Dondurma, kahve spesiyalleri ve hamur işleri gibi kreasyonlarınıza eğlenceli bir dokunuş ve ayırt edici bir ağız hissi kazandırır.",
+    "ar": "يقدم صوص الفشار بالسكر من FO تجربة حسية فريدة مع تأثير طقطقة مكثف يضفي حيوية على الحلويات والمشروبات الخاصة بك. يتميز هذا الصوص عالي الجودة ذو الأساس الزيتي بقوامه المتجانس وقدرته الممتازة على الالتصاق، مما يجعله مثالياً للمقاهي والبارات الاحترافية. يضيف لمسة مرحة وملمساً مميزاً لإبداعاتك مثل الآيس كريم، ومشروبات القهوة المتخصصة، والمعجنات."
+  },
+  "hazirlanisi": {
+    "de": "Das Produkt ist gebrauchsfertig und kann direkt auf Speisen und Getränke aufgetragen werden. Es ist ideal als Topping für Eiscreme, Waffeln, Crêpes oder als dekoratives Element in Kaffeespezialitäten. Keine Verdünnung erforderlich; einfach direkt aus der Flasche dosieren.",
+    "en": "The product is ready-to-use and can be applied directly to food and beverages. It is ideal as a topping for ice cream, waffles, crepes, or as a decorative element in specialty coffees. No dilution required; simply dispense directly from the bottle.",
+    "tr": "Ürün kullanıma hazırdır ve doğrudan yiyecek ve içeceklerin üzerine uygulanabilir. Dondurma, waffle, krep üzerine sos olarak veya kahve spesiyallerinde dekoratif bir unsur olarak kullanım için idealdir. Seyreltme gerektirmez; doğrudan şişeden dozajlayarak kullanın.",
+    "ar": "المنتج جاهز للاستخدام ويمكن وضعه مباشرة على الأطعمة والمشروبات. مثالي كإضافة (توبينج) للآيس كريم، الوافل، الكريب، أو كعنصر تزيين في مشروبات القهوة المتخصصة. لا يحتاج إلى تخفيف؛ يتم استخدامه مباشرة من العبوة."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Kaffeespezialitäten, Gebäck, Waffeln, Crêpes, Desserts, Tortendekorationen.",
+    "en": "Ice cream, specialty coffees, pastries, waffles, crepes, desserts, cake decorations.",
+    "tr": "Dondurma, kahve spesiyalleri, hamur işleri, waffle, krep, tatlılar, pasta süslemeleri.",
+    "ar": "الآيس كريم، مشروبات القهوة المتخصصة، المعجنات، الوافل، الكريب، الحلويات، تزيين الكيك."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Knisterzucker [(Zucker, Glukosesirup, Kakaobutter, Kohlendioxid, Laktose (Milch), Wasser, Aromen (Erdbeere, Himbeere), Farbstoffe (Brillantblau E133, Allurarot E129))], Pflanzenöl (Sonnenblumenöl), Magermilchpulver, Emulgator (Sojalecithin E322).",
+    "en": "Sugar, Popping Candy [(Sugar, Glucose Syrup, Cocoa Butter, Carbon dioxide, Lactose (milk), Water, Flavours (Strawberry, Raspberry), Colorants (Brilliant Blue E133, Allura Red E129))], Vegetable oil (sunflower oil), Skimmed milk powder, Emulsifier (Soy lecithin E322).",
+    "tr": "Şeker, Patlayan Şeker [(Şeker, Glikoz Şurubu, Kakao Yağı, Karbondioksit, Laktoz (süt), Su, Aromalar (Çilek, Ahududu), Renklendiriciler (Parlak Mavi E133, Allura Kırmızısı E129))], Bitkisel yağ (ayçiçek yağı), Yağsız süt tozu, Emülgatör (Soya lesitini E322)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 2170,
+      "energie_kcal": 519,
+      "fett": 25.3,
+      "davon_gesaettigt": 2.7,
+      "kohlenhydrate": 70.4,
+      "davon_zucker": 38.3,
+      "eiweiss": 2.8,
+      "salz": 0.4
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": false
+  }
+}

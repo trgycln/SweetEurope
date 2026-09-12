@@ -1,0 +1,872 @@
+[
+  {
+    "barcode": "8691123340764",
+    "desc": "FO STRAWBERRY FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 90,
+    "pallet_fraction": 0.529,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123444134",
+    "desc": "FO WILD BERRIES FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 40,
+    "pallet_fraction": 0.235,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123340948",
+    "desc": "FO MANGO FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 40,
+    "pallet_fraction": 0.235,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123340986",
+    "desc": "FO BANANA FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.088,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123340955",
+    "desc": "FO WATERMELON FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.059,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123340788",
+    "desc": "FO BLACK MULBERRY FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.059,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123340979",
+    "desc": "FO GREEN APPLE FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.088,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123340962",
+    "desc": "FO FRUITED SAUCE PEACH 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 25,
+    "pallet_fraction": 0.147,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123340931",
+    "desc": "FO KIWI FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.059,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123340993",
+    "desc": "FO LEMON FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.059,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123340917",
+    "desc": "FO MELON FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.059,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123444851",
+    "desc": "FO BLUEBERRY FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.059,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123340795",
+    "desc": "FO BLACK BERRY FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.088,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123340771",
+    "desc": "FO RASPBERRY FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.088,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123344656",
+    "desc": "FO PASSION FRUIT SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 30,
+    "pallet_fraction": 0.176,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123448620",
+    "desc": "FO PINE APPLE FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 25,
+    "pallet_fraction": 0.147,
+    "boxes_per_pallet": 170,
+    "total_pcs_pallet": 1020
+  },
+  {
+    "barcode": "8691123355065",
+    "desc": "FO TOFFEE CARAMEL SAUCE 2,5 KG",
+    "unit_kg": 2.5,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.333,
+    "boxes_per_pallet": 60,
+    "total_pcs_pallet": 360
+  },
+  {
+    "barcode": "8691123465283",
+    "desc": "Fo White Chocolate Sauce 2,5 Kg",
+    "unit_kg": 2.5,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.167,
+    "boxes_per_pallet": 60,
+    "total_pcs_pallet": 360
+  },
+  {
+    "barcode": "8691123471833",
+    "desc": "FO CHOCOLATE SYRUP - PREMIUM 700 ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.08,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123471857",
+    "desc": "FO WHITE CHOCOLATE SYRUP - PREMIUM 700 ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123471055",
+    "desc": "FO CARAMEL SYRUP-PREMIUM 700ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.12,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123470942",
+    "desc": "FO STRAWBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.12,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123470980",
+    "desc": "FO VANILLA FLAVORED SYRUP-PREMIUM 700 ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 7,
+    "pallet_fraction": 0.056,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123471840",
+    "desc": "FO LIME FRUITED SYRUP 700 ML - PREMIUM",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123472885",
+    "desc": "FO WATERMELON FRUIT SYRUP–PREMIUM 700ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123470973",
+    "desc": "FO MANGO FRUIT SYRUP-PREMIUM 700 ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 7,
+    "pallet_fraction": 0.056,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123471024",
+    "desc": "FO POMEGRANATE FRUIT SYRUP-PREMIUM 700 ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123471871",
+    "desc": "FO GREEN APPLE FRUIT SYRUP-PREMIUM 700ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123473707",
+    "desc": "FO BLACKBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123120090",
+    "desc": "FO PEPPERMINT FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.08,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123471017",
+    "desc": "FO HAZELNUT FLAVORED SYRUP-PREMIUM 700ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123470959",
+    "desc": "FO RASPBERRY FRUIT SYRUP-PREMIUM 700ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123470966",
+    "desc": "FO PEACH FRUIT SYRUP-PREMIUM 700 ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123473264",
+    "desc": "FO HIBISCUS FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.84,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.16,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123475084",
+    "desc": "FO CUBAN MINT LIME BASE 700ML",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.16,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123475886",
+    "desc": "FO Sorrel Drink Mix – Madam Sorrel 1000 gr",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.118,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123473905",
+    "desc": "FO MADAGASCAR VANILLA FLAVORED SAUCE 1 KG - ECLIPSE",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.118,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123471444",
+    "desc": "FO POPPING CANDY SAUCE-SPECIAL 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.118,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123467454",
+    "desc": "Fo Pistachio Verde Sauce %5 940GR",
+    "unit_kg": 0.94,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.118,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123471086",
+    "desc": "FO PREMIUM TARO FLAVORED SAUCE 2,5KG",
+    "unit_kg": 2.5,
+    "each_box": 6,
+    "box_order": 7,
+    "pallet_fraction": 0.117,
+    "boxes_per_pallet": 60,
+    "total_pcs_pallet": 360
+  },
+  {
+    "barcode": "8691123449498",
+    "desc": "FO CHOCOLATE FLAVORED POWDER DRINK 1 KG.",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.042,
+    "boxes_per_pallet": 119,
+    "total_pcs_pallet": 714
+  },
+  {
+    "barcode": "8691123449566",
+    "desc": "FO MELON FLAVORED POWDER DRINK 1 KG.",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.042,
+    "boxes_per_pallet": 119,
+    "total_pcs_pallet": 714
+  },
+  {
+    "barcode": "8691123449504",
+    "desc": "FO VANILLA FLAVORED POWDER DRINK 1 KG.",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.042,
+    "boxes_per_pallet": 119,
+    "total_pcs_pallet": 714
+  },
+  {
+    "barcode": "8691123449511",
+    "desc": "FO STRAWBERRY FLAVORED POWDER DRINK 1 KG.",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.042,
+    "boxes_per_pallet": 119,
+    "total_pcs_pallet": 714
+  },
+  {
+    "barcode": "8691123461117",
+    "desc": "Fo Chai Tea Latte Powder Drink 1 kg.",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.042,
+    "boxes_per_pallet": 119,
+    "total_pcs_pallet": 714
+  },
+  {
+    "barcode": "8691123470379",
+    "desc": "Fo Matcha Gren Tea Powder Drink 1 kg",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.042,
+    "boxes_per_pallet": 119,
+    "total_pcs_pallet": 714
+  },
+  {
+    "barcode": "8691123343000",
+    "desc": "FO STRAWBERRY FLAVORED SAUCE 750 GR",
+    "unit_kg": 0.75,
+    "each_box": 12,
+    "box_order": 4,
+    "pallet_fraction": 0.033,
+    "boxes_per_pallet": 121,
+    "total_pcs_pallet": 1452
+  },
+  {
+    "barcode": "8691123462244",
+    "desc": "Fo Chocolate Flavored Sauce 750 Gr",
+    "unit_kg": 0.75,
+    "each_box": 12,
+    "box_order": 4,
+    "pallet_fraction": 0.033,
+    "boxes_per_pallet": 121,
+    "total_pcs_pallet": 1452
+  },
+  {
+    "barcode": "8691123463517",
+    "desc": "Fo White Chocolate Flavored Syrup 700 ml.",
+    "unit_kg": 0.95,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123463500",
+    "desc": "Fo Chocolate Flavored Syrup 70 Cl.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123463494",
+    "desc": "Fo Hazelnut Flavored Syrup 700 ML - Sugar Free",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123463470",
+    "desc": "Fo Caramel Flavored Syrup 700 ML - Sugar Free",
+    "unit_kg": 0.69,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123463487",
+    "desc": "Fo Vanilla Flavored Syrup 700 ML - Sugar Free",
+    "unit_kg": 0.687,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123120243",
+    "desc": "FO REGULAR COCONUT FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.08,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123453105",
+    "desc": "FO BLUE RASPBERRY FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.16,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123470218",
+    "desc": "FO KOI COCKTAIL FOAMER 100 ML",
+    "unit_kg": 0.1,
+    "each_box": 12,
+    "box_order": 5,
+    "pallet_fraction": 0.042,
+    "boxes_per_pallet": 119,
+    "total_pcs_pallet": 1428
+  },
+  {
+    "barcode": "8691123475596",
+    "desc": "FO Mixed Fruit Drink – Apollo 800 ML",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.029,
+    "boxes_per_pallet": 172,
+    "total_pcs_pallet": 1032
+  },
+  {
+    "barcode": "8691123475619",
+    "desc": "FO Mixed Fruit Drink – Dionysus 800ML",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.029,
+    "boxes_per_pallet": 172,
+    "total_pcs_pallet": 1032
+  },
+  {
+    "barcode": "8691123475633",
+    "desc": "FO Mixed Fruit Drink – Helios 800 ML",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.029,
+    "boxes_per_pallet": 172,
+    "total_pcs_pallet": 1032
+  },
+  {
+    "barcode": "8691123475626",
+    "desc": "FO Mixed Fruit Drink – Zeus 800 ML",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.029,
+    "boxes_per_pallet": 172,
+    "total_pcs_pallet": 1032
+  },
+  {
+    "barcode": "8691123475640",
+    "desc": "FO Mixed Fruit Drink – Heracles 800ML",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.029,
+    "boxes_per_pallet": 172,
+    "total_pcs_pallet": 1032
+  },
+  {
+    "barcode": "8691123444127",
+    "desc": "FO COCONUT FRUITED SAUCE 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.059,
+    "boxes_per_pallet": 169,
+    "total_pcs_pallet": 1014
+  },
+  {
+    "barcode": "8691123469663",
+    "desc": "FO SAKURA AND WHITE PEACH FLAVORED BASE",
+    "unit_kg": 0.85,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.08,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123453037",
+    "desc": "FO POWDER DRINK BASE (QUATRO) 1 KG",
+    "unit_kg": 1.0,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.083,
+    "boxes_per_pallet": 120,
+    "total_pcs_pallet": 720
+  },
+  {
+    "barcode": "8691123471093",
+    "desc": "FO PREMIUM CARAMEL SAUCE 2,5KG",
+    "unit_kg": 2.5,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.167,
+    "boxes_per_pallet": 60,
+    "total_pcs_pallet": 360
+  },
+  {
+    "barcode": "8691123471475",
+    "desc": "FO PREMIUM WHITE CHOCOLATE SAUCE 2,5KG",
+    "unit_kg": 2.5,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.083,
+    "boxes_per_pallet": 60,
+    "total_pcs_pallet": 360
+  },
+  {
+    "barcode": "8691123471468",
+    "desc": "FO PREMIUM CHOCOLATE SAUCE 2,5 KG",
+    "unit_kg": 2.5,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.167,
+    "boxes_per_pallet": 60,
+    "total_pcs_pallet": 360
+  },
+  {
+    "barcode": "8691123355041",
+    "desc": "FO CHOCOLATE SAUCE 2,5 KG",
+    "unit_kg": 2.5,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.333,
+    "boxes_per_pallet": 60,
+    "total_pcs_pallet": 360
+  },
+  {
+    "barcode": "8691123462909",
+    "desc": "Fo Mint and Lime Flavored Syrup 700 ml.",
+    "unit_kg": 0.91,
+    "each_box": 6,
+    "box_order": 40,
+    "pallet_fraction": 0.32,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123472991",
+    "desc": "FO BANANA FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123474797",
+    "desc": "Fo PineApple Flavored Syrup 70 Cl-sugar",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.12,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123473165",
+    "desc": "FO KIWI FLAVORED SYRUP 700 ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 5,
+    "pallet_fraction": 0.04,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123472908",
+    "desc": "FO BLUE CURACAO FLAVORED SYRUP 70 CL. Sugar",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.12,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123467843",
+    "desc": "FO WHITE CHOCOLATE FLAVORED SYRUP 700 ML",
+    "unit_kg": 0.95,
+    "each_box": 6,
+    "box_order": 30,
+    "pallet_fraction": 0.24,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123120182",
+    "desc": "FO CHOCOLATE FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.925,
+    "each_box": 6,
+    "box_order": 50,
+    "pallet_fraction": 0.4,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123450609",
+    "desc": "FO CARAMEL FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 50,
+    "pallet_fraction": 0.4,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123472236",
+    "desc": "FO STRAWBERRY FLAVORED SYRUP 700 ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 50,
+    "pallet_fraction": 0.4,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123450951",
+    "desc": "FO VANILLA FLAVORED SYRUP 700 ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 50,
+    "pallet_fraction": 0.4,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123454058",
+    "desc": "FO TOFFEE NUT FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 30,
+    "pallet_fraction": 0.24,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123472175",
+    "desc": "FO WATERMELON FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 7,
+    "pallet_fraction": 0.056,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123473028",
+    "desc": "FO MANGO FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.16,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123472960",
+    "desc": "Fo Grenadine Syrup 700 ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.12,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123473837",
+    "desc": "FO GREEN APPLE FLAVORED SYRUP 70 CL",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.08,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123473387",
+    "desc": "FO BLACKBERRY FLAVORED SYRUP 700 ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.08,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123473394",
+    "desc": "Fo Spearmint Flavored Syrup 70 Cl. sugar",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 15,
+    "pallet_fraction": 0.12,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123473189",
+    "desc": "FO PEACH FLAVORED SYRUP 70 CL.",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 20,
+    "pallet_fraction": 0.16,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  },
+  {
+    "barcode": "8691123472946",
+    "desc": "FO Coconut Flavored Syrup - BLANC 700 ML",
+    "unit_kg": 0.93,
+    "each_box": 6,
+    "box_order": 10,
+    "pallet_fraction": 0.08,
+    "boxes_per_pallet": 125,
+    "total_pcs_pallet": 750
+  }
+]

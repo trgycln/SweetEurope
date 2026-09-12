@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-120106",
+  "barkod": "8691123120106",
+  "urun_adi": {
+    "de": "FO Vanille Aromatisierter Sirup 70 cl",
+    "en": "FO Vanilla Flavored Syrup 70 cl",
+    "tr": "FO Vanilya Aromalı Şurup 70 cl",
+    "ar": "شراب بنكهة الفانيليا من فو 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Vanille-Aromasirup, ideal für heiße und kalte Getränke, Cocktails und Desserts.",
+    "en": "High quality vanilla flavored syrup, ideal for hot and cold beverages, cocktails, and desserts.",
+    "tr": "Sıcak ve soğuk içecekler, kokteyller ve tatlılar için ideal, yüksek kaliteli vanilya aromalı şurup.",
+    "ar": "شراب عالي الجودة بنكهة الفانيليا، مثالي للمشروبات الساخنة والباردة والكوكتيلات والحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird in einer Dosierung von 1,5-2 cl in heißen und kalten Getränken verwendet oder mit Wasser/Milch (1/8) verdünnt direkt getrunken.",
+    "en": "Used in dosage range of 1,5-2 cl in hot and cold drinks or diluted with water/milk (1/8) to drink directly.",
+    "tr": "Sıcak ve soğuk içeceklerde 1,5-2 cl dozaj aralığında kullanılır veya doğrudan içilmek üzere su/süt (1/8) ile seyreltilir.",
+    "ar": "يستخدم بمعدل جرعة تتراوح بين 1.5-2 سل في المشروبات الساخنة والباردة أو يُخفف بالماء/الحليب (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Wasser (87,25%), Polydextrose [E 1200] (10,5%), Aromastoff (Vanille) (1,3%), CMC [E 466] (0,5%), Weinsäure [E 334] (0,2%), Sucralose [E 955] (0,18%), Acesulfam K [E 950] (0,025%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Water (87,25%), Polydextrose [E 1200] (10,5%), Flavoring (Vanilla) (1,3%), CMC [E 466] (0,5%), Tartaric Acid [E 334] (0,2%), Sucralose [E 955] (0,18%), Acesulfame K [E 950] (0,025%), Potassium Sorbate [E 202] (0,025%), Sodium Benzoate [E 211] (0,015%)",
+    "tr": "Su (%87,25), Polidekstroz [E 1200] (%10,5), Aroma Verici (Vanilya) (%1,3), CMC [E 466] (%0,5), Tartarik Asit [E 334] (%0,2), Sukraloz [E 955] (%0,18), Asesülfam K [E 950] (%0,025), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "ماء (87.25٪)، بولي دكستروز [E 1200] (10.5٪)، منكه (فانيليا) (1.3٪)، سي إم سي [E 466] (0.5٪)، حمض التارتاريك [E 334] (0.2٪)، سكرالوز [E 955] (0.18٪)، أسيسولفام كيه [E 950] (0.025٪)، سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direkter Sonneneinstrahlung schützen.",
+    "en": "Store in a cool and dry place, protect from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayın, doğrudan güneş ışığından koruyun.",
+    "ar": "يخزن في مكان بارد وجاف، ويحمي من أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 62,
+      "energie_kcal": 15,
+      "fett": 0,
+      "kohlenhydrate": 0.5,
+      "davon_zucker": 0.3,
+      "eiweiss": 0,
+      "salz": 0.018
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 50
+}

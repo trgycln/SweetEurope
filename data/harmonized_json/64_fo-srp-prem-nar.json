@@ -1,0 +1,46 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Granatapfel Fruchtsirup Premium bietet ein intensives, authentisches Geschmacksprofil mit der perfekten Balance aus süßer Fruchtigkeit und einer feinen, herben Note. Dank seiner hohen Konzentration ist er äußerst ergiebig und verleiht Getränken eine leuchtend rubinrote Farbe sowie eine exzellente Textur. Ideal für professionelle Bars und Cafés, um anspruchsvolle Gäste mit hochwertigen, aromatischen Kreationen zu begeistern.",
+    "en": "FO Pomegranate Fruit Syrup Premium delivers an intense, authentic flavor profile with the perfect balance of sweet fruitiness and a subtle, tart finish. Thanks to its high concentration, it is extremely efficient, providing a vibrant ruby-red color and excellent texture to any beverage. Ideal for professional bars and cafes to delight discerning guests with high-quality, aromatic creations.",
+    "tr": "FO Nar Meyveli Premium Şurup, tatlı meyvemsilik ile hafif mayhoş notaların mükemmel dengesiyle yoğun ve otantik bir lezzet profili sunar. Yüksek konsantrasyonu sayesinde oldukça bereketli olup, içeceklere canlı bir yakut kırmızısı renk ve mükemmel bir doku kazandırır. Profesyonel bar ve kafeler için ideal olan bu şurup, seçkin misafirlerinizi yüksek kaliteli ve aromatik kreasyonlarla etkilemenizi sağlar.",
+    "ar": "يقدم شراب الرمان المركز من FO نكهة غنية وأصيلة مع توازن مثالي بين حلاوة الفاكهة واللمسة الحمضية الخفيفة. بفضل تركيزه العالي، يتميز بفعالية كبيرة في الاستخدام، ويمنح المشروبات لوناً أحمر ياقوتياً زاهياً وقواماً ممتازاً. مثالي للمقاهي والبارات الاحترافية لإبهار الضيوف بابتكارات عطرية عالية الجودة."
+  },
+  "hazirlanisi": {
+    "de": "Empfohlene Dosierung: 1 Teil Sirup auf 8 Teile Wasser oder Soda. Für Cocktails und Mocktails 20-30 ml pro Glas verwenden. Mit reichlich Eis servieren, um das volle Aroma zu entfalten.",
+    "en": "Recommended dosage: 1 part syrup to 8 parts water or soda. For cocktails and mocktails, use 20-30 ml per glass. Serve with plenty of ice to fully release the aroma.",
+    "tr": "Önerilen dozaj: 1 ölçü şurup, 8 ölçü su veya soda. Kokteyller ve mocktail'ler için bardak başına 20-30 ml kullanın. Aromanın tam olarak ortaya çıkması için bol buz ile servis edin.",
+    "ar": "الجرعة الموصى بها: جزء واحد من الشراب إلى 8 أجزاء من الماء أو الصودا. للكوكتيلات والموكتيلات، استخدم 20-30 مل لكل كوب. يُقدم مع الكثير من الثلج لإبراز النكهة بالكامل."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Eistees, Limonaden, Smoothies, Desserts, Kaffeespezialitäten.",
+    "en": "Cocktails, mocktails, iced teas, lemonades, smoothies, desserts, coffee specialties.",
+    "tr": "Kokteyller, mocktail'ler, soğuk çaylar, limonatalar, smoothie'ler, tatlılar, kahve spesiyalleri.",
+    "ar": "الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، العصائر (سموذي)، الحلويات، ومشروبات القهوة المتخصصة."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Nach dem Öffnen innerhalb von 4 Wochen verbrauchen.",
+    "en": "Store in a cool, dry place away from direct sunlight. Consume within 4 weeks after opening.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığından uzak bir yerde saklayın. Açıldıktan sonra 4 hafta içinde tüketin.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة. يُستهلك في غضون 4 أسابيع بعد الفتح."
+  },
+  "inhaltsstoffe": null,
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": null,
+      "energie_kcal": null,
+      "fett": null,
+      "davon_gesaettigt": null,
+      "kohlenhydrate": null,
+      "davon_zucker": null,
+      "eiweiss": null,
+      "salz": null
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

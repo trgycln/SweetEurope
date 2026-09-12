@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-120588",
+  "barkod": "8691123120588",
+  "urun_adi": {
+    "de": "FO Grüner Apfel Aromatisierter Sirup 70 cl",
+    "en": "FO Green Apple Flavored Syrup 70 cl",
+    "tr": "FO Yeşil Elma Aromalı Şurup 70 cl",
+    "عربي": "شراب بنكهة التفاح الأخضر FO 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Premium Grüner Apfel Fruchtsirup, ideal für Cocktails, Mocktails und Getränke. Verleiht Ihren Rezepten einen erfrischenden und authentischen Geschmack.",
+    "en": "Premium Green Apple fruit syrup, ideal for cocktails, mocktails, and beverages. Adds a refreshing and authentic taste to your recipes.",
+    "tr": "Kokteyller, mockteyller ve içecekler için ideal olan Premium Yeşil Elma meyve şurubu. Tariflerinize ferahlatıcı ve otantik bir lezzet katar.",
+    "عربي": "شراب الفواكه بالتفاح الأخضر الفاخر، مثالي للكوكتيلات والمشروبات. يضيف طعماً منعشاً وأصلياً وصفاتك."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder mit Wasser (1/8) verdünnt direkt getrunken.",
+    "en": "Used to make cocktail or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içilmek için su ile seyreltilir (1/8).",
+    "عربي": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,15%), Citronensäure [E 330] (0,4%), Aroma (Grüner Apfel) (0,4%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Tartrazin, Brilliantblau [E 102, E 133] (0,01%)",
+    "en": "Sugar (62%), Water (37.15%), Citric Acid [E 330] (0.4%), Flavoring (Green apple) (0.4%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%), Tartrazine, Brilliant Blue [E 102, E 133] (0.01%)",
+    "de_tr": "Şeker (%62), Su (%37,15), Sitrik Asit [E 330] (%0,4), Aroma Verici (Yeşil elma) (%0,4), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015), Tartrazin, Parlak Mavi [E 102, E 133] (%0,01)",
+    "ar": "سكر (62%)، ماء (37.15%)، حامض الستريك [E 330] (0.4%)، منكه (تفاح أخضر) (0.4%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)، تازراتين، بريليانت بلو [E 102، E 133] (0.01%)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort vor direktem Sonnenlicht geschützt lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzak tutarak saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0,
+      "kohlenhydrate": 82.6,
+      "davon_zucker": 81.8,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "net_hacim": "70 cl",
+    "tip": "Glass bottle"
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 10
+}

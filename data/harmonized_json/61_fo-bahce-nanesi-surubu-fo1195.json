@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Entdecken Sie die erfrischende Harmonie von Minze und Limette mit dem FO Pfefferminz-Sirup, ideal für professionelle Cafés und Bars. Dieser hochwertige Sirup besticht durch sein authentisches Aroma und seine hohe Konzentration, die für unvergessliche Geschmackserlebnisse sorgt. Perfekt geeignet zur Verfeinerung von erfrischenden Kaltgetränken, Cool Limes und innovativen Mixgetränken. Verleihen Sie Ihren Kreationen eine unverwechselbare Frische und überzeugen Sie Ihre Gäste mit gleichbleibend hoher Qualität.",
+    "en": "Experience the refreshing harmony of mint and lime with FO Peppermint Flavored Syrup, ideal for professional cafés and bars. This high-quality syrup impresses with its authentic flavor and high concentration, ensuring unforgettable taste experiences. Perfectly suited for enhancing refreshing cold drinks, cool limes, and innovative mixed beverages. Give your creations a distinct freshness and impress your guests with consistently high quality.",
+    "tr": "Profesyonel kafeler ve barlar için ideal olan FO Nane Aromalı Şurup ile nane ve misket limonunun ferahlatıcı uyumunu keşfedin. Bu yüksek kaliteli şurup, unutulmaz lezzet deneyimleri sunan otantik aroması ve yüksek konsantrasyonuyla dikkat çeker. Serinletici soğuk içeceklerin, cool lime bazlarının ve yenilikçi karışımların zenginleştirilmesi için mükemmeldir. Yaratımlarınıza belirgin bir tazelik katın ve misafirlerinizi tutarlı bir şekilde yüksek kaliteryle etkileyin.",
+    "ar": "اكتشف التنازغم المنعش النعناع والليمون مع شراب النعناع من FO، وهو مثالي للمقاهي والبارات المحترفة. يتميز هذا الشراب عالي الجودة بنكهته الأصلية وتركيزه العالي، مما يضمن تجارب تذوق لا تنسى. مناسب تماماً لتحسين المشروبات الباردة المنعشة ومشروبات الكول لايم والمشروبات المبتكرة. امنح إبداعاتك انتعاشاً مميزاً واجذب ضيوفك بجودة عالية ومتسقة."
+  },
+  "hazirlanisi": {
+    "de": "Für eine 450ml Tasse: 1 Messlöffel (40ml) Sirup optional mit 3 Messlöffeln (120ml), 4 Messlöffeln (160ml) oder 5 Messlöffeln (200ml) Wasser verdünnen und mit reichlich Eis servieren.",
+    "en": "For a 450ml cup: dilute 1 scoop (40ml) of syrup optionally with 3 scoops (120ml), 4 scoops (160ml), or 5 scoops (200ml) of water and serve with plenty of ice.",
+    "tr": "450 ml'lik bardak için: 1 ölçü (40 ml) baz isteğe bağlı olarak 3 ölçü (120 ml), 4 ölçü (160 ml) veya 5 ölçü (200 ml) su ile seyreltilir ve bol buz ile servis edilir.",
+    "ar": "لكأس سعة 450 مل: تخفيف مكيال واحد (40 مل) من الأساس اختياريًا مع 3 مكاييل (120 مل) أو 4 مكاييل (160 مل) أو 5 مكاييل (200 مل) من الماء ويقدم مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Kaltgetränke, Cool Lime, Limonaden, Eistees, Cocktails und Mocktails",
+    "en": "Cold drinks, cool lime, lemonades, iced teas, cocktails, and mocktails",
+    "tr": "Soğuk içecekler, cool lime, limonatalar, soğuk çaylar, kokteyller ve mocktailler",
+    "ar": "المشروبات الباردة، كول لايم، الليمونดات، الشاي المثلج، الكوكتيلات، والموكتيلات"
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22° C unter trockenen Bedingungen lagern. Direkte Sonneneinstrahlung vermeiden. Das Produkt hat eine Haltbarkeit von 3 Jahren.",
+    "en": "Store in its original packaging at 20-22° C under dry conditions. Direct sunlight should be avoided. The product has a shelf life of 3 years.",
+    "tr": "Orijinal ambalajında, 20-22° C'de kuru koşullarda saklanmalıdır. Direkt güneş ışığından kaçınılmalıdır. Ürün 3 yıl raf ömrüne sahiptir.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 مئوية في ظروف جافة، ويجب تجنب أشعة الشمس المباشرة. مدة صلاحية المنتج 3 سنوات."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulatoren (Citronensäure E 330, Kaliumcitrate E 332ii), Aromen (Spearmint, Limette), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211), Farbstoff (Annatto E 160b).",
+    "en": "Sugar, water, acidity regulators (citric acid E 330, potassium citrate E 332ii), flavouring (spearmint, lime), preservatives (potassium sorbate E 202, sodium benzoate E 211), colorant (annatto E 160b).",
+    "tr": "Şeker, su, asitlik düzenleyiciler (sitrik asit E 330, potasyum sitrat E 332ii), aroma verici (nane, misket limonu), koruyucular (potasyum sorbat E 202, sodyum benzoat E 211), renklendirici (annatto E 160b)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 937,
+      "energie_kcal": 224,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 51.7,
+      "davon_zucker": 51.7,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123461117",
+  "barkod": "8691123461117",
+  "urun_adi": {
+    "de": "Fo Chai Tea Latte Pulver Getränk 1 kg",
+    "en": "Fo Chai Tea Latte Powder Drink 1 kg",
+    "tr": "Fo Chai Tea Latte Toz İçecek 1 kg",
+    "ar": "مشروب مسحوق شاي تشاي لاتيه فو 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Genießen Sie den aromatischen und wärmenden Geschmack von Chai Tea Latte. Einfach zuzubereiten für den perfekten Genuss zu Hause oder im Café.",
+    "en": "Enjoy the aromatic and warming taste of Chai Tea Latte. Easy to prepare for the perfect indulgence at home or in the cafe.",
+    "tr": "Chai Tea Latte'nin aromatik ve ısıtan lezzetinin tadını çıkarın. Evde veya kafede mükemmel bir deneyim için hazırlaması son derece kolaydır.",
+    "ar": "استمتع بمذاق شاي تشاي لاتيه العطري الدافئ. سهل التحضير لتجربة ممتعة في المنزل أو المقهى."
+  },
+  "kullanim_alanlari": {
+    "de": "30 g (2 Esslöffel) Pulver mit 200 ml (1 Glas) kalter Milch mischen. Auf dem Herd bei schwacher Hitze, in der Mikrowelle oder in der Kaffeemaschine mit Dampfdüse erhitzen und servierfertig machen.",
+    "en": "30g (2 tablespoons) of powder mixed with 200ml (1 glass) cold milk. It’s heated on the stove over low heat, in the microwave or in the coffee machine with a steam wand and ready to serve.",
+    "tr": "30g (2 yemek kaşığı) toz, 200ml (1 su bardağı) soğuk süt ile karıştırılır. Ocakta kısık ateşte, mikrodalgada veya buhar çubuklu kahve makinesinde ısıtılarak servise hazır hale getirilir.",
+    "ar": "يُمزج 30 جرامًا (ملعقتان كبيرتان) من المسحوق مع 200 مل (كوب واحد) من الحليب البارد. يُسخن على الموقد على نار خفيفة، أو في الميكروويف، أو في آلة القهوة باستخدام عصا البخار ليكون جاهزًا للتقديم."
+  },
+  "icindekiler": {
+    "de": "Zucker (50%), Maltodextrin (41%), Magermilchpulver (Milch) (3%), Modifizierte Maisstärke (2%), Tee-Pulver (1,5%), Gewürzmischung (1,5%), Siliziumdioxid, Trennmittel [E 551] (1%)",
+    "en": "Sugar (50%), Maltodextrin (41%), Skimmed milk powder (milk) (3%), Modified Corn Starch (2%), Tea powder (1,5%), Spice mix (1,5%), Silicon dioxide, Anti-caking [E 551] (1%)",
+    "tr": "Şeker (%50), Maltodekstrin (%41), Yağsız süt tozu (süt) (%3), Modifiye Mısır Nişastası (%2), Çay tozu (%1,5), Baharat karışımı (%1,5), Silikon dioksit, Topaklanmayı önleyici [E 551] (%1)",
+    "ar": "سكر (50%)، مالتوديك스트рин (41%)، مسحوق الحليب القسيم (حليب) (3%)، نشا الذرة المعدل (2%)، مسحوق الشاي (1,5%)، خلطة التوابل (1,5%)، ثنائي أكسيد السيليكون، مانع التكتل [E 551] (1%)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığı almayan, serin ve kuru yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte, Glutenhaltiges Getreide, Schalenfrüchte / Nüsse.",
+    "en": "Contains Dairy / Milk products, Soy products, Gluten, Tree nuts.",
+    "tr": "Süt ürünleri, Soya ürünleri, Gluten, Fındık / Fıstık / Kuruyemiş içerir.",
+    "ar": "يحتوي على منتجات الألبان, منتجات الصويا, الغلوتين, المكسرات."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1670,
+      "energie_kcal": 392,
+      "fett": 0.2,
+      "kohlenhydrate": 95.5,
+      "davon_zucker": 46.1,
+      "eiweiss": 1.2,
+      "salz": 0.09
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.1,
+  "gtip": "210690980019",
+  "palet_ici_koli": 5
+}

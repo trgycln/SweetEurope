@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-75152",
+  "barkod": "8691123475152",
+  "urun_adi": {
+    "de": "Fo Electric Flower und Blaubeere Aromatisierte Basis 700 ml",
+    "en": "Fo Electric Flower and Blueberry Flavored Base 700 ml",
+    "tr": "Fo Elektrik Çiçeği ve Yaban Mersini Aromalı Baz 700 ml",
+    "ar": "قاعدة بنكهة الزهور الكهربائية والتوت الأزرق من فو 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Eine erfrischende und aromatische Getränkebasis mit Electric Flower und Blaubeere-Geschmack, speziell entwickelt für Cocktails und erfrischende Getränke.",
+    "en": "A refreshing and aromatic beverage base with Electric Flower and Blueberry flavor, specially formulated for cocktails and refreshing drinks.",
+    "tr": "Kokteyller ve ferahlatıcı içecekler için özel olarak formüle edilmiş elektrik çiçeği ve yaban mersini aromalı, ferahlatıcı içecek bazı.",
+    "ar": "قاعدة مشروبات منعشة وعطرية بنكهة الزهور الكهربائية والتوت الأزرق، مصممة خصيصاً للموكتيلات والمشروبات المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Für eine 450ml Tasse: 1 Messlöffel (40ml) Basis optional mit 3 Messlöffeln (120ml), 4 Messlöffeln (160ml) oder 5 Messlöffeln verdünnen.",
+    "en": "For 450ml cup; 1 scope (40ml) base is diluted optionally with 3 scopes (120ml), 4 scopes (160ml) or 5 scopes.",
+    "tr": "450 ml'lik bardak için; 1 ölçek (40 ml) baz, isteğe bağlı olarak 3 ölçek (120 ml), 4 ölçek (160 ml) veya 5 ölçek ile seyreltilir.",
+    "ar": "لكأس 450 مل؛ يتم تخفيف مكاييل القاعدة 1 (40 مل) اختياريًا بـ 3 مكاييل (120 مل) أو 4 مكاييل (160 مل) أو 5 مكاييل."
+  },
+  "icindekiler": {
+    "de": "Zucker (55%), Wasser (38,64%), Zitronensäure, Kaliumcitrat, E 330, E 332ii (5,5%), Aromen (Spearmint, Limette), Aroma (0,8%), Kaliumsorbat [E 202], 0,25 g/l (0,025%), Annatto [E 160b] (0,02%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Sugar (55%), Water (38,64%), Citric Acid, Potassium Citrate, E 330, E 332ii (5,5%), Flavouring (Spearmint, Lime), Flavouring (0,8%), Potassium Sorbate [E 202], 0,25 gr/ lt (0,025%), Anatto [E 160b] (0,02%), Sodium Benzoate [E 211] (0,015%)",
+    "tr": "Şeker (%55), Su (%38,64), Sitrik Asit, Potasyum Sitrat, E 330, E 332ii (%5,5), Aroma Verici (Spearmint, Lime), Aroma Verici (%0,8), Potasyum Sorbat [E 202], 0,25 gr/lt (%0,025), Anatto [E 160b] (%0,02), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "سكر (55%)، ماء (38.64%)، حامض الستريك، سيترات البوتاسيوم، E 330، E 332ii (5.5%)، نكهات (النعناع المدبب، الليمون)، نكهة (0.8%)، سوربات البوتاسيوم [E 202]، 0.25 جم/لتر (0.025%)، أناتو [E 160b] (0.02%)، بنزوات الصوديوم [E 211] (0.015%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direkter Sonneneinstrahlung schützen.",
+    "en": "Store in a cool and dry place, protect from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayın, doğrudan güneş ışığından koruyun.",
+    "ar": "تخزن في مكان بارد وجاف، وتحفظ بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 937,
+      "energie_kcal": 224,
+      "fett": 0,
+      "kohlenhydrate": 56,
+      "davon_zucker": 55,
+      "eiweiss": 0,
+      "salz": 0
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 4,
+  "gtip": "210690550000",
+  "palet_ici_koli": 20
+}

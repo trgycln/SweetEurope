@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123120519",
+  "barkod": "8691123120519",
+  "urun_adi": {
+    "de": "FO Wassermelone Aromatisierter Sirup 70 cl",
+    "en": "FO Watermelon Flavored Syrup 70 cl",
+    "tr": "FO Karpuz Aromalı Şurup 70 cl",
+    "ar": "شراب بنكهة البطيخ من إف أو 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger FO Wassermelonisirup für Cocktails und Getränke, hergestellt aus besten Zutaten.",
+    "en": "High quality FO watermelon flavored syrup for cocktails and beverages, made from finest ingredients.",
+    "tr": "Kokteyller ve içecekler için en kaliteli malzemelerle üretilmiş FO karpuz aromalı şurup.",
+    "ar": "شراب بنكهة البطيخ عالي الجودة من إف أو للموكتيلات والمشروبات، مصنوع من أجود المكونات."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder direkt mit Wasser (1/8) verdünnt getrunken.",
+    "en": "Used to make cocktail or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içilmek üzere suyla (1/8 oranında) seyreltilir.",
+    "ar": "يستخدم في صنع الكوكتيلات أو يُخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,32%), Zitronensäure [E 330] (0,3%), Aroma (Wassermelone) (0,3%), Allurarot [E 129] (0,04%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Sugar (62%), Water (37.32%), Citric Acid [E 330] (0.3%), Flavoring (Watermelon) (0.3%), Allura Red [E 129] (0.04%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)",
+    "tr": "Şeker (%62), Su (%37,32), Sitrik Asit [E 330] (%0,3), Aroma Verici (Karpuz) (%0,3), Allura Red [E 129] (%0,04), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "سكر (62%)، ماء (37.32%)، حمض الستريك [E 330] (0.3%)، منكه (بطيخ) (0.3%)، أحمر أورا [E 129] (0.04%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool and dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzak tutarak saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 336,
+      "fett": 0,
+      "kohlenhydrate": 82.1,
+      "davon_zucker": 82.1,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 7
+}

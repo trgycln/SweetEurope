@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Das FO Erdbeer-Pulvergetränk bietet eine intensive, authentische Erdbeernote und eine perfekt abgestimmte Textur für professionelle Anwendungen. Es zeichnet sich durch eine hohe Ergiebigkeit aus und sorgt in Cafés und Bars für eine gleichbleibend hohe Qualität bei der Zubereitung von Smoothies und Milchshakes. Die homogene Struktur garantiert eine schnelle und einfache Verarbeitung, die Ihre Gäste mit einem vollmundigen Geschmackserlebnis überzeugt.",
+    "en": "FO Strawberry Flavored Powder Drink delivers an intense, authentic strawberry profile with a perfectly balanced texture for professional use. Designed for high yield, it ensures consistent quality in cafes and bars when crafting premium smoothies and milkshakes. Its homogeneous structure guarantees quick and easy preparation, providing your guests with a rich and satisfying flavor experience.",
+    "tr": "FO Çilek Aromalı İçecek Tozu, profesyonel kullanımlar için yoğun ve otantik bir çilek profili ile mükemmel dengelenmiş bir doku sunar. Yüksek verimliliği sayesinde kafelerde ve barlarda smoothie ve milkshake hazırlarken tutarlı bir kalite sağlar. Homojen yapısı, hızlı ve kolay hazırlık imkanı sunarak misafirlerinize dolgun ve tatmin edici bir lezzet deneyimi yaşatır.",
+    "ar": "يقدم مسحوق مشروب الفراولة من FO نكهة فراولة مكثفة وأصلية مع قوام متوازن تماماً للاستخدام المهني. صُمم ليعطي إنتاجية عالية، مما يضمن جودة ثابتة في المقاهي والبارات عند تحضير السموذي والميلك شيك الفاخر. يضمن هيكله المتجانس تحضيراً سريعاً وسهلاً، مما يمنح ضيوفك تجربة مذاق غنية ومرضية."
+  },
+  "hazirlanisi": {
+    "de": "Für einen perfekten Drink: 40 g (2 gehäufte Esslöffel) Pulver mit 200 ml kaltem Wasser (pasteurisiert oder sterilisiert) und 10 Eiswürfeln (entspricht ca. 200 ml Wasser) in einen Mixer geben. Mixen, bis das Eis zerkleinert ist, und sofort servieren.",
+    "en": "For a perfect drink: Place 40 g (2 heaped tablespoons) of powder, 200 ml of cold water (pasteurized or sterilized), and 10 ice cubes (equivalent to 200 ml of water) into a blender. Blend until the ice is crushed and serve immediately.",
+    "tr": "Mükemmel bir içecek için: 40 g (2 tepeleme yemek kaşığı) tozu, 200 ml soğuk su (pastörize veya sterilize) ve 10 adet buz küpü (yaklaşık 200 ml suya eşdeğer) ile birlikte blender'a ekleyin. Buzlar kırılana kadar karıştırın ve hemen servis yapın.",
+    "ar": "للحصول على مشروب مثالي: ضع 40 جرام (ملعقتان كبيرتان ممتلئتان) من المسحوق، و200 مل من الماء البارد (مبستر أو معقم)، و10 مكعبات ثلج (تعادل 200 مل من الماء) في الخلاط. اخلط المزيج حتى يتكسر الثلج وقدمه فوراً."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Smoothies, Milchshakes.",
+    "en": "Versatile application areas: Smoothies, milkshakes.",
+    "tr": "Geniş kullanım alanları: Smoothie, milkshake.",
+    "ar": "مجالات الاستخدام المتنوعة: السموذي، الميلك شيك."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta ve kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajında raf ömrü: 2 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, modifizierte Maisstärke, Aroma (Erdbeere), Verdickungsmittel (Xanthan E415), Säureregulator (Zitronensäure E330), Trennmittel (Siliciumdioxid E551), Farbstoffe (einfaches Zuckerkulör E150a, Allurarot AC E129).",
+    "en": "Sugar, modified corn starch, flavoring (strawberry), thickener (xanthan gum E415), acidity regulator (citric acid E330), anti-caking agent (silicon dioxide E551), colorants (plain caramel E150a, allura red E129).",
+    "tr": "Şeker, modifiye mısır nişastası, aroma verici (çilek), kıvam artırıcı (ksantan gam E415), asitlik düzenleyici (sitrik asit E330), topaklanmayı önleyici (silikon dioksit E551), renklendiriciler (sade karamel E150a, allura kırmızısı E129)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1670,
+      "energie_kcal": 399,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 98.7,
+      "davon_zucker": 92.1,
+      "eiweiss": 0.1,
+      "salz": 0.1
+    }
+  },
+  "allergene": {
+    "gluten": true,
+    "milch": true,
+    "soja": true,
+    "nuesse": true,
+    "eier": true
+  }
+}

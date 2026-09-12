@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Schokoladensauce bietet eine unvergleichliche Intensität und eine seidige Textur, die speziell für professionelle Baristas und Konditoren entwickelt wurde. Mit ihrem tiefen, authentischen Schokoladenprofil veredelt sie Heißgetränke, Desserts und Kaffeespezialitäten mit einer luxuriösen Note. Die hohe Konzentration sorgt für eine exzellente Ergiebigkeit und eine perfekte Konsistenz bei jeder Anwendung.",
+    "en": "FO Chocolate Flavored Sauce delivers unparalleled intensity and a silky texture, specifically crafted for professional baristas and pastry chefs. With its deep, authentic chocolate profile, it elevates hot beverages, desserts, and coffee specialties with a luxurious touch. The high concentration ensures excellent yield and perfect consistency in every application.",
+    "tr": "FO Çikolata Aromalı Sos, profesyonel baristalar ve pastacılar için özel olarak geliştirilmiş, benzersiz yoğunlukta ve ipeksi bir dokuya sahiptir. Derin ve otantik çikolata profili ile sıcak içecekleri, tatlıları ve kahve spesiyallerini lüks bir dokunuşla zenginleştirir. Yüksek konsantrasyonu, her uygulamada mükemmel verim ve kusursuz kıvam sağlar.",
+    "ar": "تقدم صلصة الشوكولاتة من FO كثافة لا تضاهى وقواماً حريرياً، تم تصميمها خصيصاً للباريستا المحترفين وطهاة الحلويات. بفضل نكهة الشوكولاتة العميقة والأصلية، تضفي لمسة فاخرة على المشروبات الساخنة والحلويات ومشروبات القهوة المتخصصة. يضمن التركيز العالي إنتاجية ممتازة وقواماً مثالياً في كل استخدام."
+  },
+  "hazirlanisi": {
+    "de": "Direkt anwendbar. Empfohlene Dosierung: 15-30 g pro Portion zur Verfeinerung von Heiß- und Kaltgetränken. Ideal als Topping für Kaffees, Frappés oder Desserts.",
+    "en": "Ready to use. Recommended dosage: 15-30 g per serving to enhance hot and cold beverages. Ideal as a topping for coffees, frappés, or desserts.",
+    "tr": "Doğrudan kullanıma uygundur. Önerilen dozaj: Sıcak ve soğuk içeceklerin lezzetini artırmak için porsiyon başına 15-30 g. Kahveler, frappeler veya tatlılar için ideal bir sos olarak kullanılır.",
+    "ar": "جاهزة للاستخدام المباشر. الجرعة الموصى بها: 15-30 جرام لكل حصة لتعزيز نكهة المشروبات الساخنة والباردة. مثالية كإضافة للقهوة، الفرابي، أو الحلويات."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Kaffeespezialitäten, Frappés, Milchshakes, Eiscreme-Toppings, Kuchen, Torten und diverse Dessertkreationen.",
+    "en": "Versatile application areas: Coffee specialties, frappés, milkshakes, ice cream toppings, cakes, pastries, and various dessert creations.",
+    "tr": "Geniş kullanım alanları: Kahve spesiyalleri, frappeler, milkshake'ler, dondurma sosları, pastalar, kekler ve çeşitli tatlı kreasyonları.",
+    "ar": "مجالات الاستخدام المتنوعة: مشروبات القهوة المتخصصة، الفرابي، مخفوق الحليب (ميلك شيك)، إضافات الآيس كريم، الكعك، المعجنات، وابتكارات الحلويات المختلفة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıldır.",
+    "ar": "تُحفظ في عبوتها الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Feuchthaltemittel (Glycerin E422), Magermilchpulver, Molkenpulver, modifizierte Maisstärke, Aroma, Säureregulatoren (Citronensäure E330, Trikaliumcitrat E332ii), Emulgator (Sojalecithin E322), Konservierungsstoff (Kaliumsorbat E202), Farbstoffe (Hibiskusextrakt, Brillantblau E133).",
+    "en": "Sugar, Water, Humectant (Glycerine E422), Skimmed Milk Powder, Whey Powder, Modified Corn Starch, Flavoring, Acidity Regulators (Citric Acid E330, Tripotassium Citrate E332ii), Emulsifier (Soy Lecithin E322), Preservative (Potassium Sorbate E202), Colorants (Hibiscus extract, Brilliant Blue E133).",
+    "tr": "Şeker, Su, Nem verici (Gliserin E422), Yağsız süt tozu, Peynir altı suyu tozu, Modifiye mısır nişastası, Aroma verici, Asitlik düzenleyiciler (Sitrik asit E330, Trikalsiyum sitrat E332ii), Emülgatör (Soya lesitini E322), Koruyucu (Potasyum sorbat E202), Renklendiriciler (Hibiskus ekstraktı, Parlak mavi E133)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1040,
+      "energie_kcal": 249,
+      "fett": 0.2,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 64.5,
+      "davon_zucker": 55.4,
+      "eiweiss": 2.1,
+      "salz": 0.1
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": true,
+    "soja": true,
+    "nuesse": false,
+    "eier": false
+  }
+}

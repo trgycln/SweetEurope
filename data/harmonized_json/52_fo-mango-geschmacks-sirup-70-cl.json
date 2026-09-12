@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Mango Geschmacks-Sirup bietet eine hochkonzentrierte und authentische Mango-Note, die ideal für den professionellen Einsatz in Cafés, Bars und Restaurants entwickelt wurde. Er besticht durch sein vollmundiges Geschmacksprofil und seine homogene Struktur, die eine perfekte Integration in verschiedenste Getränke ermöglicht. Verleihen Sie Ihren Cocktails, Limonaden und Kaffeespezialitäten eine exotische und langanhaltende Süße von höchster Qualität. Profitieren Sie von der exzellenten Ergiebigkeit und der kompromisslosen Qualität für anspruchsvolle Gäste.",
+    "en": "FO Mango Flavored Syrup delivers a highly concentrated and authentic mango profile, specially developed for professional use in cafes, bars, and restaurants. It impresses with its full-bodied flavor profile and homogenized structure, allowing seamless integration into a wide variety of beverages. Elevate your cocktails, lemonades, and coffee specialties with an exotic and lasting sweetness of the highest quality. Benefit from exceptional yield and uncompromising quality designed for discerning guests.",
+    "tr": "FO Mango Aromalı Şurup, kafeler, barlar ve restoranlar için özel olarak geliştirilmiş, yüksek konsantrasyonlu ve otantik bir mango lezzeti sunar. Dolgun tat profili ve homojen yapısı sayesinde çok çeşitli içeceklere mükemmel bir şekilde uyum sağlar. Kokteyllerinize, limonatalarınıza ve kahve spesiyalitelerinize en yüksek kalitede egzotik ve kalıcı bir tatlılık katın. Seçkin misafirleriniz için olağanüstü verimlilik ve ödün vermeyen kaliteden yararlanın.",
+    "ar": "يقدم شراب نكهة المانجو من FO نكهة مانجو أصلية ومركزة للغاية، تم تطويرها خصيصًا للاستخدام المهني في المقاهي والبارات والمطاعم. يتميز بنكهته الكاملة وقوامه التجانس الذي يسمح بالاندماج السلس في مجموعة متنوعة من المشروبات. ارتقِ بالكوكتيلات والليمونادة والقهوة الخاصة بك بحلاوة غريبة ودائمة من أعلى جودة. استفد من الإنتاجية الاستثنائية والجودة التي لا تقاوم لضيوفك المميزين."
+  },
+  "hazirlanisi": {
+    "de": "Zur direkten Verzehrzubereitung mit Wasser im Verhältnis 1 Teil Sirup und 8 Teile Wasser (1/8) verdünnen. Perfekt geeignet für die Dosierung in Cocktails, Mocktails und Erfrischungsgetränken.",
+    "en": "For direct consumption, dilute with water at a ratio of 1 part syrup to 8 parts water (1/8). Perfectly suited for precise dosage in cocktails, mocktails, and refreshing beverages.",
+    "tr": "Doğrudan tüketim için su ile 1 ölçü şurup ve 8 ölçü su (1/8) oranında seyreltin. Kokteyller, mocktail'ler ve serinletici içeceklerde hassas dozajlama için mükemmeldir.",
+    "ar": "للإستهلاك المباشر، يُخفف بالماء بنسبة جزء واحد من الشراب إلى 8 أجزاء من الماء (1/8). مناسب تمامًا للجرعات الدقيقة في الكوكتيلات والموكتيلات والمشروبات المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Alkoholische und alkoholfreie Cocktails, Limonaden, Smoothies, Eistees, Desserts und Kaffeespezialitäten.",
+    "en": "Alcoholic and non-alcoholic cocktails, lemonades, smoothies, iced teas, desserts, and coffee specialties.",
+    "tr": "Alkollü ve alkolsüz kokteyller, limonatalar, smoothieler, soğuk çaylar, tatlılar ve kahve spesiyaliteleri.",
+    "ar": "الكوكتيلات الكحولية وغير الكحولية، الليمونادة، السموذي، الشاي المثلج، الحلويات، ومختارات القهوة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C unter trockenen Bedingungen lagern. Direkte Sonneneinstrahlung vermeiden.",
+    "en": "Store in its original packaging at 20-22°C under dry conditions. Avoid direct sunlight.",
+    "tr": "Orijinal ambalajında, 20-22°C'de kuru koşullarda saklanmalıdır. Direkt güneş ışığından kaçınılmalıdır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. يجب تجنب أشعة الشمس المباشرة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker (62%), Wasser (37,438%), Aroma (Mango) (0,5%), Konservierungsstoff: Kaliumsorbat (E 202) (0,025%), Konservierungsstoff: Natriumbenzoat (E 211) (0,015%), Farbstoffe: Brown HT (E 155), Tartrazin (E 102), Brilliantblau (E 133) (0,012%), Säureregulator: Citronensäure (E 330) (0,01%)",
+    "en": "Sugar (62%), Water (37.438%), Flavoring (Mango) (0.5%), Preservative: Potassium Sorbate (E 202) (0.025%), Preservative: Sodium Benzoate (E 211) (0.015%), Colorants: Brown HT (E 155), Tartrazine (E 102), Brilliant Blue (E 133) (0.012%), Acidity Regulator: Citric Acid (E 330) (0.01%)",
+    "tr": "Şeker (%62), Su (%37,438), Aroma Verici (Mango) (%0,5), Koruyucu: Potasyum Sorbat (E 202) (%0,025), Koruyucu: Sodyum Benzoat (E 211) (%0,015), Renklendiriciler: Kahverengi HT (E 155), Tartrazin (E 102), Parlak Mavi (E 133) (%0,012), Asitlik Düzenleyici: Sitrik Asit (E 330) (%0,01)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0.5,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 82.0,
+      "davon_zucker": 82.0,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

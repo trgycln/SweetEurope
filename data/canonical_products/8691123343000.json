@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123343000",
+  "barkod": "8691123343000",
+  "urun_adi": {
+    "de": "FO Erdbeergeschmack Dekorsauce 750 g",
+    "en": "FO Strawberry Flavored Decor Sauce 750 g",
+    "tr": "FO Çilek Aromalı Dekor Sos 750 gr",
+    "ar": "صلصة تزيين بنكهة الفراولة من إف أو 750 جم"
+  },
+  "aciklamalar": {
+    "de": "Hochwertige Dekorsauce mit Erdbeergeschmack, ideal zum direkten Auftragen auf Desserts, Eis und Backwaren.",
+    "en": "High quality strawberry flavored decor sauce, ideal for direct application on desserts, ice cream and pastries.",
+    "tr": "Tatlılar, dondurmalar ve hamur işleri üzerine doğrudan uygulamak için ideal, yüksek kaliteli çilek aromalı dekor sos.",
+    "ar": "صلصة تزيين عالية الجودة بنكهة الفراولة، مثالية للاستخدام المباشر على الحلويات والآيس كريم والمعجنات."
+  },
+  "kullanim_alanlari": {
+    "de": "Es wird direkt auf die Produkte aufgetragen.",
+    "en": "It is applied directly on the products.",
+    "tr": "Ürünlerin üzerine doğrudan uygulanır.",
+    "ar": "توضع مباشرة على المنتجات."
+  },
+  "icindekiler": {
+    "de": "Glukosesirup (86 %), Wasser (11,715 %), Pektin, Agar-Agar [E 440, E 406] (0,9 %), Citronensäure, Natriumcitrat, E 330, E 331iii (0,75 %), Aroma (Erdbeere), Aroma (0,5 %), Kaliumsorbat [E 202] (0,1 %), Allurarot Farbstoff [E 129] (0,025 %), Ammonsulfit-Zuckerkulör Farbstoff [E 150d] (0,01 %)",
+    "en": "Glucose syrup (86 %), Water (11.715 %), Pectin, Agar-Agar [E 440, E 406] (0.9 %), Citric acid, Trisodium citrate, E 330, E 331iii (0.75 %), Flavouring (Strawberry), Flavouring (0.5 %), Potassium sorbate [E 202] (0.1 %), Allura red Colour [E 129] (0.025 %), Ammonium sulfite caramel Colour [E 150d] (0.01 %)",
+    "tr": "Glikoz şurubu (%86), Su (%11,715), Pektin, Agar Agar [E 440, E 406] (%0,9), Sitrik asit, Tristandart sitrat, E 330, E 331iii (%0,75), Aroma verici (Çilek), Aroma verici (%0,5), Potasyum sorbat [E 202] (%0,1), Allura kırmızısı Renklendirici [E 129] (%0,025), Amonyum sülfit karamel Renklendirici [E 150d] (%0,01)",
+    "ar": "شراب الجلوكوز (86%)، ماء (11.715%)، بكتين، أجار أجار [E 440, E 406] (0.9%)، حمض الستريك، سيترات ثلاثي الصوديوم، E 330، E 331iii (0.75%)، نكهة (فراولة)، نكهة (0.5%)، سوربات البوتاسيوم [E 202] (0.1%)، لون أحمر ألورا [E 129] (0.025%)، لون كراميل كبريتات الأمونيوم [E 150d] (0.01%)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen und trockenen Ort lagern.",
+    "en": "Store in a cool and dry place.",
+    "tr": "Serin ve kuru yerde saklayınız.",
+    "ar": "تخزين في مكان بارد وجاف."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1080,
+      "energie_kcal": 258,
+      "fett": 0,
+      "kohlenhydrate": 62.8,
+      "davon_zucker": 31.2,
+      "eiweiss": 0,
+      "salz": 0.28
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 12
+  },
+  "fiyat_eur": 1.99,
+  "gtip": "210690980019",
+  "palet_ici_koli": 4
+}

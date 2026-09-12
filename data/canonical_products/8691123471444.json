@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123471444",
+  "barkod": "8691123471444",
+  "urun_adi": {
+    "de": "FO Popping Candy Sosse - Speziell 1 kg",
+    "en": "FO Popping Candy Sauce - Special 1 kg",
+    "tr": "FO Patlayan Şekerli Special Sos 1 kg",
+    "ar": "صلصة الفواكه مع السكر المفرقع - خاصة 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "Spezieller Eissosse mit knackigem, im Mund explodierendem Zucker. Direkt auf Eisspeisen, Desserts und Dekorationen anwendbar.",
+    "en": "Special ice cream sauce with popping candy that creates a fun, crackling sensation in the mouth. Applied directly on products.",
+    "tr": "Ağızda patlayan şeker içeriğiyle eşsiz bir deneyim sunan özel dondurma ve tatlı sosu. Ürünlerin üzerine doğrudan uygulanır.",
+    "ar": "صلصة آيس كريم خاصة تحتوي على السكر المفرقع الذي يمنح إشعوراً فريداً وممتعاً في الفم. تُستخدم مباشرة على المنتجات."
+  },
+  "kullanim_alanlari": {
+    "de": "Dondurma, Waffeln, Crêpes, Desserts und Kuchendekorationen",
+    "en": "Ice cream, waffles, crepes, desserts, and cake decorations",
+    "tr": "Dondurma malzemeleri, dondurma sosları, waffle, krep ve tatlı süslemeleri",
+    "ar": "مكونات الآيس كريم، صوصات الآيس كريم، الوافل، الكريب، وتزيين الحلويات"
+  },
+  "icindekiler": {
+    "de": "Zucker (38%), Knallzucker [(Zucker, Glukosesirup, Kakaobutter, Kohlendioxid, Laktose (Milch), Wasser, Aromen (Erdbeere, Himbeere), Farbstoffe (Brillantblau E133, Allurarot E129))] (30%), Pflanzliches Öl (Sonnenblumenöl) (23%), Magermilchpulver (8%), Sojalecithin [E 322] (1%)",
+    "en": "Sugar (38%), Popping Candy [(Sugar, Glucose Syrup, Cocoa Butter, Carbondioxide, Lactose (milk), Water, Flavours (Strawberry, Raspberry), Clorant (Brillant Blue (E133), Allura red (E129))] (30%), Vegetable oil (sun flower oil) (23%), Skimmed milk powder (8%), Soy lecithin [E 322] (1%)",
+    "ç": "Şeker (%38), Patlayan Şeker [(Şeker, Glikoz Şurubu, Kakao Yağı, Karbondioksit, Laktoz (süt), Su, Aroma Vericiler (Çilek, Ahududu), Renklendiriciler (Parlak Mavi (E133), Allura Kırmızı (E129))] (%30), Bitkisel Yağ (Ayçiçek yağı) (%23), Yağsız Süt Tozu (%8), Soya Lesitini [E 322] (%1)",
+    "ar": "سكر (38٪)، حلوى فرقعة [(سكر، شراب الجلوكوز، زبدة الكاكاو، ثنائي أكسيد الكربون، لاكتوز (حليب)، ماء، نكهات (فراولة، توت أزرق)، ملون (أزرق لامع (E133)، أحمر ألورا (E129))] (30٪)، زيت نباتي (زيت دوار الشمس) (23٪)، مسحوق الحليب الخالي من الدسم (8٪)، ليسيثين الصويا [E 322] (1٪)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen und vor direkter Sonneneinstrahlung geschützten Ort lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin, kuru ve doğrudan güneş ışığı almayan ortamlarda muhafaza ediniz.",
+    "ar": "تفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte, Sojaprodukte, glutenhaltiges Getreide, Schalenfrüchte / Nüsse.",
+    "en": "Contains Dairy / Milk products, Soy products, Gluten, Tree nuts.",
+    "tr": "Süt ürünleri, Soya ürünleri, Gluten, Fındık / Fıstık / Kuruyemiş içerir.",
+    "ar": "يحتوي على منتجات الألبان، منتجات الصويا، الغلوتين، المكسرات."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 2170,
+      "energie_kcal": 519,
+      "fett": 25.3,
+      "kohlenhydrate": 70.4,
+      "davon_zucker": 38,
+      "eiweiss": 2.8,
+      "salz": 0.4
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 8.34,
+  "gtip": "210690980019",
+  "palet_ici_koli": 20
+}

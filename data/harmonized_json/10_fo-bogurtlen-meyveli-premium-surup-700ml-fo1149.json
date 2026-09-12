@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Brombeere Fruchtsirup Premium besticht durch sein authentisches Brombeeraroma und seine hohe Konzentration, die ideal für professionelle Cafés, Bars und die Gastronomie entwickelt wurde. Er verleiht Cocktails, Mocktails und Erfrischungsgetränken eine intensive Farbnote und ein tiefes, fruchtiges Geschmacksprofil mit einer perfekt ausgewogenen Säure. Dank seiner homogenen Struktur lässt er sich nahtlos in kalte und warme Getränke einarbeiten und bietet Baristas grenzenlose kreative Möglichkeiten.",
+    "en": "FO Blackberry Fruit Syrup Premium offers an authentic blackberry taste, vibrant color, and rich concentration, specifically crafted for professional cafes, bars, and culinary applications. It delivers a deeply fruity flavor profile and a perfectly balanced acidity that elevates cocktails, mocktails, and beverages with consistent quality. Its homogenized structure ensures smooth blending into both cold and warm creations, providing bartenders and baristas with exceptional versatility.",
+    "tr": "FO Böğürtlen Meyveli Şurup Premium, profesyonel kafeler, barlar ve gastronomi sektörü için özel olarak geliştirilmiş otantik böğürtlen aroması, yüksek konsantrasyonu ve canlı rengiyle öne çıkar. Kokteyllere, mocktail'lere ve içeceklere derin meyvemsi bir lezzet profili ile mükemmel dengelenmiş bir asidite kazandırır. Homojen yapısı sayesinde soğuk ve sıcak içeceklere kusursuz bir şekilde karışarak barmenlere ve baristalara sınırsız yaratıcı imkanlar sunar.",
+    "ar": "يقدم شراب التوت البري الفاخر من FO نكهة توت أصلية، ولوناً نابضاً بالحياة، وتركيزاً عالياً تم تطويره خصيصاً للمقاهي والبارات الاحترافية. يمنح الكوكتيلات والموكتيلات والمشروبات نكهة فاكهية عميقة وحموضة متوازنة بدقة تضمن جودة ثابتة. يضمن هيكله التجانس بسلاسة في المشروبات الباردة والساخنة، مما يوفر للسُقاة وباريستا المرونة والابداع الاستثنائي."
+  },
+  "hazirlanisi": {
+    "de": "Zur Direkternährung oder für Cocktails mit Wasser im Verhältnis 1 Teil Basis zu 8 Teilen Wasser (1/8) verdünnen. Ideal zur Zubereitung von alkoholischen und alkoholfreien Cocktails oder als erfrischendes Getränk mit reichlich Eis.",
+    "en": "Diluted with water in a ratio of 1 part base to 8 parts water (1/8) to drink directly. Used to prepare alcoholic or non-alcoholic cocktails, or diluted with water and abundant ice for refreshments.",
+    "tr": "Doğrudan tüketmek veya içecek hazırlamak için 1 ölçü baz şurup ile 8 ölçü su (1/8) oranında seyreltilir. Alkollü veya alkolsüz kokteyllerin hazırlanmasında veya bol buz ile servis edilerek kullanılır.",
+    "ar": "يُخفف بالماء بنسبة جزء واحد من الأساس إلى 8 أجزاء من الماء (1/8) للشرب مباشرة. يُستخدم لتحضير الكوكتيلات الكحولية أو غير الكحولية، أو يُخفف بالماء والثلج الوفير."
+  },
+  "kullanim_alanlari": {
+    "de": "Alkoholische und alkoholfreie Cocktails, Mocktails, verdünnte Erfrischungsgetränke, Limonaden, Eistees und Desserts.",
+    "en": "Alcoholic and non-alcoholic cocktails, mocktails, diluted drinks, lemonades, iced teas, and desserts.",
+    "tr": "Alkollü ve alkolsüz kokteyller, mocktail'ler, seyreltilmiş içecekler, limonatalar, soğuk çaylar ve tatlılar.",
+    "ar": "الكوكتيلات الكحولية وغير الكحولية، الموكتيلات، المشروبات المخففة، الليمونادة، الشاي المثلج، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern. Direkte Sonneneinstrahlung vermeiden. Unter diesen Bedingungen und in geschlossener Verpackung beträgt die Haltbarkeit 3 Jahre.",
+    "en": "It should be stored in its original packaging at 20-22 °C under dry conditions, and direct sunlight should be avoided. The product has a shelf life of 3 years under these storing conditions and in its closed packaging.",
+    "tr": "Orijinal ambalajında, 20-22 °C'de kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır. Belirtilen saklama koşullarında ve kapalı ambalajında 3 yıl raf ömrüne sahiptir.",
+    "ar": "يجب تخزينه في عبوته الأصلية في درجة حرارة 20-22 مئوية في ظروف جافة، مع تجنب أشعة الشمس المباشرة. يتمتع المنتج بفترة صلاحية مدتها 3 سنوات في ظل ظروف التخزين المذكورة وفي عبوته المغلقة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker (62 %), Wasser (36,42 %), Aroma (Böğürtlen/Brombeere) (0,8 %), Säureregulator: Citronensäure (E 330) (0,7 %), Farbstoffe: Allurarot AC (E 129), Brilliantblau FCF (E 133) (0,04 %), Konservierungsstoffe: Kaliumsorbat (E 202) (0,025 %), Natriumbenzoat (E 211) (0,015 %)",
+    "en": "Sugar (62%), Water (36.42%), Flavoring (Blackberry) (0.8%), Acidity Regulator: Citric Acid (E 330) (0.7%), Colorants: Allura Red, Brilliant Blue (E 129, E 133) (0.04%), Preservatives: Potassium Sorbate (E 202) (0.025%), Sodium Benzoate (E 211) (0.015%)",
+    "tr": "Şeker (%62), Su (%36,42), Aroma Verici (Böğürtlen) (%0,8), Asitlik Düzenleyici: Sitrik Asit (E 330) (%0,7), Renklendiriciler: Allura Red, Brillant Blue (E 129, E 133) (%0,04), Koruyucular: Potasyum Sorbat (E 202) (%0,025), Sodyum Benzoat (E 211) (%0,015)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1420,
+      "energie_kcal": 340,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 81.9,
+      "davon_zucker": 81.9,
+      "eiweiss": 0.0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

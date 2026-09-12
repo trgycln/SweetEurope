@@ -3,10 +3,10 @@ import Image from 'next/image';
 
 // ── Image Sticker Definitions (Existing in /public/images/) ──────────────────
 export const DIETARY_IMAGE_CONFIG = [
-    { key: 'vegan',       title: 'Vegan',       src: '/images/vegan_etiket.png' },
-    { key: 'laktosefrei', title: 'Laktosefrei', src: '/images/laktosefrei_etiket.png' },
-    { key: 'glutenfrei',  title: 'Glutenfrei',  src: '/images/glutenfrei_etiket.png' },
-    { key: 'ohne_zucker', title: 'Zuckerfrei',  src: '/images/zuckerfrei_etiket.png' },
+    { key: 'vegan',       title: 'Vegan',       src: '/images/vegan_etiket.png',       bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+    { key: 'laktosefrei', title: 'Laktosefrei', src: '/images/laktosefrei_etiket.png',  bg: 'bg-sky-50 text-sky-800 border-sky-200' },
+    { key: 'glutenfrei',  title: 'Glutenfrei',  src: '/images/glutenfrei_etiket.png',   bg: 'bg-amber-50 text-amber-800 border-amber-200' },
+    { key: 'ohne_zucker', title: 'Zuckerfrei',  src: '/images/zuckerfrei_etiket.png',   bg: 'bg-purple-50 text-purple-800 border-purple-200' },
 ] as const;
 
 // ── Non-image feature badges (rendered as text pills) ────────────────────────
@@ -63,37 +63,34 @@ export function ProductDietaryBadges({
         return null;
     }
 
-    const sizeClasses = {
-        xs: 'w-5 h-5',
-        sm: 'w-6 h-6',
-        md: 'w-7 h-7',
-    }[size];
-
     return (
-        <div className={`flex flex-wrap items-center gap-1.5 min-h-[24px] ${className}`}>
-            {/* Image Stickers for Vegan, Laktosefrei, Glutenfrei, Zuckerfrei */}
+        <div className={`flex flex-wrap items-center gap-1.5 min-h-[22px] ${className}`}>
+            {/* Image + Label Badges for Vegan, Laktosefrei, Glutenfrei, Zuckerfrei */}
             {activeImageBadges.map(badge => (
-                <div
+                <span
                     key={badge.key}
-                    className={`relative ${sizeClasses} rounded-full overflow-hidden bg-white shrink-0 shadow-xs border border-gray-100 hover:scale-110 transition-transform duration-200`}
+                    className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${badge.bg}`}
                     title={badge.title}
                 >
-                    <Image
-                        src={badge.src}
-                        alt={badge.title}
-                        fill
-                        sizes="32px"
-                        className="object-contain"
-                        unoptimized
-                    />
-                </div>
+                    <span className="relative w-3.5 h-3.5 rounded-full overflow-hidden shrink-0">
+                        <Image
+                            src={badge.src}
+                            alt=""
+                            fill
+                            sizes="16px"
+                            className="object-contain"
+                            unoptimized
+                        />
+                    </span>
+                    <span>{badge.title}</span>
+                </span>
             ))}
 
             {/* Other text badges (e.g. Bio, Rein) */}
             {activeTextBadges.map(b => (
                 <span
                     key={b.key}
-                    className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${b.bg}`}
+                    className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${b.bg}`}
                 >
                     <span>{b.icon}</span>
                     <span>{b.short}</span>
@@ -104,7 +101,7 @@ export function ProductDietaryBadges({
             {activeZertifikate.map((cert, idx) => (
                 <span
                     key={idx}
-                    className={`inline-flex items-center text-[9.5px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${cert.bg}`}
+                    className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-2xs ${cert.bg}`}
                 >
                     {cert.label}
                 </span>
@@ -119,7 +116,7 @@ export const DietaryBadgeList = ProductDietaryBadges;
 interface DietaryStickersProps {
     teknikOzellikler?: Record<string, unknown> | null;
     className?: string;
-    size?: 'xs' | 'sm' | 'md' | 'lg';
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 }
 
 export function DietaryStickers({ teknikOzellikler, className = '', size = 'sm' }: DietaryStickersProps) {
@@ -133,22 +130,24 @@ export function DietaryStickers({ teknikOzellikler, className = '', size = 'sm' 
         sm: 'w-6 h-6 sm:w-7 sm:h-7',
         md: 'w-8 h-8 sm:w-9 sm:h-9',
         lg: 'w-10 h-10 sm:w-12 sm:h-12',
+        xl: 'w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16',
+        '2xl': 'w-16 h-16 sm:w-20 sm:h-20',
     }[size];
 
     return (
-        <div className={`flex items-center gap-1 z-10 pointer-events-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.18)] ${className}`}>
+        <div className={`flex items-center gap-1.5 z-10 drop-shadow-[0_4px_12px_rgba(0,0,0,0.18)] ${className}`}>
             {activeBadges.map(b => (
                 <div
                     key={b.key}
-                    className={`relative ${sizeClasses} rounded-full overflow-hidden bg-white/90 p-0.5 border border-white/80 shadow-xs flex-shrink-0`}
+                    className={`relative ${sizeClasses} rounded-full overflow-hidden bg-white/95 p-1 border-2 border-white shadow-lg flex-shrink-0 hover:scale-110 transition-transform duration-300 pointer-events-auto`}
                     title={b.title}
                 >
                     <Image
                         src={b.src}
                         alt={b.title}
                         fill
-                        sizes="48px"
-                        className="object-contain"
+                        sizes="(max-width: 768px) 56px, 64px"
+                        className="object-contain p-0.5"
                         unoptimized
                     />
                 </div>

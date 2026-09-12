@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123120090",
+  "barkod": "8691123120090",
+  "urun_adi": {
+    "de": "FO Pfefferminz-Sirup 700 ml",
+    "en": "FO Peppermint Flavored Syrup 700 ml",
+    "tr": "FO Nane Aromalı Şurup 700 ml",
+    "ar": "شراب فو بنكهة النعناع 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Sirup mit intensivem Pfefferminzgeschmack, ideal für Cocktails, Mocktails und Heißgetränke.",
+    "en": "High-quality syrup with an intense peppermint flavor, perfect for cocktails, mocktails, and hot beverages.",
+    "tr": "Kokteyller, alkolsüz kokteyller ve sıcak içecekler için ideal, yoğun nane aromalı yüksek kaliteli şurup.",
+    "ar": "شراب عالي الجودة بنكهة النعناع المركزة، مثالي للكوكتيلات والمشروبات الساخنة والباردة."
+  },
+  "kullanim_alanlari": {
+    "de": "Für 450-ml-Becher: 1 Messlöffel (40 ml) Sirup nach Belieben mit 3 (120 ml), 4 (160 ml) oder 5 Messlöffeln Wasser/Getränk verdünnen. Ideal für Cocktails, Kaffeespezialitäten und Desserts.",
+    "en": "For a 450ml cup: Dilute 1 scoop (40ml) of base optionally with 3 scoops (120ml), 4 scoops (160ml), or 5 scoops of water/beverage. Ideal for cocktails, coffees, and desserts.",
+    "tr": "450 ml bardak için; 1 ölçek (40 ml) şurup bazı, isteğe göre 3 ölçek (120 ml), 4 ölçek (160 ml) veya 5 ölçek su/içecek ile seyreltilir. Kokteyller, kahveler ve tatlılar için idealdir.",
+    "ar": "لكوب سعة 450 مل؛ يتم تخفيف مكيال واحد (40 مل) من القاعدة اختيارياً بـ 3 مكاييل (120 مل)، أو 4 مكاييل (160 مل)، أو 5 مكاييل من الماء أو المشروب. مثالي للكوكتيلات والقهوة والحلويات."
+  },
+  "icindekiler": {
+    "de": "Zucker (55%), Wasser (38,64%), Säureregulator (Citronensäure, Kaliumcitrat, E 330, E 332ii (5,5%)), Aroma (Grüne Minze, Limette) (0,8%), Konservierungsstoff (Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)), Farbstoff (Annatto [E 160b] (0,02%)).",
+    "en": "Sugar (55%), Water (38.64%), Acidity Regulator (Citric Acid, Potassium Citrate, E 330, E 332ii (5.5%)), Flavouring (Spearmint, Lime) (0.8%), Preservative (Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)), Colour (Annatto [E 160b] (0.02%)).",
+    "tr": "Şeker (%55), Su (%38,64), Asitlik Düzenleyici (Sitrik Asit, Potasyum Sitrat, E 330, E 332ii (%5,5)), Aroma Vericiler (Nane, Limon) (%0,8), Koruyucu (Potasyum Sorbate [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)), Renklendirici (Anatto [E 160b] (%0,02)).",
+    "ar": "سكر (55٪)، ماء (38.64٪)، منظم حموضة (حمض الستريك، سترات البوتاسيوم، E 330، E 332ii (5.5٪))، نكهات (النعناع، الليمون) (0.8٪)، مواد حافظة (سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪))، لون (أناتو [E 160b] (0.02٪))."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort vor direkter Sonneneinstrahlung geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru bir yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Months / 36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 937,
+      "energie_kcal": 224,
+      "fett": 0,
+      "kohlenhydrate": 55,
+      "davon_zucker": 55,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 10
+}

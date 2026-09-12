@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123471857",
+  "barkod": "8691123471857",
+  "urun_adi": {
+    "de": "FO Weißer Schokoladensirup - Premium 700 ml",
+    "en": "FO White Chocolate Syrup - Premium 700 ml",
+    "tr": "FO Beyaz Çikolata Şurubu - Premium 700 ml",
+    "ar": "شراب الشوكولاتة البيضاء فو - بريميوم 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium-Weißer-Schokoladensirup von FO, ideal zum Verfeinern von Getränken, Kaffeespezialitäten und Cocktails mit dem reichhaltigen, cremigen Geschmack von weißer Schokolade.",
+    "en": "Premium white chocolate syrup by FO, ideal for enhancing beverages, coffee specialties, and cocktails with the rich, creamy taste of white chocolate.",
+    "tr": "FO Premium Beyaz Çikolata Şurubu, içeceklerinize, kahve çeşitlerinize ve kokteyllerinize beyaz çikolatanın zengin ve kremsi lezzetini katmak için idealdir.",
+    "ar": "شراب الشوكولاتة البيضاء الفاخر من فو، مثالي لإضافة نكهة الشوكولاتة البيضاء الغنية والكريمية إلى المشروبات، وتشكيلات القهوة، والكوكتيلات."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder direkt mit Wasser (1/8) verdünnt getrunken. Ideal für Kaffees, Milchshakes und Desserts.",
+    "en": "Used to make cocktails or diluted with water (1/8) to drink directly. Ideal for coffees, milkshakes, and desserts.",
+    "tr": "Kokteyl yapımında veya doğrudan içmek için su ile (1/8 oranında) seyreltilerek kullanılır. Kahveler, milkshake'ler ve tatlılar için idealdir.",
+    "ar": "يستخدم لصنع الكوكتيلات أو يخفف بالماء (1/8) للشرب مباشرة. مثالي للقهوة، والميلك شيك، والحلويات."
+  },
+  "icindekiler": {
+    "de": "Zucker (55,7%), Wasser (28,76%), Glycerin [E 422] (6,75%), Magermilchpulver (Milch) (5,65%), modifizierte Maisstärke (2,46%), Aroma (weiße Schokolade, Schokolade) (0,54%), Mono- und Diglyceride von Speisefettsäuren [E 471] (0,1%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%).",
+    "en": "Sugar (55.7%), Water (28.76%), Glycerin [E 422] (6.75%), Skimmed milk powder (Milk) (5.65%), Modified corn starch (2.46%), Flavoring (white chocolate, chocolate) (0.54%), Mono and Diglycerides of fatty acids [E 471] (0.1%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%).",
+    "tr": "Şeker (%55,7), Su (%28,76), Gliserin [E 422] (%6,75%), Yağsız süt tozu (Süt) (%5,65%), Modifiye mısır nişastası (%2,46%), Aroma verici (beyaz çikolata, çikolata) (%0,54%), Yağ asitlerinin mono ve digliseritleri [E 471] (%0,1%), Potasyum Sorbat [E 202] (%0,025%), Sodyum Benzoat [E 211] (%0,015%).",
+    "ar": "سكر (55.7%)، ماء (28.76%)، جليسرين [E 422] (6.75%)، حليب مجفف منزوع الدسم (حليب) (5.65%)، نشا ذرة معدل (2.46%)، منكهات (شوكولاتة بيضاء، شوكولاتة) (0.54%)، أحادي وثنائي جليسريدات الأحماض الدهنية [E 471] (0.1%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)."
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort vor direkter Sonneneinstrahlung geschützt lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru bir yerde saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte.",
+    "en": "Contains Dairy / Milk products.",
+    "tr": "Süt ürünleri içerir.",
+    "ar": "يحتوي على منتجات الألبان."
+  },
+  "raf_omru": "24 Months / 24 Ay",
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 976,
+      "energie_kcal": 233,
+      "fett": 0.3,
+      "kohlenhydrate": 62.3,
+      "davon_zucker": 49.6,
+      "eiweiss": 1.8,
+      "salz": 0.25
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 5.5,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

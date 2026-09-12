@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-FO-CHOC-2500",
+  "barkod": "8691123468864",
+  "urun_adi": {
+    "de": "FO Schokoladensauce Professional 2,5 kg",
+    "en": "FO Professional Chocolate Sauce 2.5 kg",
+    "tr": "FO Profesyonel Çikolata Sosu 2,5 kg",
+    "ar": "صلصة الشوكولاتة الاحترافية من فو 2.5 كجم"
+  },
+  "aciklamalar": {
+    "de": "Professionelle Schokoladensauce zum Dekorieren und Verfeinern von Eisspeisen, Milchdesserts, Kuchen sowie Heiß- und Kaltgetränken.",
+    "en": "Professional chocolate sauce designed for decorating and flavoring ice creams, milky desserts, cakes, as well as hot and cold beverages.",
+    "tr": "Dondurmalar, sütlü tatlılar, pastalar, sıcak ve soğuk içeceklerin süslenmesi ve lezzetlendirilmesi için üretilmiş profesyonel dekoratif çikolata sosu.",
+    "ar": "صلصة شوكولاتة احترافية مصممة لتزيين وإضافة النكهة للآيس كريم، الحلويات الحليبية، الكيك، والمشروبات الساخنة والباردة."
+  },
+  "kullanim_alanlari": {
+    "de": "Geeignet zum Garnieren von Heiß- und Kaltgetränken, zum Überziehen und Saucieren von Speiseeis, Milchdesserts, Kuchen und Gebäck.",
+    "en": "Suitable for zesting hot and cold drinks, coating and decorating ice cream, milky desserts, cakes, and pastries.",
+    "tr": "Sıcak ve soğuk içeceklerde lezzet verici ve süsleyici olarak; dondurma, sütlü tatlılar, pasta ve keklerin üzerinde kaplama ve dekor amaçlı kullanılır.",
+    "ar": "تستخدم لتزيين وتحسين طعم المشروبات الساخنة والباردة، وتغطية الآيس كريم، الحلويات الحليبية، الكيك والمخبوزات."
+  },
+  "icindekiler": {
+    "de": "Zucker (60%), Wasser (22,4%), Glycerin [E 422] (4,5%), Kakaomasse (5%), Kakaopulver (4%), Modifizierte Maisstärke (1,5%), Bitterschokolade (1%) [Kakaopulver, Zucker, Kakaobutter, Emulgator (E 322), Aroma (Vanillin)], Aroma (Schokolade) (0,2%), Weinsäure, Trisodiumcitrat [E 334, E 331iii] (0,2%), Salz (1%), Sojalecithin [E 322] (0,1%), Kaliumsorbat [E 202] (0,1%).",
+    "en": "Sugar (60%), Water (22.4%), Glycerine [E 422] (4.5%), Cacao mass (5%), Cocoa Powder (4%), Modified Corn Starch (1.5%), Bitter Chocolate (1%) [cocoa powder, sugar, cocoa butter, emulsifier (E 322), Flavoring (Vanillin)], Flavoring (chocolate) (0.2%), Tartaric acid, Trisodium citrate [E 334, E 331iii] (0.2%), Salt (1%), Soy lecithin [E 322] (0.1%), Potassium Sorbate [E 202] (0.1%).",
+    "tr": "Şeker (%60), Su (%22,4), Gliserin [E 422] (%4,5), Kakao kitlesi (%5), Kakao tozu (%4), Modifiye mısır nişastası (%1,5), Bitter çikolata (%1) [kakao tozu, şeker, kakao yağı, emülgatör (E 322), aroma verici (vanilin)], Aroma verici (çikolata) (%0,2), Tartarik asit, Trisodyum sitrat [E 334, E 331iii] (%0,2), Tuz (%1), Soya lesitini [E 322] (%0,1), Potasyum sorbat [E 202] (%0,1).",
+    "ar": "سكر (60٪)، ماء (22.4٪)، جليسرين [E 422] (4.5٪)، كتلة الكاكاو (5٪)، مسحوق الكاكاو (4٪)، نشا الذرة المعدل (1.5٪)، شوكولاتة داكنة (1٪) [مسحوق الكاكاو، سكر، زبدة الكاكاو، مستحلب (E 322)، نكهة (فانيلين)]، نكهة (شوكولاتة) (0.2٪)، حمض الطرطريك، سترات ثلاثي الصوديوم [E 334، E 331iii] (0.2٪)، ملح (1٪)، ليثيثين الصويا [E 322] (0.1٪)، سوربات البوتاسيوم [E 202] (0.1٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor direktem Sonnenlicht schützen.",
+    "en": "Store in a cool and dry place. Keep away from direct sunlight.",
+    "tr": "Serin ve kuru yerde muhafaza ediniz. Doğrudan güneş ışığından koruyunuz.",
+    "ar": "يحفظ في مكان بارد وجاف. يحفظ بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Sojaprodukte.",
+    "en": "Contains Soy products.",
+    "tr": "Soya ürünleri içerir.",
+    "ar": "يحتوي على منتجات الصويا."
+  },
+  "raf_omru": "24 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1180,
+      "energie_kcal": 281,
+      "fett": 2.8,
+      "kohlenhydrate": 61,
+      "davon_zucker": 58.5,
+      "eiweiss": 1.4,
+      "salz": 0.12
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 13.65,
+  "gtip": "210690980019",
+  "palet_ici_koli": 20
+}

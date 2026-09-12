@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Entdecken Sie die intensive Schokoladen-Leichtigkeit des Fo Schokoladenaromatisierten Sirups, der speziell für den professionellen Gastro- und Barista-Bedarf entwickelt wurde. Seine reichhaltige, homogenisierte Textur und das authentische Kakaoprofil verleihen Kaffeespezialitäten, Cocktails und Desserts eine unvergleichliche Tiefe. Dank der hohen Konzentration und der erstklassigen Zutaten sorgt dieser Sirup für eine exzellente Geschmacksstabilität in heißen und kalten Kreationen. Ein unverzichtbares Premium-Produkt für Cafés, Bars und Gastronomiebetriebe, die höchste Ansprüche an Geschmack und Qualität stellen.",
+    "en": "Experience the rich chocolate profile of Fo Chocolate Flavored Syrup, specially crafted for professional barista and hospitality operations. Its smooth, homogenized texture and authentic cocoa aroma deliver exceptional depth to specialty coffees, cocktails, and desserts. Thanks to its high concentration and premium formulation, this syrup guarantees outstanding flavor stability across both hot and cold beverage applications. An essential premium addition for cafes, bars, and catering businesses committed to superior taste and quality.",
+    "tr": "Profesyonel kafe ve bar işletmeleri için özel olarak geliştirilen Fo Çikolata Aromalı Şurup ile yoğun çikolata lezzetini keşfedin. Homojenize yapısı ve otantik kakao profili sayesinde kahve çeşitlerine, kokteyllere ve tatlılara benzersiz bir derinlik kazandırır. Yüksek konsantrasyonu ve üstün formülasyonu, sıcak ve soğuk içecek uygulamalarında mükemmel bir lezzet dengesi sağlar. Üstün tat ve kaliteyi hedefleyen kafeler, barlar ve gastronomi işletmeleri için vazgeçilmez birincil sınıf bir üründür.",
+    "ar": "اكتشف النكهة الغنية لشربات الشوكولاتة المعطر من فو، المصمم خصيصاً للمطاعم والمقاهي الاحترافية. يمنح قوامه المتجانس ونكهة الكاكاو الأصيلة عمقاً فريداً للقهوة المتخصصة، والكوكتيلات، والحلويات. بفضل تركيزه العالي وتركيبته الممتازة، يضمن هذا الشربات ثباتاً رائعاً في النكهة للمشروبات الساخنة والباردة. منتج أساسي متميز للمقاهي والبارات وقطاع الضيافة الطامح لتقديم أفضل مذاق وجودة."
+  },
+  "hazirlanisi": {
+    "de": "Zur direkten Verzehr oder für Cocktails im Verhältnis 1 Teil Basis mit 8 Teilen Wasser verdünnen. Ideal geeignet für die Verfeinerung von Kaffees, Milchmischgetränken sowie alkoholischen und alkoholfreien Cocktails.",
+    "en": "For direct consumption or cocktails, dilute 1 part base with 8 parts water. Ideally suited for enhancing coffees, milk-based beverages, as well as alcoholic and non-alcoholic cocktails.",
+    "tr": "Doğrudan tüketim veya kokteyller için 1 ölçü baz şurubu 8 ölçü su ile seyreltin. Kahvelerin, sütlü içeceklerin, alkollü ve alkolsüz kokteyllerin zenginleştirilmesi için idealdir.",
+    "ar": "للاستهلاك المباشر أو الكوكتيلات، يُخفف جزء واحد من الأساس مع 8 أجزاء من الماء. مثالي لتحسين القهوة والمشروبات التي تقم بالحليب والكوكتيلات الكحولية وغير الكحولية."
+  },
+  "kullanim_alanlari": {
+    "de": "Alkoholische und alkoholfreie Cocktails, Kaffeespezialitäten, Milchshakes, Desserts und direkt verdünnte Erfrischungsgetränke.",
+    "en": "Alcoholic and non-alcoholic cocktails, specialty coffees, milkshakes, desserts, and directly diluted refreshing drinks.",
+    "tr": "Alkollü ve alkolsüz kokteyller, kahve çeşitleri, milkshakeler, tatlılar ve doğrudan seyreltilerek hazırlanan serinletici içecekler.",
+    "ar": "الكوكتيلات الكحولية وغير الكحولية، القهوة المتخصصة، المشروبات المخفوقة بالحليب، الحلويات، والمشروبات المنعشة المخففة مباشرة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern. Vor direkter Sonneneinstrahlung schützen. Die geschlossene Verpackung hat eine Haltbarkeit von 2 Jahren.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. The closed packaging has a shelf life of 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C'de kuru koşullarda saklayınız. Direkt güneş ışığından kaçınılmalıdır. Kapalı ambalajında raf ömrü 2 yıldır.",
+    "ar": "يخزن في عبوته الأصلية في درجة حرارة 20-22 مئوية في ظروف جافة، وتجنب أشعة الشمس المباشرة. العبوة المغلقة لها صلاحية لمدة سنتين."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Kakaopulver (5%), modifizierte Maisstärke, Aroma (Schokolade), Säureregulator (Citronensäure E 330), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211)",
+    "en": "Sugar, Water, Cocoa Powder (5%), Modified corn starch, Flavoring (Chocolate), Acidity Regulator (Citric Acid E 330), Preservatives (Potassium Sorbate E 202, Sodium Benzoate E 211)",
+    "tr": "Şeker, Su, Kakao Tozu (%5), Modifiye mısır nişastası, Aroma Verici (Çikolata), Asitlik Düzenleyici (Sitrik Asit E 330), Koruyucular (Potasyum Sorbat E 202, Sodyum Benzoat E 211)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1480,
+      "energie_kcal": 352,
+      "fett": 0.5,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 84.4,
+      "davon_zucker": 82.4,
+      "eiweiss": 1.0,
+      "salz": 0.15
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

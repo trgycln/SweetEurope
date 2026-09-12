@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Brombeer-Sirup bietet ein intensives, authentisches Aroma reifer Brombeeren mit einer perfekt ausbalancierten Süße. Dank seiner hohen Konzentration und homogenen Textur ist er ideal für professionelle Bars und Cafés geeignet, um Cocktails, Limonaden und Desserts eine tiefviolette Farbe und einen vollmundigen Geschmack zu verleihen. Er überzeugt durch seine Vielseitigkeit und sorgt für eine gleichbleibend hohe Qualität bei jeder Anwendung.",
+    "en": "FO Blackberry Flavored Syrup delivers an intense, authentic aroma of ripe blackberries with a perfectly balanced sweetness. Thanks to its high concentration and homogenized texture, it is ideal for professional bars and cafes to add a deep purple color and full-bodied flavor to cocktails, lemonades, and desserts. It stands out for its versatility, ensuring consistent high quality in every application.",
+    "tr": "FO Böğürtlen Aromalı Şurup, olgun böğürtlenlerin yoğun ve otantik aromasını mükemmel dengelenmiş bir tatlılıkla sunar. Yüksek konsantrasyonu ve homojen yapısı sayesinde profesyonel bar ve kafelerde kokteyllere, limonatalara ve tatlılara derin bir mor renk ve dolgun bir lezzet katmak için idealdir. Çok yönlülüğü ile her kullanımda tutarlı ve yüksek kalite sağlar.",
+    "ar": "يقدم شراب التوت الأسود من FO نكهة مكثفة وأصلية للتوت الناضج مع حلاوة متوازنة تماماً. بفضل تركيزه العالي وقوامه المتجانس، يعد مثالياً للمقاهي والبارات الاحترافية لإضافة لون أرجواني عميق ونكهة غنية للكوكتيلات والمشروبات والحلويات. يتميز بتعدد استخداماته ويضمن جودة عالية وثابتة في كل استخدام."
+  },
+  "hazirlanisi": {
+    "de": "Für den direkten Verzehr mit Wasser im Verhältnis 1:8 verdünnen. Ideal für Cocktails und Mocktails: Dosierung je nach Rezeptur anpassen. Vor Gebrauch schütteln.",
+    "en": "For direct consumption, dilute with water in a ratio of 1:8. Ideal for cocktails and mocktails: adjust dosage according to the recipe. Shake well before use.",
+    "tr": "Doğrudan tüketim için 1/8 oranında su ile seyreltin. Kokteyller ve mocktail'ler için idealdir: dozajı tarife göre ayarlayın. Kullanmadan önce çalkalayın.",
+    "ar": "للاستهلاك المباشر، يُخفف بالماء بنسبة 1:8. مثالي للكوكتيلات والمشروبات غير الكحولية: اضبط الجرعة حسب الوصفة. يرج جيداً قبل الاستخدام."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Eistees, Limonaden, Desserts, Kaffeespezialitäten.",
+    "en": "Cocktails, mocktails, iced teas, lemonades, desserts, coffee specialties.",
+    "tr": "Kokteyller, mocktail'ler, soğuk çaylar, limonatalar, tatlılar, kahve çeşitleri.",
+    "ar": "الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، الحلويات، مشروبات القهوة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 3 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: 3 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Aroma (Brombeere), Säureregulator (Citronensäure E330), Farbstoffe (Allurarot E129, Brillantblau E133), Konservierungsstoffe (Kaliumsorbat E202, Natriumbenzoat E211).",
+    "en": "Sugar, Water, Flavoring (Blackberry), Acidity Regulator (Citric Acid E330), Colorants (Allura Red E129, Brilliant Blue E133), Preservatives (Potassium Sorbate E202, Sodium Benzoate E211).",
+    "tr": "Şeker, Su, Aroma verici (Böğürtlen), Asitlik düzenleyici (Sitrik asit E330), Renklendiriciler (Allura kırmızısı E129, Parlak mavi E133), Koruyucular (Potasyum sorbat E202, Sodyum benzoat E211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1420,
+      "energie_kcal": 340,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 81.9,
+      "davon_zucker": 81.9,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

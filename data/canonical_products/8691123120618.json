@@ -1,0 +1,59 @@
+{
+  "stok_kodu": "SP-FP-8691123120618",
+  "barkod": "8691123120618",
+  "urun_adi": {
+    "de": "FO Toffee-Nuss Aromatisierter Sirup 700 ml",
+    "en": "FO Toffee Nut Flavored Syrup 700 ml",
+    "tr": "FO Toffee Cevizi Aromalı Şurup 700 ml",
+    "ar": "شراب بنكهة التوفي والجوز من فُو 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Sirup mit Toffee- und Nussgeschmack, ideal für heiße und kalte Getränke, Cocktails und Kaffeezubereitungen.",
+    "en": "High-quality flavored syrup with toffee and nut notes, ideal for hot and cold beverages, cocktails, and coffee preparations.",
+    "tr": "Sıcak ve soğuk içeceklerde, kokteyllerde ve kahve hazırlıklarında kullanım için ideal, toffee ve fındık notalarına sahip yüksek kaliteli aromalı şurup.",
+    "ar": "شراب منكه عالي الجودة بنكهة التوفي والجوز، مثالي للمشروبات الساخنة والباردة والكوكتيلات وتحضير القهوة."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird in einer Dosierung von 1,5-2 cl in heißen und kalten Getränken verwendet oder 1/8 mit Wasser/Milch verdünnt direkt getrunken.",
+    "en": "Used in dosage range of 1.5-2 cl in hot and cold drinks or diluted with water/milk (1/8) to drink directly.",
+    "tr": "Sıcak ve soğuk içeceklerde 1,5-2 cl dozaj aralığında kullanılır veya doğrudan içilmek üzere su/süt ile (1/8) seyreltilir.",
+    "ar": "يستخدم بمعدل جرعة تتراوح بين 1.5-2 سل في المشروبات الساخنة والباردة أو يُخفف بالماء/الحليب (1/8) لشربه مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (36,36%), Aroma (Toffee, Nuss) (1,5%), Citronensäure [E 330] (0,09%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%), Zuckerkulör [E 150a] (0,01%)",
+    "en": "Sugar (62%), Water (36.36%), Flavoring (Toffee, nut) (1.5%), Citric Acid [E 330] (0.09%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%), Plain Caramel [E 150a] (0.01%)",
+    "de_tr": "Şeker (%62), Su (%36,36), Aroma Verici (Toffee, fındık) (%1,5), Sitrik Asit [E 330] (%0,09), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015), Sade Karamel [E 150a] (%0,01)",
+    "tr": "Şeker (%62), Su (%36,36), Aroma Verici (Toffee, Fındık) (%1,5), Sitrik Asit [E 330] (%0,09), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015), Düz Karamel [E 150a] (%0,01)",
+    "ar": "سكر (62%)، ماء (36.36%)، منكهات (توفي، جوز) (1.5%)، حامض الستريك [E 330] (0.09%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)، كارامل عادي [E 150a] (0.01%)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direkter Sonneneinstrahlung schützen.",
+    "en": "Store in a cool and dry place, protect from direct sunlight.",
+    "tr": "Serin ve kuru yerde saklayın, doğrudan güneş ışığından koruyun.",
+    "ar": "يُحفظ في مكان بارد وجاف، ويُحمى من أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1400,
+      "energie_kcal": 335,
+      "fett": 0,
+      "kohlenhydrate": 81.2,
+      "davon_zucker": 80.9,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 30
+}

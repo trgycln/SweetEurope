@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-ZEUS800",
+  "barkod": "8691123475626",
+  "urun_adi": {
+    "de": "FO Mischfruchtgetränk – Zeus 800 ml",
+    "en": "FO Mixed Fruit Drink – Zeus 800 ml",
+    "tr": "FO Karışık Meyveli İçecek – Zeus 800 ml",
+    "ar": "مشروب الفواكه المشكلة FO - زيوس 800 مل"
+  },
+  "aciklamalar": {
+    "de": "Aus der anatolischen Legenden-Serie, fertiger Mix für erfrischende gemischte Fruchtgetränke.",
+    "en": "From the Anatolian Legends series, ready mix for refreshing mixed fruit drinks.",
+    "tr": "Anadolu Efsaneleri serisinden, ferahlatıcı karışık meyveli içecekler için hazır mix.",
+    "ar": "من سلسلة الأساطير الأناضولية، مزيج جاهز لمشروبات الفواكه المشكلة المنعشة."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal zur Zubereitung von Cocktails, Mocktails und erfrischenden Fruchtgetränken.",
+    "en": "Ideal for preparing cocktails, mocktails, and refreshing fruit beverages.",
+    "tr": "Kokteyller, mockteyller ve ferahlatıcı meyve içecekleri hazırlamak için idealdir.",
+    "ar": "مثالي لتحضير الكوكتيلات والموكتيلات ومشروبات الفواكه المنعشة."
+  },
+  "icindekiler": {
+    "de": "Fruchtsaftkonzentrate und -pürees, Wasser, Zucker, Säuerungsmittel.",
+    "en": "Fruit juice concentrates and purees, water, sugar, acidulant.",
+    "tr": "Meyve suyu konsantreleri ve püreleri, su, şeker, asitlik düzenleyici.",
+    "ar": "مركزات وهروس عصير الفواكه، ماء، سكر، حامض."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Nach dem Öffnen im Kühlschrank aufbewahren und innerhalb weniger Tage verbrauchen.",
+    "en": "Store in a cool and dry place. After opening, keep refrigerated and consume within a few days.",
+    "tr": "Serin ve kuru yerde saklayınız. Açıldıktan sonra buzdolabında saklayın ve birkaç gün içinde tüketin.",
+    "ar": "تخزن في مكان بارد وجاف. بعد فتحها، تفظ في الثلاجة وتستهلك خلال أيام قليلة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Monate",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1230,
+      "energie_kcal": 293,
+      "fett": 0.6,
+      "kohlenhydrate": 74.4,
+      "davon_zucker": 45.8,
+      "eiweiss": 7.5,
+      "salz": 0.025
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 8,
+  "gtip": "210690590000",
+  "palet_ici_koli": 5
+}

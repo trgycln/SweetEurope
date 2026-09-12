@@ -1,0 +1,58 @@
+{
+  "stok_kodu": "SP-FP-8691123340955",
+  "barkod": "8691123340955",
+  "urun_adi": {
+    "de": "FO Wassermelone Fruchtsauce (Frozen) 1 kg",
+    "en": "FO Watermelon Fruited Sauce (Frozen) 1 kg",
+    "tr": "FO Karpuz Meyveli Sos (Frozen) 1 kg",
+    "ar": "صلصة البطيخ مع قطع الفاكهة فو (مشروبات مثلجة) 1 كجم"
+  },
+  "aciklamalar": {
+    "de": "FO Wassermelone Fruchtsauce enthält 50 % echte Wassermelonenstücke. Sie verleiht Frozen-Getränken, Smoothies, Desserts, Eiscreme und Cocktails eine erfrischende und natürliche Wassermelonennote.",
+    "en": "FO Watermelon Fruited Sauce contains 50% real watermelon pieces. It adds a refreshing natural watermelon taste and vibrant color to frozen drinks, smoothies, ice cream, and desserts.",
+    "tr": "%50 oranında gerçek karpuz parçaları içeren FO Karpuz Meyveli Sos, frozen içecekler, smoothie'ler, dondurmalar ve tatlılarda ferahlatıcı ve doğal bir karpuz lezzeti sunar.",
+    "ar": "تحتوي صلصة البطيخ مع قطع الفاكهة من فو على 50٪ من قطع البطيخ الحقيقية، وتمنح المشروبات المثلجة والسموذي والآيس كريم والحلويات نكهة البطيخ المنعشة والطبيعية."
+  },
+  "kullanim_alanlari": {
+    "de": "Frozen-Getränke: 1 Teil Sauce mit 3 Teilen Crasheis im Hochleistungsmixer mixen. Auch ideal als Topping für Eiscreme, Waffeln, Pancakes, Desserts und für Cocktails/Mocktails.",
+    "en": "Frozen drinks: Blend 1 part sauce with 3 parts crushed ice in a high-speed blender. Also ideal as a topping for ice cream, waffles, pancakes, desserts, and in cocktails/mocktails.",
+    "tr": "Frozen içecekler: Yüksek hızlı blenderda 1 ölçü sos ile 3 ölçü kırılmış buzu karıştırarak hazırlayabilirsiniz. Ayrıca dondurma, waffle, krep, tatlı ve kokteyllerde lezzet ve süsleme amacıyla kullanılır.",
+    "ar": "المشروبات المثلجة: اخلط جزءًا واحدًا من الصلصة مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. كما أنها مثالية كإضافة فوق الآيس كريم، الوافل، البان كيك، الحلويات وفي الكوكتيلات."
+  },
+  "icindekiler": {
+    "de": "Wassermelone (50%), Zucker (48%), modifizierte Maisstärke (1%), Trisodiumcitrat, Weinsäure, E 331iii, E 334 (0,6%), Salz (0,19%), Kaliumsorbat [E 202] (0,1%), Aromastoff (Wassermelone) (0,1%), Farbstoffe [E 122*, E 129] (0,01%). *Kann Aktivität und Aufmerksamkeit bei Kindern beeinträchtigen.",
+    "en": "Watermelon (50%), Sugar (48%), Modified corn starch (1%), Trisodium citrate, Tartaric acid, E 331iii, E 334 (0.6%), Salt (0.19%), Potassium Sorbate [E 202] (0.1%), Flavoring (Watermelon) (0.1%), Coloring [E 122*, E 129] (0.01%). *May have an adverse effect on activity and attention in children.",
+    "tr": "Karpuz (%50), Şeker (%48), Modifiye mısır nişastası (%1), Trisodyum sitrat, Tartarik asit, E 331iii, E 334 (%0,6), Tuz (%0,19), Potasyum sorbat [E 202] (%0,1), Aroma verici (Karpuz) (%0,1), Renklendiriciler [E 122*, E 129] (%0,01). *Çocukların aktivite ve dikkatleri üzerinde olumsuz etkileri olabilir.",
+    "ar": "بطيخ (50٪)، سكر (48٪)، نشا الذرة المعدل (1٪)، سترات ثلاثي الصوديوم، حمض الطرطريك، E 331iii، E 334 (0.6٪)، ملح (0.19٪)، سوربات البوتاسيوم [E 202] (0.1٪)، نكهة (بطيخ) (0.1٪)، ملونات [E 122، E 129] (0.01٪)."
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern. Vor directem Sonnenlicht schützen. Nach dem Öffnen im Kühlschrank aufbewahren.",
+    "en": "Store in a cool and dry place away from direct sunlight. Refrigerate after opening.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzakta saklayınız. Açıldıktan sonra buzdolabında muhafaza ediniz.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيدًا عن أشعة الشمس المباشرة. يُحفظ في الثلاجة بعد الفتح."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "24 Ay / 24 Months",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 963,
+      "energie_kcal": 230,
+      "fett": 0.1,
+      "kohlenhydrate": 56.2,
+      "davon_zucker": 51.8,
+      "eiweiss": 0.1,
+      "salz": 0.02
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6
+  },
+  "fiyat_eur": 3.82,
+  "gtip": "200799390019",
+  "palet_ici_koli": 10
+}

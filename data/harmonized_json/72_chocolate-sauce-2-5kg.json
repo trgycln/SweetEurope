@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Professional Schokoladensauce bietet eine intensive, authentische Kakaonote und eine perfekt abgestimmte Textur für den professionellen Einsatz. Dank ihrer hohen Konzentration und homogenen Konsistenz eignet sie sich ideal zum Veredeln von Desserts, Eiscreme und Heißgetränken. Sie spart wertvolle Zeit in der Gastronomie, da sie direkt und ohne Vorbereitung angewendet werden kann.",
+    "en": "FO Professional Chocolate Sauce delivers an intense, authentic cocoa profile with a perfectly balanced texture for professional culinary applications. Its high concentration and homogeneous consistency make it ideal for garnishing desserts, ice cream, and hot beverages. Designed for efficiency, it is ready to use directly, saving valuable time in busy cafe and bar environments.",
+    "tr": "FO Profesyonel Çikolata Sosu, yoğun ve otantik kakao profili ile profesyonel mutfaklar için mükemmel bir denge sunar. Yüksek konsantrasyonu ve homojen yapısı sayesinde tatlılar, dondurmalar ve sıcak içeceklerin süslenmesi için idealdir. Doğrudan kullanıma hazır yapısı ile işletmelerde zaman ve iş gücünden tasarruf sağlar.",
+    "ar": "تقدم صلصة الشوكولاتة الاحترافية من FO نكهة كاكاو مكثفة وأصيلة مع قوام متوازن تماماً للتطبيقات المهنية. بفضل تركيزها العالي وقوامها المتجانس، فهي مثالية لتزيين الحلويات والآيس كريم والمشروبات الساخنة. صُممت لتوفير الكفاءة، حيث يمكن استخدامها مباشرة، مما يوفر وقتاً ثميناً في المقاهي والمطاعم."
+  },
+  "hazirlanisi": {
+    "de": "Das Produkt ist gebrauchsfertig. Direkt aus der Flasche über Eiscreme, Waffeln, Kuchen oder Desserts geben. Kann auch zur geschmacklichen Verfeinerung von Milchshakes oder als Zutat in Teigen und Cremes verwendet werden.",
+    "en": "The product is ready to use. Apply directly from the bottle onto ice cream, waffles, cakes, or desserts. It can also be used to enhance the flavor of milkshakes or as an ingredient in doughs and creams.",
+    "tr": "Ürün kullanıma hazırdır. Doğrudan şişeden dondurma, waffle, kek veya tatlıların üzerine dökerek uygulayınız. Ayrıca milkshake'lere lezzet katmak veya hamur ve krema karışımlarına eklemek için kullanılabilir.",
+    "ar": "المنتج جاهز للاستخدام. يُوضع مباشرة من العبوة على الآيس كريم أو الوافل أو الكعك أو الحلويات. يمكن استخدامه أيضاً لتعزيز نكهة الميلك شيك أو كمكون في العجائن والكريمات."
+  },
+  "kullanim_alanlari": {
+    "de": "Veredelung von Heiß- und Kaltgetränken, Garnieren von Eiscreme, Milchdesserts, Kuchen, Torten, Waffeln, sowie als Zutat für Teige, Cremes, Schlagsahne, Gelees und Süßwaren.",
+    "en": "Garnishing hot and cold drinks, coating ice cream, milky desserts, cakes, tarts, waffles, and as an ingredient for doughs, creams, whipped cream, jellies, and confectionery.",
+    "tr": "Sıcak ve soğuk içeceklerin süslenmesi, dondurma, sütlü tatlılar, kek, pasta, waffle kaplama; ayrıca hamur, krema, krem şanti, jöle ve şekerleme yapımında aroma ve renk verici olarak kullanılır.",
+    "ar": "تزيين المشروبات الساخنة والباردة، تغطية الآيس كريم، الحلويات بالحليب، الكعك، التارت، الوافل، وكعنصر في العجائن، الكريمات، الكريمة المخفوقة، الجيلي، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C an einem trockenen Ort lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit bei ungeöffneter Verpackung: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life in unopened packaging: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Açılmamış ambalajda raf ömrü: 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Glycerin (Feuchthaltemittel E422), Kakaomasse, Kakaopulver, modifizierte Maisstärke, Bitterschokolade (1%) (Kakaopulver, Zucker, Kakaobutter, Emulgator E322, Vanillin), Schokoladenaroma, Säureregulatoren (Weinsäure E334, Trinatriumcitrat E331iii), Salz, Sojalecithin (Emulgator E322), Konservierungsmittel (Kaliumsorbat E202).",
+    "en": "Sugar, Water, Glycerine (Humectant E422), Cacao mass, Cocoa Powder, Modified Corn Starch, Bitter Chocolate (1%) (cocoa powder, sugar, cocoa butter, emulsifier E322, Vanillin), Flavoring (chocolate), Acidity Regulators (Tartaric acid E334, Trisodium citrate E331iii), Salt, Soy lecithin (Emulsifier E322), Preservative (Potassium Sorbate E202).",
+    "tr": "Şeker, Su, Gliserin (Nem verici E422), Kakao kitlesi, Kakao tozu, Modifiye mısır nişastası, Bitter çikolata (%1) (kakao tozu, şeker, kakao yağı, emülgatör E322, Vanilin), Çikolata aroması, Asitlik düzenleyiciler (Tartarik asit E334, Trisodyum sitrat E331iii), Tuz, Soya lesitini (Emülgatör E322), Koruyucu (Potasyum sorbat E202)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1180,
+      "energie_kcal": 281,
+      "fett": 2.8,
+      "davon_gesaettigt": 1.5,
+      "kohlenhydrate": 61.0,
+      "davon_zucker": 58.5,
+      "eiweiss": 1.4,
+      "salz": 0.12
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": true,
+    "nuesse": false,
+    "eier": false
+  }
+}

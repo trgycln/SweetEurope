@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Vanille Sirup zuckerfrei bietet ein authentisches, tiefes Vanillearoma ohne den Zusatz von Zucker. Mit seiner perfekt abgestimmten Konsistenz verleiht er Kaffeespezialitäten, Smoothies und Desserts eine elegante Süße und ein vollmundiges Mundgefühl. Ideal für professionelle Baristas, die kalorienbewusste Kreationen auf höchstem Niveau anbieten möchten.",
+    "en": "FO Sugar-Free Vanilla Flavored Syrup delivers an authentic, rich vanilla profile without the addition of sugar. Its perfectly balanced consistency adds an elegant sweetness and full-bodied mouthfeel to specialty coffees, smoothies, and desserts. An essential tool for professional baristas aiming to craft premium, calorie-conscious beverages.",
+    "tr": "FO Şekersiz Vanilya Aromalı Şurup, ilave şeker içermeyen yapısıyla otantik ve zengin bir vanilya deneyimi sunar. Mükemmel dengelenmiş kıvamı, kahve spesiyallerine, smoothie'lere ve tatlılara zarif bir tatlılık ve dolgun bir ağız hissi katar. Kalori bilincine sahip, üst düzey içecekler hazırlamak isteyen profesyonel baristalar için idealdir.",
+    "ar": "يقدم شراب الفانيليا الخالي من السكر من FO نكهة فانيليا أصلية وغنية دون إضافة سكر. يضفي قوامه المتوازن تماماً حلاوة أنيقة وملمساً غنياً على القهوة المتخصصة والعصائر والحلويات. أداة أساسية للباريستا المحترفين الذين يسعون لابتكار مشروبات متميزة واعية بالسعرات الحرارية."
+  },
+  "hazirlanisi": {
+    "de": "Für heiße und kalte Getränke 1,5-2 cl Sirup verwenden. Zur direkten Zubereitung als Erfrischungsgetränk mit Wasser oder Milch im Verhältnis 1:8 verdünnen.",
+    "en": "Use 1.5-2 cl of syrup for hot and cold drinks. For direct consumption as a refreshing beverage, dilute with water or milk at a ratio of 1:8.",
+    "tr": "Sıcak ve soğuk içeceklerde 1,5-2 cl dozajında kullanınız. Doğrudan içecek olarak tüketmek için su veya süt ile 1/8 oranında seyreltiniz.",
+    "ar": "استخدم 1.5-2 سنتيلتر من الشراب للمشروبات الساخنة والباردة. للاستهلاك المباشر كمشروب منعش، قم بتخفيفه بالماء أو الحليب بنسبة 1:8."
+  },
+  "kullanim_alanlari": {
+    "de": "Latte, Cappuccino, Filterkaffee, Eiskaffee, Frappé, Milchshakes, Smoothies, Frozen Drinks, Cocktails, heiße und kalte Tees, sowie Desserts wie Kuchen und Kekse.",
+    "en": "Latte, cappuccino, filter coffee, iced latte, frappe, milkshakes, smoothies, frozen drinks, cocktails, hot and cold teas, and desserts such as cakes and cookies.",
+    "tr": "Latte, cappuccino, filtre kahve, buzlu latte, frappe, milkshake, smoothie, frozen, kokteyller, sıcak ve soğuk çaylar ile kek ve kurabiye gibi her türlü tatlı.",
+    "ar": "لاتيه، كابتشينو، قهوة مفلترة، لاتيه مثلج، فرابيه، ميلك شيك، سموذي، مشروبات مثلجة، كوكتيلات، شاي ساخن وبارد، بالإضافة إلى الحلويات مثل الكعك والبسكويت."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre.",
+    "en": "Store in its original packaging at 20-22 °C under dry conditions. Avoid direct sunlight. Shelf life: 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: 2 yıl.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Wasser, Polydextrose (E 1200), Aroma (Vanille), Verdickungsmittel (CMC E 466), Säureregulator (Weinsäure E 334), Süßungsmittel (Sucralose E 955, Acesulfam K E 950), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211).",
+    "en": "Water, Polydextrose (E 1200), Flavoring (Vanilla), Thickener (CMC E 466), Acidity Regulator (Tartaric Acid E 334), Sweeteners (Sucralose E 955, Acesulfame K E 950), Preservatives (Potassium Sorbate E 202, Sodium Benzoate E 211).",
+    "tr": "Su, Polidekstroz (E 1200), Aroma verici (Vanilya), Kıvam artırıcı (CMC E 466), Asitlik düzenleyici (Tartarik asit E 334), Tatlandırıcılar (Sukraloz E 955, Asesülfam K E 950), Koruyucular (Potasyum sorbat E 202, Sodyum benzoat E 211)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 62,
+      "energie_kcal": 15,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 0.5,
+      "davon_zucker": 0.3,
+      "eiweiss": 0,
+      "salz": 0.018
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

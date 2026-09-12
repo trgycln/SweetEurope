@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Entdecken Sie die FO Mango Fruchtsoße, eine reichhaltige und hochkonzentrierte Soße mit einem authentischen Mangogeschmack und echten Mangopartikeln. Sie bietet eine exzellente Textur und intensive Süße, ideal zur Veredelung von Eiscreme, Milchdesserts, Gebäck, Torten, Waffeln sowie Cocktails in Cafés und Bars.",
+    "en": "Discover FO Mango Fruited Sauce, a rich and highly concentrated sauce featuring authentic mango flavor and real mango particles. It provides an excellent texture and intense sweetness, perfect for elevating ice cream, milky desserts, pastries, pies, cakes, waffles, and cocktails in cafes and bars.",
+    "tr": "Otomatik mango lezzeti ve gerçek mango parçacıkları içeren, yüksek konsantrasyonlu ve zengin FO Mangolu Meyveli Sos'u keşfedin. Mükemmel bir doku ve yoğun tatlılık sunarak kafeler ve barlarda dondurma, sütlü tatlılar, hamur işleri, pastalar, kekler, waffle'lar ve kokteyller için ideal bir lezzet zenginleştiricidir.",
+    "ar": "اكتشف صوص الفواكه بالمانجو من FO، وهو صوص غني وعالي التركيز يتميز بنكهة المانجو الأصلية وقطع المانجو الحقيقية. يوفر قواماً ممتازاً وحلاوة مكثفة، وهو مثالي لتحسين الآيس كريم، والحلويات الحليبية، والمعجنات، والفطائر، والكيك، والوافل، والكوكتيلات في المقاهي والبارات."
+  },
+  "hazirlanisi": {
+    "de": "Die Anwendung ist äußerst praktisch: Für Frozen Drinks 1 Volumenanteil Soße mit 3 Volumenanteilen zerkleinertem Eis in einem Hochgeschwindigkeitsmixer zubereiten. Für alkoholische und alkoholfreie Cocktails direkt anwenden oder durch Verdünnen mit Wasser genießen.",
+    "en": "Application is very practical: Frozen drinks can be prepared by mixing 1 volume of sauce with 3 volumes of crushed ice in a high-speed mixer. For alcoholic and non-alcoholic cocktails, apply directly or consume by diluting with water.",
+    "tr": "Uygulaması son derece pratiktir: Frozen hazırlamak için yüksek hızda bir mikserde 1 ölçü sos ve 3 ölçü kırılmış buz karıştırılır. Alkollü ve alkolsüz kokteyller için doğrudan uygulanır veya su ile seyreltilerek tüketilir.",
+    "ar": "التطبيق عملي للغاية: يمكن تحضير المشروبات المجمدة بخلط جزء واحد من الصوص مع 3 أجزاء من الثلج المجروش في خلاط عالي السرعة. للكوكتيلات الكحولية وغير الكحولية، توضع مباشرة أو تستهلك بتخفيفها بالماء."
+  },
+  "kullanim_alanlari": {
+    "de": "Vielseitige Einsatzbereiche: Eiscreme, Milchdesserts, Konditoreiwaren, Torten, Kuchen, Waffeln, Fruchteis, Frozen Drinks, Gebäckteige, Cremes, Schlagsahne, Gelees, Bonbons sowie alkoholische und alkoholfreie Cocktails.",
+    "en": "Versatile application areas: Ice cream, milky desserts, pastry, pies, cakes, waffles, fruited ice cream, frozen, pastry and cake dough, creams, whipped cream, jellys, candy, and alcoholic and non-alcoholic cocktails.",
+    "tr": "Geniş kullanım alanları: Dondurma, sütlü tatlılar, pastane ürünleri, pastalar, kekler, waffle'lar, meyveli dondurma, frozen, hamur işleri ve kek hamurları, krema, krem şanti, jöleler, şekerlemeler ile alkollü ve alkolsüz kokteyller.",
+    "ar": "مجالات الاستخدام المتنوعة: الآيس كريم، الحلويات بالحليب، المعجنات، الفطائر، الكيك، الوافل، الآيس كريم بالفواكه، المشروبات المجمدة، عجينة المعجنات والكيك، الكريمة، الكريمة المخفوقة، الجيلي، الحلويات، والكوكتيلات الكحولية وغير الكحولية."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C unter trockenen Bedingungen lagern und vor direktem Sonnenlicht schützen. Die Haltbarkeit bei ungeöffneter Verpackung beträgt 2 Jahre.",
+    "en": "It should be stored in its original packaging, 20-22°C under dry conditions, and direct sunlight should be avoided. The shelf life in unopened packaging is 2 years.",
+    "tr": "Orijinal ambalajında, 20-22 °C sıcaklıkta kuru koşullarda saklanmalı ve doğrudan güneş ışığından kaçınılmalıdır. Açılmamış ambalajında raf ömrü 2 yıldır.",
+    "ar": "يجب تخزينه في عبوته الأصلية في درجة حرارة 20-22 مئوية في ظروف جافة، ويجب تجنب أشعة الشمس المباشرة. مدة الصلاحية في العبوة غير المفتوحة هي سنتان."
+  },
+  "inhaltsstoffe": {
+    "de": "Mango (50%), Zucker, modifizierte Maisstärke, Säureregulatoren (Trinatriumcitrat, Weinsäure), Aroma (Mango), Salz, Konservierungsmittel (Kaliumsorbat), Farbstoff (Gelborange S)",
+    "en": "Mango (50%), Sugar, Modified corn starch, Acidity Regulators (Trisodium citrate, Tartaric acid), Flavoring (Mango), Salt, Preservative (Potassium Sorbate), Coloring (Sunset yellow)",
+    "tr": "Mango (%50), Şeker, Modifiye mısır nişastası, Asitlik Düzenleyiciler (Trisodyum sitrat, Tartarik asit), Aroma Verici (Mango), Tuz, Koruyucu (Potasyum Sorbat), Renklendirici (Sunset yellow)"
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 974,
+      "energie_kcal": 233,
+      "fett": 0.2,
+      "davon_gesaettigt": 0.1,
+      "kohlenhydrate": 55.5,
+      "davon_zucker": 53.4,
+      "eiweiss": 1.0,
+      "salz": 0.0
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

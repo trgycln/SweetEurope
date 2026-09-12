@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "FO Mixed Fruit Drink – Dionysus bietet eine exotische Komposition aus Mango, Ananas und Kokosnuss, verfeinert mit einer würzigen Note von Zimt und Ingwer. Diese hochkonzentrierte Basis überzeugt durch ihre homogene Textur mit echten Fruchtpartikeln und verleiht Cocktails sowie Mocktails eine unvergleichliche aromatische Tiefe. Ideal für professionelle Bars und Cafés, die Wert auf authentische, tropische Geschmacksprofile und eine einfache Handhabung legen.",
+    "en": "FO Mixed Fruit Drink – Dionysus offers an exotic composition of mango, pineapple, and coconut, refined with a spicy hint of cinnamon and ginger. This highly concentrated base features a homogeneous texture with real fruit particles, providing unparalleled aromatic depth to cocktails and mocktails. It is the ideal choice for professional bars and cafes seeking authentic tropical flavor profiles and consistent quality.",
+    "tr": "FO Karışık Meyve Aromalı İçecek – Dionysus; mango, ananas ve hindistan cevizinin egzotik uyumunu, tarçın ve zencefilin baharatlı dokunuşuyla birleştirir. Meyve parçacıklı homojen yapısı ve yüksek konsantrasyonu ile kokteyl ve mocktail tariflerinize benzersiz bir aromatik derinlik katar. Profesyonel bar ve kafeler için ideal olan bu ürün, tropikal lezzetleri en otantik haliyle sunar.",
+    "ar": "يقدم مشروب الفواكه المشكلة FO – ديونيسوس مزيجاً استوائياً من المانجو والأناناس وجوز الهند، مع لمسة دافئة من القرفة والزنجبيل. يتميز هذا المركز بتركيبة متجانسة تحتوي على قطع فواكه حقيقية، مما يضفي عمقاً عطرياً لا مثيل له على الكوكتيلات والموكتيلات. خيار مثالي للمقاهي والبارات الاحترافية التي تبحث عن نكهات استوائية أصلية وجودة ثابتة."
+  },
+  "hazirlanisi": {
+    "de": "Vor Gebrauch gut schütteln. Für die Zubereitung: 1 Teil Basis mit 1 Teil Wasser oder einem anderen Getränk und reichlich Eis shaken. Alternativ: 1 Teil Basis mit 1,5 Teilen Wasser oder einem anderen Getränk und 1-2 Eiswürfeln kräftig schütteln.",
+    "en": "Shake well before use. For preparation: Shake 1 part base with 1 part water or another drink with plenty of ice. Alternatively: Shake 1 part base with 1.5 parts water or another drink with 1-2 ice cubes.",
+    "tr": "Kullanmadan önce iyice çalkalayınız. Hazırlanışı: 1 ölçü baz ile 1 ölçü su veya başka bir içeceği bol buz ile çalkalayınız. Alternatif olarak: 1 ölçü baz ile 1,5 ölçü su veya başka bir içeceği 1-2 buz küpü ile iyice çalkalayınız.",
+    "ar": "يُرج جيداً قبل الاستخدام. للتحضير: امزج جزءاً واحداً من المركز مع جزء واحد من الماء أو مشروب آخر مع الكثير من الثلج ورجّه جيداً. أو امزج جزءاً واحداً من المركز مع 1.5 جزء من الماء أو مشروب آخر مع مكعب أو مكعبين من الثلج ورجّه جيداً."
+  },
+  "kullanim_alanlari": {
+    "de": "Cocktails, Mocktails, Eistees, Limonaden, Smoothies, Desserts.",
+    "en": "Cocktails, mocktails, iced teas, lemonades, smoothies, desserts.",
+    "tr": "Kokteyller, mocktail, soğuk çaylar, limonatalar, smoothie'ler, tatlılar.",
+    "ar": "الكوكتيلات، الموكتيلات، الشاي المثلج، الليمونادة، العصائر المخفوقة (سموذي)، والحلويات."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei einer Umgebungstemperatur von 20-22°C, trocken und vor direkter Sonneneinstrahlung geschützt lagern. Haltbarkeit: 18 Monate.",
+    "en": "Store in its original packaging at an ambient temperature of 20-22°C, in a dry place away from direct sunlight. Shelf life: 18 months.",
+    "tr": "Orijinal ambalajında, 20-22°C ortam sıcaklığında, kuru ve doğrudan güneş ışığından uzak bir ortamda saklayınız. Raf ömrü: 18 ay.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة محيطة تتراوح بين 20-22 درجة مئوية، في مكان جاف وبعيداً عن أشعة الشمس المباشرة. مدة الصلاحية: 18 شهراً."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Apfelsaft, Wasser, Mango, Ananas, Feuchthaltemittel (E 422), Säureregulatoren (Citronensäure E 330, Kaliumcitrat E 332ii), modifizierte Maisstärke, natürliche Aromen (Mango, Kokosnuss), Gewürzmischung (Zimt, Ingwer, Kokosnuss), Konservierungsstoffe (Kaliumsorbat E 202, Natriumbenzoat E 211), natürlicher Farbstoff (Annatto E 160b).",
+    "en": "Sugar, Apple Juice, Water, Mango, Pineapple, Humectant (E 422), Acidity Regulators (Citric Acid E 330, Potassium Citrate E 332ii), Modified Corn Starch, Natural flavoring (Mango, Coconut), Spice Mix (Cinnamon, Ginger, Coconut), Preservatives (Potassium Sorbate E 202, Sodium Benzoate E 211), Natural Colorant (Anatto E 160b).",
+    "tr": "Şeker, Elma Suyu, Su, Mango, Ananas, Nem verici (E 422), Asitlik düzenleyiciler (Sitrik Asit E 330, Potasyum Sitrat E 332ii), Modifiye Mısır Nişastası, Doğal aroma vericiler (Mango, Hindistan Cevizi), Baharat karışımı (Tarçın, Zencefil, Hindistan Cevizi), Koruyucular (Potasyum Sorbat E 202, Sodyum Benzoat E 211), Doğal renklendirici (Anatto E 160b)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1340,
+      "energie_kcal": 320,
+      "fett": 1.9,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 79.4,
+      "davon_zucker": 55.7,
+      "eiweiss": 2.0,
+      "salz": 0.025
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

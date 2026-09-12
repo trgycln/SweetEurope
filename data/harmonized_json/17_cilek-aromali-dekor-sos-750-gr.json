@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Die FO Erdbeer-Dekorsauce bietet eine intensive, authentische Erdbeernote und eine perfekt abgestimmte Konsistenz für professionelle Anwendungen. Dank ihrer hohen Konzentration und homogenen Struktur eignet sie sich ideal für die Veredelung von Desserts, Eiscreme und Gebäck. Sie verleiht Ihren Kreationen eine brillante Farbe und ein unwiderstehliches Aroma, das Gäste in Cafés und Bars gleichermaßen begeistert.",
+    "en": "FO Strawberry Decor Sauce delivers an intense, authentic strawberry flavor profile with a perfectly balanced consistency for professional use. Its high concentration and smooth, homogeneous texture make it ideal for elevating desserts, ice cream, and pastries. It provides a brilliant visual appeal and a mouth-watering aroma that enhances the presentation and taste of any professional culinary creation.",
+    "tr": "FO Çilek Aromalı Dekor Sos, profesyonel kullanımlar için mükemmel dengelenmiş kıvamı ve yoğun, otantik çilek lezzeti sunar. Yüksek konsantrasyonu ve homojen yapısı sayesinde dondurma, pasta ve tatlılarınızı süslemek için idealdir. Kreasyonlarınıza parlak bir renk ve karşı konulmaz bir aroma katarak kafe ve bar menülerinizde fark yaratmanızı sağlar.",
+    "ar": "تقدم صلصة التزيين بنكهة الفراولة من FO نكهة فراولة أصلية ومكثفة مع قوام متوازن تماماً للاستخدام المهني. بفضل تركيزها العالي وقوامها المتجانس، فهي مثالية لتزيين الحلويات والآيس كريم والمعجنات. تضفي لمسة جمالية جذابة ونكهة لا تقاوم تعزز من جودة وتقديم إبداعاتك في المقاهي والمطاعم."
+  },
+  "hazirlanisi": {
+    "de": "Das Produkt ist gebrauchsfertig. Direkt aus der Flasche auf Eiscreme, Desserts, Waffeln oder Gebäck auftragen. Keine Verdünnung erforderlich.",
+    "en": "The product is ready to use. Apply directly from the bottle onto ice cream, desserts, waffles, or pastries. No dilution required.",
+    "tr": "Ürün kullanıma hazırdır. Dondurma, tatlı, waffle veya pastaların üzerine doğrudan şişeden sıkarak uygulayınız. Seyreltme gerektirmez.",
+    "ar": "المنتج جاهز للاستخدام. يوضع مباشرة من العبوة على الآيس كريم أو الحلويات أو الوافل أو المعجنات. لا يحتاج إلى تخفيف."
+  },
+  "kullanim_alanlari": {
+    "de": "Eiscreme, Waffeln, Crêpes, Torten, Kuchen, Desserts, Milchshakes und als dekoratives Topping für diverse Süßspeisen.",
+    "en": "Ice cream, waffles, crêpes, cakes, pastries, desserts, milkshakes, and as a decorative topping for various sweet dishes.",
+    "tr": "Dondurma, waffle, krep, pastalar, kekler, tatlılar, milkshake ve çeşitli tatlılar için dekoratif sos olarak.",
+    "ar": "الآيس كريم، الوافل، الكريب، الكعك، المعجنات، الحلويات، مخفوق الحليب (ميلك شيك)، وكصوص تزيين لمختلف الأطباق الحلوة."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22°C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 2 Jahre ab Produktion bei ungeöffneter Verpackung.",
+    "en": "Store in its original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 2 years from production in unopened packaging.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru ortamda saklayınız. Doğrudan güneş ışığından koruyunuz. Raf ömrü: Açılmamış ambalajında üretimden itibaren 2 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: سنتان من تاريخ الإنتاج في العبوة غير المفتوحة."
+  },
+  "inhaltsstoffe": {
+    "de": "Glukosesirup, Wasser, Verdickungsmittel (Pektin E440, Agar-Agar E406), Säureregulatoren (Zitronensäure E330, Trinatriumcitrat E331iii), Aroma (Erdbeere), Konservierungsstoff (Kaliumsorbat E202), Farbstoffe (Allurarot E129, Ammoniumsulfit-Zuckerkulör E150d).",
+    "en": "Glucose syrup, water, thickeners (pectin E440, agar-agar E406), acidity regulators (citric acid E330, trisodium citrate E331iii), flavoring (strawberry), preservative (potassium sorbate E202), colors (allura red E129, ammonium sulfite caramel E150d).",
+    "tr": "Glikoz şurubu, su, kıvam artırıcılar (pektin E440, agar-agar E406), asitlik düzenleyiciler (sitrik asit E330, trisodyum sitrat E331iii), aroma verici (çilek), koruyucu (potasyum sorbat E202), renklendiriciler (allura kırmızısı E129, amonyum sülfit karamel E150d)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 1080,
+      "energie_kcal": 258,
+      "fett": 0,
+      "davon_gesaettigt": 0,
+      "kohlenhydrate": 62.8,
+      "davon_zucker": 31.2,
+      "eiweiss": 0,
+      "salz": 0.28
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

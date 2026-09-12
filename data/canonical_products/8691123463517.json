@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-8691123463517",
+  "barkod": "8691123463517",
+  "urun_adi": {
+    "de": "Fo White Chocolate Flavored Syrup 700 ml",
+    "en": "Fo White Chocolate Flavored Syrup 700 ml",
+    "tr": "Fo Beyaz Çikolata Aromalı Şurup 700 ml",
+    "ar": "شراب بنكهة الشوكولاتة البيضاء فو 700 مل"
+  },
+  "aciklamalar": {
+    "de": "Premium Fo White Chocolate Flavored Syrup im 700 ml Glasflasche. Verleiht Ihren Getränken und Desserts den reichen und cremigen Geschmack von weißer الشوكولاتة.",
+    "en": "Premium Fo White Chocolate Flavored Syrup in a 700 ml glass bottle. Delivers the rich and creamy taste of white chocolate to your beverages and desserts.",
+    "tr": "700 ml cam şişede Premium Fo Beyaz Çikolata Aromalı Şurup. İçeceklerinize ve tatlılarınıza zengin ve kremsi beyaz çikolata lezzeti katar.",
+    "ar": "شراب فو الفاخر بنكهة الشوكولاتة البيضاء في زجاجة زجاجية سعة 700 مل. يمنح مشروباتك وحلوياتك طعم الشوكولاتة البيضاء الغني والكريمي."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird für die Zubereitung von Cocktails verwendet oder direkt mit Wasser (1/8) verdünnt getrunken.",
+    "en": "Used to make cocktail or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içilmek üzere su ile sereltilir (1/8).",
+    "ar": "يستخدم لصنع الكوكتيلات أو يُخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (55,7%), Wasser (28,76%), Glycerin [E 422] (6,75%), Magermilchpulver (Milch) (5,65%), Modifizierte Maisstärke (2,46%), Aroma (weiße Schokolade, Schokolade) (0,54%), Mono- und Diglyceride von Speisefettsäuren [E 471] (0,1%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Sugar (55.7%), Water (28.76%), Glycerin [E 422] (6.75%), Skimmed milk powder (Milk) (5.65%), Modified corn starch (2.46%), Flavoring (white chocolate, chocolate) (0.54%), Mono and Diglycerides of fatty acids [E 471] (0.1%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)",
+    "tr": "Şeker (%55,7), Su (%28,76), Gliserin [E 422] (%6,75), Yağsız Süt Tozu (Süt) (%5,65), Modifiye Mısır Nişastası (%2,46), Aroma Verici (beyaz çikolata, çikolata) (%0,54), Yağ Asitlerinin Mono ve Digliseritleri [E 471] (%0,1), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "سكر (55.7٪)، ماء (28.76٪)، جليسرين [E 422] (6.75٪)، مسحوق حليب منزوع الدسم (حليب) (5.65٪)، نشا الذرة المعدل (2.46٪)، نكهة (شوكولاتة بيضاء، شوكولاتة) (0.54٪)، أحادي وثنائي إضافات الأحماض الدهنية [E 471] (0.1٪)، سوربات البوتاسيوم [E 202] (0.025٪)، بنزوات الصوديوم [E 211] (0.015٪)"
+  },
+  "saklama_kosullari": {
+    "de": "Kühl und trocken lagern, vor direktem Sonnenlicht schützen.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Serin ve kuru yerde, doğrudan güneş ışığından uzakta saklayınız.",
+    "ar": "يُحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Enthält Milchprodukte.",
+    "en": "Contains Dairy / Milk products.",
+    "tr": "Süt ürünleri içerir.",
+    "ar": "يحتوي على منتجات الألبان."
+  },
+  "raf_omru": "24",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 976,
+      "energie_kcal": 233,
+      "fett": 0.3,
+      "kohlenhydrate": 62.3,
+      "davon_zucker": 49.6,
+      "eiweiss": 1.8,
+      "salz": 0.25
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "tip": "70 cl / Glass bottle"
+  },
+  "fiyat": "2.73 EUR",
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 5
+}

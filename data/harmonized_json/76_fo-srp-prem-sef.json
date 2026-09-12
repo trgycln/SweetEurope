@@ -1,0 +1,50 @@
+{
+  "aciklamalar": {
+    "de": "Der FO Sakura und Weißer Pfirsich Premium Sirup vereint die florale Eleganz der japanischen Kirschblüte mit der saftigen Süße reifer weißer Pfirsiche. Diese hochkonzentrierte Basis bietet eine exzellente Textur und ein authentisches Geschmacksprofil, das speziell für professionelle Bars und Cafés entwickelt wurde. Er verleiht Kaltgetränken eine unverwechselbare, florale Note und sorgt für eine beeindruckende visuelle Präsenz in jeder Kreation.",
+    "en": "FO Sakura and White Peach Premium Syrup harmonizes the floral elegance of Japanese cherry blossoms with the succulent sweetness of ripe white peaches. This highly concentrated base offers an excellent texture and an authentic flavor profile, specifically crafted for professional bars and cafes. It adds a distinctive floral note to cold beverages, ensuring an impressive visual presence in every creation.",
+    "tr": "FO Sakura ve Beyaz Şeftali Premium Şurup, Japon kiraz çiçeğinin floral zarafetini olgun beyaz şeftalinin sulu tatlılığıyla birleştirir. Bu yüksek konsantrasyonlu baz, profesyonel bar ve kafeler için özel olarak geliştirilmiş mükemmel bir doku ve otantik bir lezzet profili sunar. Soğuk içeceklere eşsiz bir floral dokunuş katarak her sunumda etkileyici bir görsel şölen yaratır.",
+    "ar": "يجمع شراب ساكورا والخوخ الأبيض الفاخر من FO بين الأناقة الزهرية لأزهار الكرز اليابانية وحلاوة الخوخ الأبيض الناضج. توفر هذه القاعدة عالية التركيز قواماً ممتازاً ونكهة أصلية مصممة خصيصاً للمقاهي والبارات الاحترافية. يضفي لمسة زهرية مميزة على المشروبات الباردة ويضمن حضوراً بصرياً مبهراً في كل ابتكار."
+  },
+  "hazirlanisi": {
+    "de": "Für einen 450-ml-Becher: 1 Teil (40 ml) Sirup mit 5 Teilen (200 ml) Wasser mischen und mit reichlich Eis servieren.",
+    "en": "For a 450ml cup: Mix 1 part (40ml) syrup with 5 parts (200ml) water and serve with plenty of ice.",
+    "tr": "450 ml'lik bir bardak için: 1 ölçü (40 ml) şurubu 5 ölçü (200 ml) su ile karıştırın ve bol buz ile servis edin.",
+    "ar": "لكوب سعة 450 مل: اخلط جزءاً واحداً (40 مل) من الشراب مع 5 أجزاء (200 مل) من الماء وقدمه مع الكثير من الثلج."
+  },
+  "kullanim_alanlari": {
+    "de": "Ideal für die Zubereitung von Kaltgetränken, Cocktails, Mocktails, Limonaden und Eistees.",
+    "en": "Ideal for the preparation of cold drinks, cocktails, mocktails, lemonades, and iced teas.",
+    "tr": "Soğuk içecekler, kokteyller, mocktail'ler, limonatalar ve soğuk çayların hazırlanması için idealdir.",
+    "ar": "مثالي لتحضير المشروبات الباردة، والكوكتيلات، والموكتيلات، وعصائر الليمون، والشاي المثلج."
+  },
+  "saklama_kosullari": {
+    "de": "In der Originalverpackung bei 20-22 °C trocken lagern. Vor direkter Sonneneinstrahlung schützen. Haltbarkeit: 3 Jahre bei geschlossener Verpackung.",
+    "en": "Store in original packaging at 20-22°C in dry conditions. Avoid direct sunlight. Shelf life: 3 years in closed packaging.",
+    "tr": "Orijinal ambalajında, 20-22°C sıcaklıkta, kuru koşullarda saklayınız. Doğrudan güneş ışığından kaçınınız. Raf ömrü: Kapalı ambalajında 3 yıldır.",
+    "ar": "يُحفظ في عبوته الأصلية في درجة حرارة 20-22 درجة مئوية في ظروف جافة. تجنب أشعة الشمس المباشرة. مدة الصلاحية: 3 سنوات في العبوة المغلقة."
+  },
+  "inhaltsstoffe": {
+    "de": "Zucker, Wasser, Säureregulatoren (Citronensäure, Kaliumcitrat), Aroma (Sakura, weißer Pfirsich), Konservierungsstoffe (Kaliumsorbat, Natriumbenzoat), Farbstoff (Hibiskusextrakt).",
+    "en": "Sugar, Water, Acidity Regulators (Citric Acid, Potassium Citrate), Flavouring (Sakura, White Peach), Preservatives (Potassium Sorbate, Sodium Benzoate), Colorant (Hibiscus Extract).",
+    "tr": "Şeker, Su, Asitlik Düzenleyiciler (Sitrik Asit, Potasyum Sitrat), Aroma Verici (Sakura, Beyaz Şeftali), Koruyucular (Potasyum Sorbat, Sodyum Benzoat), Renklendirici (Hibiskus Ekstraktı)."
+  },
+  "naehrwerte": {
+    "pro_100g": {
+      "energie_kj": 977,
+      "energie_kcal": 233,
+      "fett": 0.0,
+      "davon_gesaettigt": 0.0,
+      "kohlenhydrate": 55.3,
+      "davon_zucker": 55.3,
+      "eiweiss": 0.0,
+      "salz": 0.008
+    }
+  },
+  "allergene": {
+    "gluten": false,
+    "milch": false,
+    "soja": false,
+    "nuesse": false,
+    "eier": false
+  }
+}

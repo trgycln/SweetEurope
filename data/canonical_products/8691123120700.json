@@ -1,0 +1,60 @@
+{
+  "stok_kodu": "SP-FP-STR-70",
+  "barkod": "8691123120700",
+  "urun_adi": {
+    "de": "FO Erdbeeraromatisierter Sirup 70 cl",
+    "en": "FO Strawberry Flavored Syrup 70 cl",
+    "tr": "FO Çilek Aromalı Şurup 70 cl",
+    "ar": "شراب بنكهة الفراولة من فو 70 سل"
+  },
+  "aciklamalar": {
+    "de": "Hochwertiger Erdbeersirup, ideal für Cocktails, Mocktails und Getränke. Verleiht Ihren Rezepten eine intensive und natürliche Erdbeernote.",
+    "en": "High quality strawberry flavored syrup, ideal for cocktails, mocktails and beverages. Adds an intense and delightful strawberry note to your recipes.",
+    "tr": "Kokteyller, soğuk içecekler ve tarifleriniz için ideal, yüksek kaliteli çilek aromalı şurup.",
+    "ar": "شراب عالي الجودة بنكهة الفراولة، مثالي للكوكتيلات والمشروبات، يضيف نكهة الفراولة اللذيذة لوصفاتك."
+  },
+  "kullanim_alanlari": {
+    "de": "Wird zur Zubereitung von Cocktails verwendet oder mit Wasser (1/8) verdünnt direkt getrunken.",
+    "en": "Used to make cocktail or diluted with water (1/8) to drink directly.",
+    "tr": "Kokteyl yapımında kullanılır veya doğrudan içilmek üzere su ile seyreltilir (1/8).",
+    "ar": "يستخدم في صنع الكوكتيلات أو يخفف بالماء (1/8) للشرب مباشرة."
+  },
+  "icindekiler": {
+    "de": "Zucker (62%), Wasser (37,12%), Aroma (Erdbeere) (0,5%), Citronensäure [E 330] (0,3%), Allurarot, Brilliantblau [E 129, E 133] (0,04%), Kaliumsorbat [E 202] (0,025%), Natriumbenzoat [E 211] (0,015%)",
+    "en": "Sugar (62%), Water (37.12%), Flavoring (Strawberry) (0.5%), Citric Acid [E 330] (0.3%), Allura Red, Brilliant Blue [E 129, E 133] (0.04%), Potassium Sorbate [E 202] (0.025%), Sodium Benzoate [E 211] (0.015%)",
+    "de_tr": "Şeker (%62), Su (%37,12), Aroma Verici (Çilek) (%0,5), Sitrik Asit [E 330] (%0,3), Allura Red, Brilliant Blue [E 129, E 133] (%0,04), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "tr": "Şeker (%62), Su (%37,12), Aroma Verici (Çilek) (%0,5), Sitrik Asit [E 330] (%0,3), Allura Red, Brilliant Blue [E 129, E 133] (%0,04), Potasyum Sorbat [E 202] (%0,025), Sodyum Benzoat [E 211] (%0,015)",
+    "ar": "سكر (62%)، ماء (37.12%)، منكه (فراولة) (0.5%)، حامض الستريك [E 330] (0.3%)، أكلورا ريد، بريليانت بلو [E 129، E 133] (0.04%)، سوربات البوتاسيوم [E 202] (0.025%)، بنزوات الصوديوم [E 211] (0.015%)"
+  },
+  "saklama_kosullari": {
+    "de": "An einem kühlen, trockenen Ort ohne direkte Sonneneinstrahlung lagern.",
+    "en": "Store in a cool, dry place away from direct sunlight.",
+    "tr": "Doğrudan güneş ışığından uzak, serin ve kuru yerde saklayınız.",
+    "ar": "يحفظ في مكان بارد وجاف بعيداً عن أشعة الشمس المباشرة."
+  },
+  "alerjen_bilgisi": {
+    "de": "Allergenfrei / Keine Allergene enthalten.",
+    "en": "Allergen free.",
+    "tr": "Alerjen içermez.",
+    "ar": "خالٍ من مسببات الحساسية."
+  },
+  "raf_omru": "36 Ay",
+  "naehrwerte": {
+    "pro_100ml": {
+      "energie_kj": 1410,
+      "energie_kcal": 337,
+      "fett": 0.5,
+      "kohlenhydrate": 82.5,
+      "davon_zucker": 81.9,
+      "eiweiss": 0,
+      "salz": 0.01
+    }
+  },
+  "ambalaj": {
+    "koli_ici_adet": 6,
+    "tip": "70 cl / Glass bottle"
+  },
+  "fiyat_eur": 2.73,
+  "gtip": "210690550000",
+  "palet_ici_koli": 50
+}
