@@ -2203,29 +2203,37 @@ export default function GorevlerClient({
         setIsAddModalOpen(true);
     }
 
-    // Sayaçlar (Tüm veri üzerinden)
-    const myTasksCount    = currentUserId ? taskList.filter(g => g.atanan_kisi_id === currentUserId).length : 0;
-    const inProgressCount = taskList.filter(g => g.durum === 'Devam Ediyor' && !g.tamamlandi).length;
-    const todoCount       = taskList.filter(g => g.durum === 'Yapılacak' && !g.tamamlandi).length;
-    const lateCount       = taskList.filter(g => overdue(g.son_tarih, g.tamamlandi) && !g.tamamlandi).length;
-    const doneCount       = taskList.filter(g => g.tamamlandi).length;
-    const totalCount      = taskList.length;
+    const isMyTasksScope = scopeFilter === 'mine' && !!currentUserId && !personFilter;
+    const scopedTasks = useMemo(() => {
+        if (isMyTasksScope) {
+            return taskList.filter(g => g.atanan_kisi_id === currentUserId);
+        }
+        if (personFilter) {
+            return taskList.filter(g => g.atanan_kisi_id === personFilter);
+        }
+        return taskList;
+    }, [taskList, isMyTasksScope, currentUserId, personFilter]);
 
-    // Filtre Mantığı
+    // Sayaçlar (Aktif kullanıcı kapsamına göre dinamik)
+    const myTasksTotalCount   = useMemo(() => currentUserId ? taskList.filter(g => g.atanan_kisi_id === currentUserId).length : 0, [taskList, currentUserId]);
+    const teamTotalCount      = taskList.length;
+    const teamLateCount       = useMemo(() => taskList.filter(g => overdue(g.son_tarih, g.tamamlandi) && !g.tamamlandi).length, [taskList]);
+
+    const inProgressCount     = useMemo(() => scopedTasks.filter(g => g.durum === 'Devam Ediyor' && !g.tamamlandi).length, [scopedTasks]);
+    const todoCount           = useMemo(() => scopedTasks.filter(g => g.durum === 'Yapılacak' && !g.tamamlandi).length, [scopedTasks]);
+    const lateCount           = useMemo(() => scopedTasks.filter(g => overdue(g.son_tarih, g.tamamlandi) && !g.tamamlandi).length, [scopedTasks]);
+    const doneCount           = useMemo(() => scopedTasks.filter(g => g.tamamlandi).length, [scopedTasks]);
+    const totalCount          = scopedTasks.length;
+
+    // Filtre Mantığı (scopedTasks üzerinden)
     const filteredRows = useMemo(() => {
-        return taskList.filter(g => {
-            // Varsayılan olarak kullanıcının kendi görevleri
-            if (scopeFilter === 'mine' && currentUserId && !personFilter) {
-                if (g.atanan_kisi_id !== currentUserId) return false;
-            }
-
+        return scopedTasks.filter(g => {
             if (statusFilter === 'devam_ediyor' && (g.durum !== 'Devam Ediyor' || g.tamamlandi)) return false;
             if (statusFilter === 'yapilacak' && (g.durum !== 'Yapılacak' || g.tamamlandi)) return false;
             if (statusFilter === 'gecikenler' && (!overdue(g.son_tarih, g.tamamlandi) || g.tamamlandi)) return false;
             if (statusFilter === 'tamamlandi' && !g.tamamlandi) return false;
 
             if (prioFilter && g.oncelik !== prioFilter) return false;
-            if (personFilter && g.atanan_kisi_id !== personFilter) return false;
             if (firmaFilter && g.ilgili_firma_id !== firmaFilter) return false;
             if (searchQuery.trim()) {
                 const q = searchQuery.toLowerCase();
@@ -2236,7 +2244,7 @@ export default function GorevlerClient({
             }
             return true;
         });
-    }, [taskList, scopeFilter, currentUserId, statusFilter, prioFilter, personFilter, firmaFilter, searchQuery]);
+    }, [scopedTasks, statusFilter, prioFilter, firmaFilter, searchQuery]);
 
     // Alt Kümeler (Gruplandırılmış ve Sıralanmış - Kullanıcının görevleri öncelikli!)
     const inProgressTasks = useMemo(() => {
@@ -2274,21 +2282,29 @@ export default function GorevlerClient({
                         <span>📋</span> {isPortal ? 'Görevlerim' : 'Görev Yönetimi'}
                     </h1>
                     <p className="text-xs sm:text-sm text-slate-500 mt-1 flex flex-wrap items-center gap-2 font-medium">
-                        <span>{totalCount} toplam görev</span>
+                        <span className="font-bold text-slate-700">{isMyTasksScope ? '👤 Size Atanan:' : '👥 Tüm Ekip:'}</span>
+                        <span>{totalCount} görev</span>
                         <span>·</span>
                         <span className="text-blue-700 font-bold">{inProgressCount} devam ediyor</span>
                         <span>·</span>
                         <span className="text-slate-800 font-semibold">{todoCount} yapılacak</span>
                         <span>·</span>
                         <span className="text-emerald-700 font-semibold">{doneCount} tamamlandı</span>
-                        {lateCount > 0 && (
+                        {lateCount > 0 ? (
                             <>
                                 <span>·</span>
                                 <span className="text-red-600 font-bold bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
                                     {lateCount} gecikmiş
                                 </span>
                             </>
-                        )}
+                        ) : isMyTasksScope && teamLateCount > 0 ? (
+                            <>
+                                <span>·</span>
+                                <span className="text-slate-400 text-xs">
+                                    (Ekipte {teamLateCount} gecikmiş)
+                                </span>
+                            </>
+                        ) : null}
                     </p>
                 </div>
 
@@ -2425,9 +2441,24 @@ export default function GorevlerClient({
                     <div className={`text-2xl sm:text-3xl font-black ${lateCount > 0 && statusFilter !== 'gecikenler' ? 'text-red-600' : ''}`}>
                         {lateCount}
                     </div>
-                    <p className={`text-xs mt-1 font-medium ${statusFilter === 'gecikenler' ? 'text-red-100' : 'text-slate-500'}`}>
-                        {lateCount > 0 ? 'Acil ilgi gereken' : 'Geciken görev yok'}
-                    </p>
+                    <div className="flex items-center justify-between gap-1 mt-1">
+                        <p className={`text-xs font-medium ${statusFilter === 'gecikenler' ? 'text-red-100' : 'text-slate-500'}`}>
+                            {lateCount > 0 ? 'Acil ilgi gereken' : 'Geciken göreviniz yok'}
+                        </p>
+                        {isMyTasksScope && teamLateCount > 0 && (
+                            <span
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setScopeFilter('all');
+                                    setStatusFilter('gecikenler');
+                                }}
+                                className="text-[11px] font-bold text-red-600 hover:underline bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded-md transition-colors"
+                                title="Tüm ekipteki gecikmiş görevleri gör"
+                            >
+                                Ekipte {teamLateCount} →
+                            </span>
+                        )}
+                    </div>
                 </button>
 
                 {/* 4. Tamamlananlar */}
@@ -2485,7 +2516,7 @@ export default function GorevlerClient({
                                     setPersonFilter('');
                                 }}
                                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                                    scopeFilter === 'mine' && !personFilter
+                                    isMyTasksScope
                                         ? 'bg-blue-600 text-white shadow-xs'
                                         : 'text-slate-600 hover:text-slate-900'
                                 }`}
@@ -2494,16 +2525,19 @@ export default function GorevlerClient({
                                 <FiUser size={12} />
                                 <span>Bana Atananlar</span>
                                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-                                    scopeFilter === 'mine' && !personFilter ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-700'
+                                    isMyTasksScope ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-700'
                                 }`}>
-                                    {myTasksCount}
+                                    {myTasksTotalCount}
                                 </span>
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setScopeFilter('all')}
+                                onClick={() => {
+                                    setScopeFilter('all');
+                                    setPersonFilter('');
+                                }}
                                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                                    scopeFilter === 'all' || !!personFilter
+                                    !isMyTasksScope && !personFilter
                                         ? 'bg-slate-900 text-white shadow-xs'
                                         : 'text-slate-600 hover:text-slate-900'
                                 }`}
@@ -2512,10 +2546,13 @@ export default function GorevlerClient({
                                 <FiGrid size={12} />
                                 <span>Tüm Ekip</span>
                                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-                                    scopeFilter === 'all' || !!personFilter ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-700'
+                                    !isMyTasksScope && !personFilter ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-700'
                                 }`}>
-                                    {totalCount}
+                                    {teamTotalCount}
                                 </span>
+                                {teamLateCount > 0 && isMyTasksScope && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" title={`Ekipte ${teamLateCount} gecikmiş görev var`} />
+                                )}
                             </button>
                         </div>
                     )}
@@ -2623,18 +2660,42 @@ export default function GorevlerClient({
 
             {/* Boş Durum */}
             {filteredRows.length === 0 && (
-                <div className="text-center py-16 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-                    <FiGrid className="mx-auto text-4xl text-slate-300 mb-3" />
-                    <p className="text-slate-700 font-bold text-base">Filtreye uygun görev bulunamadı</p>
-                    <p className="text-slate-400 text-xs mt-1">Filtrelerinizi değiştirmeyi deneyin veya yeni bir görev ekleyin.</p>
-                    <button
-                        type="button"
-                        onClick={() => openModalWithDurum('Yapılacak')}
-                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
-                    >
-                        <FiPlus size={14} /> Yeni Görev Ekle
-                    </button>
-                </div>
+                statusFilter === 'gecikenler' && isMyTasksScope && teamLateCount > 0 ? (
+                    <div className="text-center py-14 px-6 bg-white rounded-3xl border border-slate-200 shadow-xs max-w-lg mx-auto my-6">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+                            <FiCheckCircle size={24} />
+                        </div>
+                        <h3 className="text-base font-extrabold text-slate-900">Geciken Göreviniz Yok 🎉</h3>
+                        <p className="text-xs text-slate-500 mt-1 mb-5 leading-relaxed">
+                            Size atanan tüm görevler güncel durumda. Ekip genelinde diğer personele ait <strong>{teamLateCount} adet gecikmiş görev</strong> bulunuyor.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setScopeFilter('all');
+                                setPersonFilter('');
+                                setStatusFilter('gecikenler');
+                            }}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all shadow-xs cursor-pointer"
+                        >
+                            <FiAlertCircle size={14} className="text-red-400" />
+                            <span>Ekipteki {teamLateCount} Gecikmiş Görevi Göster</span>
+                        </button>
+                    </div>
+                ) : (
+                    <div className="text-center py-16 bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                        <FiGrid className="mx-auto text-4xl text-slate-300 mb-3" />
+                        <p className="text-slate-700 font-bold text-base">Filtreye uygun görev bulunamadı</p>
+                        <p className="text-slate-400 text-xs mt-1">Filtrelerinizi değiştirmeyi deneyin veya yeni bir görev ekleyin.</p>
+                        <button
+                            type="button"
+                            onClick={() => openModalWithDurum('Yapılacak')}
+                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                            <FiPlus size={14} /> Yeni Görev Ekle
+                        </button>
+                    </div>
+                )
             )}
 
             {/* ── ASANA / EXCEL TABLO GÖRÜNÜMÜ ── */}
