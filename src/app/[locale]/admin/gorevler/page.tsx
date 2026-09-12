@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
 import { unstable_noStore as noStore } from 'next/cache';
+import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 import GorevlerClient, { GorevRow, ProfilOption, FirmaOption } from '@/components/gorevler/GorevlerClient';
 
 export const dynamic = 'force-dynamic';
@@ -28,19 +29,21 @@ export default async function GorevlerListPage({ params, searchParams }: Gorevle
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
+    const { data: { user } } = await getGlobalCachedUser();
 
     // ── Ana görev sorgusu ────────────────────────────────────────────────────
-    const currentDurum = sp.durum ?? 'acik';
+    // URL'de özellikle durum belirtilmemişse tüm görevleri çekiyoruz (tamamlananlar filtrede kaybolmasın)
     let query = supabase.from('gorevler').select('*');
 
-    if (currentDurum === 'acik')       query = query.eq('tamamlandi', false);
-    if (currentDurum === 'tamamlandi') query = query.eq('tamamlandi', true);
-    if (sp.atanan)                     query = query.eq('atanan_kisi_id', sp.atanan);
-    if (sp.oncelik)                    query = query.eq('oncelik', sp.oncelik as GorevOncelik);
+    if (sp.durum === 'acik')            query = query.eq('tamamlandi', false);
+    else if (sp.durum === 'tamamlandi') query = query.eq('tamamlandi', true);
+    if (sp.atanan)                      query = query.eq('atanan_kisi_id', sp.atanan);
+    if (sp.oncelik)                     query = query.eq('oncelik', sp.oncelik as GorevOncelik);
 
     const { data: gorevlerData, error: gorevlerError } = await query
         .order('tamamlandi', { ascending: true })
-        .order('son_tarih', { ascending: true, nullsFirst: false });
+        .order('son_tarih', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: false });
 
     // ── Yardımcı veriler ─────────────────────────────────────────────────────
     const [firmalarRes, profillerRes] = await Promise.all([
@@ -97,6 +100,7 @@ export default async function GorevlerListPage({ params, searchParams }: Gorevle
                     isPortal={false}
                     baseFirmaPath={`/${locale}/admin/crm/firmalar`}
                     baseTaskDetailPath={`/${locale}/admin/gorevler`}
+                    currentUserId={user?.id}
                 />
             </Suspense>
         </main>

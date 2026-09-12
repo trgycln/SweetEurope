@@ -254,6 +254,34 @@ export async function gorevAtananKisiGuncelleAction(
     return { success: 'Personel ataması güncellendi.' };
 }
 
+export async function gorevOncelikGuncelleAction(
+    gorevId: string,
+    oncelik: GorevOncelik,
+    locale?: string
+): Promise<ActionResult> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const { data: mevcutGorev } = await supabase
+        .from('gorevler')
+        .select('ilgili_firma_id')
+        .eq('id', gorevId)
+        .maybeSingle();
+
+    const { error } = await supabase
+        .from('gorevler')
+        .update({ oncelik })
+        .eq('id', gorevId);
+
+    if (error) {
+        console.error('Öncelik güncelleme hatası:', error);
+        return { error: 'Öncelik güncellenemedi.' };
+    }
+
+    revalidateTaskPaths(locale, mevcutGorev?.ilgili_firma_id ?? null);
+    return { success: `Öncelik "${oncelik}" olarak güncellendi.` };
+}
+
 export async function gorevGuncelleAction(
     gorevId: string,
     data: {
@@ -614,3 +642,30 @@ export async function gorevTarihGuncelleAction(
 
     return { success: 'Görev tarihi güncellendi.' };
 }
+
+import { generateCalendarToken } from '@/lib/calendar/token';
+
+export async function getUserCalendarUrlAction(): Promise<{
+    webcalUrl?: string;
+    httpsUrl?: string;
+    userName?: string;
+    error?: string;
+}> {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return { error: 'Oturum açık değil.' };
+
+    const { data: profile } = await supabase.from('profiller').select('tam_ad').eq('id', user.id).maybeSingle();
+    const token = generateCalendarToken(user.id);
+    const origin = process.env.NEXT_PUBLIC_SITE_URL || 'https://elysonsweets.de';
+    
+    const cleanOrigin = origin.replace(/\/+$/, '');
+    const path = `/api/calendar/gorevler?token=${token}`;
+    const httpsUrl = `${cleanOrigin}${path}`;
+    const webcalUrl = httpsUrl.replace(/^https?:\/\//i, 'webcal://');
+
+    return {
+        webcalUrl,
+        httpsUrl,
+        userName: profile?.tam_ad || 'Kullanıcı',
+    };
+}

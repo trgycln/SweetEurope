@@ -263,9 +263,16 @@ export default function FavorilerClient({ favoriler: initialFavoriler, locale, d
                             locale={locale}
                             dictionary={dictionary}
                             isPending={isPending}
-                            onToggleFavorite={handleToggleFavorite}
-                            onQuickAdd={handleQuickAdd}
-                            onOpenModal={setModalProdukt}
+                            onToggleFavorite={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleToggleFavorite(produkt.id);
+                            }}
+                            onQuickAdd={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleQuickAdd(produkt);
+                            }}
                         />
                     ))}
                 </div>
@@ -279,9 +286,16 @@ export default function FavorilerClient({ favoriler: initialFavoriler, locale, d
                             locale={locale}
                             dictionary={dictionary}
                             isPending={isPending}
-                            onToggleFavorite={handleToggleFavorite}
-                            onQuickAdd={handleQuickAdd}
-                            onOpenModal={setModalProdukt}
+                            onToggleFavorite={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleToggleFavorite(produkt.id);
+                            }}
+                            onQuickAdd={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleQuickAdd(produkt);
+                            }}
                         />
                     ))}
                 </div>

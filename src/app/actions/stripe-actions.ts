@@ -1,6 +1,6 @@
 'use server';
 
-import { stripe } from '@/lib/stripe';
+import { stripe, assertStripeEnvironmentSafety } from '@/lib/stripe';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies, headers } from 'next/headers';
 import { calculateShipping } from '@/lib/shippingUtils';
@@ -22,6 +22,14 @@ export async function createStripeCheckoutSessionAction(params: {
   orderNotes?: string;
 }) {
   try {
+    // 0. Stripe Güvenlik Bariyeri (Safety Guard):
+    // Test veya geliştirme ortamında kazara canlı anahtarla gerçek kart çekimini önler
+    const safetyCheck = assertStripeEnvironmentSafety();
+    if (!safetyCheck.safe) {
+      console.error('Stripe Safety Check Failed:', safetyCheck.error);
+      return { error: safetyCheck.error };
+    }
+
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 

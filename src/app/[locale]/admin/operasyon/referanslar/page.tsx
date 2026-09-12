@@ -15,9 +15,9 @@ export const metadata = {
 export default async function ReferanslarPage({
     params,
 }: {
-    params: { locale: Locale };
+    params: Promise<{ locale: Locale }>;
 }) {
-    const { locale } = params;
+    const { locale } = await params;
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
