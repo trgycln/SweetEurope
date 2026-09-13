@@ -800,8 +800,8 @@ export function ProductGridClient({
 
             {/* Sticky Tabs for Quick Navigation */}
             {viewMode === 'grid' && groupedUrunler && (
-                <div className="sticky top-[72px] z-30 bg-white/95 backdrop-blur-xl py-3 border-b border-stone-200/80 mb-3 -mx-4 px-4 sm:mx-0 sm:px-0 shadow-xs">
-                    <div className="flex flex-wrap gap-2">
+                <div className="sticky top-[56px] sm:top-[72px] z-20 bg-white/95 backdrop-blur-xl py-2 sm:py-2.5 border-b border-stone-200/80 mb-3 -mx-4 px-4 sm:mx-0 sm:px-0 shadow-xs">
+                    <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar scroll-smooth">
                         {groupedUrunler.map((group, idx) => (
                             <a 
                                 key={idx} 
@@ -810,11 +810,11 @@ export function ProductGridClient({
                                     e.preventDefault();
                                     const el = document.getElementById(`cat-group-${idx}`);
                                     if (el) {
-                                        const y = el.getBoundingClientRect().top + window.scrollY - 140;
+                                        const y = el.getBoundingClientRect().top + window.scrollY - 110;
                                         window.scrollTo({ top: y, behavior: 'smooth' });
                                     }
                                 }}
-                                className="px-4 py-2 text-[11px] font-bold rounded-full bg-stone-100 border border-stone-200 text-stone-700 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900 whitespace-nowrap shadow-xs transition-all"
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 text-[10.5px] sm:text-[11px] font-bold rounded-full bg-stone-100 border border-stone-200 text-stone-700 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900 whitespace-nowrap shadow-xs transition-all flex-shrink-0"
                             >
                                 {group.catName} <span className="text-[9px] text-stone-500 ml-1 bg-white px-1.5 py-0.5 rounded-full border border-stone-200">{group.products.length}</span>
                             </a>

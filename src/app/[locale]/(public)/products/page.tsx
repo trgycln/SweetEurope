@@ -445,31 +445,31 @@ export default async function PublicUrunlerPage({
         <div className="min-h-screen flex flex-col font-sans bg-[#FBF9F5]">
 
             {/* ── Page Header ─────────────────────────────────────────────── */}
-            <div className="border-b border-stone-200/70 sticky top-0 z-30 shadow-xs relative overflow-hidden bg-white/85 backdrop-blur-md">
+            <div className="border-b border-stone-200/70 relative overflow-hidden bg-white/90 backdrop-blur-md">
                 
-                <div className="container mx-auto px-4 sm:px-8 py-6 relative z-10">
+                <div className="container mx-auto px-4 sm:px-8 py-4 sm:py-6 relative z-10">
 
-                    <div className="flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4 justify-between">
                         <div>
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700 mb-2">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700 mb-1 sm:mb-2">
                                 {dictionary.publicProductsPage?.b2bCatalogLabel || 'B2B Großhandels-Katalog'}
                             </p>
-                            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 tracking-tight">
+                            <h1 className="text-2xl sm:text-4xl font-serif font-bold text-stone-900 tracking-tight">
                                 {dictionary.publicProductsPage?.heroTitle || 'Sortiment für Profi-Küchen & Gastronomie'}
                             </h1>
-                            <p className="mt-2.5 text-sm text-stone-600 max-w-xl leading-relaxed">
+                            <p className="mt-1.5 sm:mt-2.5 text-xs sm:text-sm text-stone-600 max-w-xl leading-relaxed">
                                 {dictionary.publicProductsPage?.heroDescription || 'Tiefkühl-Desserts, Sirupe, Kaffee und Backzutaten – direkt für Cafés, Hotels und Patisserien.'}
                             </p>
                         </div>
 
-                        <div className="flex flex-col items-end gap-2 self-start sm:self-auto mt-2 sm:mt-0">
-                            <div className="flex items-center gap-2 text-xs text-stone-700 bg-white border border-stone-200 shadow-xs rounded-xl px-4 py-2.5">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shadow-xs" />
-                                {totalAllProducts} {dictionary.publicProductsPage?.totalProductsInCatalog || 'Artikel im Sortiment'}
+                        <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 self-stretch sm:self-auto mt-2 sm:mt-0">
+                            <div className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-[11px] sm:text-xs text-stone-700 bg-white border border-stone-200 shadow-xs rounded-xl px-3 sm:px-4 py-2 sm:py-2.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shadow-xs flex-shrink-0" />
+                                <span className="truncate">{totalAllProducts} {dictionary.publicProductsPage?.totalProductsInCatalog || 'Artikel im Sortiment'}</span>
                             </div>
                             <Link href={`/${locale}/contact?subject=${encodeURIComponent('Preisanfrage / B2B Katalog')}`}
-                                className="inline-flex items-center gap-2 text-xs font-semibold text-white bg-stone-900 shadow-xs rounded-xl px-5 py-2.5 hover:bg-stone-800 transition-all duration-200">
-                                <FiMail size={14} className="text-amber-400" /> {dictionary.publicProductsPage?.priceRequest || 'Preisanfrage'}
+                                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold text-white bg-stone-900 shadow-xs rounded-xl px-4 sm:px-5 py-2 sm:py-2.5 hover:bg-stone-800 transition-all duration-200 whitespace-nowrap">
+                                <FiMail size={13} className="text-amber-400 flex-shrink-0" /> {dictionary.publicProductsPage?.priceRequest || 'Preisanfrage'}
                             </Link>
                         </div>
                     </div>
