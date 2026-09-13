@@ -1,0 +1,1294 @@
+[
+  {
+    "id": "487ae218-425b-47b4-b46d-4f532779f6be",
+    "ad": {
+      "ar": "شراب مركز بنكهة الكيوي فو 70 سنتيلتر",
+      "de": "FO Kiwi-Sirup 70 cl",
+      "en": "FO Kiwi Flavored Syrup 70 cl",
+      "tr": "FO Kivi Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-kiwi-sirup-70-cl",
+    "stok_kodu": "FO-KSR-002",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "b802a6ee-e2fd-4d82-aa73-8cbeb198fcec",
+    "ad": {
+      "ar": "شراب بنكهة الكراميل فو 700 مل - خالي من السكر",
+      "de": "Fo Karamellgeschmack Sirup 700 ML - Zuckerfrei",
+      "en": "Fo Caramel Flavored Syrup 700 ML - Sugar Free",
+      "tr": "Fo Karamel Aromalı Şurup 700 ML - Şekersiz"
+    },
+    "slug": "fo-karamel-aromal-surup-sekersiz-700-ml",
+    "stok_kodu": "FO-KSR-012",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "fe93aa42-578a-43fb-b34d-8f6525148ae7",
+    "ad": {
+      "ar": "صلصة التوت الأسود بالفاكهة فروزن من إف أوه 1 كجم",
+      "de": "FO Maulbeer Fruchtpüree Sauce - Frozen 1 kg",
+      "en": "FO Black Mulberry Fruited Sauce - Frozen 1 kg",
+      "tr": "FO Karadut Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-karadut-meyveli-pure-sos-fo1112",
+    "stok_kodu": "FO-MYS-003",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "fe96b76f-ed65-408f-b839-5e2fc6787870",
+    "ad": {
+      "ar": "فو شراب فاكهة الليمون الأخضر 700 مل - بريميوم",
+      "de": "FO Limetten Fruchtsirup 700 ml - Premium",
+      "en": "FO Lime Fruited Syrup 700 ml - Premium",
+      "tr": "FO Misket Limonu Meyveli Şurup 700 ml - Premium"
+    },
+    "slug": "fo-misket-limonu-premium-surup-700ml-fo1142",
+    "stok_kodu": "FO-PKS-003",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "bd631ea3-4c9a-4e87-9723-d97d7d30b052",
+    "ad": {
+      "ar": "فو شراب بنكهة التفاح الأخضر 70 مل",
+      "de": "FO Grüner Apfel Sirup 70 cl",
+      "en": "FO Green Apple Flavored Syrup 70 cl",
+      "tr": "FO Yeşil Elma Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-gruner-apfel-sirup-70-cl",
+    "stok_kodu": "FO-KSR-006",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "5f6458b1-255e-4275-8ce8-7f0ff779891f",
+    "ad": {
+      "ar": "شراب بنكهة التوت الأزرق من فو 70 سل",
+      "de": "FO Blaues Himbeer-Aroma Sirup 70 cl",
+      "en": "FO Blue Raspberry Flavored Syrup 70 cl",
+      "tr": "FO Mavi Frambuaz Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-mavi-frambuaz-aromal-surup-700-ml",
+    "stok_kodu": "FO-KSR-016",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "c9836857-d08d-4a9d-8036-60c4ec00c8fd",
+    "ad": {
+      "ar": "فو شراب فاكهة التفاح الأخضر - بريميوم 700 مل",
+      "de": "FO Grüner Apfel Fruchtsirup - Premium 700ml",
+      "en": "FO Green Apple Fruit Syrup - Premium 700ml",
+      "tr": "FO Yeşil Elma Meyveli Şurup - Premium 700ml"
+    },
+    "slug": "fo-yesil-elma-premium-surup-700ml-fo1134",
+    "stok_kodu": "FO-SRP-002",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "381703aa-92f3-486e-ab39-b37b041b49e8",
+    "ad": {
+      "ar": "صلصة الشوكولاتة البيضاء الاحترافية فو 2.5 كجم (مع مضخة)",
+      "de": "FO Weiße Schokoladensauce 2,5 kg (mit Pumpe)",
+      "en": "FO White Chocolate Professional Sauce 2.5 kg (With Pump)",
+      "tr": "FO Beyaz Çikolatalı Profesyonel Sos 2,5 kg (Pompa Hediyeli)"
+    },
+    "slug": "fo-beyaz-cikolata-sosu",
+    "stok_kodu": "FO-CBS-001",
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "acbf50ec-55c1-4081-9a70-46c44b7c21bb",
+    "ad": {
+      "ar": "شراب نكهة النعناع فُو 70 سل",
+      "de": "FO Spearmint Flavored Syrup 70 cl",
+      "en": "FO Spearmint Flavored Syrup 70 cl",
+      "tr": "FO Nane Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-spearmint-flavored-syrup-70-cl",
+    "stok_kodu": "FO-SRP-029",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "784f12c2-85ba-422c-82ee-54f78b396d08",
+    "ad": {
+      "ar": "صوص آيس كريم شوكولاتة بيضاء 1 كجم",
+      "de": "Weiße Schokoladeneissauce 1 kg",
+      "en": "White Chocolate Ice Cream Sauce 1 Kg",
+      "tr": "Beyaz Çikolatalı Dondurma Sosu 1 Kg"
+    },
+    "slug": "beyaz-cikolatali-dondurma-sosu-1kg",
+    "stok_kodu": "FO-DND-055",
+    "kategori_id": "193a8c4c-802f-493d-a9ee-5ca95dd13152",
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "e5b41f2d-00fa-4cf1-a6bf-321f1d0cb274",
+    "ad": {
+      "ar": "شراب نكهة المانجو FO 70 مل",
+      "de": "FO Mango Geschmacks-Sirup 70 cl",
+      "en": "FO Mango Flavored Syrup 70 cl",
+      "tr": "FO Mango Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-mango-geschmacks-sirup-70-cl",
+    "stok_kodu": "FO-KSR-032",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "4f60f69b-158e-48cd-8252-9bf52fc9a658",
+    "ad": {
+      "ar": "مسحوق مشروب بنكهة الفانيليا FO 1 كجم",
+      "de": "FO Vanille Aromatisiertes Pulver Getränk 1 kg",
+      "en": "FO Vanilla Flavored Powder Drink 1 kg",
+      "tr": "FO Vanilya Aromalı İçecek Tozu - Milkshake 1 kg"
+    },
+    "slug": "vanilya-aromali-icecek-tozu-milkshake-1-kg",
+    "stok_kodu": "FO-TIZ-019",
+    "kategori_id": "c50e6bb6-aa30-49be-ae8c-dae65608c68a",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "e343b424-22f9-4c72-8ec3-d7ac9872dda0",
+    "ad": {
+      "ar": "صلصة بنكهة الفانيليا مدغشقر FO 1 كغ - إيكليبس",
+      "de": "FO Madagascar Vanille Aromatisierte Sosse 1 Kg - Eclipse",
+      "en": "FO Madagascar Vanilla Flavored Sauce 1 Kg - Eclipse",
+      "tr": "FO Madagaskar Vanilya Aromalı Sos 1 Kg - Eclipse"
+    },
+    "slug": "madagaskar-vanilya-aromali-sos-1-kg---eclipse",
+    "stok_kodu": "FO-CBS-011",
+    "kategori_id": "90320294-fb9e-4a88-8ebb-b46f3717799f",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "feb18bd2-db62-4eaa-9a47-93ef979f9141",
+    "ad": {
+      "ar": "شراب بنكهة التوت الأسود FO 70 سل",
+      "de": "FO Brombeer Flavored Sirup 70 cl",
+      "en": "FO Blackberry Flavored Syrup 70 cl",
+      "tr": "FO Böğürtlen Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-brombeer-flavored-sirup-70-cl",
+    "stok_kodu": "FO-KSR-059",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "cf80047e-584b-406e-ab2e-d65dd41c5901",
+    "ad": {
+      "ar": "فو كوي صانع رغوة الكوكتيل 100 مل",
+      "de": "FO KOI COCKTAIL FOAMER 100 ML",
+      "en": "FO KOI COCKTAIL FOAMER 100 ML",
+      "tr": "FO KOI KOKTEYL KÖPÜRTÜCÜ 100 ML"
+    },
+    "slug": "fo-koi-kokteyl-kopurtucu-100-ml",
+    "stok_kodu": "FO-IKN-001",
+    "kategori_id": "d6de0def-3bff-418d-a4c9-8c2c30c9a232",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "1c05da06-b255-47df-8b02-34b87375fa39",
+    "ad": {
+      "de": "FO Grüner Apfel Aromatisierter Sirup 70 cl",
+      "en": "FO Green Apple Flavored Syrup 70 cl",
+      "tr": "FO Yeşil Elma Aromalı Şurup 70 cl",
+      "عربي": "شراب بنكهة التفاح الأخضر FO 70 سل"
+    },
+    "slug": "fo-gruner-apfel-aromatisierter-sirup-70-cl",
+    "stok_kodu": "FO-KSR-005",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "44a4ed7f-4e0c-439f-a4b3-87670fb9aff9",
+    "ad": {
+      "ar": "شراب مركز بنكهة الفراولة بريميوم من فو 700 مل",
+      "de": "FO Erdbeere Premium Cocktailsirup 700 ml",
+      "en": "FO Strawberry Premium Cocktail Syrup 700 ml",
+      "tr": "FO Çilek Aromalı Premium Kokteyl Şurubu 700 ml"
+    },
+    "slug": "fo-cilek-premium-surup-700ml-fo1131",
+    "stok_kodu": "FO-PKS-001",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "ffefea8f-c4ed-40c9-b445-8d573a17af0f",
+    "ad": {
+      "ar": "شراب قاعدة بنكهة الساكورا والخوخ الأبيض من فو 700 مل",
+      "de": "FO Sakura und Weißer Pfirsich aromatisierte Basis 700 ml",
+      "en": "FO Sakura and White Peach Flavored Base Syrup 700 ml",
+      "tr": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 700 ml"
+    },
+    "slug": "fo-sakura-ve-beyaz-seftali-aromal-baz-surup-700-ml",
+    "stok_kodu": "FO-KSR-014",
+    "kategori_id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "e0127c73-f6b6-4119-a8e4-10c6b278efac",
+    "ad": {
+      "ar": "شراب أساس بنكهة الساكورا والخوخ الأبيض FO 70 سل",
+      "de": "FO Sakura und Weißer Pfirsich Aromatisierter Basis Sirup 70 cl",
+      "en": "FO Sakura and White Peach Flavored Base Syrup 70 cl",
+      "tr": "FO Sakura ve Beyaz Şeftali Aromalı Baz Şurup 70 cl"
+    },
+    "slug": "fo-sakura-und-weisser-pfirsich-aromatisierter-basis-sirup-70-cl",
+    "stok_kodu": "FO-KSR-015",
+    "kategori_id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "298d997b-cf81-466f-baa2-432f3cb03bf9",
+    "ad": {
+      "ar": "شراب بنكهة الشوكولاتة من فو 70 سل",
+      "de": "Fo Schokoladenaromatisierter Sirup 70 cl",
+      "en": "Fo Chocolate Flavored Syrup 70 cl",
+      "tr": "Fo Çikolata Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-cikolata-aromal-surup-sekersiz-700-ml",
+    "stok_kodu": "FO-KSR-010",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "cef88263-4fe4-4814-a2e5-4e9cc3dde778",
+    "ad": {
+      "ar": "شراب بنكهة التوفي والجوز من فُو 700 مل",
+      "de": "FO Toffee-Nuss Aromatisierter Sirup 700 ml",
+      "en": "FO Toffee Nut Flavored Syrup 700 ml",
+      "tr": "FO Toffee Cevizi Aromalı Şurup 700 ml"
+    },
+    "slug": "fo-toffee-nuss-aromatisierter-sirup-700-ml",
+    "stok_kodu": "FO-KSR-066",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "cea27501-54da-40ec-85fd-560fc06d25af",
+    "ad": {
+      "ar": "مشروب الفواكه المشكلة FO - أبولو 800 مل",
+      "de": "FO Mehrfruchtgetränk – Apollo 800 ML",
+      "en": "FO Mixed Fruit Drink – Apollo 800 ML",
+      "tr": "FO Karışık Meyveli İçecek – Apollo 800 ML"
+    },
+    "slug": "fo-apollo-karsk-meyveli-icecek-baz-800-ml",
+    "stok_kodu": "FO-ANT-001",
+    "kategori_id": "7d66168b-5530-4e3b-8371-6a643def69bb",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "ac6b6140-3cfb-43ec-9594-ec6578efd7bb",
+    "ad": {
+      "ar": "شراب بنكهة الفانيليا من فو 70 سل",
+      "de": "FO Vanille Aromatisierter Sirup 70 cl",
+      "en": "FO Vanilla Flavored Syrup 70 cl",
+      "tr": "FO Vanilya Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-vanille-aromatisierter-sirup-70-cl",
+    "stok_kodu": "FO-KSR-022",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "bf298ba4-1f56-472e-a9bd-43fd76968b7a",
+    "ad": {
+      "ar": "صلصة فاكهة العاطفة (باشن فروت) فو 1 كجم",
+      "de": "FO Passionsfrucht-Sauce 1 kg",
+      "en": "FO Passion Fruit Sauce 1 kg",
+      "tr": "FO Passiflora (Çarkıfelek Meyvesi) Sosu 1 kg"
+    },
+    "slug": "fo-passionsfrucht-sauce-1-kg",
+    "stok_kodu": "FO-MYS-015",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "53ba43ac-992c-4eef-9724-035f9d724dfb",
+    "ad": {
+      "ar": "قاعدة بنكهة الزهور الكهربائية والتوت الأزرق من فو 700 مل",
+      "de": "Fo Electric Flower und Blaubeere Aromatisierte Basis 700 ml",
+      "en": "Fo Electric Flower and Blueberry Flavored Base 700 ml",
+      "tr": "Fo Elektrik Çiçeği ve Yaban Mersini Aromalı Baz 700 ml"
+    },
+    "slug": "fo-blue-yaban-mersini-mavi-ahududu-aromal-surup-700-ml",
+    "stok_kodu": "FO-IKN-002",
+    "kategori_id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "11924546-d75b-43d5-9562-1976c25c0489",
+    "ad": {
+      "ar": "صلصة الخوخ بالفواكه من إف أوه (فروزن) 1 كجم",
+      "de": "FO Pfirsich Fruchtsauce (Frozen) 1 kg",
+      "en": "FO Peach Fruited Sauce (Frozen) 1 kg",
+      "tr": "FO Şeftali Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-seftali-meyveli-pure-sos-fo1119",
+    "stok_kodu": "FO-MYS-009",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "4a3498d6-38ba-47cf-9cb5-a34f659c7f99",
+    "ad": {
+      "ar": "شراب بنكهة جوز الهند (بلانك) 70 سل",
+      "de": "FO Kokosgeschmack Sirup (Blanc) 70 cl",
+      "en": "FO Coconut Flavored Syrup (Blanc) 70 cl",
+      "tr": "FO Hindistan Cevizi Aromalı Şurup (Blanc) 70 cl"
+    },
+    "slug": "fo-kokosgeschmack-sirup-blanc-70-cl",
+    "stok_kodu": "FO-KSR-017",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "2cd6dc8e-1433-438d-8fd1-764b8d8045ce",
+    "ad": {
+      "ar": "شراب الشوكولاتة البيضاء فو - بريميوم 700 مل",
+      "de": "FO Weißer Schokoladensirup - Premium 700 ml",
+      "en": "FO White Chocolate Syrup - Premium 700 ml",
+      "tr": "FO Beyaz Çikolata Şurubu - Premium 700 ml"
+    },
+    "slug": "fo-beyaz-cikolata-premium-surup-700ml-fo1147",
+    "stok_kodu": "FO-PKS-029",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "89820001-941f-4159-8316-a06874aeebe3",
+    "ad": {
+      "de": "FO Weißer Schokolade Aromatisierter Sirup 70 CL",
+      "en": "FO White Chocolate Flavored Syrup 70 CL",
+      "tr": "FO Beyaz Çikolata Aromalı Şurup 70 CL",
+      "عربي": "شراب بنكهة الشوكولاتة البيضاء FO 70 سل"
+    },
+    "slug": "fo-weisser-schokolade-aromatisierter-sirup-70-cl",
+    "stok_kodu": "FO-SRP-006",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "cold-chain"
+  },
+  {
+    "id": "abca0310-e8e4-407a-802c-66df1425f310",
+    "ad": {
+      "ar": "شراب فو بنكهة الفانيليا - خالي من السكر 700 مل",
+      "de": "FO Vanille Aroma Sirup - Zuckerfrei 700 ml",
+      "en": "FO Vanilla Flavored Syrup - Sugar Free 700 ml",
+      "tr": "FO Vanilya Aromalı Şurup - Şekersiz 700 ml"
+    },
+    "slug": "fo-vanilya-aromal-premium-surup-700ml-fo1150",
+    "stok_kodu": "FO-PKS-006",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "16f4e873-0ef4-415c-9576-9a4410a01f24",
+    "ad": {
+      "ar": "شراب بنكهة البندق من فو 700 مل - خالي من السكر",
+      "de": "Fo Haselnussaromatisierter Sirup 700 ml - Zuckerfrei",
+      "en": "Fo Hazelnut Flavored Syrup 700 ml - Sugar Free",
+      "tr": "Fo Fındık Aromalı Şurup 700 ml - Şekersiz"
+    },
+    "slug": "fo-fndk-aromal-surup-sekersiz-700-ml",
+    "stok_kodu": "FO-KSR-011",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "1be59fa7-c321-4b01-8a36-d29f039e59c6",
+    "ad": {
+      "ar": "مشروب مسحوق بنكهة الشوكولاتة FO 1 كجم",
+      "de": "FO Schokoladenaromatisiertes Pulvergetränk 1 kg",
+      "en": "FO Chocolate Flavored Powder Drink 1 kg",
+      "tr": "FO Çikolatalı Toz İçecek - Milkshake 1 kg"
+    },
+    "slug": "bitter-cikolatali-icecek-tozu-1-kg",
+    "stok_kodu": "FO-TIZ-020",
+    "kategori_id": "c50e6bb6-aa30-49be-ae8c-dae65608c68a",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "bd4e98af-6b3c-479e-a91f-4054db4163ad",
+    "ad": {
+      "ar": "فو شراب بنكهة الكراميل الممتاز 700 مل",
+      "de": "FO Karamell-Aroma Premium Sirup 700 ml",
+      "en": "FO Caramel Flavored Premium Syrup 700 ml",
+      "tr": "FO Karamel Aromalı Premium Şurup 700 ml"
+    },
+    "slug": "fo-karamel-premium-surup-700ml-fo1144",
+    "stok_kodu": "FO-PKS-004",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "6339219d-4c9e-4389-a7cb-c8d062efee8f",
+    "ad": {
+      "ar": "مركز مشروب الحميض مدام سوريل من إف أو 1000 غرام",
+      "de": "FO Madame Sorrel Sauerampfer-Getränkekonzentrat 1000 g",
+      "en": "FO Madame Sorrel Drink Mix 1000 g",
+      "tr": "FO Madame Sorrel Kuzukulaklı İçecek Karışımı 1000 gr"
+    },
+    "slug": "fo-sorrel-icecek-karsm-madam-sorrel-1000-gr",
+    "stok_kodu": "FO-IKN-003",
+    "kategori_id": "7d66168b-5530-4e3b-8371-6a643def69bb",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "b591721c-37e5-46ad-94e9-cdf85885e870",
+    "ad": {
+      "ar": "شراب بنكهة الفراولة من فو 70 سل",
+      "de": "FO Erdbeeraromatisierter Sirup 70 cl",
+      "en": "FO Strawberry Flavored Syrup 70 cl",
+      "tr": "FO Çilek Aromalı Şurup 70 cl"
+    },
+    "slug": "cilekli-surup-700-ml",
+    "stok_kodu": "FO-KSR-019",
+    "kategori_id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "3368c956-7293-4a1a-8111-2fd1129d8f04",
+    "ad": {
+      "ar": "شراب بنكهة الرمان من فو 70 سل",
+      "de": "FO Grenadinen Aromatisierter Sirup 70 cl",
+      "en": "FO Grenadine Flavored Syrup 70 cl",
+      "tr": "FO Nar Çiçeği (Grenadine) Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-nar-premium-surup-700-ml-fo1138",
+    "stok_kodu": "FO-SRP-004",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "2d438bd2-d047-4b8f-b163-c4d6bcd57ea5",
+    "ad": {
+      "ar": "صلصة التوفي والكراميل فو 2.5 كجم",
+      "de": "FO Toffee Karamellsauce 2,5 kg",
+      "en": "FO Toffee Caramel Sauce 2.5 kg",
+      "tr": "FO Tofi Karamel Sos 2,5 kg"
+    },
+    "slug": "toffee-caramel-sauce",
+    "stok_kodu": "FO-MYS-019",
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "b85b4a89-1ecd-4116-9a8d-ab74fccc967d",
+    "ad": {
+      "ar": "شراب بنكهة الكراميل FO 70 سل",
+      "de": "FO Karamell Flavored Sirup 70 CL",
+      "en": "FO Caramel Flavored Syrup 70 CL",
+      "tr": "FO Karamel Aromalı Şurup 70 CL"
+    },
+    "slug": "fo-srp-karamel",
+    "stok_kodu": "FO-KSR-070",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "24dc99d5-dee1-4160-8047-43d28e07aa35",
+    "ad": {
+      "ar": "صلصة التوت الأسود بالفاكهة (فروزن) من إف أوه 1 كجم",
+      "de": "FO Brombeere Fruchtsauce (Frozen) 1 kg",
+      "en": "FO Blackberry Fruited Sauce (Frozen) 1 kg",
+      "tr": "FO Böğürtlen Meyveli Sos (Frozen) 1 kg"
+    },
+    "slug": "fo-bogurtlen-meyveli-pure-sos-fo1113",
+    "stok_kodu": "FO-MYS-004",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "0eb33808-ed37-43da-9b85-33144cdb4653",
+    "ad": {
+      "ar": "صلصة توت العليق (فرامبواز) من إف أوه - فروزن 1 كجم",
+      "de": "FO Himbeer Fruchtsauce - Frozen 1 kg",
+      "en": "FO Raspberry Fruited Sauce - Frozen 1 kg",
+      "tr": "FO Frambuaz Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-ahududu-meyveli-pure-sos-fo1111",
+    "stok_kodu": "FO-MYS-002",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "b795f070-9313-4219-87e9-6de1585daaa4",
+    "ad": {
+      "ar": "شراب فو بنكهة الشوكولاتة - بريميوم 700 مل",
+      "de": "FO Schokoladensirup - Premium 700 ml",
+      "en": "FO Chocolate Syrup - Premium 700 ml",
+      "tr": "FO Çikolata Aromalı Şurup - Premium 700 ml"
+    },
+    "slug": "fo-cikolatal-premium-surup-700ml-fo1148",
+    "stok_kodu": "FO-PKS-005",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "346a52b2-1034-48fb-b605-89b9886c8ffd",
+    "ad": {
+      "ar": "صلصة الفراولة مع قطع الفاكهة مثلجة من إف أوه 1 كجم",
+      "de": "FO Erdbeer Fruchtsauce - Frozen 1 kg",
+      "en": "FO Strawberry Fruited Sauce - Frozen 1 kg",
+      "tr": "FO Çilek Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-cilek-meyveli-pure-sos-fo1110",
+    "stok_kodu": "FO-MYS-001",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "5bcfaac8-3211-429b-abb2-e12ef66da2cc",
+    "ad": {
+      "ar": "صلصة الكيوي بالفاكهة من إف أوه - فروزن 1 كجم",
+      "de": "FO Kiwi Fruchtsauce - Frozen 1 kg",
+      "en": "FO Kiwi Fruited Sauce - Frozen 1 kg",
+      "tr": "FO Kivi Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-kivi-meyveli-pure-sos-fo1114",
+    "stok_kodu": "FO-MYS-005",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "77f84482-1d46-4ccb-8b66-0c8b817db17c",
+    "ad": {
+      "ar": "شراب بنكهة البطيخ من إف أو 70 سل",
+      "de": "FO Wassermelone Aromatisierter Sirup 70 cl",
+      "en": "FO Watermelon Flavored Syrup 70 cl",
+      "tr": "FO Karpuz Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-kavun-surubu-fo1159",
+    "stok_kodu": "FO-KSR-004",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "669a23c7-7f23-4fe6-8c3a-e78f75f28373",
+    "ad": {
+      "ar": "صلصة الموز مع قطع الفاكهة فو 1 كجم",
+      "de": "FO Bananen Fruchtsauce 1 kg",
+      "en": "FO Banana Fruited Sauce 1 kg",
+      "tr": "FO Muz Meyveli Sos 1 kg"
+    },
+    "slug": "fo-muz-meyveli-pure-sos-fo1121",
+    "stok_kodu": "FO-MYS-011",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "9f096673-4c86-41e2-a55a-e24606be0957",
+    "ad": {
+      "ar": "فو شراب مركز بنكهة الرمان بريميوم 700 مل",
+      "de": "FO Granatapfel Fruchtsirup Premium 700 ml",
+      "en": "FO Pomegranate Fruit Syrup Premium 700 ml",
+      "tr": "FO Nar Meyveli Premium Şurup 700 ml"
+    },
+    "slug": "fo-srp-prem-nar",
+    "stok_kodu": "FO-SRP-024",
+    "kategori_id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "36e51cd3-b42d-47dd-945c-035fbb82eb06",
+    "ad": {
+      "ar": "شراب بنكهة جوز الهند العادي من إف أو 70 سل",
+      "de": "FO Regulärer Kokosnusshaltiger Sirup 70 cl",
+      "en": "FO Regular Coconut Flavored Syrup 70 cl",
+      "tr": "FO Regular Hindistan Cevizi Aromalı Şurup 70 cl"
+    },
+    "slug": "hindistan-cevizi-aromali-surup-regular-700ml",
+    "stok_kodu": "FO-KSR-079",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "0bf1dfd4-4d21-4fc2-a252-7e98c59c9028",
+    "ad": {
+      "ar": "مركز فـو بالنعناع الكوبي والليمون الأخضر (لايم) 700 مل",
+      "de": "FO Kubanische Minze & Limette Basissirup 700ml",
+      "en": "FO Cuban Mint Lime Base Syrup 700ml",
+      "tr": "FO Küba Nanesi ve Misket Limonu Baz Şurup 700ml"
+    },
+    "slug": "fo-kuba-nanesi-und-misket-limonu-baz-700-ml",
+    "stok_kodu": "FO-KSR-008",
+    "kategori_id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "e3b8c6ff-fcf2-4552-b58a-3a616b979a8b",
+    "ad": {
+      "ar": "صلصة الفستق الأخضر فو 5% 940 جرام",
+      "de": "Fo Pistazien Verde Sauce 5% 940g",
+      "en": "Fo Pistachio Verde Sauce 5% 940g",
+      "tr": "Fo Pistachio Verde Sos %5 940g"
+    },
+    "slug": "antep-fistikli-special-sos-5-940-gr",
+    "stok_kodu": "FO-CBS-016",
+    "kategori_id": "3e20c73f-89cb-4fff-a03c-e289043e2b9c",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "fbb3ce44-1950-4ed2-b7a5-21718fc48436",
+    "ad": {
+      "ar": "صلصة تزيين بنكهة الفراولة من إف أو 750 جم",
+      "de": "FO Erdbeergeschmack Dekorsauce 750 g",
+      "en": "FO Strawberry Flavored Decor Sauce 750 g",
+      "tr": "FO Çilek Aromalı Dekor Sos 750 gr"
+    },
+    "slug": "cilek-aromali-dekor-sos-750-gr",
+    "stok_kodu": "FO-CBS-033",
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "531facb3-06cc-453b-8367-955fcde6458e",
+    "ad": {
+      "ar": "صلصة التفاح الأخضر بالفاكهة فروزن من إف أوه 1 كجم",
+      "de": "FO Grüner Apfel Fruchtsoße 1 kg",
+      "en": "FO Green Apple Fruited Sauce 1 kg",
+      "tr": "FO Yeşil Elma Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-yesil-elma-meyveli-pure-sos-fo1120",
+    "stok_kodu": "FO-MYS-010",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "c3029bf8-5bc5-4566-8d50-0e2ba3ab0ffb",
+    "ad": {
+      "ar": "صوص بفرع الشوكولاتة فو 750 جم",
+      "de": "Fo Schokoladengeschmack Sosse 750 g",
+      "en": "Fo Chocolate Flavored Sauce 750 g",
+      "tr": "Fo Çikolata Aromalı Sos 750 g"
+    },
+    "slug": "fo-cikolata-aromali-dekor-sos-750gr",
+    "stok_kodu": "FO-CBS-018",
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "5b1339ac-c72d-4b9d-843d-9daa2732100f",
+    "ad": {
+      "ar": "صلصة الشوكولاتة الفاخرة فو 2,5 كجم",
+      "de": "FO Premium Schokoladensauce 2,5 kg",
+      "en": "FO Premium Chocolate Sauce 2,5 kg",
+      "tr": "FO Premium Çikolata Sosu 2,5 kg"
+    },
+    "slug": "fo-premium-cikolata-sosu-2-5-kg",
+    "stok_kodu": "FO-CBS-004",
+    "kategori_id": "21f65289-fb51-4a03-a33d-7f4c6d9d9135",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "a46effd1-1eba-4cda-8699-5d03a2f15675",
+    "ad": {
+      "ar": "قاعدة مشروبات مسحوق FO (كواترو) 1 كجم",
+      "de": "FO Pulver Getränkebasis (Quatro) 1 kg",
+      "en": "FO Powder Drink Base (Quatro) 1 kg",
+      "tr": "FO Toz İçecek Bazı (Quatro) 1 kg"
+    },
+    "slug": "fo-toz-icecek-baz-quatro-fo1021",
+    "stok_kodu": "FO-TIZ-001",
+    "kategori_id": "c50e6bb6-aa30-49be-ae8c-dae65608c68a",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "db361886-66e2-49f1-994a-c9dbe3fe5e56",
+    "ad": {
+      "ar": "شراب فو بنكهة البندق بريميوم 700 مل",
+      "de": "FO Haselnuss-Aroma-Sirup Premium 700ml",
+      "en": "FO Hazelnut Flavored Syrup Premium 700ml",
+      "tr": "FO Fındık Aromalı Şurup Premium 700ml"
+    },
+    "slug": "fo-prem-haz-001",
+    "stok_kodu": "FO-PKS-008",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "af5809e6-832f-4a94-9346-dae57cd07709",
+    "ad": {
+      "ar": "فو شراب مركز بنكهة التوت الأسود بريميوم 700 مل",
+      "de": "FO Brombeere Fruchtsirup Premium 700ml",
+      "en": "FO Blackberry Fruit Syrup Premium 700ml",
+      "tr": "FO Böğürtlen Meyveli Şurup Premium 700ml"
+    },
+    "slug": "fo-bogurtlen-meyveli-premium-surup-700ml-fo1149",
+    "stok_kodu": "FO-SRP-007",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "0c2f58b8-86fe-48a8-8264-8dd64627092b",
+    "ad": {
+      "ar": "شراب فو بنكهة النعناع 700 مل",
+      "de": "FO Pfefferminz-Sirup 700 ml",
+      "en": "FO Peppermint Flavored Syrup 700 ml",
+      "tr": "FO Nane Aromalı Şurup 700 ml"
+    },
+    "slug": "fo-bahce-nanesi-surubu-fo1195",
+    "stok_kodu": "FO-SRP-009",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "cbc22277-3a1e-4151-a47a-ca7575ebe0a5",
+    "ad": {
+      "ar": "صوص الكراميل البريميوم من فو 2.5 كجم",
+      "de": "FO PREMIUM KARAMELL SAUCE 2,5 KG",
+      "en": "FO PREMIUM CARAMEL SAUCE 2.5 KG",
+      "tr": "FO PREMIUM KARAMEL SOS 2,5 KG"
+    },
+    "slug": "fo-premium-karamel-sosu-2-5-kg",
+    "stok_kodu": "FO-CBS-003",
+    "kategori_id": "21f65289-fb51-4a03-a33d-7f4c6d9d9135",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "00718ba0-52e7-4abd-81fe-6c930f6f3a10",
+    "ad": {
+      "ar": "شراب مركز بنكهة التوت الأحمر فو - بريميوم 700 مل",
+      "de": "FO Himbeere Fruchtsirup - Premium 700ml",
+      "en": "FO Raspberry Fruit Syrup - Premium 700ml",
+      "tr": "FO Ahududu Meyveli Şurup - Premium 700ml"
+    },
+    "slug": "fo-ahududu-premium-surup-700ml-fo1136",
+    "stok_kodu": "FO-PKS-002",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "03e6cf67-efe7-4141-9f69-87ec5e70f9fa",
+    "ad": {
+      "ar": "شراب فـو بنكهة الموهيتو 70 مل",
+      "de": "FO Mojito Sirup mit Geschmack 70 cl",
+      "en": "FO Mojito Flavored Syrup 70 cl",
+      "tr": "FO Mojito Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-nane-ve-limon-aromal-surup-700-ml",
+    "stok_kodu": "FO-KSR-018",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "c4ffaa96-dfe9-449d-930f-34d7e2905a34",
+    "ad": {
+      "ar": "شراب جوز الهند فو - بريميوم 700 مل",
+      "de": "FO Kokosnuss Sirup - Premium 700 ml",
+      "en": "FO Coconut Syrup - Premium 700 ml",
+      "tr": "FO Hindistan Cevizi Aromalı Şurup - Premium 700 ml"
+    },
+    "slug": "fo-coconut-syrup",
+    "stok_kodu": "FO-PKS-007",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "fe2b905d-ec92-46b2-94f8-97e188f8b6b7",
+    "ad": {
+      "ar": "شراب فو الممتاز بنكهة الساكورا والخوخ الأبيض 700 مل",
+      "de": "FO Sakura und Weißer Pfirsich Aroma Premium Sirup 700 ml",
+      "en": "FO Sakura and White Peach Flavored Premium Syrup 700 ml",
+      "tr": "FO Sakura ve Beyaz Şeftali Aromalı Premium Şurup 700 ml"
+    },
+    "slug": "fo-srp-prem-sef",
+    "stok_kodu": "FO-SRP-001",
+    "kategori_id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "65ec97da-0aba-4a23-ac1e-c2e34317d7fe",
+    "ad": {
+      "ar": "مشروب الفواكه المشكلة FO - زيوس 800 مل",
+      "de": "FO Mischfruchtgetränk – Zeus 800 ml",
+      "en": "FO Mixed Fruit Drink – Zeus 800 ml",
+      "tr": "FO Karışık Meyveli İçecek – Zeus 800 ml"
+    },
+    "slug": "fo-zeus-karsk-meyveli-icecek-baz-800-ml",
+    "stok_kodu": "FO-ANT-004",
+    "kategori_id": "7d66168b-5530-4e3b-8371-6a643def69bb",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "69dec99d-316d-4896-937e-779cd7c54a79",
+    "ad": {
+      "ar": "شراب بنكهة الفانيليا من فو - خالي من السكر 700 مل",
+      "de": "Fo Vanille Aromatisierter Sirup - Zuckerfrei 700 ml",
+      "en": "Fo Vanilla Flavored Syrup - Sugar Free 700 ml",
+      "tr": "Fo Vanilya Aromalı Şurup - Şekersiz 700 ml"
+    },
+    "slug": "fo-vanilya-aromal-surup-sekersiz-700-ml",
+    "stok_kodu": "FO-KSR-013",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "8a644fee-e81e-4ec6-b229-55a179fbb845",
+    "ad": {
+      "ar": "فو شراب المانجو المميز 700 مل",
+      "de": "FO Mango Premium Sirup 700 ml",
+      "en": "FO Mango Flavored Premium Syrup 700 ml",
+      "tr": "FO Mango Aromalı Premium Şurup 700 ml"
+    },
+    "slug": "fo-mango-premium-surup-700-ml-fo1137",
+    "stok_kodu": "FO-SRP-003",
+    "kategori_id": "318833bd-eb95-448d-91f5-b748a28d1556",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "024aecdc-953c-4f7e-8a6f-28427a757e9b",
+    "ad": {
+      "ar": "صلصة البطيخ مع قطع الفاكهة فو (مشروبات مثلجة) 1 كجم",
+      "de": "FO Wassermelone Fruchtsauce (Frozen) 1 kg",
+      "en": "FO Watermelon Fruited Sauce (Frozen) 1 kg",
+      "tr": "FO Karpuz Meyveli Sos (Frozen) 1 kg"
+    },
+    "slug": "fo-karpuz-meyveli-pure-sos-fo1118",
+    "stok_kodu": "FO-MYS-008",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "dfb1fc66-ea0a-4a78-b4c3-3a65f1c8d2e0",
+    "ad": {
+      "ar": "صلصة نكهة القلقاس الفاخرة FO 2.5 كجم (تشمل المضخة)",
+      "de": "FO Premium Taro Aromatisierte Sauce 2,5 kg (Inklusive Pumpe)",
+      "en": "FO Premium Taro Flavored Sauce 2,5 kg (Pump Included)",
+      "tr": "FO Taro Aromalı Premium Sos 2,5 kg (Pompa Hediyeli)"
+    },
+    "slug": "fo-premium-taro-sosu-2-5-kg",
+    "stok_kodu": "FO-PRF-002",
+    "kategori_id": "21f65289-fb51-4a03-a33d-7f4c6d9d9135",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "af06ab12-7132-4d06-957b-781e71165446",
+    "ad": {
+      "ar": "فو شراب بنكهة النعناع 700 مل",
+      "de": "FO Grüne Minze Sirup 700 ml",
+      "en": "Fo Spearmint Flavored Syrup 70 Cl. sugar",
+      "tr": "FO Tatlı Nane Aromalı Şurup 700 ml"
+    },
+    "slug": "fo-srp-spearmint",
+    "stok_kodu": "FO-SRP-030",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [
+      "barista-bakery-essentials"
+    ],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "cedb0279-cd0a-4cfa-8a9f-9dc745457549",
+    "ad": {
+      "ar": "مشروب الفواكه المشكلة FO - ديونيسوس 800 مل",
+      "de": "FO Mixed Fruit Drink – Dionysus 800ml",
+      "en": "FO Mixed Fruit Drink – Dionysus 800ml",
+      "tr": "FO Karışık Meyve Aromalı İçecek – Dionysus 800 ml"
+    },
+    "slug": "fo-dionysos-karsk-meyveli-icecek-baz-800-ml",
+    "stok_kodu": "FO-ANT-002",
+    "kategori_id": "7d66168b-5530-4e3b-8371-6a643def69bb",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "28a3730b-f5b1-4801-8744-a1aecb7b9f98",
+    "ad": {
+      "ar": "شراب بنكهة الشوكولاتة البيضاء فو 700 مل",
+      "de": "Fo White Chocolate Flavored Syrup 700 ml",
+      "en": "Fo White Chocolate Flavored Syrup 700 ml",
+      "tr": "Fo Beyaz Çikolata Aromalı Şurup 700 ml"
+    },
+    "slug": "fo-beyaz-cikolata-aromal-surup-sekersiz-700-ml",
+    "stok_kodu": "FO-KSR-009",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "af116b86-de09-4a26-8c3c-ed7d02cd254d",
+    "ad": {
+      "ar": "شراب مركز بنكهة الكركديه فو 700 مل",
+      "de": "FO Hibiskus-Sirup 700 ml",
+      "en": "FO Hibiscus Flavored Syrup 700 ml",
+      "tr": "FO Hibiskus Aromalı Şurup 700 ml"
+    },
+    "slug": "fo-hibiskus-surubu-fo1230",
+    "stok_kodu": "FO-KSR-007",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "b3b08244-8d02-41b5-ad8f-7de99d05558a",
+    "ad": {
+      "ar": "شراب فو بنكهة البلو كوراساو 70 سل",
+      "de": "FO Blue Curacao Sirup 70 cl",
+      "en": "FO Blue Curacao Flavored Syrup 70 cl",
+      "tr": "FO Blue Curacao Aromalı Şurup 70 cl"
+    },
+    "slug": "fo-blue-curacao-surubu-fo1158",
+    "stok_kodu": "FO-KSR-003",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "114d0277-2b63-4ca1-b65e-ac5cb66e64c5",
+    "ad": {
+      "ar": "صلصة فواكه الغابة فو 1 كجم",
+      "de": "FO Waldbeeren Fruchtsauce 1 kg",
+      "en": "FO Wild Berries Fruited Sauce 1 kg",
+      "tr": "FO Orman Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-orman-meyveleri-pure-sos-1-kg-fo1124",
+    "stok_kodu": "FO-MYS-014",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "fd39fc06-6857-41d3-a4f7-f5fcb535119e",
+    "ad": {
+      "ar": "مشروب الفواكه المشكلة FO – هيراكليس 800 مل",
+      "de": "FO Mixed Fruit Drink – Heracles 800ML",
+      "en": "FO Mixed Fruit Drink – Heracles 800ML",
+      "tr": "FO Karışık Meyve Aromalı İçecek – Heracles 800ML"
+    },
+    "slug": "fo-herakles-karsk-meyveli-icecek-baz-800-ml",
+    "stok_kodu": "FO-ANT-005",
+    "kategori_id": "7d66168b-5530-4e3b-8371-6a643def69bb",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "9e271277-edc5-49db-ad49-892bffb6799b",
+    "ad": {
+      "ar": "صلصة المانجو بالفاكهة فو 1 كجم",
+      "de": "FO Mango Fruchtsoße 1 kg",
+      "en": "FO Mango Fruited Sauce 1 kg",
+      "tr": "FO Mangolu Meyveli Sos 1 kg"
+    },
+    "slug": "fo-mango-meyveli-pure-sos-fo1116",
+    "stok_kodu": "FO-MYS-006",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "be97c3b8-a1c6-42ea-93f2-7e76629baaf3",
+    "ad": {
+      "ar": "فو شراب فاكهة البطيخ – بريميوم 700 مل",
+      "de": "FO Wassermelone Fruchtsirup – Premium 700ml",
+      "en": "FO Watermelon Fruit Syrup – Premium 700ml",
+      "tr": "FO Karpuz Meyveli Şurup – Premium 700ml"
+    },
+    "slug": "fo-karpuz-meyveli-premium-surup-700ml-fo1146",
+    "stok_kodu": "FO-SRP-005",
+    "kategori_id": "71804c62-f21f-412b-b82f-749e495391bf",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "2ea65f32-3798-49ff-9f5b-997e0ec2b1da",
+    "ad": {
+      "ar": "صلصة التوت الأزرق بقطع الفاكهة فو 1 كجم",
+      "de": "FO Blaubeer Fruchtsoße 1 Kg",
+      "en": "FO Blueberry Fruited Sauce 1 Kg",
+      "tr": "FO Yaban Mersini Taneli Sos 1 Kg"
+    },
+    "slug": "fo-yaban-mersini-meyveli-pure-sos-1-kg-fo1127",
+    "stok_kodu": "FO-MYS-016",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "4b56480f-b892-49a2-88f9-c7b4fab4a3ad",
+    "ad": {
+      "ar": "صلصة FO بالشمام للمشروبات المثلجة 1 كجم",
+      "de": "FO Melonenfruchtsoße - Frozen 1 kg",
+      "en": "FO Melon Fruited Sauce - Frozen 1 kg",
+      "tr": "FO Kavun Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-kavun-meyveli-pure-sos-fo1117",
+    "stok_kodu": "FO-MYS-007",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "cda9db32-fc4b-4834-a12f-c21278896c09",
+    "ad": {
+      "ar": "صلصة الأناناس بالفاكهة فو (فروازن) 1 كجم",
+      "de": "FO Ananas Fruchtpüree Sauce (Frozen) 1 kg",
+      "en": "FO Pineapple Fruited Sauce (Frozen) 1 kg",
+      "tr": "FO Ananas Meyveli Sos - Frozen 1 kg"
+    },
+    "slug": "fo-ananas-meyveli-pure-sos-1-kg-fo1128",
+    "stok_kodu": "FO-MYS-017",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "2bb2317e-ba80-461f-9a24-7fd4d702565b",
+    "ad": {
+      "ar": "مشروب الفواكه المشكلة FO - هليوس 800 مل",
+      "de": "FO Mischfruchtgetränk – Helios 800 ml",
+      "en": "FO Mixed Fruit Drink – Helios 800 ml",
+      "tr": "FO Karışık Meyveli İçecek – Helios 800 ml"
+    },
+    "slug": "fo-helios-karsk-meyveli-icecek-baz-800-ml",
+    "stok_kodu": "FO-ANT-003",
+    "kategori_id": "7d66168b-5530-4e3b-8371-6a643def69bb",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "a7ca4f25-6bda-4155-bf4c-940ed5bc7b97",
+    "ad": {
+      "ar": "فو شراب بنكهة الموز 700 مل",
+      "de": "FO Bananen-Aroma-Sirup 700 ml",
+      "en": "FO Banana Flavored Syrup 700 ml",
+      "tr": "FO Muz Aromalı Şurup 700 ml"
+    },
+    "slug": "fo-muz-surubu-fo1165",
+    "stok_kodu": "FO-SRP-008",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "e0e43bc5-06cb-40bb-8bb8-7fbaf48be313",
+    "ad": {
+      "ar": "صلصة الفواكه بجوز الهند فو 1 كغ",
+      "de": "FO Kokosnuss Fruchtsauce 1 kg",
+      "en": "FO Coconut Fruited Sauce 1 kg",
+      "tr": "FO Hindistan Cevizi Meyveli Sos 1 kg"
+    },
+    "slug": "fo-hindistan-cevizi-meyveli-pure-sos-1-kg-fo1123",
+    "stok_kodu": "FO-MYS-013",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "d65ba9af-cd9a-48f0-823d-781c917bd259",
+    "ad": {
+      "ar": "مسحوق مشروب الشاي الأخضر ماتشا فو 1 كجم",
+      "de": "Fo Matcha Green Tea Powder Drink 1 kg",
+      "en": "Fo Matcha Green Tea Powder Drink 1 kg",
+      "tr": "Fo Matcha Yeşil Çay Tozu İçecek 1 kg"
+    },
+    "slug": "matcha-yesil-cay-icecek-tozu---milkshake-1-kg",
+    "stok_kodu": "FO-TIZ-024",
+    "kategori_id": "c50e6bb6-aa30-49be-ae8c-dae65608c68a",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "e87a76a4-103f-410c-9e39-a6be21b7f433",
+    "ad": {
+      "ar": "صلصة الليمون بالفاكهة فو 1 كجم",
+      "de": "FO Zitronen-Fruchtsauce 1 kg",
+      "en": "FO Lemon Fruited Sauce 1 kg",
+      "tr": "FO Limon Meyveli Sos 1 kg"
+    },
+    "slug": "fo-limon-meyveli-pure-sos-fo1122",
+    "stok_kodu": "FO-MYS-012",
+    "kategori_id": "5e4a728a-65d7-483b-9cb4-f8c37cb0af60",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "e26771eb-f6d0-4cd9-8c27-316633f348f7",
+    "ad": {
+      "ar": "شراب مشروب بنكهة النعناع والليمون من فو 700 مل",
+      "de": "Fo Minz- und Limetten-Geschmack Getränkesirup 700 ml",
+      "en": "Fo Mint and Lime Flavored Beverage Syrup 700 ml",
+      "tr": "Fo Nane ve Limon Aromalı İçecek Şurubu 700 ml"
+    },
+    "slug": "nane-ve-misket-limonu-aromali-icecek-700-ml",
+    "stok_kodu": "FO-SOS-009",
+    "kategori_id": "7d66168b-5530-4e3b-8371-6a643def69bb",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "e666631e-587f-443e-8c4a-0311b2b72a8c",
+    "ad": {
+      "ar": "صلصة الشوكولاتة الاحترافية من فو 2.5 كجم",
+      "de": "FO Schokoladensauce Professional 2,5 kg",
+      "en": "FO Professional Chocolate Sauce 2.5 kg",
+      "tr": "FO Profesyonel Çikolata Sosu 2,5 kg"
+    },
+    "slug": "chocolate-sauce-2-5kg",
+    "stok_kodu": "FO-MYS-018",
+    "kategori_id": "5ed5cbf0-baa0-4e4d-a452-94dd68e0e386",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "b6aa45a8-d61a-4fa3-8eb3-c0375890cadc",
+    "ad": {
+      "ar": "صلصة الشوكولاتة البيضاء الفاخرة FO سعة 2.5 كجم",
+      "de": "FO Premium Weiße Schokoladensauce 2,5 kg",
+      "en": "FO Premium White Chocolate Sauce 2.5 kg",
+      "tr": "FO Premium Beyaz Çikolatalı Sos 2,5 kg"
+    },
+    "slug": "fo-premium-beyaz-cikolata-sosu-2-5-kg",
+    "stok_kodu": "FO-CBS-002",
+    "kategori_id": "21f65289-fb51-4a03-a33d-7f4c6d9d9135",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "eb5baae4-761d-4c1f-88f8-e913e03cb5f9",
+    "ad": {
+      "ar": "مسحوق مشروب بنكهة الفراولة FO 1 كجم",
+      "de": "FO Erdbeergeschmack Pulvergetränk 1 kg",
+      "en": "FO Strawberry Flavored Powder Drink 1 kg",
+      "tr": "FO Çilek Aromalı İçecek Tozu 1 kg"
+    },
+    "slug": "cilek-aromali-icecek-tozu-milkshake--1-kg",
+    "stok_kodu": "FO-TIZ-008",
+    "kategori_id": "c50e6bb6-aa30-49be-ae8c-dae65608c68a",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "4efd0ab0-01b8-4e94-b61a-40576c2c6bb0",
+    "ad": {
+      "ar": "صلصة الفواكه مع السكر المفرقع - خاصة 1 كجم",
+      "de": "FO Popping Candy Sosse - Speziell 1 kg",
+      "en": "FO Popping Candy Sauce - Special 1 kg",
+      "tr": "FO Patlayan Şekerli Special Sos 1 kg"
+    },
+    "slug": "patlayan-sekerli-special-sos-1000-gr",
+    "stok_kodu": "FO-CBS-020",
+    "kategori_id": "90320294-fb9e-4a88-8ebb-b46f3717799f",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "8be92bb0-f908-4614-b4c2-4deac3a5b66c",
+    "ad": {
+      "ar": "مسحوق مشروب بنكهة البطيخ من فو - ميلك شيك 1 كجم",
+      "de": "FO Melonen Aromatisiertes Pulvergetränk - Milkshake 1 kg",
+      "en": "FO Melon Flavored Powder Drink - Milkshake 1 kg",
+      "tr": "FO Kavun Aromalı İçecek Tozu - Milkshake 1 kg"
+    },
+    "slug": "kavun-aromali-icecek-tozu--milkshake--1-kg",
+    "stok_kodu": "FO-TIZ-003",
+    "kategori_id": "c50e6bb6-aa30-49be-ae8c-dae65608c68a",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "357aec8c-430f-4310-b486-de1b81bb47f3",
+    "ad": {
+      "ar": "شراب بنكهة الشوكولاتة FO 70 سل",
+      "de": "FO Schokoladenaromatisierter Sirup 70 cl",
+      "en": "FO Chocolate Flavored Syrup 70 cl",
+      "tr": "FO Çikolata Aromalı Şurup 70 CL"
+    },
+    "slug": "fo-cikolata-surubu-fo1153",
+    "stok_kodu": "FO-KSR-001",
+    "kategori_id": "73573007-1d9a-4574-921a-09fd1e610ad5",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  },
+  {
+    "id": "fee7b294-3320-41ec-9e3f-23298bbb8903",
+    "ad": {
+      "ar": "مشروب مسحوق شاي تشاي لاتيه فو 1 كجم",
+      "de": "Fo Chai Tea Latte Pulver Getränk 1 kg",
+      "en": "Fo Chai Tea Latte Powder Drink 1 kg",
+      "tr": "Fo Chai Tea Latte Toz İçecek 1 kg"
+    },
+    "slug": "chai-tea-latte-icecek-tozu-1-kg",
+    "stok_kodu": "FO-TIZ-023",
+    "kategori_id": "c50e6bb6-aa30-49be-ae8c-dae65608c68a",
+    "urun_gami": [],
+    "lojistik_sinifi": "dry-load"
+  }
+]

@@ -3,12 +3,15 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { FiSearch, FiX, FiLoader } from 'react-icons/fi';
+import { CategoryFilterSelect } from '@/components/categories/CategoryFilterSelect';
 
 interface UrunFiltreProps {
   kategoriler: Array<{ id: string; ad: any; ust_kategori_id?: string | null }>;
   tedarikciler: Array<{ id: string; unvan: string | null }>;
   urunGamiOptions: string[];
   locale: string;
+  featuredCount?: number;
+  bestsellerCount?: number;
   labels: {
     searchPlaceholder: string;
     searchButton: string;
@@ -20,6 +23,11 @@ interface UrunFiltreProps {
     allProductLines: string;
     allLogistics: string;
     allFeatures: string;
+    allShowcase?: string;
+    showcaseFeatured?: string;
+    showcaseBestseller?: string;
+    showcaseBoth?: string;
+    showcaseStandard?: string;
     statusActiveLabel: string;
     statusInactiveLabel: string;
     stockCriticalLabel: string;
@@ -35,6 +43,7 @@ interface UrunFiltreProps {
       productLinePrefix: string;
       logisticsPrefix: string;
       featurePrefix: string;
+      showcasePrefix?: string;
     };
   };
 }
@@ -44,6 +53,8 @@ export function UrunFiltre({
   tedarikciler,
   urunGamiOptions,
   locale,
+  featuredCount,
+  bestsellerCount,
   labels,
 }: UrunFiltreProps) {
   const router = useRouter();
@@ -59,6 +70,7 @@ export function UrunFiltre({
   const selectedUrunGami = searchParams.get('urun_gami') || '';
   const selectedLojistik = searchParams.get('lojistik') || '';
   const selectedOzellik = searchParams.get('ozellik') || '';
+  const selectedVitrin = searchParams.get('vitrin') || '';
 
   const updateFilters = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -180,11 +192,102 @@ export function UrunFiltre({
       value: selectedOzellik,
     });
   }
+  const isOnerilenSelected = selectedVitrin === 'onerilen' || selectedVitrin === 'featured';
+  const isBestsellerSelected = selectedVitrin === 'bestseller';
+  const isVitrinSelected = selectedVitrin === 'vitrin' || selectedVitrin === 'hepsi' || selectedVitrin === 'all_showcase';
+
+  if (selectedVitrin) {
+    let vitrinLabel = selectedVitrin;
+    if (isOnerilenSelected) vitrinLabel = `⭐ ${labels.showcaseFeatured || 'Önerilen Ürünler'}`;
+    else if (isBestsellerSelected) vitrinLabel = `🏆 ${labels.showcaseBestseller || 'Bestseller'}`;
+    else if (isVitrinSelected) vitrinLabel = `⭐+🏆 ${labels.showcaseBoth || 'Önerilen & Bestseller'}`;
+    else if (selectedVitrin === 'standart') vitrinLabel = `⚪ ${labels.showcaseStandard || 'Standart'}`;
+    activeChips.push({
+      key: 'vitrin',
+      label: `${labels.active.showcasePrefix || 'Vitrin:'} ${vitrinLabel}`,
+      value: selectedVitrin,
+    });
+  }
 
   const hasActiveFilters = activeChips.length > 0;
 
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="flex flex-col gap-2.5 w-full">
+      {/* Quick Showcase Pills / Hızlı Vitrin Sekmeleri */}
+      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+          {labels.active.showcasePrefix || 'Vitrin:'}
+        </span>
+        <button
+          type="button"
+          onClick={() => updateFilters('vitrin', '')}
+          disabled={isPending}
+          className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-all ${
+            !selectedVitrin
+              ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
+              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900'
+          }`}
+        >
+          Tüm Ürünler
+        </button>
+
+        <button
+          type="button"
+          onClick={() => updateFilters('vitrin', isOnerilenSelected ? '' : 'onerilen')}
+          disabled={isPending}
+          className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg border transition-all ${
+            isOnerilenSelected
+              ? 'bg-amber-500 text-white border-amber-500 shadow-2xs ring-2 ring-amber-200 font-bold'
+              : 'bg-amber-50/80 text-amber-900 border-amber-200 hover:bg-amber-100 hover:border-amber-300'
+          }`}
+        >
+          <span>⭐</span>
+          <span>{labels.showcaseFeatured || 'Önerilen Ürünler'}</span>
+          {featuredCount !== undefined && (
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              isOnerilenSelected ? 'bg-amber-600 text-white' : 'bg-amber-200/90 text-amber-900'
+            }`}>
+              {featuredCount}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => updateFilters('vitrin', isBestsellerSelected ? '' : 'bestseller')}
+          disabled={isPending}
+          className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg border transition-all ${
+            isBestsellerSelected
+              ? 'bg-orange-500 text-white border-orange-500 shadow-2xs ring-2 ring-orange-200 font-bold'
+              : 'bg-orange-50/80 text-orange-900 border-orange-200 hover:bg-orange-100 hover:border-orange-300'
+          }`}
+        >
+          <span>🏆</span>
+          <span>{labels.showcaseBestseller || 'Bestseller'}</span>
+          {bestsellerCount !== undefined && (
+            <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+              isBestsellerSelected ? 'bg-orange-600 text-white' : 'bg-orange-200/90 text-orange-900'
+            }`}>
+              {bestsellerCount}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => updateFilters('vitrin', isVitrinSelected ? '' : 'vitrin')}
+          disabled={isPending}
+          className={`flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all ${
+            isVitrinSelected
+              ? 'bg-violet-600 text-white border-violet-600 shadow-2xs font-bold'
+              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+          }`}
+        >
+          <span>⭐+🏆</span>
+          <span>{labels.showcaseBoth || 'Önerilen & Bestseller'}</span>
+        </button>
+      </div>
+
       {/* Row 1: all filter controls */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Search */}
@@ -213,34 +316,33 @@ export function UrunFiltre({
           </button>
         </form>
 
-        {/* Kategori — depth-first tree order */}
+        {/* Vitrin Dropdown */}
         <select
-          value={selectedCategory}
-          onChange={(e) => updateFilters('kategori', e.target.value)}
-          className="rounded-md border border-slate-200 px-2 py-1.5 text-sm"
+          value={isOnerilenSelected ? 'onerilen' : isBestsellerSelected ? 'bestseller' : isVitrinSelected ? 'vitrin' : selectedVitrin}
+          onChange={(e) => updateFilters('vitrin', e.target.value)}
+          className={`rounded-md border px-2 py-1.5 text-sm font-medium transition ${
+            selectedVitrin ? 'border-amber-400 bg-amber-50/60 text-amber-950 font-semibold' : 'border-slate-200'
+          }`}
           disabled={isPending}
         >
-          <option value="">{labels.allCategories}</option>
-          {(() => {
-            const opts: React.ReactElement[] = [];
-            const walk = (parentId: string | null, depth: number) => {
-              kategoriler
-                .filter((k) => (k.ust_kategori_id ?? null) === parentId)
-                .forEach((k) => {
-                  const name = k.ad?.[locale] || k.ad?.de || '?';
-                  const indent = depth > 0 ? '  '.repeat(depth * 2) + '└ ' : '';
-                  opts.push(
-                    <option key={k.id} value={k.id}>
-                      {indent}{name}
-                    </option>
-                  );
-                  walk(k.id, depth + 1);
-                });
-            };
-            walk(null, 0);
-            return opts;
-          })()}
+          <option value="">{labels.allShowcase || 'Vitrin Durumu (Tümü)'}</option>
+          <option value="onerilen">⭐ {labels.showcaseFeatured || 'Önerilen Ürünler (Empfohlen)'} {featuredCount !== undefined ? `(${featuredCount})` : ''}</option>
+          <option value="bestseller">🏆 {labels.showcaseBestseller || 'Bestseller (Çok Satanlar)'} {bestsellerCount !== undefined ? `(${bestsellerCount})` : ''}</option>
+          <option value="vitrin">⭐+🏆 {labels.showcaseBoth || 'Önerilen veya Bestseller'}</option>
+          <option value="standart">⚪ {labels.showcaseStandard || 'Standart (İşaretsiz)'}</option>
         </select>
+
+        {/* Kategori — Unified CategoryFilterSelect */}
+        <CategoryFilterSelect
+          categories={kategoriler}
+          value={selectedCategory}
+          onChange={(val) => updateFilters('kategori', val)}
+          locale={locale}
+          allCategoriesLabel={labels.allCategories}
+          disabled={isPending}
+          showCounts={false}
+          className="rounded-md border border-slate-200 px-2 py-1.5 text-sm"
+        />
 
         {/* Durum */}
         <select
@@ -295,7 +397,7 @@ export function UrunFiltre({
           <option value="pastaci">Konditorei &amp; Bäckerei</option>
           <option value="icecek">Getränke</option>
           {urunGamiOptions
-            .filter((g) => !['barista', 'dondurma', 'pastaci', 'icecek'].includes(g))
+            .filter((g) => typeof g === 'string' && g.trim().length > 0 && !['barista', 'dondurma', 'pastaci', 'icecek'].includes(g))
             .map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}

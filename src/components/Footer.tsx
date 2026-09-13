@@ -4,11 +4,12 @@ import Image from 'next/image';
 import { FaInstagram, FaLinkedin, FaWhatsapp, FaPhone } from 'react-icons/fa';
 
 const FO_CATEGORY_SLUGS = [
-  { slug: 'sauces-and-ingredients', key: 'catHorecaLabel',  fallback: 'HoReCa – Gesamtsortiment' },
-  { slug: 'syrups',                 key: 'catSyrupsLabel',  fallback: 'Sirupe & Barista-Basen' },
-  { slug: 'cafe-bar-sauces',        key: 'catSaucesLabel',  fallback: 'Saucen & Fruchtpürees' },
-  { slug: 'powdered-beverages',     key: 'catDrinksLabel',  fallback: 'Getränkepulver & Frappés' },
-  { slug: 'ice-cream-gelato',       key: 'catIceCreamLabel',fallback: 'Eisdiele & Gelateria' },
+  { slug: 'syrups',             key: 'catSyrupsLabel',   fallback: 'Sirupe & Barista-Basen' },
+  { slug: 'cafe-bar-sauces',    key: 'catSaucesLabel',   fallback: 'Saucen & Fruchtpürees' },
+  { slug: 'powdered-beverages', key: 'catDrinksLabel',   fallback: 'Getränkepulver & Frappés' },
+  { slug: 'premium',            key: 'catPremiumLabel',  fallback: 'Premium-Sortiment' },
+  { slug: 'cocktail-mixes',     key: 'catMixesLabel',    fallback: 'Cocktail-Mixes' },
+  { slug: 'foamer',             key: 'catFoamerLabel',   fallback: 'Foamer' },
 ] as const;
 
 const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, locale = 'de' }) => {

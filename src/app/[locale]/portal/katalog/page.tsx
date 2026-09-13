@@ -15,6 +15,7 @@ import { matchesAnyField, extractMultilingual } from '@/lib/searchUtils';
 import { ProduktMitPreis, Kategorie } from './types';
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
+import { getAllCategoryDescendantIds } from '@/lib/category-tree';
 
 export const dynamic = 'force-dynamic';
 
@@ -160,20 +161,9 @@ export default async function KatalogPage({
     );
 
     // Kategoriefilter hierarchy mapping
-    const relevanteIds = new Set<string>();
-    if (categoryFilter) {
-        relevanteIds.add(categoryFilter);
-        const queue = [categoryFilter];
-        while (queue.length > 0) {
-            const current = queue.shift()!;
-            kategorien.filter(k => k.ust_kategori_id === current).forEach(child => {
-                if (!relevanteIds.has(child.id)) {
-                    relevanteIds.add(child.id);
-                    queue.push(child.id);
-                }
-            });
-        }
-    }
+    const relevanteIds = new Set(
+        categoryFilter ? getAllCategoryDescendantIds(categoryFilter, rawKategorien as any) : []
+    );
 
     // JS Filtering
     let filteredProdukte = produkte.filter(p => {

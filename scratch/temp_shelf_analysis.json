@@ -1,0 +1,1526 @@
+{
+  "specs": {
+    "total_files": 239,
+    "files_with_temp": 4,
+    "files_with_after_opening": 150,
+    "unique_temperatures": {
+      "5-2 c": 4
+    },
+    "storage_sentences": {
+      "Storage Condition : In its original packaging, at an ambient temperature of 20-22ºC, closed and dry so that it will not be affected by weather conditions. It should be stored": 1,
+      "storage conditions.": 5,
+      "Storage Condition : In its original packaging, at an ambient temperature of 20-22ºC, closed and dry so that it will not be affected by weather conditions. It should be stor": 4,
+      "storage file": 1
+    },
+    "after_opening_matches": [
+      {
+        "file": "1. TARO FLAVORED PREMIUM SAUCE.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "1.DARK CHOCOLATE SAUCE 2,5 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "1.KIWI FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "10. CHOCOLATE POWDER DRINK.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year"
+      },
+      {
+        "file": "10.PISTACHIO SAUCE (%5) .doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "10.WATERMELON  FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "11.GREEN APPLE FRUITED SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "12.BANANA  FRUITED SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "13.LEMON FRUITED SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "14.PASSION  FRUITED SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "15. WILD BERRIES FRUITED SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "15.POPPING CANDY  SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "16.COCONUT FRUITED SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "17.BLUEBERRY FRUITED SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "18.PINE APPLE FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2. CARAMEL PREMIUM SAUCE.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2. STRAWBERRY FLAVORED POWDER DRINK.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year"
+      },
+      {
+        "file": "2.RASPBERRY  FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2.STRAWBERRY FLAVORED DECOR SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2.TOFFEE CARAMEL SAUCE 2,5 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3. MELON FLAVORED POWDER DRINK ..doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year"
+      },
+      {
+        "file": "3.BITTER CHOCOLATE DECOR SAUCE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3.STRAWBERRY FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "4. CHOCOLATE PREMIUM SAUCE.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5. WHITE CHOCOLATE PREMIUM SAUCE.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5.MELON  FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5.VANILLA  FLAVORED DECOR SAUCE-E171siz-.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 18 month."
+      },
+      {
+        "file": "6.BLACK MULBERRY  FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "7.BLACK BERRY  FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "8.MANGO  FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "9. VANILLA   FLAVORED POWDER DRINK.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year"
+      },
+      {
+        "file": "9.PEACH  FRUITED SAUCE 1 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "CHAI TEA LATTE POWDER DRINK.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year"
+      },
+      {
+        "file": "FO KOI COCTAIL FOAMER.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "FO KOI COCTAIL FOAMER.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "FO KOI COCTAIL FOAMER.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "FO KOI COCTAIL FOAMER.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "FO KOI COCTAIL FOAMER.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "MADAGASKAR VANILLA FLAVORED SAUCE- (COFFEE, ICE CREAM TOPPING & DESSERT SAUCE-) ECLIPSE SAUCE.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "MATCHA GREEN TEA POWDER DRINK.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year"
+      },
+      {
+        "file": "POWDER DRINK BASE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year"
+      },
+      {
+        "file": "SORREL BASED DRINK MIX.doc",
+        "match": "d direct sunlight should be avoided. Once mixed with water, consume within 3 days when stored at (+4)ºC."
+      },
+      {
+        "file": "SORREL BASED DRINK MIX.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 18 month."
+      },
+      {
+        "file": "1.CHOCOLATE SAUCE 2,5 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "1.CHOCOLATE SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "1.CHOCOLATE SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "1.CHOCOLATE SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "1.CHOCOLATE SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "1.CHOCOLATE SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "10.DARK BISCUIT SAUCE 2,5 KG.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "10.DARK BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "10.DARK BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "10.DARK BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "10.DARK BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "10.DARK BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "11. SALTED CARAMEL FLAVORED SAUCE 2,5 KG.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "11. SALTED CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "11. SALTED CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "11. SALTED CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "11. SALTED CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "11. SALTED CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "12. CONDENCED MILK SAUCE.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "12. CONDENCED MILK SAUCE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "12. CONDENCED MILK SAUCE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "12. CONDENCED MILK SAUCE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "12. CONDENCED MILK SAUCE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "12. CONDENCED MILK SAUCE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2.TOFFEE CARAMEL SAUCE 2,5 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2.TOFFEE CARAMEL SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2.TOFFEE CARAMEL SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2.TOFFEE CARAMEL SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2.TOFFEE CARAMEL SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "2.TOFFEE CARAMEL SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "3.WHITE CHOCOLATE SAUCE 2,5KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "4.TRAMISU FLAVORED SAUCE 2,5 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "4.TRAMISU FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "4.TRAMISU FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "4.TRAMISU FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "4.TRAMISU FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "4.TRAMISU FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5.CAPPUCCINO FLAVORED SAUCE 2,5 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5.CAPPUCCINO FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5.CAPPUCCINO FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5.CAPPUCCINO FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5.CAPPUCCINO FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "5.CAPPUCCINO FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "6.HAZELNUT SAUCE 2,5 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "6.HAZELNUT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "6.HAZELNUT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "6.HAZELNUT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "6.HAZELNUT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "6.HAZELNUT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "7.MILKY CHOCOLATE 2,5 KG.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "7.MILKY CHOCOLATE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "7.MILKY CHOCOLATE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "7.MILKY CHOCOLATE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "7.MILKY CHOCOLATE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "7.MILKY CHOCOLATE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "8.CARAMEL FLAVORED SAUCE 2,5 KG.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "8.CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "8.CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "8.CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "8.CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "8.CARAMEL FLAVORED SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "9.CARAMELIZED BISCUIT SAUCE 2,5 KG.DOC",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "9.CARAMELIZED BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "9.CARAMELIZED BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "9.CARAMELIZED BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "9.CARAMELIZED BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "9.CARAMELIZED BISCUIT SAUCE 2,5 KG.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 2 year."
+      },
+      {
+        "file": "1-RASPBERRY PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1-RASPBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1-RASPBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1-RASPBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1-RASPBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1-RASPBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10-ORANGE PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10-ORANGE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10-ORANGE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10-ORANGE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10-ORANGE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10-ORANGE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11-PISTACHIO PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11-PISTACHIO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11-PISTACHIO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11-PISTACHIO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11-PISTACHIO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11-PISTACHIO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12-SOURCHERRY PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12-SOURCHERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12-SOURCHERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12-SOURCHERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12-SOURCHERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12-SOURCHERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13-HAZELNUT PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13-HAZELNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13-HAZELNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13-HAZELNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13-HAZELNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13-HAZELNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14-WALNUT PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14-WALNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14-WALNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14-WALNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14-WALNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14-WALNUT PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16-ALMOND PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16-ALMOND PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16-ALMOND PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16-ALMOND PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16-ALMOND PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16-ALMOND PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17-PISTACHIO (98 FORMULA) PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17-PISTACHIO (98 FORMULA) PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17-PISTACHIO (98 FORMULA) PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17-PISTACHIO (98 FORMULA) PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17-PISTACHIO (98 FORMULA) PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17-PISTACHIO (98 FORMULA) PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "18-BLACKBERRY PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "18-BLACKBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "18-BLACKBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "18-BLACKBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "18-BLACKBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "18-BLACKBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "19-BLACKMULBERRY PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "19-BLACKMULBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "19-BLACKMULBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "19-BLACKMULBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "19-BLACKMULBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "19-BLACKMULBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2-CHOCOLATE PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2-CHOCOLATE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2-CHOCOLATE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2-CHOCOLATE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2-CHOCOLATE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2-CHOCOLATE PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "20-BLUEBERRY PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "20-BLUEBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "20-BLUEBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "20-BLUEBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "20-BLUEBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "20-BLUEBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "21-WILD BERRIES PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "21-WILD BERRIES PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "21-WILD BERRIES PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "21-WILD BERRIES PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "21-WILD BERRIES PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "21-WILD BERRIES PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "22-VANILLA PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "22-VANILLA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "22-VANILLA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "22-VANILLA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "22-VANILLA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "22-VANILLA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "23-MOCHA PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "23-MOCHA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "23-MOCHA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "23-MOCHA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "23-MOCHA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "23-MOCHA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24-BLUE ANGEL PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24-BLUE ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24-BLUE ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24-BLUE ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24-BLUE ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24-BLUE ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25-PINK ANGEL PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25-PINK ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25-PINK ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25-PINK ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25-PINK ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25-PINK ANGEL PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "26-MANDARIN PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "26-MANDARIN PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "26-MANDARIN PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "26-MANDARIN PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "26-MANDARIN PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "26-MANDARIN PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "28-MADAGASKAR VANILLA FLAVORED PASTE FOR PASTRY AND ICE CREAM (ECLIPSE)PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "28-MADAGASKAR VANILLA FLAVORED PASTE FOR PASTRY AND ICE CREAM (ECLIPSE)PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "28-MADAGASKAR VANILLA FLAVORED PASTE FOR PASTRY AND ICE CREAM (ECLIPSE)PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "28-MADAGASKAR VANILLA FLAVORED PASTE FOR PASTRY AND ICE CREAM (ECLIPSE)PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "28-MADAGASKAR VANILLA FLAVORED PASTE FOR PASTRY AND ICE CREAM (ECLIPSE)PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "28-MADAGASKAR VANILLA FLAVORED PASTE FOR PASTRY AND ICE CREAM (ECLIPSE)PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3-STRAWBERRY PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3-STRAWBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3-STRAWBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3-STRAWBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3-STRAWBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3-STRAWBERRY PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5-MELON PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5-MELON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5-MELON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5-MELON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5-MELON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5-MELON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6-KIWI PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6-KIWI PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6-KIWI PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6-KIWI PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6-KIWI PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7-LEMON PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7-LEMON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7-LEMON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7-LEMON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7-LEMON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7-LEMON PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8-MANGO PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8-MANGO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8-MANGO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8-MANGO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8-MANGO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8-MANGO PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9-BANANA PASTE.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9-BANANA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9-BANANA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9-BANANA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9-BANANA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9-BANANA PASTE.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1.RASPBERRY TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1.RASPBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1.RASPBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "1.RASPBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10.BITTER CHOCOLATE TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10.BITTER CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10.BITTER CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10.BITTER CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10.BITTER CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "10.BITTER CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11.WALNUT TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11.WALNUT TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11.WALNUT TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "11.WALNUT TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12. TOFFEE CARAMEL (MİLKY CARAMEL)TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12. TOFFEE CARAMEL (MİLKY CARAMEL)TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12. TOFFEE CARAMEL (MİLKY CARAMEL)TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12. TOFFEE CARAMEL (MİLKY CARAMEL)TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12. TOFFEE CARAMEL (MİLKY CARAMEL)TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "12. TOFFEE CARAMEL (MİLKY CARAMEL)TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13.ORANGE TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13.ORANGE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13.ORANGE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13.ORANGE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13.ORANGE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "13.ORANGE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14.INSTANT COFFEE TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14.INSTANT COFFEE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14.INSTANT COFFEE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14.INSTANT COFFEE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14.INSTANT COFFEE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "14.INSTANT COFFEE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "15.MILKY CHOCOLATE TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "15.MILKY CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "15.MILKY CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "15.MILKY CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "15.MILKY CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "15.MILKY CHOCOLATE TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16.WILD BERRIES TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16.WILD BERRIES TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16.WILD BERRIES TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16.WILD BERRIES TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16.WILD BERRIES TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "16.WILD BERRIES TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17.WATERMELON TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17.WATERMELON TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17.WATERMELON TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17.WATERMELON TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17.WATERMELON TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "17.WATERMELON TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2.WHITE CHOCOLATE TOPPING-E171siz.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2.WHITE CHOCOLATE TOPPING-E171siz.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2.WHITE CHOCOLATE TOPPING-E171siz.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2.WHITE CHOCOLATE TOPPING-E171siz.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2.WHITE CHOCOLATE TOPPING-E171siz.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "2.WHITE CHOCOLATE TOPPING-E171siz.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24. BLUEBERRY TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24. BLUEBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24. BLUEBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24. BLUEBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24. BLUEBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "24. BLUEBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25. MANGO TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25. MANGO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25. MANGO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25. MANGO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25. MANGO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "25. MANGO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3.STRAWBERRY TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3.STRAWBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3.STRAWBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3.STRAWBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3.STRAWBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "3.STRAWBERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "4.CARAMEL TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "4.CARAMEL TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "4.CARAMEL TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "4.CARAMEL TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "4.CARAMEL TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "4.CARAMEL TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5. KIWI TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5. KIWI TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5. KIWI TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5. KIWI TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5. KIWI TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "5. KIWI TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6.SOUR CHERRY TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6.SOUR CHERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6.SOUR CHERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6.SOUR CHERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6.SOUR CHERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "6.SOUR CHERRY TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7.HAZELNUT TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7.HAZELNUT TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7.HAZELNUT TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7.HAZELNUT TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7.HAZELNUT TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "7.HAZELNUT TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8.PISTACHIO TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8.PISTACHIO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8.PISTACHIO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8.PISTACHIO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8.PISTACHIO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "8.PISTACHIO TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9.BANANA TOPPING.doc",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9.BANANA TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9.BANANA TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      },
+      {
+        "file": "9.BANANA TOPPING.docx",
+        "match": ": The shelf life under defined storing conditions and in unopened packaging is 3 year."
+      }
+    ]
+  },
+  "labels": {
+    "total_files": 84,
+    "files_with_temp": 4,
+    "files_with_after_opening": 0,
+    "unique_temperatures": {
+      "1–2 c": 17,
+      "5-2 c": 2
+    },
+    "storage_sentences": {
+      "saklayınız.": 18,
+      "storel - Kolesterol": 1,
+      "Store in a cool,": 1,
+      "aufbewahren.": 1
+    },
+    "after_opening_matches": []
+  }
+}

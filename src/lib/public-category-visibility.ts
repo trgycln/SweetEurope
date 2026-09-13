@@ -37,25 +37,22 @@ export const PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS = [
 ] as const;
 
 export const PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER = [
-  'sauces-and-ingredients',
   'syrups',
-  'premium-cocktail-syrups',
-  'flavored-cocktail-syrups',
   'cafe-bar-sauces',
+  'powdered-beverages',
+  'premium',
+  'cocktail-mixes',
+  'foamer',
+  'flavored-cocktail-syrups',
   'fruit-sauces',
   'professional-bar-sauces',
-  'powdered-beverages',
-  'ice-cream-gelato',
-  'pastry-bakery',
-  'iconic-products',
-  'premium',
-  'anatolian-legends-ready-mixes',
-  'frozen-purees',
-  // FO-specific categories (active once DB migration runs)
-  ...FO_CATEGORY_SLUGS,
-  // Legacy FO categories kept as fallback until migration completes
-  'coffee',
-  'drinks',
+  'decoration-sauces',
+  'ice-cream-and-dessert-sauces',
+  'flavored-beverage-base',
+  'flavored-beverage-powders',
+  'premium-cocktail-syrups',
+  'premium-bar-sauces',
+  'special-sauces',
 ] as const;
 
 const HIDDEN_MENU_PATH_SEGMENTS = ['/pizza', '/pizzas'];

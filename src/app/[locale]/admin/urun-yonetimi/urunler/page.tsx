@@ -20,6 +20,7 @@ import UrunExcelExportPanel from './UrunExcelExportPanel';
 import StokHesaplaButton from './StokHesaplaButton';
 import { getGlobalCachedUser, getCachedProfile, getCachedCategories, getCachedSuppliers, getCachedPricingSettings } from '@/lib/admin/cache-utils';
 import { calculateHubPrices } from '@/lib/pricing/hub-pricing-engine';
+import { getAllCategoryDescendantIds } from '@/lib/category-tree';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,6 +64,7 @@ interface UrunlerListPageProps { // Props-Typ hinzugefügt
         urun_gami?: string[] | null;
         lojistik?: string;
         ozellik?: string;
+        vitrin?: string;
     }>;
 }
 
@@ -104,8 +106,17 @@ export default async function UrunlerListPage({
     const urunGamiFilter = sp?.urun_gami;
     const lojistikFilter = sp?.lojistik;
     const ozellikFilter = sp?.ozellik;
+    const vitrinFilter = sp?.vitrin;
     const currentPage = Math.max(1, Number.parseInt(sp?.page || '1') || 1);
     const itemsPerPage = 50;
+
+    // Vitrin sayaçları (Önerilen ve Bestseller)
+    const [featuredCountRes, bestsellerCountRes] = await Promise.all([
+        supabase.from('urunler').select('id', { count: 'exact', head: true }).eq('is_featured', true),
+        supabase.from('urunler').select('id', { count: 'exact', head: true }).eq('is_bestseller', true),
+    ]);
+    const featuredCount = featuredCountRes.count ?? 0;
+    const bestsellerCount = bestsellerCountRes.count ?? 0;
 
     // Get all categories for filter (Cached)
     const allKategoriler = await getCachedCategories();
@@ -136,8 +147,8 @@ export default async function UrunlerListPage({
     const urunGamiOptions: string[] = [
         ...new Set(
             (urunGamiRaw ?? [])
-                .map((r) => r.urun_gami)
-                .filter((v): v is string => Boolean(v))
+                .flatMap((r) => (Array.isArray(r.urun_gami) ? r.urun_gami : [r.urun_gami]))
+                .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
         ),
     ].sort();
 
@@ -172,11 +183,7 @@ export default async function UrunlerListPage({
 
     // Kategori-Filter — collect all descendants recursively
     if (kategoriFilter) {
-        const getAllDescendantIds = (parentId: string, allKats: typeof allKategoriler): string[] => {
-            const children = (allKats ?? []).filter(k => k.ust_kategori_id === parentId);
-            return children.flatMap(c => [c.id, ...getAllDescendantIds(c.id, allKats)]);
-        };
-        const allCategoryIds = [kategoriFilter, ...getAllDescendantIds(kategoriFilter, allKategoriler)];
+        const allCategoryIds = getAllCategoryDescendantIds(kategoriFilter, allKategoriler);
         query = query.in('kategori_id', allCategoryIds);
     }
 
@@ -205,6 +212,15 @@ export default async function UrunlerListPage({
     if (lojistikFilter) query = query.eq('lojistik_sinifi', lojistikFilter);
     if (ozellikFilter) {
         query = query.eq(`teknik_ozellikler->>${ozellikFilter}` as any, 'true');
+    }
+    if (vitrinFilter === 'onerilen' || vitrinFilter === 'featured') {
+        query = query.eq('is_featured', true);
+    } else if (vitrinFilter === 'bestseller') {
+        query = query.eq('is_bestseller', true);
+    } else if (vitrinFilter === 'vitrin' || vitrinFilter === 'hepsi' || vitrinFilter === 'all_showcase') {
+        query = query.or('is_featured.eq.true,is_bestseller.eq.true');
+    } else if (vitrinFilter === 'standart') {
+        query = query.eq('is_featured', false).eq('is_bestseller', false);
     }
 
     // Suchfilter: alle Sprachen (tr, de, en, ar) + stok_kodu + ean_gtin + hersteller_name, Türkçe karakter bağımsız
@@ -274,7 +290,7 @@ export default async function UrunlerListPage({
                     <h1 className="text-lg font-bold text-slate-900">Ürün Yönetimi</h1>
                     <span className="text-sm text-slate-400">
                         {totalCount || 0} ürün
-                        {(kategoriFilter || durumFilter || stokFilter || queryParam || tedarikciFilter || urunGamiFilter || lojistikFilter || ozellikFilter) && ' (filtrelenmiş)'}
+                        {(kategoriFilter || durumFilter || stokFilter || queryParam || tedarikciFilter || urunGamiFilter || lojistikFilter || ozellikFilter || vitrinFilter) && ' (filtrelenmiş)'}
                     </span>
                 </div>
 
@@ -283,6 +299,8 @@ export default async function UrunlerListPage({
                     tedarikciler={tedarikciler || []}
                     urunGamiOptions={urunGamiOptions}
                     locale={locale}
+                    featuredCount={featuredCount}
+                    bestsellerCount={bestsellerCount}
                     labels={{
                         searchPlaceholder: 'Ürün adı veya kodu...',
                         searchButton: 'Ara',
@@ -294,6 +312,11 @@ export default async function UrunlerListPage({
                         allProductLines: 'Tüm ürün gamları',
                         allLogistics: 'Tüm lojistik',
                         allFeatures: 'Tüm özellikler',
+                        allShowcase: locale === 'tr' ? 'Tüm Vitrin Durumları' : locale === 'de' ? 'Alle Vitrinenstatus' : locale === 'en' ? 'All Showcase Statuses' : 'جميع حالات العرض',
+                        showcaseFeatured: locale === 'tr' ? 'Önerilen Ürünler (Empfohlen)' : locale === 'de' ? 'Empfohlene Produkte' : locale === 'en' ? 'Featured Products' : 'المنتجات المميزة',
+                        showcaseBestseller: locale === 'tr' ? 'Bestseller (Çok Satanlar)' : locale === 'de' ? 'Bestseller' : locale === 'en' ? 'Bestsellers' : 'الأكثر مبيعاً',
+                        showcaseBoth: locale === 'tr' ? 'Önerilen veya Bestseller' : locale === 'de' ? 'Empfohlen oder Bestseller' : locale === 'en' ? 'Featured or Bestseller' : 'مميز أو الأكثر مبيعاً',
+                        showcaseStandard: locale === 'tr' ? 'Standart (İşaretsiz)' : locale === 'de' ? 'Standard (Nicht hervorgehoben)' : locale === 'en' ? 'Standard (Not highlighted)' : 'عادي (غير مميز)',
                         statusActiveLabel: 'Aktif',
                         statusInactiveLabel: 'Pasif',
                         stockCriticalLabel: 'Kritik',
@@ -309,6 +332,7 @@ export default async function UrunlerListPage({
                             productLinePrefix: 'Gam:',
                             logisticsPrefix: 'Lojistik:',
                             featurePrefix: 'Özellik:',
+                            showcasePrefix: locale === 'tr' ? 'Vitrin:' : locale === 'de' ? 'Vitrine:' : 'Showcase:',
                         }
                     }}
                 />

@@ -68,6 +68,7 @@ import {
   PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS,
   PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER,
 } from "@/lib/public-category-visibility";
+import { CategoryFilterSelect } from "@/components/categories/CategoryFilterSelect";
 import {
   ProduktGridCard,
   ProduktListRow,
@@ -320,28 +321,6 @@ export function KatalogClient({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Hauptkategorien vorbereiten (Sichtbarkeit)
-  const hidden = new Set<string>(
-    PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS as readonly string[],
-  );
-  const sichtbareHauptKategorien = kategorien
-    .filter((k) => k.ust_kategori_id === null && !hidden.has(k.slug || ""))
-    .sort((a, b) => {
-      const orderIndex = new Map<string, number>();
-      (PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER as readonly string[]).forEach(
-        (slug, i) => orderIndex.set(slug, i),
-      );
-      const ia = orderIndex.has(a.slug || "")
-        ? orderIndex.get(a.slug || "")!
-        : Number.MAX_SAFE_INTEGER;
-      const ib = orderIndex.has(b.slug || "")
-        ? orderIndex.get(b.slug || "")!
-        : Number.MAX_SAFE_INTEGER;
-      if (ia !== ib) return ia - ib;
-      const na = (a.ad as any)?.[locale] || (a.ad as any)?.de || "";
-      const nb = (b.ad as any)?.[locale] || (b.ad as any)?.de || "";
-      return String(na).localeCompare(String(nb));
-    });
 
   const handleModalAdd = (miktar: number, birim: Birim) => {
     if (!modalProdukt) return;
@@ -720,48 +699,15 @@ export function KatalogClient({
                     )}
                   </div>
 
-                  <select
+                  <CategoryFilterSelect
+                    categories={kategoriler}
                     value={categoryFilter}
-                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    onChange={handleCategoryChange}
+                    locale={locale}
+                    categoryCounts={categoryCounts}
+                    showCounts={true}
                     className="border border-gray-200 rounded-lg py-2.5 px-3 md:w-72 bg-white text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent"
-                  >
-                    <option value="">
-                      {locale === "de" ? "Alle Kategorien" : "Tüm Kategoriler"}
-                    </option>
-                    {sichtbareHauptKategorien.map((hauptKat) => {
-                      const name = getLocalizedName(hauptKat.ad, locale);
-                      const altKats = kategorien
-                        .filter((k) => k.ust_kategori_id === hauptKat.id)
-                        .sort((a, b) =>
-                          getLocalizedName(a.ad, locale).localeCompare(
-                            getLocalizedName(b.ad, locale),
-                          ),
-                        );
-                      if (altKats.length === 0) {
-                        const count = categoryCounts[hauptKat.id] ?? 0;
-                        return (
-                          <option key={hauptKat.id} value={hauptKat.id}>
-                            {name} {count > 0 ? `(${count})` : ""}
-                          </option>
-                        );
-                      }
-                      return (
-                        <optgroup key={hauptKat.id} label={name}>
-                          <option value={hauptKat.id}>
-                            — {locale === "de" ? "Alle" : "Tümü"} —
-                          </option>
-                          {altKats.map((alt) => {
-                            const count = categoryCounts[alt.id] ?? 0;
-                            return (
-                              <option key={alt.id} value={alt.id}>
-                                &nbsp;&nbsp;{getLocalizedName(alt.ad, locale)} ({count})
-                              </option>
-                            );
-                          })}
-                        </optgroup>
-                      );
-                    })}
-                  </select>
+                  />
 
                   <select
                     value={sortBy}

@@ -1,22 +1,27 @@
-// src/app/[locale]/admin/urun-yonetimi/urunler/urun-formu.tsx (Vollständig, Manuelle Action)
+// src/app/[locale]/admin/urun-yonetimi/urunler/urun-formu.tsx
+// Professional ERP / PIM-Style Dense Product Management Workspace
 'use client';
 
-import React, { useState, useTransition, useEffect, useMemo, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useTransition, useEffect, useMemo, ChangeEvent, FormEvent, useRef } from 'react';
 import { Tables } from '@/lib/supabase/database.types';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiArrowLeft, FiSave, FiX, FiInfo, FiClipboard, FiDollarSign, FiLoader, FiTrash2, FiImage, FiUploadCloud, FiSearch, FiChevronRight, FiChevronDown } from 'react-icons/fi';
-// Actions importieren
+import { 
+    FiArrowLeft, FiSave, FiX, FiInfo, FiDollarSign, FiLoader, FiTrash2, 
+    FiImage, FiUploadCloud, FiSearch, FiChevronRight, FiChevronDown, FiChevronUp, FiArrowRight,
+    FiExternalLink, FiPackage, FiTruck, FiLayers, FiThermometer, 
+    FiActivity, FiCheck, FiAlertTriangle, FiCalendar, FiClock, FiFileText, FiTag
+} from 'react-icons/fi';
 import { createUrunAction, updateUrunAction, deleteUrunAction, uploadUrunImageAction, removeUrunImagesAction, FormState } from './actions';
 import { useRouter } from 'next/navigation';
 import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { slugify } from '@/lib/utils';
 import { getProductLineLabel, inferProductLineFromCategoryId, type ProductLineKey } from '@/lib/product-lines';
-import { dedupeSuppliers, getCanonicalSupplierLabel, normalizeSupplierGroupKey } from '@/lib/supplier-utils';
+import { dedupeSuppliers, normalizeSupplierGroupKey } from '@/lib/supplier-utils';
+import { CategoryFilterSelect } from '@/components/categories/CategoryFilterSelect';
 import type { Locale } from '@/i18n-config';
 
-// Tipler
 type Urun = Tables<'urunler'>;
 type Kategori = Tables<'kategoriler'>;
 type Tedarikci = Pick<Tables<'tedarikciler'>, 'id' | 'unvan'>;
@@ -94,32 +99,7 @@ interface UrunFormuLabels {
         extraLabel: string;
         extraPlaceholder: string;
     };
-    flavors: {
-        schokolade: string;
-        kakao: string;
-        erdbeere: string;
-        vanille: string;
-        karamell: string;
-        nuss: string;
-        walnuss: string;
-        badem: string;
-        hindistancevizi: string;
-        honig: string;
-        tereyag: string;
-        zitrone: string;
-        portakal: string;
-        zeytin: string;
-        frucht: string;
-        waldfrucht: string;
-        kaffee: string;
-        himbeere: string;
-        brombeere: string;
-        pistazie: string;
-        kirsche: string;
-        havuc: string;
-        yulaf: string;
-        yabanmersini: string;
-    };
+    flavors: Record<string, string>;
     technicalSection: {
         title: string;
     };
@@ -130,7 +110,26 @@ interface UrunFormuLabels {
         saving: string;
         delete: string;
     };
-    deleteConfirm: string; // use %{name} placeholder
+    deleteConfirm: string;
+}
+
+interface StockLogItem {
+    id: string;
+    created_at: string;
+    hareket_tipi: string;
+    kaynak: string;
+    miktar: number;
+    birim?: string;
+    birim_miktar?: number;
+    onceki_stok?: number;
+    sonraki_stok?: number;
+    yapan_user_adi?: string;
+    yapan_user_email?: string;
+    aciklama?: string;
+    islem_turu?: string;
+    birim_maliyet?: number;
+    fatura_belge_no?: string;
+    profiles?: { ad?: string | null; soyad?: string | null; email?: string | null } | null;
 }
 
 interface UrunFormuProps {
@@ -141,219 +140,57 @@ interface UrunFormuProps {
     mevcutUrun?: Urun;
     labels?: UrunFormuLabels;
     isAdmin?: boolean;
+    stockLogs?: StockLogItem[];
+    stockFilterParams?: { from?: string; to?: string; tip?: string; kaynak?: string };
 }
 
 const diller = [
-    { kod: 'de' as const }, { kod: 'en' as const },
-    { kod: 'tr' as const }, { kod: 'ar' as const },
+    { kod: 'de' as const, label: 'Deutsch' },
+    { kod: 'tr' as const, label: 'Türkçe' },
+    { kod: 'en' as const, label: 'English' },
+    { kod: 'ar' as const, label: 'العربية' },
 ];
 
-// Submit Button (benötigt isPending Prop)
-function SubmitButton({ mode, isPending, labels }: { mode: 'create' | 'edit', isPending: boolean, labels: UrunFormuLabels['buttons'] }) {
-    const pending = isPending;
-    return (
-        <button type="submit" disabled={pending} className="flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all duration-200 font-bold text-sm disabled:bg-accent/50 disabled:cursor-wait">
-            {pending ? <FiLoader className="animate-spin" /> : <FiSave />}
-            {pending ? labels.saving : (mode === 'create' ? labels.saveCreate : labels.saveEdit)}
-        </button>
-    );
-}
-
-// Separate Delete Button Komponente
-function DeleteButtonWrapper({ urun, locale, labels }: { urun: Urun, locale: Locale, labels: UrunFormuLabels }) {
-    const [isPending, startTransition] = useTransition();
-    const router = useRouter();
-
-    const handleDelete = () => {
-        const name = urun.ad?.[locale] || urun.ad?.['tr'] || 'Produkt';
-        const message = labels.deleteConfirm.replace('%{name}', String(name));
-        if (!confirm(message)) return;
-
-        startTransition(async () => {
-            // İlk deneme — force=false
-            const result = await deleteUrunAction(urun.id, false, locale);
-
-            if (result?.success) {
-                // Server action redirected; this branch is a fallback only
-                router.push(`/${locale}/admin/urun-yonetimi/urunler`);
-                return;
-            }
-
-            // Sipariş bağlantısı var, ikinci onay iste
-            if (result?.message?.startsWith('FORCE_CONFIRM:')) {
-                const count = result.message.split(':')[1];
-                const confirmed = confirm(
-                    `Bu ürün ${count} geçmiş sipariş kaleminde kullanılmış.\n\n` +
-                    `Yine de silinirse:\n` +
-                    `• Tüm tutarlar ve fiyatlar sistemde korunur (bozulmaz)\n` +
-                    `• İlgili sipariş kalemlerinde ürün adı "Silinmiş Ürün" olarak görünür\n\n` +
-                    `Silmeyi onaylıyor musunuz?`
-                );
-                if (!confirmed) return;
-
-                // force=true ile tekrar çalıştır
-                const forceResult = await deleteUrunAction(urun.id, true, locale);
-                if (forceResult?.success) {
-                    // Server action redirected; this branch is a fallback only
-                    router.push(`/${locale}/admin/urun-yonetimi/urunler`);
-                } else {
-                    toast.error(forceResult?.message || 'Silme işlemi başarısız.');
-                }
-                return;
-            }
-
-            // Diğer hatalar
-            toast.error(result?.message || 'Silme işlemi başarısız.');
-        });
-    };
-
-    return (
-        <button type="button" onClick={handleDelete} disabled={isPending} className="flex items-center gap-2 px-4 py-2 bg-transparent border-2 border-red-500 text-red-500 rounded-lg font-bold text-sm hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50">
-             {isPending ? <FiLoader className="animate-spin" /> : <FiTrash2 />} {labels.buttons.delete}
-        </button>
-    );
-}
-
-// Hauptformular-Komponente
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_IMAGE_SIZE_LABEL = '10MB';
 
-export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutUrun, labels, isAdmin = true }: UrunFormuProps) {
-    // Default labels fallback until dictionaries supply a productsForm section
-    const buildDefaultLabels = (loc: Locale): UrunFormuLabels => {
-        const languageNames = { de: 'Deutsch', en: 'English', tr: 'Türkçe', ar: 'العربية' } as const;
-        return {
-            backButtonAria: 'Back to list',
-            createTitle: 'Create Product',
-            editTitle: 'Edit Product',
-            createSubtitle: 'Fill in details to add a new product.',
-            editSubtitle: 'Update product information and save your changes.',
-            imageSection: {
-                title: 'Images',
-                mainImage: 'Main image',
-                change: 'Change',
-                upload: 'Upload',
-                formatsHint: `PNG, JPG or WEBP up to ${MAX_IMAGE_SIZE_LABEL}.`,
-                galleryImages: 'Gallery images',
-                addImages: 'Add images',
-            },
-            basicsSection: {
-                title: 'Basic information',
-                mainCategory: 'Main category',
-                subCategory: 'Subcategory',
-                pleaseSelect: 'Please select…',
-                selectMainFirst: 'Select a main category first',
-                noSubcategories: 'No subcategories',
-                unnamedCategory: 'Unnamed category',
-                changeCategoryWarning: 'Changing the category may alter technical fields and attributes.',
-            },
-            supplierSection: {
-                supplier: 'Supplier',
-                none: 'None',
-            },
-            i18nSection: {
-                title: 'Multilingual content',
-                productName: 'Product name',
-                description: 'Description',
-                languageNames: { de: 'Deutsch', en: 'English', tr: 'Türkçe', ar: 'العربية' },
-            },
-            operationsSection: {
-                title: 'Operations',
-                sku: 'SKU / Stock code',
-                slug: 'Slug',
-                unit: 'Sales unit',
-                pleaseSelect: 'Please select…',
-                activeQuestion: 'Active and visible?',
-            },
-            pricingStockSection: {
-                title: 'Pricing & Stock',
-                stockQty: 'Stock quantity',
-                stockThreshold: 'Low stock threshold',
-                customerPrice: 'Customer price',
-                resellerPrice: 'Reseller price',
-                distributorCost: 'Distributor cost',
-            },
-            attributesSection: {
-                title: 'Attributes',
-                info: 'Choose applicable attributes and flavors for filtering and display.',
-                features: 'Features',
-                vegan: 'Vegan',
-                vegetarian: 'Vegetarian',
-                glutenFree: 'Gluten-free',
-                lactoseFree: 'Lactose-free',
-                organic: 'Organic',
-                sugarFree: 'Sugar-free',
-                naturalIngredients: 'Natural ingredients',
-                additiveFree: 'No additives',
-                preservativeFree: 'Preservative-free',
-                pumpCompatible: 'Pump-compatible',
-            },
-            flavorsSection: {
-                label: 'Flavors',
-                extraLabel: 'Extra flavors (comma-separated)',
-                extraPlaceholder: 'e.g. banana, caramelized fig',
-            },
-            flavors: {
-                schokolade: 'Chocolate',
-                kakao: 'Cocoa',
-                erdbeere: 'Strawberry',
-                vanille: 'Vanilla',
-                karamell: 'Caramel',
-                nuss: 'Hazelnut',
-                walnuss: 'Walnut',
-                badem: 'Almond',
-                hindistancevizi: 'Coconut',
-                honig: 'Honey',
-                tereyag: 'Butter',
-                zitrone: 'Lemon',
-                portakal: 'Orange',
-                zeytin: 'Olive',
-                frucht: 'Fruit',
-                waldfrucht: 'Forest Fruit',
-                kaffee: 'Coffee',
-                himbeere: 'Raspberry',
-                brombeere: 'Blackberry',
-                pistazie: 'Pistachio',
-                kirsche: 'Cherry',
-                havuc: 'Carrot',
-                yulaf: 'Oat',
-                yabanmersini: 'Blueberry'
-            },
-            technicalSection: {
-                title: 'Technical details',
-            },
-            buttons: {
-                cancel: 'Cancel',
-                saveCreate: 'Create product',
-                saveEdit: 'Save changes',
-                saving: 'Saving…',
-                delete: 'Delete',
-            },
-            deleteConfirm: 'Delete "%{name}"? This cannot be undone.',
-        };
-    };
-    const L: UrunFormuLabels = labels ?? buildDefaultLabels(locale);
-    // Helper: flavor label fallback (handles missing or empty dictionary entries)
-    const defaultFlavorLabels = buildDefaultLabels(locale).flavors;
-    const flavorLabel = (key: keyof typeof defaultFlavorLabels): string => {
-        const val = L.flavors[key];
-        if (val && val.trim() !== '') return val;
-        return defaultFlavorLabels[key] || key;
-    };
+type TabKey = 'genel' | 'fiyat-stok' | 'lojistik' | 'saklama-spekt' | 'besin-alerjen' | 'medya' | 'gecmis';
+
+export function UrunFormu({
+    locale,
+    kategoriler,
+    tedarikciler,
+    birimler,
+    mevcutUrun,
+    labels,
+    isAdmin = true,
+    stockLogs = [],
+    stockFilterParams = {}
+}: UrunFormuProps) {
     const router = useRouter();
     const supabase = createDynamicSupabaseClient(true);
-    const [isPending, startTransition] = useTransition(); // Für den Submit
+    const formRef = useRef<HTMLFormElement>(null);
+
+    const isEditMode = !!mevcutUrun;
+    const mu = (mevcutUrun as any) || {};
+    const herkunft = (mu.herkunftsland as any) || {};
+    const inhalts = (mu.inhaltsstoffe as any) || {};
+    const allerg = (mu.allergene as any) || {};
+    const naehr = (mu.naehrwerte as any)?.pro_100g || (mu.naehrwerte as any)?.pro_100ml || {};
+    const naehrEinheit = (mu.naehrwerte as any)?.pro_100ml ? '100ml' : '100g';
+    const tech = (mu.teknik_ozellikler as any) || {};
+
+    const [activeTab, setActiveTab] = useState<TabKey>('genel');
+    const [showTopHistory, setShowTopHistory] = useState(false);
+    const [aktifDil, setAktifDil] = useState<Locale>(locale);
+    const [isPending, startTransition] = useTransition();
     const [formResult, setFormResult] = useState<FormState>(null);
 
-    // Andere States
-    const [aktifDil, setAktifDil] = useState<Locale>(locale);
-    
-    // Kategori states - tree picker
-    const mevcutKategori = kategoriler.find(k => k.id === mevcutUrun?.kategori_id);
+    // Kategori & Ağaç
     const [altKategoriId, setAltKategoriId] = useState<string | null>(mevcutUrun?.kategori_id || null);
     const [kategoriBul, setKategoriBul] = useState('');
+    const mevcutKategori = kategoriler.find(k => k.id === mevcutUrun?.kategori_id);
 
-    // Auto-expand ancestors of the currently selected category
     const initialExpanded = useMemo(() => {
         const ids = new Set<string>();
         let cur = mevcutKategori;
@@ -368,19 +205,16 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
     const supplierOptions = useMemo(() => dedupeSuppliers(tedarikciler), [tedarikciler]);
     const normalizedSupplierValue = useMemo(() => {
         if (!mevcutUrun?.tedarikci_id) return '';
-
         const representativeById = Object.fromEntries(
-            tedarikciler.map((supplier) => {
-                const groupKey = normalizeSupplierGroupKey(supplier.unvan) || supplier.id;
-                const representative = supplierOptions.find((option) => (normalizeSupplierGroupKey(option.unvan) || option.id) === groupKey);
-                return [supplier.id, representative?.id || supplier.id];
+            tedarikciler.map((s) => {
+                const groupKey = normalizeSupplierGroupKey(s.unvan) || s.id;
+                const representative = supplierOptions.find((opt) => (normalizeSupplierGroupKey(opt.unvan) || opt.id) === groupKey);
+                return [s.id, representative?.id || s.id];
             })
         ) as Record<string, string>;
-
         return representativeById[mevcutUrun.tedarikci_id] || mevcutUrun.tedarikci_id;
     }, [mevcutUrun?.tedarikci_id, tedarikciler, supplierOptions]);
-    
-    // Actual kategori_id for form submission
+
     const seciliKategoriId = altKategoriId;
     const kategoriBazliUrunGami = inferProductLineFromCategoryId(kategoriler as any, seciliKategoriId);
     const [manuelUrunGami, setManuelUrunGami] = useState<ProductLineKey | 'auto'>(
@@ -389,139 +223,172 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
             : 'auto'
     );
     const seciliUrunGami = manuelUrunGami === 'auto' ? kategoriBazliUrunGami : manuelUrunGami;
-    
+
+    // Şablon
     const [aktifSablon, setAktifSablon] = useState<Sablon[]>([]);
     const [isLoadingSablon, setIsLoadingSablon] = useState(false);
-    // If a subcategory has no own template we fall back to its parent's template.
-    // Track which category id actually provided the template for UI hinting.
-    const [sablonKaynakKategoriId, setSablonKaynakKategoriId] = useState<string | null>(null);
+
+    // Slug & İsim
     const [slug, setSlug] = useState(mevcutUrun?.slug || '');
+    const [anaUrunAdi, setAnaUrunAdi] = useState<string>(
+        mevcutUrun?.ad?.[locale] || mevcutUrun?.ad?.['tr'] || mevcutUrun?.ad?.['de'] || mevcutUrun?.ad?.['en'] || ''
+    );
+    const [aktifDurum, setAktifDurum] = useState<boolean>(mevcutUrun?.aktif ?? true);
+    const [isFeaturedDurum, setIsFeaturedDurum] = useState<boolean>((mevcutUrun as any)?.is_featured ?? false);
+    const [isBestsellerDurum, setIsBestsellerDurum] = useState<boolean>((mevcutUrun as any)?.is_bestseller ?? false);
+    const [featuredSira, setFeaturedSira] = useState<number>((mevcutUrun as any)?.featured_sira ?? 0);
+
+    // Fiyatlar & KDV Dinamik Hesaplama
+    const [alisFiyati, setAlisFiyati] = useState<number>(Number(mevcutUrun?.distributor_alis_fiyati ?? 0));
+    const [toptanFiyat, setToptanFiyat] = useState<number>(Number(mevcutUrun?.satis_fiyati_toptanci ?? 0));
+    const [musteriFiyat, setMusteriFiyat] = useState<number>(Number(mevcutUrun?.satis_fiyati_musteri ?? 0));
+    const [altBayiFiyat, setAltBayiFiyat] = useState<number>(Number(mevcutUrun?.satis_fiyati_alt_bayi ?? 0));
+    const [paletFiyat, setPaletFiyat] = useState<number>(Number(mevcutUrun?.satis_fiyati_palet ?? 0));
+    const [kdvOrani, setKdvOrani] = useState<number>(Number(mevcutUrun?.almanya_kdv_orani ?? 7));
+
+    // Görseller
     const [anaResimDosyasi, setAnaResimDosyasi] = useState<File | null>(null);
     const [anaResimOnizleme, setAnaResimOnizleme] = useState<string | null>(mevcutUrun?.ana_resim_url || null);
     const [galeriOnizlemeler, setGaleriOnizlemeler] = useState<Array<{ id: string | number, url: string, file?: File }>>(
         (mevcutUrun?.galeri_resim_urls || []).map((url) => ({ id: url, url }))
     );
     const [markierteGeloeschteUrls, setMarkierteGeloeschteUrls] = useState<string[]>([]);
-    const isEditMode = !!mevcutUrun;
-    
-    // Geschmack states - now supports multiple flavors
+
+    // Aromalar (Flavors)
     const standardGeschmackWerte = ['schokolade', 'kakao', 'erdbeere', 'vanille', 'karamell', 'nuss', 'walnuss', 'badem', 'hindistancevizi', 'honig', 'tereyag', 'zitrone', 'portakal', 'zeytin', 'frucht', 'kaffee', 'himbeere', 'brombeere', 'kirsche', 'waldfrucht', 'pistazie', 'havuc', 'yulaf', 'yabanmersini'];
-    const mevcutGeschmack = (mevcutUrun?.teknik_ozellikler as any)?.geschmack || [];
+    const mevcutGeschmack = tech.geschmack || [];
     const mevcutGeschmackArray = Array.isArray(mevcutGeschmack) ? mevcutGeschmack : (mevcutGeschmack ? [mevcutGeschmack] : []);
     const customFlavors = mevcutGeschmackArray.filter((g: string) => !standardGeschmackWerte.includes(g));
-    
-    // State for selected flavors (checkboxes)
     const [selectedGeschmack, setSelectedGeschmack] = useState<string[]>(
         mevcutGeschmackArray.filter((g: string) => standardGeschmackWerte.includes(g))
     );
-    const [customGeschmack, setCustomGeschmack] = useState<string>(
-        customFlavors.join(', ')
-    );
+    const [customGeschmack, setCustomGeschmack] = useState<string>(customFlavors.join(', '));
 
-
-    // Sablon laden (mit Vererbung: falls Unterkategorie kein eigenes Template hat → Elternkategorie verwenden)
+    // Sablon Fetch
     useEffect(() => {
         const fetchSablon = async () => {
-            if (!seciliKategoriId) { 
-                setAktifSablon([]); 
-                setSablonKaynakKategoriId(null);
-                return; 
-            }
+            if (!seciliKategoriId) { setAktifSablon([]); return; }
             setIsLoadingSablon(true);
-
-            // 1. Versuche Template der ausgewählten Kategorie zu holen
-            const { data: direktTemplate, error: direktError } = await supabase
-                .from('kategori_ozellik_sablonlari')
-                .select('*')
-                .eq('kategori_id', seciliKategoriId)
-                .order('sira');
-
-            if (direktError) {
-                console.warn('Template fetch error (direct):', direktError.message);
-            }
-
-            if (direktTemplate && direktTemplate.length > 0) {
-                setAktifSablon(direktTemplate);
-                setSablonKaynakKategoriId(seciliKategoriId);
+            const { data } = await supabase.from('kategori_ozellik_sablonlari').select('*').eq('kategori_id', seciliKategoriId).order('sira');
+            if (data && data.length > 0) {
+                setAktifSablon(data);
                 setIsLoadingSablon(false);
                 return;
             }
-
-            // 2. Falls keine Einträge und wir sind in einer Unterkategorie → Elternkategorie finden
-            const altKategoriObj = altKategoriId ? kategoriler.find(k => k.id === altKategoriId) : null;
-            const parentId = altKategoriObj?.ust_kategori_id || null;
-
-            if (altKategoriId && parentId) {
-                const { data: parentTemplate, error: parentError } = await supabase
-                    .from('kategori_ozellik_sablonlari')
-                    .select('*')
-                    .eq('kategori_id', parentId)
-                    .order('sira');
-
-                if (parentError) {
-                    console.warn('Template fetch error (parent fallback):', parentError.message);
-                }
-
-                if (parentTemplate && parentTemplate.length > 0) {
-                    setAktifSablon(parentTemplate);
-                    setSablonKaynakKategoriId(parentId);
-                    setIsLoadingSablon(false);
-                    return;
-                }
+            const altKat = altKategoriId ? kategoriler.find(k => k.id === altKategoriId) : null;
+            if (altKat?.ust_kategori_id) {
+                const { data: parentData } = await supabase.from('kategori_ozellik_sablonlari').select('*').eq('kategori_id', altKat.ust_kategori_id).order('sira');
+                setAktifSablon(parentData || []);
+            } else {
+                setAktifSablon([]);
             }
-
-            // 3. Letzter Ausweg: gar kein Template → leer
-            setAktifSablon([]);
-            setSablonKaynakKategoriId(null);
             setIsLoadingSablon(false);
         };
         fetchSablon();
-    }, [seciliKategoriId, kategoriler, supabase]);
+    }, [seciliKategoriId, altKategoriId, kategoriler, supabase]);
 
-    // Effekt für Toast/Weiterleitung
+    // Ctrl+S / Cmd+S Kısayolu ile Kaydetme
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                if (formRef.current) {
+                    formRef.current.requestSubmit();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    // Form Toast & Redirection
     useEffect(() => {
         if (formResult?.success === true && locale) {
-            toast.success(formResult.message);
+            toast.success(formResult.message || 'Başarıyla kaydedildi.');
             router.push(`/${locale}/admin/urun-yonetimi/urunler`);
         } else if (formResult?.success === false) {
-            toast.error(formResult.message);
+            toast.error(formResult.message || 'Kayıt sırasında hata oluştu.');
         }
     }, [formResult, router, locale]);
 
     const handleAdChange = (event: React.ChangeEvent<HTMLInputElement>, dil: string) => {
-        if (!isEditMode && dil === locale) { setSlug(slugify(event.target.value)); }
+        if (dil === locale || dil === 'tr') {
+            setAnaUrunAdi(event.target.value);
+        }
+        if (!isEditMode && dil === locale) {
+            setSlug(slugify(event.target.value));
+        }
     };
 
-    // Bild-Handler
-    const handleAnaResimChange = (e: ChangeEvent<HTMLInputElement>) => { const f=e.target.files?.[0]; if(f){if(f.size>MAX_IMAGE_SIZE_BYTES){toast.error(`Max ${MAX_IMAGE_SIZE_LABEL}.`);e.target.value='';return;}setAnaResimDosyasi(f);const r=new FileReader();r.onloadend=()=>{setAnaResimOnizleme(r.result as string);};r.readAsDataURL(f);}else{setAnaResimDosyasi(null);setAnaResimOnizleme(mevcutUrun?.ana_resim_url||null);} };
-    const handleGaleriResimleriChange = (e: ChangeEvent<HTMLInputElement>) => { const fs=e.target.files;if(fs){const nf=Array.from(fs);let err=false;nf.forEach(f=>{if(f.size>MAX_IMAGE_SIZE_BYTES){toast.error(`${f.name} > ${MAX_IMAGE_SIZE_LABEL}.`);err=true;}});if(err){e.target.value='';return;}nf.forEach((f,i)=>{const r=new FileReader();r.onloadend=()=>{setGaleriOnizlemeler(p=>[...p,{id:`${i}-${Date.now()}`,url:r.result as string,file:f}]);};r.readAsDataURL(f);});e.target.value='';} };
-    const handleGaleriResimLoeschen = (id: string | number) => { const z=galeriOnizlemeler.find(b=>b.id===id);if(!z)return;if(typeof id==='string'&&mevcutUrun?.galeri_resim_urls?.includes(id)){setMarkierteGeloeschteUrls(p=>[...p,id]);}setGaleriOnizlemeler(p=>p.filter(b=>b.id!==id)); };
+    const handleAnaResimChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const f = e.target.files?.[0];
+        if (f) {
+            if (f.size > MAX_IMAGE_SIZE_BYTES) { toast.error(`Maksimum dosya boyutu ${MAX_IMAGE_SIZE_LABEL}.`); e.target.value = ''; return; }
+            setAnaResimDosyasi(f);
+            const r = new FileReader();
+            r.onloadend = () => { setAnaResimOnizleme(r.result as string); };
+            r.readAsDataURL(f);
+        }
+    };
 
-    // Formularübermittlung
+    const handleGaleriResimleriChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const fs = e.target.files;
+        if (fs) {
+            const nf = Array.from(fs);
+            let err = false;
+            nf.forEach(f => {
+                if (f.size > MAX_IMAGE_SIZE_BYTES) { toast.error(`${f.name} > ${MAX_IMAGE_SIZE_LABEL}.`); err = true; }
+            });
+            if (err) { e.target.value = ''; return; }
+            nf.forEach((f, i) => {
+                const r = new FileReader();
+                r.onloadend = () => { setGaleriOnizlemeler(p => [...p, { id: `${i}-${Date.now()}`, url: r.result as string, file: f }]); };
+                r.readAsDataURL(f);
+            });
+            e.target.value = '';
+        }
+    };
+
+    const handleGaleriResimLoeschen = (id: string | number) => {
+        const z = galeriOnizlemeler.find(b => b.id === id);
+        if (!z) return;
+        if (typeof id === 'string' && mevcutUrun?.galeri_resim_urls?.includes(id)) {
+            setMarkierteGeloeschteUrls(p => [...p, id]);
+        }
+        setGaleriOnizlemeler(p => p.filter(b => b.id !== id));
+    };
+
     const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        // Ensure kategori_id always reflects the current selection (handles async option loading edge cases)
         formData.set('kategori_id', (seciliKategoriId ?? ''));
+        formData.set('aktif', aktifDurum ? 'on' : 'off');
+        formData.set('is_featured', isFeaturedDurum ? 'on' : 'off');
+        formData.set('is_bestseller', isBestsellerDurum ? 'on' : 'off');
+        formData.set('featured_sira', String(featuredSira));
         setFormResult(null);
 
         startTransition(async () => {
-            toast.info((labels ?? L).buttons.saving, { id: 'upload-toast' });
+            toast.info('Değişiklikler kaydediliyor...', { id: 'upload-toast' });
             let anaResimUrl = mevcutUrun?.ana_resim_url || null;
             let finalGaleriUrls = [...(mevcutUrun?.galeri_resim_urls || [])];
 
             try {
-                // 1. Alte Bilder löschen
                 if (markierteGeloeschteUrls.length > 0) {
-                     const pathsToRemove: string[] = [];
-                     markierteGeloeschteUrls.forEach(url => { try { const u=new URL(url);const p=u.pathname.split('/');if(p.length>2)pathsToRemove.push(p.slice(2).join('/'));}catch(e){} });
-                     if (pathsToRemove.length > 0) {
-                         const deleteResult = await removeUrunImagesAction(pathsToRemove);
-                         if (!deleteResult?.success) toast.warning(deleteResult?.message || 'Failed to delete old images.');
-                         else finalGaleriUrls = finalGaleriUrls.filter(url => !markierteGeloeschteUrls.includes(url));
-                     }
+                    const pathsToRemove: string[] = [];
+                    markierteGeloeschteUrls.forEach(url => {
+                        try {
+                            const u = new URL(url);
+                            const p = u.pathname.split('/');
+                            if (p.length > 2) pathsToRemove.push(p.slice(2).join('/'));
+                        } catch(e) {}
+                    });
+                    if (pathsToRemove.length > 0) {
+                        await removeUrunImagesAction(pathsToRemove);
+                        finalGaleriUrls = finalGaleriUrls.filter(url => !markierteGeloeschteUrls.includes(url));
+                    }
                 }
-                // 2. Hauptbild hochladen
+
                 if (anaResimDosyasi) {
                     const uploadForm = new FormData();
                     uploadForm.append('file', anaResimDosyasi);
@@ -529,1292 +396,1533 @@ export function UrunFormu({ locale, kategoriler, tedarikciler, birimler, mevcutU
                     uploadForm.append('upsert', String(Boolean(isEditMode)));
                     const uploadResult = await uploadUrunImageAction(uploadForm);
                     if (!uploadResult?.success || !uploadResult.url) {
-                        throw new Error(uploadResult?.message || 'Main image upload failed.');
+                        throw new Error(uploadResult?.message || 'Ana resim yükleme hatası.');
                     }
                     anaResimUrl = uploadResult.url;
                 }
                 formData.set('ana_resim_url', anaResimUrl || '');
 
-                // 3. Galeriebilder hochladen
-                const neueDateien = galeriOnizlemeler.filter(b => b.file).map(b => b.file as File); const neueUrls: string[] = [];
+                const neueDateien = galeriOnizlemeler.filter(b => b.file).map(b => b.file as File);
+                const neueUrls: string[] = [];
                 for (const f of neueDateien) {
                     const uploadForm = new FormData();
                     uploadForm.append('file', f);
                     uploadForm.append('folder', 'gallery');
                     const uploadResult = await uploadUrunImageAction(uploadForm);
-                    if (!uploadResult?.success || !uploadResult.url) {
-                        toast.warning(uploadResult?.message || `Upload ${f.name} fehlgeschlagen.`);
-                        continue;
+                    if (uploadResult?.success && uploadResult.url) {
+                        neueUrls.push(uploadResult.url);
                     }
-                    neueUrls.push(uploadResult.url);
                 }
 
-                // 4. URLs in FormData
-                const finaleGalerieListe = [...finalGaleriUrls, ...neueUrls]; formData.delete('galeri_resim_urls[]'); finaleGalerieListe.forEach(url => formData.append('galeri_resim_urls[]', url));
+                const finaleGalerieListe = [...finalGaleriUrls, ...neueUrls];
+                formData.delete('galeri_resim_urls[]');
+                finaleGalerieListe.forEach(url => formData.append('galeri_resim_urls[]', url));
 
                 toast.dismiss('upload-toast');
-
-                // 5. Server Action aufrufen
                 const action = isEditMode ? updateUrunAction.bind(null, mevcutUrun.id) : createUrunAction;
                 const result = await action(formData);
                 setFormResult(result);
-
             } catch (error: any) {
                 toast.dismiss('upload-toast');
-                const uploadMessage = error?.message || 'Image upload error.';
-                toast.error(uploadMessage);
-                setFormResult({ success: false, message: uploadMessage });
+                const msg = error?.message || 'İşlem sırasında bir hata oluştu.';
+                toast.error(msg);
+                setFormResult({ success: false, message: msg });
             }
         });
     };
 
-    // --- JSX ---
-    const labelClasses = "block text-sm font-bold text-gray-600 mb-1";
+    // Marj ve Kâr Hesaplamaları
+    const calcMargin = (price: number) => {
+        if (!price || !alisFiyati) return null;
+        const profit = price - alisFiyati;
+        const marginPct = (profit / price) * 100;
+        return { profit, marginPct };
+    };
+
+    const toptanMargin = calcMargin(toptanFiyat);
+    const musteriMargin = calcMargin(musteriFiyat);
+    const altBayiMargin = calcMargin(altBayiFiyat);
+
+    // Kategori Breadcrumb
+    const getKategoriHierarchy = (id: string | null) => {
+        if (!id) return null;
+        const parts: string[] = [];
+        let cur = kategoriler.find(k => k.id === id);
+        while (cur) {
+            parts.unshift((cur.ad as any)?.[locale] || (cur.ad as any)?.['tr'] || (cur.ad as any)?.['de'] || cur.id);
+            cur = cur.ust_kategori_id ? kategoriler.find(k => k.id === cur!.ust_kategori_id) : undefined;
+        }
+        return parts.join(' › ');
+    };
+
+    const inputClasses = "w-full px-3 py-2 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all";
+    const denseInputClasses = "w-full px-2.5 py-1.5 text-xs font-mono border border-slate-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500";
+    const labelClasses = "block text-xs font-semibold text-slate-600 mb-1";
+
     return (
-        <form onSubmit={handleFormSubmit} className="space-y-8">
-            <fieldset disabled={!isAdmin}>
-            <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <Link href={`/${locale}/admin/urun-yonetimi/urunler`} className="p-2 text-gray-500 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
-                        <FiArrowLeft size={24} />
+        <form ref={formRef} onSubmit={handleFormSubmit} className="space-y-4 pb-20">
+            <fieldset disabled={!isAdmin} className="space-y-4">
+
+            {/* ========================================================================= */}
+            {/* 1. STICKY TOP CONTROL BAR (Always accessible & Space Optimized)          */}
+            {/* ========================================================================= */}
+            <div className="sticky top-0 z-40 w-full px-3 py-2 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-xs flex items-center justify-between gap-2.5">
+                {/* Left: Back Arrow, Image, Title & SKU */}
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <Link
+                        href={`/${locale}/admin/urun-yonetimi/urunler`}
+                        className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0"
+                        title="Ürün Listesine Dön"
+                    >
+                        <FiArrowLeft size={18} />
                     </Link>
-                    <div>
-                        <h1 className="font-serif text-4xl font-bold text-primary">
-                            {isEditMode ? L.editTitle : L.createTitle}
-                        </h1>
-                        <p className="text-text-main/80 mt-1">
-                            {isEditMode ? L.editSubtitle : L.createSubtitle}
+
+                    {/* Thumbnail */}
+                    <div className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {anaResimOnizleme ? (
+                            <Image src={anaResimOnizleme} alt="Thumb" width={32} height={32} className="object-contain w-full h-full p-0.5" />
+                        ) : (
+                            <FiPackage className="text-slate-300 text-sm" />
+                        )}
+                    </div>
+
+                    {/* Title & SKU & Live Link */}
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                            <h1 className="text-xs sm:text-sm font-bold text-slate-900 truncate max-w-[140px] sm:max-w-xs md:max-w-sm">
+                                {anaUrunAdi || (isEditMode ? 'İsimsiz Ürün' : 'Yeni Ürün Oluştur')}
+                            </h1>
+                            {mevcutUrun?.stok_kodu && (
+                                <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200 font-semibold flex-shrink-0">
+                                    {mevcutUrun.stok_kodu}
+                                </span>
+                            )}
+                            {isEditMode && mevcutUrun?.slug && (
+                                <Link
+                                    href={`/${locale}/products/${mevcutUrun.slug}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-[11px] text-amber-600 hover:text-amber-700 inline-flex items-center gap-0.5 font-medium hover:underline flex-shrink-0"
+                                    title="Sitede Canlı Önizle"
+                                >
+                                    <FiExternalLink size={11} />
+                                    <span>Görüntüle</span>
+                                </Link>
+                            )}
+                        </div>
+                        <p className="text-[10px] text-slate-500 truncate hidden md:block">
+                            {getKategoriHierarchy(seciliKategoriId) || 'Kategori seçilmedi'}
                         </p>
                     </div>
                 </div>
-                {isEditMode && isAdmin && (<DeleteButtonWrapper urun={mevcutUrun} locale={locale} labels={L} />)}
-            </header>
 
-            {/* Bild Upload Abschnitt */}
-            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                 <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiImage />{L.imageSection.title}</h2>
-                 <div className='space-y-8'>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-2">{L.imageSection.mainImage}</label>
-                        <div className="flex items-center gap-6">
-                            <div className="w-32 h-32 rounded-lg border-2 border-dashed flex items-center justify-center bg-gray-50 overflow-hidden">
-                                {anaResimOnizleme ? (
-                                    <Image src={anaResimOnizleme} alt="Preview" width={128} height={128} className="object-cover w-full h-full" />
-                                ) : ( <FiImage className="text-gray-300 text-4xl" />)}
-                            </div>
-                            <div>
-                                <input type="file" id="ana-resim-input" className="hidden" onChange={handleAnaResimChange} accept="image/png, image/jpeg, image/webp" />
-                                <label htmlFor="ana-resim-input" className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-accent text-white text-sm font-bold rounded-lg hover:bg-opacity-90 transition-all shadow-sm"><FiUploadCloud /> {anaResimOnizleme ? L.imageSection.change : L.imageSection.upload}</label>
-                                <p className="text-xs text-gray-500 mt-2">{L.imageSection.formatsHint}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-2">{L.imageSection.galleryImages}</label>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                            {galeriOnizlemeler.map((bild, index) => (
-                                <div key={bild.id} className="relative aspect-square group">
-                                    <Image src={bild.url} alt={`Gallery ${index+1}`} fill sizes="150px" className="object-cover rounded-lg border" />
-                                    <button type="button" onClick={() => handleGaleriResimLoeschen(bild.id)} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"><FiX size={12} strokeWidth={3} /></button>
-                                </div>
-                            ))}
-                            <div>
-                                <input type="file" id="galeri-resim-input" className="hidden" onChange={handleGaleriResimleriChange} accept="image/png, image/jpeg, image/webp" multiple />
-                                <label htmlFor="galeri-resim-input" className="cursor-pointer aspect-square w-full rounded-lg border-2 border-dashed flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 hover:border-accent transition-colors"><FiUploadCloud className="text-gray-400 text-3xl" /><span className="text-xs text-center text-gray-500 mt-2">{L.imageSection.addImages}</span></label>
-                            </div>
-                        </div>
-                    </div>
-                 </div>
-             </div>
-            
+                {/* Right: Actions (PINNED, flex-shrink-0, NEVER hidden or pushed off) */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Active Switch */}
+                    <button
+                        type="button"
+                        onClick={() => setAktifDurum(!aktifDurum)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                            aktifDurum 
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100' 
+                                : 'bg-slate-100 text-slate-500 border-slate-300 hover:bg-slate-200'
+                        }`}
+                    >
+                        <span className={`w-2 h-2 rounded-full ${aktifDurum ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+                        <span>{aktifDurum ? 'Aktif' : 'Pasif'}</span>
+                    </button>
 
-            {/* Grundlegende Definitionen */}
-            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                 <h2 className="font-serif text-2xl font-bold text-primary mb-6">{L.basicsSection.title}</h2>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     {/* Kategori - tree picker */}
-                     <div className="md:col-span-2">
-                         <label className={labelClasses}>
-                             {L.basicsSection.mainCategory} <span className="text-red-500">*</span>
-                         </label>
+                    {/* Featured (Önerilen) Switch */}
+                    <button
+                        type="button"
+                        onClick={() => setIsFeaturedDurum(!isFeaturedDurum)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                            isFeaturedDurum 
+                                ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100 shadow-2xs' 
+                                : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100 hover:text-slate-600'
+                        }`}
+                        title="Önerilen Ürün (ElysonSweets Vitrin / Empfohlen)"
+                    >
+                        <span>⭐</span>
+                        <span>{isFeaturedDurum ? 'Önerilen' : 'Önerilen Değil'}</span>
+                    </button>
 
-                         {/* Hidden input for form submission */}
-                         <input type="hidden" name="kategori_id" value={seciliKategoriId || ''} />
-                         {/* Invisible required sentinel so browser validates empty state */}
-                         {!seciliKategoriId && (
-                             <input aria-hidden tabIndex={-1} required readOnly value="" style={{ opacity: 0, height: 0, position: 'absolute' }} />
-                         )}
+                    {/* Bestseller Switch */}
+                    <button
+                        type="button"
+                        onClick={() => setIsBestsellerDurum(!isBestsellerDurum)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                            isBestsellerDurum 
+                                ? 'bg-orange-50 text-orange-800 border-orange-300 hover:bg-orange-100 shadow-2xs' 
+                                : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100 hover:text-slate-600'
+                        }`}
+                        title="Bestseller (Çok Satanlar)"
+                    >
+                        <span>🏆</span>
+                        <span>{isBestsellerDurum ? 'Bestseller' : 'Standart'}</span>
+                    </button>
 
-                         {/* Selected category badge */}
-                         {seciliKategoriId ? (() => {
-                             const kat = kategoriler.find(k => k.id === seciliKategoriId);
-                             if (!kat) return null;
-                             const path: string[] = [];
-                             let cur: typeof kat | undefined = kat;
-                             let guard = 0;
-                             while (cur && guard++ < 10) {
-                                 path.unshift(cur.ad?.[locale] || Object.values(cur.ad ?? {})[0] || '?');
-                                 cur = cur.ust_kategori_id ? kategoriler.find(k => k.id === cur!.ust_kategori_id) : undefined;
-                             }
-                             return (
-                                 <div className="mb-2 flex items-center gap-2 px-3 py-2 bg-accent/10 rounded-lg border border-accent/30">
-                                     <span className="text-sm font-medium text-accent flex-1 truncate">{path.join(' / ')}</span>
-                                     <button type="button" onClick={() => setAltKategoriId(null)} className="text-gray-400 hover:text-red-500 shrink-0"><FiX size={14} /></button>
-                                 </div>
-                             );
-                         })() : (
-                             <div className="mb-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 text-sm text-gray-400 italic">
-                                 Aşağıdan bir kategori seçin
-                             </div>
-                         )}
+                    {/* Delete Button */}
+                    {isEditMode && isAdmin && mevcutUrun && (
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                const name = mevcutUrun.ad?.[locale] || mevcutUrun.ad?.['tr'] || 'Ürün';
+                                if (!confirm(`"${name}" ürününü silmek istediğinize emin misiniz?`)) return;
+                                startTransition(async () => {
+                                    const res = await deleteUrunAction(mevcutUrun.id, false, locale);
+                                    if (res?.success) router.push(`/${locale}/admin/urun-yonetimi/urunler`);
+                                    else toast.error(res?.message || 'Silme işlemi başarısız.');
+                                });
+                            }}
+                            disabled={isPending}
+                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
+                            title="Ürünü Sil"
+                        >
+                            <FiTrash2 size={15} />
+                        </button>
+                    )}
 
-                         {/* Search bar */}
-                         <div className="relative mb-1">
-                             <FiSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5 pointer-events-none" />
-                             <input
-                                 type="text"
-                                 value={kategoriBul}
-                                 onChange={(e) => {
-                                     setKategoriBul(e.target.value);
-                                     if (e.target.value.trim()) setExpandedKategoriIds(new Set(kategoriler.map(k => k.id)));
-                                 }}
-                                 placeholder="Kategori ara..."
-                                 className="w-full pl-8 pr-8 py-1.5 border border-gray-200 rounded-md text-sm bg-gray-50 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                             />
-                             {kategoriBul && (
-                                 <button type="button" onClick={() => setKategoriBul('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                     <FiX size={12} />
-                                 </button>
-                             )}
-                         </div>
-
-                         {/* Category tree */}
-                         <div className="border border-gray-200 rounded-lg overflow-y-auto bg-white py-1" style={{ maxHeight: 220 }}>
-                             {(() => {
-                                 const q = kategoriBul.trim().toLowerCase();
-
-                                 const matchesSearch = (k: Kategori): boolean => {
-                                     if (!q) return true;
-                                     const name = String(k.ad?.[locale] || Object.values(k.ad ?? {})[0] || '').toLowerCase();
-                                     return name.includes(q);
-                                 };
-
-                                 const hasVisibleDescendant = (id: string): boolean =>
-                                     kategoriler.filter(c => c.ust_kategori_id === id)
-                                         .some(c => matchesSearch(c) || hasVisibleDescendant(c.id));
-
-                                 const renderNode = (parentId: string | null, depth: number): React.ReactNode => {
-                                     const nodes = kategoriler
-                                         .filter(k => (k.ust_kategori_id || null) === parentId)
-                                         .filter(k => !q || matchesSearch(k) || hasVisibleDescendant(k.id));
-
-                                     if (!nodes.length) return null;
-
-                                     return nodes.map(k => {
-                                         const kids = kategoriler.filter(c => c.ust_kategori_id === k.id);
-                                         const isExpanded = expandedKategoriIds.has(k.id);
-                                         const isSelected = seciliKategoriId === k.id;
-                                         const name = k.ad?.[locale] || Object.values(k.ad ?? {})[0] || '?';
-
-                                         return (
-                                             <div key={k.id}>
-                                                 <div
-                                                     className={`flex items-center gap-0.5 rounded-md mx-1 my-0.5 transition-colors ${isSelected ? 'bg-accent/10' : 'hover:bg-gray-50'}`}
-                                                     style={{ paddingLeft: `${depth * 14 + 4}px` }}
-                                                 >
-                                                     <button
-                                                         type="button"
-                                                         onClick={() => setExpandedKategoriIds(prev => {
-                                                             const next = new Set(prev);
-                                                             next.has(k.id) ? next.delete(k.id) : next.add(k.id);
-                                                             return next;
-                                                         })}
-                                                         className={`w-5 h-6 flex items-center justify-center text-gray-400 hover:text-gray-700 shrink-0 ${kids.length === 0 ? 'invisible' : ''}`}
-                                                     >
-                                                         {isExpanded || !!q ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
-                                                     </button>
-                                                     <button
-                                                         type="button"
-                                                         onClick={() => setAltKategoriId(k.id)}
-                                                         className={`flex-1 text-left py-1 pr-2 text-sm truncate ${
-                                                             isSelected ? 'text-accent font-semibold' :
-                                                             depth === 0 ? 'font-semibold text-gray-800' :
-                                                             'text-gray-600'
-                                                         }`}
-                                                     >
-                                                         {depth > 0 && <span className="text-gray-300 mr-1">└</span>}
-                                                         {name}
-                                                         {kids.length > 0 && <span className="ml-1 text-[10px] text-gray-400 font-normal">({kids.length})</span>}
-                                                     </button>
-                                                 </div>
-                                                 {(isExpanded || !!q) && renderNode(k.id, depth + 1)}
-                                             </div>
-                                         );
-                                     });
-                                 };
-
-                                 const result = renderNode(null, 0);
-                                 return result || <p className="text-sm text-gray-400 text-center py-4">Sonuç yok</p>;
-                             })()}
-                         </div>
-
-                         {isEditMode && <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1"><span>⚠️</span> {L.basicsSection.changeCategoryWarning}</p>}
-                     </div>
-
-                     <div>
-                         <label htmlFor="tedarikci_id" className={labelClasses}>{L.supplierSection.supplier}</label>
-                         <select id="tedarikci_id" name="tedarikci_id" defaultValue={normalizedSupplierValue} className="w-full p-2 border rounded-md bg-gray-50">
-                             <option value="">{L.supplierSection.none}</option>
-                             {supplierOptions.map(t => <option key={t.id} value={t.id}>{getCanonicalSupplierLabel(t.unvan)}</option>)}
-                         </select>
-                     </div>
-
-                     <div>
-                         <label className={labelClasses}>Ürün Serisi / Gam</label>
-                         <div className="grid grid-cols-2 gap-2 mt-2">
-                             {[
-                                 { value: 'barista', label: 'Barista & Bar' },
-                                 { value: 'dondurma', label: 'Eis & Gelato / Dondurma' },
-                                 { value: 'pastaci', label: 'Konditorei & Bäckerei / Pastacılık' },
-                                 { value: 'icecek', label: 'Getränke / İçecekler' }
-                             ].map(gam => (
-                                 <label key={gam.value} className="flex items-center gap-2 cursor-pointer p-2 rounded border hover:bg-gray-50 transition-colors">
-                                     <input 
-                                        type="checkbox" 
-                                        name="urun_gami" 
-                                        value={gam.value}
-                                        defaultChecked={Array.isArray(mevcutUrun?.urun_gami) ? mevcutUrun.urun_gami.includes(gam.value) : false}
-                                        className="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500" 
-                                     />
-                                     <span className="text-sm">{gam.label}</span>
-                                 </label>
-                             ))}
-                         </div>
-                         <p className="text-xs text-gray-400 mt-1">Hedef müşteri segmenti — kafeler, dondurma dükkanları, pastaneler, içecek büfeleri</p>
-                     </div>
-
-                     <div className="md:col-span-2 rounded-lg border border-dashed border-amber-200 bg-amber-50/70 p-4 space-y-3">
-                         <div>
-                             <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">Hizli fiyatlandirma tipi</p>
-                             <p className="mt-1 text-sm text-gray-700">
-                                 Bu urunun donuk mu donuk olmayan mi oldugunu buradan net secin. Fiyatlandirma merkezindeki liste de ayni secimi kullanir.
-                             </p>
-                         </div>
-
-                         <select
-                             value={manuelUrunGami}
-                             onChange={(e) => setManuelUrunGami(e.target.value as ProductLineKey | 'auto')}
-                             className="w-full p-2 border rounded-md bg-white"
-                         >
-                             <option value="auto">Kategoriye gore otomatik sec</option>
-                             <option value="frozen-desserts">Donuk urun</option>
-                             <option value="barista-bakery-essentials">Donuk olmayan urun</option>
-                         </select>
-
-                         <div className="flex flex-wrap items-center gap-2">
-                             <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                                 seciliUrunGami === 'frozen-desserts'
-                                     ? 'bg-rose-100 text-rose-700'
-                                     : seciliUrunGami === 'barista-bakery-essentials'
-                                       ? 'bg-emerald-100 text-emerald-700'
-                                       : 'bg-gray-100 text-gray-600'
-                             }`}>
-                                 {seciliUrunGami
-                                     ? getProductLineLabel(seciliUrunGami, locale)
-                                     : 'Kategori secildiginde otomatik belirlenir'}
-                             </span>
-                             <span className="text-xs text-gray-600">
-                                 {manuelUrunGami === 'auto'
-                                     ? 'Otomatik secimde kategori esas alinir.'
-                                     : 'Manuel secim bu urunu dogru fiyat listesine tasir.'}
-                             </span>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-
-            {/* Produktinformationen (Mehrsprachig) */}
-            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                 <h2 className="font-serif text-2xl font-bold text-primary mb-2 flex items-center gap-3"><FiInfo />{L.i18nSection.title}</h2>
-                 <div className="border-b border-gray-200 mb-6">
-                    <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
-                        {diller.map((dil) => (
-                            <button
-                                key={dil.kod}
-                                type="button"
-                                onClick={() => setAktifDil(dil.kod)}
-                                className={`${ aktifDil === dil.kod ? 'border-accent text-accent' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                            >
-                                {L.i18nSection.languageNames[dil.kod]}
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-                <div className="space-y-6">
-                    {diller.map((dil) => (
-                        <div key={dil.kod} className={aktifDil === dil.kod ? 'space-y-4' : 'hidden'}>
-                            <div>
-                                <label htmlFor={`ad_${dil.kod}`} className={labelClasses}>{L.i18nSection.productName} ({dil.kod.toUpperCase()})</label>
-                                <input type="text" name={`ad_${dil.kod}`} id={`ad_${dil.kod}`} defaultValue={mevcutUrun?.ad?.[dil.kod] || ''} className="w-full p-2 border rounded-md bg-gray-50" onChange={(e) => handleAdChange(e, dil.kod)} />
-                            </div>
-                            <div>
-                                <label htmlFor={`aciklamalar_${dil.kod}`} className={labelClasses}>{L.i18nSection.description} ({dil.kod.toUpperCase()})</label>
-                                <textarea name={`aciklamalar_${dil.kod}`} id={`aciklamalar_${dil.kod}`} rows={4} defaultValue={mevcutUrun?.aciklamalar?.[dil.kod] || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-             </div>
-
-            {/* Operative Informationen */}
-            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                 <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiClipboard />{L.operationsSection.title}</h2>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div>
-                        <label htmlFor="stok_kodu" className={labelClasses}>{L.operationsSection.sku}</label>
-                        <input type="text" name="stok_kodu" id="stok_kodu" defaultValue={mevcutUrun?.stok_kodu || ''} className="w-full p-2 border rounded-md bg-gray-50 font-mono" />
-                    </div>
-                    <div>
-                        <label htmlFor="ean_gtin" className={labelClasses}>
-                          EAN / Barkod (GTIN-13){!isEditMode && <span className="text-red-500">*</span>}
-                        </label>
-                        <input
-                          type="text"
-                          name="ean_gtin"
-                          id="ean_gtin"
-                          defaultValue={(mevcutUrun as any)?.ean_gtin || ''}
-                          maxLength={14}
-                          placeholder="örn. 8690123456789"
-                          required={!isEditMode}
-                          className="w-full p-2 border rounded-md bg-gray-50 font-mono"
-                        />
-                        <p className="mt-1 text-xs text-gray-400">
-                          {isEditMode ? 'İsteğe bağlı. Mevcut değeri korumak için boş bırakın.' : 'EAN-13 barkod numarası — yeni ürünler için zorunlu'}
-                        </p>
-                    </div>
-                    <div>
-                        <label htmlFor="slug" className={labelClasses}>{L.operationsSection.slug} <span className="text-red-500">*</span></label>
-                        <input type="text" name="slug" id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} className="w-full p-2 border rounded-md bg-gray-50 font-mono" required />
-                    </div>
-                    <div>
-                        <label htmlFor="ana_satis_birimi_id" className={labelClasses}>{L.operationsSection.unit} <span className="text-red-500">*</span></label>
-                        <select id="ana_satis_birimi_id" name="ana_satis_birimi_id" defaultValue={mevcutUrun?.ana_satis_birimi_id || ""} className="w-full p-2 border rounded-md bg-gray-50" required>
-                            <option value="" disabled>{L.operationsSection.pleaseSelect}</option>
-                            {birimler.map(b => (
-                                <option key={b.id} value={b.id}>{b.ad?.[locale] || Object.values(b.ad ?? {})[0] || 'Unnamed Unit'}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="flex items-center pt-5 md:pt-8">
-                        <input type="checkbox" id="aktif" name="aktif" defaultChecked={mevcutUrun?.aktif ?? true} className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" />
-                        <label htmlFor="aktif" className="ml-3 block text-sm font-bold text-gray-600">{L.operationsSection.activeQuestion}</label>
-                    </div>
-                 </div>
-             </div>
-
-            {/* Öne Çıkarma & Vitrinde Göster */}
-            <div className="bg-white p-6 rounded-lg shadow-md border border-amber-200">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-2 flex items-center gap-2">
-                    ⭐ Vitrin & Öne Çıkarma
-                </h2>
-                <p className="text-sm text-slate-500 mb-6">
-                    Bu ürünü ana sayfada veya ürünler sayfasında öne çıkarmak için işaretleyin.
-                    Sıralama numarası küçük olan ürünler önce gösterilir.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* is_featured */}
-                    <div className="flex flex-col gap-2 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="checkbox"
-                                id="is_featured"
-                                name="is_featured"
-                                defaultChecked={(mevcutUrun as any)?.is_featured ?? false}
-                                className="h-5 w-5 rounded border-gray-300 text-amber-500 focus:ring-amber-400"
-                            />
-                            <label htmlFor="is_featured" className="text-sm font-bold text-amber-900 cursor-pointer">
-                                ⭐ ElysonSweets Empfiehlt
-                            </label>
-                        </div>
-                        <p className="text-xs text-amber-700 ml-8">
-                            Ana sayfada "Bizim Önerimiz" bölümünde gösterilir.
-                        </p>
-                    </div>
-
-                    {/* is_bestseller */}
-                    <div className="flex flex-col gap-2 p-4 bg-orange-50 border border-orange-200 rounded-xl">
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="checkbox"
-                                id="is_bestseller"
-                                name="is_bestseller"
-                                defaultChecked={(mevcutUrun as any)?.is_bestseller ?? false}
-                                className="h-5 w-5 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
-                            />
-                            <label htmlFor="is_bestseller" className="text-sm font-bold text-orange-900 cursor-pointer">
-                                🔥 Bestseller
-                            </label>
-                        </div>
-                        <p className="text-xs text-orange-700 ml-8">
-                            "En Çok Satanlar" bölümünde öncelikli gösterilir.
-                        </p>
-                    </div>
-
-                    {/* featured_sira */}
-                    <div className="flex flex-col gap-2 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                        <label htmlFor="featured_sira" className="text-sm font-bold text-slate-700">
-                            📊 Vitrin Sırası
-                        </label>
-                        <input
-                            type="number"
-                            id="featured_sira"
-                            name="featured_sira"
-                            min="0"
-                            max="999"
-                            defaultValue={(mevcutUrun as any)?.featured_sira ?? 0}
-                            className="w-full p-2 border border-slate-200 rounded-md bg-white text-sm"
-                        />
-                        <p className="text-xs text-slate-500">
-                            0 = en önce. Küçük sayı → daha önce gösterilir.
-                        </p>
-                    </div>
+                    {/* Quick Save Button - Always front & center */}
+                    <button
+                        type="submit"
+                        disabled={isPending}
+                        className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-xs font-bold text-xs sm:text-sm transition-all disabled:opacity-50 flex-shrink-0"
+                        title="Kısayol: Ctrl + S"
+                    >
+                        {isPending ? <FiLoader className="animate-spin" size={14} /> : <FiSave size={14} />}
+                        <span>{isPending ? 'Kaydediliyor...' : 'Kaydet'}</span>
+                        <span className="hidden sm:inline-block text-[9px] opacity-75 font-mono bg-amber-800/50 px-1 py-0.5 rounded">Ctrl+S</span>
+                    </button>
                 </div>
             </div>
 
-            {/* Preis & Lager */}
-             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-6 flex items-center gap-3"><FiDollarSign />{L.pricingStockSection.title}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Elysion fiyat motoru</p>
-                        <p className="mt-1 text-sm text-blue-900">
-                            Sistem artik net inis maliyetini baz alir ve 3 tier saklar: Alt bayi %+15, toptanci / otel %+35, perakende / kafe %+60. Gerekirse bu urune ozel maliyet verilerini asagidan girebilirsiniz.
-                        </p>
-                    </div>
-
-                    <div className="md:col-span-3 rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-4">
-                        <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-700">Ambalaj / toptanci hiyerarsisi</p>
-                            <p className="mt-1 text-sm text-slate-700">
-                                Bir kolide kaç adet olduğu ve bir palette toplam kaç koli (karton) bulunduğu burada saklanır.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label htmlFor="alis_fiyat_seviyesi" className={labelClasses}>Alis fiyat seviyesi</label>
-                                <select
-                                    id="alis_fiyat_seviyesi"
-                                    name="alis_fiyat_seviyesi"
-                                    defaultValue={mevcutUrun?.alis_fiyat_seviyesi || (mevcutUrun?.teknik_ozellikler as any)?.alis_fiyat_seviyesi || 'adet'}
-                                    className="w-full p-2 border rounded-md bg-white"
-                                >
-                                    <option value="adet">Tekil / adet</option>
-                                    <option value="koli">Koli</option>
-                                    <option value="palet">Palet</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="koli_ici_adet" className={labelClasses}>1 kolide kac adet? <span className="text-red-500">*</span></label>
-                                <input type="number" min="1" step="1" name="koli_ici_adet" id="koli_ici_adet" defaultValue={mevcutUrun?.koli_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="palet_ici_adet" className={labelClasses}>1 palette toplam kac koli (karton)? <span className="text-red-500">*</span></label>
-                                <input type="number" min="1" step="1" name="palet_ici_adet" id="palet_ici_adet" defaultValue={mevcutUrun?.palet_ici_adet ?? ''} required className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                        </div>
-
-                        <p className="text-xs text-slate-600">
-                            Sistem palet toplamlarini siparis hesaplarinda kullanir. Ornek: 1 kolide 6 adet, 1 palette 125 koli.
-                        </p>
-                    </div>
-
-                    <div className="md:col-span-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 space-y-4">
-                        <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Maliyet master verisi</p>
-                            <p className="mt-1 text-sm text-emerald-900">
-                                Parti maliyeti, kg bazli gumruk/lojistik ve karlilik alarmi icin gereken alanlar burada saklanir.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label htmlFor="birim_agirlik_kg" className={labelClasses}>Birim agirlik (kg)</label>
-                                <input type="number" step="0.001" name="birim_agirlik_kg" id="birim_agirlik_kg" defaultValue={mevcutUrun?.birim_agirlik_kg ?? (mevcutUrun?.teknik_ozellikler as any)?.birim_agirlik_kg ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="lojistik_sinifi" className={labelClasses}>Lojistik sinifi</label>
-                                <select name="lojistik_sinifi" id="lojistik_sinifi" defaultValue={mevcutUrun?.lojistik_sinifi ?? (mevcutUrun?.teknik_ozellikler as any)?.lojistik_sinifi ?? 'cold-chain'} className="w-full p-2 border rounded-md bg-white">
-                                    <option value="cold-chain">Cold chain / donuk</option>
-                                    <option value="dry-load">Dry load / ambient</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="gumruk_vergi_orani_yuzde" className={labelClasses}>Gumruk vergi %</label>
-                                <input type="number" step="0.01" name="gumruk_vergi_orani_yuzde" id="gumruk_vergi_orani_yuzde" defaultValue={mevcutUrun?.gumruk_vergi_orani_yuzde ?? (mevcutUrun?.teknik_ozellikler as any)?.gumruk_vergi_orani_yuzde ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="almanya_kdv_orani" className={labelClasses}>Almanya KDV %</label>
-                                <input type="number" step="0.01" name="almanya_kdv_orani" id="almanya_kdv_orani" defaultValue={mevcutUrun?.almanya_kdv_orani ?? (mevcutUrun?.teknik_ozellikler as any)?.almanya_kdv_orani ?? '7'} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="gunluk_depolama_maliyeti_eur" className={labelClasses}>Gunluk depolama (€)</label>
-                                <input type="number" step="0.0001" name="gunluk_depolama_maliyeti_eur" id="gunluk_depolama_maliyeti_eur" defaultValue={mevcutUrun?.gunluk_depolama_maliyeti_eur ?? (mevcutUrun?.teknik_ozellikler as any)?.gunluk_depolama_maliyeti_eur ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="ortalama_stokta_kalma_suresi" className={labelClasses}>Ortalama stokta kalma (gun)</label>
-                                <input type="number" min="0" step="1" name="ortalama_stokta_kalma_suresi" id="ortalama_stokta_kalma_suresi" defaultValue={mevcutUrun?.ortalama_stokta_kalma_suresi ?? (mevcutUrun?.teknik_ozellikler as any)?.ortalama_stokta_kalma_suresi ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="fire_zayiat_orani_yuzde" className={labelClasses}>Fire / zayiat %</label>
-                                <input type="number" step="0.01" name="fire_zayiat_orani_yuzde" id="fire_zayiat_orani_yuzde" defaultValue={mevcutUrun?.fire_zayiat_orani_yuzde ?? (mevcutUrun?.teknik_ozellikler as any)?.fire_zayiat_orani_yuzde ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="standart_inis_maliyeti_net" className={labelClasses}>Standart inis maliyeti net (€)</label>
-                                <input type="number" step="0.01" name="standart_inis_maliyeti_net" id="standart_inis_maliyeti_net" defaultValue={mevcutUrun?.standart_inis_maliyeti_net ?? (mevcutUrun?.teknik_ozellikler as any)?.standart_inis_maliyeti_net ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div>
-                                <label htmlFor="son_gercek_inis_maliyeti_net" className={labelClasses}>Son gercek inis maliyeti (€)</label>
-                                <input type="number" step="0.01" name="son_gercek_inis_maliyeti_net" id="son_gercek_inis_maliyeti_net" defaultValue={mevcutUrun?.son_gercek_inis_maliyeti_net ?? (mevcutUrun?.teknik_ozellikler as any)?.son_gercek_inis_maliyeti_net ?? ''} className="w-full p-2 border rounded-md bg-white" />
-                            </div>
-                            <div className="flex items-center gap-2 pt-6">
-                                <input type="checkbox" id="karlilik_alarm_aktif" name="karlilik_alarm_aktif" defaultChecked={mevcutUrun?.karlilik_alarm_aktif ?? false} className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" />
-                                <label htmlFor="karlilik_alarm_aktif" className="text-sm font-medium text-gray-700">Karlilik alarmi aktif</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <label htmlFor="stok_miktari" className={labelClasses}>{L.pricingStockSection.stockQty}</label>
-                        <input type="number" name="stok_miktari" id="stok_miktari" defaultValue={mevcutUrun?.stok_miktari ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                    </div>
-                    <div>
-                        <label htmlFor="stok_esigi" className={labelClasses}>{L.pricingStockSection.stockThreshold}</label>
-                        <input type="number" name="stok_esigi" id="stok_esigi" defaultValue={mevcutUrun?.stok_esigi ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                    </div>
-                    <div>
-                        <label htmlFor="satis_fiyati_musteri" className={labelClasses}>Perakende / {L.pricingStockSection.customerPrice}</label>
-                        <input type="number" step="0.01" name="satis_fiyati_musteri" id="satis_fiyati_musteri" defaultValue={mevcutUrun?.satis_fiyati_musteri ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                    </div>
-                    <div>
-                        <label htmlFor="satis_fiyati_alt_bayi" className={labelClasses}>Alt bayi / {L.pricingStockSection.resellerPrice}</label>
-                        <input type="number" step="0.01" name="satis_fiyati_alt_bayi" id="satis_fiyati_alt_bayi" defaultValue={mevcutUrun?.satis_fiyati_alt_bayi ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                    </div>
-                    <div>
-                        <label htmlFor="satis_fiyati_toptanci" className={labelClasses}>Toptanci fiyati</label>
-                        <input type="number" step="0.01" name="satis_fiyati_toptanci" id="satis_fiyati_toptanci" defaultValue={mevcutUrun?.satis_fiyati_toptanci ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                    </div>
-                    <div>
-                        <label htmlFor="distributor_alis_fiyati" className={labelClasses}>{L.pricingStockSection.distributorCost}</label>
-                        <input type="number" step="0.01" name="distributor_alis_fiyati" id="distributor_alis_fiyati" defaultValue={mevcutUrun?.distributor_alis_fiyati ?? 0} className="w-full p-2 border rounded-md bg-gray-50" />
-                    </div>
-                </div>
-             </div>
-
-            {/* Produkteigenschaften (Filter) */}
-            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                <h2 className="font-serif text-2xl font-bold text-primary mb-2">{L.attributesSection.title}</h2>
-                <p className="text-sm text-gray-500 mb-6">{L.attributesSection.info}</p>
-                
-                <div className="space-y-6">
-                    {/* Eigenschaften - Checkboxen */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-3">{L.attributesSection.features}</label>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_vegan" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.vegan === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.vegan}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_vegetarisch" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.vegetarisch === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.vegetarian}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_glutenfrei" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.glutenfrei === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.glutenFree}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_laktosefrei" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.laktosefrei === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.lactoseFree}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_bio" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.bio === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.organic}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_ohne_zucker" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.ohne_zucker === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.sugarFree || 'Şekersiz / Sugar-Free'}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_dogal_icerik" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.dogal_icerik === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.naturalIngredients || 'Doğal içerik / Natural ingredients'}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_katkisiz" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.katkisiz === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.additiveFree || 'Katkısız / No additives'}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_koruyucusuz" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.koruyucusuz === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.preservativeFree || 'Koruyucusuz / Preservative-free'}</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    name="eigenschaft_pompa_uyumlu" 
-                                    defaultChecked={(mevcutUrun?.teknik_ozellikler as any)?.pompa_uyumlu === true}
-                                    className="h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent" 
-                                />
-                                <span className="text-sm text-gray-700">{L.attributesSection.pumpCompatible || 'Pompa uyumlu / Pump-compatible'}</span>
-                            </label>
+            {/* ========================================================================= */}
+            {/* 2. TOP KPI & BUSINESS SUMMARY (En Üstteki Kıymetli Özet Veri Barı)       */}
+            {/* ========================================================================= */}
+            {isEditMode && (
+                <div className="grid grid-cols-3 lg:grid-cols-6 gap-2 p-2 rounded-xl border border-slate-200 bg-slate-50/80 text-xs">
+                    <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">Mevcut Stok</span>
+                        <div className="flex items-baseline gap-1 mt-0.5">
+                            <span className="text-sm font-bold font-mono text-slate-900">{mevcutUrun.stok_miktari ?? 0}</span>
+                            <span className="text-[10px] text-slate-500 truncate">{birimler.find(b => b.id === mevcutUrun.ana_satis_birimi_id)?.ad?.[locale] || 'Adet'}</span>
                         </div>
                     </div>
 
-                    {/* Geschmack - Multiple Checkboxes + Custom Input */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-2">{L.flavorsSection.label}</label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            {/* Schokolade */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('schokolade')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'schokolade']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'schokolade'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('schokolade')}</span>
-                            </label>
-
-                            {/* Kakao */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('kakao')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'kakao']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'kakao'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('kakao')}</span>
-                            </label>
-                            
-                            {/* Erdbeere */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('erdbeere')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'erdbeere']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'erdbeere'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('erdbeere')}</span>
-                            </label>
-
-                            {/* Vanille */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('vanille')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'vanille']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'vanille'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('vanille')}</span>
-                            </label>
-
-                            {/* Karamell */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('karamell')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'karamell']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'karamell'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('karamell')}</span>
-                            </label>
-
-                            {/* Nuss */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('nuss')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'nuss']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'nuss'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('nuss')}</span>
-                            </label>
-
-                            {/* Walnuss */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('walnuss')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'walnuss']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'walnuss'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('walnuss')}</span>
-                            </label>
-
-                            {/* Badem */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('badem')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'badem']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'badem'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('badem')}</span>
-                            </label>
-
-                            {/* Hindistan Cevizi */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('hindistancevizi')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'hindistancevizi']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'hindistancevizi'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('hindistancevizi')}</span>
-                            </label>
-
-                            {/* Honig */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('honig')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'honig']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'honig'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('honig')}</span>
-                            </label>
-
-                            {/* Tereyag */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('tereyag')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'tereyag']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'tereyag'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('tereyag')}</span>
-                            </label>
-
-                            {/* Zitrone */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('zitrone')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'zitrone']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'zitrone'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('zitrone')}</span>
-                            </label>
-
-                            {/* Portakal / Orange */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('portakal')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'portakal']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'portakal'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('portakal')}</span>
-                            </label>
-
-                            {/* Zeytin */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('zeytin')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'zeytin']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'zeytin'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('zeytin')}</span>
-                            </label>
-
-                            {/* Frucht */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('frucht')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'frucht']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'frucht'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('frucht')}</span>
-                            </label>
-
-                            {/* Waldfrucht */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('waldfrucht')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'waldfrucht']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'waldfrucht'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('waldfrucht')}</span>
-                            </label>
-
-                            {/* Kaffee */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('kaffee')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'kaffee']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'kaffee'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('kaffee')}</span>
-                            </label>
-
-                            {/* Himbeere */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('himbeere')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'himbeere']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'himbeere'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('himbeere')}</span>
-                            </label>
-
-                            {/* Brombeere (Ahududu) */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('brombeere')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'brombeere']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'brombeere'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('brombeere')}</span>
-                            </label>
-
-                            {/* Pistazie */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('pistazie')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'pistazie']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'pistazie'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('pistazie')}</span>
-                            </label>
-
-                            {/* Kirsche */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('kirsche')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'kirsche']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'kirsche'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('kirsche')}</span>
-                            </label>
-
-                            {/* Havuc */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('havuc')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'havuc']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'havuc'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('havuc')}</span>
-                            </label>
-
-                            {/* Yulaf */}
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedGeschmack.includes('yulaf')}
-                                    onChange={(e) => {
-                                        if (e.target.checked) {
-                                            setSelectedGeschmack([...selectedGeschmack, 'yulaf']);
-                                        } else {
-                                            setSelectedGeschmack(selectedGeschmack.filter(g => g !== 'yulaf'));
-                                        }
-                                    }}
-                                    className="w-4 h-4 text-primary rounded"
-                                />
-                                <span className="text-sm">{flavorLabel('yulaf')}</span>
-                            </label>
+                    <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">Kritik Eşik</span>
+                        <div className="flex items-baseline gap-1 mt-0.5">
+                            <span className="text-sm font-bold font-mono text-slate-700">{mevcutUrun.stok_esigi ?? 0}</span>
+                            <span className="text-[10px] text-slate-500">Min limit</span>
                         </div>
+                    </div>
 
-                        {/* Custom Input for additional flavors */}
-                        <div className="mt-3">
-                            <label className="block text-xs text-gray-600 mb-1">{L.flavorsSection.extraLabel}</label>
-                            <input
-                                type="text"
-                                placeholder={L.flavorsSection.extraPlaceholder}
-                                value={customGeschmack}
-                                onChange={(e) => setCustomGeschmack(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                            />
+                    <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">Alış Maliyeti</span>
+                        <div className="flex items-baseline gap-1 mt-0.5">
+                            <span className="text-sm font-bold font-mono text-slate-900">€{Number(alisFiyati).toFixed(2)}</span>
+                            <span className="text-[9px] text-slate-500">Net</span>
                         </div>
+                    </div>
 
-                        {/* Hidden inputs to submit all flavors */}
-                        {selectedGeschmack.map((flavor, idx) => (
-                            <input key={idx} type="hidden" name={`geschmack_${idx}`} value={flavor} />
-                        ))}
-                        {customGeschmack && (
-                            <input type="hidden" name="geschmack_custom" value={customGeschmack} />
+                    <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">Toptancı</span>
+                        <div className="flex items-baseline gap-1 mt-0.5">
+                            <span className="text-sm font-bold font-mono text-blue-700">€{Number(toptanFiyat).toFixed(2)}</span>
+                            {toptanMargin && (
+                                <span className={`text-[9px] font-bold ${toptanMargin.profit >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                                    (%{toptanMargin.marginPct.toFixed(0)})
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
+                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">Müşteri (B2C)</span>
+                        <div className="flex items-baseline gap-1 mt-0.5">
+                            <span className="text-sm font-bold font-mono text-emerald-700">€{Number(musteriFiyat).toFixed(2)}</span>
+                            {musteriMargin && (
+                                <span className={`text-[9px] font-bold ${musteriMargin.profit >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                                    (%{musteriMargin.marginPct.toFixed(0)})
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs flex flex-col justify-between">
+                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">Son Hareket</span>
+                        {stockLogs.length > 0 ? (
+                            <button
+                                type="button"
+                                onClick={() => setShowTopHistory(!showTopHistory)}
+                                className="text-left group cursor-pointer"
+                                title="Hızlı özet tablosunu aç/kapat"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <span className="font-semibold text-emerald-600 font-mono text-xs block">
+                                        +{stockLogs[0].miktar} {stockLogs[0].birim || ''}
+                                    </span>
+                                    <span className="text-[9px] text-amber-600 font-medium">
+                                        {showTopHistory ? '▲' : '▼'}
+                                    </span>
+                                </div>
+                                <span className="text-[9px] text-slate-500 group-hover:text-amber-600 transition-colors block truncate">
+                                    {new Date(stockLogs[0].created_at).toLocaleDateString('tr-TR')}
+                                </span>
+                            </button>
+                        ) : (
+                            <span className="text-slate-400 text-xs">-</span>
                         )}
                     </div>
                 </div>
-            </div>
+            )}
 
-            {/* Technische Details */}
-             {isLoadingSablon ? ( <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 text-center"><FiLoader className="animate-spin inline-block text-gray-400 text-2xl" /></div> ) : aktifSablon.length > 0 && ( <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200"><h2 className="font-serif text-2xl font-bold text-primary mb-6">{L.technicalSection.title}</h2><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{aktifSablon.map(alan => (<div key={alan.id}><label htmlFor={`teknik_${alan.alan_adi}`} className={labelClasses}>{alan.gosterim_adi?.[locale] || alan.gosterim_adi?.['tr']}</label><input type={alan.alan_tipi === 'sayı' ? 'number' : 'text'} name={`teknik_${alan.alan_adi}`} id={`teknik_${alan.alan_adi}`} /* @ts-ignore */ defaultValue={mevcutUrun?.teknik_ozellikler?.[alan.alan_adi] || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>))}</div></div> )}
-
-            {/* Produktspezifikation */}
-            {(() => {
-              const mu = (mevcutUrun as any) || {};
-              const herkunft = (mu.herkunftsland as any) || {};
-              const inhalts = (mu.inhaltsstoffe as any) || {};
-              const allerg = (mu.allergene as any) || {};
-              const naehr = (mu.naehrwerte as any)?.pro_100g || {};
-              const tech = (mu.teknik_ozellikler as any) || {};
-
-              return (
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                  <h2 className="font-serif text-2xl font-bold text-primary mb-6">Produktspezifikation</h2>
-
-                  {/* 8a. Hersteller & Herkunft */}
-                  <div className="mb-8 pb-6 border-b border-gray-200">
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Hersteller & Herkunft</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="hersteller_name" className={labelClasses}>Hersteller</label>
-                        <input type="text" name="hersteller_name" id="hersteller_name" defaultValue={mu.hersteller_name || 'OZMER PASTACILIK A.Ş.'} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                      <div>
-                        <label htmlFor="hersteller_land" className={labelClasses}>Land</label>
-                        <input type="text" name="hersteller_land" id="hersteller_land" defaultValue={mu.hersteller_land || 'Türkiye'} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                      <div>
-                        <label htmlFor="herkunftsland_de" className={labelClasses}>Herkunftsland (DE)</label>
-                        <input type="text" name="herkunftsland_de" id="herkunftsland_de" defaultValue={herkunft.de || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                      <div>
-                        <label htmlFor="herkunftsland_en" className={labelClasses}>Herkunftsland (EN)</label>
-                        <input type="text" name="herkunftsland_en" id="herkunftsland_en" defaultValue={herkunft.en || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
+            {/* ========================================================================= */}
+            {/* 2.1 EXPANDABLE TOP STOCK & COST QUICK AUDIT LOG (Üst Hızlı Hareket Paneli)*/}
+            {/* ========================================================================= */}
+            {isEditMode && stockLogs.length > 0 && showTopHistory && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4 space-y-3 shadow-xs animate-fadeIn">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/70 pb-2">
+                        <div className="flex items-center gap-2">
+                            <span className="p-1.5 bg-amber-600 text-white rounded-md">
+                                <FiClock size={14} />
+                            </span>
+                            <div>
+                                <h4 className="text-xs font-bold text-slate-900">Son Stok ve Maliyet Hareketleri (Hızlı İnceleme)</h4>
+                                <p className="text-[11px] text-slate-500">Bu ürün için sisteme işlenen son hareketlerin ve alış maliyetlerinin hızlı özeti</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setActiveTab('gecmis')}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs transition-colors"
+                            >
+                                <span>Tüm Detaylı Geçmiş Tablosuna Git ({stockLogs.length})</span>
+                                <FiArrowRight size={12} />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowTopHistory(false)}
+                                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-md hover:bg-white transition-colors"
+                                title="Kapat"
+                            >
+                                <FiX size={15} />
+                            </button>
+                        </div>
                     </div>
-                  </div>
 
-                  {/* 8b. Haltbarkeit & Lagerung */}
-                  <div className="mb-8 pb-6 border-b border-gray-200">
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Haltbarkeit & Lagerung</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="haltbarkeit_monate" className={labelClasses}>
-                          Haltbarkeit (Monate)
-                          {seciliUrunGami === 'barista-bakery-essentials' && <span className="text-red-500">*</span>}
-                        </label>
-                        <input
-                          type="number"
-                          name="haltbarkeit_monate"
-                          id="haltbarkeit_monate"
-                          defaultValue={mu.haltbarkeit_monate || ''}
-                          required={seciliUrunGami === 'barista-bakery-essentials'}
-                          className="w-full p-2 border rounded-md bg-gray-50"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="haltbarkeit_nach_oeffnen_tage" className={labelClasses}>Nach Öffnen (Tage)</label>
-                        <input type="number" name="haltbarkeit_nach_oeffnen_tage" id="haltbarkeit_nach_oeffnen_tage" defaultValue={mu.haltbarkeit_nach_oeffnen_tage || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                      <div>
-                        <label htmlFor="lagertemperatur_min_celsius" className={labelClasses}>Lagertemp. min (°C)</label>
-                        <input type="number" name="lagertemperatur_min_celsius" id="lagertemperatur_min_celsius" step="0.1" defaultValue={mu.lagertemperatur_min_celsius || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                      <div>
-                        <label htmlFor="lagertemperatur_max_celsius" className={labelClasses}>Lagertemp. max (°C)</label>
-                        <input type="number" name="lagertemperatur_max_celsius" id="lagertemperatur_max_celsius" step="0.1" defaultValue={mu.lagertemperatur_max_celsius || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
+                    <div className="overflow-x-auto custom-scrollbar rounded-lg border border-slate-200 bg-white">
+                        <table className="min-w-full divide-y divide-slate-200 text-xs">
+                            <thead className="bg-slate-50 text-slate-600 font-semibold">
+                                <tr>
+                                    <th className="px-3 py-2 text-left">Tarih</th>
+                                    <th className="px-3 py-2 text-left">İşlem Türü</th>
+                                    <th className="px-3 py-2 text-right">Miktar</th>
+                                    <th className="px-3 py-2 text-center">Önceki → Yeni</th>
+                                    <th className="px-3 py-2 text-right">Birim Maliyet</th>
+                                    <th className="px-3 py-2 text-left">Belge No</th>
+                                    <th className="px-3 py-2 text-left">Açıklama</th>
+                                    <th className="px-3 py-2 text-left">İşlem Yapan</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 font-mono">
+                                {stockLogs.slice(0, 5).map((log) => {
+                                    const isPositive = log.miktar > 0;
+                                    return (
+                                        <tr key={log.id} className="hover:bg-slate-50/80">
+                                            <td className="px-3 py-2 text-slate-600 whitespace-nowrap">
+                                                {new Date(log.created_at).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
+                                            </td>
+                                            <td className="px-3 py-2 whitespace-nowrap">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-sans font-semibold ${
+                                                    (log.hareket_tipi === 'Giris' || log.islem_turu === 'giris') ? 'bg-emerald-100 text-emerald-800' :
+                                                    (log.hareket_tipi === 'Cikis' || log.islem_turu === 'cikis') ? 'bg-rose-100 text-rose-800' :
+                                                    'bg-blue-100 text-blue-800'
+                                                }`}>
+                                                    {log.hareket_tipi || log.islem_turu || 'Hareket'}
+                                                </span>
+                                            </td>
+                                            <td className={`px-3 py-2 text-right font-bold whitespace-nowrap ${isPositive ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                                {isPositive ? `+${log.miktar}` : log.miktar} {log.birim || ''}
+                                            </td>
+                                            <td className="px-3 py-2 text-center text-slate-500 whitespace-nowrap">
+                                                {log.onceki_stok ?? '-'} → <span className="font-semibold text-slate-800">{log.sonraki_stok ?? '-'}</span>
+                                            </td>
+                                            <td className="px-3 py-2 text-right font-semibold text-slate-900 whitespace-nowrap">
+                                                {log.birim_maliyet ? `€${Number(log.birim_maliyet).toFixed(2)}` : (log.kaynak ? log.kaynak : '-')}
+                                            </td>
+                                            <td className="px-3 py-2 text-slate-600 font-sans whitespace-nowrap">
+                                                {log.fatura_belge_no || log.kaynak || '-'}
+                                            </td>
+                                            <td className="px-3 py-2 text-slate-600 font-sans max-w-[200px] truncate">
+                                                {log.aciklama || '-'}
+                                            </td>
+                                            <td className="px-3 py-2 text-slate-600 font-sans text-[11px] whitespace-nowrap">
+                                                {log.yapan_user_adi || log.yapan_user_email || (log.profiles ? `${log.profiles.ad || ''} ${log.profiles.soyad || ''}`.trim() : '-')}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
-                  </div>
-
-                  {/* 8c. Bestellung & Lieferung */}
-                  <div className="mb-8 pb-6 border-b border-gray-200">
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Bestellung & Lieferung</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="lieferzeit_tage" className={labelClasses}>Lieferzeit (Tage)</label>
-                        <input type="number" name="lieferzeit_tage" id="lieferzeit_tage" defaultValue={mu.lieferzeit_tage || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                      <div>
-                        <label htmlFor="mindestbestellmenge" className={labelClasses}>Mindestbestellmenge (Koli)</label>
-                        <input type="number" name="mindestbestellmenge" id="mindestbestellmenge" defaultValue={mu.mindestbestellmenge || 1} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 8d. Zertifikate */}
-                  <div className="mb-8 pb-6 border-b border-gray-200">
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Zertifikate</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {['Halal', 'Kosher', 'ISO 22000', 'BRCGS', 'IFS Food', 'Vegan'].map(cert => (
-                        <label key={cert} className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" name={`cert_${cert}`} defaultChecked={mu.zertifikate?.includes(cert) || false} />
-                          <span className="text-sm text-gray-700">{cert}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 8e. Inhaltsstoffe */}
-                  <div className="mb-8 pb-6 border-b border-gray-200">
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Inhaltsstoffe</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="inhaltsstoffe_de" className={labelClasses}>DE</label>
-                        <textarea name="inhaltsstoffe_de" id="inhaltsstoffe_de" rows={4} defaultValue={inhalts.de || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                      <div>
-                        <label htmlFor="inhaltsstoffe_en" className={labelClasses}>EN</label>
-                        <textarea name="inhaltsstoffe_en" id="inhaltsstoffe_en" rows={4} defaultValue={inhalts.en || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 8f. Allergene (EU 14) */}
-                  <div className="mb-8 pb-6 border-b border-gray-200">
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Allergene (EU 14)</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-700 mb-3">Enthält</p>
-                        {['gluten', 'krebstiere', 'eier', 'fisch', 'erdnuesse', 'soja', 'milch', 'schalen', 'sellerie', 'senf', 'sesam', 'sulfite', 'lupinen', 'weichtiere'].map(allergen => (
-                          <label key={`${allergen}-enth`} className="flex items-center gap-2 cursor-pointer mb-2">
-                            <input type="checkbox" name={`allergen_${allergen}`} defaultChecked={allerg[allergen] || false} />
-                            <span className="text-sm text-gray-700 capitalize">{allergen}</span>
-                          </label>
-                        ))}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-700 mb-3">Kann Spuren enthalten</p>
-                        {['gluten', 'krebstiere', 'eier', 'fisch', 'erdnuesse', 'soja', 'milch', 'schalen', 'sellerie', 'senf', 'sesam', 'sulfite', 'lupinen', 'weichtiere'].map(allergen => (
-                          <label key={`${allergen}-spuren`} className="flex items-center gap-2 cursor-pointer mb-2">
-                            <input type="checkbox" name={`allergen_${allergen}_spuren`} defaultChecked={allerg[`${allergen}_spuren`] || false} />
-                            <span className="text-sm text-gray-700 capitalize">{allergen}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 8g. Nährwerte pro 100g */}
-                  <div className="mb-8 pb-6 border-b border-gray-200">
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Nährwerte pro 100 g</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div><label htmlFor="naehrwert_energie_kj" className={labelClasses}>Energie (kJ)</label><input type="number" name="naehrwert_energie_kj" id="naehrwert_energie_kj" step="0.1" defaultValue={naehr.energie_kj || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="naehrwert_energie_kcal" className={labelClasses}>Energie (kcal)</label><input type="number" name="naehrwert_energie_kcal" id="naehrwert_energie_kcal" step="0.1" defaultValue={naehr.energie_kcal || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="naehrwert_fett" className={labelClasses}>Fett (g)</label><input type="number" name="naehrwert_fett" id="naehrwert_fett" step="0.1" defaultValue={naehr.fett || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="naehrwert_davon_gesaettigt" className={labelClasses}>Davon gesättigt (g)</label><input type="number" name="naehrwert_davon_gesaettigt" id="naehrwert_davon_gesaettigt" step="0.1" defaultValue={naehr.davon_gesaettigt || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="naehrwert_kohlenhydrate" className={labelClasses}>Kohlenhydrate (g)</label><input type="number" name="naehrwert_kohlenhydrate" id="naehrwert_kohlenhydrate" step="0.1" defaultValue={naehr.kohlenhydrate || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="naehrwert_davon_zucker" className={labelClasses}>Davon Zucker (g)</label><input type="number" name="naehrwert_davon_zucker" id="naehrwert_davon_zucker" step="0.1" defaultValue={naehr.davon_zucker || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="naehrwert_ballaststoffe" className={labelClasses}>Ballaststoffe (g)</label><input type="number" name="naehrwert_ballaststoffe" id="naehrwert_ballaststoffe" step="0.1" defaultValue={naehr.ballaststoffe || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="naehrwert_eiweiss" className={labelClasses}>Eiweiß (g)</label><input type="number" name="naehrwert_eiweiss" id="naehrwert_eiweiss" step="0.1" defaultValue={naehr.eiweiss || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="naehrwert_salz" className={labelClasses}>Salz (g)</label><input type="number" name="naehrwert_salz" id="naehrwert_salz" step="0.1" defaultValue={naehr.salz || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                    </div>
-                  </div>
-
-                  {/* 8h. Technische Spez. + Datenblatt */}
-                  <div>
-                    <h3 className="font-semibold text-lg text-slate-800 mb-4">Technische Spezifikation & Datenblatt</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                      <div><label htmlFor="teknik_ph" className={labelClasses}>pH</label><input type="number" name="teknik_ph" id="teknik_ph" step="0.1" defaultValue={tech.ph || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div><label htmlFor="teknik_brix" className={labelClasses}>Brix</label><input type="number" name="teknik_brix" id="teknik_brix" step="0.1" defaultValue={tech.brix || ''} className="w-full p-2 border rounded-md bg-gray-50" /></div>
-                      <div className="flex items-end"><label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="teknik_gmo_free" defaultChecked={tech.gmo_free || false} /><span className="text-sm text-gray-700">GMO-frei</span></label></div>
-                    </div>
-                    <div>
-                      <label htmlFor="produktdatenblatt_url" className={labelClasses}>Produktdatenblatt (PDF-URL)</label>
-                      <input type="text" name="produktdatenblatt_url" id="produktdatenblatt_url" placeholder="https://..." defaultValue={mu.produktdatenblatt_url || ''} className="w-full p-2 border rounded-md bg-gray-50" />
-                    </div>
-                  </div>
                 </div>
-              );
-            })()}
+            )}
 
-            {/* Buttons am Ende */}
-            <div className="flex justify-end gap-4 pt-6 border-t mt-8">
-                <Link href={`/${locale}/admin/urun-yonetimi/urunler`} passHref>
-                    <button type="button" className="px-6 py-3 bg-secondary hover:bg-bg-subtle text-text-main rounded-lg font-bold text-sm">{L.buttons.cancel}</button>
-                </Link>
-                {/* Pending Status übergeben */}
-                {isAdmin && <SubmitButton mode={isEditMode ? 'edit' : 'create'} isPending={isPending} labels={L.buttons} />}
-                {isAdmin && isEditMode && mevcutUrun && <DeleteButtonWrapper urun={mevcutUrun} locale={locale} labels={L} />}
+            {/* ========================================================================= */}
+            {/* 3. ERP TAB NAVIGATION BAR (Wrap Pills - 100% visible on all screens)     */}
+            {/* ========================================================================= */}
+            <div className="bg-slate-100/90 p-1.5 rounded-xl border border-slate-200">
+                <nav className="flex flex-wrap items-center gap-1.5" aria-label="Tabs">
+                    {[
+                        { key: 'genel' as TabKey, label: 'Genel Bilgiler', shortLabel: 'Genel', icon: FiLayers },
+                        { key: 'fiyat-stok' as TabKey, label: 'Fiyat & KDV Matrisi', shortLabel: 'Fiyat & KDV', icon: FiDollarSign },
+                        ...(isEditMode ? [{ key: 'gecmis' as TabKey, label: `Stok Geçmişi (${stockLogs.length})`, shortLabel: `Stok (${stockLogs.length})`, icon: FiClock }] : []),
+                        { key: 'lojistik' as TabKey, label: 'Lojistik & Koli', shortLabel: 'Lojistik', icon: FiPackage },
+                        { key: 'saklama-spekt' as TabKey, label: 'Saklama & Spekt', shortLabel: 'Saklama', icon: FiThermometer },
+                        { key: 'besin-alerjen' as TabKey, label: 'Besin & Alerjen', shortLabel: 'Besin', icon: FiActivity },
+                        { key: 'medya' as TabKey, label: `Görseller (${galeriOnizlemeler.length + (anaResimOnizleme ? 1 : 0)})`, shortLabel: `Görseller (${galeriOnizlemeler.length + (anaResimOnizleme ? 1 : 0)})`, icon: FiImage },
+                    ].map(tab => {
+                        const Icon = tab.icon;
+                        const isCurrent = activeTab === tab.key;
+                        return (
+                            <button
+                                key={tab.key}
+                                type="button"
+                                onClick={() => setActiveTab(tab.key)}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all ${
+                                    isCurrent 
+                                        ? 'bg-amber-600 text-white shadow-xs font-bold' 
+                                        : 'bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-slate-200/90 shadow-2xs'
+                                }`}
+                            >
+                                <Icon size={14} className={isCurrent ? 'text-white' : 'text-slate-400'} />
+                                <span className="hidden xl:inline">{tab.label}</span>
+                                <span className="xl:hidden">{tab.shortLabel}</span>
+                            </button>
+                        );
+                    })}
+                </nav>
             </div>
+
+            {/* ========================================================================= */}
+            {/* 4. TAB CONTENTS                                                          */}
+            {/* ========================================================================= */}
+            <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-xs">
+
+                {/* --------------------------------------------------------------------- */}
+                {/* TAB 1: GENEL & DİLLER                                                 */}
+                {/* --------------------------------------------------------------------- */}
+                <div className={activeTab === 'genel' ? 'space-y-6' : 'hidden'}>
+                    {/* Basic Meta Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pb-6 border-b border-slate-200">
+                        {/* Kategori Tree Picker */}
+                        <div className="md:col-span-2">
+                            <label className={labelClasses}>Kategori <span className="text-red-500">*</span></label>
+                            <input type="hidden" name="kategori_id" value={seciliKategoriId || ''} />
+                            {!seciliKategoriId && (
+                                <input aria-hidden tabIndex={-1} required readOnly value="" style={{ opacity: 0, height: 0, position: 'absolute' }} />
+                            )}
+                            <div className="flex items-center gap-2">
+                                <div className="flex-1 p-2 border border-slate-300 rounded-md bg-slate-50 text-xs font-semibold text-slate-800 truncate">
+                                    {getKategoriHierarchy(seciliKategoriId) || 'Kategori Seçilmedi'}
+                                </div>
+                            </div>
+                            {/* Fast Kategori Dropdown / Select */}
+                            <CategoryFilterSelect
+                                categories={kategoriler}
+                                value={seciliKategoriId || ''}
+                                onChange={(val) => setAltKategoriId(val || null)}
+                                locale={locale}
+                                showCounts={false}
+                                allCategoriesLabel="-- Kategori Seçin --"
+                                className={`${inputClasses} mt-1.5`}
+                            />
+                        </div>
+
+                        {/* Ürün Gamı */}
+                        <div>
+                            <label className={labelClasses}>Ürün Gamı (Sıcaklık / Donuk)</label>
+                            <select
+                                value={manuelUrunGami}
+                                onChange={(e) => setManuelUrunGami(e.target.value as ProductLineKey | 'auto')}
+                                className={inputClasses}
+                            >
+                                <option value="auto">Otomatik (Kategoriye Göre)</option>
+                                <option value="frozen-desserts">Donuk Ürün (-18°C)</option>
+                                <option value="barista-bakery-essentials">Donuk Olmayan (Ambient / Şurup / Sos)</option>
+                            </select>
+                            <span className={`inline-block mt-1 text-[11px] font-semibold px-2 py-0.5 rounded ${
+                                seciliUrunGami === 'frozen-desserts' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
+                                {seciliUrunGami ? getProductLineLabel(seciliUrunGami, locale) : 'Belirlenmedi'}
+                            </span>
+                        </div>
+
+                        {/* Tedarikçi */}
+                        <div>
+                            <label className={labelClasses}>Tedarikçi</label>
+                            <select
+                                name="tedarikci_id"
+                                id="tedarikci_id"
+                                defaultValue={normalizedSupplierValue || ''}
+                                className={inputClasses}
+                            >
+                                <option value="">Tedarikçi Yok</option>
+                                {supplierOptions.map((t) => (
+                                    <option key={t.id} value={t.id}>{t.unvan}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Operational Codes (SKU, EAN, Slug, Unit) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pb-6 border-b border-slate-200">
+                        <div>
+                            <label htmlFor="stok_kodu" className={labelClasses}>SKU / Stok Kodu</label>
+                            <input
+                                type="text"
+                                name="stok_kodu"
+                                id="stok_kodu"
+                                defaultValue={mevcutUrun?.stok_kodu || ''}
+                                className={`${inputClasses} font-mono`}
+                                placeholder="örn: FO-SYR-001"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="ean_gtin" className={labelClasses}>EAN / Barkod (GTIN-13)</label>
+                            <input
+                                type="text"
+                                name="ean_gtin"
+                                id="ean_gtin"
+                                defaultValue={mevcutUrun?.ean_gtin || ''}
+                                className={`${inputClasses} font-mono`}
+                                placeholder="örn: 8697412345678"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="slug" className={labelClasses}>URL Slug</label>
+                            <input
+                                type="text"
+                                name="slug"
+                                id="slug"
+                                value={slug}
+                                onChange={(e) => setSlug(e.target.value)}
+                                className={`${inputClasses} font-mono text-xs`}
+                                placeholder="fo-karamel-surup-700ml"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="ana_satis_birimi_id" className={labelClasses}>Satış Birimi</label>
+                            <select
+                                name="ana_satis_birimi_id"
+                                id="ana_satis_birimi_id"
+                                defaultValue={mevcutUrun?.ana_satis_birimi_id || ''}
+                                className={inputClasses}
+                            >
+                                <option value="">Birim Seçin</option>
+                                {birimler.map((b) => (
+                                    <option key={b.id} value={b.id}>
+                                        {(b.ad as any)?.[locale] || (b.ad as any)?.['tr'] || (b.ad as any)?.['de'] || b.id}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Multilingual Text Editor (DE, TR, EN, AR) */}
+                    <div>
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <FiFileText /> Çok Dilli İçerik (Ürün Adı ve Açıklama)
+                            </h3>
+                            {/* Language Pills */}
+                            <div className="flex gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                                {diller.map(d => (
+                                    <button
+                                        key={d.kod}
+                                        type="button"
+                                        onClick={() => setAktifDil(d.kod)}
+                                        className={`px-3 py-1 rounded text-xs font-bold transition-all ${
+                                            aktifDil === d.kod ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+                                        }`}
+                                    >
+                                        {d.label} ({d.kod.toUpperCase()})
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200">
+                            {diller.map(d => (
+                                <div key={d.kod} className={aktifDil === d.kod ? 'space-y-4' : 'hidden'}>
+                                    <div>
+                                        <label htmlFor={`ad_${d.kod}`} className={labelClasses}>
+                                            Ürün Adı ({d.label})
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name={`ad_${d.kod}`}
+                                            id={`ad_${d.kod}`}
+                                            defaultValue={mevcutUrun?.ad?.[d.kod] || ''}
+                                            onChange={(e) => handleAdChange(e, d.kod)}
+                                            className={inputClasses}
+                                            placeholder={`Ürünün ${d.label} adı`}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor={`aciklamalar_${d.kod}`} className={labelClasses}>
+                                            Ürün Açıklaması & Kullanım Alanları ({d.label})
+                                        </label>
+                                        <textarea
+                                            name={`aciklamalar_${d.kod}`}
+                                            id={`aciklamalar_${d.kod}`}
+                                            rows={5}
+                                            defaultValue={mevcutUrun?.aciklamalar?.[d.kod] || ''}
+                                            className={inputClasses}
+                                            placeholder={`Ürünün ${d.label} detaylı açıklaması`}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Vitrin ve Öne Çıkarma Yönetimi */}
+                    <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4 shadow-2xs space-y-3">
+                        <div>
+                            <h4 className="text-sm font-bold text-amber-950 flex items-center gap-2">
+                                <span>⭐</span> ElysonSweets Vitrin &amp; Öne Çıkarma Ayarları
+                            </h4>
+                            <p className="text-xs text-amber-850">
+                                Bu ürünün web sitesi ana sayfasında, B2B portalında ve katalogda özel vitrinde gösterilmesini buradan yönetebilirsiniz.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                            {/* Önerilen Ürün (Empfohlen) */}
+                            <label className="flex items-start gap-3 p-3 bg-white border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-50/50 transition">
+                                <input
+                                    type="checkbox"
+                                    name="is_featured"
+                                    checked={isFeaturedDurum}
+                                    onChange={(e) => setIsFeaturedDurum(e.target.checked)}
+                                    className="mt-0.5 h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                                />
+                                <div className="text-xs">
+                                    <span className="font-bold text-slate-800 flex items-center gap-1">
+                                        ⭐ Önerilen Ürün (Empfohlen)
+                                    </span>
+                                    <p className="text-slate-500 mt-0.5">
+                                        Web sitesi ana sayfasında ve portal önerilenler vitrininde listelenir.
+                                    </p>
+                                </div>
+                            </label>
+
+                            {/* Bestseller (Çok Satan) */}
+                            <label className="flex items-start gap-3 p-3 bg-white border border-orange-200 rounded-lg cursor-pointer hover:bg-orange-50/50 transition">
+                                <input
+                                    type="checkbox"
+                                    name="is_bestseller"
+                                    checked={isBestsellerDurum}
+                                    onChange={(e) => setIsBestsellerDurum(e.target.checked)}
+                                    className="mt-0.5 h-4 w-4 rounded border-orange-300 text-orange-600 focus:ring-orange-500"
+                                />
+                                <div className="text-xs">
+                                    <span className="font-bold text-slate-800 flex items-center gap-1">
+                                        🏆 Bestseller (Çok Satanlar)
+                                    </span>
+                                    <p className="text-slate-500 mt-0.5">
+                                        Bestseller etiketi alır ve çok satanlar reyonunda öncelikli gösterilir.
+                                    </p>
+                                </div>
+                            </label>
+
+                            {/* Vitrin Sıralaması */}
+                            <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1">
+                                <label className="text-xs font-bold text-slate-800 block">
+                                    Vitrin Sıralama Önceliği
+                                </label>
+                                <input
+                                    type="number"
+                                    name="featured_sira"
+                                    value={featuredSira}
+                                    onChange={(e) => setFeaturedSira(Number(e.target.value) || 0)}
+                                    className="w-full px-2.5 py-1 text-sm border border-slate-300 rounded font-mono"
+                                    placeholder="0"
+                                />
+                                <p className="text-[11px] text-slate-400">
+                                    Küçük numaralar (1, 2, 3...) önce gösterilir.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* --------------------------------------------------------------------- */}
+                {/* TAB 2: FİYATLANDIRMA & KÂRLILIK (EXCEL MATRİSİ)                       */}
+                {/* --------------------------------------------------------------------- */}
+                <div className={activeTab === 'fiyat-stok' ? 'space-y-6' : 'hidden'}>
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                        <div>
+                            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <FiDollarSign className="text-emerald-600" /> B2B Fiyatlandırma & Kârlılık Matrisi
+                            </h3>
+                            <p className="text-xs text-slate-500">Tüm satış kanalları için net fiyatları, KDV oranını ve otomatik hesaplanan brüt tutarları yönetin.</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-semibold text-slate-700">KDV Oranı:</label>
+                            <select
+                                name="almanya_kdv_orani"
+                                value={kdvOrani}
+                                onChange={(e) => setKdvOrani(Number(e.target.value))}
+                                className="px-2 py-1 text-xs border border-slate-300 rounded font-mono font-bold bg-white"
+                            >
+                                <option value={7}>%7 (İndirimli / Gıda)</option>
+                                <option value={19}>%19 (Standart / Almanya)</option>
+                                <option value={0}>%0 (İstisna / Muaf)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Excel-like Pricing Matrix Table */}
+                    <div className="overflow-x-auto custom-scrollbar border border-slate-300 rounded-lg shadow-2xs">
+                        <table className="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-100 text-slate-700 border-b border-slate-300">
+                                    <th className="px-3 py-2 font-bold w-1/4">Kanal / Kademe</th>
+                                    <th className="px-3 py-2 font-bold w-1/4">Net Satış Fiyatı (€)</th>
+                                    <th className="px-3 py-2 font-bold w-1/6">Brüt Tutar (KDV Dahil)</th>
+                                    <th className="px-3 py-2 font-bold w-1/6">Birim Kâr (€)</th>
+                                    <th className="px-3 py-2 font-bold w-1/6">Kâr Marjı (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 bg-white">
+                                {/* Alış Maliyeti */}
+                                <tr className="bg-amber-50/40">
+                                    <td className="px-3 py-2.5 font-bold text-slate-800">
+                                        Distributor Alış Maliyeti (Cost)
+                                        <span className="block text-[10px] text-slate-500 font-normal">Üreticiden geliş net maliyeti</span>
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1.5 text-slate-400 font-mono">€</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                name="distributor_alis_fiyati"
+                                                value={alisFiyati}
+                                                onChange={(e) => setAlisFiyati(Number(e.target.value))}
+                                                className={`${denseInputClasses} pl-6 bg-amber-50/60 font-bold`}
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-2 font-mono text-slate-600">
+                                        €{(alisFiyati * (1 + kdvOrani / 100)).toFixed(2)}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono text-slate-400">-</td>
+                                    <td className="px-3 py-2 font-mono text-slate-400">Baz Maliyet</td>
+                                </tr>
+
+                                {/* Toptancı Fiyatı */}
+                                <tr>
+                                    <td className="px-3 py-2.5 font-bold text-blue-900">
+                                        Toptancı Satış Fiyatı (Wholesale)
+                                        <span className="block text-[10px] text-slate-500 font-normal">Büyük toptan alıcılar</span>
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1.5 text-slate-400 font-mono">€</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                name="satis_fiyati_toptanci"
+                                                value={toptanFiyat}
+                                                onChange={(e) => setToptanFiyat(Number(e.target.value))}
+                                                className={`${denseInputClasses} pl-6 font-bold text-blue-800`}
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-2 font-mono text-slate-700">
+                                        €{(toptanFiyat * (1 + kdvOrani / 100)).toFixed(2)}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono font-semibold text-slate-800">
+                                        {toptanMargin ? `€${toptanMargin.profit.toFixed(2)}` : '-'}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono">
+                                        {toptanMargin && (
+                                            <span className={`px-2 py-0.5 rounded font-bold ${
+                                                toptanMargin.marginPct >= 20 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                                            }`}>
+                                                %{toptanMargin.marginPct.toFixed(1)}
+                                            </span>
+                                        )}
+                                    </td>
+                                </tr>
+
+                                {/* Alt Bayi Fiyatı */}
+                                <tr>
+                                    <td className="px-3 py-2.5 font-bold text-slate-800">
+                                        Alt Bayi Satış Fiyatı (Reseller)
+                                        <span className="block text-[10px] text-slate-500 font-normal">B2B Alt bayiler / Partnerler</span>
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1.5 text-slate-400 font-mono">€</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                name="satis_fiyati_alt_bayi"
+                                                value={altBayiFiyat}
+                                                onChange={(e) => setAltBayiFiyat(Number(e.target.value))}
+                                                className={`${denseInputClasses} pl-6 font-bold`}
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-2 font-mono text-slate-700">
+                                        €{(altBayiFiyat * (1 + kdvOrani / 100)).toFixed(2)}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono font-semibold text-slate-800">
+                                        {altBayiMargin ? `€${altBayiMargin.profit.toFixed(2)}` : '-'}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono">
+                                        {altBayiMargin && (
+                                            <span className="px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-800">
+                                                %{altBayiMargin.marginPct.toFixed(1)}
+                                            </span>
+                                        )}
+                                    </td>
+                                </tr>
+
+                                {/* Müşteri Satış (B2C / Katalog) */}
+                                <tr>
+                                    <td className="px-3 py-2.5 font-bold text-emerald-900">
+                                        Müşteri Satış Fiyatı (B2C / Liste)
+                                        <span className="block text-[10px] text-slate-500 font-normal">Web sitesi / Son kullanıcı fiyatı</span>
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1.5 text-slate-400 font-mono">€</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                name="satis_fiyati_musteri"
+                                                value={musteriFiyat}
+                                                onChange={(e) => setMusteriFiyat(Number(e.target.value))}
+                                                className={`${denseInputClasses} pl-6 font-bold text-emerald-800`}
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-2 font-mono text-slate-700">
+                                        €{(musteriFiyat * (1 + kdvOrani / 100)).toFixed(2)}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono font-semibold text-slate-800">
+                                        {musteriMargin ? `€${musteriMargin.profit.toFixed(2)}` : '-'}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono">
+                                        {musteriMargin && (
+                                            <span className="px-2 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800">
+                                                %{musteriMargin.marginPct.toFixed(1)}
+                                            </span>
+                                        )}
+                                    </td>
+                                </tr>
+
+                                {/* Palet Satış Fiyatı */}
+                                <tr>
+                                    <td className="px-3 py-2.5 font-bold text-slate-800">
+                                        Palet Satış Fiyatı
+                                        <span className="block text-[10px] text-slate-500 font-normal">Tam palet alımlarında geçerli birim fiyat</span>
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        <div className="relative">
+                                            <span className="absolute left-2.5 top-1.5 text-slate-400 font-mono">€</span>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                name="satis_fiyati_palet"
+                                                value={paletFiyat}
+                                                onChange={(e) => setPaletFiyat(Number(e.target.value))}
+                                                className={`${denseInputClasses} pl-6 font-bold`}
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-2 font-mono text-slate-700">
+                                        €{(paletFiyat * (1 + kdvOrani / 100)).toFixed(2)}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono font-semibold text-slate-800">
+                                        {calcMargin(paletFiyat) ? `€${calcMargin(paletFiyat)!.profit.toFixed(2)}` : '-'}
+                                    </td>
+                                    <td className="px-3 py-2 font-mono">
+                                        {calcMargin(paletFiyat) && (
+                                            <span className="px-2 py-0.5 rounded font-bold bg-blue-100 text-blue-800">
+                                                %{calcMargin(paletFiyat)!.marginPct.toFixed(1)}
+                                            </span>
+                                        )}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Stock & Operational Indicators */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
+                        <div>
+                            <label htmlFor="stok_miktari" className={labelClasses}>Mevcut Depo Stok Miktarı</label>
+                            <input
+                                type="number"
+                                name="stok_miktari"
+                                id="stok_miktari"
+                                defaultValue={mevcutUrun?.stok_miktari ?? 0}
+                                className={`${inputClasses} font-mono font-bold`}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="stok_esigi" className={labelClasses}>Kritik Stok Uyarı Eşiği</label>
+                            <input
+                                type="number"
+                                name="stok_esigi"
+                                id="stok_esigi"
+                                defaultValue={mevcutUrun?.stok_esigi ?? 10}
+                                className={`${inputClasses} font-mono`}
+                            />
+                        </div>
+                        <div className="flex items-center pt-6">
+                            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                                <input
+                                    type="checkbox"
+                                    name="karlilik_alarm_aktif"
+                                    defaultChecked={mevcutUrun?.karlilik_alarm_aktif ?? true}
+                                    className="w-4 h-4 text-amber-600 rounded"
+                                />
+                                <span>Kârlılık Alarmı Aktif (Maliyet sapmasında uyar)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {/* --------------------------------------------------------------------- */}
+                {/* TAB 3: AMBALAJ & LOJİSTİK (LOJİSTİK KARTI)                            */}
+                {/* --------------------------------------------------------------------- */}
+                <div className={activeTab === 'lojistik' ? 'space-y-6' : 'hidden'}>
+                    <div className="pb-2 border-b border-slate-200">
+                        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <FiPackage className="text-blue-600" /> Ambalaj Hiyerarşisi & Nakliye Verileri
+                        </h3>
+                        <p className="text-xs text-slate-500">Birim, koli ve palet lojistik parametreleri paletleme optimizasyonunda kullanılır.</p>
+                    </div>
+
+                    {/* 3-Tier Packaging Hierarchy Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* 1. Birim Ürün */}
+                        <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                            <div className="flex items-center gap-2 text-xs font-bold text-slate-700 uppercase pb-2 border-b border-slate-200">
+                                <span>1. Birim Ürün</span>
+                            </div>
+                            <div>
+                                <label htmlFor="birim_agirlik_kg" className={labelClasses}>Birim Ağırlık (kg)</label>
+                                <input
+                                    type="number"
+                                    step="0.001"
+                                    name="birim_agirlik_kg"
+                                    id="birim_agirlik_kg"
+                                    defaultValue={mevcutUrun?.birim_agirlik_kg ?? ''}
+                                    className={`${denseInputClasses} font-bold`}
+                                    placeholder="örn: 1.000 veya 0.700"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="teknik_hacim_ml" className={labelClasses}>Hacim (ml)</label>
+                                <input
+                                    type="number"
+                                    name="teknik_hacim_ml"
+                                    id="teknik_hacim_ml"
+                                    defaultValue={tech.hacim_ml || ''}
+                                    className={denseInputClasses}
+                                    placeholder="örn: 700 veya 1000"
+                                />
+                            </div>
+                        </div>
+
+                        {/* 2. Koli Bilgileri */}
+                        <div className="p-4 rounded-xl border border-blue-200 bg-blue-50/30 space-y-3">
+                            <div className="flex items-center gap-2 text-xs font-bold text-blue-900 uppercase pb-2 border-b border-blue-200">
+                                <FiPackage /> 2. Koli Ambalajı
+                            </div>
+                            <div>
+                                <label htmlFor="koli_ici_adet" className={labelClasses}>Koli İçi Adet (Flaschen/Stück)</label>
+                                <input
+                                    type="number"
+                                    name="koli_ici_adet"
+                                    id="koli_ici_adet"
+                                    defaultValue={mevcutUrun?.koli_ici_adet ?? ''}
+                                    className={`${denseInputClasses} font-bold text-blue-900`}
+                                    placeholder="örn: 6 veya 12"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="koli_ici_kutu_adet" className={labelClasses}>Koli İçi Kutu / Paket</label>
+                                <input
+                                    type="number"
+                                    name="koli_ici_kutu_adet"
+                                    id="koli_ici_kutu_adet"
+                                    defaultValue={mevcutUrun?.koli_ici_kutu_adet ?? ''}
+                                    className={denseInputClasses}
+                                    placeholder="örn: 1"
+                                />
+                            </div>
+                        </div>
+
+                        {/* 3. Palet Bilgileri */}
+                        <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/30 space-y-3">
+                            <div className="flex items-center gap-2 text-xs font-bold text-emerald-900 uppercase pb-2 border-b border-emerald-200">
+                                <FiTruck /> 3. Palet Bilgileri
+                            </div>
+                            <div>
+                                <label htmlFor="palet_ici_koli_adet" className={labelClasses}>Palet İçi Koli Sayısı</label>
+                                <input
+                                    type="number"
+                                    name="palet_ici_koli_adet"
+                                    id="palet_ici_koli_adet"
+                                    defaultValue={mevcutUrun?.palet_ici_koli_adet ?? ''}
+                                    className={`${denseInputClasses} font-bold text-emerald-900`}
+                                    placeholder="örn: 80 veya 100"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="palet_ici_adet" className={labelClasses}>Palet İçi Toplam Adet</label>
+                                <input
+                                    type="number"
+                                    name="palet_ici_adet"
+                                    id="palet_ici_adet"
+                                    defaultValue={mevcutUrun?.palet_ici_adet ?? ''}
+                                    className={denseInputClasses}
+                                    placeholder="örn: 480 veya 960"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Logistics, MOQ & Delivery Settings */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200">
+                        <div>
+                            <label htmlFor="lojistik_sinifi" className={labelClasses}>Lojistik Sınıfı</label>
+                            <select
+                                name="lojistik_sinifi"
+                                id="lojistik_sinifi"
+                                defaultValue={mevcutUrun?.lojistik_sinifi || 'dry-load'}
+                                className={inputClasses}
+                            >
+                                <option value="dry-load">Trockenware / Ambient (Oda Sıcaklığı / Kuru Yük)</option>
+                                <option value="cold-chain">Kühlware / Tiefkühl (Soğuk Zincir / Donuk)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label htmlFor="lieferzeit_werktage" className={labelClasses}>Teslimat Süresi (İş Günü)</label>
+                            <input
+                                type="number"
+                                name="lieferzeit_werktage"
+                                id="lieferzeit_werktage"
+                                defaultValue={mevcutUrun?.lieferzeit_werktage ?? mu.lieferzeit_tage ?? 3}
+                                className={inputClasses}
+                                placeholder="örn: 2-3"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="mindest_bestellmenge" className={labelClasses}>Minimum Sipariş (MOQ)</label>
+                            <input
+                                type="number"
+                                name="mindest_bestellmenge"
+                                id="mindest_bestellmenge"
+                                defaultValue={mevcutUrun?.mindest_bestellmenge ?? mu.mindestbestellmenge ?? 1}
+                                className={inputClasses}
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="mindest_bestellmenge_einheit" className={labelClasses}>MOQ Birimi</label>
+                            <input
+                                type="text"
+                                name="mindest_bestellmenge_einheit"
+                                id="mindest_bestellmenge_einheit"
+                                defaultValue={mevcutUrun?.mindest_bestellmenge_einheit || 'Koli'}
+                                className={inputClasses}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Menşei ve Üretici */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
+                        <div>
+                            <label htmlFor="hersteller_name" className={labelClasses}>Üretici Firma</label>
+                            <input
+                                type="text"
+                                name="hersteller_name"
+                                id="hersteller_name"
+                                defaultValue={mevcutUrun?.hersteller_name || 'ÖZMER PASTACILIK A.Ş.'}
+                                className={inputClasses}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="hersteller_land" className={labelClasses}>Üretici Ülke</label>
+                            <input
+                                type="text"
+                                name="hersteller_land"
+                                id="hersteller_land"
+                                defaultValue={mevcutUrun?.hersteller_land || 'Türkiye'}
+                                className={inputClasses}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="herkunftsland_de" className={labelClasses}>Menşei Ülke (DE/TR)</label>
+                            <input
+                                type="text"
+                                name="herkunftsland_de"
+                                id="herkunftsland_de"
+                                defaultValue={herkunft.de || 'Türkei'}
+                                className={inputClasses}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* --------------------------------------------------------------------- */}
+                {/* TAB 4: SAKLAMA & ŞARTNAME (SPEKTLER)                                   */}
+                {/* --------------------------------------------------------------------- */}
+                <div className={activeTab === 'saklama-spekt' ? 'space-y-6' : 'hidden'}>
+                    <div className="pb-2 border-b border-slate-200">
+                        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <FiThermometer className="text-rose-600" /> Saklama Koşulları, Sıcaklık Dereceleri & Şartnameler
+                        </h3>
+                        <p className="text-xs text-slate-500">Üretici fabrika spesifikasyonlarından teyit edilen sıcaklık aralıkları ve raf ömrü parametreleri.</p>
+                    </div>
+
+                    {/* Storage & Shelf Life Box */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-4 rounded-xl border border-slate-200 bg-slate-50/50">
+                        <div>
+                            <label htmlFor="lagertemperatur_min_celsius" className={labelClasses}>
+                                Min. Saklama Sıcaklığı (°C) <span className="text-amber-600 font-bold">*</span>
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    step="0.1"
+                                    name="lagertemperatur_min_celsius"
+                                    id="lagertemperatur_min_celsius"
+                                    defaultValue={mevcutUrun?.lagertemperatur_min_celsius ?? 20}
+                                    className={`${inputClasses} font-mono font-bold text-blue-700`}
+                                />
+                                <span className="absolute right-3 top-2 text-xs text-slate-400 font-mono">°C</span>
+                            </div>
+                            <span className="text-[11px] text-slate-500 mt-1 block">Fabrika Spekti: 20°C</span>
+                        </div>
+
+                        <div>
+                            <label htmlFor="lagertemperatur_max_celsius" className={labelClasses}>
+                                Max. Saklama Sıcaklığı (°C) <span className="text-amber-600 font-bold">*</span>
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    step="0.1"
+                                    name="lagertemperatur_max_celsius"
+                                    id="lagertemperatur_max_celsius"
+                                    defaultValue={mevcutUrun?.lagertemperatur_max_celsius ?? 22}
+                                    className={`${inputClasses} font-mono font-bold text-red-700`}
+                                />
+                                <span className="absolute right-3 top-2 text-xs text-slate-400 font-mono">°C</span>
+                            </div>
+                            <span className="text-[11px] text-slate-500 mt-1 block">Fabrika Spekti: 22°C</span>
+                        </div>
+
+                        <div>
+                            <label htmlFor="haltbarkeit_monate" className={labelClasses}>
+                                Kapalı Ambalaj Raf Ömrü (Ay) <span className="text-amber-600 font-bold">*</span>
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    name="haltbarkeit_monate"
+                                    id="haltbarkeit_monate"
+                                    defaultValue={mevcutUrun?.haltbarkeit_monate ?? 24}
+                                    className={`${inputClasses} font-mono font-bold text-slate-800`}
+                                />
+                                <span className="absolute right-3 top-2 text-xs text-slate-400 font-mono">Ay</span>
+                            </div>
+                            <span className="text-[11px] text-slate-500 mt-1 block">24 ay (2 yıl) veya 36 ay (3 yıl)</span>
+                        </div>
+                    </div>
+
+                    {/* PDF Specification URL */}
+                    <div>
+                        <label htmlFor="produktdatenblatt_url" className={labelClasses}>Produktdatenblatt / Spekt PDF Dosya URL</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                name="produktdatenblatt_url"
+                                id="produktdatenblatt_url"
+                                defaultValue={mevcutUrun?.produktdatenblatt_url || ''}
+                                className={`${inputClasses} font-mono text-xs`}
+                                placeholder="https://..."
+                            />
+                            {mevcutUrun?.produktdatenblatt_url && (
+                                <a
+                                    href={mevcutUrun.produktdatenblatt_url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-300 text-xs font-bold flex items-center gap-1.5"
+                                >
+                                    <FiExternalLink /> Aç
+                                </a>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Sertifikalar */}
+                    <div>
+                        <label className={labelClasses}>Uluslararası Kalite Sertifikaları</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 pt-1">
+                            {['Halal', 'Kosher', 'ISO 22000', 'BRCGS', 'IFS Food', 'Vegan'].map(cert => {
+                                const isChecked = mevcutUrun?.zertifikate?.includes(cert) ?? false;
+                                return (
+                                    <label
+                                        key={cert}
+                                        className="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors shadow-2xs"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            name={`cert_${cert}`}
+                                            defaultChecked={isChecked}
+                                            className="w-4 h-4 text-amber-600 rounded"
+                                        />
+                                        <span className="text-xs font-semibold text-slate-700">{cert}</span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                {/* --------------------------------------------------------------------- */}
+                {/* TAB 5: BESİN DEĞERLERİ & ALERJENLER (EXCEL BESİN TABLOSU)             */}
+                {/* --------------------------------------------------------------------- */}
+                <div className={activeTab === 'besin-alerjen' ? 'space-y-6' : 'hidden'}>
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                        <div>
+                            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <FiActivity className="text-emerald-600" /> Besin Değerleri Tablosu (Nährwerttabelle)
+                            </h3>
+                            <p className="text-xs text-slate-500">Excel düzeninde hızlı veri girişi (Tab tuşu ile sonraki hücreye geçebilirsiniz).</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-semibold text-slate-700">Porsiyon Bazı:</label>
+                            <select
+                                name="naehrwerte_pro"
+                                defaultValue={naehrEinheit}
+                                className="px-2 py-1 text-xs border border-slate-300 rounded font-semibold bg-white"
+                            >
+                                <option value="100g">100 g için</option>
+                                <option value="100ml">100 ml için</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Excel-like 2-Column Nutrition Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 max-w-4xl p-4 bg-slate-50/60 rounded-xl border border-slate-200">
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200">
+                            <span className="text-xs font-semibold text-slate-700">Enerji (kJ)</span>
+                            <input type="number" step="0.1" name="naehrwert_energie_kj" defaultValue={naehr.energie_kj || ''} className={`${denseInputClasses} w-32 font-bold`} placeholder="kJ" />
+                        </div>
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200">
+                            <span className="text-xs font-semibold text-slate-700">Enerji (kcal)</span>
+                            <input type="number" step="0.1" name="naehrwert_energie_kcal" defaultValue={naehr.energie_kcal || ''} className={`${denseInputClasses} w-32 font-bold text-amber-700`} placeholder="kcal" />
+                        </div>
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200">
+                            <span className="text-xs font-semibold text-slate-700">Toplam Yağ (g)</span>
+                            <input type="number" step="0.1" name="naehrwert_fett" defaultValue={naehr.fett || ''} className={`${denseInputClasses} w-32`} placeholder="g" />
+                        </div>
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200">
+                            <span className="text-xs font-semibold text-slate-700">Doymuş Yağ (g)</span>
+                            <input type="number" step="0.1" name="naehrwert_davon_gesaettigt" defaultValue={naehr.davon_gesaettigt || ''} className={`${denseInputClasses} w-32`} placeholder="g" />
+                        </div>
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200">
+                            <span className="text-xs font-semibold text-slate-700">Karbonhidrat (g)</span>
+                            <input type="number" step="0.1" name="naehrwert_kohlenhydrate" defaultValue={naehr.kohlenhydrate || ''} className={`${denseInputClasses} w-32`} placeholder="g" />
+                        </div>
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200">
+                            <span className="text-xs font-semibold text-slate-700">Şeker (g)</span>
+                            <input type="number" step="0.1" name="naehrwert_davon_zucker" defaultValue={naehr.davon_zucker || ''} className={`${denseInputClasses} w-32 font-bold text-amber-700`} placeholder="g" />
+                        </div>
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200">
+                            <span className="text-xs font-semibold text-slate-700">Protein (g)</span>
+                            <input type="number" step="0.1" name="naehrwert_eiweiss" defaultValue={naehr.eiweiss || ''} className={`${denseInputClasses} w-32`} placeholder="g" />
+                        </div>
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200">
+                            <span className="text-xs font-semibold text-slate-700">Tuz (g)</span>
+                            <input type="number" step="0.01" name="naehrwert_salz" defaultValue={naehr.salz || ''} className={`${denseInputClasses} w-32`} placeholder="g" />
+                        </div>
+                        <div className="flex items-center justify-between gap-4 p-1.5 bg-white rounded border border-slate-200 md:col-span-2">
+                            <span className="text-xs font-semibold text-slate-700">Diyet Lifi (g)</span>
+                            <input type="number" step="0.1" name="naehrwert_ballaststoffe" defaultValue={naehr.ballaststoffe || ''} className={`${denseInputClasses} w-32`} placeholder="g" />
+                        </div>
+                    </div>
+
+                    {/* Inhaltsstoffe (4 Sprachen) */}
+                    <div className="pt-4 border-t border-slate-200">
+                        <h4 className="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider">İçindekiler Listesi (Inhaltsstoffe)</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="inhaltsstoffe_de" className={labelClasses}>Almanca (DE)</label>
+                                <textarea name="inhaltsstoffe_de" id="inhaltsstoffe_de" rows={3} defaultValue={inhalts.de || ''} className={inputClasses} placeholder="Zutaten: ..." />
+                            </div>
+                            <div>
+                                <label htmlFor="inhaltsstoffe_tr" className={labelClasses}>Türkçe (TR)</label>
+                                <textarea name="inhaltsstoffe_tr" id="inhaltsstoffe_tr" rows={3} defaultValue={inhalts.tr || ''} className={inputClasses} placeholder="İçindekiler: ..." />
+                            </div>
+                            <div>
+                                <label htmlFor="inhaltsstoffe_en" className={labelClasses}>İngilizce (EN)</label>
+                                <textarea name="inhaltsstoffe_en" id="inhaltsstoffe_en" rows={3} defaultValue={inhalts.en || ''} className={inputClasses} placeholder="Ingredients: ..." />
+                            </div>
+                            <div>
+                                <label htmlFor="inhaltsstoffe_ar" className={labelClasses}>Arapça (AR)</label>
+                                <textarea name="inhaltsstoffe_ar" id="inhaltsstoffe_ar" rows={3} defaultValue={inhalts.ar || ''} className={inputClasses} placeholder="المكونات: ..." />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Allergene (EU 14) */}
+                    <div className="pt-4 border-t border-slate-200">
+                        <h4 className="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider">Alerjen Matrisi (EU 14)</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                            {['gluten', 'krebstiere', 'eier', 'fisch', 'erdnuesse', 'soja', 'milch', 'schalen', 'sellerie', 'senf', 'sesam', 'sulfite', 'lupinen', 'weichtiere'].map(allergen => (
+                                <div key={allergen} className="p-2 rounded border border-slate-200 bg-white space-y-1 shadow-2xs">
+                                    <span className="text-[11px] font-bold text-slate-800 block capitalize truncate">{allergen}</span>
+                                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-slate-600">
+                                        <input type="checkbox" name={`allergen_${allergen}`} defaultChecked={allerg[allergen] || false} className="rounded text-red-600" />
+                                        <span>İçerir</span>
+                                    </label>
+                                    <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-slate-500">
+                                        <input type="checkbox" name={`allergen_${allergen}_spuren`} defaultChecked={allerg[`${allergen}_spuren`] || false} className="rounded text-amber-500" />
+                                        <span>İz miktarda</span>
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Features / Badges & Flavors */}
+                    <div className="pt-4 border-t border-slate-200">
+                        <h4 className="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider">Diyet Rozetleri & Özellikler</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
+                            {[
+                                { key: 'vegan', label: 'Vegan' },
+                                { key: 'vegetarisch', label: 'Vejetaryen' },
+                                { key: 'glutenfrei', label: 'Glutensiz' },
+                                { key: 'laktosefrei', label: 'Laktozsuz' },
+                                { key: 'bio', label: 'Bio / Organik' },
+                                { key: 'ohne_zucker', label: 'Şekersiz' },
+                                { key: 'dogal_icerik', label: 'Doğal İçerik' },
+                                { key: 'katkisiz', label: 'Katkısız' },
+                                { key: 'koruyucusuz', label: 'Koruyucusuz' },
+                                { key: 'pompa_uyumlu', label: 'Pompa Uyumlu' },
+                            ].map(item => (
+                                <label key={item.key} className="flex items-center gap-2 p-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer shadow-2xs">
+                                    <input
+                                        type="checkbox"
+                                        name={`eigenschaft_${item.key}`}
+                                        defaultChecked={tech[item.key] === true}
+                                        className="w-4 h-4 text-emerald-600 rounded"
+                                    />
+                                    <span className="text-xs font-medium text-slate-700">{item.label}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* --------------------------------------------------------------------- */}
+                {/* TAB 6: MEDYA & GÖRSELLER                                              */}
+                {/* --------------------------------------------------------------------- */}
+                <div className={activeTab === 'medya' ? 'space-y-6' : 'hidden'}>
+                    <div className="pb-2 border-b border-slate-200">
+                        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <FiImage className="text-purple-600" /> Ürün Görsel Yönetimi
+                        </h3>
+                        <p className="text-xs text-slate-500">Ana ürün görseli ve katalog çoklu galeri resimlerini yükleyin.</p>
+                    </div>
+
+                    {/* Ana Resim */}
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-wrap items-center gap-6">
+                        <div className="w-28 h-28 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-white overflow-hidden shadow-2xs flex-shrink-0">
+                            {anaResimOnizleme ? (
+                                <Image src={anaResimOnizleme} alt="Preview" width={112} height={112} className="object-contain w-full h-full p-1" />
+                            ) : (
+                                <FiImage className="text-slate-300 text-3xl" />
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <span className="text-xs font-bold text-slate-800 block">Ana Ürün Görseli (Kapak)</span>
+                            <input type="file" id="ana-resim-input" className="hidden" onChange={handleAnaResimChange} accept="image/png, image/jpeg, image/webp" />
+                            <label htmlFor="ana-resim-input" className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition-all shadow-xs">
+                                <FiUploadCloud /> {anaResimOnizleme ? 'Görseli Değiştir' : 'Yeni Görsel Yükle'}
+                            </label>
+                            <p className="text-[11px] text-slate-500">Önerilen: 800x800 veya 1000x1000 PNG, WEBP, JPG (Maks {MAX_IMAGE_SIZE_LABEL})</p>
+                        </div>
+                    </div>
+
+                    {/* Galeri Resimleri */}
+                    <div>
+                        <span className="text-xs font-bold text-slate-800 block mb-3">Çoklu Galeri Görselleri</span>
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                            {galeriOnizlemeler.map((bild, index) => (
+                                <div key={bild.id} className="relative aspect-square rounded-xl border border-slate-200 bg-white overflow-hidden group shadow-2xs">
+                                    <Image src={bild.url} alt={`Gallery ${index+1}`} fill sizes="150px" className="object-contain p-1" />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleGaleriResimLoeschen(bild.id)}
+                                        className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title="Görseli Kaldır"
+                                    >
+                                        <FiX size={12} strokeWidth={3} />
+                                    </button>
+                                </div>
+                            ))}
+
+                            <div>
+                                <input type="file" id="galeri-resim-input" className="hidden" onChange={handleGaleriResimleriChange} accept="image/png, image/jpeg, image/webp" multiple />
+                                <label
+                                    htmlFor="galeri-resim-input"
+                                    className="cursor-pointer aspect-square w-full rounded-xl border-2 border-dashed border-slate-300 hover:border-amber-500 flex flex-col items-center justify-center bg-slate-50 hover:bg-amber-50/40 transition-colors"
+                                >
+                                    <FiUploadCloud className="text-slate-400 text-2xl" />
+                                    <span className="text-[11px] font-semibold text-slate-600 mt-1.5">Görsel Ekle</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* --------------------------------------------------------------------- */}
+                {/* TAB 7: STOK & MALİYET GEÇMİŞİ (KULLANICININ ÖZEL İSTEDİĞİ BÖLÜM)       */}
+                {/* --------------------------------------------------------------------- */}
+                {isEditMode && (
+                    <div className={activeTab === 'gecmis' ? 'space-y-4' : 'hidden'}>
+                        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                            <div>
+                                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                    <FiClock className="text-blue-600" /> Ürün Stok & Maliyet Hareket Geçmişi
+                                </h3>
+                                <p className="text-xs text-slate-500">Bu ürünün tüm giriş/çıkış, tedarikçi sipariş kabulleri ve maliyet değişim kayıtları.</p>
+                            </div>
+                            <span className="text-xs font-mono font-semibold bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+                                Toplam Kayıt: {stockLogs.length}
+                            </span>
+                        </div>
+
+                        {stockLogs.length === 0 ? (
+                            <div className="p-8 text-center bg-slate-50 rounded-xl border border-slate-200">
+                                <FiPackage className="text-slate-300 text-3xl mx-auto mb-2" />
+                                <p className="text-sm text-slate-600 font-medium">Bu ürün için henüz kaydedilmiş bir stok hareketi bulunmuyor.</p>
+                                <p className="text-xs text-slate-400 mt-1">Sipariş teslimatları veya manuel stok düzeltmeleri yapıldıkça burada listelenecektir.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto custom-scrollbar border border-slate-200 rounded-lg shadow-2xs">
+                                <table className="w-full text-xs text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                            <th className="px-3 py-2.5 font-bold">Tarih</th>
+                                            <th className="px-3 py-2.5 font-bold">Hareket / Kaynak</th>
+                                            <th className="px-3 py-2.5 font-bold text-right">Miktar</th>
+                                            <th className="px-3 py-2.5 font-bold text-right">Önceki Stok</th>
+                                            <th className="px-3 py-2.5 font-bold text-right">Sonraki Stok</th>
+                                            <th className="px-3 py-2.5 font-bold">İşlemi Yapan</th>
+                                            <th className="px-3 py-2.5 font-bold">Açıklama</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 bg-white font-mono">
+                                        {stockLogs.map((log) => {
+                                            const isIncrease = Number(log.miktar) > 0;
+                                            return (
+                                                <tr key={log.id} className="hover:bg-slate-50/60 transition-colors">
+                                                    <td className="px-3 py-2 whitespace-nowrap text-slate-600">
+                                                        {new Date(log.created_at).toLocaleString('tr-TR', {
+                                                            day: '2-digit', month: '2-digit', year: 'numeric',
+                                                            hour: '2-digit', minute: '2-digit'
+                                                        })}
+                                                    </td>
+                                                    <td className="px-3 py-2 whitespace-nowrap">
+                                                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                                                            isIncrease ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                                        }`}>
+                                                            {log.hareket_tipi}
+                                                        </span>
+                                                        <span className="text-slate-400 ml-1.5 text-[11px] font-sans">
+                                                            {log.kaynak}
+                                                        </span>
+                                                    </td>
+                                                    <td className={`px-3 py-2 text-right font-bold whitespace-nowrap ${
+                                                        isIncrease ? 'text-emerald-700' : 'text-rose-700'
+                                                    }`}>
+                                                        {isIncrease ? '+' : ''}{Number(log.miktar || 0).toLocaleString('tr-TR')} {log.birim || ''}
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right text-slate-500 whitespace-nowrap">
+                                                        {Number(log.onceki_stok || 0).toLocaleString('tr-TR')}
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right font-bold text-slate-900 whitespace-nowrap">
+                                                        {Number(log.sonraki_stok || 0).toLocaleString('tr-TR')}
+                                                    </td>
+                                                    <td className="px-3 py-2 whitespace-nowrap font-sans text-slate-700">
+                                                        <div className="font-semibold">{log.yapan_user_adi || '-'}</div>
+                                                        <div className="text-[10px] text-slate-400">{log.yapan_user_email || ''}</div>
+                                                    </td>
+                                                    <td className="px-3 py-2 font-sans text-slate-600 max-w-xs truncate" title={log.aciklama || ''}>
+                                                        {log.aciklama || '-'}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+            </div>
+
+            {/* ========================================================================= */}
+            {/* 5. BOTTOM ACTION FOOTER                                                  */}
+            {/* ========================================================================= */}
+            <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-xs">
+                <div className="text-xs text-slate-500 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Değişiklikleri hızlı kaydetmek için istediğiniz an <strong>Ctrl + S</strong> yapabilirsiniz.</span>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Link
+                        href={`/${locale}/admin/urun-yonetimi/urunler`}
+                        className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg text-xs font-bold transition-colors border border-slate-300"
+                    >
+                        Vazgeç
+                    </Link>
+                    <button
+                        type="submit"
+                        disabled={isPending}
+                        className="inline-flex items-center gap-2 px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-sm font-bold text-xs transition-all disabled:opacity-50"
+                    >
+                        {isPending ? <FiLoader className="animate-spin" size={14} /> : <FiSave size={14} />}
+                        <span>{isPending ? 'Kaydediliyor...' : (isEditMode ? 'Değişiklikleri Kaydet' : 'Ürünü Oluştur')}</span>
+                    </button>
+                </div>
+            </div>
+
             </fieldset>
         </form>
     );

@@ -64,8 +64,19 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
     const paletIciAdet = parseInteger(formData.get('palet_ici_adet'));
     const alisFiyatSeviyesi = ((formData.get('alis_fiyat_seviyesi') as string) || '').trim() || 'adet';
     const birimAgirlikKg = parseDecimal(formData.get('birim_agirlik_kg'));
-    const lojistikSinifi = ((formData.get('lojistik_sinifi') as string) || '').trim() || null;
     const gumrukVergiYuzde = parseDecimal(formData.get('gumruk_vergi_orani_yuzde'));
+    const _rawLojistikSinifi = ((formData.get('lojistik_sinifi') as string) || '').trim();
+    let lojistikSinifi: string | null = null;
+    if (_rawLojistikSinifi) {
+        const lower = _rawLojistikSinifi.toLowerCase();
+        if (lower === 'dry-load' || lower.includes('trocken') || lower.includes('ambient') || lower.includes('dry') || lower.includes('kuru')) {
+            lojistikSinifi = 'dry-load';
+        } else if (lower === 'cold-chain' || lower.includes('kühl') || lower.includes('kuhl') || lower.includes('tief') || lower.includes('cold') || lower.includes('soğuk') || lower.includes('donuk')) {
+            lojistikSinifi = 'cold-chain';
+        } else {
+            lojistikSinifi = 'dry-load';
+        }
+    }
     const almanyaKdvOrani = parseDecimal(formData.get('almanya_kdv_orani'));
     const gunlukDepolamaMaliyeti = parseDecimal(formData.get('gunluk_depolama_maliyeti_eur'));
     const ortalamaStokGun = parseInteger(formData.get('ortalama_stokta_kalma_suresi'));
@@ -76,7 +87,6 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
 
     // Produktspezifikation fields
     const haltbarkeitMonate = parseInteger(formData.get('haltbarkeit_monate'));
-    const haltbarkeitNachOeffnenTage = parseInteger(formData.get('haltbarkeit_nach_oeffnen_tage'));
     const lagertemperaturMin = parseDecimal(formData.get('lagertemperatur_min_celsius'));
     const lagertemperaturMax = parseDecimal(formData.get('lagertemperatur_max_celsius'));
     const mindesbestellmenge = parseInteger(formData.get('mindest_bestellmenge'));
@@ -160,7 +170,6 @@ function formDataToUrunObject(formData: FormData): TablesUpdate<'urunler'> {
         is_bestseller: formData.get('is_bestseller') === 'on',
         featured_sira: parseInt(formData.get('featured_sira') as string || '0') || 0,
         haltbarkeit_monate: haltbarkeitMonate,
-        haltbarkeit_nach_oeffnen_tage: haltbarkeitNachOeffnenTage,
         lagertemperatur_min_celsius: lagertemperaturMin,
         lagertemperatur_max_celsius: lagertemperaturMax,
         mindest_bestellmenge: mindesbestellmenge,
@@ -428,14 +437,20 @@ export async function updateUrunAction(urunId: string, formData: FormData): Prom
     if (error && (
         error.code === 'PGRST204'
         || error.code === '42703'
+        || error.code === '23514'
         || error.message?.includes('urun_gami')
         || error.message?.includes('koli_ici_adet')
         || error.message?.includes('palet_ici_adet')
         || error.message?.includes('alis_fiyat_seviyesi')
+        || error.message?.includes('lojistik_sinifi')
     )) {
+        const fallbackData = stripUnsupportedUrunColumns(guncellenecekVeri);
+        if (error.message?.includes('lojistik_sinifi') || error.code === '23514') {
+            delete fallbackData.lojistik_sinifi;
+        }
         ({ data: updatedData, error } = await supabase
             .from('urunler')
-            .update(stripUnsupportedUrunColumns(guncellenecekVeri))
+            .update(fallbackData)
             .eq('id', urunId)
             .select('id'));
     }

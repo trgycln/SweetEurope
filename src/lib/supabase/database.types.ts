@@ -2507,7 +2507,6 @@ export type Database = {
           gumruk_vergi_orani_yuzde: number | null
           gunluk_depolama_maliyeti_eur: number | null
           haltbarkeit_monate: number | null
-          haltbarkeit_nach_oeffnen_tage: number | null
           herkunftsland: Json | null
           hersteller_land: string | null
           hersteller_name: string | null
@@ -2567,7 +2566,6 @@ export type Database = {
           gumruk_vergi_orani_yuzde?: number | null
           gunluk_depolama_maliyeti_eur?: number | null
           haltbarkeit_monate?: number | null
-          haltbarkeit_nach_oeffnen_tage?: number | null
           herkunftsland?: Json | null
           hersteller_land?: string | null
           hersteller_name?: string | null
@@ -2627,7 +2625,6 @@ export type Database = {
           gumruk_vergi_orani_yuzde?: number | null
           gunluk_depolama_maliyeti_eur?: number | null
           haltbarkeit_monate?: number | null
-          haltbarkeit_nach_oeffnen_tage?: number | null
           herkunftsland?: Json | null
           hersteller_land?: string | null
           hersteller_name?: string | null
@@ -2858,7 +2855,6 @@ export type Database = {
           ean_gtin: string | null
           galeri_resim_urls: string[] | null
           haltbarkeit_monate: number | null
-          haltbarkeit_nach_oeffnen_tage: number | null
           herkunftsland: Json | null
           hersteller_land: string | null
           hersteller_name: string | null

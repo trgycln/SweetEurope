@@ -882,68 +882,61 @@ export const dictionary: Partial<Dictionary> = {
   },
   megaMenu: {
     promo: {
-      title: 'Product of the Month',
-      description: 'Discover our new Pistachio-Raspberry Dream.',
-      button: 'View Now',
-      href: '/products/cakes/pistachio-raspberry',
-      imageAlt: 'A delicious slice of pistachio-raspberry cake',
-      imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
+      title: 'B2B Wholesale Catalog',
+      description: 'Discover premium FO products for baristas, bars and HoReCa professionals.',
+      button: 'View Catalog',
+      href: '/products',
+      imageAlt: 'ElysonSweets FO B2B Product Catalog',
+      imageUrl: '/categories/syrups.jpg'
     },
     mainCategories: [
       {
-        name: 'Cakes & Tarts',
-        promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
+        name: 'Syrups',
+        promoImage: '/categories/syrups.jpg',
         subCategories: [
-          { name: 'Cheesecakes', href: '/products/cheesecakes', description: '' },
-          { name: 'Brownies', href: '/products/brownies', description: '' },
-          { name: 'Tiramisu', href: '/products/tiramisu', description: '' },
-          { name: 'Cup Cakes', href: '/products/cup-cakes', description: '' },
-          { name: 'Vegan Cakes', href: '/products/vegan-cakes', description: '' },
-          { name: 'Gluten-Free', href: '/products/gluten-free', description: '' },
+          { name: 'Flavored Cocktail Syrups', href: '/products?kategori=syrups&altKategori=flavored-cocktail-syrups', description: '28 flavors' },
+          { name: 'All Syrups', href: '/products?kategori=syrups', description: 'Explore' },
         ]
       },
       {
-        name: 'Cookies & Muffins',
-        promoImage: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=1974&auto=format&fit=crop',
+        name: 'Sauces',
+        promoImage: '/categories/cafe-bar-sauces.jpg',
         subCategories: [
-          { name: 'Cookies', href: '/products/cookies', description: '' },
-          { name: 'Muffins', href: '/products/muffins', description: '' },
+          { name: 'Fruit Sauces (Frozen)', href: '/products?kategori=cafe-bar-sauces&altKategori=fruit-sauces', description: '17 flavors' },
+          { name: 'Professional Bar Sauces', href: '/products?kategori=cafe-bar-sauces&altKategori=professional-bar-sauces', description: '5 flavors' },
+          { name: 'Decoration Sauces', href: '/products?kategori=cafe-bar-sauces&altKategori=decoration-sauces', description: '2 flavors' },
+          { name: 'Topping Sauces', href: '/products?kategori=cafe-bar-sauces&altKategori=ice-cream-and-dessert-sauces', description: '1 flavor' },
         ]
       },
       {
-        name: 'Pizza & Fast Food',
-        promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
+        name: 'Powder Drinks & Bases',
+        promoImage: '/categories/powdered-beverages.jpg',
         subCategories: [
-          { name: 'Pizzas', href: '/products/pizzas', description: '' },
-          { name: 'Fast Food', href: '/products/fast-food', description: '' },
+          { name: 'Flavored Beverage Bases', href: '/products?kategori=powdered-beverages&altKategori=flavored-beverage-base', description: '8 flavors' },
+          { name: 'Flavored Beverage Powders (Milkshake - Smoothie)', href: '/products?kategori=powdered-beverages&altKategori=flavored-beverage-powders', description: '7 flavors' },
         ]
       },
       {
-        name: 'Sauces & Ingredients',
-        promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
+        name: 'Premium Series',
+        promoImage: '/categories/premium.jpg',
         subCategories: [
-          { name: 'Dessert Sauces', href: '/products/dessert-sauces', description: '' },
-          { name: 'Toppings', href: '/products/toppings', description: '' },
-          { name: 'Ingredients', href: '/products/ingredients', description: '' },
+          { name: 'Premium Syrups', href: '/products?kategori=premium&altKategori=premium-cocktail-syrups', description: '11 flavors' },
+          { name: 'Premium Bar Sauces', href: '/products?kategori=premium&altKategori=premium-bar-sauces', description: '4 flavors' },
+          { name: 'Special Sauces', href: '/products?kategori=premium&altKategori=special-sauces', description: '1 flavor' },
         ]
       },
       {
-        name: 'Coffee',
-        promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
+        name: 'Cocktail Mixes',
+        promoImage: '/categories/cocktail-mixes.jpg',
         subCategories: [
-          { name: 'Turkish Coffee', href: '/products/turkish-coffee', description: '' },
-          { name: 'Filter Coffee', href: '/products/filter-coffee', description: '' },
-          { name: 'Espresso', href: '/products/espresso', description: '' },
+          { name: 'All Cocktail Mixes', href: '/products?kategori=cocktail-mixes', description: '7 varieties' },
         ]
       },
       {
-        name: 'Drinks',
-        promoImage: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1974&auto=format&fit=crop',
+        name: 'Foamer',
+        promoImage: '/categories/foamer.jpg',
         subCategories: [
-          { name: 'Hot Chocolate', href: '/products/hot-chocolate', description: '' },
-          { name: 'Tea', href: '/products/tea', description: '' },
-          { name: 'Syrups', href: '/products/syrups', description: '' },
-          { name: 'Salep', href: '/products/salep', description: '' },
+          { name: 'Cocktail Foamer', href: '/products?kategori=foamer', description: '1 variety' },
         ]
       },
     ]

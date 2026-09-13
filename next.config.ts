@@ -12,15 +12,32 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '15mb',
+    },
+  },
+
   images: {
     remotePatterns: [
-      // Supabase Storage Hostname'i Eklendi
-      
+      // Supabase Storage Hostnames
       {
         protocol: 'https',
-        hostname: 'atydffkpyvxcmzxyibhj.supabase.co', // Hata mesajındaki hostname
+        hostname: 'szuhjzgyhhlrydyllrcd.supabase.co',
         port: '',
-        pathname: '/storage/v1/object/public/**', // Tüm public bucket'ları kapsar
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'atydffkpyvxcmzxyibhj.supabase.co',
+        port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',

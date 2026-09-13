@@ -16,6 +16,8 @@ import {
     hasPaletOption, hesaplaToplamAdet, hesaplaBirimFiyat,
     hesaplaKoliMiktar, getAktifKademe, hesaplaSepetSatiri,
 } from '@/lib/pricingUtils';
+import { CategoryFilterSelect } from '@/components/categories/CategoryFilterSelect';
+import { getAllCategoryDescendantIds } from '@/lib/category-tree';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function t(locale: Locale, de: string, en: string, tr: string, ar: string) {
@@ -218,32 +220,20 @@ export function UrunKatalogu({
 
     const content = (dictionary as any)?.portal?.newOrderPage || {};
 
-    const kategorieHiyerarsisi = useMemo(() => {
-        const anaKategoriler: (Kategori & { altKategoriler: Kategori[] })[] = [];
-        const altKategoriMap = new Map<string, Kategori[]>();
-        kategoriler.forEach(k => {
-            if (k.ust_kategori_id) {
-                if (!altKategoriMap.has(k.ust_kategori_id)) altKategoriMap.set(k.ust_kategori_id, []);
-                altKategoriMap.get(k.ust_kategori_id)!.push(k);
-            }
-        });
-        kategoriler.forEach(k => {
-            if (!k.ust_kategori_id) {
-                anaKategoriler.push({ ...k, altKategoriler: altKategoriMap.get(k.id) || [] });
-            }
-        });
-        return anaKategoriler;
-    }, [kategoriler]);
+    const seciliKategoriIds = useMemo(() => {
+        if (!seciliKategori) return null;
+        return new Set(getAllCategoryDescendantIds(seciliKategori, kategoriler));
+    }, [seciliKategori, kategoriler]);
 
     const filtrelenmisUrunler = useMemo(() => {
         return initialUrunler.filter(urun => {
             const ad = getLocalizedName(urun.ad, locale).toLowerCase();
             const arama = aramaMetni.toLowerCase();
             const aramaEslesmesi = !arama || ad.includes(arama) || urun.stok_kodu?.toLowerCase().includes(arama);
-            const kategoriEslesmesi = !seciliKategori || urun.kategori_id === seciliKategori;
-            return aramaEslesmesi && kategoriEslesmesi;
+            const kategoriEslesmesi = !seciliKategoriIds || (urun.kategori_id && seciliKategoriIds.has(urun.kategori_id));
+            return aramaEslesmesi && Boolean(kategoriEslesmesi);
         });
-    }, [initialUrunler, aramaMetni, seciliKategori, locale]);
+    }, [initialUrunler, aramaMetni, seciliKategoriIds, locale]);
 
     const sepetMap = useMemo(() => {
         const map = new Map<string, SepetUrunu>();
@@ -280,22 +270,15 @@ export function UrunKatalogu({
                     onChange={e => setAramaMetni(e.target.value)}
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-accent/30 focus:border-accent"
                 />
-                <select
+                <CategoryFilterSelect
+                    categories={kategoriler}
                     value={seciliKategori}
-                    onChange={e => setSeciliKategori(e.target.value)}
+                    onChange={setSeciliKategori}
+                    locale={locale}
+                    showCounts={false}
+                    allCategoriesLabel={t(locale, 'Alle Kategorien', 'All Categories', 'Tüm Kategoriler', 'جميع الفئات')}
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:ring-2 focus:ring-accent/30 focus:border-accent"
-                >
-                    <option value="">{t(locale, 'Alle Kategorien', 'All Categories', 'Tüm Kategoriler', 'جميع الفئات')}</option>
-                    {kategorieHiyerarsisi.map(ana => (
-                        <optgroup key={ana.id} label={getLocalizedName(ana.ad, locale)}>
-                            {ana.altKategoriler.map(alt => (
-                                <option key={alt.id} value={alt.id}>
-                                    &nbsp;&nbsp;{getLocalizedName(alt.ad, locale)}
-                                </option>
-                            ))}
-                        </optgroup>
-                    ))}
-                </select>
+                />
             </div>
 
             {/* Ürün tablosu */}

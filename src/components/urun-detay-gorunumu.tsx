@@ -166,7 +166,6 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const tempMin = urun.lagertemperatur_min_celsius ?? null;
     const tempMax = urun.lagertemperatur_max_celsius ?? null;
     const haltbarkeitMonate = urun.haltbarkeit_monate ?? null;
-    const haltbarkeitNachOeffnen = urun.haltbarkeit_nach_oeffnen_tage ?? null;
     const zertifikate: string[] = urun.zertifikate ?? [];
     const inhaltsstoffeJson = urun.inhaltsstoffe as Record<string, string> | null;
     const inhaltsstoffe: string | null = inhaltsstoffeJson?.[locale] ?? inhaltsstoffeJson?.en ?? inhaltsstoffeJson?.de ?? null;
@@ -749,7 +748,6 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const tempMin = urun.lagertemperatur_min_celsius ?? null;
     const tempMax = urun.lagertemperatur_max_celsius ?? null;
     const haltbarkeitMonate = urun.haltbarkeit_monate ?? null;
-    const haltbarkeitNachOeffnen = urun.haltbarkeit_nach_oeffnen_tage ?? null;
     const zertifikate: string[] = urun.zertifikate ?? [];
     const inhaltsstoffeJson = urun.inhaltsstoffe as Record<string, string> | null;
     const inhaltsstoffe: string | null = inhaltsstoffeJson?.[locale] ?? inhaltsstoffeJson?.de ?? null;
@@ -969,13 +967,6 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                         icon={<LuCalendar size={16} />}
                                         label={lc.validity}
                                         value={`${haltbarkeitMonate} ${lc.months}`}
-                                    />
-                                )}
-                                {haltbarkeitNachOeffnen && (
-                                    <InfoPill
-                                        icon={<LuClock size={16} />}
-                                        label={lc.validityAfterOpen}
-                                        value={`${haltbarkeitNachOeffnen} ${lc.days}`}
                                     />
                                 )}
                             </div>

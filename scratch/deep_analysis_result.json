@@ -1,0 +1,60 @@
+{
+  "spec_summary": {
+    "total_files": 239,
+    "temperatures_found": {
+      "5-2 c": 4,
+      "20-22º C": 531,
+      "20-22ºC": 5,
+      "4 Oc": 2,
+      "05 Oc": 2
+    },
+    "storage_condition_sentences": {
+      "It should be stored in its original packaging, 20-22º C under dry conditions, and direct sunlight should be avoided.": 229,
+      "In its original packaging, at an ambient temperature of 20-22ºC, closed and dry so that it will not be affected by weather conditions. It should be stored in environments away from direct sunlight.": 5,
+      "It should be stored in its original packaging, 20-22º C under dry conditions and direct sunlight should be avoided.": 3,
+      "It should be stored in its original packaging, 20-22º C under dry conditions, and direct sunlight should be avoided. Once mixed with water, consume within 3 days when stored at (+4)ºC.": 1
+    },
+    "shelf_life_sentences": {
+      "The product has a shelf life of 2 years under the described storing conditions and in its closed packaging": 56,
+      "The shelf life under defined storing conditions and in unopened packaging is 2 year.": 54,
+      "The product has a shelf life of 3 years under the described storing conditions and in its closed packaging.": 15,
+      "The shelf life under defined storing conditions and in unopened packaging is 2 year": 7,
+      "The product has a shelf life of 3 years under the described storing conditions and in its closed packaging": 10,
+      "Shelf life is 18 months under defined storage conditions.": 5,
+      "The product has a shelf life of 2 years under the described storing conditions and in its closed packaging.": 2,
+      "The shelf life under defined storing conditions and in unopened packaging is 18 month.": 2,
+      "The shelf life under defined storing conditions and in unopened packaging is 3 year.": 87
+    },
+    "after_opening_occurrences": [
+      {
+        "file": "SORREL BASED DRINK MIX.doc",
+        "text": "Once mixed with water, consume within 3 days when stored at (+4)ºC"
+      }
+    ]
+  },
+  "label_summary": {
+    "total_files": 84,
+    "temperatures_found": {
+      "1–2 c": 17,
+      "5-2 c": 2
+    },
+    "storage_condition_sentences": {
+      "kuru yerde saklayınız": 2,
+      "trocken lagern": 5,
+      "Cholestorel - Kolesterol": 1,
+      "ve kuru yerde saklayınız": 4,
+      "lagern": 4,
+      "kühl und trocken lagern": 2,
+      "ışığından uzakta, serin ve kuru yerde saklayınız": 6,
+      "einstrahlung schützen, kühl und trocken lagern": 7,
+      "uzakta, serin ve kuru yerde saklayınız": 2,
+      "Store in a cool,": 1,
+      "schützen, kühl und trocken lagern": 1,
+      "saklayınız": 1,
+      "uzakta, Serin ve kuru yerde saklayınız": 1,
+      "aufbewahren": 1,
+      "serin ve kuru yerde saklayınız": 2
+    },
+    "after_opening_occurrences": []
+  }
+}

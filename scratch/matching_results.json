@@ -1,0 +1,925 @@
+{
+  "matched": [
+    {
+      "product_id": "487ae218-425b-47b4-b46d-4f532779f6be",
+      "product_name": "FO Kiwi Flavored Syrup 70 cl",
+      "slug": "fo-kiwi-sirup-70-cl",
+      "score": 2,
+      "matched_spec": "125-FO KIWI  FLAVORED  SYRUP - SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "b802a6ee-e2fd-4d82-aa73-8cbeb198fcec",
+      "product_name": "Fo Caramel Flavored Syrup 700 ML - Sugar Free",
+      "slug": "fo-karamel-aromal-surup-sekersiz-700-ml",
+      "score": 6,
+      "matched_spec": "1. SUGAR FREE CARAMEL FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "fe93aa42-578a-43fb-b34d-8f6525148ae7",
+      "product_name": "FO Black Mulberry Fruited Sauce - Frozen 1 kg",
+      "slug": "fo-karadut-meyveli-pure-sos-fo1112",
+      "score": 4,
+      "matched_spec": "6.BLACK MULBERRY  FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "fe96b76f-ed65-408f-b839-5e2fc6787870",
+      "product_name": "FO Lime Fruited Syrup 700 ml - Premium",
+      "slug": "fo-misket-limonu-premium-surup-700ml-fo1142",
+      "score": 3,
+      "matched_spec": "BLACKBERRY FRUITED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "bd631ea3-4c9a-4e87-9723-d97d7d30b052",
+      "product_name": "FO Green Apple Flavored Syrup 70 cl",
+      "slug": "fo-gruner-apfel-sirup-70-cl",
+      "score": 3,
+      "matched_spec": "121-GREEN APPLE FLAVORED COCKTAIL SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "5f6458b1-255e-4275-8ce8-7f0ff779891f",
+      "product_name": "FO Blue Raspberry Flavored Syrup 70 cl",
+      "slug": "fo-mavi-frambuaz-aromal-surup-700-ml",
+      "score": 3,
+      "matched_spec": "83.BLUE RASPBERRY FLAVOURED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "c9836857-d08d-4a9d-8036-60c4ec00c8fd",
+      "product_name": "FO Green Apple Fruit Syrup - Premium 700ml",
+      "slug": "fo-yesil-elma-premium-surup-700ml-fo1134",
+      "score": 4,
+      "matched_spec": "GREEN APPLE FRUITED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "381703aa-92f3-486e-ab39-b37b041b49e8",
+      "product_name": "FO White Chocolate Professional Sauce 2.5 kg (With Pump)",
+      "slug": "fo-beyaz-cikolata-sosu",
+      "score": 4,
+      "matched_spec": "2.WHITE CHOCOLATE TOPPING-E171siz.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "acbf50ec-55c1-4081-9a70-46c44b7c21bb",
+      "product_name": "FO Spearmint Flavored Syrup 70 cl",
+      "slug": "fo-spearmint-flavored-syrup-70-cl",
+      "score": 2,
+      "matched_spec": "129-SPEARMINT FLAVORED SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "784f12c2-85ba-422c-82ee-54f78b396d08",
+      "product_name": "White Chocolate Ice Cream Sauce 1 Kg",
+      "slug": "beyaz-cikolatali-dondurma-sosu-1kg",
+      "score": 5,
+      "matched_spec": "2.WHITE CHOCOLATE TOPPING-E171siz.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "e5b41f2d-00fa-4cf1-a6bf-321f1d0cb274",
+      "product_name": "FO Mango Flavored Syrup 70 cl",
+      "slug": "fo-mango-geschmacks-sirup-70-cl",
+      "score": 2,
+      "matched_spec": "FO MANGO FLAVORED  SYRUP-sugar.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "4f60f69b-158e-48cd-8252-9bf52fc9a658",
+      "product_name": "FO Vanilla Flavored Powder Drink 1 kg",
+      "slug": "vanilya-aromali-icecek-tozu-milkshake-1-kg",
+      "score": 5,
+      "matched_spec": "9. VANILLA   FLAVORED POWDER DRINK.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "e343b424-22f9-4c72-8ec3-d7ac9872dda0",
+      "product_name": "FO Madagascar Vanilla Flavored Sauce 1 Kg - Eclipse",
+      "slug": "madagaskar-vanilya-aromali-sos-1-kg---eclipse",
+      "score": 4,
+      "matched_spec": "MADAGASKAR VANILLA FLAVORED SAUCE- (COFFEE, ICE CREAM TOPPING & DESSERT SAUCE-) ECLIPSE SAUCE.DOC",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "feb18bd2-db62-4eaa-9a47-93ef979f9141",
+      "product_name": "FO Blackberry Flavored Syrup 70 cl",
+      "slug": "fo-brombeer-flavored-sirup-70-cl",
+      "score": 2,
+      "matched_spec": "131.BLACKBERRY FLAVORED SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "cf80047e-584b-406e-ab2e-d65dd41c5901",
+      "product_name": "FO KOI COCKTAIL FOAMER 100 ML",
+      "slug": "fo-koi-kokteyl-kopurtucu-100-ml",
+      "score": 2,
+      "matched_spec": "FO KOI COCTAIL FOAMER.docx",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "1c05da06-b255-47df-8b02-34b87375fa39",
+      "product_name": "FO Green Apple Flavored Syrup 70 cl",
+      "slug": "fo-gruner-apfel-aromatisierter-sirup-70-cl",
+      "score": 3,
+      "matched_spec": "121-GREEN APPLE FLAVORED COCKTAIL SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "44a4ed7f-4e0c-439f-a4b3-87670fb9aff9",
+      "product_name": "FO Strawberry Premium Cocktail Syrup 700 ml",
+      "slug": "fo-cilek-premium-surup-700ml-fo1131",
+      "score": 3,
+      "matched_spec": "STRAWBERRY FRUITED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "ffefea8f-c4ed-40c9-b445-8d573a17af0f",
+      "product_name": "FO Sakura and White Peach Flavored Base Syrup 700 ml",
+      "slug": "fo-sakura-ve-beyaz-seftali-aromal-baz-surup-700-ml",
+      "score": 5,
+      "matched_spec": "12.SAKURA AND WHITE PEACH FLAVORED SYRUP- SAKURA & WHITE PEACH BASE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "e0127c73-f6b6-4119-a8e4-10c6b278efac",
+      "product_name": "FO Sakura and White Peach Flavored Base Syrup 70 cl",
+      "slug": "fo-sakura-und-weisser-pfirsich-aromatisierter-basis-sirup-70-cl",
+      "score": 5,
+      "matched_spec": "12.SAKURA AND WHITE PEACH FLAVORED SYRUP- SAKURA & WHITE PEACH BASE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "298d997b-cf81-466f-baa2-432f3cb03bf9",
+      "product_name": "Fo Chocolate Flavored Syrup 70 cl",
+      "slug": "fo-cikolata-aromal-surup-sekersiz-700-ml",
+      "score": 2,
+      "matched_spec": "3-CHOCOLATE  FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "cef88263-4fe4-4814-a2e5-4e9cc3dde778",
+      "product_name": "FO Toffee Nut Flavored Syrup 700 ml",
+      "slug": "fo-toffee-nuss-aromatisierter-sirup-700-ml",
+      "score": 3,
+      "matched_spec": "82.TOFFEE NUT FLAVORED SUGAR SYRUP-sugar.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "cea27501-54da-40ec-85fd-560fc06d25af",
+      "product_name": "FO Mixed Fruit Drink – Apollo 800 ML",
+      "slug": "fo-apollo-karsk-meyveli-icecek-baz-800-ml",
+      "score": 3,
+      "matched_spec": "2.MIXED FRUIT BEVERAGES-APOLLO.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 18
+    },
+    {
+      "product_id": "ac6b6140-3cfb-43ec-9594-ec6578efd7bb",
+      "product_name": "FO Vanilla Flavored Syrup 70 cl",
+      "slug": "fo-vanille-aromatisierter-sirup-70-cl",
+      "score": 2,
+      "matched_spec": "2. SUGAR FREE VANILLA FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "bf298ba4-1f56-472e-a9bd-43fd76968b7a",
+      "product_name": "FO Passion Fruit Sauce 1 kg",
+      "slug": "fo-passionsfrucht-sauce-1-kg",
+      "score": 3,
+      "matched_spec": "14.PASSION  FRUITED SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "53ba43ac-992c-4eef-9724-035f9d724dfb",
+      "product_name": "Fo Electric Flower and Blueberry Flavored Base 700 ml",
+      "slug": "fo-blue-yaban-mersini-mavi-ahududu-aromal-surup-700-ml",
+      "score": 2,
+      "matched_spec": "20-BLUEBERRY PASTE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "11924546-d75b-43d5-9562-1976c25c0489",
+      "product_name": "FO Peach Fruited Sauce (Frozen) 1 kg",
+      "slug": "fo-seftali-meyveli-pure-sos-fo1119",
+      "score": 3,
+      "matched_spec": "9.PEACH  FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "4a3498d6-38ba-47cf-9cb5-a34f659c7f99",
+      "product_name": "FO Coconut Flavored Syrup (Blanc) 70 cl",
+      "slug": "fo-kokosgeschmack-sirup-blanc-70-cl",
+      "score": 3,
+      "matched_spec": "5-FO COCONUT FLAVORED SYRUP-BLANC-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "2cd6dc8e-1433-438d-8fd1-764b8d8045ce",
+      "product_name": "FO White Chocolate Syrup - Premium 700 ml",
+      "slug": "fo-beyaz-cikolata-premium-surup-700ml-fo1147",
+      "score": 4,
+      "matched_spec": "WHITE CHOCOLATE SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "89820001-941f-4159-8316-a06874aeebe3",
+      "product_name": "FO White Chocolate Flavored Syrup 70 CL",
+      "slug": "fo-weisser-schokolade-aromatisierter-sirup-70-cl",
+      "score": 3,
+      "matched_spec": "37-WHITE CHOCOLATE FLAVORED COCKTAIL  SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "abca0310-e8e4-407a-802c-66df1425f310",
+      "product_name": "FO Vanilla Flavored Syrup - Sugar Free 700 ml",
+      "slug": "fo-vanilya-aromal-premium-surup-700ml-fo1150",
+      "score": 6,
+      "matched_spec": "2. SUGAR FREE VANILLA FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "16f4e873-0ef4-415c-9576-9a4410a01f24",
+      "product_name": "Fo Hazelnut Flavored Syrup 700 ml - Sugar Free",
+      "slug": "fo-fndk-aromal-surup-sekersiz-700-ml",
+      "score": 6,
+      "matched_spec": "6. SUGAR FREE HAZELNUT FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "1be59fa7-c321-4b01-8a36-d29f039e59c6",
+      "product_name": "FO Chocolate Flavored Powder Drink 1 kg",
+      "slug": "bitter-cikolatali-icecek-tozu-1-kg",
+      "score": 6,
+      "matched_spec": "10. CHOCOLATE POWDER DRINK.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "bd4e98af-6b3c-479e-a91f-4054db4163ad",
+      "product_name": "FO Caramel Flavored Premium Syrup 700 ml",
+      "slug": "fo-karamel-premium-surup-700ml-fo1144",
+      "score": 3,
+      "matched_spec": "CARAMEL SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "6339219d-4c9e-4389-a7cb-c8d062efee8f",
+      "product_name": "FO Madame Sorrel Drink Mix 1000 g",
+      "slug": "fo-sorrel-icecek-karsm-madam-sorrel-1000-gr",
+      "score": 3,
+      "matched_spec": "SORREL BASED DRINK MIX.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 18
+    },
+    {
+      "product_id": "b591721c-37e5-46ad-94e9-cdf85885e870",
+      "product_name": "FO Strawberry Flavored Syrup 70 cl",
+      "slug": "cilekli-surup-700-ml",
+      "score": 2,
+      "matched_spec": "FO STRAWBERRY FLAVORED SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "3368c956-7293-4a1a-8111-2fd1129d8f04",
+      "product_name": "FO Grenadine Flavored Syrup 70 cl",
+      "slug": "fo-nar-premium-surup-700-ml-fo1138",
+      "score": 3,
+      "matched_spec": "GRENADINE FRUITED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "2d438bd2-d047-4b8f-b163-c4d6bcd57ea5",
+      "product_name": "FO Toffee Caramel Sauce 2.5 kg",
+      "slug": "toffee-caramel-sauce",
+      "score": 3,
+      "matched_spec": "2.TOFFEE CARAMEL SAUCE 2,5 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "b85b4a89-1ecd-4116-9a8d-ab74fccc967d",
+      "product_name": "FO Caramel Flavored Syrup 70 CL",
+      "slug": "fo-srp-karamel",
+      "score": 2,
+      "matched_spec": "1. SUGAR FREE CARAMEL FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "24dc99d5-dee1-4160-8047-43d28e07aa35",
+      "product_name": "FO Blackberry Fruited Sauce (Frozen) 1 kg",
+      "slug": "fo-bogurtlen-meyveli-pure-sos-fo1113",
+      "score": 3,
+      "matched_spec": "7.BLACK BERRY  FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "0eb33808-ed37-43da-9b85-33144cdb4653",
+      "product_name": "FO Raspberry Fruited Sauce - Frozen 1 kg",
+      "slug": "fo-ahududu-meyveli-pure-sos-fo1111",
+      "score": 3,
+      "matched_spec": "2.RASPBERRY  FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "b795f070-9313-4219-87e9-6de1585daaa4",
+      "product_name": "FO Chocolate Syrup - Premium 700 ml",
+      "slug": "fo-cikolatal-premium-surup-700ml-fo1148",
+      "score": 3,
+      "matched_spec": "CHOCOLATE SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "346a52b2-1034-48fb-b605-89b9886c8ffd",
+      "product_name": "FO Strawberry Fruited Sauce - Frozen 1 kg",
+      "slug": "fo-cilek-meyveli-pure-sos-fo1110",
+      "score": 3,
+      "matched_spec": "3.STRAWBERRY FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "5bcfaac8-3211-429b-abb2-e12ef66da2cc",
+      "product_name": "FO Kiwi Fruited Sauce - Frozen 1 kg",
+      "slug": "fo-kivi-meyveli-pure-sos-fo1114",
+      "score": 3,
+      "matched_spec": "1.KIWI FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "77f84482-1d46-4ccb-8b66-0c8b817db17c",
+      "product_name": "FO Watermelon Flavored Syrup 70 cl",
+      "slug": "fo-kavun-surubu-fo1159",
+      "score": 2,
+      "matched_spec": "128-WATERMELON FLAVORED SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "669a23c7-7f23-4fe6-8c3a-e78f75f28373",
+      "product_name": "FO Banana Fruited Sauce 1 kg",
+      "slug": "fo-muz-meyveli-pure-sos-fo1121",
+      "score": 3,
+      "matched_spec": "12.BANANA  FRUITED SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "9f096673-4c86-41e2-a55a-e24606be0957",
+      "product_name": "FO Pomegranate Fruit Syrup Premium 700 ml",
+      "slug": "fo-srp-prem-nar",
+      "score": 3,
+      "matched_spec": "PASSION FRUIT SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "36e51cd3-b42d-47dd-945c-035fbb82eb06",
+      "product_name": "FO Regular Coconut Flavored Syrup 70 cl",
+      "slug": "hindistan-cevizi-aromali-surup-regular-700ml",
+      "score": 3,
+      "matched_spec": "6-COCONUT REGULAR FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "0bf1dfd4-4d21-4fc2-a252-7e98c59c9028",
+      "product_name": "FO Cuban Mint Lime Base Syrup 700ml",
+      "slug": "fo-kuba-nanesi-und-misket-limonu-baz-700-ml",
+      "score": 3,
+      "matched_spec": "1.MINT AND LIME FLAVORED SYRUP-COOL LIME BASE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "e3b8c6ff-fcf2-4552-b58a-3a616b979a8b",
+      "product_name": "Fo Pistachio Verde Sauce 5% 940g",
+      "slug": "antep-fistikli-special-sos-5-940-gr",
+      "score": 2,
+      "matched_spec": "10.PISTACHIO SAUCE (%5) .doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "fbb3ce44-1950-4ed2-b7a5-21718fc48436",
+      "product_name": "FO Strawberry Flavored Decor Sauce 750 g",
+      "slug": "cilek-aromali-dekor-sos-750-gr",
+      "score": 3,
+      "matched_spec": "2.STRAWBERRY FLAVORED DECOR SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "531facb3-06cc-453b-8367-955fcde6458e",
+      "product_name": "FO Green Apple Fruited Sauce 1 kg",
+      "slug": "fo-yesil-elma-meyveli-pure-sos-fo1120",
+      "score": 4,
+      "matched_spec": "11.GREEN APPLE FRUITED SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "c3029bf8-5bc5-4566-8d50-0e2ba3ab0ffb",
+      "product_name": "Fo Chocolate Flavored Sauce 750 g",
+      "slug": "fo-cikolata-aromali-dekor-sos-750gr",
+      "score": 2,
+      "matched_spec": "1.DARK CHOCOLATE SAUCE 2,5 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "5b1339ac-c72d-4b9d-843d-9daa2732100f",
+      "product_name": "FO Premium Chocolate Sauce 2,5 kg",
+      "slug": "fo-premium-cikolata-sosu-2-5-kg",
+      "score": 3,
+      "matched_spec": "4. CHOCOLATE PREMIUM SAUCE.DOC",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "a46effd1-1eba-4cda-8699-5d03a2f15675",
+      "product_name": "FO Powder Drink Base (Quatro) 1 kg",
+      "slug": "fo-toz-icecek-baz-quatro-fo1021",
+      "score": 4,
+      "matched_spec": "10. CHOCOLATE POWDER DRINK.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "db361886-66e2-49f1-994a-c9dbe3fe5e56",
+      "product_name": "FO Hazelnut Flavored Syrup Premium 700ml",
+      "slug": "fo-prem-haz-001",
+      "score": 3,
+      "matched_spec": "HAZELNUT FLAVORED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "af5809e6-832f-4a94-9346-dae57cd07709",
+      "product_name": "FO Blackberry Fruit Syrup Premium 700ml",
+      "slug": "fo-bogurtlen-meyveli-premium-surup-700ml-fo1149",
+      "score": 3,
+      "matched_spec": "BLACKBERRY FRUITED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "0c2f58b8-86fe-48a8-8264-8dd64627092b",
+      "product_name": "FO Peppermint Flavored Syrup 700 ml",
+      "slug": "fo-bahce-nanesi-surubu-fo1195",
+      "score": 2,
+      "matched_spec": "90.PEPPERMINT FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "cbc22277-3a1e-4151-a47a-ca7575ebe0a5",
+      "product_name": "FO PREMIUM CARAMEL SAUCE 2.5 KG",
+      "slug": "fo-premium-karamel-sosu-2-5-kg",
+      "score": 3,
+      "matched_spec": "2. CARAMEL PREMIUM SAUCE.DOC",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "00718ba0-52e7-4abd-81fe-6c930f6f3a10",
+      "product_name": "FO Raspberry Fruit Syrup - Premium 700ml",
+      "slug": "fo-ahududu-premium-surup-700ml-fo1136",
+      "score": 3,
+      "matched_spec": "RASPBERRY FRUITED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "03e6cf67-efe7-4141-9f69-87ec5e70f9fa",
+      "product_name": "FO Mojito Flavored Syrup 70 cl",
+      "slug": "fo-nane-ve-limon-aromal-surup-700-ml",
+      "score": 2,
+      "matched_spec": "71-MOJITO MIX.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "c4ffaa96-dfe9-449d-930f-34d7e2905a34",
+      "product_name": "FO Coconut Syrup - Premium 700 ml",
+      "slug": "fo-coconut-syrup",
+      "score": 2,
+      "matched_spec": "5-FO COCONUT FLAVORED SYRUP-BLANC-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "fe2b905d-ec92-46b2-94f8-97e188f8b6b7",
+      "product_name": "FO Sakura and White Peach Flavored Premium Syrup 700 ml",
+      "slug": "fo-srp-prem-sef",
+      "score": 5,
+      "matched_spec": "12.SAKURA AND WHITE PEACH FLAVORED SYRUP- SAKURA & WHITE PEACH BASE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "65ec97da-0aba-4a23-ac1e-c2e34317d7fe",
+      "product_name": "FO Mixed Fruit Drink – Zeus 800 ml",
+      "slug": "fo-zeus-karsk-meyveli-icecek-baz-800-ml",
+      "score": 3,
+      "matched_spec": "9.MIXED FRUIT BEVERAGE-ZEUS.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 18
+    },
+    {
+      "product_id": "69dec99d-316d-4896-937e-779cd7c54a79",
+      "product_name": "Fo Vanilla Flavored Syrup - Sugar Free 700 ml",
+      "slug": "fo-vanilya-aromal-surup-sekersiz-700-ml",
+      "score": 6,
+      "matched_spec": "2. SUGAR FREE VANILLA FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "8a644fee-e81e-4ec6-b229-55a179fbb845",
+      "product_name": "FO Mango Flavored Premium Syrup 700 ml",
+      "slug": "fo-mango-premium-surup-700-ml-fo1137",
+      "score": 3,
+      "matched_spec": "MANGO FRUITED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "024aecdc-953c-4f7e-8a6f-28427a757e9b",
+      "product_name": "FO Watermelon Fruited Sauce (Frozen) 1 kg",
+      "slug": "fo-karpuz-meyveli-pure-sos-fo1118",
+      "score": 3,
+      "matched_spec": "10.WATERMELON  FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "dfb1fc66-ea0a-4a78-b4c3-3a65f1c8d2e0",
+      "product_name": "FO Premium Taro Flavored Sauce 2,5 kg (Pump Included)",
+      "slug": "fo-premium-taro-sosu-2-5-kg",
+      "score": 3,
+      "matched_spec": "1. TARO FLAVORED PREMIUM SAUCE.DOC",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "af06ab12-7132-4d06-957b-781e71165446",
+      "product_name": "Fo Spearmint Flavored Syrup 70 Cl. sugar",
+      "slug": "fo-srp-spearmint",
+      "score": 2,
+      "matched_spec": "129-SPEARMINT FLAVORED SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "cedb0279-cd0a-4cfa-8a9f-9dc745457549",
+      "product_name": "FO Mixed Fruit Drink – Dionysus 800ml",
+      "slug": "fo-dionysos-karsk-meyveli-icecek-baz-800-ml",
+      "score": 3,
+      "matched_spec": "4.MIXED FRUIT BEVERAGE-DIONYSOS.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 18
+    },
+    {
+      "product_id": "28a3730b-f5b1-4801-8744-a1aecb7b9f98",
+      "product_name": "Fo White Chocolate Flavored Syrup 700 ml",
+      "slug": "fo-beyaz-cikolata-aromal-surup-sekersiz-700-ml",
+      "score": 3,
+      "matched_spec": "37-WHITE CHOCOLATE FLAVORED COCKTAIL  SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "af116b86-de09-4a26-8c3c-ed7d02cd254d",
+      "product_name": "FO Hibiscus Flavored Syrup 700 ml",
+      "slug": "fo-hibiskus-surubu-fo1230",
+      "score": 2,
+      "matched_spec": "78.HIBISCUS FLAVORED  SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "b3b08244-8d02-41b5-ad8f-7de99d05558a",
+      "product_name": "FO Blue Curacao Flavored Syrup 70 cl",
+      "slug": "fo-blue-curacao-surubu-fo1158",
+      "score": 3,
+      "matched_spec": "FO BLUE CURACAO FLAVORED  SYRUP-sugar.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "114d0277-2b63-4ca1-b65e-ac5cb66e64c5",
+      "product_name": "FO Wild Berries Fruited Sauce 1 kg",
+      "slug": "fo-orman-meyveleri-pure-sos-1-kg-fo1124",
+      "score": 4,
+      "matched_spec": "15. WILD BERRIES FRUITED SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "fd39fc06-6857-41d3-a4f7-f5fcb535119e",
+      "product_name": "FO Mixed Fruit Drink – Heracles 800ML",
+      "slug": "fo-herakles-karsk-meyveli-icecek-baz-800-ml",
+      "score": 3,
+      "matched_spec": "8.MIXED FRUIT BEVERAGE-HERAKLES.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 18
+    },
+    {
+      "product_id": "9e271277-edc5-49db-ad49-892bffb6799b",
+      "product_name": "FO Mango Fruited Sauce 1 kg",
+      "slug": "fo-mango-meyveli-pure-sos-fo1116",
+      "score": 3,
+      "matched_spec": "8.MANGO  FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "be97c3b8-a1c6-42ea-93f2-7e76629baaf3",
+      "product_name": "FO Watermelon Fruit Syrup – Premium 700ml",
+      "slug": "fo-karpuz-meyveli-premium-surup-700ml-fo1146",
+      "score": 3,
+      "matched_spec": "WATERMELON FRUITED SYRUP-PREMIUM.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "2ea65f32-3798-49ff-9f5b-997e0ec2b1da",
+      "product_name": "FO Blueberry Fruited Sauce 1 Kg",
+      "slug": "fo-yaban-mersini-meyveli-pure-sos-1-kg-fo1127",
+      "score": 3,
+      "matched_spec": "17.BLUEBERRY FRUITED SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "4b56480f-b892-49a2-88f9-c7b4fab4a3ad",
+      "product_name": "FO Melon Fruited Sauce - Frozen 1 kg",
+      "slug": "fo-kavun-meyveli-pure-sos-fo1117",
+      "score": 3,
+      "matched_spec": "5.MELON  FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "cda9db32-fc4b-4834-a12f-c21278896c09",
+      "product_name": "FO Pineapple Fruited Sauce (Frozen) 1 kg",
+      "slug": "fo-ananas-meyveli-pure-sos-1-kg-fo1128",
+      "score": 2,
+      "matched_spec": "1.KIWI FRUITED SAUCE 1 KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "2bb2317e-ba80-461f-9a24-7fd4d702565b",
+      "product_name": "FO Mixed Fruit Drink – Helios 800 ml",
+      "slug": "fo-helios-karsk-meyveli-icecek-baz-800-ml",
+      "score": 3,
+      "matched_spec": "7.MIXED FRUIT BEVERAGE-HELIOS.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 18
+    },
+    {
+      "product_id": "a7ca4f25-6bda-4155-bf4c-940ed5bc7b97",
+      "product_name": "FO Banana Flavored Syrup 700 ml",
+      "slug": "fo-muz-surubu-fo1165",
+      "score": 2,
+      "matched_spec": "123-FO BANANA FLAVORED  SYRUP-SUGAR.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "e0e43bc5-06cb-40bb-8bb8-7fbaf48be313",
+      "product_name": "FO Coconut Fruited Sauce 1 kg",
+      "slug": "fo-hindistan-cevizi-meyveli-pure-sos-1-kg-fo1123",
+      "score": 3,
+      "matched_spec": "16.COCONUT FRUITED SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "d65ba9af-cd9a-48f0-823d-781c917bd259",
+      "product_name": "Fo Matcha Green Tea Powder Drink 1 kg",
+      "slug": "matcha-yesil-cay-icecek-tozu---milkshake-1-kg",
+      "score": 7,
+      "matched_spec": "MATCHA GREEN TEA POWDER DRINK.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "e87a76a4-103f-410c-9e39-a6be21b7f433",
+      "product_name": "FO Lemon Fruited Sauce 1 kg",
+      "slug": "fo-limon-meyveli-pure-sos-fo1122",
+      "score": 3,
+      "matched_spec": "13.LEMON FRUITED SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "e26771eb-f6d0-4cd9-8c27-316633f348f7",
+      "product_name": "Fo Mint and Lime Flavored Beverage Syrup 700 ml",
+      "slug": "nane-ve-misket-limonu-aromali-icecek-700-ml",
+      "score": 4,
+      "matched_spec": "1.MINT AND LIME FLAVORED SYRUP-COOL LIME BASE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 36
+    },
+    {
+      "product_id": "e666631e-587f-443e-8c4a-0311b2b72a8c",
+      "product_name": "FO Professional Chocolate Sauce 2.5 kg",
+      "slug": "chocolate-sauce-2-5kg",
+      "score": 3,
+      "matched_spec": "3.WHITE CHOCOLATE SAUCE 2,5KG.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "b6aa45a8-d61a-4fa3-8eb3-c0375890cadc",
+      "product_name": "FO Premium White Chocolate Sauce 2.5 kg",
+      "slug": "fo-premium-beyaz-cikolata-sosu-2-5-kg",
+      "score": 4,
+      "matched_spec": "5. WHITE CHOCOLATE PREMIUM SAUCE.DOC",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "eb5baae4-761d-4c1f-88f8-e913e03cb5f9",
+      "product_name": "FO Strawberry Flavored Powder Drink 1 kg",
+      "slug": "cilek-aromali-icecek-tozu-milkshake--1-kg",
+      "score": 5,
+      "matched_spec": "2. STRAWBERRY FLAVORED POWDER DRINK.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "4efd0ab0-01b8-4e94-b61a-40576c2c6bb0",
+      "product_name": "FO Popping Candy Sauce - Special 1 kg",
+      "slug": "patlayan-sekerli-special-sos-1000-gr",
+      "score": 3,
+      "matched_spec": "15.POPPING CANDY  SAUCE.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "8be92bb0-f908-4614-b4c2-4deac3a5b66c",
+      "product_name": "FO Melon Flavored Powder Drink - Milkshake 1 kg",
+      "slug": "kavun-aromali-icecek-tozu--milkshake--1-kg",
+      "score": 5,
+      "matched_spec": "3. MELON FLAVORED POWDER DRINK ..doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "357aec8c-430f-4310-b486-de1b81bb47f3",
+      "product_name": "FO Chocolate Flavored Syrup 70 cl",
+      "slug": "fo-cikolata-surubu-fo1153",
+      "score": 2,
+      "matched_spec": "3-CHOCOLATE  FLAVORED SYRUP.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    },
+    {
+      "product_id": "fee7b294-3320-41ec-9e3f-23298bbb8903",
+      "product_name": "Fo Chai Tea Latte Powder Drink 1 kg",
+      "slug": "chai-tea-latte-icecek-tozu-1-kg",
+      "score": 7,
+      "matched_spec": "CHAI TEA LATTE POWDER DRINK.doc",
+      "min_temp": 20,
+      "max_temp": 22,
+      "shelf_months": 24
+    }
+  ],
+  "unmatched": []
+}

@@ -54,7 +54,7 @@ export function AdminLayoutClient({
     };
 
     return (
-        <div className="h-screen w-full bg-secondary text-text-main antialiased font-sans">
+        <div className="h-screen w-full bg-secondary text-text-main antialiased font-sans overflow-hidden">
 
             <Toaster position="top-right" richColors closeButton />
 
@@ -66,8 +66,8 @@ export function AdminLayoutClient({
                 allowedPanels={allowedPanels}
             />
 
-            <div className="flex h-full flex-col lg:ml-64">
-                <header className="sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b px-4 sm:px-6 bg-white border-bg-subtle text-text-main shadow-sm">
+            <div className="flex h-full flex-col lg:ml-64 min-w-0 overflow-hidden">
+                <header className="sticky top-0 z-40 flex h-20 w-full flex-shrink-0 items-center justify-between border-b px-4 sm:px-6 bg-white border-bg-subtle text-text-main shadow-sm">
                     {/* Linke Seite (Hamburger, Logo) */}
                     <div className="flex items-center gap-4">
                          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-text-main/80 hover:text-accent focus:outline-none" aria-label="Admin-Menü öffnen">
@@ -102,7 +102,7 @@ export function AdminLayoutClient({
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-gray-50/50">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4 md:p-5 bg-gray-50/50 custom-scrollbar">
                     {children}
                 </main>
             </div>

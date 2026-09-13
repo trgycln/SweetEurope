@@ -931,18 +931,63 @@ export const dictionary: Partial<Dictionary> = {
   },
   megaMenu: {
     promo: {
-      title: 'Ayın Ürünü',
-      description: 'Yeni Fıstıklı Ahududulu Rüyayı keşfedin.',
-      button: 'Şimdi İncele',
-      href: '/produkte/torten-kuchen/fistik-ahududu',
-      imageAlt: 'Lezzetli bir dilim fıstıklı ahududulu pasta',
-      imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
+      title: 'B2B Toptan Kataloğu',
+      description: 'Profesyonel HoReCa, bar ve kafe işletmeleri için premium FO ürünlerini keşfedin.',
+      button: 'Kataloğu İncele',
+      href: '/products',
+      imageAlt: 'ElysonSweets FO B2B Ürün Kataloğu',
+      imageUrl: '/categories/syrups.jpg'
     },
     mainCategories: [
-      { name: 'Pastacılık', promoImage: 'https://...f1c', subCategories: [ { name: 'Pastalar & Kekler', href: '/produkte/torten-kuchen', description: '125 çeşit' }, { name: 'Vegan Ürünler', href: '/produkte/vegan', description: '19 çeşit' }, { name: 'Kurabiye & Hamur İşleri', href: '/produkte/kurabiye', description: '17 çeşit' }, ] },
-      { name: 'Kahve & İçecekler', promoImage: 'https://...d99', subCategories: [ { name: 'Kahve', href: '/produkte/kaffee', description: '35 çeşit' }, { name: 'Çay & Toz İçecekler', href: '/produkte/tee', description: '35 çeşit' }, { name: 'Meşrubatlar', href: '/produkte/getraenke', description: '20 çeşit' }, ] },
-      { name: 'Malzemeler & Şuruplar', promoImage: 'https://...388', subCategories: [ { name: 'Kahve Şurupları', href: '/produkte/sirupe', description: '44 çeşit' }, ] },
-      { name: 'Tuzlular', promoImage: 'https://...e65', subCategories: [ { name: 'Gurme Pizza', href: '/produkte/pizza', description: '' }, ] },
+      {
+        name: 'Şuruplar',
+        promoImage: '/categories/syrups.jpg',
+        subCategories: [
+          { name: 'Aromalı Kokteyl Şurupları', href: '/products?kategori=syrups&altKategori=flavored-cocktail-syrups', description: '28 çeşit' },
+          { name: 'Tüm Şuruplar', href: '/products?kategori=syrups', description: 'Görüntüle' },
+        ]
+      },
+      {
+        name: 'Soslar',
+        promoImage: '/categories/cafe-bar-sauces.jpg',
+        subCategories: [
+          { name: 'Meyveli Soslar (Frozen)', href: '/products?kategori=cafe-bar-sauces&altKategori=fruit-sauces', description: '17 çeşit' },
+          { name: 'Profesyonel Bar Sosları', href: '/products?kategori=cafe-bar-sauces&altKategori=professional-bar-sauces', description: '5 çeşit' },
+          { name: 'Dekor Soslar', href: '/products?kategori=cafe-bar-sauces&altKategori=decoration-sauces', description: '2 çeşit' },
+          { name: 'Topping Soslar', href: '/products?kategori=cafe-bar-sauces&altKategori=ice-cream-and-dessert-sauces', description: '1 çeşit' },
+        ]
+      },
+      {
+        name: 'Toz İçecekler',
+        promoImage: '/categories/powdered-beverages.jpg',
+        subCategories: [
+          { name: 'Aromalı İçecek Bazları', href: '/products?kategori=powdered-beverages&altKategori=flavored-beverage-base', description: '8 çeşit' },
+          { name: 'Aromalı İçecek Tozları (Milkshake / Smoothie)', href: '/products?kategori=powdered-beverages&altKategori=flavored-beverage-powders', description: '7 çeşit' },
+        ]
+      },
+      {
+        name: 'Premium Seri',
+        promoImage: '/categories/premium.jpg',
+        subCategories: [
+          { name: 'Premium Şuruplar', href: '/products?kategori=premium&altKategori=premium-cocktail-syrups', description: '11 çeşit' },
+          { name: 'Premium Bar Sosları', href: '/products?kategori=premium&altKategori=premium-bar-sauces', description: '4 çeşit' },
+          { name: 'Özel Soslar', href: '/products?kategori=premium&altKategori=special-sauces', description: '1 çeşit' },
+        ]
+      },
+      {
+        name: 'Kokteyl Karışımları',
+        promoImage: '/categories/cocktail-mixes.jpg',
+        subCategories: [
+          { name: 'Tüm Kokteyl Mixleri', href: '/products?kategori=cocktail-mixes', description: '7 çeşit' },
+        ]
+      },
+      {
+        name: 'Köpürtücü',
+        promoImage: '/categories/foamer.jpg',
+        subCategories: [
+          { name: 'Foamer (Köpürtücü)', href: '/products?kategori=foamer', description: '1 çeşit' },
+        ]
+      },
     ]
   },
   philosophy: {

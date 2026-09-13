@@ -219,9 +219,9 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                 className={`fixed inset-0 z-30 bg-black/60 transition-opacity duration-300 lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             ></div>
             <div
-                className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-primary text-secondary transition-transform duration-300 ease-in-out lg:translate-x-0 overflow-y-auto ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-primary text-secondary transition-transform duration-300 ease-in-out lg:translate-x-0 overflow-hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
-                <div className="flex flex-shrink-0 items-center justify-between p-4 border-b border-white/10 sticky top-0 bg-primary z-10">
+                <div className="flex flex-shrink-0 items-center justify-between p-4 border-b border-white/10 bg-primary z-10">
                     <Link href="/admin/dashboard" className="text-white text-2xl font-serif font-bold flex items-center">
                         ElysonSweets
                     </Link>
@@ -230,7 +230,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                     </button>
                 </div>
                 
-                <nav className="flex-1 p-4">
+                <nav className="flex-1 px-3 py-4 overflow-y-auto custom-sidebar-scrollbar">
                     {menuSections.map((section: MenuSection) => {
                         const hasAccessToSection = section.links.some((item: LinkItem) => {
                             const roleAllowed = !item.roles || (userRole && item.roles.includes(userRole));

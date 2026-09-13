@@ -34,7 +34,6 @@ export type Urun = Pick<Tables<'urunler'>,
     | 'lagertemperatur_min_celsius'
     | 'lagertemperatur_max_celsius'
     | 'haltbarkeit_monate'
-    | 'haltbarkeit_nach_oeffnen_tage'
     | 'zertifikate'
     | 'inhaltsstoffe'
     | 'allergene'

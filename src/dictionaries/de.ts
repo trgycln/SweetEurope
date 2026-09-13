@@ -899,118 +899,64 @@ statusOptions: {
   },
   megaMenu: {
     promo: {
-      title: 'Produkt des Monats',
-      description: 'Entdecken Sie unseren neuen Pistazien-Himbeer-Traum.',
-      button: 'Jetzt ansehen',
-      href: '/produkte/torten-kuchen/pistazie-himbeer',
-      imageAlt: 'Ein köstliches Stück Pistazien-Himbeer-Torte',
-      imageUrl: 'https://images.unsplash.com/photo-1565958011703-4f9829ba187?q=80&w=1965&auto=format&fit=crop'
+      title: 'B2B Großhandels-Katalog',
+      description: 'Entdecken Sie erstklassige FO Produkte für Baristas, Bars und HoReCa.',
+      button: 'Katalog ansehen',
+      href: '/products',
+      imageAlt: 'ElysonSweets FO B2B Produktkatalog',
+      imageUrl: '/categories/syrups.jpg'
     },
-    mainCategories: [{
-      name: 'Torten & Kuchen',
-      promoImage: 'https://images.unsplash.com/photo-1627834392233-5a0242416f1c?q=80&w=1974&auto=format&fit=crop',
-      subCategories: [{
-        name: 'Cheesecakes',
-        href: '/produkte/cheesecakes',
-        description: ''
-      }, {
-        name: 'Brownies',
-        href: '/produkte/brownies',
-        description: ''
-      }, {
-        name: 'Tiramisu',
-        href: '/produkte/tiramisu',
-        description: ''
-      }, {
-        name: 'Becher-Kuchen',
-        href: '/produkte/cup-cakes',
-        description: ''
-      }, {
-        name: 'Vegane Kuchen',
-        href: '/produkte/vegan-cakes',
-        description: ''
-      }, {
-        name: 'Glutenfrei',
-        href: '/produkte/gluten-free',
-        description: ''
-      }, ]
-    }, {
-      name: 'Kekse & Muffins',
-      promoImage: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=1974&auto=format&fit=crop',
-      subCategories: [{
-        name: 'Kekse',
-        href: '/produkte/cookies',
-        description: ''
-      }, {
-        name: 'Muffins',
-        href: '/produkte/muffins',
-        description: ''
-      }, ]
-    }, {
-      name: 'Pizza & Fast Food',
-      promoImage: 'https://images.unsplash.com/photo-1594007654729-407eedc4be65?q=80&w=1928&auto=format&fit=crop',
-      subCategories: [{
-        name: 'Pizzen',
-        href: '/produkte/pizzas',
-        description: ''
-      }, {
-        name: 'Fast Food',
-        href: '/produkte/fast-food',
-        description: ''
-      }, ]
-    }, {
-      name: 'Saucen & Zutaten',
-      promoImage: 'https://images.unsplash.com/photo-1621263765183-59b43fac3388?q=80&w=1974&auto=format&fit=crop',
-      subCategories: [{
-        name: 'Dessert-Saucen',
-        href: '/produkte/dessert-sauces',
-        description: ''
-      }, {
-        name: 'Toppings',
-        href: '/produkte/toppings',
-        description: ''
-      }, {
-        name: 'Zutaten',
-        href: '/produkte/ingredients',
-        description: ''
-      }, ]
-    }, {
-      name: 'Kaffee',
-      promoImage: 'https://images.unsplash.com/photo-1511920183353-3c2c5d7d5d99?q=80&w=1974&auto=format&fit=crop',
-      subCategories: [{
-        name: 'Türkischer Kaffee',
-        href: '/produkte/turkish-coffee',
-        description: ''
-      }, {
-        name: 'Filterkaffee',
-        href: '/produkte/filter-coffee',
-        description: ''
-      }, {
-        name: 'Espresso',
-        href: '/produkte/espresso',
-        description: ''
-      }, ]
-    }, {
-      name: 'Getränke',
-      promoImage: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?q=80&w=1974&auto=format&fit=crop',
-      subCategories: [{
-        name: 'Heiße Schokolade',
-        href: '/produkte/hot-chocolate',
-        description: ''
-      }, {
-        name: 'Tee',
-        href: '/produkte/tea',
-        description: ''
-      }, {
+    mainCategories: [
+      {
         name: 'Sirupe',
-        href: '/produkte/syrups',
-        description: ''
-      }, {
-        name: 'Salep',
-        href: '/produkte/salep',
-        description: ''
-      }, ]
-    }, ]
+        promoImage: '/categories/syrups.jpg',
+        subCategories: [
+          { name: 'Aromatisierte Cocktailsirupe', href: '/products?kategori=syrups&altKategori=flavored-cocktail-syrups', description: '28 Sorten' },
+          { name: 'Alle Sirupe', href: '/products?kategori=syrups', description: 'Entdecken' },
+        ]
+      },
+      {
+        name: 'Saucen',
+        promoImage: '/categories/cafe-bar-sauces.jpg',
+        subCategories: [
+          { name: 'Fruchtsaucen (Frozen)', href: '/products?kategori=cafe-bar-sauces&altKategori=fruit-sauces', description: '17 Sorten' },
+          { name: 'Professionelle Barsaucen', href: '/products?kategori=cafe-bar-sauces&altKategori=professional-bar-sauces', description: '5 Sorten' },
+          { name: 'Dekorsaucen', href: '/products?kategori=cafe-bar-sauces&altKategori=decoration-sauces', description: '2 Sorten' },
+          { name: 'Topping-Saucen', href: '/products?kategori=cafe-bar-sauces&altKategori=ice-cream-and-dessert-sauces', description: '1 Sorte' },
+        ]
+      },
+      {
+        name: 'Getränkepulver & Basen',
+        promoImage: '/categories/powdered-beverages.jpg',
+        subCategories: [
+          { name: 'Aromatisierte Getränkebasen', href: '/products?kategori=powdered-beverages&altKategori=flavored-beverage-base', description: '8 Sorten' },
+          { name: 'Aromatisierte Getränkepulver (Milkshake - Smoothie)', href: '/products?kategori=powdered-beverages&altKategori=flavored-beverage-powders', description: '7 Sorten' },
+        ]
+      },
+      {
+        name: 'Premium-Sortiment',
+        promoImage: '/categories/premium.jpg',
+        subCategories: [
+          { name: 'Premium-Sirupe', href: '/products?kategori=premium&altKategori=premium-cocktail-syrups', description: '11 Sorten' },
+          { name: 'Premium Barsaucen', href: '/products?kategori=premium&altKategori=premium-bar-sauces', description: '4 Sorten' },
+          { name: 'Spezialsaucen', href: '/products?kategori=premium&altKategori=special-sauces', description: '1 Sorte' },
+        ]
+      },
+      {
+        name: 'Cocktail-Mixes',
+        promoImage: '/categories/cocktail-mixes.jpg',
+        subCategories: [
+          { name: 'Alle Cocktail-Mixes', href: '/products?kategori=cocktail-mixes', description: '7 Sorten' },
+        ]
+      },
+      {
+        name: 'Foamer',
+        promoImage: '/categories/foamer.jpg',
+        subCategories: [
+          { name: 'Foamer (Schaumbildner)', href: '/products?kategori=foamer', description: '1 Sorte' },
+        ]
+      },
+    ]
   },
   philosophy: {
     title: 'Unsere Philosophie',
