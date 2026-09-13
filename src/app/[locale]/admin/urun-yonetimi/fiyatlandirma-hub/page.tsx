@@ -25,7 +25,7 @@ export default async function FiyatlandirmaHubPage({ params }: { params: Promise
 
   let productResponse = await (supabase as any)
     .from('urunler')
-    .select('id, ad, kategori_id, tedarikci_id, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_toptanci, satis_fiyati_musteri, aktif, stok_miktari, teknik_ozellikler, urun_gami, stok_kodu, ean_gtin, birim_agirlik_kg, lojistik_sinifi, gumruk_vergi_orani_yuzde, almanya_kdv_orani, gunluk_depolama_maliyeti_eur, ortalama_stokta_kalma_suresi, fire_zayiat_orani_yuzde, standart_inis_maliyeti_net, son_gercek_inis_maliyeti_net, son_maliyet_sapma_yuzde, karlilik_alarm_aktif, referans_fiyat, tedarikci_url')
+    .select('id, ad, kategori_id, tedarikci_id, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_toptanci, satis_fiyati_musteri, satis_fiyati_palet, aktif, stok_miktari, teknik_ozellikler, urun_gami, stok_kodu, ean_gtin, birim_agirlik_kg, lojistik_sinifi, gumruk_vergi_orani_yuzde, almanya_kdv_orani, gunluk_depolama_maliyeti_eur, ortalama_stokta_kalma_suresi, fire_zayiat_orani_yuzde, standart_inis_maliyeti_net, son_gercek_inis_maliyeti_net, son_maliyet_sapma_yuzde, karlilik_alarm_aktif, referans_fiyat, tedarikci_url')
     .order('created_at', { ascending: false })
     .limit(2000);
 
@@ -33,13 +33,13 @@ export default async function FiyatlandirmaHubPage({ params }: { params: Promise
     productResponse.error
     && (
       productResponse.error.code === '42703'
-      || ['urun_gami', 'satis_fiyati_toptanci', 'birim_agirlik_kg', 'lojistik_sinifi', 'standart_inis_maliyeti_net']
+      || ['urun_gami', 'satis_fiyati_toptanci', 'satis_fiyati_palet', 'birim_agirlik_kg', 'lojistik_sinifi', 'standart_inis_maliyeti_net']
         .some((column) => `${productResponse.error?.message || ''}`.includes(column))
     )
   ) {
     productResponse = await (supabase as any)
       .from('urunler')
-      .select('id, ad, kategori_id, tedarikci_id, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_musteri, aktif, stok_miktari, teknik_ozellikler, stok_kodu, ean_gtin')
+      .select('id, ad, kategori_id, tedarikci_id, distributor_alis_fiyati, satis_fiyati_alt_bayi, satis_fiyati_musteri, satis_fiyati_palet, aktif, stok_miktari, teknik_ozellikler, stok_kodu, ean_gtin')
       .order('created_at', { ascending: false })
       .limit(2000);
   }

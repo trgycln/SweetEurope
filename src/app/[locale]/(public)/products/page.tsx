@@ -10,7 +10,7 @@ import {
 } from '@/lib/public-category-visibility';
 import Link from 'next/link';
 import { type Kategori, type Urun } from './types';
-import { FiPackage, FiMail } from 'react-icons/fi';
+import { FiPackage, FiMail, FiX } from 'react-icons/fi';
 import type { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
 
@@ -235,7 +235,7 @@ export default async function PublicUrunlerPage({
         lagertemperatur_min_celsius, lagertemperatur_max_celsius,
         mindest_bestellmenge, mindest_bestellmenge_einheit,
         zertifikate, haltbarkeit_monate, lieferzeit_werktage, lojistik_sinifi,
-        satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
+        satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_palet, satis_fiyati_alt_bayi,
         produktdatenblatt_url
     `;
 
@@ -281,7 +281,7 @@ export default async function PublicUrunlerPage({
         const minimalFields = `id, ad, slug, ana_resim_url, kategori_id, stok_kodu, stok_miktari,
             koli_ici_adet, palet_ici_adet, teknik_ozellikler, lojistik_sinifi,
             lagertemperatur_min_celsius, lagertemperatur_max_celsius, zertifikate,
-            satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi,
+            satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_palet, satis_fiyati_alt_bayi,
             created_at, mindest_bestellmenge, mindest_bestellmenge_einheit, aktif`;
         let retryQuery = supabase.from('urunler').select(minimalFields).eq('aktif', true);
         if (isCategoryFilterActive) {

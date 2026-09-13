@@ -45,6 +45,7 @@ export type Urun = Pick<Tables<'urunler'>,
     // Pricing & packaging
     | 'satis_fiyati_musteri'
     | 'satis_fiyati_toptanci'
+    | 'satis_fiyati_palet'
     | 'satis_fiyati_alt_bayi'
     | 'koli_ici_adet'
     | 'palet_ici_adet'

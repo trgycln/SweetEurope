@@ -121,7 +121,23 @@ export function UniversalProductCard({
     // Pricing Rows
     const koliFiyat = Number(urun.satis_fiyati_musteri ?? 0);
     const toptanFiyat = Number(urun.satis_fiyati_toptanci ?? 0);
-    const paletFiyat = Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_palet ?? toptanFiyat ?? koliFiyat);
+    
+    // Palet fiyatı: Normalde satis_fiyati_palet; Alt Bayi rolündeyse satis_fiyati_alt_bayi
+    let rawPalet = Number(
+        userRole === 'Alt Bayi'
+            ? (urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_palet ?? toptanFiyat ?? koliFiyat)
+            : (urun.satis_fiyati_palet ?? urun.satis_fiyati_alt_bayi ?? toptanFiyat ?? koliFiyat)
+    );
+
+    // Safeguard: 1 Palet fiyatı toptan (5+ koli) fiyatından asla yüksek olamaz!
+    if (rawPalet > toptanFiyat && toptanFiyat > 0) {
+        if (urun.satis_fiyati_alt_bayi && Number(urun.satis_fiyati_alt_bayi) > 0 && Number(urun.satis_fiyati_alt_bayi) <= toptanFiyat) {
+            rawPalet = Number(urun.satis_fiyati_alt_bayi);
+        } else {
+            rawPalet = toptanFiyat;
+        }
+    }
+    const paletFiyat = rawPalet;
 
     const pricingRows = [
         {

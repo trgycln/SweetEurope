@@ -95,7 +95,7 @@ const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string }> = {
 const TIER_FIELD: Record<string, keyof Urun> = {
     koli_bazli: 'satis_fiyati_musteri',
     cok_koli:   'satis_fiyati_toptanci',
-    palet:      'satis_fiyati_alt_bayi',
+    palet:      'satis_fiyati_palet',
     alt_bayi:   'satis_fiyati_alt_bayi',
 };
 

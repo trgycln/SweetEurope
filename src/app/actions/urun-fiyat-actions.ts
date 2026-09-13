@@ -42,6 +42,15 @@ function stripUnsupportedPriceFields(data: Partial<Tables<'urunler'>>): Partial<
   return safeData;
 }
 
+function getDatabaseClient(userSupabase: any) {
+  try {
+    return createSupabaseServiceClient();
+  } catch (err) {
+    console.warn('createSupabaseServiceClient kullanılamadı, userSupabase ile devam ediliyor:', err);
+    return userSupabase;
+  }
+}
+
 export async function saveProductPricesAction(payload: SavePricesPayload, locale?: string): Promise<SavePricesResult> {
   try {
     const cookieStore = await cookies();
@@ -84,7 +93,7 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
       return { error: 'Güncellenecek bir alan yok.' };
     }
 
-    const serviceClient = createSupabaseServiceClient();
+    const serviceClient = getDatabaseClient(supabase);
 
     let { error } = await serviceClient
       .from('urunler')
@@ -100,22 +109,23 @@ export async function saveProductPricesAction(payload: SavePricesPayload, locale
 
     if (error) {
       console.error('Fiyat güncelleme hatası:', error);
-      return { error: 'Veritabanı hatası.' };
+      return { error: 'Veritabanı hatası: ' + (error.message || '') };
     }
 
-    // Revalidate products list and calculator page for the active locale
-    revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/urunler`);
-    revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyat-hesaplama`);
-    revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
-    revalidatePath(`/${locale ?? 'tr'}/products`, 'layout');
-    revalidatePath(`/${locale ?? 'en'}/products`, 'layout');
-    revalidatePath(`/${locale ?? 'de'}/products`, 'layout');
-    revalidatePath(`/${locale ?? 'ar'}/products`, 'layout');
+    try {
+      const activeLocale = locale || 'tr';
+      revalidatePath(`/${activeLocale}/admin/urun-yonetimi/urunler`);
+      revalidatePath(`/${activeLocale}/admin/urun-yonetimi/fiyat-hesaplama`);
+      revalidatePath(`/${activeLocale}/admin/urun-yonetimi/fiyatlandirma-hub`);
+      revalidatePath(`/${activeLocale}/products`, 'layout');
+    } catch (revalErr) {
+      console.warn('revalidatePath hatası göz ardı edildi:', revalErr);
+    }
 
     return { success: true };
-  } catch (e) {
+  } catch (e: any) {
     console.error('saveProductPricesAction beklenmeyen hata:', e);
-    return { error: 'Sunucu hatası.' };
+    return { error: e?.message || 'Sunucu hatası.' };
   }
 }
 
@@ -266,8 +276,10 @@ export type BulkSavePricesPayload = {
     satis_fiyati_alt_bayi?: number;
     satis_fiyati_toptanci?: number;
     satis_fiyati_musteri?: number;
+    satis_fiyati_palet?: number;
     distributor_alis_fiyati?: number;
     urun_gami?: string[] | null;
+    standart_inis_maliyeti_net?: number | null;
   }>;
 };
 
@@ -293,81 +305,90 @@ export async function bulkSaveProductPricesAction(
       return { error: 'Güncellenecek ürün yok.' };
     }
 
-    const serviceClient = createSupabaseServiceClient();
+    const serviceClient = getDatabaseClient(supabase);
     const skipped: Array<{ urunId: string; reason: string }> = [];
     let updatedCount = 0;
 
-    // Process each item
-    for (const item of payload.items) {
-      const updateData: Partial<Tables<'urunler'>> = {};
-      
-      if (typeof item.satis_fiyati_alt_bayi === 'number') {
-        updateData.satis_fiyati_alt_bayi = item.satis_fiyati_alt_bayi;
-      }
-      if (typeof item.satis_fiyati_musteri === 'number') {
-        updateData.satis_fiyati_musteri = item.satis_fiyati_musteri;
-      }
-      if (typeof item.satis_fiyati_toptanci === 'number') {
-        updateData.satis_fiyati_toptanci = item.satis_fiyati_toptanci;
-      }
-      if (typeof item.satis_fiyati_palet === 'number') {
-        updateData.satis_fiyati_palet = item.satis_fiyati_palet;
-      }
-      if (typeof item.distributor_alis_fiyati === 'number') {
-        updateData.distributor_alis_fiyati = item.distributor_alis_fiyati;
-      }
-      if (Object.prototype.hasOwnProperty.call(item, 'urun_gami')) {
-        if (Array.isArray(item.urun_gami)) {
-          updateData.urun_gami = item.urun_gami;
-        } else if (typeof item.urun_gami === 'string' && item.urun_gami.trim()) {
-          updateData.urun_gami = [item.urun_gami.trim()];
-        } else {
-          updateData.urun_gami = null;
-        }
-      }
-      if (typeof item.standart_inis_maliyeti_net === 'number' && item.standart_inis_maliyeti_net > 0) {
-        (updateData as any).standart_inis_maliyeti_net = item.standart_inis_maliyeti_net;
-      }
+    // Process items in chunks of 10 for performance and to prevent timeouts
+    const CHUNK_SIZE = 10;
+    for (let i = 0; i < payload.items.length; i += CHUNK_SIZE) {
+      const chunk = payload.items.slice(i, i + CHUNK_SIZE);
+      await Promise.all(
+        chunk.map(async (item) => {
+          const updateData: Partial<Tables<'urunler'>> = {};
 
-      if (Object.keys(updateData).length === 0) {
-        skipped.push({ urunId: item.urunId, reason: 'Güncellenecek alan yok' });
-        continue;
-      }
+          if (typeof item.satis_fiyati_alt_bayi === 'number') {
+            updateData.satis_fiyati_alt_bayi = item.satis_fiyati_alt_bayi;
+          }
+          if (typeof item.satis_fiyati_musteri === 'number') {
+            updateData.satis_fiyati_musteri = item.satis_fiyati_musteri;
+          }
+          if (typeof item.satis_fiyati_toptanci === 'number') {
+            updateData.satis_fiyati_toptanci = item.satis_fiyati_toptanci;
+          }
+          if (typeof item.satis_fiyati_palet === 'number') {
+            updateData.satis_fiyati_palet = item.satis_fiyati_palet;
+          }
+          if (typeof item.distributor_alis_fiyati === 'number') {
+            updateData.distributor_alis_fiyati = item.distributor_alis_fiyati;
+          }
+          if (Object.prototype.hasOwnProperty.call(item, 'urun_gami')) {
+            if (Array.isArray(item.urun_gami)) {
+              updateData.urun_gami = item.urun_gami;
+            } else if (typeof item.urun_gami === 'string' && item.urun_gami.trim()) {
+              updateData.urun_gami = [item.urun_gami.trim()];
+            } else {
+              updateData.urun_gami = null;
+            }
+          }
+          if (typeof item.standart_inis_maliyeti_net === 'number' && item.standart_inis_maliyeti_net > 0) {
+            (updateData as any).standart_inis_maliyeti_net = item.standart_inis_maliyeti_net;
+          }
 
-      let { error } = await serviceClient
-        .from('urunler')
-        .update(updateData)
-        .eq('id', item.urunId);
+          if (Object.keys(updateData).length === 0) {
+            skipped.push({ urunId: item.urunId, reason: 'Güncellenecek alan yok' });
+            return;
+          }
 
-      if (error && isUnsupportedPriceColumnError(error)) {
-        ({ error } = await serviceClient
-          .from('urunler')
-          .update(stripUnsupportedPriceFields(updateData))
-          .eq('id', item.urunId));
-      }
+          let { error } = await serviceClient
+            .from('urunler')
+            .update(updateData)
+            .eq('id', item.urunId);
 
-      if (error) {
-        console.error(`Ürün ${item.urunId} güncellenemedi:`, error);
-        skipped.push({ urunId: item.urunId, reason: error.message || 'Veritabanı hatası' });
-      } else {
-        updatedCount++;
-      }
+          if (error && isUnsupportedPriceColumnError(error)) {
+            ({ error } = await serviceClient
+              .from('urunler')
+              .update(stripUnsupportedPriceFields(updateData))
+              .eq('id', item.urunId));
+          }
+
+          if (error) {
+            console.error(`Ürün ${item.urunId} güncellenemedi:`, error);
+            skipped.push({ urunId: item.urunId, reason: error.message || 'Veritabanı hatası' });
+          } else {
+            updatedCount++;
+          }
+        })
+      );
     }
 
     // Revalidate once after all updates
-    revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/urunler`);
-    revalidatePath(`/${locale ?? ''}/admin/urun-yonetimi/fiyatlandirma-hub`);
-    revalidatePath(`/${locale ?? 'tr'}/products`, 'layout');
-    revalidatePath(`/${locale ?? 'en'}/products`, 'layout');
-    revalidatePath(`/${locale ?? 'de'}/products`, 'layout');
-    revalidatePath(`/${locale ?? 'ar'}/products`, 'layout');
+    try {
+      const activeLocale = locale || 'tr';
+      revalidatePath(`/${activeLocale}/admin/urun-yonetimi/urunler`);
+      revalidatePath(`/${activeLocale}/admin/urun-yonetimi/fiyat-hesaplama`);
+      revalidatePath(`/${activeLocale}/admin/urun-yonetimi/fiyatlandirma-hub`);
+      revalidatePath(`/${activeLocale}/products`, 'layout');
+    } catch (revalErr) {
+      console.warn('revalidatePath hatası göz ardı edildi:', revalErr);
+    }
 
     return { 
       success: true, 
       updatedCount,
       skipped: skipped.length > 0 ? skipped : undefined
     };
-  } catch (e) {
+  } catch (e: any) {
     console.error('bulkSaveProductPricesAction hata:', e);
     return { error: 'Sunucu hatası.' };
   }
