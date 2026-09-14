@@ -52,7 +52,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
               <h2 className="text-xl font-bold font-serif text-primary mb-3">{t.registerLabel}</h2>
               <p className="text-sm text-gray-700 leading-relaxed">{t.registerPending}</p>
               <p className="text-sm text-gray-700">{t.registerCourt}</p>
-              <p className="text-sm text-gray-500 italic">{t.registerNumberPending}</p>
+              <p className="text-sm text-gray-700">{(t as any).registerNumber || t.registerNumberPending}</p>
             </div>
 
             <div>

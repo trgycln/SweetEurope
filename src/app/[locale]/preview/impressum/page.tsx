@@ -35,10 +35,10 @@ export default function ImpressumPage() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold font-serif text-primary mb-2">{content.section4Title}</h2>
-              <p>Eintragung im Handelsregister.</p>
-              <p>Registergericht: {content.registerCourt}</p>
-              <p>Registernummer: {content.registerNumber}</p>
+              <h2 className="text-2xl font-bold font-serif text-primary mb-2">{content.section4Title || content.registerLabel || 'Registereintrag'}</h2>
+              <p>{content.registerPending || 'Eintragung im Handelsregister.'}</p>
+              <p>{content.registerCourt?.startsWith('Registergericht') ? content.registerCourt : `Registergericht: ${content.registerCourt || 'Amtsgericht Köln'}`}</p>
+              <p>{content.registerNumber?.startsWith('Registernummer') ? content.registerNumber : `Registernummer: ${content.registerNumber || 'HRB 128857'}`}</p>
             </div>
 
             <div>
