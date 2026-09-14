@@ -58,9 +58,21 @@ export async function GET() {
         `Für individuelle Partnerpreise senden Sie uns eine Nachricht oder loggen Sie sich im Partnerportal ein.`;
 
       // ── Availability ─────────────────────────────────────────────────────────
-      const threshold = typeof prod.stok_esigi === 'number' ? prod.stok_esigi : 0;
-      const inStock = typeof prod.stok_miktari === 'number' && prod.stok_miktari > threshold;
-      const availability = inStock ? 'in stock' : 'out of stock';
+      const stockQty   = typeof prod.stok_miktari === 'number' ? prod.stok_miktari : 0;
+      const threshold  = typeof prod.stok_esigi   === 'number' ? prod.stok_esigi   : 0;
+
+      let availability: string;
+      let availabilityDate: string | null = null;
+
+      if (stockQty === 0) {
+        // Stok sıfır → ön sipariş, teslimat tarihi 24 Eylül 2026
+        availability     = 'preorder';
+        availabilityDate = '2026-09-24T09:00:00+02:00';
+      } else if (stockQty > threshold) {
+        availability = 'in stock';
+      } else {
+        availability = 'out of stock';
+      }
 
       // ── Build <item> ─────────────────────────────────────────────────────────
       xml += `
@@ -70,7 +82,7 @@ export async function GET() {
       <g:description><![CDATA[${desc}]]></g:description>
       <g:link>https://elysonsweets.de/de/products/${prod.slug ?? ''}</g:link>
       <g:image_link>${prod.ana_resim_url ?? ''}</g:image_link>
-      <g:availability>${availability}</g:availability>
+      <g:availability>${availability}</g:availability>${availabilityDate ? `\n      <g:availability_date>${availabilityDate}</g:availability_date>` : ''}
       <g:price>0.00 EUR</g:price>
       <g:condition>new</g:condition>
       <g:brand><![CDATA[${prod.hersteller_name ?? 'Elyson Sweets'}]]></g:brand>`;

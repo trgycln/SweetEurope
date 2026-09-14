@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import type { Metadata } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
 import { headers } from "next/headers";
+import MetaPixel from "@/components/MetaPixel";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import VercelAnalytics from "@/components/VercelAnalytics";
 import CookieBanner from "@/components/CookieBanner";
@@ -121,6 +122,8 @@ export default async function RootLayout({
         {children}
         <VercelAnalytics />
         <CookieBanner />
+        {/* DSGVO/TTDSG: Pixel yalnızca onay sonrası yüklenir */}
+        <MetaPixel />
       </body>
     </html>
   );
