@@ -28,6 +28,12 @@ export async function GET() {
 
     // ── Product items ──────────────────────────────────────────────────────────
     for (const prod of products ?? []) {
+      // ── Image Validation ──────────────────────────────────────────────────────
+      // Skip products without an image or pointing to old deprecated storage project
+      if (!prod.ana_resim_url || prod.ana_resim_url.includes('atydffkpyvxcmzxyibhj')) {
+        continue;
+      }
+
       const title =
         (prod.ad as Record<string, string> | null)?.de ||
         (prod.ad as Record<string, string> | null)?.en ||
@@ -83,13 +89,18 @@ export async function GET() {
       <g:link>https://elysonsweets.de/de/products/${prod.slug ?? ''}</g:link>
       <g:image_link>${prod.ana_resim_url ?? ''}</g:image_link>
       <g:availability>${availability}</g:availability>${availabilityDate ? `\n      <g:availability_date>${availabilityDate}</g:availability_date>` : ''}
-      <g:price>0.00 EUR</g:price>
+      <g:price>1.00 EUR</g:price>
       <g:condition>new</g:condition>
       <g:brand><![CDATA[${prod.hersteller_name ?? 'Elyson Sweets'}]]></g:brand>`;
 
-      if (prod.ean_gtin) {
-        xml += `\n      <g:gtin>${prod.ean_gtin}</g:gtin>`;
+      // GTIN: sadece rakam + geçerli uzunluk (EAN-8/UPC-12/EAN-13/EAN-14)
+      const rawGtin = (prod.ean_gtin ?? '').replace(/\D/g, ''); // boşluk/tire temizle
+      const isValidGtin = /^(\d{8}|\d{12}|\d{13}|\d{14})$/.test(rawGtin);
+
+      if (isValidGtin) {
+        xml += `\n      <g:gtin>${rawGtin}</g:gtin>`;
       } else if (prod.stok_kodu) {
+        // GTIN yoksa/geçersizse SKU'yu MPN olarak bas
         xml += `\n      <g:mpn><![CDATA[${prod.stok_kodu}]]></g:mpn>`;
       }
 
