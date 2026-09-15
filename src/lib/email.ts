@@ -39,13 +39,18 @@ export async function sendAdminEmail({
   }
 
   try {
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: 'Elysonsweets GmbH <info@elysonsweets.de>',
       to: ADMIN_EMAIL,
       subject,
       html,
       replyTo: replyTo || 'elysonsweets@gmail.com',
     });
+    if (error) {
+      console.error('[email] Admin e-posta Resend hatası:', error);
+    } else {
+      console.log('[email] Admin e-postası başarıyla Resend kuyruğuna iletildi:', data?.id);
+    }
   } catch (err) {
     console.error('[email] Gönderim hatası:', err);
   }
@@ -67,13 +72,18 @@ export async function sendCustomerEmail({
   }
 
   try {
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: 'Elysonsweets GmbH <info@elysonsweets.de>',
       to,
       subject,
       html,
       replyTo: 'info@elysonsweets.de',
     });
+    if (error) {
+      console.error('[email] Müşteri e-posta Resend hatası:', error);
+    } else {
+      console.log('[email] Müşteri onay e-postası iletildi:', data?.id);
+    }
   } catch (err) {
     console.error('[email] Müşteri e-posta gönderim hatası:', err);
   }

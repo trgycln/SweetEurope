@@ -55,7 +55,8 @@ async function filterRecipientsByInternalPreference(
 
             const authUser = authUserMap.get(recipient.id);
             const preferences = normalizeInternalNotificationPreferences(authUser?.user_metadata?.internal_notification_preferences);
-            return preferences[preferenceKey];
+            const prefValue = preferences[preferenceKey];
+            return prefValue !== undefined ? prefValue : true;
         });
     } catch (error) {
         console.warn('[sendNotification] Bildirim tercihleri sorgulanırken hata oluştu, bildirim gönderimi devam ediyor:', error);

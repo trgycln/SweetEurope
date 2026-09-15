@@ -47,6 +47,11 @@ export const INTERNAL_NOTIFICATION_OPTIONS = [
     label: 'Genel iç duyurular',
     description: 'Ekip içi bilgilendirme ve toplu admin duyuruları',
   },
+  {
+    key: 'new_messages',
+    label: 'İletişim mesajları',
+    description: 'Web sitesi iletişim formundan gelen yeni mesaj bildirimleri',
+  },
 ] as const;
 
 export type InternalNotificationKey = (typeof INTERNAL_NOTIFICATION_OPTIONS)[number]['key'];
@@ -60,6 +65,7 @@ export const DEFAULT_INTERNAL_NOTIFICATION_PREFERENCES: InternalNotificationPref
   order_updates: true,
   sample_updates: true,
   general_announcements: true,
+  new_messages: true,
 };
 
 const DEFAULT_ROLE_PANELS: Record<string, AdminPanelKey[]> = {

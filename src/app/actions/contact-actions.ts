@@ -36,15 +36,16 @@ export async function submitContactForm(
 
     // ── Admin in-app bildirimi (Kısaltılmış Mesaj) ──────────────────────────────
     const { sendNotification } = await import('@/lib/notificationUtils');
-    await sendNotification({
-      aliciRol: ['Yönetici', 'Ekip Üyesi'] as any,
+    const notifRes = await sendNotification({
+      aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'] as any,
       icerik: `💬 ${name} (${email}): "${message.length > 100 ? message.slice(0, 100) + '...' : message}"`,
       link: '/admin/crm/mesajlar',
-      preferenceKey: 'new_messages' as any,
+      preferenceKey: 'new_messages',
       supabaseClient: supabase as any,
     });
+    console.log('[contact-actions] Bildirim gönderim sonucu:', notifRes);
   } catch (notifErr) {
-    console.warn('[contact-actions] Kayıt/Bildirim hatası:', notifErr);
+    console.error('[contact-actions] Kayıt/Bildirim hatası:', notifErr);
   }
 
   // ── Admin e-posta bildirimi ───────────────────────────────────────────────

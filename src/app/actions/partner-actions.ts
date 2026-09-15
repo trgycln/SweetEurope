@@ -75,10 +75,10 @@ export async function submitPartnerApplication(formData: FormData): Promise<{ su
     try {
       const { sendNotification } = await import('@/lib/notificationUtils');
       await sendNotification({
-        aliciRol: ['Yönetici', 'Ekip Üyesi'] as any,
+        aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'] as any,
         icerik: `🆕 Yeni web başvurusu: ${firma.unvan}`,
         link: `/admin/crm/firmalar/${firma.id}`,
-        preferenceKey: 'general_announcements' as any,
+        preferenceKey: 'general_announcements',
         supabaseClient: supabase as any,
       });
     } catch (notifErr) {
