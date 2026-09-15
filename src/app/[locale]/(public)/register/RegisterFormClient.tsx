@@ -4,6 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { submitPartnerApplication } from '@/app/actions/partner-actions';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { trackLead } from '@/lib/metaPixelEvents';
 
 export default function RegisterFormClient({ dictionary, locale }: { dictionary: any; locale: string }) {
   const content = dictionary.registerPage || {};
@@ -20,6 +21,12 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
       const result = await submitPartnerApplication(formData);
       
       if (result.success) {
+        // Meta Pixel: B2B başvurusu tamamlandı — Lead eventi
+        trackLead({
+          content_name: 'B2B Partner Başvurusu',
+          content_category: 'Wholesale Registration',
+        });
+
         // Success toast
         toast.success(
           content.toastSuccess || 'Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.',

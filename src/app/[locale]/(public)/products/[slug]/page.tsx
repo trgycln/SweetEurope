@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { UrunDetayGorunumu } from '@/components/urun-detay-gorunumu';
+import MetaPixelViewContent from '@/components/MetaPixelViewContent';
 import { Locale } from '@/lib/utils';
 import { Tables } from '@/lib/supabase/database.types';
 import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
@@ -190,11 +191,19 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
         (productSchema as any).gtin13 = (urun as any).ean_gtin;
     }
 
+    const kategoriAdi = (urun as any)?.kategoriler?.ad?.[locale] ?? (urun as any)?.kategoriler?.ad?.['de'] ?? undefined;
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+            />
+            {/* Meta Pixel: ViewContent event — ürün detay sayfası görüntüleme */}
+            <MetaPixelViewContent
+                contentId={urun.id ?? ''}
+                contentName={urunAdi}
+                contentCategory={kategoriAdi}
             />
             <UrunDetayGorunumu
                 urun={urun as any}

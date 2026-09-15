@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaWhatsapp, FaTimes, FaPaperPlane } from 'react-icons/fa';
+import { trackContact } from '@/lib/metaPixelEvents';
 
 interface WhatsAppButtonProps {
   locale?: string;
@@ -144,6 +145,8 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
   const openWhatsApp = (customText?: string) => {
     const textToSend = (customText || message || t.defaultMessage).trim();
     const url = `https://wa.me/${PHONE_NUMBER_INTL}?text=${encodeURIComponent(textToSend)}`;
+    // Meta Pixel: WhatsApp kanalı üzerinden iletişim niyeti
+    trackContact();
     window.open(url, '_blank', 'noopener,noreferrer');
     setMessage('');
     setIsOpen(false);

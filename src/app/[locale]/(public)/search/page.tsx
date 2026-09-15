@@ -9,6 +9,7 @@ import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 import Link from 'next/link';
 import { FiSearch, FiFileText, FiPackage } from 'react-icons/fi';
 import Image from 'next/image';
+import MetaPixelSearchTracker from '@/components/MetaPixelSearchTracker';
 
 // Props-Typ für die Seite
 type SearchPageProps = {
@@ -80,6 +81,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
 
     return (
         <div className="bg-secondary">
+            {/* Meta Pixel: Search event — arama sorgusu izleme */}
+            <MetaPixelSearchTracker query={query} />
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 min-h-screen">
                 <header className="mb-10">
                     {hasSearch ? (

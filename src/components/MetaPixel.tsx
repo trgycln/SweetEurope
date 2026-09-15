@@ -1,8 +1,7 @@
-﻿'use client';
+'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Script from 'next/script';
-import { useState } from 'react';
 
 /**
  * DSGVO/TTDSG-konform Meta Pixel Loader
@@ -10,7 +9,12 @@ import { useState } from 'react';
  * Pixel yalnızca ziyaretçi "Alle akzeptieren" butonuna bastıktan sonra,
  * yani cookie_consent = 'accepted' kaydedildikten sonra yüklenir.
  * Sayfa ilk açıldığında kesinlikle çalışmaz.
+ *
+ * Pixel ID: NEXT_PUBLIC_META_PIXEL_ID env değişkeninden okunur.
  */
+
+const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? '';
+
 export default function MetaPixel() {
   const [consentGiven, setConsentGiven] = useState(false);
 
@@ -35,8 +39,8 @@ export default function MetaPixel() {
     };
   }, []);
 
-  // Onay yoksa hiçbir şey render etme
-  if (!consentGiven) return null;
+  // Pixel ID yoksa veya onay yoksa hiçbir şey render etme
+  if (!consentGiven || !PIXEL_ID) return null;
 
   return (
     <>
@@ -53,7 +57,7 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1078980291662599');
+fbq('init', '${PIXEL_ID}');
 fbq('track', 'PageView');
           `,
         }}
@@ -64,7 +68,7 @@ fbq('track', 'PageView');
           height="1"
           width="1"
           style={{ display: 'none' }}
-          src="https://www.facebook.com/tr?id=1078980291662599&ev=PageView&noscript=1"
+          src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`}
           alt=""
         />
       </noscript>
