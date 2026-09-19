@@ -79,6 +79,8 @@ export async function getProductDetails(slugOrId: string) {
     return {
       success: true,
       product: {
+        // Inject raw database fields first
+        ...data,
         // Essential mapped fields for prompt
         id: data.id,
         slug: data.slug,
@@ -90,8 +92,6 @@ export async function getProductDetails(slugOrId: string) {
         unitsPerCase: data.koli_ici_adet || 6,
         palletCases: data.palet_ici_adet ? Math.round(data.palet_ici_adet / (data.koli_ici_adet || 6)) : 40,
         stockStatus: (data.stok_miktari ?? 0) > 0 ? 'in_stock' : 'preorder',
-        // Inject ALL raw database fields for complete AI visibility
-        ...data
       },
     };
   } catch (err: unknown) {
@@ -209,7 +209,7 @@ export async function getCategories() {
         id: c.id,
         name: (c.ad as any)?.de || (c.ad as any)?.tr,
         slug: c.slug,
-        level: c.seviye,
+        level: (c as any).seviye || 1,
         parentId: c.ust_kategori_id
       }))
     };
@@ -360,7 +360,7 @@ export async function createDraftOrder(params: {
         aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'] as any,
         icerik: `🛒 AI Chat'ten yeni sipariş: ${params.companyName} (${totalGross.toFixed(2)} €)`,
         link: '/admin/operasyon/siparisler',
-        preferenceKey: 'new_orders',
+        preferenceKey: 'order_updates',
         supabaseClient: supabase as any,
       }).catch(console.error);
     }).catch(console.error);

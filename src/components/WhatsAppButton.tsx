@@ -29,6 +29,7 @@ interface LocaleContent {
   aiThinking: string;
   aiBadge: string;
   directWhatsApp: string;
+  networkFallback: string;
 }
 
 const CONTENT: Record<string, LocaleContent> = {
@@ -52,6 +53,7 @@ const CONTENT: Record<string, LocaleContent> = {
     aiThinking: 'Berater kalkuliert...',
     aiBadge: 'B2B KI-Berater',
     directWhatsApp: 'Mit Außendienst auf WhatsApp fortsetzen',
+    networkFallback: 'Gerne verbinde ich Sie für direkte Bestellungen oder individuelle Rabatte mit unserem WhatsApp-Team:',
   },
   tr: {
     tooltip: 'Toptan fiyatlar ve koli adetleri için danışın!',
@@ -73,6 +75,7 @@ const CONTENT: Record<string, LocaleContent> = {
     aiThinking: 'Danışman yanıt hazırlıyor...',
     aiBadge: 'B2B AI Danışman',
     directWhatsApp: "WhatsApp Yetkilisiyle Görüş",
+    networkFallback: 'Doğrudan sipariş, numune talepleri veya sorularınız için WhatsApp ekibimizle hemen görüşebilirsiniz:',
   },
   en: {
     tooltip: 'Questions about wholesale pricing & cases? Ask our advisor!',
@@ -94,6 +97,7 @@ const CONTENT: Record<string, LocaleContent> = {
     aiThinking: 'Advisor is calculating...',
     aiBadge: 'B2B AI Consultant',
     directWhatsApp: 'Continue on WhatsApp with Sales Team',
+    networkFallback: 'For direct orders, sample requests, or custom pricing, please connect with our WhatsApp team:',
   },
   ar: {
     tooltip: 'استفسر عن أسعار الجملة والشحن وحجم الكرتونة',
@@ -115,6 +119,7 @@ const CONTENT: Record<string, LocaleContent> = {
     aiThinking: 'جاري الحساب والتجهيز...',
     aiBadge: 'مستشار المبيعات الذكي',
     directWhatsApp: 'متابعة الطلب مع فريق المبيعات عبر واتساب',
+    networkFallback: 'للطلبات المباشرة أو طلب عينات أو استفسارات خاصة، يسعدنا تواصلكم مع فريق واتساب:',
   },
 };
 
@@ -208,7 +213,7 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
         ...prev,
         {
           role: 'assistant',
-          content: `${t.typicalReplyTime}. Gerne verbinde ich Sie für direkte Bestellungen oder individuelle Rabatte mit unserem WhatsApp-Team:`,
+          content: t.networkFallback,
         },
       ]);
     } finally {

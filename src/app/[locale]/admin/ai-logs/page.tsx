@@ -72,7 +72,7 @@ export default async function AILogsPage() {
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1">
                         {log.tools_used && Array.isArray(log.tools_used) && log.tools_used.length > 0 ? (
-                          log.tools_used.map((tool: string, idx: number) => (
+                          log.tools_used.map((tool: any, idx: number) => (
                             <span key={idx} className="bg-slate-200 text-slate-700 text-[10px] px-1.5 py-0.5 rounded">
                               {tool}
                             </span>

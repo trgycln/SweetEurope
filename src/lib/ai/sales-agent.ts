@@ -9,8 +9,38 @@ import {
   createDraftOrder,
 } from './tools/catalog-tools';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const CANDIDATE_MODELS = ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3-flash-preview'];
+function getApiKey(): string {
+  return (process.env.GEMINI_API_KEY || '').replace(/^["']|["']$/g, '').trim();
+}
+
+const CANDIDATE_MODELS = [
+  'gemini-3.1-flash-lite',
+  'gemini-3.6-flash',
+  'gemini-3-flash-preview',
+  'gemini-3.8-flash',
+  'gemini-3.5-flash',
+];
+
+const FALLBACK_UNAVAILABLE: Record<string, string> = {
+  de: 'Vielen Dank für Ihre Anfrage an Elyson Sweets. Unser technischer Assistent wird gerade aktualisiert. Bitte wenden Sie sich für direkte Bestellungen oder Fragen an unser WhatsApp-Team: +49 2203 9899714.',
+  tr: 'Elyson Sweets danışmanımıza ilettiğiniz soru için teşekkür ederiz. Teknik asistanımız şu anda güncellenmektedir. Doğrudan sipariş ve sorularınız için WhatsApp ekibimizle hemen iletişime geçebilirsiniz: +49 2203 9899714.',
+  en: 'Thank you for your inquiry to Elyson Sweets. Our technical assistant is currently being updated. Please contact our WhatsApp team directly for orders or questions: +49 2203 9899714.',
+  ar: 'شكراً لتواصلكم مع Elyson Sweets. يجري حالياً تحديث المساعد التقني. يرجى التواصل مع فريق مبيعات واتساب مباشرة: +49 2203 9899714.',
+};
+
+const FALLBACK_RATE_LIMIT: Record<string, string> = {
+  de: 'Für individuelle Staffelpreise und spezielle Gastro-Konditionen steht Ihnen unser Vertriebsteam auch direkt per WhatsApp (+49 2203 9899714) gerne zur Verfügung.',
+  tr: 'Özel kademeli fiyatlar ve toptan B2B koşulları için satış ekibimiz WhatsApp (+49 2203 9899714) üzerinden size yardımcı olmaktan memnuniyet duyar.',
+  en: 'For custom tiered pricing and B2B conditions, our sales team is also available directly via WhatsApp (+49 2203 9899714).',
+  ar: 'للحصول على أسعار الكميات وعروض الجملة الخاصة، يسعد فريق مبيعاتنا خدمتكم مباشرة عبر واتساب (+49 2203 9899714).',
+};
+
+const FALLBACK_DEFAULT_REPLY: Record<string, string> = {
+  de: 'Wie kann ich Ihnen bei Ihrer B2B-Bestellung weiterhelfen?',
+  tr: 'B2B siparişiniz veya ürünlerimiz konusunda size nasıl yardımcı olabilirim?',
+  en: 'How can I assist you with your B2B order today?',
+  ar: 'كيف يمكنني مساعدتك في طلب الجملة اليوم؟',
+};
 
 // Gemini Function Declarations
 const TOOLS_SPEC = [
@@ -128,15 +158,18 @@ async function executeTool(name: string, args: Record<string, any>) {
  * Run the B2B AI Sales Agent
  */
 export async function runSalesAgent(req: AgentRequest): Promise<{ reply: string; toolsUsed: string[] }> {
-  if (!GEMINI_API_KEY) {
+  const apiKey = getApiKey();
+  const locale = req.locale || 'de';
+
+  if (!apiKey) {
     return {
-      reply: 'Vielen Dank für Ihre Anfrage an Elyson Sweets. Unser technischer Assistent wird gerade aktualisiert. Bitte wenden Sie sich für direkte Bestellungen oder Fragen an unser WhatsApp-Team: +49 2203 9899714.',
+      reply: FALLBACK_UNAVAILABLE[locale] || FALLBACK_UNAVAILABLE.de,
       toolsUsed: [],
     };
   }
 
   const systemInstruction = buildSystemPrompt(
-    req.locale || 'de',
+    locale,
     req.channel || 'web',
     req.currentProduct?.slug
   );
@@ -150,7 +183,7 @@ export async function runSalesAgent(req: AgentRequest): Promise<{ reply: string;
   const toolsUsed: string[] = [];
 
   for (const model of CANDIDATE_MODELS) {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     try {
       let currentPayload: any = {
@@ -189,19 +222,23 @@ export async function runSalesAgent(req: AgentRequest): Promise<{ reply: string;
         if (functionCalls.length === 0) {
           // Model returned final text
           const textParts = parts.filter((p: any) => p.text).map((p: any) => p.text).join('\n');
-          return { reply: textParts || 'Wie kann ich Ihnen bei Ihrer B2B-Bestellung weiterhelfen?', toolsUsed };
+          return {
+            reply: textParts || FALLBACK_DEFAULT_REPLY[locale] || FALLBACK_DEFAULT_REPLY.de,
+            toolsUsed,
+          };
         }
 
         // Execute each function call and collect responses
         const functionResponseParts: any[] = [];
         for (const fc of functionCalls) {
-          const { name, args } = fc.functionCall;
+          const { name, args, id } = fc.functionCall;
           if (!toolsUsed.includes(name)) toolsUsed.push(name);
           const result = await executeTool(name, args || {});
           functionResponseParts.push({
             functionResponse: {
               name,
               response: { output: result },
+              ...(id ? { id } : {}),
             },
           });
         }
@@ -224,7 +261,7 @@ export async function runSalesAgent(req: AgentRequest): Promise<{ reply: string;
 
   // Fallback if all models failed or hit rate limits
   return {
-    reply: 'Für individuelle Staffelpreise und spezielle Gastro-Konditionen steht Ihnen unser Vertriebsteam auch direkt per WhatsApp (+49 2203 9899714) gerne zur Verfügung.',
+    reply: FALLBACK_RATE_LIMIT[locale] || FALLBACK_RATE_LIMIT.de,
     toolsUsed,
   };
 }
