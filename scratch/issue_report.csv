@@ -1,0 +1,28 @@
+0,1,2
+,Issue Report instructions,
+,This is a report containing details about all the issues affecting the items in your data feed. This report contains two tabs: 	,
+,,
+,Tab 1: Issue report	,
+,"This tab contains details of all the issues affecting the items in your data feed. These issues may either block the item from uploading to your catalog, or affect how these items show in Shops or ads. Here is a brief explanation of each of the columns in the report:",
+,ID,The content ID of the item
+,Title,The title of the item.
+,Line in feed,The exact line number of that particular item in your data feed.
+,Result,"The consequence as a result of the issue affecting the item. For example, 'Not uploaded' or 'Not showing in ads'."
+,Issue,The exact issue affecting the item.
+,Issue description,A more detailed description of the issue affecting the item.
+,How to fix,Instructions on how to fix the issue including any helpful links to our Help Center.
+,"When an item in your catalog is affected by an issue, it might result in them not being uploaded to your catalog, or not showing in Shops or ads. Here is a breakdown of the values in the 'Results' column in the Issue report tab.	",
+,Not uploaded,Items hasn't been uploaded to your catalog.
+,,Troubleshoot items failed to upload
+,Not showing in Shops,"Item won't show in your shop, and people can't see or buy it."
+,Not showing in ads,"Item won't show in your ads, and people can't see it."
+,Not showing in Shops and ads,"Item won't show in your ads, and people can't see it."
+,,Troubleshoot items not showing in Shops or ads
+,,
+,Tab 2: Recommendations,
+,"This tab contains a breakdown of all the recommendations regarding the items in your catalog. Recommendations don't block your items from being uploaded, or from showing in Shops and ads, but are suggestions made by Meta to improve the quality of your items.	",
+,ID,The content ID of the item
+,Title,The title of the item.
+,Line in feed,The exact line number of that particular item in your data feed.
+,Recommendation,The exact recommendation for the item.
+,Recommendation description,A more detailed description of the recommendation for the item.

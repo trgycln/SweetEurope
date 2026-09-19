@@ -137,6 +137,36 @@ export type Database = {
           },
         ]
       }
+      ai_chat_logs: {
+        Row: {
+          id: string
+          session_id: string
+          user_message: string
+          ai_response: string
+          channel: string
+          tools_used: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_message: string
+          ai_response: string
+          channel?: string
+          tools_used?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_message?: string
+          ai_response?: string
+          channel?: string
+          tools_used?: Json
+          created_at?: string
+        }
+        Relationships: []
+      }
       alt_bayi_satis_detay: {
         Row: {
           adet: number
