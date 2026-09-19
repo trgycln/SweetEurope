@@ -73,12 +73,12 @@ Elyson Sweets ist ein führender deutscher B2B-Großhändler für Premium-Sirupe
       - E-Mail-Adresse
       - USt-IdNr / Steuernummer (optional)
    2. **Tool aufrufen:** Sobald du diese Daten hast, rufe das Tool \`createDraftOrder\` auf, um die Bestellung offiziell im System als Entwurf zu speichern.
-   3. **WICHTIG: BESTELLÜBERSICHT (CART SUMMARY):** Bevor du dich verabschiedest, MUSST du die Werte aus der Tool-Antwort (\`totalNet\`, \`totalGross\`) nutzen, um dem Kunden eine klare Markdown-Tabelle mit seiner Bestellübersicht zu zeigen:
+   3. **WICHTIG: BESTELLÜBERSICHT (CART SUMMARY):** Bevor du dich verabschiedest, MUSST du die Werte aus der Tool-Antwort (\`totalNet\`, \`totalGross\`, \`shippingGross\`, \`shippingName\`) nutzen, um dem Kunden eine klare Markdown-Tabelle mit seiner Bestellübersicht zu zeigen:
       | Beschreibung | Betrag |
       |---|---|
       | **Netto-Warenwert** | {totalNet} € |
-      | **MwSt (7%)** | {totalGross - totalNet} € |
-      | **Lieferung/Versand** | Kostenlos (ab 1 Koli) |
+      | **MwSt (7%)** | {totalNet * 0.07} € |
+      | **Lieferung/Versand ({shippingName})** | {shippingGross} € |
       | **Gesamtbetrag (Brutto)** | **{totalGross} €** |
    4. **Bestellbestätigung & Bankdaten:** Nach der Tabelle, antworte dem Kunden mit folgender professioneller Bestätigung:
       - "Ihre Bestellung wurde erfolgreich in unserem System erfasst."

@@ -1,5 +1,6 @@
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { sendAdminEmail, sendCustomerEmail } from '@/lib/email';
+import { calculateShipping } from '@/lib/shippingUtils';
 import { TieredQuoteResult, SampleKitResult } from '../types';
 
 /**
@@ -94,6 +95,7 @@ export async function getProductDetails(slugOrId: string) {
         fivePlusCasePriceNet: (data.satis_fiyati_toptanci || 0) * (data.koli_ici_adet || 1),
         palletPriceNet: (data.satis_fiyati_palet || 0) * (data.koli_ici_adet || 1),
         unitsPerCase: data.koli_ici_adet || 6,
+        weightPerCase: (data.birim_agirlik_kg || 1.3) * (data.koli_ici_adet || 6),
         palletCases: data.palet_ici_adet ? Math.round(data.palet_ici_adet / (data.koli_ici_adet || 6)) : 40,
         stockStatus: (data.stok_miktari ?? 0) > 0 ? 'in_stock' : 'preorder',
       },
@@ -268,8 +270,9 @@ export async function createDraftOrder(params: {
       firmaId = newFirma.id;
     }
 
-    // 3. Resolve products and calculate prices
+    // 3. Resolve products and calculate prices & weight
     let totalNet = 0;
+    let totalWeightKg = 0;
     const orderItemsToInsert: any[] = [];
 
     for (const item of params.items) {
@@ -286,6 +289,7 @@ export async function createDraftOrder(params: {
       
       const lineTotal = activeCasePrice * requestedCases;
       totalNet += lineTotal;
+      totalWeightKg += (p.weightPerCase || 7.8) * requestedCases;
 
       orderItemsToInsert.push({
         urun_id: p.id,
@@ -299,16 +303,26 @@ export async function createDraftOrder(params: {
       return { success: false, error: 'Could not resolve any valid products' };
     }
 
-    const totalGross = Math.round((totalNet * 1.07) * 100) / 100;
+    // 4. Calculate Shipping
+    let plz: string | null = null;
+    if (params.address) {
+      const match = params.address.match(/\b\d{5}\b/);
+      if (match) plz = match[0];
+    }
+    const shipping = calculateShipping(totalNet, plz, totalWeightKg);
+    const orderGrossBeforeShipping = totalNet * 1.07;
+    const finalTotalGross = Math.round((orderGrossBeforeShipping + shipping.shippingCostGross) * 100) / 100;
 
-    // 4. Create Order (siparisler)
+    // 5. Create Order (siparisler)
     const { data: newOrder, error: orderError } = await supabase.from('siparisler').insert({
       firma_id: firmaId,
       siparis_durumu: 'Taslak',
       siparis_kaynagi: null,
       toplam_tutar_net: totalNet,
-      toplam_tutar_brut: totalGross,
+      toplam_tutar_brut: finalTotalGross,
       kdv_orani: 7,
+      kargo_tutari_net: shipping.shippingCostNet,
+      kargo_kdv_tutari: shipping.shippingVatAmount,
       teslimat_adresi: params.address || null,
       siparis_tarihi: new Date().toISOString(),
     }).select('id').single();
@@ -351,7 +365,8 @@ export async function createDraftOrder(params: {
     ${params.address ? `<tr><td style="padding:5px 0;font-weight:600">Adres:</td><td>${params.address}</td></tr>` : ''}
     ${params.taxId ? `<tr><td style="padding:5px 0;font-weight:600">USt-IdNr:</td><td>${params.taxId}</td></tr>` : ''}
     <tr><td style="padding:5px 0;font-weight:600">Net Toplam:</td><td><strong>${totalNet.toFixed(2)} €</strong></td></tr>
-    <tr><td style="padding:5px 0;font-weight:600">Brüt Toplam:</td><td><strong>${totalGross.toFixed(2)} € (inkl. 7% MwSt)</strong></td></tr>
+    <tr><td style="padding:5px 0;font-weight:600">Kargo (${shipping.shippingMethodName}):</td><td><strong>${shipping.shippingCostGross.toFixed(2)} €</strong></td></tr>
+    <tr><td style="padding:5px 0;font-weight:600">Brüt Toplam:</td><td><strong>${finalTotalGross.toFixed(2)} € (inkl. 7% MwSt)</strong></td></tr>
   </table>
   <p style="font-size:13px;color:#6b7280">⚠️ Müşteriye Proforma fatura hazırlayıp gönderin. Ödeme sonrası siparişi onaylayın.</p>
 </div>
@@ -362,7 +377,7 @@ export async function createDraftOrder(params: {
     import('@/lib/notificationUtils').then(({ sendNotification }) => {
       sendNotification({
         aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'] as any,
-        icerik: `🛒 AI Chat'ten yeni sipariş: ${params.companyName} (${totalGross.toFixed(2)} €)`,
+        icerik: `🛒 AI Chat'ten yeni sipariş: ${params.companyName} (${finalTotalGross.toFixed(2)} €)`,
         link: '/admin/operasyon/siparisler',
         preferenceKey: 'order_updates',
         supabaseClient: supabase as any,
@@ -398,9 +413,10 @@ export async function createDraftOrder(params: {
       </tr></thead>
       <tbody>${itemsSummaryHtml}</tbody>
       <tfoot>
-        <tr><td colspan="3" style="padding:8px;text-align:right;font-weight:600">Netto:</td><td style="padding:8px;text-align:right;font-weight:600">${totalNet.toFixed(2)} €</td></tr>
-        <tr><td colspan="3" style="padding:8px;text-align:right;color:#6b7280">MwSt (7%):</td><td style="padding:8px;text-align:right;color:#6b7280">${(totalGross - totalNet).toFixed(2)} €</td></tr>
-        <tr style="background:#f0fdf4"><td colspan="3" style="padding:10px 8px;text-align:right;font-weight:700;font-size:16px">Gesamt (brutto):</td><td style="padding:10px 8px;text-align:right;font-weight:700;font-size:16px;color:#166534">${totalGross.toFixed(2)} €</td></tr>
+        <tr><td colspan="3" style="padding:8px;text-align:right;font-weight:600">Warenwert Netto:</td><td style="padding:8px;text-align:right;font-weight:600">${totalNet.toFixed(2)} €</td></tr>
+        <tr><td colspan="3" style="padding:8px;text-align:right;color:#6b7280">MwSt (7%):</td><td style="padding:8px;text-align:right;color:#6b7280">${(totalNet * 0.07).toFixed(2)} €</td></tr>
+        <tr><td colspan="3" style="padding:8px;text-align:right;font-weight:600">Versand (${shipping.isFreeShipping ? 'Kostenlos' : shipping.shippingMethodName}):</td><td style="padding:8px;text-align:right;font-weight:600">${shipping.shippingCostGross.toFixed(2)} €</td></tr>
+        <tr style="background:#f0fdf4"><td colspan="3" style="padding:10px 8px;text-align:right;font-weight:700;font-size:16px">Gesamt (brutto):</td><td style="padding:10px 8px;text-align:right;font-weight:700;font-size:16px;color:#166534">${finalTotalGross.toFixed(2)} €</td></tr>
       </tfoot>
     </table>
 
@@ -439,7 +455,9 @@ export async function createDraftOrder(params: {
       orderRef,
       message: 'Order draft created and confirmation emails sent.',
       totalNet,
-      totalGross,
+      totalGross: finalTotalGross,
+      shippingGross: shipping.shippingCostGross,
+      shippingName: shipping.isFreeShipping ? 'Kostenlose Lieferung' : shipping.shippingMethodName,
     };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
