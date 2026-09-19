@@ -1,7 +1,7 @@
 // src/components/ui/motion-variants.ts
 import { Variants } from 'framer-motion';
 
-export const EASE_PREMIUM = [0.25, 1, 0.5, 1]; // SKILL: premium-animations cubic-bezier
+export const EASE_PREMIUM: [number, number, number, number] = [0.25, 1, 0.5, 1]; // SKILL: premium-animations cubic-bezier
 
 export const staggerContainer: Variants = {
     hidden: { opacity: 0 },

@@ -999,6 +999,7 @@ export type Database = {
           vergi_no: string | null
           web_url: string | null
           yetkili_kisi: string | null
+          lexware_contact_id: string | null
         }
         Insert: {
           adres?: string | null
@@ -1043,6 +1044,7 @@ export type Database = {
           vergi_no?: string | null
           web_url?: string | null
           yetkili_kisi?: string | null
+          lexware_contact_id?: string | null
         }
         Update: {
           adres?: string | null
@@ -1087,6 +1089,7 @@ export type Database = {
           vergi_no?: string | null
           web_url?: string | null
           yetkili_kisi?: string | null
+          lexware_contact_id?: string | null
         }
         Relationships: [
           {
@@ -2179,6 +2182,18 @@ export type Database = {
           teslimat_adresi: string | null
           toplam_tutar_brut: number
           toplam_tutar_net: number
+          kargo_tutari_net: number | null
+          kargo_kdv_tutari: number | null
+          kargo_tutari_brut: number | null
+          kargo_yontemi: string | null
+          lexware_invoice_id: string | null
+          lexware_invoice_no: string | null
+          lexware_pdf_url: string | null
+          lexware_storno_id: string | null
+          lexware_storno_no: string | null
+          lexware_storno_pdf_url: string | null
+          fatura_durumu: string | null
+          fatura_gonderildi_at: string | null
         }
         Insert: {
           atanan_kisi_id?: string | null
@@ -2195,6 +2210,18 @@ export type Database = {
           teslimat_adresi?: string | null
           toplam_tutar_brut: number
           toplam_tutar_net: number
+          kargo_tutari_net?: number | null
+          kargo_kdv_tutari?: number | null
+          kargo_tutari_brut?: number | null
+          kargo_yontemi?: string | null
+          lexware_invoice_id?: string | null
+          lexware_invoice_no?: string | null
+          lexware_pdf_url?: string | null
+          lexware_storno_id?: string | null
+          lexware_storno_no?: string | null
+          lexware_storno_pdf_url?: string | null
+          fatura_durumu?: string | null
+          fatura_gonderildi_at?: string | null
         }
         Update: {
           atanan_kisi_id?: string | null
@@ -2211,6 +2238,18 @@ export type Database = {
           teslimat_adresi?: string | null
           toplam_tutar_brut?: number
           toplam_tutar_net?: number
+          kargo_tutari_net?: number | null
+          kargo_kdv_tutari?: number | null
+          kargo_tutari_brut?: number | null
+          kargo_yontemi?: string | null
+          lexware_invoice_id?: string | null
+          lexware_invoice_no?: string | null
+          lexware_pdf_url?: string | null
+          lexware_storno_id?: string | null
+          lexware_storno_no?: string | null
+          lexware_storno_pdf_url?: string | null
+          fatura_durumu?: string | null
+          fatura_gonderildi_at?: string | null
         }
         Relationships: [
           {

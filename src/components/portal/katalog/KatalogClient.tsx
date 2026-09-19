@@ -70,8 +70,6 @@ import {
 } from "@/lib/public-category-visibility";
 import { CategoryFilterSelect } from "@/components/categories/CategoryFilterSelect";
 import {
-  ProduktGridCard,
-  ProduktListRow,
   SepeteEkleModal,
   BADGE_DEFS,
   ZERTIFIKAT_CONFIG,
@@ -80,6 +78,7 @@ import {
   getBirimFiyatKatalog,
   Birim,
 } from "./KatalogProductCard";
+import { UniversalProductCard } from "@/components/products/UniversalProductCard";
 import { KatalogPagination } from "./KatalogPagination";
 import { FastReplenishmentSheet } from "./FastReplenishmentSheet";
 
@@ -481,29 +480,20 @@ export function KatalogClient({
         setModalProdukt(produkt);
       };
 
-      if (viewMode === "list") {
-        return (
-          <ProduktListRow
-            produkt={produkt}
-            isFavorit={isFavorit}
-            locale={locale}
-            dictionary={dictionary}
-            isPending={isToggling}
-            onToggleFavorite={handleToggleFavorite}
-            onQuickAdd={handleQuickAdd}
-          />
-        );
-      }
-
       return (
-        <ProduktGridCard
-          produkt={produkt}
-          isFavorit={isFavorit}
+        <UniversalProductCard
+          urun={produkt}
           locale={locale}
-          dictionary={dictionary}
-          isPending={isToggling}
+          layout={viewMode}
+          detailHref={`/${locale}/portal/katalog/${produkt.id}`}
+          isLoggedIn={true}
+          isFavorit={isFavorit}
+          isFavoritePending={isToggling}
           onToggleFavorite={handleToggleFavorite}
-          onQuickAdd={handleQuickAdd}
+          onAction={handleQuickAdd}
+          actionType="cart"
+          actionTooltip={locale === "de" ? "In den Warenkorb legen" : "Sepete Ekle"}
+          dictionary={dictionary}
         />
       );
     };
@@ -700,7 +690,7 @@ export function KatalogClient({
                   </div>
 
                   <CategoryFilterSelect
-                    categories={kategoriler}
+                    categories={kategorien}
                     value={categoryFilter}
                     onChange={handleCategoryChange}
                     locale={locale}

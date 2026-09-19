@@ -489,7 +489,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                             {inhaltsstoffe && (
                                                 <div className="mb-3 p-3.5 rounded-xl border border-slate-200 bg-white">
                                                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">{lc.ingredients}</p>
-                                                    <div className="text-xs text-slate-700 leading-relaxed">{formatLmivIngredients(inhaltsstoffe)}</div>
+                                                    <div className="text-xs text-slate-700 leading-relaxed">{formatLmivIngredients(inhaltsstoffe || '')}</div>
                                                 </div>
                                             )}
 
@@ -737,7 +737,7 @@ export function UrunDetayGorunumu({ urun, ozellikSablonu, locale, dict }: UrunDe
     const urunAdi = getLocalizedName(urun.ad, locale);
 const aciklamaRaw = (urun.aciklamalar as Record<string, string> | null) ?? {};
 const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] || aciklamaRaw['tr'] || '';
-    const kategorieAdi = urun.kategoriler ? getLocalizedName(urun.kategoriler.ad, locale) : '';
+    const kategorieAdi = urun.kategoriler ? getLocalizedName((urun.kategoriler as any).ad, locale) : '';
     const tekniks: Record<string, unknown> = (urun.teknik_ozellikler as any) ?? {};
 
     // ── B2B fields (all now properly typed via database.types.ts) ──
@@ -784,15 +784,16 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
             if (tempMax <= 10) {
                 return tempMin !== null ? `${lc.kuehlware} (${tempMin}–${tempMax} °C)` : lc.kuehlware;
             }
+            return `${tempMin !== null ? `${tempMin}–` : ''}${tempMax} °C`;
         }
         if (loj.includes('tiefkühl') || loj.includes('frozen')) return lc.tiefkuehl;
-        if (loj.includes('kühl') || loj.includes('chilled')) return lc.kuehlware;
+        if (loj.includes('kühl') || loj.includes('frisch') || loj.includes('chilled')) return lc.kuehlware;
         if (loj.includes('trocken') || loj.includes('ambient') || loj.includes('dry')) return lc.ambient;
         if (urun.lojistik_sinifi) return urun.lojistik_sinifi;
         return null;
     }
     const storageLabel = getStorageLabel();
-    const isFrozen = tempMax !== null ? tempMax <= -10 : (urun.lojistik_sinifi || '').toLowerCase().includes('tiefkühl');
+    const isFrozen = tempMax != null ? (tempMax as number) <= -10 : (urun.lojistik_sinifi || '').toLowerCase().includes('tiefkühl');
 
     // ── Dietary / quality badges ──
     const BADGE_KEYS = ['vegan', 'vegetarisch', 'glutenfrei', 'laktosefrei', 'bio'] as const;
@@ -813,14 +814,14 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
     const paletIciKutu = Number(urun.palet_ici_kutu_adet ?? 0) || null;
     const paletIciAdet = Number(urun.palet_ici_adet ?? 0) || null;
 
-    const koliAgirlik = (unitWeightKg && koliIciKutu)
-        ? fmtWeight(unitWeightKg * koliIciKutu, null)
-        : (unitWeightG && koliIciKutu)
-        ? fmtWeight((unitWeightG / 1000) * koliIciKutu, null)
+    const koliAgirlik = (unitWeightKg != null && koliIciKutu != null)
+        ? fmtWeight((unitWeightKg as number) * (koliIciKutu as number), null)
+        : (unitWeightG != null && koliIciKutu != null)
+        ? fmtWeight(((unitWeightG as number) / 1000) * (koliIciKutu as number), null)
         : null;
-    const paletKoliCount = paletIciKoli ?? (paletIciKutu && koliIciKutu ? Math.round(paletIciKutu / koliIciKutu) : null);
-    const paletAgirlik = (paletKoliCount && koliIciKutu && (unitWeightKg || unitWeightG))
-        ? fmtWeight(((unitWeightKg ?? (unitWeightG! / 1000))) * koliIciKutu * paletKoliCount, null)
+    const paletKoliCount = paletIciKoli ?? (paletIciKutu != null && koliIciKutu != null ? Math.round((paletIciKutu as number) / (koliIciKutu as number)) : null);
+    const paletAgirlik = (paletKoliCount != null && koliIciKutu != null && (unitWeightKg != null || unitWeightG != null))
+        ? fmtWeight((((unitWeightKg as number) ?? ((unitWeightG as number) / 1000))) * (koliIciKutu as number) * (paletKoliCount as number), null)
         : null;
 
     const hasPackagingData = dilimAdet > 0 || kutuIciAdet > 0 || koliIciKutu || koliIciAdet || paletIciKoli || paletIciKutu || paletIciAdet;
@@ -946,7 +947,7 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                     <InfoPill
                                         icon={isFrozen ? <LuThermometerSnowflake size={16} /> : <LuThermometer size={16} />}
                                         label={lc.storage}
-                                        value={isFrozen ? (tempMax !== null ? `${tempMax} °C` : '−18 °C') : (storageLabel.length > 14 ? storageLabel.slice(0, 14) + '…' : storageLabel)}
+                                        value={isFrozen ? (tempMax != null ? `${tempMax} °C` : '−18 °C') : (String(storageLabel || '').length > 14 ? String(storageLabel).slice(0, 14) + '…' : String(storageLabel || ''))}
                                         cls={isFrozen ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-cyan-50 border-cyan-200'}
                                     />
                                 )}
@@ -1115,7 +1116,7 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                             </div>
                             {produktdatenblattUrl && (
                                 <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
-                                    <a href={produktdatenblattUrl} target="_blank" rel="noopener noreferrer"
+                                    <a href={produktdatenblattUrl || undefined} target="_blank" rel="noopener noreferrer"
                                         className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors">
                                         <FiDownload size={14} /> {lc.datasheet}
                                     </a>
@@ -1133,7 +1134,7 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
                                 {inhaltsstoffe && (
                                     <div className="mb-3 p-3.5 rounded-xl border border-slate-200 bg-white">
                                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">{lc.ingredients}</p>
-                                        <div className="text-xs text-slate-700 leading-relaxed">{formatLmivIngredients(inhaltsstoffe)}</div>
+                                        <div className="text-xs text-slate-700 leading-relaxed">{formatLmivIngredients(String(inhaltsstoffe || ''))}</div>
                                     </div>
                                 )}
 

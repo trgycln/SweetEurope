@@ -102,28 +102,24 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
         const maxStok = stokMiktari ?? 0;
         if (neueMenge < 1) {
             setMenge(1); // Minimum 1
-        } else if (neueMenge > maxStok) {
-            setMenge(maxStok); // Maximum ist Lagerbestand
+        } else if (maxStok > 0 && neueMenge > maxStok) {
+            setMenge(maxStok); // Maximum ist Lagerbestand bei lagernden Artikeln
             toast.warning(
                 locale === 'de'
-                    ? `Nicht genügend Lagerbestand! Maximal ${maxStok} Stück verfügbar.`
+                    ? `Nicht genügend Lagerbestand! Maximal ${maxStok} Stück sofort verfügbar.`
                     : locale === 'en'
-                    ? `Insufficient stock! Maximum ${maxStok} units available.`
+                    ? `Insufficient stock! Maximum ${maxStok} units immediately available.`
                     : locale === 'ar'
-                    ? `المخزون غير كافٍ! الحد الأقصى المتاح ${maxStok} قطعة.`
-                    : `Stok yetersiz! Maksimum ${maxStok} adet eklenebilir.`
+                    ? `المخزون غير كافٍ! الحد الأقصى المتاح حالياً ${maxStok} قطعة.`
+                    : `Stok yetersiz! Maksimum ${maxStok} adet hemen teslim edilebilir.`
             );
         } else {
             setMenge(neueMenge);
         }
     };
     
-    // NEU: Handler für "In den Warenkorb"
+    // NEU: Handler für "In den Warenkorb" (Inklusive Vorbestellung für HoReCa/B2B)
     const handleAddToWarenkorb = () => {
-        if (stokMiktari === null || stokMiktari <= 0) {
-            toast.error(locale === "de" ? "Dieses Produkt ist nicht auf Lager." : "Stokta yok.");
-            return;
-        }
         if (partnerPreis === null) {
             toast.error(
                 locale === 'de'
@@ -137,6 +133,8 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
             return;
         }
 
+        const isVorbestellung = (stokMiktari ?? 0) <= 0;
+
         // Produktobjekt für den Context vorbereiten
         const produktFuerWarenkorb: ProduktImWarenkorb = {
             ...urun,
@@ -146,7 +144,19 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
         addToWarenkorb(produktFuerWarenkorb, menge);
         
         // Erfolg-Toast
-        toast.success(`${menge} x ${urunAdi} ${cartContent.addedToCart || 'zum Warenkorb hinzugefügt!'}`);
+        if (isVorbestellung) {
+            toast.success(
+                locale === 'de'
+                    ? `${menge} x ${urunAdi} als Vorbestellung zum Warenkorb hinzugefügt!`
+                    : locale === 'en'
+                    ? `${menge} x ${urunAdi} added to cart as pre-order!`
+                    : locale === 'ar'
+                    ? `تمت إضافة ${menge} x ${urunAdi} كطلب مسبق إلى السلة!`
+                    : `${menge} x ${urunAdi} ön sipariş olarak sepete eklendi!`
+            );
+        } else {
+            toast.success(`${menge} x ${urunAdi} ${cartContent.addedToCart || 'zum Warenkorb hinzugefügt!'}`);
+        }
     };
 
     return (
@@ -190,11 +200,21 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                             </div>
                          </div>
 
-                         {/* Preis und Lager (unverändert) */}
+                         {/* Preis und Lager (Aktualisiert mit B2B Netto + MwSt) */}
                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border">
                              <div>
-                                 <p className="text-xs font-bold text-text-main/60 uppercase">{content.yourPrice || "Ihr Preis (Netto)"}</p>
-                                 <p className="font-serif text-2xl text-accent font-bold">{formatPreis(partnerPreis)}</p>
+                                 <div className="flex items-center gap-2">
+                                     <p className="text-xs font-bold text-text-main/60 uppercase">{content.yourPrice || "Ihr Preis"}</p>
+                                     <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Netto</span>
+                                 </div>
+                                 <div className="flex flex-wrap items-baseline gap-2 mt-0.5">
+                                     <p className="font-serif text-2xl text-accent font-bold">{formatPreis(partnerPreis)}</p>
+                                     {partnerPreis != null && (
+                                         <span className="text-xs text-gray-500 font-mono">
+                                             zzgl. 7% MwSt. ({formatPreis(partnerPreis * 1.07)} Brutto)
+                                         </span>
+                                     )}
+                                 </div>
                              </div>
                              <div className='sm:text-right'>
                                  <p className="text-xs font-bold text-text-main/60 uppercase">{content.availability || "Verfügbarkeit"}</p>
@@ -202,7 +222,7 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                              </div>
                          </div>
 
-                        {/* --- NEU: Bestell-Aktionen --- */}
+                        {/* --- NEU: Bestell-Aktionen (inklusive Vorbestellung) --- */}
                         <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
                             <div className="flex flex-col sm:flex-row items-center gap-4">
                                 {/* Mengenauswahl */}
@@ -210,7 +230,6 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                                     <button 
                                         onClick={() => handleMengeChange(menge - 1)}
                                         className="px-4 py-3 text-text-main/70 hover:bg-bg-subtle rounded-l-lg"
-                                        disabled={(stokMiktari ?? 0) <= 0}
                                     >
                                         <FiMinus size={16} />
                                     </button>
@@ -220,27 +239,42 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
                                         onChange={(e) => handleMengeChange(parseInt(e.target.value) || 1)}
                                         className="w-16 text-center font-bold text-primary border-y-0 border-x [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         min="1"
-                                        max={stokMiktari ?? 0}
-                                        disabled={(stokMiktari ?? 0) <= 0}
                                     />
                                     <button 
                                         onClick={() => handleMengeChange(menge + 1)}
                                         className="px-4 py-3 text-text-main/70 hover:bg-bg-subtle rounded-r-lg"
-                                        disabled={(stokMiktari ?? 0) <= 0}
                                     >
                                         <FiPlus size={16} />
                                     </button>
                                 </div>
-                                {/* In den Warenkorb Button */}
-                                <button 
-                                    onClick={handleAddToWarenkorb}
-                                    disabled={(stokMiktari ?? 0) <= 0 || partnerPreis === null}
-                                    className="flex-grow w-full flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all font-bold text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                >
-                                    <FiShoppingCart size={18} />
-                                    {cartContent.addToCart || 'In den Warenkorb'}
-                                </button>
+                                {/* In den Warenkorb / Als Vorbestellung Button */}
+                                {(stokMiktari ?? 0) <= 0 ? (
+                                    <button 
+                                        onClick={handleAddToWarenkorb}
+                                        disabled={partnerPreis === null}
+                                        className="flex-grow w-full flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white rounded-lg shadow-md transition-all font-bold text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                    >
+                                        <FiShoppingCart size={18} />
+                                        <span>{locale === 'de' ? 'Als Vorbestellung in den Warenkorb' : 'Ön Sipariş Olarak Sepete Ekle'}</span>
+                                    </button>
+                                ) : (
+                                    <button 
+                                        onClick={handleAddToWarenkorb}
+                                        disabled={partnerPreis === null}
+                                        className="flex-grow w-full flex items-center justify-center gap-2 px-6 py-3 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 transition-all font-bold text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                    >
+                                        <FiShoppingCart size={18} />
+                                        <span>{cartContent.addToCart || 'In den Warenkorb'}</span>
+                                    </button>
+                                )}
                             </div>
+                            {(stokMiktari ?? 0) <= 0 && (
+                                <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2">
+                                    {locale === 'de'
+                                        ? 'ℹ️ Dieser Artikel ist derzeit vergriffen und wird als Vorbestellung aufgenommen. Die Lieferung erfolgt nach Wareneingang.'
+                                        : 'ℹ️ Bu ürün şu an tükenmiştir ve ön sipariş olarak kaydedilecektir. Sevkiyat stok temini akabinde gerçekleştirilecektir.'}
+                                </p>
+                            )}
                         </div>
                         {/* --- Ende Bestell-Aktionen --- */}
 

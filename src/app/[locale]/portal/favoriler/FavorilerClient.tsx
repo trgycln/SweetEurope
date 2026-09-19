@@ -13,13 +13,12 @@ import { Locale } from '@/i18n-config';
 import { Dictionary } from '@/dictionaries';
 import { ProduktMitPreis } from '../katalog/types';
 import {
-    ProduktGridCard,
-    ProduktListRow,
     SepeteEkleModal,
     getBirimFiyatKatalog,
     Birim,
     getLocalizedName
 } from '@/components/portal/katalog/KatalogProductCard';
+import { UniversalProductCard } from '@/components/products/UniversalProductCard';
 
 interface Props {
     favoriler: ProduktMitPreis[];
@@ -253,49 +252,31 @@ export default function FavorilerClient({ favoriler: initialFavoriler, locale, d
                             : 'Aramanıza uygun favori ürün bulunamadı.'}
                     </p>
                 </div>
-            ) : viewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-stretch">
-                    {filtered.map(produkt => (
-                        <ProduktGridCard
-                            key={produkt.id}
-                            produkt={produkt}
-                            isFavorit={true}
-                            locale={locale}
-                            dictionary={dictionary}
-                            isPending={isPending}
-                            onToggleFavorite={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleToggleFavorite(produkt.id);
-                            }}
-                            onQuickAdd={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleQuickAdd(produkt);
-                            }}
-                        />
-                    ))}
-                </div>
             ) : (
-                <div className="space-y-2">
+                <div className={viewMode === 'grid' ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-stretch" : "space-y-2"}>
                     {filtered.map(produkt => (
-                        <ProduktListRow
+                        <UniversalProductCard
                             key={produkt.id}
-                            produkt={produkt}
+                            urun={produkt}
+                            layout={viewMode}
+                            detailHref={`/${locale}/portal/katalog/${produkt.id}`}
+                            isLoggedIn={true}
                             isFavorit={true}
                             locale={locale}
                             dictionary={dictionary}
-                            isPending={isPending}
+                            isFavoritePending={isPending}
                             onToggleFavorite={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 handleToggleFavorite(produkt.id);
                             }}
-                            onQuickAdd={(e) => {
+                            onAction={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 handleQuickAdd(produkt);
                             }}
+                            actionType="cart"
+                            actionTooltip={locale === 'de' ? 'In den Warenkorb legen' : 'Sepete Ekle'}
                         />
                     ))}
                 </div>

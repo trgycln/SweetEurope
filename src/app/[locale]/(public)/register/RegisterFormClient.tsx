@@ -142,7 +142,9 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
                 </label>
                 <input id="ustIdNr" name="ustIdNr" type="text"
                     placeholder="DE123456789"
-                    className="w-full p-3 border rounded-lg bg-secondary" />
+                    pattern="^(DE)?[0-9]{9}$"
+                    title="Format: DE123456789 (DE gefolgt von 9 Ziffern)"
+                    className="w-full p-3 border rounded-lg bg-secondary uppercase" />
             </div>
             <div>
                 <label htmlFor="steuernummer" className="block text-sm font-bold text-text-main/80 mb-2">
@@ -162,6 +164,20 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
             <textarea id="message" name="message" rows={4}
                 placeholder="Teilen Sie uns gerne mit, welche Produkte Sie interessieren..."
                 className="w-full p-3 border rounded-lg bg-secondary" />
+        </div>
+
+        {/* B2B / BGB §14 Bestätigung */}
+        <div className="flex items-start gap-3 p-3.5 bg-amber-500/10 border border-amber-300/60 rounded-xl">
+            <input
+                type="checkbox"
+                id="bgb14_confirmation"
+                name="bgb14_confirmation"
+                required
+                className="mt-1 h-4 w-4 rounded border-amber-400 text-accent focus:ring-accent accent-accent cursor-pointer"
+            />
+            <label htmlFor="bgb14_confirmation" className="text-xs text-stone-800 leading-relaxed cursor-pointer">
+                <span className="font-bold text-stone-900">B2B-Erklärung gem. § 14 BGB:</span> Ich bestätige hiermit ausdrücklich, dass ich diese Registrierung ausschließlich zu gewerblichen Zwecken (als Unternehmer i.S.d. § 14 BGB) vornehme. Ein Vertragsschluss mit Verbrauchern (§ 13 BGB) ist ausgeschlossen. <span className="text-red-500">*</span>
+            </label>
         </div>
 
         {/* DSGVO notu */}

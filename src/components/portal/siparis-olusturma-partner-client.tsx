@@ -108,11 +108,19 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
         }, 0)
     , [warenkorb]);
 
-    const shippingInfo = useMemo(() => {
-        return calculateShipping(toplamTutar, partnerPlz);
-    }, [toplamTutar, partnerPlz]);
+    const toplamAgirlikKg = useMemo(() =>
+        warenkorb.reduce((acc, item) => {
+            const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
+            const agirlik = Number((item.produkt as any).agirlik_kg) || 0.7;
+            return acc + (sepet.toplamAdet * agirlik);
+        }, 0)
+    , [warenkorb]);
 
-    const kargoTutarKdvDahil = shippingInfo.shippingCost > 0 ? shippingInfo.shippingCost * 1.07 : 0;
+    const shippingInfo = useMemo(() => {
+        return calculateShipping(toplamTutar, partnerPlz, toplamAgirlikKg);
+    }, [toplamTutar, partnerPlz, toplamAgirlikKg]);
+
+    const kargoTutarKdvDahil = shippingInfo.shippingCostGross;
     const genelToplam = toplamTutar + toplamKdv + kargoTutarKdvDahil;
 
     const toplamKoli = useMemo(() =>
@@ -178,12 +186,20 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                 }
             });
 
+            const shippingMethodName = shippingInfo.isLocalDelivery
+                ? (shippingInfo.shippingCostNet === 0 ? 'Köln/Bonn Kendi Araçlarımızla Teslimat (Ücretsiz)' : 'Köln/Bonn Kendi Araçlarımızla Teslimat (Standart)')
+                : `DHL Paket (${toplamAgirlikKg.toFixed(1)} kg)`;
+
             const result = await topluSiparisOlusturAction({
                 firmaId: firma?.id || '',
                 teslimatAdresi: firma?.adres || 'Adresse nicht angegeben',
                 normalItems: normalPayload,
                 onSiparisItems: onSiparisPayload,
-                kaynak: 'Müşteri Portalı'
+                kaynak: 'Müşteri Portalı',
+                kargoTutariNet: shippingInfo.shippingCostNet,
+                kargoKdvTutari: shippingInfo.shippingVatAmount,
+                kargoTutariBrut: shippingInfo.shippingCostGross,
+                kargoYontemi: shippingMethodName,
             });
 
             if (result?.error) {
@@ -405,14 +421,18 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                 <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-500">
                                     <FiTruck size={15} className="text-gray-400" />
                                     <span>{locale === 'de' ? 'Lieferung:' : 'Teslimat:'}</span>
-                                    {shippingInfo.isKolnArea && (
+                                    {shippingInfo.isLocalDelivery ? (
                                         <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
-                                            Köln
+                                            Köln / Bonn
+                                        </span>
+                                    ) : (
+                                        <span className="text-[10px] bg-sky-100 text-sky-800 font-bold px-1.5 py-0.5 rounded">
+                                            DHL ({toplamAgirlikKg.toFixed(1)} kg)
                                         </span>
                                     )}
                                 </div>
                                 <div className="text-right">
-                                    {shippingInfo.shippingCost === 0 ? (
+                                    {shippingInfo.shippingCostNet === 0 ? (
                                         <span className="text-sm font-bold text-emerald-600">
                                             {locale === 'de' ? 'Kostenlos' : 'Ücretsiz'}
                                         </span>

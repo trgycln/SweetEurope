@@ -96,7 +96,7 @@ export default async function Home({
 
     const selectedKategoriler = CORE_CATEGORY_SLUGS
         .map(slug => tumKategoriler?.find(k => k.slug === slug))
-        .filter((k): k is NonNullable<typeof k> => Boolean(k) && (categoryProductCounts[k.id] || 0) > 0);
+        .filter((k): k is NonNullable<typeof k> => k != null && (categoryProductCounts[k.id] || 0) > 0);
 
     // Determine image_url based on file existence (prefer webp, then jpg, then jpeg/JPEG)
     const kategorilerWithImages = selectedKategoriler.map((kategori) => {

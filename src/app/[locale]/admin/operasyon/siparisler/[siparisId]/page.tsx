@@ -9,6 +9,7 @@ import {
     FiCheck, FiImage, FiPrinter,
 } from 'react-icons/fi';
 import DurumGuncellePaneli from './DurumGuncellePaneli';
+import LexwareFaturaPaneli from './LexwareFaturaPaneli';
 import { assignSiparisPersonelAction } from '../actions';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
@@ -278,23 +279,58 @@ export default async function OperasyonSiparisDetayPage({ params, searchParams }
                         </div>
 
                         {/* Fiyat özeti */}
-                        <div className="px-5 py-4 border-t border-gray-100 bg-gray-50 space-y-2">
-                            <div className="flex justify-between text-sm text-gray-600">
-                                <span>Ara Toplam (Net)</span>
-                                <span className="font-semibold">{fmt(siparis.toplam_tutar_net)}</span>
-                            </div>
-                            <div className="flex justify-between text-sm text-gray-600">
-                                <span>KDV ({siparis.kdv_orani}%)</span>
-                                <span className="font-semibold">
-                                    {fmt((siparis.toplam_tutar_brut ?? 0) - (siparis.toplam_tutar_net ?? 0))}
-                                </span>
-                            </div>
-                            <div className="flex justify-between text-base font-bold text-gray-800 pt-2 border-t border-gray-200">
-                                <span>Genel Toplam (Brüt)</span>
-                                <span className="text-accent text-lg">{fmt(siparis.toplam_tutar_brut)}</span>
-                            </div>
-                        </div>
+                        {(() => {
+                            const urunNet = Number(siparis.toplam_tutar_net) || 0;
+                            const kargoNet = Number(siparis.kargo_tutari_net) || 0;
+                            const kargoKdv = Number(siparis.kargo_kdv_tutari) || (kargoNet > 0 ? Number((kargoNet * 0.07).toFixed(2)) : 0);
+                            const urunKdv = Number((urunNet * 0.07).toFixed(2));
+                            const genelBrut = Number(siparis.toplam_tutar_brut) || (urunNet + urunKdv + kargoNet + kargoKdv);
+
+                            return (
+                                <div className="px-5 py-4 border-t border-gray-100 bg-gray-50 space-y-2">
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                        <span>Ürünler Ara Toplamı (Net)</span>
+                                        <span className="font-semibold">{fmt(urunNet)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm text-gray-600">
+                                        <span>Ürün KDV (%7)</span>
+                                        <span className="font-semibold">{fmt(urunKdv)}</span>
+                                    </div>
+                                    {(kargoNet > 0 || siparis.kargo_yontemi) && (
+                                        <>
+                                            <div className="flex justify-between text-sm text-gray-600">
+                                                <span>Kargo ({siparis.kargo_yontemi || 'Teslimat'}) Net</span>
+                                                <span className="font-semibold">{kargoNet > 0 ? fmt(kargoNet) : '0,00 € (Ücretsiz)'}</span>
+                                            </div>
+                                            {kargoNet > 0 && (
+                                                <div className="flex justify-between text-sm text-gray-600">
+                                                    <span>Kargo KDV (%7)</span>
+                                                    <span className="font-semibold">{fmt(kargoKdv)}</span>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                    <div className="flex justify-between text-base font-bold text-gray-800 pt-2 border-t border-gray-200">
+                                        <span>Genel Toplam (Brüt)</span>
+                                        <span className="text-accent text-lg">{fmt(genelBrut)}</span>
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
+
+                    {/* Lexware E-Fatura Yönetimi */}
+                    <LexwareFaturaPaneli
+                        siparisId={siparis.id}
+                        invoiceId={siparis.lexware_invoice_id}
+                        invoiceNo={siparis.lexware_invoice_no}
+                        pdfUrl={siparis.lexware_pdf_url}
+                        stornoId={siparis.lexware_storno_id}
+                        stornoNo={siparis.lexware_storno_no}
+                        stornoPdfUrl={siparis.lexware_storno_pdf_url}
+                        faturaDurumu={siparis.fatura_durumu}
+                        siparisDurumu={siparis.siparis_durumu}
+                    />
 
                     {/* Durum güncelleme */}
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">

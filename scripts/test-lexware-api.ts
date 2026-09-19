@@ -4,15 +4,14 @@ dotenv.config({ path: '.env.local' });
 const key = process.env.LEXWARE_API_KEY?.trim();
 
 async function test() {
-  const res = await fetch('https://api.lexware.io/v1/contacts', {
+  const invoiceId = "0a303ad2-b5d6-4bb5-be5b-a37bc0ed6ddd";
+  const res = await fetch(`https://api.lexware.io/v1/invoices/${invoiceId}`, {
+    method: 'DELETE',
     headers: {
-      'Authorization': `Bearer ${key}`,
-      'Accept': 'application/json'
+      'Authorization': `Bearer ${key}`
     }
   });
-  console.log('Contacts GET status:', res.status);
-  const data = await res.json();
-  console.log('Contacts data:', JSON.stringify(data, null, 2));
+  console.log('Invoice DELETE status:', res.status);
 }
 
 test();

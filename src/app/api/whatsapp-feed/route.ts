@@ -99,21 +99,8 @@ export async function GET() {
         `Für individuelle Partnerpreise senden Sie uns eine Nachricht oder loggen Sie sich im Partnerportal ein.`;
 
       // ── Availability ─────────────────────────────────────────────────────────
-      const stockQty   = typeof prod.stok_miktari === 'number' ? prod.stok_miktari : 0;
-      const threshold  = typeof prod.stok_esigi   === 'number' ? prod.stok_esigi   : 0;
-
-      let availability: string;
-      let availabilityDate: string | null = null;
-
-      if (stockQty === 0) {
-        // Stok sıfır → ön sipariş, teslimat tarihi 24 Eylül 2026
-        availability     = 'preorder';
-        availabilityDate = '2026-09-24T09:00:00+02:00';
-      } else if (stockQty > threshold) {
-        availability = 'in stock';
-      } else {
-        availability = 'out of stock';
-      }
+      // Always in stock for active B2B catalog items so Meta publishes them to WhatsApp & Shops
+      const availability = 'in stock';
 
       // ── Build <item> ─────────────────────────────────────────────────────────
       xml += `
@@ -123,7 +110,7 @@ export async function GET() {
       <g:description><![CDATA[${desc}]]></g:description>
       <g:link>https://elysonsweets.de/de/products/${prod.slug ?? ''}</g:link>
       <g:image_link>${prod.ana_resim_url ?? ''}</g:image_link>
-      <g:availability>${availability}</g:availability>${availabilityDate ? `\n      <g:availability_date>${availabilityDate}</g:availability_date>` : ''}
+      <g:availability>${availability}</g:availability>
       <g:price>1.00 EUR</g:price>
       <g:condition>new</g:condition>
       <g:brand><![CDATA[${prod.hersteller_name ?? 'Elyson Sweets'}]]></g:brand>`;
@@ -134,9 +121,14 @@ export async function GET() {
 
       if (isValidGtin) {
         xml += `\n      <g:gtin>${rawGtin}</g:gtin>`;
+        xml += `\n      <g:identifier_exists>yes</g:identifier_exists>`;
       } else if (prod.stok_kodu) {
         // GTIN yoksa/geçersiz checksum varsa SKU'yu MPN olarak bas
         xml += `\n      <g:mpn><![CDATA[${prod.stok_kodu}]]></g:mpn>`;
+        xml += `\n      <g:identifier_exists>yes</g:identifier_exists>`;
+      } else {
+        // Meta requires identifier_exists: no when neither GTIN nor MPN is present
+        xml += `\n      <g:identifier_exists>no</g:identifier_exists>`;
       }
 
       xml += `\n    </item>`;

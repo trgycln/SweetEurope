@@ -52,6 +52,7 @@ export interface UniversalProductCardProps {
     isLoggedIn?: boolean;
     partnerTier?: string;
     userRole?: string;
+    layout?: 'grid' | 'list';
     
     // Favorites
     isFavorit?: boolean;
@@ -65,6 +66,7 @@ export interface UniversalProductCardProps {
     actionTooltip?: string;
     
     dictionary?: any;
+    isPortal?: boolean;
 }
 
 export function UniversalProductCard({
@@ -75,6 +77,8 @@ export function UniversalProductCard({
     isLoggedIn = false,
     partnerTier,
     userRole,
+    layout = 'grid',
+    isPortal = false,
     isFavorit,
     onToggleFavorite,
     isFavoritePending = false,
@@ -175,6 +179,178 @@ export function UniversalProductCard({
 
     const hasAnyPrice = pricingRows.some(r => r.price != null && r.price > 0);
 
+    // ─── List Layout Mode ────────────────────────────────────────────────────
+    if (layout === 'list') {
+        let stokBadge: { label: string; dot: string; bg: string } | null = null;
+        if (tedarikDurumu === 'talep_uzerine') {
+            stokBadge = { label: locale === 'de' ? 'Nicht auf Lager' : 'Stokta yok', dot: 'bg-violet-500', bg: 'bg-violet-50 text-violet-700 border-violet-200' };
+        } else if (tedarikDurumu === 'tukendi') {
+            stokBadge = { label: locale === 'de' ? 'Ausverkauft' : 'Tükendi', dot: 'bg-red-500', bg: 'bg-red-50 text-red-700 border-red-200' };
+        } else if (stokMiktari <= (urun.stok_esigi ?? 10)) {
+            stokBadge = { label: locale === 'de' ? 'Wenig Bestand' : 'Az stok', dot: 'bg-amber-400', bg: 'bg-amber-50 text-amber-700 border-amber-200' };
+        } else {
+            stokBadge = { label: locale === 'de' ? 'Auf Lager' : 'Stokta var', dot: 'bg-green-500', bg: 'bg-green-50 text-green-700 border-green-200' };
+        }
+
+        const showIhrPreis = urun.partnerPreis != null &&
+            urun.partnerPreis > 0 &&
+            urun.partnerPreis !== ((urun as any).satis_fiyati_palet ?? urun.satis_fiyati_alt_bayi);
+
+        return (
+            <div className="bg-white border border-stone-200/90 rounded-2xl p-3.5 sm:p-4 shadow-xs hover:shadow-md transition-all duration-200 group relative">
+                {/* Top Area: Image + Full Title + Action Icons */}
+                <div className="flex items-start gap-3 sm:gap-4">
+                    {/* Thumbnail */}
+                    <Link href={detailHref} className="relative w-16 h-16 sm:w-20 sm:h-20 bg-stone-50 border border-stone-100 rounded-xl overflow-hidden flex-shrink-0 p-1 block">
+                        <Image
+                            src={urun.ana_resim_url || '/placeholder.png'}
+                            alt={name}
+                            fill
+                            sizes="80px"
+                            className="object-contain group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                        />
+                    </Link>
+
+                    {/* Main Content Area */}
+                    <div className="flex-1 min-w-0">
+                        {/* Header: Title & Heart Favorite */}
+                        <div className="flex items-start justify-between gap-2">
+                            <Link href={detailHref} className="font-bold text-sm sm:text-base text-stone-900 group-hover:text-amber-600 transition-colors leading-snug break-words" title={name}>
+                                {name}
+                            </Link>
+                            
+                            {/* Favorite button */}
+                            {onToggleFavorite && (
+                                <button
+                                    onClick={onToggleFavorite}
+                                    disabled={isFavoritePending}
+                                    className={`p-1.5 rounded-lg border transition-colors flex-shrink-0 ${
+                                        isFavorit
+                                            ? 'bg-red-50 border-red-200 text-red-500'
+                                            : 'border-stone-200 text-stone-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50/50'
+                                    }`}
+                                    title={isFavorit ? (locale === 'de' ? 'Von Favoriten entfernen' : 'Favorilerden çıkar') : (locale === 'de' ? 'Zu Favoriten hinzufügen' : 'Favorilere ekle')}
+                                >
+                                    <FiHeart size={15} fill={isFavorit ? 'currentColor' : 'none'} />
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Metadata line: SKU, Barcode, Stock badge */}
+                        <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
+                            {urun.stok_kodu && (
+                                <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-md">
+                                    <LuBarcode size={12} className="text-stone-400" />
+                                    {urun.stok_kodu}
+                                </span>
+                            )}
+                            {urun.ean_gtin && (
+                                <span className="inline-flex items-center gap-1 font-mono text-[11px] text-stone-500 bg-stone-50 px-1.5 py-0.5 rounded border border-stone-200/60">
+                                    {urun.ean_gtin}
+                                </span>
+                            )}
+                            {stokBadge && (
+                                <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${stokBadge.bg}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full inline-block ${stokBadge.dot}`} />
+                                    {stokBadge.label}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Logistics & Dietary Badges */}
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                            {koliIciAdet > 0 && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200/70 whitespace-nowrap">
+                                    <LuPackage size={10} />
+                                    {koliIciAdet} {locale === 'de' ? 'Stk./Ktn.' : 'adet/koli'}
+                                </span>
+                            )}
+                            {paletIciKoliAdet > 0 && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200/70 whitespace-nowrap">
+                                    {paletIciKoliAdet} {locale === 'de' ? 'Ktn./Pal.' : 'koli/pal.'}
+                                </span>
+                            )}
+                            {kg && (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/70 whitespace-nowrap">
+                                    {kg} kg
+                                </span>
+                            )}
+                            <ProductDietaryBadges
+                                teknikOzellikler={urun.teknik_ozellikler as any}
+                                zertifikate={urun.zertifikate}
+                                size="xs"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Bottom Row: Tiered Pricing Bar & Add To Cart Button */}
+                <div className="mt-3 pt-3 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    {/* Pricing Badges / Tiers */}
+                    {isLoggedIn && (
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                            {pricingRows.map((row, i) =>
+                                row.price ? (
+                                    <div
+                                        key={i}
+                                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs ${
+                                            row.tierKey === 'palet'
+                                                ? 'bg-blue-50/80 border border-blue-200/80 text-blue-900'
+                                                : 'bg-stone-50 border border-stone-200/70 text-stone-700'
+                                        }`}
+                                    >
+                                        <span className="text-[10px] text-stone-400 font-medium">{row.label}:</span>
+                                        <span className={`font-bold font-mono ${row.tierKey === 'palet' ? 'text-blue-700' : 'text-stone-900'}`}>
+                                            {formatCurrency(row.price)}
+                                        </span>
+                                        <span className="text-[9px] text-stone-400">Netto</span>
+                                    </div>
+                                ) : null
+                            )}
+                            {showIhrPreis && (
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 rounded-lg text-xs text-amber-900 font-bold">
+                                    <span className="text-[10px] text-amber-700">{locale === 'de' ? 'Ihr Preis:' : 'Size Özel:'}</span>
+                                    <span className="text-amber-900 font-extrabold font-mono">{formatCurrency(urun.partnerPreis)}</span>
+                                    <span className="text-[9px] text-amber-600">Netto</span>
+                                </div>
+                            )}
+                            <span className="text-[10px] text-stone-400 font-medium hidden sm:inline-block">
+                                (zzgl. 7% MwSt.)
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Action Button */}
+                    <div className="flex items-center justify-end flex-shrink-0">
+                        {onAction ? (
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onAction(e);
+                                }}
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold shadow-xs shadow-amber-600/20 transition-all"
+                            >
+                                <FiShoppingCart size={14} />
+                                <span>{locale === 'de' ? 'In den Warenkorb' : 'Sepete Ekle'}</span>
+                            </button>
+                        ) : (
+                            <Link
+                                href={detailHref}
+                                className="w-full sm:w-auto inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 text-xs font-bold transition-all"
+                            >
+                                <span>{dictionary?.publicProductsPage?.details || 'Details'}</span>
+                                <FiChevronRight size={13} />
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Grid Layout Mode (Default) ──────────────────────────────────────────
     return (
         <div className="group h-full flex flex-col relative bg-white border border-stone-200/90 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg hover:border-amber-400/60 hover:-translate-y-1 transition-all duration-300 z-10">
             {/* Top Favorite Button (if onToggleFavorite provided) */}
@@ -387,7 +563,8 @@ export function UniversalProductCard({
                                     <span className="text-base sm:text-lg font-bold font-mono text-stone-900 tracking-tight leading-tight">
                                         {formatCurrency(primaryPrice)}
                                     </span>
-                                    <span className="text-[9.5px] font-mono text-stone-400">zzgl.</span>
+                                    <span className="text-[10px] font-medium text-stone-500">Netto</span>
+                                    <span className="text-[9px] font-mono text-stone-400">(zzgl. 7%)</span>
                                 </div>
                             </div>
 

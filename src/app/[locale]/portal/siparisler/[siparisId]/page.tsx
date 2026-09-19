@@ -5,7 +5,7 @@ import Image from 'next/image';
 import {
     FiArrowLeft, FiUser, FiTruck, FiPackage,
     FiMapPin, FiCalendar, FiClock, FiAlertTriangle,
-    FiCheck, FiPrinter,
+    FiCheck, FiPrinter, FiFileText, FiDownload,
 } from 'react-icons/fi';
 import DurumGuncellePaneli from '@/app/[locale]/admin/operasyon/siparisler/[siparisId]/DurumGuncellePaneli';
 import { cookies } from 'next/headers';
@@ -132,6 +132,30 @@ export default async function PartnerSiparisDetayPage({ params }: PageProps) {
                             <FiPrinter size={14} />
                             <span>Lieferschein Yazdır</span>
                         </Link>
+                        {siparis.lexware_invoice_id && (
+                            <a
+                                href={`/api/invoices/${siparis.id}/pdf`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-xl hover:bg-emerald-100 transition-colors shadow-2xs"
+                                title="Resmi Fatura (Rechnung PDF) İndir"
+                            >
+                                <FiDownload size={14} />
+                                <span>Faturayı İndir ({siparis.lexware_invoice_no || 'PDF'})</span>
+                            </a>
+                        )}
+                        {siparis.lexware_storno_id && (
+                            <a
+                                href={`/api/invoices/${siparis.id}/storno-pdf`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl hover:bg-rose-100 transition-colors shadow-2xs"
+                                title="İptal Belgesi (Rechnungskorrektur PDF) İndir"
+                            >
+                                <FiDownload size={14} />
+                                <span>İptal Belgesi ({siparis.lexware_storno_no || 'PDF'})</span>
+                            </a>
+                        )}
                         {cfg && (
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
                                 {cfg.label}
@@ -248,21 +272,44 @@ export default async function PartnerSiparisDetayPage({ params }: PageProps) {
                         </div>
 
                         {/* Toplam Tutar Özeti */}
-                        <div className="p-4 bg-slate-50/80 border-t border-slate-200 flex items-center justify-between text-xs">
-                            <div className="text-slate-600">
-                                Toplam <strong>{urunSatirlari.reduce((sum: number, i: any) => sum + (Number(i.miktar) || 0), 0)}</strong> koli ürün
-                            </div>
-                            <div className="flex items-center gap-4 text-right">
-                                <div>
-                                    <span className="text-slate-400 mr-2">Net:</span>
-                                    <span className="font-bold text-slate-800">{fmt(siparis.toplam_tutar_net)}</span>
+                        {(() => {
+                            const urunNet = Number(siparis.toplam_tutar_net) || 0;
+                            const kargoNet = Number(siparis.kargo_tutari_net) || 0;
+                            const kargoKdv = Number(siparis.kargo_kdv_tutari) || (kargoNet > 0 ? Number((kargoNet * 0.07).toFixed(2)) : 0);
+                            const urunKdv = Number((urunNet * 0.07).toFixed(2));
+                            const toplamKdv = urunKdv + kargoKdv;
+                            const genelBrut = Number(siparis.toplam_tutar_brut) || (urunNet + kargoNet + toplamKdv);
+
+                            return (
+                                <div className="p-4 bg-slate-50/80 border-t border-slate-200 space-y-2 text-xs">
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-slate-600">
+                                            Toplam <strong>{urunSatirlari.reduce((sum: number, i: any) => sum + (Number(i.miktar) || 0), 0)}</strong> koli ürün
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-4 text-right">
+                                            <div>
+                                                <span className="text-slate-400 mr-1.5">Ürünler Net:</span>
+                                                <span className="font-bold text-slate-800">{fmt(urunNet)}</span>
+                                            </div>
+                                            {(kargoNet > 0 || siparis.kargo_yontemi) && (
+                                                <div>
+                                                    <span className="text-slate-400 mr-1.5">Kargo ({siparis.kargo_yontemi || 'Teslimat'}):</span>
+                                                    <span className="font-bold text-slate-800">{kargoNet > 0 ? fmt(kargoNet) : 'Ücretsiz'}</span>
+                                                </div>
+                                            )}
+                                            <div>
+                                                <span className="text-slate-400 mr-1.5">KDV (%7):</span>
+                                                <span className="font-bold text-slate-800">{fmt(toplamKdv)}</span>
+                                            </div>
+                                            <div className="pl-2 border-l border-slate-300">
+                                                <span className="text-slate-500 mr-1.5 font-medium">Toplam (Brüt):</span>
+                                                <span className="font-black text-slate-900 text-sm">{fmt(genelBrut)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <span className="text-slate-400 mr-2">Brüt (+%{siparis.kdv_orani || 7}):</span>
-                                    <span className="font-black text-slate-900 text-sm">{fmt(siparis.toplam_tutar_brut)}</span>
-                                </div>
-                            </div>
-                        </div>
+                            );
+                        })()}
                     </div>
                 </div>
 

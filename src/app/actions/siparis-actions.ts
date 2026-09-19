@@ -365,18 +365,34 @@ export async function onSiparisiNormalSipariseDonusturAction(
         };
     }
 
-    // 3. Stokları düş
+    // 3. Stokları düş (Atomik / Güvenli)
+    const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
+    const adminClient = createSupabaseServiceClient();
+
     for (const d of detaylar) {
-        const urun = urunler.find(u => u.id === d.urun_id);
-        const yeniStok = (urun?.stok_miktari || 0) - d.miktar;
-        await supabase
-            .from('urunler')
-            .update({ stok_miktari: yeniStok })
-            .eq('id', d.urun_id);
+        // RPC ile atomik düşmeyi dene
+        const { data: rpcRes, error: rpcErr } = await adminClient.rpc('deduct_single_product_stock' as any, {
+            p_urun_id: d.urun_id,
+            p_miktar: d.miktar
+        });
+
+        if (rpcErr || !rpcRes?.success) {
+            // Fallback: anlık güncel stok çekip düş
+            const { data: freshProd } = await adminClient
+                .from('urunler')
+                .select('stok_miktari')
+                .eq('id', d.urun_id)
+                .single();
+            const freshStock = freshProd?.stok_miktari || 0;
+            await adminClient
+                .from('urunler')
+                .update({ stok_miktari: Math.max(0, freshStock - d.miktar) })
+                .eq('id', d.urun_id);
+        }
     }
 
     // 4. Sipariş durumunu 'Hazırlanıyor' yap
-    const { error: upErr } = await supabase
+    const { error: upErr } = await adminClient
         .from('siparisler')
         .update({ siparis_durumu: 'Hazırlanıyor' })
         .eq('id', siparisId);
@@ -407,10 +423,10 @@ export async function onSiparisiNormalSipariseDonusturAction(
     return { success: true, message: "Ön sipariş başarıyla normal siparişe dönüştürüldü ve stoklar düşüldü." };
 }
 
-// === ÖN SİPARİŞİ İPTAL ET / TEMİN EDİLEMEDİ (MÜŞTERİ BİLGİLENDİRMELİ) ===
+// === ÖN SİPARİŞİ İPTAL ET (MÜŞTERİ VEYA YÖNETİCİ) ===
 export async function onSiparisiIptalEtAction(
     siparisId: string,
-    iptalSebebi?: string
+    iptalNedeni?: string
 ): Promise<ActionResult> {
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
@@ -435,8 +451,8 @@ export async function onSiparisiIptalEtAction(
 
     // Müşteriye açıklayıcı bildirim gönder
     try {
-        const sebepAciklama = iptalSebebi ? ` Sebep: ${iptalSebebi}` : ' Talep edilen ürünler şu an için tedarik edilememiştir.';
-        const mesaj = `ℹ️ #${siparisId.substring(0, 8)} numaralı ön sipariş talebiniz kapatılmıştır.${sebepAciklama}`;
+        const not = iptalNedeni ? ` (Neden: ${iptalNedeni})` : '';
+        const mesaj = `Sipariş #${siparisId.substring(0, 8)} iptal edildi${not}.`;
         const link = `/portal/siparisler/${siparisId}`;
         await sendNotification({
             aliciFirmaId: siparis.firma_id,
@@ -470,6 +486,17 @@ export async function siparisDurumGuncelleAction(
         return { error: "Nicht authentifiziert." };
     }
 
+    // Önceki durumu kontrol et (Stok iadesi kararı için)
+    const { data: prevOrder } = await supabase
+        .from('siparisler')
+        .select('id, firma_id, siparis_durumu')
+        .eq('id', siparisId)
+        .single();
+
+    const previousStatus = prevOrder?.siparis_durumu;
+    const isAlreadyCancelled = previousStatus === 'İptal Edildi' || (previousStatus as string) === 'cancelled';
+    const isNowCancelled = yeniDurum === 'İptal Edildi' || (yeniDurum as string) === 'cancelled';
+
     // Doğrudan veya Service Client ile güncelle (RLS engellerini aşmak için)
     let updateError: any = null;
     const { error: normalError } = await supabase
@@ -495,6 +522,46 @@ export async function siparisDurumGuncelleAction(
     if (updateError) {
         console.error("Sipariş durum güncelleme hatası:", updateError);
         return { error: updateError?.message || "Datenbankfehler beim Aktualisieren des Status." };
+    }
+
+    // STOK İADESİ (Sipariş iptal edildiyse ve daha önce iptal edilmemişse ve Ön Sipariş değilse)
+    if (isNowCancelled && !isAlreadyCancelled && previousStatus !== 'Ön Sipariş') {
+        try {
+            const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
+            const adminClient = createSupabaseServiceClient();
+
+            // RPC ile atomik stok iadesini dene
+            const { data: rpcRes, error: rpcErr } = await adminClient.rpc('restore_order_stock' as any, {
+                p_siparis_id: siparisId
+            });
+
+            if (rpcErr || !rpcRes?.success) {
+                // Fallback: siparis_detay kayıtlarını çek ve stoklara ekle
+                const { data: detaylar } = await adminClient
+                    .from('siparis_detay')
+                    .select('urun_id, miktar')
+                    .eq('siparis_id', siparisId);
+
+                if (detaylar && detaylar.length > 0) {
+                    for (const item of detaylar) {
+                        if (item.urun_id && Number(item.miktar) > 0) {
+                            const { data: currentProd } = await adminClient
+                                .from('urunler')
+                                .select('stok_miktari')
+                                .eq('id', item.urun_id)
+                                .single();
+                            const currentStock = Number(currentProd?.stok_miktari) || 0;
+                            await adminClient
+                                .from('urunler')
+                                .update({ stok_miktari: currentStock + Number(item.miktar) })
+                                .eq('id', item.urun_id);
+                        }
+                    }
+                }
+            }
+        } catch (stockRestoreErr) {
+            console.error('[siparis-actions] İptal edilen sipariş için stok iadesi hatası:', stockRestoreErr);
+        }
     }
 
     // Partner/Müşteri'yi bilgilendir
