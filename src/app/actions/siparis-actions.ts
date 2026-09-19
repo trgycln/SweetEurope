@@ -34,7 +34,12 @@ export async function siparisOlusturAction(payload: {
     teslimatAdresi: string,
     items: OrderItemPayload[],
     kaynak: Enums<'siparis_kaynagi'>,
-    siparisTuru?: 'normal' | 'on_siparis'
+    siparisTuru?: 'normal' | 'on_siparis',
+    // Kargo alanları (isteğe bağlı — girilmezse 0 yazılır)
+    kargoTutariNet?: number,
+    kargoKdvTutari?: number,
+    kargoTutariBrut?: number,
+    kargoYontemi?: string,
 }): Promise<ActionResult> {
 
     const isPreOrder = payload.siparisTuru === 'on_siparis';
@@ -61,7 +66,11 @@ export async function siparisOlusturAction(payload: {
         payload.items.forEach(item => {
             toplamNet += item.adet * item.o_anki_satis_fiyati;
         });
-        const toplamBrut = Number((toplamNet * 1.07).toFixed(2)); // %7 KDV dahil
+        const kargoNet   = payload.kargoTutariNet   ?? 0;
+        const kargoKdv   = payload.kargoKdvTutari   ?? 0;
+        const kargoBrut  = payload.kargoTutariBrut  ?? 0;
+        const kargoYon   = payload.kargoYontemi      ?? 'Standart';
+        const toplamBrut = Number(((toplamNet * 1.07) + kargoBrut).toFixed(2)); // %7 ürün KDV + kargo brüt
 
         // Sipariş ana kaydını oluştur
         const { data: orderData, error: orderError } = await (supabase as any)
@@ -73,9 +82,13 @@ export async function siparisOlusturAction(payload: {
                 siparis_kaynagi: payload.kaynak,
                 olusturan_kullanici_id: user.id,
                 siparis_tarihi: new Date().toISOString(),
-                toplam_tutar_net: toplamNet,
+                toplam_tutar_net:  toplamNet,
                 toplam_tutar_brut: toplamBrut,
-                kdv_orani: 7
+                kdv_orani:         7,
+                kargo_tutari_net:  kargoNet,
+                kargo_kdv_tutari:  kargoKdv,
+                kargo_tutari_brut: kargoBrut,
+                kargo_yontemi:     kargoYon,
             })
             .select('id')
             .single();
@@ -212,7 +225,12 @@ export async function topluSiparisOlusturAction(payload: {
     teslimatAdresi: string,
     normalItems: OrderItemPayload[],
     onSiparisItems: OrderItemPayload[],
-    kaynak: Enums<'siparis_kaynagi'>
+    kaynak: Enums<'siparis_kaynagi'>,
+    // Kargo — tüm siparişe ait tek bir kargo bilgisi
+    kargoTutariNet?: number,
+    kargoKdvTutari?: number,
+    kargoTutariBrut?: number,
+    kargoYontemi?: string,
 }): Promise<{
     success?: boolean;
     error?: string;
@@ -230,7 +248,11 @@ export async function topluSiparisOlusturAction(payload: {
             teslimatAdresi: payload.teslimatAdresi,
             items: payload.normalItems,
             kaynak: payload.kaynak,
-            siparisTuru: 'normal'
+            siparisTuru: 'normal',
+            kargoTutariNet:  payload.kargoTutariNet,
+            kargoKdvTutari:  payload.kargoKdvTutari,
+            kargoTutariBrut: payload.kargoTutariBrut,
+            kargoYontemi:    payload.kargoYontemi,
         });
 
         if (normalRes.error) {
@@ -246,7 +268,11 @@ export async function topluSiparisOlusturAction(payload: {
             teslimatAdresi: payload.teslimatAdresi,
             items: payload.onSiparisItems,
             kaynak: payload.kaynak,
-            siparisTuru: 'on_siparis'
+            siparisTuru: 'on_siparis',
+            kargoTutariNet:  payload.kargoTutariNet,
+            kargoKdvTutari:  payload.kargoKdvTutari,
+            kargoTutariBrut: payload.kargoTutariBrut,
+            kargoYontemi:    payload.kargoYontemi,
         });
 
         if (onSiparisRes.error) {

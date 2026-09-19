@@ -64,7 +64,7 @@ export async function createStripeCheckoutSessionAction(params: {
       const kdvRate = (item.kdvOrani ?? 7) / 100;
       return sum + (item.birimFiyatNet * item.adet * kdvRate);
     }, 0);
-    const shippingGross = shipping.shippingCost > 0 ? Number((shipping.shippingCost * 1.19).toFixed(2)) : 0;
+    const shippingGross = shipping.shippingCostGross; // ✅ shippingUtils %7 KDV ile hesaplar (Nebenleistung)
     const grossTotal = Number((subtotalNet + totalTax + shippingGross).toFixed(2));
 
     // 4. Create pending order in database
@@ -80,6 +80,10 @@ export async function createStripeCheckoutSessionAction(params: {
         toplam_tutar_net: subtotalNet,
         toplam_tutar_brut: grossTotal,
         kdv_orani: 7,
+        kargo_tutari_net:  shipping.shippingCostNet,
+        kargo_kdv_tutari:  shipping.shippingVatAmount,
+        kargo_tutari_brut: shipping.shippingCostGross,
+        kargo_yontemi:     shipping.shippingMethodName,
         odeme_durumu: 'pending',
         odeme_kasa_tipi: 'Banka'
       })
@@ -128,16 +132,16 @@ export async function createStripeCheckoutSessionAction(params: {
       };
     });
 
-    // Add shipping as line item if greater than 0
-    if (shipping.shippingCost > 0) {
+    // Kargo satır kalemi (Stripe) — brüt tutar %7 KDV dahil
+    if (shipping.shippingCostGross > 0) {
       line_items.push({
         price_data: {
           currency: 'eur',
           product_data: {
             name: shipping.shippingMethodName || 'Lieferung & Versand',
-            description: shipping.description || 'Versandkosten',
+            description: shipping.description || 'Versandkosten (inkl. 7% MwSt.)',
           },
-          unit_amount: Math.max(1, Math.round(shipping.shippingCost * 1.19 * 100)), // incl 19% MwSt
+          unit_amount: Math.max(1, Math.round(shipping.shippingCostGross * 100)),
         },
         quantity: 1,
       });
@@ -156,8 +160,10 @@ export async function createStripeCheckoutSessionAction(params: {
         order_id: String(orderId),
         user_id: user.id,
         order_notes: params.orderNotes || '',
-        shipping_cost: shipping.shippingCost.toString(),
-        is_koln_area: shipping.isKolnArea.toString(),
+        shipping_cost_net: shipping.shippingCostNet.toString(),
+        shipping_cost_gross: shipping.shippingCostGross.toString(),
+        shipping_zone: shipping.zone,
+        is_local_delivery: shipping.isLocalDelivery.toString(),
       },
       success_url: `${origin}/${params.locale}/portal/siparisler?payment_status=success&session_id={CHECKOUT_SESSION_ID}&order_id=${orderId}`,
       cancel_url: `${origin}/${params.locale}/portal/siparisler/yeni?payment_status=cancelled`,
