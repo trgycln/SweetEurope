@@ -8,6 +8,8 @@ import { FaWhatsapp, FaTimes, FaPaperPlane, FaRobot } from 'react-icons/fa';
 import { FaWandMagicSparkles } from 'react-icons/fa6';
 import { trackContact } from '@/lib/metaPixelEvents';
 import { ChatMessage } from '@/lib/ai/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface WhatsAppButtonProps {
   locale?: string;
@@ -313,13 +315,19 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
                     </div>
                   )}
                   <div
-                    className={`p-3.5 text-xs sm:text-sm leading-relaxed rounded-2xl shadow-xs whitespace-pre-line ${
+                    className={`p-3.5 text-xs sm:text-sm leading-relaxed rounded-2xl shadow-xs ${
                       m.role === 'user'
-                        ? 'bg-[#114b3a] text-white rounded-tr-sm'
-                        : 'bg-white text-slate-800 border border-slate-200/70 rounded-tl-sm'
+                        ? 'bg-[#114b3a] text-white rounded-tr-sm whitespace-pre-wrap'
+                        : 'bg-white text-slate-800 border border-slate-200/70 rounded-tl-sm [&>p]:mb-2 [&>ul]:list-disc [&>ul]:ml-5 [&>ul]:mb-2 [&>li]:mb-1 [&>strong]:font-bold [&_table]:w-full [&_table]:mb-2 [&_table]:border-collapse [&_th]:border [&_th]:border-slate-200 [&_th]:p-1.5 [&_th]:bg-slate-50 [&_td]:border [&_td]:border-slate-200 [&_td]:p-1.5'
                     }`}
                   >
-                    {m.content}
+                    {m.role === 'user' ? (
+                      m.content
+                    ) : (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {m.content}
+                      </ReactMarkdown>
+                    )}
                   </div>
                 </div>
               ))}
