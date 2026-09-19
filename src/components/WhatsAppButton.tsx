@@ -61,7 +61,7 @@ const CONTENT: Record<string, LocaleContent> = {
     headerSubtitle: 'Kademeli Fiyatlar, Koli/Palet & Reçeteler',
     statusOnline: 'AI Danışman Aktif',
     typicalReplyTime: 'Veritabanı anlık verileriyle hemen yanıtlar',
-    greetingText: 'Merhaba! 👋 Elyson Sweets B2B Satış ve Gastro Danışmanıyım. Koli adetleri, 5+ koli hacim indirimleri veya ürün reçeteleri hakkında size nasıl yardımcı olabilirim?',
+    greetingText: 'Merhaba! 👋 Elyson Sweets B2B Danışmanıyım. Ürünlerimiz, fiyatlar veya sipariş süreçleri hakkında size nasıl yardımcı olabilirim?',
     placeholder: 'Koli, kademeli fiyat veya reçete sorun...',
     sendTooltip: 'Gönder',
     startChatButton: "WhatsApp'tan Doğrudan Ulaşın",
