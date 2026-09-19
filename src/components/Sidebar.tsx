@@ -195,6 +195,13 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
             ]
         },
         {
+            title: 'Yapay Zeka',
+            links: [
+                { name: 'Yönetim Kurulu', href: '/admin/boardroom', icon: FiUsers, roles: ['Yönetici'] as UserRole[] },
+                { name: 'Tüm Loglar', href: '/admin/ai-logs', icon: FiClipboard, roles: ['Yönetici'] as UserRole[] },
+            ]
+        },
+        {
             title: sidebarContent.settings || 'Ayarlar',
             links: [
                 { name: sidebarContent.profile || 'Profil', href: '/admin/profil', icon: FiUser },

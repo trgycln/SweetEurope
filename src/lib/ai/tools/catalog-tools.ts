@@ -19,14 +19,18 @@ export async function searchProducts(query: string, limit: number = 5) {
       return { success: false, error: error?.message || 'Failed to search' };
     }
 
-    // Filter in JS across multi-lang ad and aciklamalar
+    // Filter in JS across multi-lang ad and aciklamalar (multi-word search)
+    const queryTerms = cleanQuery.split(/\s+/).filter(Boolean);
     const matches = products.filter((p) => {
       const adStr = JSON.stringify(p.ad || '').toLowerCase();
       const descStr = JSON.stringify(p.aciklamalar || '').toLowerCase();
       const slugStr = (p.slug || '').toLowerCase();
       const stokKoduStr = (p.stok_kodu || '').toLowerCase();
       const eanGtinStr = (p.ean_gtin || '').toLowerCase();
-      return adStr.includes(cleanQuery) || descStr.includes(cleanQuery) || slugStr.includes(cleanQuery) || stokKoduStr.includes(cleanQuery) || eanGtinStr.includes(cleanQuery);
+      
+      const searchTarget = `${adStr} ${descStr} ${slugStr} ${stokKoduStr} ${eanGtinStr}`;
+      
+      return queryTerms.every(term => searchTarget.includes(term));
     }).slice(0, limit);
 
     return {
@@ -38,8 +42,8 @@ export async function searchProducts(query: string, limit: number = 5) {
           id: p.id,
           slug: p.slug,
           name: titleDe,
-          casePriceNet: p.satis_fiyati_musteri,
-          tierPriceNet: p.satis_fiyati_toptanci,
+          casePriceNet: (p.satis_fiyati_musteri || 0) * (p.koli_ici_adet || 1),
+          tierPriceNet: (p.satis_fiyati_toptanci || 0) * (p.koli_ici_adet || 1),
           unitsPerCase: p.koli_ici_adet || 6,
           unitsPerPallet: p.palet_ici_adet || 240,
           inStock: (p.stok_miktari ?? 0) > 0,
@@ -86,9 +90,9 @@ export async function getProductDetails(slugOrId: string) {
         slug: data.slug,
         name: titleDe,
         description: descDe,
-        singleCasePriceNet: data.satis_fiyati_musteri,
-        fivePlusCasePriceNet: data.satis_fiyati_toptanci,
-        palletPriceNet: data.satis_fiyati_palet,
+        singleCasePriceNet: (data.satis_fiyati_musteri || 0) * (data.koli_ici_adet || 1),
+        fivePlusCasePriceNet: (data.satis_fiyati_toptanci || 0) * (data.koli_ici_adet || 1),
+        palletPriceNet: (data.satis_fiyati_palet || 0) * (data.koli_ici_adet || 1),
         unitsPerCase: data.koli_ici_adet || 6,
         palletCases: data.palet_ici_adet ? Math.round(data.palet_ici_adet / (data.koli_ici_adet || 6)) : 40,
         stockStatus: (data.stok_miktari ?? 0) > 0 ? 'in_stock' : 'preorder',

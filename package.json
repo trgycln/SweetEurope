@@ -22,6 +22,8 @@
     "favicons:generate": "node scripts/update-favicons.mjs"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.76",
+    "@ai-sdk/openai": "^4.0.71",
     "@google/genai": "^2.23.0",
     "@gsap/react": "^2.1.2",
     "@react-three/drei": "^10.7.7",
@@ -31,6 +33,7 @@
     "@supabase/supabase-js": "^2.58.0",
     "@uiw/react-md-editor": "^4.1.1",
     "@vercel/analytics": "^1.6.1",
+    "ai": "^7.0.107",
     "chart.js": "^4.5.0",
     "csv-parse": "^5.6.0",
     "dotenv": "^17.2.3",

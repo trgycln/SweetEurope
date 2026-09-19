@@ -58,8 +58,9 @@ export function NotificationBell({ initialNotifications, initialUnreadCount, dic
             if (!uid) return;
 
             // Realtime: nur eigene INSERTs dinle (alici_id == uid)
+            // Kanal ismini benzersiz yaparak React Strict Mode veya tekrar eden abonelik hatalarini engelliyoruz
             channel = supabase
-                .channel('realtime-bildirimler-admin')
+                .channel(`realtime-bildirimler-admin-${uid}-${Date.now()}`)
                 .on('postgres_changes', {
                     event: 'INSERT',
                     schema: 'public',
