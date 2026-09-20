@@ -13,7 +13,7 @@ export async function searchProducts(query: string, limit: number = 5) {
 
     const { data: products, error } = await supabase
       .from('urunler')
-      .select('id, slug, ad, aciklamalar, satis_fiyati_musteri, satis_fiyati_toptanci, koli_ici_adet, palet_ici_adet, stok_miktari, ana_resim_url, stok_kodu, ean_gtin')
+      .select('id, slug, ad, aciklamalar, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_palet, koli_ici_adet, palet_ici_adet, stok_miktari, ana_resim_url, stok_kodu, ean_gtin')
       .eq('aktif', true);
 
     if (error || !products) {
@@ -43,8 +43,9 @@ export async function searchProducts(query: string, limit: number = 5) {
           id: p.id,
           slug: p.slug,
           name: titleDe,
-          casePriceNet: (p.satis_fiyati_musteri || 0) * (p.koli_ici_adet || 1),
-          tierPriceNet: (p.satis_fiyati_toptanci || 0) * (p.koli_ici_adet || 1),
+          unitPriceNet: p.satis_fiyati_musteri || 0,
+          unitTierPriceNet: p.satis_fiyati_toptanci || 0,
+          unitPalletPriceNet: p.satis_fiyati_palet || 0,
           unitsPerCase: p.koli_ici_adet || 6,
           unitsPerPallet: p.palet_ici_adet || 240,
           inStock: (p.stok_miktari ?? 0) > 0,
@@ -91,9 +92,9 @@ export async function getProductDetails(slugOrId: string) {
         slug: data.slug,
         name: titleDe,
         description: descDe,
-        singleCasePriceNet: (data.satis_fiyati_musteri || 0) * (data.koli_ici_adet || 1),
-        fivePlusCasePriceNet: (data.satis_fiyati_toptanci || 0) * (data.koli_ici_adet || 1),
-        palletPriceNet: (data.satis_fiyati_palet || 0) * (data.koli_ici_adet || 1),
+        unitPriceNet: data.satis_fiyati_musteri || 0,
+        unitTierPriceNet: data.satis_fiyati_toptanci || 0,
+        unitPalletPriceNet: data.satis_fiyati_palet || 0,
         unitsPerCase: data.koli_ici_adet || 6,
         weightPerCase: (data.birim_agirlik_kg || 1.3) * (data.koli_ici_adet || 6),
         palletCases: data.palet_ici_adet ? Math.round(data.palet_ici_adet / (data.koli_ici_adet || 6)) : 40,
@@ -116,15 +117,20 @@ export async function calculateB2BPricing(slugOrId: string, cases: number): Prom
       return { error: 'Product not found' };
     }
 
-    const p = details.product;
+    const p = details.product as any; // Type workaround since we changed the return type
     const requestedCases = Math.max(1, Math.round(cases));
     const unitsPerCase = p.unitsPerCase || 6;
-    const singlePrice = Number(p.singleCasePriceNet) || 24; // fallback standard case net
-    const tierPrice = Number(p.fivePlusCasePriceNet) || singlePrice * 0.9; // 10% volume discount fallback
-    const palletPrice = Number(p.palletPriceNet) || tierPrice * 0.9; // pallet discount fallback
+    const unitSinglePrice = Number(p.unitPriceNet) || 4; // fallback
+    const unitTierPrice = Number(p.unitTierPriceNet) || unitSinglePrice * 0.9;
+    const unitPalletPrice = Number(p.unitPalletPriceNet) || unitTierPrice * 0.9;
+
+    const singleCasePrice = unitSinglePrice * unitsPerCase;
+    const tierCasePrice = unitTierPrice * unitsPerCase;
+    const palletCasePrice = unitPalletPrice * unitsPerCase;
 
     const isFivePlus = requestedCases >= 5;
-    const activeCasePrice = isFivePlus ? tierPrice : singlePrice;
+    const activeUnitPrice = isFivePlus ? unitTierPrice : unitSinglePrice;
+    const activeCasePrice = activeUnitPrice * unitsPerCase;
     const totalNet = Math.round(activeCasePrice * requestedCases * 100) / 100;
     const mwstPercent = 7; // German Food VAT
     const totalGross = Math.round(totalNet * 1.07 * 100) / 100;
@@ -132,17 +138,17 @@ export async function calculateB2BPricing(slugOrId: string, cases: number): Prom
     let upsellOpportunity: TieredQuoteResult['upsellOpportunity'] | undefined;
     if (requestedCases >= 2 && requestedCases < 5) {
       const needed = 5 - requestedCases;
-      const nextTotalNet = Math.round(tierPrice * 5 * 100) / 100;
-      const savingsPct = Math.round(((singlePrice - tierPrice) / singlePrice) * 100);
+      const nextTotalNet = Math.round(tierCasePrice * 5 * 100) / 100;
+      const savingsPct = Math.round(((unitSinglePrice - unitTierPrice) / unitSinglePrice) * 100);
 
       upsellOpportunity = {
         nextTierName: '5+ Karton Staffelpreis',
         requiredCases: 5,
         additionalCasesNeeded: needed,
-        nextCasePriceNet: tierPrice,
+        nextCasePriceNet: tierCasePrice,
         nextTotalNet,
         potentialSavingsPercent: savingsPct,
-        messagePrompt: `Nur noch ${needed} Karton(s) bis zur 5er-Staffel! Statt ${singlePrice.toFixed(2)} € zahlen Sie dann nur ${tierPrice.toFixed(2)} € netto pro Karton (ca. ${savingsPct}% Ersparnis).`,
+        messagePrompt: `Nur noch ${needed} Karton(s) bis zur 5er-Staffel! Statt ${singleCasePrice.toFixed(2)} € zahlen Sie dann nur ${tierCasePrice.toFixed(2)} € netto pro Karton (ca. ${savingsPct}% Ersparnis).`,
       };
     }
 
@@ -152,20 +158,20 @@ export async function calculateB2BPricing(slugOrId: string, cases: number): Prom
       requestedCases,
       unitsPerCase,
       totalUnits: requestedCases * unitsPerCase,
-      singleCasePriceNet: singlePrice,
+      singleCasePriceNet: singleCasePrice,
       recommendedTier: {
         tierName: isFivePlus ? '5+ Kartons (Volumenrabatt)' : '1-4 Kartons (Standard B2B)',
         casePriceNet: activeCasePrice,
         totalNet,
         mwstPercent,
         totalGross,
-        savingsEur: isFivePlus ? Math.round((singlePrice - tierPrice) * requestedCases * 100) / 100 : undefined,
+        savingsEur: isFivePlus ? Math.round((singleCasePrice - tierCasePrice) * requestedCases * 100) / 100 : undefined,
       },
       upsellOpportunity,
       palletOption: {
         casesPerPallet: p.palletCases || 40,
-        palletCasePriceNet: palletPrice,
-        palletTotalNet: Math.round(palletPrice * (p.palletCases || 40) * 100) / 100,
+        palletCasePriceNet: palletCasePrice,
+        palletTotalNet: Math.round(palletCasePrice * (p.palletCases || 40) * 100) / 100,
       },
     };
   } catch (err: unknown) {
@@ -279,13 +285,15 @@ export async function createDraftOrder(params: {
       const details = await getProductDetails(item.slugOrId);
       if (!details.success || !details.product) continue;
       
-      const p = details.product;
+      const p = details.product as any;
       const requestedCases = Math.max(1, Math.round(item.cases));
+      const unitsPerCase = p.unitsPerCase || 6;
       
       const isFivePlus = requestedCases >= 5;
-      const singlePrice = Number(p.singleCasePriceNet) || 0;
-      const tierPrice = Number(p.fivePlusCasePriceNet) || singlePrice;
-      const activeCasePrice = isFivePlus ? tierPrice : singlePrice;
+      const unitSinglePrice = Number(p.unitPriceNet) || 0;
+      const unitTierPrice = Number(p.unitTierPriceNet) || unitSinglePrice;
+      const activeUnitPrice = isFivePlus ? unitTierPrice : unitSinglePrice;
+      const activeCasePrice = activeUnitPrice * unitsPerCase;
       
       const lineTotal = activeCasePrice * requestedCases;
       totalNet += lineTotal;
