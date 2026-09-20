@@ -159,6 +159,13 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                     roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[],
                     panelKey: 'marketing'
                 },
+                {
+                    name: 'Google İşletme',
+                    href: '/admin/pazarlama/google-isletme',
+                    icon: FiStar,
+                    roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[],
+                    panelKey: 'marketing'
+                },
             ],
         },
         {

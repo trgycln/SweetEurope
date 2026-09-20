@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/gbp/cron-post",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/gbp/sync-reviews",
+      "schedule": "0 */6 * * *"
+    }
+  ]
+}
