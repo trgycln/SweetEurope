@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/gbp/sync-reviews",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 6 * * *"
     }
   ]
 }
