@@ -13,7 +13,7 @@ export async function searchProducts(query: string, limit: number = 5) {
 
     const { data: products, error } = await supabase
       .from('urunler')
-      .select('id, slug, ad, aciklamalar, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_palet, koli_ici_adet, palet_ici_adet, stok_miktari, ana_resim_url, stok_kodu, ean_gtin')
+      .select('id, slug, ad, aciklamalar, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_palet, koli_ici_adet, palet_ici_adet, stok_miktari, ana_resim_url, stok_kodu, ean_gtin, teknik_ozellikler, inhaltsstoffe, allergene, kategoriler(id, ad, slug)')
       .eq('aktif', true);
 
     if (error || !products) {
@@ -39,6 +39,9 @@ export async function searchProducts(query: string, limit: number = 5) {
       count: matches.length,
       products: matches.map((p) => {
         const titleDe = (p.ad as Record<string, string>)?.de || (p.ad as Record<string, string>)?.tr || '';
+        const descDe = (p.aciklamalar as Record<string, string>)?.de || (p.aciklamalar as Record<string, string>)?.tr || '';
+        const categoryDe = ((p.kategoriler as any)?.ad as Record<string, string>)?.de || ((p.kategoriler as any)?.ad as Record<string, string>)?.tr || '';
+        const ingredientsDe = (p.inhaltsstoffe as Record<string, string>)?.de || (p.inhaltsstoffe as Record<string, string>)?.tr || '';
         return {
           id: p.id,
           slug: p.slug,
@@ -50,6 +53,11 @@ export async function searchProducts(query: string, limit: number = 5) {
           unitsPerPallet: p.palet_ici_adet || 240,
           inStock: (p.stok_miktari ?? 0) > 0,
           imageUrl: p.ana_resim_url,
+          category: categoryDe,
+          description: descDe,
+          attributes: p.teknik_ozellikler,
+          ingredients: ingredientsDe,
+          allergens: p.allergene,
         };
       }),
     };
@@ -67,7 +75,7 @@ export async function getProductDetails(slugOrId: string) {
     const supabase = createSupabaseServiceClient();
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
 
-    let query = supabase.from('urunler').select('*');
+    let query = supabase.from('urunler').select('*, kategoriler(id, ad, slug)');
     if (isUuid) {
       query = query.eq('id', slugOrId);
     } else {
@@ -81,6 +89,8 @@ export async function getProductDetails(slugOrId: string) {
 
     const titleDe = (data.ad as Record<string, string>)?.de || (data.ad as Record<string, string>)?.tr || '';
     const descDe = (data.aciklamalar as Record<string, string>)?.de || (data.aciklamalar as Record<string, string>)?.tr || '';
+    const categoryDe = ((data.kategoriler as any)?.ad as Record<string, string>)?.de || ((data.kategoriler as any)?.ad as Record<string, string>)?.tr || '';
+    const ingredientsDe = (data.inhaltsstoffe as Record<string, string>)?.de || (data.inhaltsstoffe as Record<string, string>)?.tr || '';
 
     return {
       success: true,
@@ -99,6 +109,10 @@ export async function getProductDetails(slugOrId: string) {
         weightPerCase: (data.birim_agirlik_kg || 1.3) * (data.koli_ici_adet || 6),
         palletCases: data.palet_ici_adet ? Math.round(data.palet_ici_adet / (data.koli_ici_adet || 6)) : 40,
         stockStatus: (data.stok_miktari ?? 0) > 0 ? 'in_stock' : 'preorder',
+        category: categoryDe,
+        attributes: data.teknik_ozellikler,
+        ingredients: ingredientsDe,
+        allergens: data.allergene,
       },
     };
   } catch (err: unknown) {

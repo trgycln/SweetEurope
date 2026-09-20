@@ -52,3 +52,4 @@ next-env.d.ts
 # scratch & temporary files
 scratch/
 scratch_migrations.sql
+.vercel
