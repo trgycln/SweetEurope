@@ -1,4 +1,3 @@
-// src/components/Header.tsx (Vollständig mit Such-Modal)
 'use client';
 
 import Link from 'next/link';
@@ -12,9 +11,8 @@ import {
 import { Dictionary } from '@/dictionaries';
 import { createDynamicSupabaseClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-// NEU: SearchModal importieren
 import { SearchModal } from '@/components/SearchModal';
-import { Locale } from '@/lib/utils'; // Annahme: Locale ist in utils
+import { Locale } from '@/lib/utils';
 
 interface HeaderProps {
     dictionary: Dictionary;
@@ -44,17 +42,16 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
     const pathname = usePathname();
     const params = useParams();
     const router = useRouter();
-    const currentLocale = params.locale as Locale; // Locale-Typ verwenden
+    const currentLocale = params.locale as Locale;
 
     const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    // NEU: State für Such-Modal
     const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     useEffect(() => {
         setIsMobileMenuOpen(false);
-        setIsSearchOpen(false); // Suche auch bei Navigation schließen
+        setIsSearchOpen(false);
     }, [pathname]);
 
     const pathWithoutLocale = getPathWithoutLocale(pathname);
@@ -82,9 +79,11 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
         }
     };
 
+    // SEO & GEO: Barista AI eklendi ve isNew flag'i konuldu
     const publicNavLinks = [
         { name: nav.home, href: `/${currentLocale}` },
         { name: nav.products, href: `/${currentLocale}/products` },
+        { name: 'Barista AI', href: `/${currentLocale}/barista-ai`, isNew: true },
         { name: nav.about, href: `/${currentLocale}/about` },
         { name: nav.contact, href: `/${currentLocale}/contact` },
     ];
@@ -93,21 +92,17 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
         <>
             <header className={`sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b px-4 sm:px-6 ${isAdminHeader ? 'bg-white border-bg-subtle text-text-main shadow-sm' : 'border-white/10 bg-primary text-white'}`}> 
 
-                {/* --- Sol taraf --- */}
                 <div className="flex items-center gap-4">
-                    {/* Admin Hamburger Button */}
                     {isAdminHeader && setIsSidebarOpen && (
                         <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden text-text-main/80 hover:text-accent focus:outline-none" aria-label="Admin-Menü öffnen">
                             <FiMenu size={24} />
                         </button>
                     )}
-                    {/* Public Hamburger Button */}
                     {!isAdminHeader && (
                         <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden text-white/80 hover:text-white focus:outline-none" aria-label="Menü öffnen">
                             <FiMenu size={24} />
                         </button>
                     )}
-                    {/* Logo + ElysonSweets */}
                     <Link href={`/${currentLocale}${isAdminHeader ? '/admin/dashboard' : ''}`} className="flex items-center gap-2">
                         {!isAdminHeader && (
                                 <div className="hidden sm:flex rounded-full shadow-lg border-4 border-white bg-white mx-auto overflow-hidden items-center justify-center" style={{width: '48px', height: '48px', maxWidth: '60px', marginRight: '0.5rem'}}>
@@ -116,23 +111,24 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                         )}
                         <span className={`text-xl sm:text-2xl font-serif font-bold ${isAdminHeader ? 'text-primary' : 'text-white'}`}>ElysonSweets {isAdminHeader && <span className="text-sm font-sans font-normal text-gray-500 ml-1">Admin</span>}</span>
                     </Link>
-                    {/* Public Desktop Navigation */}
+                    
                     {!isAdminHeader && (
                         <nav className="hidden lg:flex items-center gap-6 ml-8">
                             {publicNavLinks.map(link => (
-                                <Link key={link.name} href={link.href} className="text-sm font-semibold text-gray-300 hover:text-white transition-colors">
+                                <Link key={link.name} href={link.href} className="flex items-center gap-1.5 text-sm font-semibold text-gray-300 hover:text-white transition-colors">
                                     {link.name}
+                                    {link.isNew && (
+                                        <span className="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[9px] font-bold uppercase tracking-wider shadow-sm">
+                                            {currentLocale === 'tr' ? 'YENİ' : 'NEU'}
+                                        </span>
+                                    )}
                                 </Link>
                             ))}
                         </nav>
                     )}
                 </div>
 
-                {/* --- Rechte Seite --- */}
                 <div className="flex items-center gap-2 sm:gap-4">
-                    
-                    {/* KORREKTUR: Alte Suchleiste entfernt */}
-                    {/* Stattdessen: Such-Icon-Button (nur öffentlich) */}
                     {!isAdminHeader && (
                         <button
                             onClick={() => setIsSearchOpen(true)}
@@ -143,7 +139,6 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                         </button>
                     )}
 
-                    {/* Sprachwechsler */}
                     <div className="relative">
                         <button 
                             onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
@@ -176,7 +171,6 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                         )}
                     </div>
 
-                    {/* Partner Portal / Logout Button */}
                     {isAdminHeader ? (
                         <div className="flex items-center gap-4">
                             <div className="hidden sm:flex items-center gap-2 text-sm text-text-main/80">
@@ -199,7 +193,6 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                 </div>
             </header>
 
-            {/* Mobiles Menü-Overlay (unverändert) */}
             {!isAdminHeader && (
                 <div 
                     className={`fixed inset-0 z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
@@ -214,17 +207,21 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                         </div>
                         <nav className="flex flex-col space-y-4">
                             {publicNavLinks.map(link => (
-                                <Link key={link.name} href={link.href} className="text-lg font-semibold text-secondary/80 hover:text-white">
+                                <Link key={link.name} href={link.href} className="flex items-center gap-2 text-lg font-semibold text-secondary/80 hover:text-white">
                                     {link.name}
+                                    {link.isNew && (
+                                        <span className="px-2 py-0.5 rounded bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                                            {currentLocale === 'tr' ? 'YENİ' : 'NEU'}
+                                        </span>
+                                    )}
                                 </Link>
                             ))}
                         </nav>
-                        {/* Mobile Suche (Hier den Button hinzufügen, der das Modal öffnet) */}
                         <div className="relative sm:hidden pt-4">
                              <button 
                                 onClick={() => {
-                                    setIsMobileMenuOpen(false); // Erst mobiles Menü schließen
-                                    setIsSearchOpen(true); // Dann Suche öffnen
+                                    setIsMobileMenuOpen(false);
+                                    setIsSearchOpen(true);
                                 }}
                                 className="w-full flex items-center gap-3 rounded-lg border border-white/20 bg-white/10 py-2 px-3 text-sm text-gray-400"
                             >
@@ -236,7 +233,6 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                 </div>
             )}
             
-            {/* NEU: Such-Modal rendern */}
             <SearchModal 
                 isOpen={isSearchOpen} 
                 onClose={() => setIsSearchOpen(false)} 

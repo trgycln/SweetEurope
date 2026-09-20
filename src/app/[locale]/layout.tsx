@@ -43,12 +43,10 @@ export default async function LocaleLayout({
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={direction}>
-      <body>
-        <OrganizationSchema />
-        <WebSiteSchema />
-        {children}
-      </body>
-    </html>
+    <div dir={direction} className="locale-wrapper">
+      <OrganizationSchema />
+      <WebSiteSchema />
+      {children}
+    </div>
   );
 }

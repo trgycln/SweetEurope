@@ -9,6 +9,8 @@ import { Tables } from '@/lib/supabase/database.types';
 import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 import type { Metadata } from 'next';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
+import Link from 'next/link';
+import { FiCoffee, FiArrowRight } from 'react-icons/fi';
 
 type Sablon = {
     alan_adi: string;
@@ -57,7 +59,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
     const productSlug = (urun as any).slug || (urun as any).id;
     const productUrl = `${baseUrl}/${locale}/products/${productSlug}`;
 
-    // Ürüne Özel Dinamik Hreflang (Kopya içerik cezasını engeller)
     const languages: Record<string, string> = {};
     ['de', 'en', 'tr', 'ar'].forEach((l) => {
         languages[l] = `${baseUrl}/${l}/products/${productSlug}`;
@@ -154,7 +155,6 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://elysonsweets.de';
     const productSlug = (urun as any).slug || (urun as any).id;
 
-    // Kusursuzlaştırılmış Tekil Product Schema (Çift schema sorunu çözüldü)
     const productSchema = {
         "@context": "https://schema.org",
         "@type": "Product",
@@ -170,7 +170,6 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
         "offers": {
             "@type": "Offer",
             "availability": "https://schema.org/InStock",
-            // B2B fiyatı gizli olduğu için price parametresi tamamen kaldırıldı (Google "Bedava" sanmasın diye)
             "url": `${baseUrl}/${locale}/products/${productSlug}`,
             "seller": {
                 "@type": "Organization",
@@ -235,12 +234,51 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                 contentName={urunAdi}
                 contentCategory={kategoriAdi}
             />
+            
             <UrunDetayGorunumu
                 urun={urun as any}
                 ozellikSablonu={ozellikSablonu as any}
                 locale={locale}
                 dict={dictionary}
             />
+
+            {/* GEO & UX: Barista AI Cross-Selling Banner */}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+                <div className="bg-stone-900 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-xl">
+                    {/* Dekoratif Arka Plan */}
+                    <div className="absolute -right-20 -top-20 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                    <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div className="relative z-10 max-w-2xl">
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="px-2.5 py-1 bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-widest rounded-md border border-amber-500/30">
+                                {locale === 'tr' ? 'Yapay Zeka Destekli' : 'KI-Gestützt'}
+                            </span>
+                        </div>
+                        <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3 leading-tight">
+                            {locale === 'tr' 
+                                ? `${urunAdi} ile İmza İçecekler Yaratın` 
+                                : `Kreieren Sie Signature Drinks mit ${urunAdi}`}
+                        </h3>
+                        <p className="text-stone-400 text-sm md:text-base leading-relaxed">
+                            {locale === 'tr'
+                                ? 'Barista AI sihirbazımızı kullanarak bu ürüne özel, kafenizin menüsüne ekleyebileceğiniz profesyonel reçeteler oluşturun ve PDF olarak indirin.'
+                                : 'Nutzen Sie unseren Barista AI-Assistenten, um professionelle Rezepte für dieses Produkt zu erstellen und als PDF für Ihr Café-Menü herunterzuladen.'}
+                        </p>
+                    </div>
+
+                    <div className="relative z-10 shrink-0 w-full md:w-auto">
+                        <Link 
+                            href={`/${locale}/barista-ai?ingredient=${encodeURIComponent(urunAdi)}`}
+                            className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 w-full md:w-auto shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:-translate-y-1"
+                        >
+                            <FiCoffee size={20} />
+                            {locale === 'tr' ? 'Reçete Sihirbazını Başlat' : 'Rezept-Assistent starten'}
+                            <FiArrowRight size={20} />
+                        </Link>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }
