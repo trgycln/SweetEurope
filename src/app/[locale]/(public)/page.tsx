@@ -13,62 +13,74 @@ import { cookies } from "next/headers";
 import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from 'next';
-import { 
-    PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER, 
-    isPublicCategorySlugHidden 
+import FaqSchema from '@/components/seo/FaqSchema';
+import {
+    PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER,
+    isPublicCategorySlugHidden
 } from "@/lib/public-category-visibility";
 
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ locale: string }> 
+export async function generateMetadata({
+    params
+}: {
+    params: Promise<{ locale: string }>
 }): Promise<Metadata> {
-  const { locale } = await params;
-  const dictionary = await getDictionary(locale as any);
-  
-  return {
-    title: dictionary.seo?.home?.title || 'Elysion Sweets',
-    description: dictionary.seo?.home?.description || '',
-    openGraph: {
-      title: dictionary.seo?.home?.title || 'Elysion Sweets',
-      description: dictionary.seo?.home?.description || '',
-      locale: locale,
-      type: 'website',
-    },
-  };
+    const { locale } = await params;
+    const dictionary = await getDictionary(locale as any);
+
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.elysonsweets.de';
+    const canonicalPath = `${baseUrl}/${locale}`;
+
+    // Ana sayfa için kusursuz Hreflang ve Canonical yönlendirmesi
+    const alternates: Record<string, string> = {};
+    ['de', 'en', 'tr', 'ar'].forEach((l) => {
+        alternates[l] = `${baseUrl}/${l}`;
+    });
+    alternates['x-default'] = `${baseUrl}/de`;
+
+    return {
+        title: dictionary.seo?.home?.title || 'Elysonsweets GmbH | Premium B2B HORECA Supplier',
+        description: dictionary.seo?.home?.description || 'Premium distributor of pastry and coffee syrups for B2B Gastronomy.',
+        alternates: {
+            canonical: canonicalPath,
+            languages: alternates,
+        },
+        openGraph: {
+            title: dictionary.seo?.home?.title || 'Elysonsweets GmbH | Premium B2B HORECA Supplier',
+            description: dictionary.seo?.home?.description || 'Premium distributor of pastry and coffee syrups for B2B Gastronomy.',
+            locale: locale,
+            type: 'website',
+            url: canonicalPath,
+            siteName: 'Elysonsweets GmbH',
+        },
+    };
 }
 
-export default async function Home({ 
-  params 
-}: { 
-  params: Promise<{ locale: string }> 
+export default async function Home({
+    params
+}: {
+    params: Promise<{ locale: string }>
 }) {
     const { locale } = await params;
     const dictionary = await getDictionary(locale as any);
-    
-    // Kategorileri database'den çek
+
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
-    
-    // Sadece ana kategoriler
+
     const { data: kategoriler } = await supabase
         .from('kategoriler')
         .select('id, slug, ad, ust_kategori_id')
         .is('ust_kategori_id', null)
         .order('id', { ascending: true });
 
-    // Tüm kategorileri çek (ana + alt) - parent bilgisi için
     const { data: tumKategoriler } = await supabase
         .from('kategoriler')
         .select('id, slug, ad, ust_kategori_id');
 
-    // Sadece aktif ürünleri çek
     const { data: urunler } = await supabase
         .from('urunler')
         .select('kategori_id')
         .eq('aktif', true);
 
-    // Kategori hiyerarşisinde yukarı doğru recursive ürün sayımı
     const kategoriParentLookup = new Map(tumKategoriler?.map(k => [k.id, k.ust_kategori_id ?? null]) || []);
     const categoryProductCounts: Record<string, number> = {};
     if (urunler) {
@@ -83,8 +95,7 @@ export default async function Home({
             }
         });
     }
-    
-    // Anasayfada sergilenecek 6 ana B2B kategorisi
+
     const CORE_CATEGORY_SLUGS = [
         'syrups',
         'cafe-bar-sauces',
@@ -98,7 +109,6 @@ export default async function Home({
         .map(slug => tumKategoriler?.find(k => k.slug === slug))
         .filter((k): k is NonNullable<typeof k> => k != null && (categoryProductCounts[k.id] || 0) > 0);
 
-    // Determine image_url based on file existence (prefer webp, then jpg, then jpeg/JPEG)
     const kategorilerWithImages = selectedKategoriler.map((kategori) => {
         const slug = kategori.slug || '';
         const baseFilename = slug;
@@ -126,39 +136,19 @@ export default async function Home({
         };
     });
 
-    const organizationSchema = {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "ElysonSweets",
-        "url": "https://elysonsweets.de",
-        "logo": "https://elysonsweets.de/logo.png",
-        "description": dictionary.seo?.home?.description || 'Premium distributor of pastry and coffee syrups.',
-        "knowsAbout": ["Fo Syrups", "B2B Gastronomy", "Coffee Syrups", "Pastry Products"],
-        "brand": [
-            {
-                "@type": "Brand",
-                "name": "Fo"
-            },
-            {
-                "@type": "Brand",
-                "name": "Limpo"
-            },
-            {
-                "@type": "Brand",
-                "name": "Repo"
-            }
-        ]
-    };
-
     return (
         <>
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+            {/* GEO Optimizasyonu: LLM'ler için B2B FAQ Şeması */}
+            <FaqSchema />
+
+            {/* NOT: Çakışma yaratan manuel OrganizationSchema silindi. 
+                Çünkü Root Layout (layout.tsx) içinde zaten global ve çok daha kapsamlı bir OrganizationSchema var. */}
+
             <HeroSection dictionary={dictionary} locale={locale} />
             <StatsBar dictionary={dictionary} />
             <FeaturedProductsSection dictionary={dictionary} locale={locale} />
             <FoBrandAboutSection locale={locale} dictionary={dictionary} anaKategoriler={kategorilerWithImages} />
             <PhilosophySection dictionary={dictionary} />
-            {/* <TestimonialsSection dictionary={dictionary} /> */}
             <QualityPromiseSection dictionary={dictionary} />
             <CtaSection dictionary={dictionary} locale={locale} />
         </>

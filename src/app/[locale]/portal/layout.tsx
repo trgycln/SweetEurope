@@ -1,7 +1,7 @@
 // src/app/[locale]/portal/layout.tsx
 // KORRIGIERTE VERSION (await cookies + await createClient)
-
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { PortalProvider } from '@/contexts/PortalContext';
 import { VisitPlannerProvider } from '@/contexts/VisitPlannerContext';
@@ -23,6 +23,15 @@ type ProfileWithFirma = Tables<'profiller'> & {
     }) | null;
 };
 type Bildirim = Tables<'bildirimler'>;
+
+export const metadata: Metadata = {
+  title: 'B2B Portal | Elysonsweets',
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
+};
 
 export default async function PortalLayout({
     children,

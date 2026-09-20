@@ -1,5 +1,3 @@
-// src/app/[locale]/(public)/products/page.tsx
-
 import { getDictionary } from '@/dictionaries';
 import { ProductGridClient } from './product-grid-client';
 import { getLocalizedName } from '@/lib/utils';
@@ -13,47 +11,75 @@ import { type Kategori, type Urun } from './types';
 import { FiPackage, FiMail, FiX } from 'react-icons/fi';
 import type { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import ItemListSchema from '@/components/seo/ItemListSchema';
 
 export const revalidate = 3600; // 1 hour caching (ISR)
 
-const baseUrl = 'https://www.elysonsweets.de';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.elysonsweets.de';
 const locales = ['de', 'en', 'tr', 'ar'];
+
+// SEO İyileştirmesi: Başlık harflerini büyütmek için yardımcı fonksiyon
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
 
 export async function generateMetadata({
     params,
     searchParams,
 }: {
     params: Promise<{ locale: string }>;
-    searchParams: Promise<{ kategori?: string }>;
+    searchParams: Promise<{ kategori?: string; altKategori?: string; page?: string }>;
 }): Promise<Metadata> {
     const { locale } = await params;
-    const { kategori } = await searchParams;
+    const sp = await searchParams;
+    const { kategori, altKategori, page } = sp;
     const dictionary = await getDictionary(locale as any);
 
-    const canonicalPath = kategori
-        ? `${baseUrl}/${locale}/products?kategori=${kategori}`
-        : `${baseUrl}/${locale}/products`;
+    // 1. Dinamik Başlık ve Açıklama (Topical Authority)
+    let pageTitle = dictionary.seo?.products?.title || 'B2B Produktkatalog | Elysonsweets';
+    let pageDesc = dictionary.seo?.products?.description || 'Premium B2B HORECA supplier.';
+
+    const activeSlug = altKategori || kategori;
+    if (activeSlug && activeSlug !== 'null') {
+        // Kategori seçiliyse başlığı dinamikleştir
+        const formattedName = capitalize(activeSlug);
+        pageTitle = `${formattedName} | B2B Katalog | Elysonsweets`;
+        pageDesc = locale === 'tr'
+            ? `Toptan ${formattedName} siparişi. HORECA işletmeleri için premium kalite.`
+            : `Entdecken Sie unsere ${formattedName} im B2B-Großhandel. Premium Qualität für Gastronomie.`;
+    }
+
+    // 2. Kusursuz Canonical URL (Sayfalama ve Alt Kategorileri kapsar)
+    let canonicalPath = `${baseUrl}/${locale}/products`;
+    const queryParts = [];
+    if (kategori && kategori !== 'null') queryParts.push(`kategori=${kategori}`);
+    if (altKategori) queryParts.push(`altKategori=${altKategori}`);
+    if (page && page !== '1') queryParts.push(`page=${page}`); // Sayfalama canonical'a eklendi
+
+    if (queryParts.length > 0) {
+        canonicalPath += `?${queryParts.join('&')}`;
+    }
 
     const alternates: Record<string, string> = {};
     locales.forEach((l) => {
-        alternates[l] = kategori
-            ? `${baseUrl}/${l}/products?kategori=${kategori}`
-            : `${baseUrl}/${l}/products`;
+        let altPath = `${baseUrl}/${l}/products`;
+        if (queryParts.length > 0) altPath += `?${queryParts.join('&')}`;
+        alternates[l] = altPath;
     });
+    alternates['x-default'] = `${baseUrl}/de/products${queryParts.length > 0 ? `?${queryParts.join('&')}` : ''}`;
 
     return {
-        title: dictionary.seo?.products?.title || 'B2B Produktkatalog | ElysonSweets',
-        description: dictionary.seo?.products?.description || '',
+        title: pageTitle,
+        description: pageDesc,
         alternates: {
             canonical: canonicalPath,
             languages: alternates,
         },
         openGraph: {
-            title: dictionary.seo?.products?.title || 'B2B Produktkatalog | ElysonSweets',
-            description: dictionary.seo?.products?.description || '',
+            title: pageTitle,
+            description: pageDesc,
             locale,
             type: 'website',
             url: canonicalPath,
+            siteName: 'Elysonsweets GmbH',
         },
     };
 }
@@ -88,18 +114,15 @@ export default async function PublicUrunlerPage({
     const altKategoriFilter = sp.altKategori;
     const geschmackFilter = sp.geschmack;
     const searchQuery = sp.q?.trim() || '';
-    const segmentFilter = sp.segment; // 'cafe' | 'hotel' | 'patisserie' | 'dessertbar'
+    const segmentFilter = sp.segment;
     const aktifMerkmale = sp.merkmal ? sp.merkmal.split(',').filter(Boolean) : [];
-    // Removed gamFilter
 
     let seciliKategoriSlug: string | undefined;
     if (sp.kategori && sp.kategori.toLowerCase() !== 'null' && !isPublicCategorySlugHidden(sp.kategori)) {
         seciliKategoriSlug = sp.kategori;
-        // Kategori seçiliyse (veya alt kategori), ürünleri gruplayabilmek için tümünü tek sayfada gösteriyoruz (Max 1000)
         perPage = 1000;
     }
 
-    // Auth moved to client component to enable static caching of this page
     let isLoggedIn = undefined;
     let partnerTier = undefined;
 
@@ -114,8 +137,6 @@ export default async function PublicUrunlerPage({
     const visibleKategoriler = kategoriler.filter(k => !hiddenKategoriIds.has(k.id));
 
     const visibleMainCategoryOrder = PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER;
-
-    const pageContent = dictionary.productsPage;
 
     const kategoriAdlariMap = new Map<string, string>();
     kategoriler.forEach(k => {
@@ -137,7 +158,6 @@ export default async function PublicUrunlerPage({
         }
     }
 
-    // ── Fetch all products for category counts ────────────────────────────────
     const { data: tumUrunlerData } = await supabase
         .from('urunler')
         .select('id, kategori_id')
@@ -148,14 +168,12 @@ export default async function PublicUrunlerPage({
     );
     const totalAllProducts = tumUrunler.length;
 
-    // Category product counts — recursively propagate to ALL ancestors
     const categoryProductCounts: Record<string, number> = {};
     const kategoriParentLookup = new Map(kategoriler.map(k => [k.id, k.ust_kategori_id ?? null]));
 
     tumUrunler.forEach((u: any) => {
         const catId = u.kategori_id;
         if (!catId) return;
-        // Walk up the full ancestor chain
         let current: string | null = catId;
         let guard = 0;
         while (current && guard++ < 10) {
@@ -164,16 +182,6 @@ export default async function PublicUrunlerPage({
         }
     });
 
-    // ── Business segment → category slug mapping ─────────────────────────────
-    // These map segment filter to real category/query
-    const SEGMENT_CATEGORY_MAP: Record<string, { kategori?: string; lagerung?: string }> = {
-        cafe:       { kategori: undefined },
-        hotel:      { lagerung: 'tiefkuehl' },
-        patisserie: { kategori: 'cakes-and-tarts' },
-        dessertbar: { lagerung: 'tiefkuehl' },
-    };
-
-    // Helper to get all descendant category IDs recursively
     const getAllDescendantIds = (catId: string, allCats: Kategori[]): string[] => {
         const ids = [catId];
         const directChildren = allCats.filter(k => k.ust_kategori_id === catId);
@@ -197,7 +205,6 @@ export default async function PublicUrunlerPage({
         'pastacilik-ic-dolgular-dekorasyon': 'pastry-bakery',
     };
 
-    // Resolve selected category + IDs to filter
     let filtrelenecekKategoriIdleri: string[] = [];
     let isCategoryFilterActive = false;
 
@@ -225,7 +232,6 @@ export default async function PublicUrunlerPage({
         }
     }
 
-    // ── Main product query ────────────────────────────────────────────────────
     const productSelectFields = `
         id, ad, slug, ana_resim_url, galeri_resim_urls,
         kategori_id, ortalama_puan, degerlendirme_sayisi,
@@ -255,7 +261,6 @@ export default async function PublicUrunlerPage({
         }
     }
 
-
     if (geschmackFilter) {
         urunlerQuery = urunlerQuery.contains(
             'teknik_ozellikler->geschmack',
@@ -277,7 +282,6 @@ export default async function PublicUrunlerPage({
     let urunlerRes = await urunlerQuery.order('ad', { ascending: true });
 
     if (urunlerRes.error) {
-        console.error('Product query error, retrying:', urunlerRes.error.message);
         const minimalFields = `id, ad, slug, ana_resim_url, kategori_id, stok_kodu, stok_miktari,
             koli_ici_adet, palet_ici_adet, teknik_ozellikler, lojistik_sinifi,
             lagertemperatur_min_celsius, lagertemperatur_max_celsius, zertifikate,
@@ -305,7 +309,6 @@ export default async function PublicUrunlerPage({
     );
     totalCount = sortedData.length;
 
-    // Sort by category order
     const kategoriById = new Map(kategoriler.map(k => [k.id, k]));
     const getRootSlug = (catId?: string | null) => {
         let cur = catId ? kategoriById.get(catId) : null;
@@ -324,9 +327,8 @@ export default async function PublicUrunlerPage({
             const sa = ai === -1 ? 999 : ai;
             const sb = bi === -1 ? 999 : bi;
             if (sa !== sb) return sa - sb;
-            
+
             if (searchQuery) {
-                // If there's a search query, try to bring exact matches closer
                 const sq = searchQuery.toLowerCase();
                 const aName = String(a.ad?.[locale] || a.ad?.de || '').toLowerCase();
                 const bName = String(b.ad?.[locale] || b.ad?.de || '').toLowerCase();
@@ -334,13 +336,13 @@ export default async function PublicUrunlerPage({
                 const bSku = String(b.stok_kodu || '').toLowerCase();
                 const aEan = String(a.ean_gtin || '').toLowerCase();
                 const bEan = String(b.ean_gtin || '').toLowerCase();
-                
+
                 const aScore = (aName.includes(sq) ? 1 : 0) + (aSku.includes(sq) ? 2 : 0) + (aEan === sq ? 3 : 0);
                 const bScore = (bName.includes(sq) ? 1 : 0) + (bSku.includes(sq) ? 2 : 0) + (bEan === sq ? 3 : 0);
-                
+
                 if (aScore !== bScore) return bScore - aScore;
             }
-            
+
             const pa = a.ortalama_puan || 0, pb = b.ortalama_puan || 0;
             if (pa !== pb) return pb - pa;
             return String(a.ad?.[locale] || a.ad?.de || '')
@@ -354,7 +356,6 @@ export default async function PublicUrunlerPage({
     const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
     const clampedPage = Math.min(page, totalPages);
 
-    // ── Bestseller products (max 8) ───────────────────────────────────────────
     let bestsellerUrunler: Urun[] = [];
     if (!seciliKategoriSlug && !sp.altKategori && !searchQuery) {
         try {
@@ -368,7 +369,6 @@ export default async function PublicUrunlerPage({
                 (u: any) => !hiddenKategoriIds.has(u.kategori_id ?? '')
             ) as unknown as Urun[];
         } catch {
-            // is_bestseller column not yet added to DB — skip
             bestsellerUrunler = [];
         }
     }
@@ -392,7 +392,6 @@ export default async function PublicUrunlerPage({
         }
     }
 
-    // Aroma sayılarını hesapla — tüm aktif ürünlerden
     const geschmackCounts: Record<string, number> = {};
     try {
         const { data: allTeknik } = await supabase
@@ -411,7 +410,7 @@ export default async function PublicUrunlerPage({
                 if (tat) geschmackCounts[tat] = (geschmackCounts[tat] || 0) + 1;
             });
         });
-    } catch {}
+    } catch { }
 
     let seciliKategoriAdi = dictionary.publicProductsPage?.allProducts || (locale === 'tr' ? 'Tüm Ürünler' : locale === 'en' ? 'All Products' : locale === 'ar' ? 'جميع المنتجات' : 'Alle Produkte');
     if (seciliKategoriSlug) {
@@ -420,7 +419,6 @@ export default async function PublicUrunlerPage({
         if (sk) seciliKategoriAdi = sk.ad?.[locale] || sk.ad?.['de'] || seciliKategoriAdi;
     }
 
-    // Aktif geschmack ve merkmal filtreleri her zaman korunur, p ile override edilebilir
     const buildProductsHref = (p: Record<string, string | undefined>) => {
         const q = new URLSearchParams();
         if (geschmackFilter && !('geschmack' in p)) q.set('geschmack', geschmackFilter);
@@ -441,12 +439,59 @@ export default async function PublicUrunlerPage({
 
     const activeFilterCount = [seciliKategoriSlug, sp.altKategori].filter(Boolean).length;
 
+    // 3. GEO Fırsatı: Sayfanın altındaki FAQ için dinamik JSON-LD Schema
+    const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": locale === 'tr' ? 'Fo kahve şurubu çeşitleri nelerdir?' : 'Welche Sorten von Fo Sirup sind erhältlich?',
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": locale === 'tr' ? 'Fo markası, kafeler ve baristalar için geniş bir şurup yelpazesi sunar. En çok tercih edilen aromalar arasında Vanilya, Karamel, Fındık, Çikolata, İrlanda Kremi, Nane, Çilek ve Beyaz Çikolata bulunur.' : 'Das Sortiment umfasst klassische Barista-Sirupe (Vanille, Karamell, Haselnuss, Schokolade), fruchtige Cocktailsirupe (Mango, Passionsfrucht, Erdbeere) sowie zuckerfreie Varianten in Gastronomie-Qualität.'
+                }
+            },
+            {
+                "@type": "Question",
+                "name": locale === 'tr' ? 'Kafeler için en çok tercih edilen Fo şurup aromaları hangileridir?' : 'Welche Geschmacksrichtungen sind bei Cafés am beliebtesten?',
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": locale === 'tr' ? 'Baristaların imza kahveler yaratmak için en sık kullandığı şuruplar Karamel, Vanilya ve Fındık şuruplarıdır. Soğuk içecekler ve kokteyller için ise Blue Curaçao, Grenadine ve Meyve Püreleri yoğun talep görmektedir.' : 'Für Kaffeespezialitäten sind Karamell, Vanille und Haselnuss die klaren Favoriten. Für Eistees, Mocktails und Cocktails werden Blue Curaçao, Wassermelone, Mango und Minze besonders stark nachgefragt.'
+                }
+            },
+            {
+                "@type": "Question",
+                "name": locale === 'tr' ? 'Almanya\'da toptan Fo şurubu nereden alınır?' : 'Wie erfolgt die B2B-Bestellung und Lieferung in Deutschland?',
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": locale === 'tr' ? 'ElysonSweets, Almanya başta olmak üzere Avrupa\'daki HORECA (Otel, Restoran, Kafe) işletmelerine toptan Fo şurubu tedariki sağlamaktadır. Uygun fiyatlar ve hızlı sevkiyat ile orijinal ürünleri sitemizden sipariş edebilirsiniz.' : 'ElysonSweets beliefert gewerbliche Kunden in Deutschland und der EU ab unserem Zentrallager in Köln. Bestellungen sind karton- oder palettenweise mit transparenten Staffelpreisen möglich.'
+                }
+            }
+        ]
+    };
+
     return (
         <div className="min-h-screen flex flex-col font-sans bg-[#FBF9F5]">
+            <ItemListSchema
+                name={seciliKategoriSlug ? seciliKategoriAdi : 'Elysonsweets Products'}
+                description={seciliKategoriSlug ? seciliKategoriAdi : 'Explore our premium B2B cocktail syrups and bar sauces.'}
+                items={urunler.map((urun: any) => ({
+                    name: urun.ad?.[locale] || urun.ad?.de || urun.slug,
+                    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://elysonsweets.de'}/${locale}/products/${urun.slug || urun.id}`,
+                    image: urun.ana_resim_url
+                }))}
+            />
+
+            {/* FAQ Schema Enjeksiyonu */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
 
             {/* ── Page Header ─────────────────────────────────────────────── */}
             <div className="border-b border-stone-200/70 relative overflow-hidden bg-white/90 backdrop-blur-md">
-                
+
                 <div className="container mx-auto px-4 sm:px-8 py-4 sm:py-6 relative z-10">
 
                     <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4 justify-between">
@@ -504,7 +549,6 @@ export default async function PublicUrunlerPage({
                                 {visibleKategoriler
                                     .filter(k => !k.ust_kategori_id && (categoryProductCounts[k.id] || 0) > 0)
                                     .sort((a, b) => {
-                                        // Sort by known order first, then alphabetically
                                         const ai = visibleMainCategoryOrder.indexOf((a.slug ?? '') as any);
                                         const bi = visibleMainCategoryOrder.indexOf((b.slug ?? '') as any);
                                         if (ai !== -1 && bi !== -1) return ai - bi;
@@ -593,7 +637,7 @@ export default async function PublicUrunlerPage({
                                 {seciliKategoriSlug && (
                                     <Link href={buildProductsHref({ ...currentQuery, kategori: undefined, altKategori: undefined })}
                                         className="inline-flex items-center gap-1 bg-white/10 text-white border border-white/20 px-2.5 py-1 rounded-md font-medium hover:bg-white/20 transition-colors">
-                                        {seciliKategoriAdi} <FiX size={12}/>
+                                        {seciliKategoriAdi} <FiX size={12} />
                                     </Link>
                                 )}
 
@@ -643,7 +687,7 @@ export default async function PublicUrunlerPage({
                     </div>
                 </div>
             </div>
-            
+
             {/* SEO & GEO FAQ Section */}
             <div className="mt-16 py-20 border-t border-stone-200/80 bg-white relative overflow-hidden">
                 <div className="container mx-auto px-4 max-w-4xl relative z-10">

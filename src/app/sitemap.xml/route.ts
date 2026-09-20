@@ -69,7 +69,7 @@ export async function GET() {
 
   const urls: string[] = [];
 
-  const staticPages = ['', '/products', '/about', '/contact', '/impressum', '/datenschutz'];
+  const staticPages = ['', '/products', '/markalar', '/blog', '/about', '/contact', '/impressum', '/datenschutz', '/agb', '/widerruf'];
   locales.forEach((locale) => {
     staticPages.forEach((page) => {
       urls.push(`

@@ -1,10 +1,18 @@
 // app/[locale]/(public)/layout.tsx (DÜZELTİLMİŞ)
 
 import { ReactNode } from 'react';
+import type { Metadata } from 'next';
 import { Header } from '@/components/Header';
 import { getDictionary } from '@/dictionaries';
 import Footer from '@/components/Footer'; 
 import WhatsAppButton from '@/components/WhatsAppButton';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 // DEĞİŞİKLİK: Fonksiyon imzasını güncelledik.
 export default async function LocaleLayout({

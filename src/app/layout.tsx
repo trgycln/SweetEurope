@@ -9,6 +9,7 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 import VercelAnalytics from "@/components/VercelAnalytics";
 import CookieBanner from "@/components/CookieBanner";
 import GlobalFluidProvider from "@/components/GlobalFluidProvider";
+import { getI18nAlternates } from "@/lib/seo-utils";
 import "./globals.css";
 
 const localeNames: Record<string, string> = {
@@ -69,6 +70,7 @@ export const metadata: Metadata = {
   verification: {
     google: "", // Google Search Console doğrulama kodu buraya eklenecek
   },
+  alternates: getI18nAlternates(),
 };
 
 export default async function RootLayout({

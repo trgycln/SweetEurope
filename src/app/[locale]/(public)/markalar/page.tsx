@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { FiArrowRight } from 'react-icons/fi';
+import BrandListSchema from '@/components/seo/BrandListSchema';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -17,8 +18,23 @@ export default async function MarkalarPage({ params }: { params: Promise<{ local
     const { locale } = await params;
     const dict = await getDictionary(locale);
 
+    const markalar = [
+        { name: 'FO Syrups & Ingredients', slug: 'fo' },
+        { name: 'LİMPO', slug: 'limpo' },
+        { name: 'REPO', slug: 'repo' },
+        { name: 'CORE', slug: 'core' },
+        { name: 'FÜMER', slug: 'fumer' }
+    ];
+
     return (
         <div className="min-h-screen bg-slate-50 pt-24 pb-20">
+            <BrandListSchema 
+              brands={markalar.map((marka: any) => ({
+                name: marka.isim || marka.name || marka.title,
+                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://elysonsweets.de'}/${locale}/markalar/${marka.slug || marka.id}`,
+                logo: marka.logo_url || marka.image_url
+              }))} 
+            />
             <div className="container mx-auto px-4 max-w-7xl">
                 {/* Hero */}
                 <div className="text-center mb-16">

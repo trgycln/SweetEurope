@@ -2,6 +2,7 @@
 // KORRIGIERTE VERSION (await params, cookies, createClient + Robustere Fehlerbehandlung)
 
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { AdminLayoutClient } from '@/components/AdminLayoutClient';
 import { Tables, Enums } from '@/lib/supabase/database.types';
@@ -15,6 +16,15 @@ import { getGlobalCachedUser, getCachedProfile, getCachedUnreadNotificationsCoun
 
 // Typ für Benachrichtigungen
 type Bildirim = Tables<'bildirimler'>;
+
+export const metadata: Metadata = {
+  title: 'Admin Panel | Elysonsweets',
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
+};
 
 export default async function AdminLayout({
     children,
