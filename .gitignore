@@ -48,3 +48,7 @@ next-env.d.ts
 /public/urun-etiketleri
 /public/Ürün Etiketleri/**
 /public/urun-etiketleri/**
+
+# scratch & temporary files
+scratch/
+scratch_migrations.sql
