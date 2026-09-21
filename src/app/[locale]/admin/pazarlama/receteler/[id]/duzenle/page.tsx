@@ -2,7 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { FiSlash } from 'react-icons/fi';
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
-import EditRecipeForm from '../components/EditRecipeForm';
+import EditRecipeForm from '../../components/EditRecipeForm';
 import { notFound } from 'next/navigation';
 
 export default async function RecipeEditPage({ params }: { params: Promise<{ locale: string, id: string }> }) {
