@@ -6,7 +6,7 @@ import { Playfair_Display, Lato } from "next/font/google";
 import { headers } from "next/headers";
 import MetaPixel from "@/components/MetaPixel";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
-import VercelAnalytics from "@/components/VercelAnalytics";
+import { Analytics } from "@vercel/analytics/next";
 import CookieBanner from "@/components/CookieBanner";
 import GlobalFluidProvider from "@/components/GlobalFluidProvider";
 import { getI18nAlternates } from "@/lib/seo-utils";
@@ -122,7 +122,7 @@ export default async function RootLayout({
       <body suppressHydrationWarning>
         <GlobalFluidProvider />
         {children}
-        <VercelAnalytics />
+        <Analytics />
         <CookieBanner />
         {/* DSGVO/TTDSG: Pixel yalnızca onay sonrası yüklenir */}
         <MetaPixel />
