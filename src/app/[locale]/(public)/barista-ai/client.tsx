@@ -5,13 +5,15 @@ import { FiCoffee, FiDownload, FiLoader, FiStar } from 'react-icons/fi';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { saveRecipesBulk } from '@/lib/actions/recipe-actions';
 
 interface Recipe {
-  name: string;
+  title: string;
   description: string;
   ingredients: string[];
   instructions: string[];
-  glassType: string;
+  prep_time_minutes: number;
+  category: string;
 }
 
 export default function BaristaAiClient({ locale }: { locale: string }) {
@@ -21,6 +23,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
   const [loading, setLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [recipes, setRecipes] = useState<Recipe[] | null>(null);
+  const [productId, setProductId] = useState<string | null>(null);
 
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -29,8 +32,12 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const prefilledIngredient = params.get('ingredient');
+      const urlProductId = params.get('productId');
       if (prefilledIngredient) {
         setIngredients(prefilledIngredient);
+      }
+      if (urlProductId) {
+        setProductId(urlProductId);
       }
     }
   }, []);
@@ -52,9 +59,30 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
 
       if (!res.ok) throw new Error('API Error');
       const data = await res.json();
-      setRecipes(data.recipes);
-      toast.success(locale === 'tr' ? 'Reçeteleriniz hazır!' : 'Ihre Rezepte sind fertig!');
+      
+      if (data.recipes && data.recipes.length > 0) {
+        // UI'da hemen göster ki PDF'i indirebilsin
+        setRecipes(data.recipes);
+        
+        // Arka planda hepsini SEO için veritabanına kaydet
+          const formattedRecipes = data.recipes.map((recipe: Recipe) => ({
+            title: recipe.title,
+            description: recipe.description,
+            ingredients: recipe.ingredients,
+            instructions: recipe.instructions,
+            prep_time_minutes: recipe.prep_time_minutes || 5,
+            category: recipe.category || 'coffee'
+          }));
+
+        // Yönlendirme yapmadan sadece kaydet
+        saveRecipesBulk(formattedRecipes, locale, productId).catch(err => {
+          console.error("Background save error:", err);
+        });
+      } else {
+        throw new Error('No recipes returned');
+      }
     } catch (error) {
+      console.error(error);
       toast.error(locale === 'tr' ? 'Bir hata oluştu.' : 'Ein Fehler ist aufgetreten.');
     } finally {
       setLoading(false);
@@ -135,7 +163,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
           {!recipes ? (
             <div className="flex-1 flex flex-col items-center justify-center text-stone-400 text-center">
               <FiCoffee size={48} className="mb-4 opacity-20" />
-              <p>{locale === 'tr' ? 'Yapay zeka baristanız siparişinizi bekliyor...' : 'Ihr KI-Barista wartet auf Ihre Bestellung...'}</p>
+              <p>{locale === 'tr' ? 'Uzman baristanız siparişinizi bekliyor...' : 'Unser Barista-Experte wartet auf Ihre Bestellung...'}</p>
             </div>
           ) : (
             <div className="space-y-6 flex-1">
@@ -153,11 +181,21 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
               <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                 {recipes.map((recipe, idx) => (
                   <div key={idx} className="bg-white p-5 rounded-2xl shadow-sm border border-stone-100">
-                    <h4 className="font-bold text-lg text-amber-900 mb-1">{recipe.name}</h4>
+                    <div className="flex justify-between items-start gap-4 mb-2">
+                      <h4 className="font-bold text-lg text-amber-900">{recipe.title}</h4>
+                      {recipe.category && (
+                        <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-800 rounded-full border border-amber-200 shrink-0 uppercase">
+                          {recipe.category}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-stone-500 mb-4">{recipe.description}</p>
-                    <div className="mb-3">
-                      <strong className="text-xs uppercase tracking-wider text-stone-400">{locale === 'tr' ? 'Malzemeler' : 'Zutaten'}</strong>
-                      <ul className="mt-1 space-y-1">
+                    
+                    <div className="mb-4">
+                      <strong className="text-xs uppercase tracking-wider text-stone-400 block mb-1.5">
+                        {locale === 'tr' ? 'Malzemeler' : 'Zutaten'}
+                      </strong>
+                      <ul className="space-y-1">
                         {recipe.ingredients.map((ing, i) => (
                           <li key={i} className="text-sm text-stone-700 flex items-start gap-2">
                             <span className="text-amber-500 mt-0.5">•</span> {ing}
@@ -165,6 +203,21 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                         ))}
                       </ul>
                     </div>
+
+                    {recipe.instructions && recipe.instructions.length > 0 && (
+                      <div className="pt-3 border-t border-stone-100">
+                        <strong className="text-xs uppercase tracking-wider text-stone-400 block mb-1.5">
+                          {locale === 'tr' ? 'Hazırlanışı' : 'Zubereitung'}
+                        </strong>
+                        <ol className="space-y-1.5 list-decimal list-inside text-sm text-stone-600">
+                          {recipe.instructions.map((step, i) => (
+                            <li key={i} className="leading-snug">
+                              <span className="text-stone-700">{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -204,7 +257,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                 {/* Content */}
                 <div className="flex-1 relative z-10">
                   <div className="mb-10">
-                    <h2 className="text-5xl font-serif font-bold text-amber-900 mb-4 leading-tight">{recipe.name}</h2>
+                    <h2 className="text-5xl font-serif font-bold text-amber-900 mb-4 leading-tight">{recipe.title}</h2>
                     <p className="text-xl text-stone-600 italic leading-relaxed">{recipe.description}</p>
                   </div>
 
@@ -222,10 +275,10 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                         ))}
                       </ul>
                       
-                      {recipe.glassType && (
+                      {recipe.category && (
                         <div className="mt-8 pt-6 border-t border-stone-200">
-                          <p className="text-sm font-bold text-stone-900 uppercase tracking-widest mb-1">{locale === 'tr' ? 'Tavsiye Edilen Bardak' : 'Empfohlenes Glas'}</p>
-                          <p className="text-amber-600 font-medium text-lg">{recipe.glassType}</p>
+                          <p className="text-sm font-bold text-stone-900 uppercase tracking-widest mb-1">{locale === 'tr' ? 'Kategori' : 'Kategorie'}</p>
+                          <p className="text-amber-600 font-medium text-lg capitalize">{recipe.category}</p>
                         </div>
                       )}
                     </div>
@@ -252,8 +305,8 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                 <div className="mt-auto text-center relative z-10 pt-8">
                   <p className="text-sm text-stone-400">
                     {locale === 'tr' 
-                      ? 'Bu reçete yapay zeka tarafından profesyonel FO ürünleri ile hazırlanmıştır.'
-                      : 'Dieses Rezept wurde von einer KI mit professionellen FO-Produkten erstellt.'}
+                      ? 'Bu özel reçete, profesyonel FO ürünleri ve uzman barista standartları ile hazırlanmıştır.'
+                      : 'Dieses exklusive Rezept wurde mit professionellen FO-Produkten nach Barista-Standards kreiert.'}
                   </p>
                 </div>
               </div>

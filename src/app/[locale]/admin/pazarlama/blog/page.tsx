@@ -1,16 +1,12 @@
-// src/app/[locale]/admin/pazarlama/blog/page.tsx
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { FiEdit, FiPlus, FiSlash } from 'react-icons/fi';
 import Link from 'next/link';
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
+import DeleteBlogButton from './components/DeleteBlogButton';
 
-const DURUM_RENKLERI: Record<string, string> = {
-    'Taslak': "bg-yellow-100 text-yellow-800",
-    'Yayınlandı': "bg-green-100 text-green-800",
-};
-
-export default async function BlogYonetimPage() {
+export default async function BlogYonetimPage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
@@ -28,7 +24,7 @@ export default async function BlogYonetimPage() {
 
     const { data: yazilar, error } = await supabase
         .from('blog_yazilari')
-        .select('id, baslik, durum, yayinlanma_tarihi')
+        .select('id, title, is_published, published_at')
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -44,7 +40,7 @@ export default async function BlogYonetimPage() {
                     <p className="text-text-main/80 mt-1">Blog yazılarını oluşturun, düzenleyin ve yayınlayın.</p>
                 </div>
                 <Link
-                    href="/admin/pazarlama/blog/yeni"
+                    href={`/${locale}/admin/pazarlama/blog/yeni`}
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-lg shadow-md hover:bg-opacity-90 font-bold text-sm"
                 >
                     <FiPlus /> Yeni Yazı Ekle
@@ -63,26 +59,34 @@ export default async function BlogYonetimPage() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
+                            {yazilar?.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                                        Henüz hiç blog yazısı yok. Sağ üstteki "Yeni Yazı Ekle" butonuna tıklayarak AI ile hemen oluşturun.
+                                    </td>
+                                </tr>
+                            )}
                             {yazilar?.map((yazi) => (
                                 <tr key={yazi.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {(yazi.baslik as any)?.tr || (yazi.baslik as any)?.de || 'İsimsiz Başlık'}
+                                        {(yazi.title as any)?.tr || (yazi.title as any)?.de || 'İsimsiz Başlık'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${DURUM_RENKLERI[yazi.durum] || 'bg-gray-100'}`}>
-                                            {yazi.durum}
+                                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${yazi.is_published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                            {yazi.is_published ? 'Yayınlandı' : 'Taslak'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {yazi.yayinlanma_tarihi ? new Date(yazi.yayinlanma_tarihi).toLocaleDateString('tr-TR') : '-'}
+                                        {yazi.published_at ? new Date(yazi.published_at).toLocaleDateString('tr-TR') : '-'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <Link
-                                            href={`/admin/pazarlama/blog/${yazi.id}/duzenle`}
+                                            href={`/${locale}/admin/pazarlama/blog/${yazi.id}/duzenle`}
                                             className="text-accent hover:text-accent/80 inline-flex items-center gap-1"
                                         >
                                             <FiEdit /> Düzenle
                                         </Link>
+                                        <DeleteBlogButton id={yazi.id} />
                                     </td>
                                 </tr>
                             ))}

@@ -1,62 +1,103 @@
-import { Locale } from '@/lib/utils';
-import { getDictionary } from '@/dictionaries';
-import { BLOG_POSTS } from '@/lib/blog-data';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { BlogYazisi } from '@/types/blog';
 import Link from 'next/link';
-import type { Metadata } from 'next';
-import { FiArrowRight, FiCalendar, FiUser } from 'react-icons/fi';
+import Image from 'next/image';
+import { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
-    const { locale } = await params;
-    return {
-        title: locale === 'tr' ? 'Blog & Haberler | ElysonSweets' : locale === 'en' ? 'Blog & News | ElysonSweets' : 'Blog & Neuigkeiten | ElysonSweets',
-        description: locale === 'tr' ? 'Pastacılık, kahve kültürü ve gastronomi dünyasından en güncel haberler, ipuçları ve trendler.' : 'Latest news, tips, and trends from the world of pastry, coffee culture, and gastronomy.',
-    };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  
+  const titles: Record<string, string> = {
+    de: 'B2B HORECA Blog & Branchen-News | Elysonsweets',
+    en: 'B2B HORECA Blog & Industry News | Elysonsweets',
+    tr: 'B2B HORECA Blog & Sektörel Haberler | Elysonsweets',
+    ar: 'مدونة B2B HORECA وأخبار الصناعة | Elysonsweets'
+  };
+
+  const descriptions: Record<string, string> = {
+    de: 'Aktuelle Trends, Cocktail-Rezepte und B2B-Insights für die Gastronomie.',
+    en: 'Latest trends, cocktail recipes, and B2B insights for the gastronomy sector.',
+    tr: 'Gastronomi sektörü için en son trendler, kokteyl tarifleri ve B2B içgörüleri.',
+    ar: 'أحدث الاتجاهات ووصفات الكوكتيل ورؤى B2B لقطاع فن الطهو.'
+  };
+
+  return {
+    title: titles[locale] || titles['de'],
+    description: descriptions[locale] || descriptions['de'],
+    alternates: {
+      canonical: `https://elysonsweets.de/${locale}/blog`,
+    }
+  };
 }
 
-export default async function BlogIndexPage({ params }: { params: Promise<{ locale: Locale }> }) {
-    const { locale } = await params;
+export default async function BlogListPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
 
-    return (
-        <div className="min-h-screen bg-slate-50 pt-24 pb-20">
-            <div className="container mx-auto px-4 max-w-6xl">
-                <div className="text-center mb-16">
-                    <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
-                        {locale === 'tr' ? 'Blog & Rehber' : locale === 'en' ? 'Blog & Guide' : 'Blog & Ratgeber'}
-                    </h1>
-                    <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-                        {locale === 'tr' ? 'Gastronomi profesyonelleri için rehber içerikler, trendler ve ürün incelemeleri.' : 
-                         'Guide content, trends, and product reviews for gastronomy professionals.'}
-                    </p>
-                </div>
+  const { data: posts, error } = await supabase
+    .from('blog_yazilari')
+    .select('*')
+    .eq('is_published', true)
+    .order('published_at', { ascending: false });
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {BLOG_POSTS.map(post => (
-                        <article key={post.slug} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl transition-all duration-300 flex flex-col">
-                            <div className="h-48 bg-slate-200 relative">
-                                {/* Eğer gerçek görsel eklenecekse buraya Image componenti gelecek */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                                    <span className="text-4xl opacity-20">📝</span>
-                                </div>
-                            </div>
-                            <div className="p-8 flex flex-col flex-1">
-                                <div className="flex items-center gap-4 text-xs text-slate-400 mb-4 font-medium">
-                                    <span className="flex items-center gap-1"><FiCalendar /> {new Date(post.date).toLocaleDateString(locale)}</span>
-                                    <span className="flex items-center gap-1"><FiUser /> {post.author}</span>
-                                </div>
-                                <h2 className="text-xl font-bold text-slate-800 mb-3 line-clamp-2">
-                                    {post.title[locale as keyof typeof post.title] || post.title.tr}
-                               </h2>
-                                <p className="text-slate-600 mb-6 line-clamp-3 text-sm leading-relaxed flex-1">
-                                    {post.excerpt[locale as keyof typeof post.excerpt] || post.excerpt.tr}
-                                </p>
-                                <Link href={`/${locale}/blog/${post.slug}`} className="inline-flex items-center gap-2 text-blue-600 font-bold hover:gap-3 transition-all text-sm mt-auto">
-                                    {locale === 'tr' ? 'Devamını Oku' : locale === 'en' ? 'Read More' : 'Weiterlesen'} <FiArrowRight />
-                                </Link>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
+  if (error) {
+    console.error('Blog fetch error:', error);
+    return <div className="container mx-auto py-12 text-center">Blog yazıları yüklenemedi.</div>;
+  }
+
+  return (
+    <main className="container mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-white">
+        {locale === 'de' ? 'B2B HORECA Wissen & News' : 
+         locale === 'en' ? 'B2B HORECA Knowledge & News' : 
+         locale === 'tr' ? 'B2B HORECA Bilgi & Haberler' : 'معرفة وأخبار B2B HORECA'}
+      </h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {posts?.map((post: BlogYazisi) => {
+          const loc = locale as keyof typeof post.title;
+          return (
+            <article key={post.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border border-gray-100 dark:border-gray-700">
+              {post.image_url && (
+                <Link href={`/${locale}/blog/${post.slug}`}>
+                  <div className="relative h-56 w-full">
+                    <Image 
+                      src={post.image_url} 
+                      alt={post.title[loc] || post.title['de']} 
+                      fill 
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
+                </Link>
+              )}
+              <div className="p-6">
+                <time className="text-sm text-gray-500 dark:text-gray-400 mb-2 block">
+                  {new Date(post.published_at).toLocaleDateString(locale)}
+                </time>
+                <Link href={`/${locale}/blog/${post.slug}`}>
+                  <h2 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white hover:text-blue-600 transition-colors line-clamp-2">
+                    {post.title[loc] || post.title['de']}
+                  </h2>
+                </Link>
+                <p className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-4">
+                  {post.excerpt[loc] || post.excerpt['de']}
+                </p>
+                <Link 
+                  href={`/${locale}/blog/${post.slug}`}
+                  className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
+                >
+                  {locale === 'de' ? 'Weiterlesen →' : 
+                   locale === 'en' ? 'Read more →' : 
+                   locale === 'tr' ? 'Devamını Oku →' : 'اقرأ المزيد ←'}
+                </Link>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </main>
+  );
 }

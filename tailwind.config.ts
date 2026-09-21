@@ -18,8 +18,8 @@ const config: Config = {
         'bg-subtle': '#EAE8E1',     // Hafif Arka Plan
       },
       fontFamily: {
-        sans: ['var(--font-lato)'], // Paragraf fontu
-        serif: ['var(--font-playfair)'], // Başlık fontu
+        sans: ['var(--font-lato)', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'serif'],
       },
     },
   },

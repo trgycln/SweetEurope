@@ -3,10 +3,10 @@ import BaristaAiClient from './client';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const title = locale === 'tr' ? 'Barista AI - İmza Reçete Sihirbazı | Elysonsweets' : 'Barista AI - Signature Recipe Wizard | Elysonsweets';
+  const title = locale === 'tr' ? 'Barista Reçete Sihirbazı - İmza İçecek Rehberi | Elysonsweets' : 'Barista Rezept-Assistent - Signature Drinks | Elysonsweets';
   const description = locale === 'tr' 
-    ? 'Kafeniz için yapay zeka destekli imza içecek reçeteleri oluşturun ve PDF menü olarak indirin. FO Şurupları ile profesyonel çözümler.' 
-    : 'Erstellen Sie KI-gestützte Signature-Drink-Rezepte für Ihr Café und laden Sie diese als PDF-Menü herunter. Mit FO Sirupen.';
+    ? 'Kafeniz için uzman barista formülleriyle dengeli ve kârlı imza içecek reçeteleri oluşturun, menünüzü anında PDF olarak indirin. FO Şurupları ile profesyonel çözümler.' 
+    : 'Kreieren Sie professionelle Signature-Drink-Rezepte für Ihr Café und laden Sie diese als Menükarte herunter. Mit Premium FO Sirupen.';
 
   return {
     title,
@@ -23,9 +23,11 @@ export default async function BaristaAiPage({ params }: { params: Promise<{ loca
   const softwareSchema = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Elysonsweets Barista AI & Recipe Wizard",
+    "name": locale === 'tr' ? "Elysonsweets Reçete Sihirbazı" : "Elysonsweets Barista Recipe Wizard",
     "url": `https://www.elysonsweets.de/${locale}/barista-ai`,
-    "description": "Ein KI-gestützter Rezeptgenerator für Cafés und Barkeeper. Erstellen Sie individuelle Signature Drinks und PDF-Menükarten mit FO Sirupen.",
+    "description": locale === 'tr' 
+      ? "Kafeler ve barmenler için profesyonel reçete ve menü rehberi. FO şurupları ile özel imza içecekler ve PDF menüler oluşturun." 
+      : "Ein professioneller Rezept-Assistent für Cafés und Barkeeper. Erstellen Sie individuelle Signature Drinks und PDF-Menükarten mit FO Sirupen.",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "All",
     "offers": {
@@ -38,7 +40,7 @@ export default async function BaristaAiPage({ params }: { params: Promise<{ loca
       "name": "Elysonsweets GmbH"
     },
     "featureList": [
-      "AI Cocktail Recipe Generation",
+      "Signature Cocktail & Coffee Creation",
       "Custom Cafe Menu Creation",
       "PDF Menu Export",
       "B2B Beverage Consulting"
@@ -52,15 +54,19 @@ export default async function BaristaAiPage({ params }: { params: Promise<{ loca
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="text-center mb-12">
           <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700 mb-2">
-            {locale === 'tr' ? 'Yapay Zeka Destekli' : 'KI-Gestützt'}
+            {locale === 'tr' ? 'Gourmet Reçete Atölyesi' : 'Gourmet Rezeptur-Atelier'}
           </p>
           <h1 className="text-3xl md:text-5xl font-serif font-bold text-stone-900 mb-4">
-            Barista AI <span className="text-amber-600">Recipe Wizard</span>
+            {locale === 'tr' ? (
+              <>Barista <span className="text-amber-600">Reçete Sihirbazı</span></>
+            ) : (
+              <>Barista <span className="text-amber-600">Rezept-Assistent</span></>
+            )}
           </h1>
           <p className="text-stone-600 max-w-2xl mx-auto">
             {locale === 'tr' 
-              ? 'Elinizdeki malzemeleri ve konseptinizi girin, yapay zeka baristanız FO şuruplarıyla kafenize özel imza içecekler tasarlasın. Menünüzü anında PDF olarak indirin.' 
-              : 'Geben Sie Ihre Zutaten und Ihr Konzept ein. Unser KI-Barista kreiert exklusive Signature Drinks mit FO Sirupen für Ihr Café. Laden Sie Ihr Menü sofort als PDF herunter.'}
+              ? 'Elinizdeki malzemeleri ve konseptinizi belirtin, uzman baristanız FO şuruplarıyla kafenize özel dengeli ve kârlı imza içecekler tasarlasın. Menünüzü anında PDF olarak indirin.' 
+              : 'Geben Sie Ihre Zutaten und Ihr Konzept an. Unser Barista-Experte kreiert exklusive Signature Drinks mit FO Sirupen für Ihr Café. Laden Sie Ihr Menü sofort als PDF herunter.'}
           </p>
         </div>
 

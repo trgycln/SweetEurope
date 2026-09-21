@@ -94,15 +94,22 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
                 { href: `/${locale}/register`, label: f.linkPartner },
                 { href: `/${locale}/contact`,  label: f.linkTrial },
                 { href: `/${locale}/contact`,  label: f.linkPricelist },
+                { href: `/${locale}/barista-ai`, label: locale === 'tr' ? 'Reçete Sihirbazı' : 'Rezept-Assistent' },
+                { href: `/${locale}/blog`, label: 'Blog', isNew: true },
                 { href: `/${locale}/contact`,  label: f.linkContact },
                 { href: `/${locale}/contact`,  label: f.linkFaq },
               ].map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="block text-sm text-secondary/70 hover:text-accent transition-colors"
+                  className="flex items-center gap-2 text-sm text-secondary/70 hover:text-accent transition-colors"
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.isNew && (
+                    <span className="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[9px] font-bold uppercase tracking-wider shadow-sm">
+                      {locale === 'tr' ? 'YENİ' : 'NEU'}
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>

@@ -1,43 +1,32 @@
-import Script from 'next/script';
+type FaqItem = {
+  question: string;
+  answer: string;
+};
 
-export default function FaqSchema() {
+type FaqSchemaProps = {
+  faqs: FaqItem[];
+};
+
+export default function FaqSchema({ faqs }: FaqSchemaProps) {
+  if (!faqs || faqs.length === 0) return null;
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What is the minimum order quantity (MOQ) for B2B wholesale?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "As a B2B HORECA supplier, Elysonsweets GmbH offers flexible minimum order quantities tailored for cafes, bars, and restaurants. Please contact our sales team for specific MOQ details based on your location."
-        }
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer,
       },
-      {
-        "@type": "Question",
-        "name": "Do you ship cocktail syrups and bar sauces internationally?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes, from our logistics center in Sirius Park Wahn, Köln, we supply premium syrups and sauces across Germany, Europe, Turkey, and the MENA region."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How can I get a B2B wholesale account?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "You can apply for a B2B wholesale account directly through our website. Once approved, you will gain access to our exclusive HORECA pricing and bulk ordering system."
-        }
-      }
-    ]
+    })),
   };
 
   return (
-    <Script
-      id="faq-schema-b2b"
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      strategy="beforeInteractive"
     />
   );
 }

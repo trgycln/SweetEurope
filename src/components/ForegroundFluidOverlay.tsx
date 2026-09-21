@@ -157,7 +157,7 @@ const FluidPlane = () => {
 
 const ForegroundFluidOverlay: React.FC = () => {
   return (
-    <div className="fixed inset-0 w-full h-[100dvh] z-[9999] overflow-hidden mix-blend-screen opacity-90" style={{ pointerEvents: 'none' }}>
+    <div className="fixed inset-0 w-full h-[100dvh] z-[9999] overflow-hidden mix-blend-screen opacity-90 print:hidden" style={{ pointerEvents: 'none' }}>
       <Canvas
         style={{ pointerEvents: 'none' }}
         camera={{ position: [0, 0, 1] }}

@@ -166,6 +166,13 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                     roles: ['Yönetici', 'Personel', 'Ekip Üyesi'] as UserRole[],
                     panelKey: 'marketing'
                 },
+                {
+                    name: 'Blog Yazıları',
+                    href: '/admin/pazarlama/blog',
+                    icon: FiBook,
+                    roles: ['Yönetici'] as UserRole[],
+                    panelKey: 'marketing'
+                },
             ],
         },
         {

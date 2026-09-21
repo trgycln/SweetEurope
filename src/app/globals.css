@@ -77,3 +77,122 @@ h1, h2, h3, h4, h5, h6 {
     background: rgba(255, 255, 255, 0.35);
   }
 }
+
+/* ========================================
+   GLOBAL PRINT STYLES
+   Reçete ve doküman baskıları için
+   kusursuz, saf beyaz, yüksek kontrastlı tasarım.
+   ======================================== */
+@media print {
+  /* 1. Sayfa boyutlandırması ve kenar boşlukları */
+  @page {
+    size: A4 portrait;
+    margin: 1.2cm 1.5cm;
+  }
+
+  /* 2. WebGL Canvas, animasyonlar ve baskıda gereksiz tüm overlay'ler KESİNLİKLE GİZLENİR */
+  canvas,
+  .print\:hidden,
+  button,
+  [role="button"],
+  nav,
+  div[class*="ForegroundFluidOverlay"],
+  div[class*="fixed"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* 3. Saf beyaz zemin - arka planda leke, gradient veya renk kalmasın */
+  html,
+  body,
+  .locale-wrapper,
+  main,
+  article,
+  section,
+  [class*="bg-gradient"],
+  [class*="bg-[#FBF9F5]"],
+  [class*="bg-stone-"],
+  [class*="from-amber"],
+  [class*="via-amber"] {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #1c1917 !important;
+    -webkit-print-color-adjust: economy !important;
+    print-color-adjust: economy !important;
+  }
+
+  /* 4. Tüm gölgeleri ve bulanıklıkları kaldır */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* 5. Tipografi ve Kontrast — Baskıda keskin ve net okunabilirlik */
+  h1, h2, h3, h4, h5, h6 {
+    color: #111827 !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  p, span, li, dt, dd {
+    color: #1f2937 !important;
+  }
+
+  /* Açık gri metinleri baskıda okunaklı net griye çek */
+  .text-stone-400,
+  .text-stone-500,
+  .text-stone-600,
+  .text-gray-400,
+  .text-gray-500 {
+    color: #374151 !important;
+  }
+
+  /* Amber vurgularını okunaklı koyu renkte tut */
+  [class*="text-amber"] {
+    color: #92400e !important;
+  }
+
+  /* 6. Sayfa kesme (Page Break) kontrolü — Sadece küçük öğeler bölünmez */
+  .print-avoid-break,
+  li,
+  tr,
+  img,
+  svg {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* 7. İkonlar net ve yerinde görünsün */
+  svg {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    overflow: visible !important;
+  }
+
+  /* 8. Kenarlıklar baskıda düzgün ve açık görünsün */
+  .border,
+  [class*="border-"] {
+    border-color: #e5e7eb !important;
+  }
+
+  /* 9. A4 Tek Sayfa Baskı Düzeni — Reçetelerin sütun genişliklerini garanti altına al */
+  .recipe-print-container {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .recipe-print-left {
+    width: 100% !important;
+    margin-bottom: 2rem !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .recipe-print-right {
+    width: 100% !important;
+  }
+}

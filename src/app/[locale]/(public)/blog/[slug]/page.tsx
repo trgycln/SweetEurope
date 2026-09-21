@@ -1,101 +1,152 @@
-import { Locale } from '@/lib/utils';
-import { getDictionary } from '@/dictionaries';
-import { BLOG_POSTS } from '@/lib/blog-data';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { BlogYazisi } from '@/types/blog';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import type { Metadata } from 'next';
-import { FiArrowLeft, FiCalendar, FiUser, FiTag } from 'react-icons/fi';
+import Image from 'next/image';
+import { Metadata } from 'next';
+import Script from 'next/script';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: Locale, slug: string }> }): Promise<Metadata> {
-    const { locale, slug } = await params;
-    const post = BLOG_POSTS.find(p => p.slug === slug);
-    if (!post) return { title: 'Post Not Found' };
+export async function generateMetadata({ params }: { params: Promise<{ locale: string, slug: string }> }): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
 
-    return {
-        title: `${post.title[locale as keyof typeof post.title] || post.title.tr} | ElysonSweets Blog`,
-        description: post.excerpt[locale as keyof typeof post.excerpt] || post.excerpt.tr,
-        openGraph: {
-            type: 'article',
-            publishedTime: post.date,
-        }
-    };
+  const decodedSlug = decodeURIComponent(slug);
+  let { data: post } = await supabase
+    .from('blog_yazilari')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .maybeSingle();
+
+  if (!post && decodedSlug !== slug) {
+    const res = await supabase
+      .from('blog_yazilari')
+      .select('*')
+      .eq('slug', decodedSlug)
+      .eq('is_published', true)
+      .maybeSingle();
+    post = res.data;
+  }
+
+  if (!post) return { title: 'Not Found' };
+
+  const loc = locale as keyof typeof post.title;
+  const title = post.meta_title[loc] || post.meta_title['de'] || post.title[loc] || post.title['de'];
+  const description = post.meta_description[loc] || post.meta_description['de'] || post.excerpt[loc] || post.excerpt['de'];
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `https://elysonsweets.de/${locale}/blog/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      publishedTime: post.published_at,
+      authors: [post.author_name],
+      images: post.image_url ? [post.image_url] : [],
+    }
+  };
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ locale: Locale, slug: string }> }) {
-    const { locale, slug } = await params;
-    const post = BLOG_POSTS.find(p => p.slug === slug);
+export default async function BlogPostPage({ params }: { params: Promise<{ locale: string, slug: string }> }) {
+  const { locale, slug } = await params;
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
 
-    if (!post) {
-        return notFound();
+  const decodedSlug = decodeURIComponent(slug);
+  let { data: post } = await supabase
+    .from('blog_yazilari')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .maybeSingle();
+
+  if (!post && decodedSlug !== slug) {
+    const res = await supabase
+      .from('blog_yazilari')
+      .select('*')
+      .eq('slug', decodedSlug)
+      .eq('is_published', true)
+      .maybeSingle();
+    post = res.data;
+  }
+
+  if (!post) {
+    notFound();
+  }
+
+  const loc = locale as keyof typeof post.title;
+  const title = post.title[loc] || post.title['de'];
+  const content = post.content[loc] || post.content['de'];
+  const excerpt = post.excerpt[loc] || post.excerpt['de'];
+
+  // GEO & SEO: Article JSON-LD
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": title,
+    "description": excerpt,
+    "image": post.image_url ? [post.image_url] : [],
+    "datePublished": post.published_at,
+    "dateModified": post.updated_at,
+    "author": [{
+        "@type": "Person",
+        "name": post.author_name,
+        "url": "https://elysonsweets.de/about"
+    }],
+    "publisher": {
+      "@type": "Organization",
+      "name": "Elysonsweets GmbH",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://elysonsweets.de/logo.png"
+      }
     }
+  };
 
-    const title = post.title[locale as keyof typeof post.title] || post.title.tr;
-    const content = post.content[locale as keyof typeof post.content] || post.content.tr;
+  return (
+    <main className="container mx-auto px-4 py-12 max-w-4xl">
+      <Script
+        id={`json-ld-article-${post.id}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      
+      <article>
+        <header className="mb-10 text-center">
+          <time className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-4 block">
+            {new Date(post.published_at).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
+          </time>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
+            {title}
+          </h1>
+          <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
+            <span>By {post.author_name}</span>
+          </div>
+        </header>
 
-    const articleSchema = {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        "headline": title,
-        "datePublished": post.date,
-        "author": [{
-            "@type": "Person",
-            "name": post.author
-        }]
-    };
+        {post.image_url && (
+          <div className="relative w-full h-[400px] md:h-[500px] rounded-3xl overflow-hidden mb-12 shadow-lg">
+            <Image 
+              src={post.image_url} 
+              alt={title} 
+              fill 
+              priority
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 1024px"
+            />
+          </div>
+        )}
 
-    return (
-        <div className="min-h-screen bg-white pt-24 pb-20">
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
-            
-            <div className="container mx-auto px-4 max-w-3xl">
-                <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-slate-500 hover:text-blue-600 font-medium mb-10 transition-colors">
-                    <FiArrowLeft /> {locale === 'tr' ? 'Bloga Dön' : locale === 'en' ? 'Back to Blog' : 'Zurück zum Blog'}
-                </Link>
-
-                <article>
-                    <header className="mb-10 text-center">
-                        <div className="flex items-center justify-center gap-4 text-sm text-slate-500 mb-6 font-medium">
-                            <span className="flex items-center gap-1.5"><FiCalendar /> {new Date(post.date).toLocaleDateString(locale)}</span>
-                            <span className="flex items-center gap-1.5"><FiUser /> {post.author}</span>
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-6">
-                            {title}
-                        </h1>
-                        <div className="flex flex-wrap justify-center gap-2">
-                            {post.tags.map(tag => (
-                                <span key={tag} className="inline-flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">
-                                    <FiTag size={10} /> {tag}
-                                </span>
-                            ))}
-                        </div>
-                    </header>
-
-                    <div className="h-64 md:h-96 bg-slate-100 rounded-3xl mb-12 relative overflow-hidden flex items-center justify-center">
-                        {/* Placeholder for real image */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50"></div>
-                        <span className="text-6xl relative z-10 opacity-30">☕</span>
-                    </div>
-
-                    <div 
-                        className="prose prose-lg prose-slate max-w-none prose-headings:font-bold prose-a:text-blue-600 prose-img:rounded-2xl"
-                        dangerouslySetInnerHTML={{ __html: content }}
-                    />
-                </article>
-
-                <div className="mt-16 pt-8 border-t border-slate-100">
-                    <div className="bg-slate-50 rounded-2xl p-8 text-center">
-                        <h3 className="text-xl font-bold text-slate-800 mb-3">
-                            {locale === 'tr' ? 'Toptan Sipariş Verin' : 'Order Wholesale'}
-                        </h3>
-                        <p className="text-slate-600 mb-6">
-                            {locale === 'tr' ? 'Fo kahve şuruplarını ve diğer premium ürünlerimizi incelemek için ürün kataloğumuza göz atın.' : 'Check out our product catalog to view Fo coffee syrups and other premium products.'}
-                        </p>
-                        <Link href={`/${locale}/products`} className="inline-block px-8 py-3 bg-slate-900 text-white rounded-full font-bold hover:bg-blue-600 transition-colors">
-                            {locale === 'tr' ? 'Ürünlere Git' : 'Go to Products'}
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+        <div 
+          className="prose prose-lg md:prose-xl dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-500"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+      </article>
+    </main>
+  );
 }

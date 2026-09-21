@@ -79,11 +79,12 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
         }
     };
 
-    // SEO & GEO: Barista AI eklendi ve isNew flag'i konuldu
+    // SEO & GEO: Barista AI ve Blog eklendi, isNew flag'i konuldu
     const publicNavLinks = [
         { name: nav.home, href: `/${currentLocale}` },
         { name: nav.products, href: `/${currentLocale}/products` },
-        { name: 'Barista AI', href: `/${currentLocale}/barista-ai`, isNew: true },
+        { name: currentLocale === 'tr' ? 'Reçeteler' : currentLocale === 'en' ? 'Recipes' : currentLocale === 'ar' ? 'الوصفات' : 'Rezepte', href: `/${currentLocale}/recipes`, isNew: false },
+        { name: 'Blog', href: `/${currentLocale}/blog`, isNew: true },
         { name: nav.about, href: `/${currentLocale}/about` },
         { name: nav.contact, href: `/${currentLocale}/contact` },
     ];

@@ -16,9 +16,12 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '15mb',
     },
+    optimizePackageImports: ['lucide-react', 'react-icons', 'date-fns'],
   },
 
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000, // 1 yıl cache (Tarayıcı önbellekleme)
     remotePatterns: [
       // Supabase Storage Hostnames
       {
@@ -32,6 +35,10 @@ const nextConfig = {
         hostname: '*.supabase.co',
         port: '',
         pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
       },
       {
         protocol: 'https',
@@ -50,6 +57,10 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'elysonsweets.de',
       },
     ],
   },

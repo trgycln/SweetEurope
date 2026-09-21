@@ -9,6 +9,9 @@ import { Tables } from '@/lib/supabase/database.types';
 import { buildHiddenPublicCategoryIds } from '@/lib/public-category-visibility';
 import type { Metadata } from 'next';
 import BreadcrumbSchema from '@/components/seo/BreadcrumbSchema';
+import Breadcrumbs from '@/components/seo/Breadcrumbs';
+import RelatedProducts from '@/components/products/RelatedProducts';
+import ProductRecipes from '@/components/products/ProductRecipes';
 import Link from 'next/link';
 import { FiCoffee, FiArrowRight } from 'react-icons/fi';
 
@@ -235,6 +238,17 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                 contentCategory={kategoriAdi}
             />
             
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+                <Breadcrumbs 
+                    locale={locale}
+                    items={[
+                        { label: locale === 'tr' ? 'Ürünler' : locale === 'en' ? 'Products' : locale === 'ar' ? 'منتجات' : 'Produkte', href: '/products' },
+                        ...(kategoriAdi ? [{ label: kategoriAdi, href: `/products?kategori=${(urun as any).kategoriler?.slug}` }] : []),
+                        { label: urunAdi, href: `/products/${productSlug}` }
+                    ]}
+                />
+            </div>
+
             <UrunDetayGorunumu
                 urun={urun as any}
                 ozellikSablonu={ozellikSablonu as any}
@@ -252,7 +266,7 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                     <div className="relative z-10 max-w-2xl">
                         <div className="flex items-center gap-2 mb-4">
                             <span className="px-2.5 py-1 bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-widest rounded-md border border-amber-500/30">
-                                {locale === 'tr' ? 'Yapay Zeka Destekli' : 'KI-Gestützt'}
+                                {locale === 'tr' ? 'Barista Seçkisi' : 'Barista Inspiration'}
                             </span>
                         </div>
                         <h3 className="text-2xl md:text-3xl font-serif font-bold text-white mb-3 leading-tight">
@@ -262,14 +276,14 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                         </h3>
                         <p className="text-stone-400 text-sm md:text-base leading-relaxed">
                             {locale === 'tr'
-                                ? 'Barista AI sihirbazımızı kullanarak bu ürüne özel, kafenizin menüsüne ekleyebileceğiniz profesyonel reçeteler oluşturun ve PDF olarak indirin.'
-                                : 'Nutzen Sie unseren Barista AI-Assistenten, um professionelle Rezepte für dieses Produkt zu erstellen und als PDF für Ihr Café-Menü herunterzuladen.'}
+                                ? 'Reçete Sihirbazımızı kullanarak bu ürüne özel, kafenizin menüsüne ekleyebileceğiniz profesyonel reçeteler oluşturun ve PDF menü olarak indirin.'
+                                : 'Nutzen Sie unseren Rezept-Assistenten, um professionelle Signature-Rezepte für dieses Produkt zu erstellen und als PDF für Ihr Café-Menü herunterzuladen.'}
                         </p>
                     </div>
 
                     <div className="relative z-10 shrink-0 w-full md:w-auto">
                         <Link 
-                            href={`/${locale}/barista-ai?ingredient=${encodeURIComponent(urunAdi)}`}
+                            href={`/${locale}/barista-ai?ingredient=${encodeURIComponent(urunAdi)}&productId=${urun.id}`}
                             className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold py-4 px-8 rounded-xl transition-all duration-300 w-full md:w-auto shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] hover:-translate-y-1"
                         >
                             <FiCoffee size={20} />
@@ -278,6 +292,13 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                         </Link>
                     </div>
                 </div>
+            </div>
+
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+                <ProductRecipes locale={locale} productId={urun.id || ''} />
+                {kategoriId && (
+                    <RelatedProducts locale={locale} categoryId={kategoriId} currentProductId={urun.id || ''} />
+                )}
             </div>
         </>
     );

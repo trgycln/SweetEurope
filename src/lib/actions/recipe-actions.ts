@@ -1,0 +1,106 @@
+'use server';
+
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+type RecipeInput = {
+  title: string;
+  description: string;
+  ingredients: string[];
+  instructions: string[];
+  prep_time_minutes: number;
+  category: string;
+};
+
+export async function saveRecipeAndRedirect(
+  recipeData: RecipeInput, 
+  locale: string, 
+  productId: string | null
+) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+
+  // SEO uyumlu ve benzersiz bir slug oluştur (Örn: cilekli-margarita-x7b9a)
+  const baseSlug = recipeData.title
+    .toLowerCase()
+    .replace(/[^a-z0-9\u00C0-\u024F]+/g, '-') // Türkçe/Almanca karakterleri de destekler
+    .replace(/(^-|-$)+/g, '');
+  const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
+
+  const { data, error } = await supabase
+    .from('recipes')
+    .insert({
+      slug: uniqueSlug,
+      locale: locale,
+      title: recipeData.title,
+      description: recipeData.description,
+      ingredients: recipeData.ingredients,
+      instructions: recipeData.instructions,
+      prep_time_minutes: recipeData.prep_time_minutes || 5,
+      category: recipeData.category || 'cocktail',
+      product_id: productId,
+    })
+    .select('slug')
+    .single();
+
+  if (error) {
+    console.error('Supabase Insert Error:', JSON.stringify(error, null, 2));
+    throw new Error(`Reçete kaydedilemedi: ${error.message} (code: ${error.code})`);
+  }
+
+  // Kullanıcıyı yeni oluşturulan SEO sayfasına yönlendir
+  redirect(`/${locale}/recipes/${data.slug}`);
+}
+
+export async function incrementRecipeLike(recipeId: string) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  // Supabase RPC (Remote Procedure Call) kullanmak en güvenlisidir ama 
+  // basitlik için mevcut sayıyı alıp 1 artırıyoruz.
+  const { data: recipe } = await supabase.from('recipes').select('likes_count').eq('id', recipeId).single();
+  
+  if (recipe) {
+    await supabase.from('recipes').update({ likes_count: recipe.likes_count + 1 }).eq('id', recipeId);
+  }
+}
+
+export async function saveRecipesBulk(
+  recipesData: RecipeInput[], 
+  locale: string, 
+  productId: string | null
+) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+
+  const recipesToInsert = recipesData.map(recipeData => {
+    const baseSlug = recipeData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\u00C0-\u024F]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+    const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
+
+    return {
+      slug: uniqueSlug,
+      locale: locale,
+      title: recipeData.title,
+      description: recipeData.description,
+      ingredients: recipeData.ingredients,
+      instructions: recipeData.instructions,
+      prep_time_minutes: recipeData.prep_time_minutes || 5,
+      category: recipeData.category || 'cocktail',
+      product_id: productId,
+    };
+  });
+
+  const { error } = await supabase
+    .from('recipes')
+    .insert(recipesToInsert);
+
+  if (error) {
+    console.error('Supabase Bulk Insert Error:', JSON.stringify(error, null, 2));
+    throw new Error(`Reçeteler kaydedilemedi: ${error.message} (code: ${error.code})`);
+  }
+
+  return true;
+}
