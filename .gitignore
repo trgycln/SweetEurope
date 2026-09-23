@@ -53,3 +53,9 @@ next-env.d.ts
 scratch/
 scratch_migrations.sql
 .vercel
+
+# sensitive agent config (contains API tokens)
+.agents/mcp_config.json
+
+# supabase temp files
+supabase/.temp/

@@ -18,8 +18,8 @@ export const getGroqModel = (modelName: string = 'qwen/qwen3.8-27b') => {
   return groq(modelName);
 };
 
-// Primary High Performance Model: gemini-3.6-flash
-export const getGeminiModel = (modelName: string = 'gemini-3.6-flash') => {
+// Primary High Performance Model: gemini-3.8-flash
+export const getGeminiModel = (modelName: string = 'gemini-3.8-flash') => {
   return google(modelName);
 };
 
@@ -33,7 +33,7 @@ export async function generateTextWithFallback(
   options: Omit<Parameters<typeof generateText>[0], 'model'>
 ) {
   const models = [
-    { name: 'Gemini 3.6 Flash', model: google('gemini-3.6-flash') },
+    { name: 'Gemini 3.8 Flash', model: google('gemini-3.8-flash') },
     { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
   ];
@@ -61,7 +61,7 @@ export async function generateObjectWithFallback(
   options: Omit<Parameters<typeof generateObject>[0], 'model'>
 ) {
   const models = [
-    { name: 'Gemini 3.6 Flash', model: google('gemini-3.6-flash') },
+    { name: 'Gemini 3.8 Flash', model: google('gemini-3.8-flash') },
     { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
   ];
