@@ -8,17 +8,17 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 const MultiLangString = z.object({
-  tr: z.string().optional().default(''),
-  de: z.string().optional().default(''),
-  en: z.string().optional().default(''),
-  ar: z.string().optional().default('')
+  tr: z.string().describe('Türkçe'),
+  de: z.string().describe('Almanca'),
+  en: z.string().describe('İngilizce'),
+  ar: z.string().describe('Arapça')
 });
 
 const MultiLangArray = z.object({
-  tr: z.array(z.string()).optional().default([]),
-  de: z.array(z.string()).optional().default([]),
-  en: z.array(z.string()).optional().default([]),
-  ar: z.array(z.string()).optional().default([])
+  tr: z.array(z.string()).describe('Türkçe'),
+  de: z.array(z.string()).describe('Almanca'),
+  en: z.array(z.string()).describe('İngilizce'),
+  ar: z.array(z.string()).describe('Arapça')
 });
 
 const RecipeSchema = z.object({

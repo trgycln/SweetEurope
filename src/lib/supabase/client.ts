@@ -50,3 +50,7 @@ export function createDynamicSupabaseClient(persistSession: boolean) {
     }
   );
 }
+
+export function createSupabaseBrowserClient() {
+  return createDynamicSupabaseClient(true);
+}

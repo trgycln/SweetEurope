@@ -87,7 +87,7 @@ Görev: Verilen konu veya ipucuna (ve sağlanan ürün kataloğu verilerine) day
 
     // Gemini ile yapılandırılmış içerik üretimi (JSON)
     const { object } = await generateObject({
-      model: google('gemini-3.8-flash'),
+      model: google('gemini-3.6-flash'),
       schema: z.object({
         germanText: z.string().describe('Almanya pazarı için hazırlanmış B2B/B2C odaklı, mükemmel Almanca Google İşletme Gönderisi.'),
         turkishTranslation: z.string().describe('Hazırlanan Almanca metnin sistem yöneticisinin okuyup ne yayınlanacağını anlaması için birebir Türkçe çevirisi.'),

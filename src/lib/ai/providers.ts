@@ -18,30 +18,31 @@ export const getGroqModel = (modelName: string = 'qwen/qwen3.8-27b') => {
   return groq(modelName);
 };
 
-// Primary High Performance Model: gemini-3.8-flash
-export const getGeminiModel = (modelName: string = 'gemini-3.8-flash') => {
+// Primary High Performance Model: gemini-3.6-flash
+export const getGeminiModel = (modelName: string = 'gemini-3.6-flash') => {
   return google(modelName);
 };
 
 /**
  * Executes generateText with automatic fallback across models and providers:
- * 1. Google Gemini 3.6 Flash (High context, no 200k TPD block, superior multilingual translation)
- * 2. Groq Qwen 3.8 27B (Fast, reliable)
- * 3. Groq GPT-OSS 20B (Open-source fallback)
+ * 1. Google Gemini 3.6 Flash (High context, superior multilingual translation)
+ * 2. Groq GPT-OSS 120B (Fast, reliable high parameter model)
+ * 3. Groq Qwen 3.8 27B (Fast fallback)
  */
 export async function generateTextWithFallback(
   options: Omit<Parameters<typeof generateText>[0], 'model'>
 ) {
   const models = [
-    { name: 'Gemini 3.8 Flash', model: google('gemini-3.8-flash') },
-    { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
+    { name: 'Gemini 3.6 Flash', model: google('gemini-3.6-flash') },
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
+    { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
   ];
 
   let lastError: any;
   for (const item of models) {
     try {
       return await generateText({
+        maxTokens: 4000,
         ...options,
         model: item.model,
       });
@@ -61,15 +62,16 @@ export async function generateObjectWithFallback(
   options: Omit<Parameters<typeof generateObject>[0], 'model'>
 ) {
   const models = [
-    { name: 'Gemini 3.8 Flash', model: google('gemini-3.8-flash') },
-    { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
+    { name: 'Gemini 3.6 Flash', model: google('gemini-3.6-flash') },
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
+    { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
   ];
 
   let lastError: any;
   for (const item of models) {
     try {
       return await generateObject({
+        maxTokens: 4000,
         ...options,
         model: item.model,
       });
