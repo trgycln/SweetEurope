@@ -7,11 +7,14 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { saveRecipesBulk } from '@/lib/actions/recipe-actions';
 
+type MultiLangText = { tr: string; en: string; de: string; ar: string; };
+type MultiLangArray = { tr: string[]; en: string[]; de: string[]; ar: string[]; };
+
 interface Recipe {
-  title: string;
-  description: string;
-  ingredients: string[];
-  instructions: string[];
+  title: MultiLangText;
+  description: MultiLangText;
+  ingredients: MultiLangArray;
+  instructions: MultiLangArray;
   prep_time_minutes: number;
   category: string;
 }
@@ -41,6 +44,26 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
       }
     }
   }, []);
+
+  const getLocalizedText = (textObj: any) => {
+    if (!textObj) return '';
+    if (typeof textObj === 'string') return textObj;
+    if (textObj[locale] && textObj[locale].trim() !== '') return textObj[locale];
+    if (textObj['de'] && textObj['de'].trim() !== '') return textObj['de'];
+    if (textObj['tr'] && textObj['tr'].trim() !== '') return textObj['tr'];
+    if (textObj['en'] && textObj['en'].trim() !== '') return textObj['en'];
+    return '';
+  };
+
+  const getLocalizedArray = (arrObj: any) => {
+    if (!arrObj) return [];
+    if (Array.isArray(arrObj)) return arrObj;
+    if (arrObj[locale] && arrObj[locale].length > 0) return arrObj[locale];
+    if (arrObj['de'] && arrObj['de'].length > 0) return arrObj['de'];
+    if (arrObj['tr'] && arrObj['tr'].length > 0) return arrObj['tr'];
+    if (arrObj['en'] && arrObj['en'].length > 0) return arrObj['en'];
+    return [];
+  };
 
   const generateRecipes = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,21 +205,21 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                 {recipes.map((recipe, idx) => (
                   <div key={idx} className="bg-white p-5 rounded-2xl shadow-sm border border-stone-100">
                     <div className="flex justify-between items-start gap-4 mb-2">
-                      <h4 className="font-bold text-lg text-amber-900">{recipe.title}</h4>
+                      <h4 className="font-bold text-lg text-amber-900">{getLocalizedText(recipe.title)}</h4>
                       {recipe.category && (
                         <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-800 rounded-full border border-amber-200 shrink-0 uppercase">
                           {recipe.category}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-stone-500 mb-4">{recipe.description}</p>
+                    <p className="text-sm text-stone-500 mb-4">{getLocalizedText(recipe.description)}</p>
                     
                     <div className="mb-4">
                       <strong className="text-xs uppercase tracking-wider text-stone-400 block mb-1.5">
                         {locale === 'tr' ? 'Malzemeler' : 'Zutaten'}
                       </strong>
                       <ul className="space-y-1">
-                        {recipe.ingredients.map((ing, i) => (
+                        {getLocalizedArray(recipe.ingredients).map((ing, i) => (
                           <li key={i} className="text-sm text-stone-700 flex items-start gap-2">
                             <span className="text-amber-500 mt-0.5">•</span> {ing}
                           </li>
@@ -204,13 +227,13 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                       </ul>
                     </div>
 
-                    {recipe.instructions && recipe.instructions.length > 0 && (
+                    {recipe.instructions && getLocalizedArray(recipe.instructions).length > 0 && (
                       <div className="pt-3 border-t border-stone-100">
                         <strong className="text-xs uppercase tracking-wider text-stone-400 block mb-1.5">
                           {locale === 'tr' ? 'Hazırlanışı' : 'Zubereitung'}
                         </strong>
                         <ol className="space-y-1.5 list-decimal list-inside text-sm text-stone-600">
-                          {recipe.instructions.map((step, i) => (
+                          {getLocalizedArray(recipe.instructions).map((step, i) => (
                             <li key={i} className="leading-snug">
                               <span className="text-stone-700">{step}</span>
                             </li>
@@ -257,8 +280,8 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                 {/* Content */}
                 <div className="flex-1 relative z-10">
                   <div className="mb-10">
-                    <h2 className="text-5xl font-serif font-bold text-amber-900 mb-4 leading-tight">{recipe.title}</h2>
-                    <p className="text-xl text-stone-600 italic leading-relaxed">{recipe.description}</p>
+                    <h2 className="text-5xl font-serif font-bold text-amber-900 mb-4 leading-tight">{getLocalizedText(recipe.title)}</h2>
+                    <p className="text-xl text-stone-600 italic leading-relaxed">{getLocalizedText(recipe.description)}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-12">
@@ -267,7 +290,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                         {locale === 'tr' ? 'Malzemeler' : 'Zutaten'}
                       </h3>
                       <ul className="space-y-4">
-                        {recipe.ingredients.map((ing, i) => (
+                        {getLocalizedArray(recipe.ingredients).map((ing, i) => (
                           <li key={i} className="text-base text-stone-800 flex items-start gap-3">
                             <span className="text-amber-500 mt-[5px] shrink-0"><FiStar size={14} className="fill-amber-500" /></span> 
                             <span className="leading-relaxed">{ing}</span>
@@ -288,7 +311,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                         {locale === 'tr' ? 'Hazırlanışı' : 'Zubereitung'}
                       </h3>
                       <ul className="space-y-6">
-                        {recipe.instructions.map((step, i) => (
+                        {getLocalizedArray(recipe.instructions).map((step, i) => (
                           <li key={i} className="text-base text-stone-700 flex items-start gap-4 leading-relaxed">
                             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 text-amber-700 font-bold shrink-0 mt-[2px]">
                               <span className="mb-[2px]">{i + 1}</span>

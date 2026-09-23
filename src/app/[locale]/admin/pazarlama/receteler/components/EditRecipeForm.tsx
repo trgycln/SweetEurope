@@ -12,14 +12,18 @@ export default function EditRecipeForm({ recipe, locale }: { recipe: any, locale
     const supabase = createSupabaseBrowserClient();
     
     const [isSaving, setIsSaving] = useState(false);
-    const [title, setTitle] = useState(recipe.title || '');
-    const [description, setDescription] = useState(recipe.description || '');
+    const defaultMultiLangText = { tr: '', en: '', de: '', ar: '' };
+    const defaultMultiLangArray = { tr: [], en: [], de: [], ar: [] };
+
+    const [title, setTitle] = useState<any>(recipe.title || defaultMultiLangText);
+    const [description, setDescription] = useState<any>(recipe.description || defaultMultiLangText);
     const [category, setCategory] = useState(recipe.category || 'coffee');
     const [prepTime, setPrepTime] = useState(recipe.prep_time_minutes || 5);
     
-    // Arrays for JSONB fields
-    const [ingredients, setIngredients] = useState<string[]>(Array.isArray(recipe.ingredients) ? recipe.ingredients : []);
-    const [instructions, setInstructions] = useState<string[]>(Array.isArray(recipe.instructions) ? recipe.instructions : []);
+    const [ingredients, setIngredients] = useState<any>(recipe.ingredients || defaultMultiLangArray);
+    const [instructions, setInstructions] = useState<any>(recipe.instructions || defaultMultiLangArray);
+
+    const [activeLang, setActiveLang] = useState<'tr' | 'en' | 'de' | 'ar'>('tr');
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,20 +55,26 @@ export default function EditRecipeForm({ recipe, locale }: { recipe: any, locale
         }
     };
 
-    const updateArrayItem = (setter: React.Dispatch<React.SetStateAction<string[]>>, index: number, value: string) => {
-        setter(prev => {
-            const newArr = [...prev];
+    const updateArrayItem = (setter: any, index: number, value: string) => {
+        setter((prev: any) => {
+            const newArr = [...(prev[activeLang] || [])];
             newArr[index] = value;
-            return newArr;
+            return { ...prev, [activeLang]: newArr };
         });
     };
 
-    const addArrayItem = (setter: React.Dispatch<React.SetStateAction<string[]>>) => {
-        setter(prev => [...prev, '']);
+    const addArrayItem = (setter: any) => {
+        setter((prev: any) => ({ 
+            ...prev, 
+            [activeLang]: [...(prev[activeLang] || []), ''] 
+        }));
     };
 
-    const removeArrayItem = (setter: React.Dispatch<React.SetStateAction<string[]>>, index: number) => {
-        setter(prev => prev.filter((_, i) => i !== index));
+    const removeArrayItem = (setter: any, index: number) => {
+        setter((prev: any) => ({ 
+            ...prev, 
+            [activeLang]: (prev[activeLang] || []).filter((_: any, i: number) => i !== index) 
+        }));
     };
 
     return (
@@ -88,25 +98,42 @@ export default function EditRecipeForm({ recipe, locale }: { recipe: any, locale
                 </div>
             </div>
 
+            <div className="flex gap-2 border-b border-gray-200 pb-2">
+                {(['tr', 'en', 'de', 'ar'] as const).map(lang => (
+                    <button
+                        key={lang}
+                        type="button"
+                        onClick={() => setActiveLang(lang)}
+                        className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors uppercase ${
+                            activeLang === lang 
+                                ? 'bg-amber-50 text-amber-700 border-b-2 border-amber-500' 
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        }`}
+                    >
+                        {lang}
+                    </button>
+                ))}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Başlık</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Başlık ({activeLang.toUpperCase()})</label>
                         <input 
                             type="text" 
-                            required
-                            value={title} 
-                            onChange={(e) => setTitle(e.target.value)} 
+                            required={activeLang === 'tr'}
+                            value={title[activeLang] || ''} 
+                            onChange={(e) => setTitle((prev: any) => ({ ...prev, [activeLang]: e.target.value }))} 
                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
                         />
                     </div>
                     
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama ({activeLang.toUpperCase()})</label>
                         <textarea 
                             rows={3}
-                            value={description} 
-                            onChange={(e) => setDescription(e.target.value)} 
+                            value={description[activeLang] || ''} 
+                            onChange={(e) => setDescription((prev: any) => ({ ...prev, [activeLang]: e.target.value }))} 
                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
                         />
                     </div>
@@ -153,7 +180,7 @@ export default function EditRecipeForm({ recipe, locale }: { recipe: any, locale
                             </button>
                         </div>
                         <div className="space-y-2">
-                            {ingredients.map((item, idx) => (
+                            {(ingredients[activeLang] || []).map((item: string, idx: number) => (
                                 <div key={idx} className="flex gap-2">
                                     <input 
                                         type="text" 
@@ -171,7 +198,7 @@ export default function EditRecipeForm({ recipe, locale }: { recipe: any, locale
                                     </button>
                                 </div>
                             ))}
-                            {ingredients.length === 0 && <p className="text-sm text-gray-500 italic">Hiç malzeme eklenmemiş.</p>}
+                            {!(ingredients[activeLang] || []).length && <p className="text-sm text-gray-500 italic">Hiç malzeme eklenmemiş.</p>}
                         </div>
                     </div>
 
@@ -188,7 +215,7 @@ export default function EditRecipeForm({ recipe, locale }: { recipe: any, locale
                             </button>
                         </div>
                         <div className="space-y-2">
-                            {instructions.map((item, idx) => (
+                            {(instructions[activeLang] || []).map((item: string, idx: number) => (
                                 <div key={idx} className="flex gap-2">
                                     <span className="font-bold text-gray-400 pt-2">{idx + 1}.</span>
                                     <textarea 
@@ -207,7 +234,7 @@ export default function EditRecipeForm({ recipe, locale }: { recipe: any, locale
                                     </button>
                                 </div>
                             ))}
-                            {instructions.length === 0 && <p className="text-sm text-gray-500 italic">Hiç adım eklenmemiş.</p>}
+                            {!(instructions[activeLang] || []).length && <p className="text-sm text-gray-500 italic">Hiç adım eklenmemiş.</p>}
                         </div>
                     </div>
                 </div>

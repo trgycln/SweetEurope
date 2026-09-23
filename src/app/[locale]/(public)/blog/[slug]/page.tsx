@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Metadata } from 'next';
 import Script from 'next/script';
+import BlogPostContent from '@/components/blog/BlogPostContent';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string, slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -142,10 +143,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
           </div>
         )}
 
-        <div 
-          className="prose prose-lg md:prose-xl dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-500"
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+        <BlogPostContent content={content} locale={locale} />
       </article>
     </main>
   );

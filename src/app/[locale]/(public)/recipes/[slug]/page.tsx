@@ -164,14 +164,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from('recipes')
     .select('title, description')
     .eq('slug', slug)
-    .eq('locale', locale)
     .single();
 
   if (!recipe) return {};
 
+  const getLocalizedText = (textObj: any): string => {
+    if (!textObj) return '';
+    if (typeof textObj === 'string') return textObj;
+    if (typeof textObj === 'object') {
+      const candidate = textObj[locale] || textObj['de'] || textObj['tr'] || textObj['en'];
+      if (typeof candidate === 'string') return candidate;
+      for (const val of Object.values(textObj)) {
+        if (typeof val === 'string' && val.trim() !== '') return val;
+      }
+    }
+    return '';
+  };
+
   return {
-    title: `${recipe.title} | Elysonsweets Signature Recipe Library`,
-    description: recipe.description,
+    title: `${getLocalizedText(recipe.title)} | Elysonsweets Signature Recipe Library`,
+    description: getLocalizedText(recipe.description),
   };
 }
 
@@ -186,7 +198,6 @@ export default async function RecipePage({ params }: Props) {
     .from('recipes')
     .select('*, urunler(id, slug, ad, ana_resim_url)')
     .eq('slug', slug)
-    .eq('locale', locale)
     .single();
 
   if (!recipe) notFound();
@@ -195,24 +206,58 @@ export default async function RecipePage({ params }: Props) {
   const { data: moreRecipes } = await supabase
     .from('recipes')
     .select('id, slug, title, description, prep_time_minutes, category, likes_count')
-    .eq('locale', locale)
     .neq('id', recipe.id)
     .order('likes_count', { ascending: false })
     .limit(3);
+
+  const getLocalizedText = (textObj: any): string => {
+    if (!textObj) return '';
+    if (typeof textObj === 'string') return textObj;
+    if (typeof textObj === 'object') {
+      const candidate = textObj[locale] || textObj['de'] || textObj['tr'] || textObj['en'];
+      if (typeof candidate === 'string') return candidate;
+      for (const val of Object.values(textObj)) {
+        if (typeof val === 'string' && val.trim() !== '') return val;
+      }
+    }
+    return '';
+  };
+
+  const getLocalizedArray = (arrObj: any): string[] => {
+    if (!arrObj) return [];
+    if (Array.isArray(arrObj)) return arrObj.map(item => typeof item === 'string' ? item : (item?.text || JSON.stringify(item)));
+    if (typeof arrObj === 'object') {
+      const candidate = arrObj[locale] || arrObj['de'] || arrObj['tr'] || arrObj['en'];
+      if (Array.isArray(candidate)) {
+        return candidate.map(item => typeof item === 'string' ? item : (item?.text || JSON.stringify(item)));
+      }
+      for (const val of Object.values(arrObj)) {
+        if (Array.isArray(val) && val.length > 0) {
+          return val.map(item => typeof item === 'string' ? item : (item?.text || JSON.stringify(item)));
+        }
+      }
+    }
+    return [];
+  };
+
+  const localizedTitle = getLocalizedText(recipe.title);
+  const localizedDescription = getLocalizedText(recipe.description);
+  const localizedIngredients = getLocalizedArray(recipe.ingredients);
+  const localizedInstructions = getLocalizedArray(recipe.instructions);
 
   // Google Schema
   const recipeSchema = {
     "@context": "https://schema.org/",
     "@type": "Recipe",
-    "name": recipe.title,
-    "description": recipe.description,
+    "name": localizedTitle,
+    "description": localizedDescription,
     "author": {
       "@type": "Organization",
       "name": "Elysonsweets"
     },
     "prepTime": `PT${recipe.prep_time_minutes || 5}M`,
-    "recipeIngredient": recipe.ingredients,
-    "recipeInstructions": (recipe.instructions || []).map((step: string, index: number) => ({
+    "recipeIngredient": localizedIngredients,
+    "recipeInstructions": localizedInstructions.map((step: string, index: number) => ({
       "@type": "HowToStep",
       "text": step,
       "position": index + 1
@@ -256,7 +301,7 @@ export default async function RecipePage({ params }: Props) {
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
             <span className="text-amber-900 font-semibold truncate max-w-[200px] sm:max-w-none">
-              {recipe.title}
+              {localizedTitle}
             </span>
           </nav>
 
@@ -275,13 +320,13 @@ export default async function RecipePage({ params }: Props) {
 
           {/* Title */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-stone-900 leading-[1.15] mb-5 tracking-tight print:text-2xl print:mb-1 print:leading-snug print:text-black">
-            {recipe.title}
+            {localizedTitle}
           </h1>
 
           {/* Sensory Description */}
-          {recipe.description && (
+          {localizedDescription && (
             <p className="text-lg md:text-xl text-stone-600 font-serif italic max-w-3xl leading-relaxed border-l-2 border-amber-500/50 pl-4 py-1 mb-8 print:text-[11px] print:leading-snug print:mb-2 print:py-0 print:border-l-amber-600 print:text-stone-800">
-              &ldquo;{recipe.description}&rdquo;
+              &ldquo;{localizedDescription}&rdquo;
             </p>
           )}
 
@@ -344,12 +389,12 @@ export default async function RecipePage({ params }: Props) {
                   <span>{t.ingredients}</span>
                 </h2>
                 <span className="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-800 rounded-full border border-amber-200 print:border-amber-300 print:text-[9px] print:px-2 print:py-0.5">
-                  {t.ingredientsCount(recipe.ingredients?.length || 0)}
+                  {t.ingredientsCount(localizedIngredients.length || 0)}
                 </span>
               </div>
 
               <ul className="space-y-3.5 print:space-y-1">
-                {(recipe.ingredients || []).map((item: string, i: number) => (
+                {localizedIngredients.map((item: string, i: number) => (
                   <li key={i} className="flex items-start gap-3 text-stone-800 text-sm md:text-base group print:text-[10px] print:gap-1.5">
                     <span className="w-5 h-5 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-amber-500 group-hover:text-white transition-all print:w-3.5 print:h-3.5 print:text-amber-700 print:bg-transparent">
                       <FiCheckCircle className="w-3.5 h-3.5 text-amber-700" />
@@ -408,12 +453,12 @@ export default async function RecipePage({ params }: Props) {
                   {t.instructions}
                 </h2>
                 <span className="text-xs font-semibold px-2.5 py-1 bg-stone-100 text-stone-700 rounded-full print:border print:border-stone-200 print:text-[9px] print:px-2 print:py-0.5">
-                  {t.stepsCount(recipe.instructions?.length || 0)}
+                  {t.stepsCount(localizedInstructions.length || 0)}
                 </span>
               </div>
 
               <div className="space-y-6 print:space-y-1.5">
-                {(recipe.instructions || []).map((step: string, i: number) => (
+                {localizedInstructions.map((step: string, i: number) => (
                   <div key={i} className="flex items-start gap-4 group print:gap-2">
                     <span className="w-9 h-9 rounded-2xl bg-stone-900 text-amber-400 font-serif font-bold text-base flex items-center justify-center shrink-0 shadow-sm group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300 print:w-4 print:h-4 print:text-[9px] print:rounded print:bg-stone-800 print:text-amber-300 print:shrink-0">
                       {i + 1}
@@ -444,13 +489,65 @@ export default async function RecipePage({ params }: Props) {
                 </div>
               </div>
             </div>
+
+            {/* FO Mixology Science Note — SEO/GEO Zenginleştirmesi */}
+            <div className="print:hidden mt-2 bg-stone-900 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
+              {/* Dekoratif arka plan parıltısı */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+
+              <h3 className="text-base md:text-lg font-bold mb-4 flex items-center gap-2.5">
+                <span className="bg-amber-500 text-stone-900 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shrink-0">
+                  Science of Mixology
+                </span>
+                <span>
+                  {locale === 'de'
+                    ? 'Warum FO Produkte?'
+                    : locale === 'tr'
+                    ? 'Neden FO Ürünleri?'
+                    : locale === 'ar'
+                    ? 'لماذا منتجات FO؟'
+                    : 'Why FO Products?'}
+                </span>
+              </h3>
+
+              <p className="text-stone-300 text-sm leading-relaxed mb-6">
+                {locale === 'de'
+                  ? 'Im Gegensatz zu herkömmlichen Sirupen (wie Monin oder DaVinci) haben FO-Sirupe einen um 10 % höheren Trockenmasseanteil (Brix), aber 30 % weniger Süße. Dies ermöglicht es Baristas, 2–3 cl pro Getränk zu verwenden, um eine perfekte Viskosität (Mundgefühl) und Farbe zu erzielen, ohne das Getränk zu übersüßen. Ideal für säurehaltige Cocktails und Frappes, da es die Textur stabilisiert, ohne zu gerinnen.'
+                  : locale === 'tr'
+                  ? 'Monin veya DaVinci gibi standart ticari şurupların aksine, FO ürünleri %10 daha yüksek kuru madde (Brix) oranına sahip ancak %30 daha az tatlıdır. Bu benzersiz formülasyon, baristanın içeceği aşırı şekerlendirmeden mükemmel viskozite (mouthfeel) ve renk elde etmek için 2–3 cl kullanmasına olanak tanır. Asidik kokteyller ve frozen içeceklerde istisnai stabilite sağlar.'
+                  : locale === 'ar'
+                  ? 'على عكس الشراب التجاري القياسي (مثل Monin أو DaVinci)، تتميز منتجات FO بنسبة مادة جافة (Brix) أعلى بنسبة 10% مع حلاوة أقل بنسبة 30%. يتيح هذا التركيب الفريد استخدام 2-3 سنتيلتر لكل مشروب لتحقيق أقصى قدر من اللزوجة واللون دون إفراط في التحلية.'
+                  : 'Unlike standard commercial syrups, FO products feature 10% higher dry matter (Brix) but 30% less sweetness. This unique formulation allows mixologists to use 2–3 cl per drink, maximizing viscosity (mouthfeel) and color without making the beverage cloying. It provides exceptional stability in acidic cocktails and prevents watering down in frozen drinks.'}
+              </p>
+
+              <div className="grid grid-cols-3 gap-4 border-t border-stone-700 pt-5">
+                <div>
+                  <div className="text-amber-400 font-black text-xl md:text-2xl">-30%</div>
+                  <div className="text-stone-400 text-[10px] uppercase tracking-wider mt-0.5">
+                    {locale === 'de' ? 'Süße' : locale === 'tr' ? 'Tatlılık' : locale === 'ar' ? 'الحلاوة' : 'Sweetness'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-amber-400 font-black text-xl md:text-2xl">+10%</div>
+                  <div className="text-stone-400 text-[10px] uppercase tracking-wider mt-0.5">
+                    {locale === 'de' ? 'Trockenmasse (Brix)' : locale === 'tr' ? 'Kuru Madde (Brix)' : locale === 'ar' ? 'المادة الجافة (Brix)' : 'Dry Matter (Brix)'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-amber-400 font-black text-xl md:text-2xl">Max</div>
+                  <div className="text-stone-400 text-[10px] uppercase tracking-wider mt-0.5">
+                    {locale === 'de' ? 'Viskosität' : locale === 'tr' ? 'Viskozite' : locale === 'ar' ? 'اللزوجة' : 'Viscosity'}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Print Only Footer */}
         <div className="hidden print:flex items-center justify-between pt-2 mt-3 border-t border-stone-200 text-[8px] text-stone-400">
           <span>Elysonsweets B2B HORECA • www.elysonsweets.de</span>
-          <span>{recipe.title} • {t.signatureBadge}</span>
+          <span>{localizedTitle} • {t.signatureBadge}</span>
         </div>
 
         {/* CTA Banner: Create Your Own Custom Recipe */}
@@ -509,10 +606,10 @@ export default async function RecipePage({ params }: Props) {
                       </span>
                     </div>
                     <h3 className="font-serif font-bold text-stone-900 text-lg group-hover:text-amber-700 transition-colors line-clamp-1 mb-2">
-                      {item.title}
+                      {getLocalizedText(item.title)}
                     </h3>
                     <p className="text-stone-500 text-sm line-clamp-2 leading-relaxed">
-                      {item.description}
+                      {getLocalizedText(item.description)}
                     </p>
                   </div>
                   <div className="mt-5 pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-semibold text-amber-700 group-hover:text-amber-600">

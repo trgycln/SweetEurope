@@ -95,6 +95,7 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
                 { href: `/${locale}/contact`,  label: f.linkTrial },
                 { href: `/${locale}/contact`,  label: f.linkPricelist },
                 { href: `/${locale}/barista-ai`, label: locale === 'tr' ? 'Reçete Sihirbazı' : 'Rezept-Assistent' },
+                { href: `/${locale}/tools/margin-calculator`, label: locale === 'tr' ? 'Kâr Marjı Hesaplayıcı' : locale === 'en' ? 'Margin Calculator' : 'Gewinnmargen-Rechner', isNew: true },
                 { href: `/${locale}/blog`, label: 'Blog', isNew: true },
                 { href: `/${locale}/contact`,  label: f.linkContact },
                 { href: `/${locale}/contact`,  label: f.linkFaq },

@@ -44,6 +44,12 @@ export default async function ReceteYonetimiPage({ params }: { params: Promise<{
         return <div>Reçeteler yüklenirken bir hata oluştu.</div>;
     }
 
+    const getLocalizedText = (textObj: any) => {
+        if (!textObj) return '';
+        if (typeof textObj === 'string') return textObj;
+        return textObj[locale] || textObj['de'] || textObj['tr'] || textObj['en'] || '';
+    };
+
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-center">
@@ -69,7 +75,7 @@ export default async function ReceteYonetimiPage({ params }: { params: Promise<{
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Başlık</th>
                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kategori</th>
-                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Dil</th>
+                                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Orijinal Dil</th>
                                 <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tarih</th>
                                 <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">İşlemler</th>
                             </tr>
@@ -85,7 +91,7 @@ export default async function ReceteYonetimiPage({ params }: { params: Promise<{
                             {receteler?.map((recete) => (
                                 <tr key={recete.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {recete.title}
+                                        {getLocalizedText(recete.title)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                         <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">

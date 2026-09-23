@@ -12,12 +12,10 @@ export default async function ProductRecipes({ locale, productId }: ProductRecip
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  // 1. Toplam reçete sayısını al
   const { count } = await supabase
     .from('recipes')
     .select('*', { count: 'exact', head: true })
-    .eq('product_id', productId)
-    .eq('locale', locale);
+    .eq('product_id', productId);
 
   if (!count || count === 0) return null;
 
@@ -26,13 +24,25 @@ export default async function ProductRecipes({ locale, productId }: ProductRecip
     .from('recipes')
     .select('id, slug, title, description, prep_time_minutes, category, likes_count, is_featured')
     .eq('product_id', productId)
-    .eq('locale', locale)
     .order('is_featured', { ascending: false })
     .order('likes_count', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(3);
 
   if (!recipes) return null;
+
+  const getLocalizedText = (textObj: any): string => {
+    if (!textObj) return '';
+    if (typeof textObj === 'string') return textObj;
+    if (typeof textObj === 'object') {
+      const candidate = textObj[locale] || textObj['de'] || textObj['tr'] || textObj['en'];
+      if (typeof candidate === 'string') return candidate;
+      for (const val of Object.values(textObj)) {
+        if (typeof val === 'string' && val.trim() !== '') return val;
+      }
+    }
+    return '';
+  };
 
   return (
     <section className="mt-16 border-t border-gray-100 pt-12">
@@ -86,10 +96,10 @@ export default async function ProductRecipes({ locale, productId }: ProductRecip
               </div>
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors line-clamp-2">
-              {recipe.title}
+              {getLocalizedText(recipe.title)}
             </h3>
             <p className="text-gray-600 text-sm line-clamp-2">
-              {recipe.description}
+              {getLocalizedText(recipe.description)}
             </p>
           </Link>
         ))}

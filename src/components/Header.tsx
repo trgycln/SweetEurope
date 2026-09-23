@@ -85,6 +85,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
         { name: nav.products, href: `/${currentLocale}/products` },
         { name: currentLocale === 'tr' ? 'Reçeteler' : currentLocale === 'en' ? 'Recipes' : currentLocale === 'ar' ? 'الوصفات' : 'Rezepte', href: `/${currentLocale}/recipes`, isNew: false },
         { name: 'Blog', href: `/${currentLocale}/blog`, isNew: true },
+        { name: currentLocale === 'tr' ? 'B2B Hesaplayıcı' : currentLocale === 'en' ? 'B2B Calculator' : currentLocale === 'ar' ? 'حاسبة B2B' : 'B2B Rechner', href: `/${currentLocale}/tools/margin-calculator`, isNew: false },
         { name: nav.about, href: `/${currentLocale}/about` },
         { name: nav.contact, href: `/${currentLocale}/contact` },
     ];

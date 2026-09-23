@@ -4,11 +4,14 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+type MultiLangText = { tr: string; en: string; de: string; ar: string; };
+type MultiLangArray = { tr: string[]; en: string[]; de: string[]; ar: string[]; };
+
 type RecipeInput = {
-  title: string;
-  description: string;
-  ingredients: string[];
-  instructions: string[];
+  title: MultiLangText;
+  description: MultiLangText;
+  ingredients: MultiLangArray;
+  instructions: MultiLangArray;
   prep_time_minutes: number;
   category: string;
 };
@@ -21,8 +24,9 @@ export async function saveRecipeAndRedirect(
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
-  // SEO uyumlu ve benzersiz bir slug oluştur (Örn: cilekli-margarita-x7b9a)
-  const baseSlug = recipeData.title
+  // Create a base slug from the Turkish or German title
+  const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
+  const baseSlug = baseTitle
     .toLowerCase()
     .replace(/[^a-z0-9\u00C0-\u024F]+/g, '-') // Türkçe/Almanca karakterleri de destekler
     .replace(/(^-|-$)+/g, '');
@@ -74,7 +78,8 @@ export async function saveRecipesBulk(
   const supabase = await createSupabaseServerClient(cookieStore);
 
   const recipesToInsert = recipesData.map(recipeData => {
-    const baseSlug = recipeData.title
+    const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
+    const baseSlug = baseTitle
       .toLowerCase()
       .replace(/[^a-z0-9\u00C0-\u024F]+/g, '-')
       .replace(/(^-|-$)+/g, '');

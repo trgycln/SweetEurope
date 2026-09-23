@@ -25,7 +25,6 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
   let query = supabase
     .from('recipes')
     .select('id, slug, title, description, category, prep_time_minutes')
-    .eq('locale', locale)
     .order('created_at', { ascending: false });
 
   if (category) {
@@ -35,6 +34,20 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
   const { data: recipes } = await query;
 
   const categories = ['all', 'coffee', 'cocktail', 'mocktail', 'smoothie'];
+
+  // Helper for extracting localized text safely
+  const getLocalizedText = (textObj: any): string => {
+    if (!textObj) return '';
+    if (typeof textObj === 'string') return textObj;
+    if (typeof textObj === 'object') {
+      const candidate = textObj[locale] || textObj['de'] || textObj['tr'] || textObj['en'];
+      if (typeof candidate === 'string') return candidate;
+      for (const val of Object.values(textObj)) {
+        if (typeof val === 'string' && val.trim() !== '') return val;
+      }
+    }
+    return '';
+  };
 
   return (
     <main className="container mx-auto px-4 py-12">
@@ -98,10 +111,10 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
               <span className="text-sm text-gray-500 font-medium">{recipe.prep_time_minutes} min</span>
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors">
-              {recipe.title}
+              {getLocalizedText(recipe.title)}
             </h2>
             <p className="text-gray-600 text-sm line-clamp-2">
-              {recipe.description}
+              {getLocalizedText(recipe.description)}
             </p>
           </Link>
         ))}
