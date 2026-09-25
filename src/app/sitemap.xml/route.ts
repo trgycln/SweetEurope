@@ -21,15 +21,18 @@ export async function GET() {
   let products: any[] = [];
   let categories: any[] = [];
 
+  let blogPosts: any[] = [];
+
   if (supabaseUrl && supabaseServiceKey) {
     try {
       const supabase = createClient(supabaseUrl, supabaseServiceKey, {
         auth: { persistSession: false },
       });
 
-      const [productsRes, categoriesRes] = await Promise.all([
+      const [productsRes, categoriesRes, blogRes] = await Promise.all([
         supabase.from('urunler').select('slug, created_at, kategori_id').eq('aktif', true),
         supabase.from('kategoriler').select('id, slug, created_at, ust_kategori_id'),
+        supabase.from('blog_yazilari').select('slug, published_at').eq('is_published', true),
       ]);
 
       if (productsRes.error) {
@@ -43,10 +46,12 @@ export async function GET() {
 
       products = productsRes.data ?? [];
       categories = categoriesRes.data ?? [];
+      blogPosts = blogRes.data ?? [];
 
       diag.push(`productsRaw=${products.length}`);
       diag.push(`categoriesRaw=${categories.length}`);
-      console.log('[sitemap] productsRaw:', products.length, 'categoriesRaw:', categories.length);
+      diag.push(`blogPostsRaw=${blogPosts.length}`);
+      console.log('[sitemap] productsRaw:', products.length, 'categoriesRaw:', categories.length, 'blogPosts:', blogPosts.length);
     } catch (err: any) {
       console.error('[sitemap] exception:', err);
       diag.push(`exception=${err?.message ?? String(err)}`);
@@ -106,6 +111,19 @@ export async function GET() {
     });
   });
 
+  // Blog yazıları sitemap'e ekleniyor
+  locales.forEach((locale) => {
+    blogPosts.forEach((post) => {
+      urls.push(`
+  <url>
+    <loc>${baseUrl}/${locale}/blog/${post.slug}</loc>
+    <lastmod>${post.published_at ? new Date(post.published_at).toISOString() : new Date().toISOString()}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+    });
+  });
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <!-- diag: ${diag.join(' | ')} -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -119,3 +137,4 @@ ${urls.join('')}
     },
   });
 }
+
