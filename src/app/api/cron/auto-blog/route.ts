@@ -46,6 +46,18 @@ function sanitizeSlug(text: string) {
     .replace(/(^-|-$)+/g, '');
 }
 
+// Konuya göre farklı fallback görseller (Unsplash API çalışmadığında)
+const FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1000&auto=format&fit=crop', // Bar/cocktail
+  'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1000&auto=format&fit=crop', // Barista
+  'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1000&auto=format&fit=crop', // Coffee
+  'https://images.unsplash.com/photo-1559622214-f8a9850965bb?q=80&w=1000&auto=format&fit=crop', // Cafe interior
+  'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1000&auto=format&fit=crop', // Latte art
+  'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1000&auto=format&fit=crop', // Cocktails
+  'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=1000&auto=format&fit=crop', // Drinks
+  'https://images.unsplash.com/photo-1534353341-404a42e67c9e?q=80&w=1000&auto=format&fit=crop', // Restaurant
+];
+
 // Unsplash'tan dinamik görsel çekme fonksiyonu
 async function fetchDynamicImage(topic: string) {
   try {
@@ -60,14 +72,28 @@ async function fetchDynamicImage(topic: string) {
     
     if (unsplashAccessKey) {
       const res = await fetch(`https://api.unsplash.com/photos/random?query=${query}&orientation=landscape&client_id=${unsplashAccessKey}`);
-      const data = await res.json();
-      if (data?.urls?.regular) return data.urls.regular;
+      
+      if (!res.ok) {
+        console.warn(`Unsplash API error: ${res.status} ${res.statusText}`);
+      } else {
+        const data = await res.json();
+        if (data?.urls?.regular) {
+          console.log(`Unsplash image fetched for query "${query}": ${data.urls.regular}`);
+          return data.urls.regular;
+        }
+        console.warn('Unsplash returned no image URL. Response:', JSON.stringify(data));
+      }
+    } else {
+      console.warn('UNSPLASH_ACCESS_KEY is not set. Using fallback image.');
     }
     
-    // Fallback: Unsplash API key yoksa veya hata verirse, konuya özel benzersiz bir resim üret
-    return 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1000&auto=format&fit=crop';
+    // Fallback: Unsplash API key yoksa veya hata verirse, konuya göre rastgele farklı bir resim seç
+    const randomIndex = Math.floor(Math.random() * FALLBACK_IMAGES.length);
+    return FALLBACK_IMAGES[randomIndex];
   } catch (e) {
-    return 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1000&auto=format&fit=crop';
+    console.error('fetchDynamicImage error:', e);
+    const randomIndex = Math.floor(Math.random() * FALLBACK_IMAGES.length);
+    return FALLBACK_IMAGES[randomIndex];
   }
 }
 
