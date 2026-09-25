@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { saveRecipesBulk } from '@/lib/actions/recipe-actions';
+import { baristaAiT, Locale } from '@/lib/i18n/pages';
 
 type MultiLangText = { tr: string; en: string; de: string; ar: string; };
 type MultiLangArray = { tr: string[]; en: string[]; de: string[]; ar: string[]; };
@@ -20,6 +21,7 @@ interface Recipe {
 }
 
 export default function BaristaAiClient({ locale }: { locale: string }) {
+  const t = baristaAiT[(locale as Locale)] ?? baristaAiT.de;
   const [ingredients, setIngredients] = useState('');
   const [concept, setConcept] = useState('');
   const [cafeName, setCafeName] = useState('');
@@ -68,7 +70,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
   const generateRecipes = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ingredients || !concept) {
-      toast.error(locale === 'tr' ? 'Lütfen zorunlu alanları doldurun.' : 'Bitte füllen Sie die Pflichtfelder aus.');
+      toast.error(t.errorRequired);
       return;
     }
 
@@ -106,7 +108,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
       }
     } catch (error) {
       console.error(error);
-      toast.error(locale === 'tr' ? 'Bir hata oluştu.' : 'Ein Fehler ist aufgetreten.');
+      toast.error(t.errorApi);
     } finally {
       setLoading(false);
     }
@@ -139,10 +141,10 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
       }
 
       pdf.save(`${cafeName || 'Menu'}_Signature_Drinks.pdf`);
-      toast.success(locale === 'tr' ? 'PDF indirildi!' : 'PDF heruntergeladen!');
+      toast.success(t.successPdf);
     } catch (error) {
       console.error(error);
-      toast.error(locale === 'tr' ? 'PDF oluşturulurken hata oluştu.' : 'Fehler beim Erstellen der PDF.');
+      toast.error(t.errorPdf);
     } finally {
       setPdfLoading(false);
     }
@@ -154,30 +156,30 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
         <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-200">
           <h2 className="text-2xl font-serif font-bold text-stone-900 mb-6 flex items-center gap-3">
             <FiCoffee className="text-amber-600" />
-            {locale === 'tr' ? 'Reçete Sihirbazı' : 'Rezept-Assistent'}
+            {t.formTitle}
           </h2>
           <form onSubmit={generateRecipes} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                {locale === 'tr' ? 'Mekan Adı (Opsiyonel)' : 'Name des Cafés (Optional)'}
+                {t.labelCafeName}
               </label>
               <input type="text" value={cafeName} onChange={e => setCafeName(e.target.value)} placeholder="Cafe Elysion" className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                {locale === 'tr' ? 'Elinizdeki Malzemeler *' : 'Vorhandene Zutaten *'}
+                {t.labelIngredients}
               </label>
-              <textarea required value={ingredients} onChange={e => setIngredients(e.target.value)} placeholder={locale === 'tr' ? "Espresso, Süt, Yulaf Sütü, Çilek..." : "Espresso, Milch, Hafermilch, Erdbeeren..."} className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all h-24 resize-none" />
+              <textarea required value={ingredients} onChange={e => setIngredients(e.target.value)} placeholder={t.placeholderIngredients} className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all h-24 resize-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                {locale === 'tr' ? 'Konsept / Tema *' : 'Konzept / Thema *'}
+                {t.labelConcept}
               </label>
-              <input type="text" required value={concept} onChange={e => setConcept(e.target.value)} placeholder={locale === 'tr' ? "Yazlık soğuk kahveler, Alkolsüz kokteyller..." : "Sommerliche Eiskaffees, Alkoholfreie Cocktails..."} className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all" />
+              <input type="text" required value={concept} onChange={e => setConcept(e.target.value)} placeholder={t.placeholderConcept} className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all" />
             </div>
             <button type="submit" disabled={loading} className="w-full bg-stone-900 hover:bg-stone-800 text-white font-medium py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70">
               {loading ? <FiLoader className="animate-spin" /> : <FiStar className="text-amber-400" />}
-              {loading ? (locale === 'tr' ? 'Üretiliyor...' : 'Wird generiert...') : (locale === 'tr' ? 'İmza Reçetelerimi Yarat' : 'Signature Rezepte erstellen')}
+              {loading ? t.btnGenerating : t.btnGenerate}
             </button>
           </form>
         </div>
@@ -186,19 +188,19 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
           {!recipes ? (
             <div className="flex-1 flex flex-col items-center justify-center text-stone-400 text-center">
               <FiCoffee size={48} className="mb-4 opacity-20" />
-              <p>{locale === 'tr' ? 'Uzman baristanız siparişinizi bekliyor...' : 'Unser Barista-Experte wartet auf Ihre Bestellung...'}</p>
+              <p>{t.waiting}</p>
             </div>
           ) : (
             <div className="space-y-6 flex-1">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-stone-900">{locale === 'tr' ? 'Sizin İçin Hazırlanan Menü' : 'Ihr individuelles Menü'}</h3>
+                <h3 className="text-xl font-bold text-stone-900">{t.menuTitle}</h3>
                 <button 
                   onClick={downloadPDF} 
                   disabled={pdfLoading}
                   className="bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm"
                 >
                   {pdfLoading ? <FiLoader className="animate-spin" /> : <FiDownload />}
-                  {pdfLoading ? (locale === 'tr' ? 'Hazırlanıyor...' : 'Wird erstellt...') : 'PDF İndir'}
+                  {pdfLoading ? t.btnPdfLoading : t.btnPdf}
                 </button>
               </div>
               <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
@@ -230,7 +232,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                     {recipe.instructions && getLocalizedArray(recipe.instructions).length > 0 && (
                       <div className="pt-3 border-t border-stone-100">
                         <strong className="text-xs uppercase tracking-wider text-stone-400 block mb-1.5">
-                          {locale === 'tr' ? 'Hazırlanışı' : 'Zubereitung'}
+                          {t.labelInstr}
                         </strong>
                         <ol className="space-y-1.5 list-decimal list-inside text-sm text-stone-600">
                           {getLocalizedArray(recipe.instructions).map((step, i) => (
@@ -287,7 +289,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                   <div className="grid grid-cols-2 gap-12">
                     <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200">
                       <h3 className="text-lg font-bold text-stone-900 uppercase tracking-widest mb-6 border-b border-stone-200 pb-3">
-                        {locale === 'tr' ? 'Malzemeler' : 'Zutaten'}
+                        {t.labelIngr}
                       </h3>
                       <ul className="space-y-4">
                         {getLocalizedArray(recipe.ingredients).map((ing, i) => (
@@ -300,7 +302,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                       
                       {recipe.category && (
                         <div className="mt-8 pt-6 border-t border-stone-200">
-                          <p className="text-sm font-bold text-stone-900 uppercase tracking-widest mb-1">{locale === 'tr' ? 'Kategori' : 'Kategorie'}</p>
+                          <p className="text-sm font-bold text-stone-900 uppercase tracking-widest mb-1">{t.labelCategory}</p>
                           <p className="text-amber-600 font-medium text-lg capitalize">{recipe.category}</p>
                         </div>
                       )}
@@ -308,7 +310,7 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
 
                     <div>
                       <h3 className="text-lg font-bold text-stone-900 uppercase tracking-widest mb-6 border-b border-stone-200 pb-3">
-                        {locale === 'tr' ? 'Hazırlanışı' : 'Zubereitung'}
+                        {t.labelInstr}
                       </h3>
                       <ul className="space-y-6">
                         {getLocalizedArray(recipe.instructions).map((step, i) => (

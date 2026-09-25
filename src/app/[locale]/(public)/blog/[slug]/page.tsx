@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Metadata } from 'next';
 import Script from 'next/script';
 import BlogPostContent from '@/components/blog/BlogPostContent';
+import { blogDetailT, Locale } from '@/lib/i18n/pages';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string, slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const decodedSlug = decodeURIComponent(slug);
   let { data: post } = await supabase
     .from('blog_yazilari')
-    .select('*')
+    .select('id, slug, title, excerpt, meta_title, meta_description, image_url, author_name, published_at')
     .eq('slug', slug)
     .eq('is_published', true)
     .maybeSingle();
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   if (!post && decodedSlug !== slug) {
     const res = await supabase
       .from('blog_yazilari')
-      .select('*')
+      .select('id, slug, title, excerpt, meta_title, meta_description, image_url, author_name, published_at')
       .eq('slug', decodedSlug)
       .eq('is_published', true)
       .maybeSingle();
@@ -57,6 +58,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const { locale, slug } = await params;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
+  const t = blogDetailT[(locale as Locale)] ?? blogDetailT.de;
 
   const decodedSlug = decodeURIComponent(slug);
   let { data: post } = await supabase
@@ -126,7 +128,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
             {title}
           </h1>
           <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
-            <span>By {post.author_name}</span>
+            <span>{t.by} {post.author_name}</span>
           </div>
         </header>
 

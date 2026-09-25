@@ -4,27 +4,15 @@ import { BlogYazisi } from '@/types/blog';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Metadata } from 'next';
+import { blogListingT, Locale } from '@/lib/i18n/pages';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  
-  const titles: Record<string, string> = {
-    de: 'B2B HORECA Blog & Branchen-News | Elysonsweets',
-    en: 'B2B HORECA Blog & Industry News | Elysonsweets',
-    tr: 'B2B HORECA Blog & Sektörel Haberler | Elysonsweets',
-    ar: 'مدونة B2B HORECA وأخبار الصناعة | Elysonsweets'
-  };
-
-  const descriptions: Record<string, string> = {
-    de: 'Aktuelle Trends, Cocktail-Rezepte und B2B-Insights für die Gastronomie.',
-    en: 'Latest trends, cocktail recipes, and B2B insights for the gastronomy sector.',
-    tr: 'Gastronomi sektörü için en son trendler, kokteyl tarifleri ve B2B içgörüleri.',
-    ar: 'أحدث الاتجاهات ووصفات الكوكتيل ورؤى B2B لقطاع فن الطهو.'
-  };
+  const t = blogListingT[(locale as Locale)] ?? blogListingT.de;
 
   return {
-    title: titles[locale] || titles['de'],
-    description: descriptions[locale] || descriptions['de'],
+    title: t.metaTitle,
+    description: t.metaDesc,
     alternates: {
       canonical: `https://elysonsweets.de/${locale}/blog`,
     }
@@ -35,10 +23,11 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
   const { locale } = await params;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
+  const t = blogListingT[(locale as Locale)] ?? blogListingT.de;
 
   const { data: posts, error } = await supabase
     .from('blog_yazilari')
-    .select('*')
+    .select('id, slug, title, excerpt, image_url, published_at, author_name')
     .eq('is_published', true)
     .order('published_at', { ascending: false });
 
@@ -50,9 +39,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
   return (
     <main className="container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-white">
-        {locale === 'de' ? 'B2B HORECA Wissen & News' : 
-         locale === 'en' ? 'B2B HORECA Knowledge & News' : 
-         locale === 'tr' ? 'B2B HORECA Bilgi & Haberler' : 'معرفة وأخبار B2B HORECA'}
+        {t.pageTitle}
       </h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -89,9 +76,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
                   href={`/${locale}/blog/${post.slug}`}
                   className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
                 >
-                  {locale === 'de' ? 'Weiterlesen →' : 
-                   locale === 'en' ? 'Read more →' : 
-                   locale === 'tr' ? 'Devamını Oku →' : 'اقرأ المزيد ←'}
+                  {t.readMore}
                 </Link>
               </div>
             </article>

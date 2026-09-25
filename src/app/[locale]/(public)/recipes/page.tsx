@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { FiArrowRight, FiZap } from 'react-icons/fi';
+import { recipesListingT, Locale } from '@/lib/i18n/pages';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -10,9 +11,10 @@ type Props = {
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  const t = recipesListingT[(locale as Locale)] ?? recipesListingT.de;
   return {
-    title: 'Elysonsweets Recipe Library | Professional Beverage Inspiration',
-    description: 'Discover professional cocktail, mocktail, and coffee recipes crafted with premium supplies from Elysonsweets.',
+    title: t.metaTitle,
+    description: t.metaDesc,
   };
 }
 
@@ -21,6 +23,7 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
   const { category } = await searchParams;
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
+  const t = recipesListingT[(locale as Locale)] ?? recipesListingT.de;
 
   let query = supabase
     .from('recipes')
@@ -34,6 +37,17 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
   const { data: recipes } = await query;
 
   const categories = ['all', 'coffee', 'cocktail', 'mocktail', 'smoothie'];
+
+  // Kategori etiket çevirisi
+  const getCategoryLabel = (cat: string) => {
+    const labels: Record<string, Record<string, string>> = {
+      de: { all: 'Alle', coffee: 'Kaffee', cocktail: 'Cocktail', mocktail: 'Mocktail', smoothie: 'Smoothie' },
+      en: { all: 'All', coffee: 'Coffee', cocktail: 'Cocktail', mocktail: 'Mocktail', smoothie: 'Smoothie' },
+      tr: { all: 'Tümü', coffee: 'Kahve', cocktail: 'Kokteyl', mocktail: 'Mokteyl', smoothie: 'Smoothie' },
+      ar: { all: 'الكل', coffee: 'قهوة', cocktail: 'كوكتيل', mocktail: 'موكتيل', smoothie: 'سموذي' },
+    };
+    return labels[locale]?.[cat] ?? cat.charAt(0).toUpperCase() + cat.slice(1);
+  };
 
   // Helper for extracting localized text safely
   const getLocalizedText = (textObj: any): string => {
@@ -52,10 +66,8 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
   return (
     <main className="container mx-auto px-4 py-12">
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Elysonsweets Recipe Library</h1>
-        <p className="text-lg text-gray-600">
-          Professional beverage inspiration and expert recipes for your cafe, bar, or restaurant.
-        </p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t.pageTitle}</h1>
+        <p className="text-lg text-gray-600">{t.pageDesc}</p>
       </div>
 
       {/* Barista AI CTA Banner */}
@@ -65,20 +77,20 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
         </div>
         <div className="relative z-10">
           <span className="inline-block text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">
-            {locale === 'tr' ? 'ÖZEL KONSEPT' : 'CUSTOM CONCEPT'}
+            {t.ctaBadge}
           </span>
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-2">
-            {locale === 'tr' ? 'Kendi İmza Reçetenizi Yaratın' : 'Create Your Signature Recipe'}
+            {t.ctaTitle}
           </h2>
           <p className="text-stone-300 text-sm md:text-base max-w-xl">
-            {locale === 'tr' ? 'Yapay zeka asistanımızla elinizdeki malzemeleri girin, kafenize özel tarifler ve hazır PDF menüler oluşturalım.' : 'Enter your ingredients and let our AI assistant create custom recipes and PDF menus specifically for your cafe.'}
+            {t.ctaDesc}
           </p>
         </div>
         <Link
           href={`/${locale}/barista-ai`}
           className="relative z-10 shrink-0 inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-stone-900 font-bold py-3.5 px-7 rounded-xl transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:-translate-y-0.5"
         >
-          <span>{locale === 'tr' ? 'Reçete Sihirbazını Başlat' : 'Launch Recipe Wizard'}</span>
+          <span>{t.ctaButton}</span>
           <FiArrowRight className="w-5 h-5" />
         </Link>
       </div>
@@ -95,7 +107,7 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
                 : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
             }`}
           >
-            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            {getCategoryLabel(cat)}
           </Link>
         ))}
       </div>
@@ -106,9 +118,11 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
           <Link key={recipe.id} href={`/${locale}/recipes/${recipe.slug}`} className="group block bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
             <div className="flex justify-between items-start mb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full">
-                {recipe.category}
+                {getCategoryLabel(recipe.category)}
               </span>
-              <span className="text-sm text-gray-500 font-medium">{recipe.prep_time_minutes} min</span>
+              <span className="text-sm text-gray-500 font-medium">
+                {recipe.prep_time_minutes} {t.minLabel}
+              </span>
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors">
               {getLocalizedText(recipe.title)}
@@ -121,8 +135,8 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
         
         {(!recipes || recipes.length === 0) && (
           <div className="col-span-full text-center py-16 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
-            <p className="text-gray-500 text-lg">No recipes found for this category yet.</p>
-            <p className="text-gray-400 text-sm mt-2">Check back soon or try another category.</p>
+            <p className="text-gray-500 text-lg">{t.noRecipesTitle}</p>
+            <p className="text-gray-400 text-sm mt-2">{t.noRecipesDesc}</p>
           </div>
         )}
       </div>
