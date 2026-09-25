@@ -1,0 +1,5 @@
+_backup/
+_archive/
+scripts/products_dump.json
+playwright-report/
+public/llms-full.txt
