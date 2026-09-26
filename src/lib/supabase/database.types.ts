@@ -468,9 +468,16 @@ export type Database = {
         Row: {
           aciklama: string | null
           ad: string
+          ai_etiketler: string[] | null
+          ai_metadata: Json | null
+          ai_ozet: string | null
           alt_kategori: string | null
+          dosya_no: number
+          drive_file_id: string | null
+          drive_url: string | null
           etiketler: string[] | null
           evrak_tarihi: string | null
+          evrak_turu: string | null
           firma_id: string | null
           fiziksel_dosya: string | null
           gizli: boolean | null
@@ -478,6 +485,7 @@ export type Database = {
           iliski_id: string | null
           iliski_tipi: string | null
           kategori: string
+          kritik_bilgiler: string | null
           olusturma_tarihi: string | null
           otomatik_eklendi: boolean | null
           sira_no: string | null
@@ -489,9 +497,16 @@ export type Database = {
         Insert: {
           aciklama?: string | null
           ad: string
+          ai_etiketler?: string[] | null
+          ai_metadata?: Json | null
+          ai_ozet?: string | null
           alt_kategori?: string | null
+          dosya_no?: number | null
+          drive_file_id?: string | null
+          drive_url?: string | null
           etiketler?: string[] | null
           evrak_tarihi?: string | null
+          evrak_turu?: string | null
           firma_id?: string | null
           fiziksel_dosya?: string | null
           gizli?: boolean | null
@@ -499,6 +514,7 @@ export type Database = {
           iliski_id?: string | null
           iliski_tipi?: string | null
           kategori: string
+          kritik_bilgiler?: string | null
           olusturma_tarihi?: string | null
           otomatik_eklendi?: boolean | null
           sira_no?: string | null
@@ -510,9 +526,16 @@ export type Database = {
         Update: {
           aciklama?: string | null
           ad?: string
+          ai_etiketler?: string[] | null
+          ai_metadata?: Json | null
+          ai_ozet?: string | null
           alt_kategori?: string | null
+          dosya_no?: number | null
+          drive_file_id?: string | null
+          drive_url?: string | null
           etiketler?: string[] | null
           evrak_tarihi?: string | null
+          evrak_turu?: string | null
           firma_id?: string | null
           fiziksel_dosya?: string | null
           gizli?: boolean | null
@@ -520,6 +543,7 @@ export type Database = {
           iliski_id?: string | null
           iliski_tipi?: string | null
           kategori?: string
+          kritik_bilgiler?: string | null
           olusturma_tarihi?: string | null
           otomatik_eklendi?: boolean | null
           sira_no?: string | null

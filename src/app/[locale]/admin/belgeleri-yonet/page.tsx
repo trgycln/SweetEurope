@@ -27,7 +27,8 @@ export default async function BelgeYonetimPage({ params }: PageProps) {
     const { data: rawBelgeler, error: tableError } = await supabase
         .from('belgeler')
         .select(`
-            id, ad, kategori, alt_kategori, fiziksel_dosya, sira_no, evrak_tarihi,
+            id, ad, kategori, alt_kategori, fiziksel_dosya, sira_no, dosya_no, evrak_tarihi,
+            evrak_turu, ai_ozet, ai_etiketler, drive_url,
             iliski_tipi, iliski_id, firma_id, tir_id, aciklama, etiketler,
             son_gecerlilik_tarihi, yukleyen_id, olusturma_tarihi, gizli, otomatik_eklendi, tedarikci_adi,
             firma:firmalar(unvan),

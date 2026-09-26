@@ -157,13 +157,14 @@ const translations = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
   
   const { data: recipe } = await supabase
     .from('recipes')
     .select('title, description')
-    .eq('slug', slug)
+    .eq('slug', decodedSlug)
     .single();
 
   if (!recipe) return {};
@@ -189,6 +190,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function RecipePage({ params }: Props) {
   const { locale, slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
@@ -197,7 +199,7 @@ export default async function RecipePage({ params }: Props) {
   const { data: recipe } = await supabase
     .from('recipes')
     .select('*, urunler(id, slug, ad, ana_resim_url)')
-    .eq('slug', slug)
+    .eq('slug', decodedSlug)
     .single();
 
   if (!recipe) notFound();
@@ -406,43 +408,68 @@ export default async function RecipePage({ params }: Props) {
             </div>
 
             {/* Featured Product Card */}
-            {recipe.urunler && (
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-3xl p-6 border border-amber-200/60 shadow-sm relative overflow-hidden group print:bg-stone-50/50 print:p-2.5 print:rounded-lg print:border-stone-200 print:shadow-none">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800 mb-3 print:mb-1 print:text-[8px]">
-                  <FiStar className="text-amber-500 fill-amber-500 w-3.5 h-3.5 print:w-2.5 print:h-2.5" />
-                  <span>{t.featuredProduct}</span>
-                </div>
+            {(recipe.urunler || true) && (() => {
+              // Extract FO product name for AI recipes if urunler is missing
+              let extractedProductName = "FO Premium";
+              if (!recipe.urunler) {
+                if (recipe.product_name) {
+                  extractedProductName = recipe.product_name;
+                } else if (localizedIngredients && Array.isArray(localizedIngredients)) {
+                  const foIngredient = localizedIngredients.find((ing: string) => ing.toUpperCase().includes('FO '));
+                  if (foIngredient) {
+                    let cleaned = foIngredient.replace(/^([0-9.,\s/-]+(ml|cl|g|oz|pump|shot|pumps|shots|gr|gram|stk|stück)\b\s*)/i, '').trim();
+                    cleaned = cleaned.replace(/^[0-9.,/-]+\s+/, '').trim();
+                    cleaned = cleaned.replace(/fo /i, 'FO ');
+                    if (cleaned.length > 3) extractedProductName = cleaned;
+                  }
+                }
+              }
 
-                <div className="flex items-center gap-4 mb-4 print:mb-0 print:gap-2.5">
-                  {recipe.urunler.ana_resim_url && (
-                    <div className="w-20 h-24 bg-white rounded-2xl p-2 border border-amber-200/40 shadow-sm shrink-0 flex items-center justify-center overflow-hidden print:w-10 print:h-12 print:p-0.5 print:border-stone-200 print:rounded-md">
-                      <img 
-                        src={recipe.urunler.ana_resim_url} 
-                        alt={urunAdi} 
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-stone-900 text-base leading-snug truncate group-hover:text-amber-700 transition-colors print:text-xs print:text-black">
-                      {urunAdi}
-                    </h3>
-                    <p className="text-xs text-stone-500 mt-1 line-clamp-2 print:text-[9px] print:text-stone-600 print:line-clamp-2">
-                      {t.featuredProductDesc}
-                    </p>
+              const displayProductName = recipe.urunler ? urunAdi : extractedProductName;
+              const productLink = recipe.urunler ? `/${locale}/products/${recipe.urunler.slug}` : `/${locale}/products`;
+
+              return (
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 rounded-3xl p-6 border border-amber-200/60 shadow-sm relative overflow-hidden group print:bg-stone-50/50 print:p-2.5 print:rounded-lg print:border-stone-200 print:shadow-none">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800 mb-3 print:mb-1 print:text-[8px]">
+                    <FiStar className="text-amber-500 fill-amber-500 w-3.5 h-3.5 print:w-2.5 print:h-2.5" />
+                    <span>{t.featuredProduct}</span>
                   </div>
-                </div>
 
-                {/* Kağıt çıktıda tıklanamayacak web butonunu baskıda gizle */}
-                <Link
-                  href={`/${locale}/products/${recipe.urunler.slug}`}
-                  className="w-full flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-white font-medium py-3 px-4 rounded-xl text-sm transition-all duration-300 shadow-sm group-hover:shadow-md print:hidden"
-                >
-                  <span>{t.viewProduct}</span>
-                  <FiArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            )}
+                  <div className="flex items-center gap-4 mb-4 print:mb-0 print:gap-2.5">
+                    {recipe.urunler?.ana_resim_url ? (
+                      <div className="w-20 h-24 bg-white rounded-2xl p-2 border border-amber-200/40 shadow-sm shrink-0 flex items-center justify-center overflow-hidden print:w-10 print:h-12 print:p-0.5 print:border-stone-200 print:rounded-md">
+                        <img 
+                          src={recipe.urunler.ana_resim_url} 
+                          alt={displayProductName} 
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-20 h-24 bg-white rounded-2xl border border-amber-200/40 shadow-sm shrink-0 flex items-center justify-center overflow-hidden print:hidden text-amber-300 group-hover:text-amber-500 transition-colors">
+                        <FiCheckCircle className="w-8 h-8" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-stone-900 text-base leading-snug truncate group-hover:text-amber-700 transition-colors print:text-xs print:text-black">
+                        {displayProductName}
+                      </h3>
+                      <p className="text-xs text-stone-500 mt-1 line-clamp-2 print:text-[9px] print:text-stone-600 print:line-clamp-2">
+                        {t.featuredProductDesc}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Kağıt çıktıda tıklanamayacak web butonunu baskıda gizle */}
+                  <Link
+                    href={productLink}
+                    className="w-full flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-white font-medium py-3 px-4 rounded-xl text-sm transition-all duration-300 shadow-sm group-hover:shadow-md print:hidden"
+                  >
+                    <span>{t.viewProduct}</span>
+                    <FiArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Right Column: Instructions & Barista Tips (7 Columns) */}
@@ -495,11 +522,11 @@ export default async function RecipePage({ params }: Props) {
               {/* Dekoratif arka plan parıltısı */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
 
-              <h3 className="text-base md:text-lg font-bold mb-4 flex items-center gap-2.5">
+              <h3 className="text-white text-base md:text-lg font-bold mb-4 flex items-center gap-2.5">
                 <span className="bg-amber-500 text-stone-900 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shrink-0">
                   Science of Mixology
                 </span>
-                <span>
+                <span className="text-white">
                   {locale === 'de'
                     ? 'Warum FO Produkte?'
                     : locale === 'tr'
@@ -512,12 +539,12 @@ export default async function RecipePage({ params }: Props) {
 
               <p className="text-stone-300 text-sm leading-relaxed mb-6">
                 {locale === 'de'
-                  ? 'Im Gegensatz zu herkömmlichen Sirupen (wie Monin oder DaVinci) haben FO-Sirupe einen um 10 % höheren Trockenmasseanteil (Brix), aber 30 % weniger Süße. Dies ermöglicht es Baristas, 2–3 cl pro Getränk zu verwenden, um eine perfekte Viskosität (Mundgefühl) und Farbe zu erzielen, ohne das Getränk zu übersüßen. Ideal für säurehaltige Cocktails und Frappes, da es die Textur stabilisiert, ohne zu gerinnen.'
+                  ? 'Im Gegensatz zu vielen herkömmlichen, bekannten Sirupen auf dem Markt haben FO-Sirupe einen um 10 % höheren Trockenmasseanteil (Brix), aber 30 % weniger Süße. Dies ermöglicht es Baristas, 2–3 cl pro Getränk zu verwenden, um eine perfekte Viskosität (Mundgefühl) und Farbe zu erzielen, ohne das Getränk zu übersüßen. Ideal für säurehaltige Cocktails und Frappes, da es die Textur stabilisiert, ohne zu gerinnen.'
                   : locale === 'tr'
-                  ? 'Monin veya DaVinci gibi standart ticari şurupların aksine, FO ürünleri %10 daha yüksek kuru madde (Brix) oranına sahip ancak %30 daha az tatlıdır. Bu benzersiz formülasyon, baristanın içeceği aşırı şekerlendirmeden mükemmel viskozite (mouthfeel) ve renk elde etmek için 2–3 cl kullanmasına olanak tanır. Asidik kokteyller ve frozen içeceklerde istisnai stabilite sağlar.'
+                  ? 'Piyasadaki diğer bilinen standart ticari şurupların aksine, FO ürünleri %10 daha yüksek kuru madde (Brix) oranına sahip ancak %30 daha az tatlıdır. Bu benzersiz formülasyon, baristanın içeceği aşırı şekerlendirmeden mükemmel viskozite (mouthfeel) ve renk elde etmek için 2–3 cl kullanmasına olanak tanır. Asidik kokteyller ve frozen içeceklerde istisnai stabilite sağlar.'
                   : locale === 'ar'
-                  ? 'على عكس الشراب التجاري القياسي (مثل Monin أو DaVinci)، تتميز منتجات FO بنسبة مادة جافة (Brix) أعلى بنسبة 10% مع حلاوة أقل بنسبة 30%. يتيح هذا التركيب الفريد استخدام 2-3 سنتيلتر لكل مشروب لتحقيق أقصى قدر من اللزوجة واللون دون إفراط في التحلية.'
-                  : 'Unlike standard commercial syrups, FO products feature 10% higher dry matter (Brix) but 30% less sweetness. This unique formulation allows mixologists to use 2–3 cl per drink, maximizing viscosity (mouthfeel) and color without making the beverage cloying. It provides exceptional stability in acidic cocktails and prevents watering down in frozen drinks.'}
+                  ? 'على عكس العديد من أنواع الشراب التجاري المعروفة في السوق، تتميز منتجات FO بنسبة مادة جافة (Brix) أعلى بنسبة 10% مع حلاوة أقل بنسبة 30%. يتيح هذا التركيب الفريد استخدام 2-3 سنتيلتر لكل مشروب لتحقيق أقصى قدر من اللزوجة واللون دون إفراط في التحلية.'
+                  : 'Unlike other widely known standard commercial syrups on the market, FO products feature 10% higher dry matter (Brix) but 30% less sweetness. This unique formulation allows mixologists to use 2–3 cl per drink, maximizing viscosity (mouthfeel) and color without making the beverage cloying. It provides exceptional stability in acidic cocktails and prevents watering down in frozen drinks.'}
               </p>
 
               <div className="grid grid-cols-3 gap-4 border-t border-stone-700 pt-5">

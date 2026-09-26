@@ -24,11 +24,15 @@ export async function saveRecipeAndRedirect(
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
+  // Türkçe karakterleri çevirmek için yardımcı harita
+  const trMap: Record<string, string> = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+  
   // Create a base slug from the Turkish or German title
   const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
-  const baseSlug = baseTitle
+  const slugifiedTitle = baseTitle.replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m]);
+  const baseSlug = slugifiedTitle
     .toLowerCase()
-    .replace(/[^a-z0-9\u00C0-\u024F]+/g, '-') // Türkçe/Almanca karakterleri de destekler
+    .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)+/g, '');
   const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
 
@@ -77,11 +81,15 @@ export async function saveRecipesBulk(
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
+  // Türkçe karakterleri çevirmek için yardımcı harita
+  const trMap: Record<string, string> = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+
   const recipesToInsert = recipesData.map(recipeData => {
     const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
-    const baseSlug = baseTitle
+    const slugifiedTitle = baseTitle.replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m]);
+    const baseSlug = slugifiedTitle
       .toLowerCase()
-      .replace(/[^a-z0-9\u00C0-\u024F]+/g, '-')
+      .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
     const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
 

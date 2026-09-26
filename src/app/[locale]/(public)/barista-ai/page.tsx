@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import BaristaAiClient from './client';
-import { baristaAiT, Locale } from '@/lib/i18n/pages';
+import { recipeWizardT, Locale } from '@/lib/i18n/pages';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = baristaAiT[(locale as Locale)] ?? baristaAiT.de;
+  const t = recipeWizardT[(locale as Locale)] ?? recipeWizardT.de;
 
   return {
     title: t.metaTitle,
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function BaristaAiPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = baristaAiT[(locale as Locale)] ?? baristaAiT.de;
+  const t = recipeWizardT[(locale as Locale)] ?? recipeWizardT.de;
 
   const softwareSchema = {
     "@context": "https://schema.org",
@@ -45,7 +45,7 @@ export default async function BaristaAiPage({ params }: { params: Promise<{ loca
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] py-12">
+    <div className="min-h-screen bg-[#FBF9F5] pt-32 pb-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       
       <div className="container mx-auto px-4 max-w-6xl">

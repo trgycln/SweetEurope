@@ -70,70 +70,63 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
             </div>
           </div>
 
-          {/* Column 2: Assortment */}
+          {/* Column 2: Wissen & Inspiration */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">{f.sortimentTitle}</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">
+              {locale === 'de' ? 'Wissen & Inspiration' : locale === 'tr' ? 'Bilgi & İlham' : locale === 'ar' ? 'المعرفة والإلهام' : 'Knowledge & Inspiration'}
+            </h4>
             <nav className="space-y-1.5">
-              {FO_CATEGORY_SLUGS.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/${locale}/products?kategori=${cat.slug}`}
-                  className="block text-sm text-secondary/70 hover:text-accent transition-colors truncate"
-                >
-                  {f[cat.key] || cat.fallback}
-                </Link>
-              ))}
+              <Link href={`/${locale}/products`} className="block text-sm text-secondary/70 hover:text-accent transition-colors truncate">
+                {locale === 'de' ? 'Produkte' : locale === 'tr' ? 'Ürünler' : locale === 'ar' ? 'المنتجات' : 'Products'}
+              </Link>
+              <Link href={`/${locale}/recipes`} className="block text-sm text-secondary/70 hover:text-accent transition-colors truncate">
+                {locale === 'de' ? 'Rezept-Bibliothek' : locale === 'tr' ? 'Reçete Kütüphanesi' : locale === 'ar' ? 'مكتبة الوصفات' : 'Recipe Library'}
+              </Link>
+              <Link href={`/${locale}/barista-ai`} className="block text-sm text-secondary/70 hover:text-accent transition-colors truncate">
+                {locale === 'de' ? 'Rezept-Assistent' : locale === 'tr' ? 'Reçete Sihirbazı' : locale === 'ar' ? 'معالج الوصفات' : 'Recipe Wizard'}
+              </Link>
+              <Link href={`/${locale}/blog`} className="block text-sm text-secondary/70 hover:text-accent transition-colors truncate">
+                HORECA Blog
+              </Link>
             </nav>
           </div>
 
-          {/* Column 3: Business customers */}
+          {/* Column 3: B2B & Tools */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">{f.businessTitle}</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">
+              {locale === 'de' ? 'B2B & Tools' : locale === 'tr' ? 'B2B & Araçlar' : locale === 'ar' ? 'B2B والأدوات' : 'B2B & Tools'}
+            </h4>
             <nav className="space-y-2">
-              {[
-                { href: `/${locale}/register`, label: f.linkPartner },
-                { href: `/${locale}/contact`,  label: f.linkTrial },
-                { href: `/${locale}/contact`,  label: f.linkPricelist },
-                { href: `/${locale}/barista-ai`, label: locale === 'tr' ? 'Reçete Sihirbazı' : 'Rezept-Assistent' },
-                { href: `/${locale}/tools/margin-calculator`, label: locale === 'tr' ? 'Kâr Marjı Hesaplayıcı' : locale === 'en' ? 'Margin Calculator' : 'Gewinnmargen-Rechner', isNew: true },
-                { href: `/${locale}/blog`, label: 'Blog', isNew: true },
-                { href: `/${locale}/contact`,  label: f.linkContact },
-                { href: `/${locale}/contact`,  label: f.linkFaq },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="flex items-center gap-2 text-sm text-secondary/70 hover:text-accent transition-colors"
-                >
-                  <span>{item.label}</span>
-                  {item.isNew && (
-                    <span className="px-1.5 py-0.5 rounded bg-amber-500 text-white text-[9px] font-bold uppercase tracking-wider shadow-sm">
-                      {locale === 'tr' ? 'YENİ' : 'NEU'}
-                    </span>
-                  )}
-                </Link>
-              ))}
+              <Link href={`/${locale}/b2b-portal`} className="block text-sm text-secondary/70 hover:text-accent transition-colors">
+                {locale === 'de' ? 'B2B Kundenportal' : locale === 'tr' ? 'B2B Müşteri Portalı' : locale === 'ar' ? 'بوابة عملاء B2B' : 'B2B Customer Portal'}
+              </Link>
+              <Link href={`/${locale}/partner-portal`} className="block text-sm text-secondary/70 hover:text-accent transition-colors">
+                {locale === 'de' ? 'Partner Portal' : locale === 'tr' ? 'Partner Portalı' : locale === 'ar' ? 'بوابة الشركاء' : 'Partner Portal'}
+              </Link>
+              <Link href={`/${locale}/tools/margin-calculator`} className="block text-sm text-secondary/70 hover:text-accent transition-colors">
+                {locale === 'de' ? 'Gewinnmargen-Rechner' : locale === 'tr' ? 'Kâr Marjı Hesaplayıcı' : locale === 'ar' ? 'حاسبة هامش الربح' : 'Margin Calculator'}
+              </Link>
             </nav>
           </div>
 
-          {/* Column 4: Legal */}
+          {/* Column 4: Unternehmen */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">{f.legal}</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider text-accent mb-4">
+              {locale === 'de' ? 'Unternehmen' : locale === 'tr' ? 'Şirket' : locale === 'ar' ? 'الشركة' : 'Company'}
+            </h4>
             <nav className="space-y-2">
-              {[
-                { href: `/${locale}/impressum`,  label: f.impressum },
-                { href: `/${locale}/datenschutz`, label: f.datenschutz },
-                { href: `/${locale}/agb`,        label: f.linkAgb },
-                { href: `/${locale}/widerruf`,   label: f.linkWiderruf },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="block text-sm text-secondary/70 hover:text-accent transition-colors"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              <Link href={`/${locale}/about`} className="block text-sm text-secondary/70 hover:text-accent transition-colors">
+                {locale === 'de' ? 'Über uns' : locale === 'tr' ? 'Hakkımızda' : locale === 'ar' ? 'معلومات عنا' : 'About us'}
+              </Link>
+              <Link href={`/${locale}/contact`} className="block text-sm text-secondary/70 hover:text-accent transition-colors">
+                {locale === 'de' ? 'Kontakt' : locale === 'tr' ? 'İletişim' : locale === 'ar' ? 'اتصل بنا' : 'Contact'}
+              </Link>
+              <Link href={`/${locale}/impressum`} className="block text-sm text-secondary/70 hover:text-accent transition-colors">
+                {f.impressum || 'Impressum'}
+              </Link>
+              <Link href={`/${locale}/datenschutz`} className="block text-sm text-secondary/70 hover:text-accent transition-colors">
+                {f.datenschutz || 'Datenschutz'}
+              </Link>
             </nav>
             <p className="text-[11px] text-secondary/40 mt-4 leading-relaxed">
               {f.b2bLegalNote}

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import SmartUploadModal from '@/components/admin/documents/SmartUploadModal';
 import {
     FiSearch, FiX, FiChevronDown, FiChevronRight,
     FiAlertTriangle, FiPlus, FiLock, FiEdit2, FiFolder, FiTrash2
@@ -19,6 +20,11 @@ type Belge = {
     kategori: string;
     alt_kategori: string | null;
     sira_no: string | null;
+    dosya_no?: number | null;
+    evrak_turu?: string | null;
+    ai_ozet?: string | null;
+    ai_etiketler?: string[] | null;
+    drive_url?: string | null;
     evrak_tarihi: string | null;
     iliski_tipi: string | null;
     iliski_id: string | null;
@@ -810,6 +816,16 @@ function BelgeRow({
                                     {belge.aciklama}
                                 </span>
                             )}
+                            {belge.ai_ozet && (
+                                <span className="text-[11px] text-blue-600 truncate max-w-[180px]" title={belge.ai_ozet}>
+                                    ✨ {belge.ai_ozet}
+                                </span>
+                            )}
+                            {belge.drive_url && (
+                                <a href={belge.drive_url} target="_blank" rel="noreferrer" className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded hover:bg-blue-100 transition-colors">
+                                    Drive'da Gör
+                                </a>
+                            )}
                         </div>
 
                         <div className="flex flex-wrap items-center gap-1 mt-1">
@@ -830,8 +846,13 @@ function BelgeRow({
                         <FiFolder size={10} /> {findKategoriLabel(belge.kategori)}
                     </span>
                     {belge.sira_no && (
-                        <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md block w-max">
+                        <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md block w-max mt-1">
                             Sıra No: <strong>{belge.sira_no}</strong>
+                        </span>
+                    )}
+                    {belge.dosya_no && (
+                        <span className="text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded-md block w-max mt-1">
+                            Sistem No: <strong>{belge.dosya_no}</strong>
                         </span>
                     )}
                 </div>
@@ -891,6 +912,7 @@ export default function BelgeYonetimClient({
     const [uploadModalOpen, setUploadModalOpen] = useState(false);
     const [uploadDefaultKategori, setUploadDefaultKategori] = useState('gelen_evrak_dosyasi');
     const [folderModalOpen, setFolderModalOpen] = useState(false);
+    const [smartUploadModalOpen, setSmartUploadModalOpen] = useState(false);
 
     // Active filter chips
     const [activeChips, setActiveChips] = useState<Set<string>>(new Set());
@@ -1037,11 +1059,11 @@ export default function BelgeYonetimClient({
                     <button
                         onClick={() => { 
                             setUploadDefaultKategori(selectedKategori !== 'tumu' ? selectedKategori : (klasorler[0]?.id || 'gelen_evrak_dosyasi')); 
-                            setUploadModalOpen(true); 
+                            setSmartUploadModalOpen(true); 
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm"
                     >
-                        <FiPlus size={14} /> Yeni Evrak Kaydı
+                        <FiPlus size={14} /> Akıllı Yükleme (AI)
                     </button>
                 </div>
             </div>
@@ -1142,11 +1164,11 @@ export default function BelgeYonetimClient({
                                 <button
                                     onClick={() => {
                                         setUploadDefaultKategori(selectedKategori !== 'tumu' ? selectedKategori : (klasorler[0]?.id || 'gelen_evrak_dosyasi'));
-                                        setUploadModalOpen(true);
+                                        setSmartUploadModalOpen(true);
                                     }}
-                                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+                                    className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2"
                                 >
-                                    <FiPlus size={14} /> İlk Evrak Kaydını Ekle
+                                    <FiPlus size={14} /> İlk Evrak Kaydını Ekle (AI)
                                 </button>
                             </div>
                         ) : (
@@ -1203,6 +1225,14 @@ export default function BelgeYonetimClient({
                     onSuccess={handleCreateFolderSuccess}
                 />
             )}
+
+            <SmartUploadModal
+                isOpen={smartUploadModalOpen}
+                onClose={() => setSmartUploadModalOpen(false)}
+                onSuccess={() => window.location.reload()}
+                klasorler={klasorler}
+                defaultKategori={uploadDefaultKategori}
+            />
         </div>
     );
 }

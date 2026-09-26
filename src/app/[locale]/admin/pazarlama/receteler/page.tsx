@@ -4,6 +4,7 @@ import { FiEdit, FiPlus, FiSlash, FiCoffee } from 'react-icons/fi';
 import Link from 'next/link';
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 import DeleteRecipeButton from './components/DeleteRecipeButton';
+import AutoTranslateButton from './components/AutoTranslateButton';
 
 const getCategoryLabel = (cat: string) => {
     switch (cat?.toLowerCase()) {
@@ -48,6 +49,12 @@ export default async function ReceteYonetimiPage({ params }: { params: Promise<{
         if (!textObj) return '';
         if (typeof textObj === 'string') return textObj;
         return textObj[locale] || textObj['de'] || textObj['tr'] || textObj['en'] || '';
+    };
+
+    const isMissingTranslations = (titleObj: any) => {
+        if (!titleObj) return true;
+        if (typeof titleObj === 'string') return true;
+        return !titleObj.tr || !titleObj.de || !titleObj.en || !titleObj.ar;
     };
 
     return (
@@ -105,6 +112,7 @@ export default async function ReceteYonetimiPage({ params }: { params: Promise<{
                                         {recete.created_at ? new Date(recete.created_at).toLocaleDateString('tr-TR') : '-'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <AutoTranslateButton id={recete.id} isMissing={isMissingTranslations(recete.title)} />
                                         <Link
                                             href={`/${locale}/admin/pazarlama/receteler/${recete.id}/duzenle`}
                                             className="text-amber-600 hover:text-amber-800 inline-flex items-center gap-1 mr-4"

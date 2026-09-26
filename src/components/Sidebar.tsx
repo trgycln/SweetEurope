@@ -8,7 +8,7 @@ import {
     FiGrid, FiUsers, FiBox, FiClipboard, FiTruck, FiX,
     FiGift, FiLayers, FiSettings, FiChevronDown,
     FiRss, FiPaperclip, FiHardDrive, FiBook, FiBriefcase,
-    FiDollarSign, FiBarChart2, FiUser, FiStar, FiUserCheck, FiMail
+    FiDollarSign, FiBarChart2, FiUser, FiStar, FiUserCheck, FiMail, FiCoffee
 } from 'react-icons/fi';
 import { Enums } from '@/lib/supabase/database.types';
 import { Dictionary } from '@/dictionaries';
@@ -170,6 +170,13 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
                     name: 'Blog Yazıları',
                     href: '/admin/pazarlama/blog',
                     icon: FiBook,
+                    roles: ['Yönetici'] as UserRole[],
+                    panelKey: 'marketing'
+                },
+                {
+                    name: 'Reçete Yönetimi',
+                    href: '/admin/pazarlama/receteler',
+                    icon: FiCoffee, // Reusing FiCoffee that is already imported
                     roles: ['Yönetici'] as UserRole[],
                     panelKey: 'marketing'
                 },

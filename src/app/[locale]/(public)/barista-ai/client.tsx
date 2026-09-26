@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { saveRecipesBulk } from '@/lib/actions/recipe-actions';
-import { baristaAiT, Locale } from '@/lib/i18n/pages';
+import { recipeWizardT, Locale } from '@/lib/i18n/pages';
 
 type MultiLangText = { tr: string; en: string; de: string; ar: string; };
 type MultiLangArray = { tr: string[]; en: string[]; de: string[]; ar: string[]; };
@@ -21,7 +21,7 @@ interface Recipe {
 }
 
 export default function BaristaAiClient({ locale }: { locale: string }) {
-  const t = baristaAiT[(locale as Locale)] ?? baristaAiT.de;
+  const t = recipeWizardT[(locale as Locale)] ?? recipeWizardT.de;
   const [ingredients, setIngredients] = useState('');
   const [concept, setConcept] = useState('');
   const [cafeName, setCafeName] = useState('');

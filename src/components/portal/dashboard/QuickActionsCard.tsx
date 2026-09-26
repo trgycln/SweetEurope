@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FiPlus, FiMessageSquare, FiBookOpen } from 'react-icons/fi';
+import { Calculator } from 'lucide-react';
 import { Dictionary } from '@/dictionaries';
 import { Locale } from '@/i18n-config';
 
@@ -32,6 +33,10 @@ export function QuickActionsCard({ locale, dictionary }: QuickActionsCardProps) 
                 </Link>
                 <Link href={`/${locale}/portal/katalog`} className="flex items-center gap-3 px-4 py-3 bg-secondary text-primary rounded-lg shadow-sm hover:bg-bg-subtle transition-all font-bold text-sm w-full text-center justify-center border border-gray-200">
                     <FiBookOpen /> {actionsContent.viewCatalog}
+                </Link>
+                <Link href={`/${locale}/tools/margin-calculator`} className="flex items-center gap-3 px-4 py-3 bg-secondary text-primary rounded-lg shadow-sm hover:bg-bg-subtle transition-all font-bold text-sm w-full text-center justify-center border border-accent/30 hover:border-accent">
+                    <Calculator className="w-4 h-4 text-accent" /> 
+                    {locale === 'de' ? 'Gewinnmargen-Rechner' : locale === 'tr' ? 'Maliyet Hesap Aracı' : locale === 'ar' ? 'حاسبة الهامش' : 'Margin Calculator'}
                 </Link>
             </div>
         </div>
