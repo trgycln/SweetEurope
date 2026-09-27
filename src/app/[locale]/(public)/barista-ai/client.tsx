@@ -82,7 +82,11 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
         body: JSON.stringify({ ingredients, concept, cafeName, locale }),
       });
 
-      if (!res.ok) throw new Error('API Error');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        console.error("API Response Error:", errorData);
+        throw new Error(errorData.details || errorData.error || 'API Error');
+      }
       const data = await res.json();
       
       if (data.recipes && data.recipes.length > 0) {
@@ -140,7 +144,9 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
         pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
       }
 
-      pdf.save(`${cafeName || 'Menu'}_Signature_Drinks.pdf`);
+      const pdfUrl = pdf.output('bloburl');
+      window.open(pdfUrl, '_blank');
+
       toast.success(t.successPdf);
     } catch (error) {
       console.error(error);
@@ -273,9 +279,6 @@ export default function BaristaAiClient({ locale }: { locale: string }) {
                   <div>
                     <h1 className="text-4xl font-serif font-bold text-stone-900 mb-2">{cafeName || 'Signature Menu'}</h1>
                     <p className="text-amber-600 font-medium tracking-widest uppercase text-sm">Powered by Elysonsweets & FO</p>
-                  </div>
-                  <div className="text-stone-400 font-medium text-xl">
-                    0{idx + 1}
                   </div>
                 </div>
                 

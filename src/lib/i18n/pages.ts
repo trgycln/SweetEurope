@@ -9,27 +9,43 @@ export type Locale = 'de' | 'en' | 'tr' | 'ar';
 export const blogListingT = {
   de: {
     pageTitle: 'B2B HORECA Wissen & News',
+    pageSubtitle: 'Entdecken Sie, lassen Sie sich inspirieren und begeben Sie sich auf eine Reise in die faszinierende Welt der Mixologie.',
     metaTitle: 'B2B HORECA Blog & Branchen-News | Elysonsweets',
     metaDesc: 'Aktuelle Trends, Cocktail-Rezepte und B2B-Insights für die Gastronomie.',
     readMore: 'Weiterlesen →',
+    editorsPicks: 'Empfehlungen der Redaktion',
+    latestUpdates: 'Aktuelle Updates',
+    archive: 'Archiv',
   },
   en: {
     pageTitle: 'B2B HORECA Knowledge & News',
+    pageSubtitle: 'Discover, get inspired, and embark on a journey into the fascinating world of mixology.',
     metaTitle: 'B2B HORECA Blog & Industry News | Elysonsweets',
     metaDesc: 'Latest trends, cocktail recipes, and B2B insights for the gastronomy sector.',
     readMore: 'Read more →',
+    editorsPicks: 'Editor\'s Picks',
+    latestUpdates: 'Latest Updates',
+    archive: 'Archive',
   },
   tr: {
     pageTitle: 'B2B HORECA Bilgi & Haberler',
+    pageSubtitle: 'Keşfedin, ilham alın ve miksolojinin büyüleyici dünyasında bir yolculuğa çıkın.',
     metaTitle: 'B2B HORECA Blog & Sektörel Haberler | Elysonsweets',
     metaDesc: 'Gastronomi sektörü için en son trendler, kokteyl tarifleri ve B2B içgörüleri.',
     readMore: 'Devamını Oku →',
+    editorsPicks: 'Editörün Seçimleri',
+    latestUpdates: 'En Son Güncellemeler',
+    archive: 'Arşiv',
   },
   ar: {
     pageTitle: 'معرفة وأخبار B2B HORECA',
+    pageSubtitle: 'اكتشف، استلهم، وانطلق في رحلة إلى عالم الميكسولوجي الرائع.',
     metaTitle: 'مدونة B2B HORECA وأخبار الصناعة | Elysonsweets',
     metaDesc: 'أحدث الاتجاهات ووصفات الكوكتيل ورؤى B2B لقطاع فن الطهو.',
     readMore: 'اقرأ المزيد ←',
+    editorsPicks: 'اختيارات المحرر',
+    latestUpdates: 'آخر التحديثات',
+    archive: 'الأرشيف',
   },
 } as const;
 

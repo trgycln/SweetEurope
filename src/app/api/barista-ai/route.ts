@@ -29,7 +29,7 @@ const RecipeSchema = z.object({
     instructions: MultiLangArray.describe('Hazırlanış adımları. UYARI: Her dil objesine ("tr", "de", "en", "ar") o dile ÇEVRİLMİŞ adımları yazmalısın. Asla kopyala yapıştır yapma!'),
     prep_time_minutes: z.number().describe('Preparation time in minutes'),
     category: z.enum(['coffee', 'cocktail', 'mocktail', 'smoothie']).describe('Recipe category'),
-  })).length(3)
+  })).length(1)
 });
 
 // Helper function to sanitize any hallucinated tokens or formatting glitches in arrays
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     }
 
     const systemPrompt = `Sen sadece bir barmen değilsin; sen HoReCa işletmeleri için kârlılık (Cost per Serving) ve operasyonel hız (Speed of Service) odaklı bir Master Barista'sın.
-Görevin, kafe, bar ve restoran sahiplerine (B2B müşterilerine) ilham verecek, ticari olarak kârlı ve lezzet profili kusursuz reçeteler üretmektir. Önerdiğin reçeteler görsel olarak Instagrammable olmalı, hazırlanışı yoğun kafe saatlerinde baristayı yormamalı ve KESİNLİKLE Elyson Sweets'in FO marka şurup/soslarını başrolde kullanmalıdır.
+Görev, kafe, bar ve restoran sahiplerine (B2B müşterilerine) ilham verecek, ticari olarak kârlı ve lezzet profili kusursuz bir reçete üretmektir. Önerdiğin reçete görsel olarak Instagrammable olmalı, hazırlanışı yoğun kafe saatlerinde baristayı yormamalı ve KESİNLİKLE Elyson Sweets'in FO marka şurup/soslarını başrolde kullanmalıdır.
 
 [KÂRLILIK VE AÇIKLAMA KURALI]
 Her reçetenin 'description' (açıklama) kısmının sonunda işletmeciye bu içeceğin neden kârlı olduğunu ve neden menüye eklenmesi gerektiğini bir cümleyle açıkla.
@@ -112,7 +112,7 @@ Her reçetenin 'description' (açıklama) kısmının sonunda işletmeciye bu i�
 }
 Not: 'category' alanı SADECE şu 4 kelimeden biri olabilir: 'coffee', 'cocktail', 'mocktail', 'smoothie'.`;
 
-    const userPrompt = "Cafe Name: " + (cafeName || 'My Cafe') + "\nAvailable Ingredients: " + ingredients + "\nMenu Concept/Theme: " + concept + "\n\nPlease generate 3 signature drinks using these inputs and FO brand products.";
+    const userPrompt = "Cafe Name: " + (cafeName || 'My Cafe') + "\nAvailable Ingredients: " + ingredients + "\nMenu Concept/Theme: " + concept + "\n\nPlease generate 1 signature drink using these inputs and FO brand products.";
 
     const { object } = await generateObjectWithFallback({
       schema: RecipeSchema,
@@ -150,6 +150,6 @@ Not: 'category' alanı SADECE şu 4 kelimeden biri olabilir: 'coffee', 'cocktail
     return NextResponse.json(sanitizedResult);
   } catch (error: any) {
     console.error('[API barista-ai] Error:', error.message);
-    return NextResponse.json({ error: 'Failed to generate recipes' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate recipes', details: error.message, stack: error.stack }, { status: 500 });
   }
 }

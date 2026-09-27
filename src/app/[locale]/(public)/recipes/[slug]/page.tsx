@@ -315,7 +315,25 @@ export default async function RecipePage({ params }: Props) {
             </div>
 
             <div className="flex items-center gap-2 print:hidden">
-              <PrintButton label={t.print} />
+              <PrintButton 
+                label={t.print} 
+                headerTitle={locale === 'tr' ? 'Elysonsweets Özel Reçete' : locale === 'de' ? 'Elysonsweets Premium Rezept' : locale === 'ar' ? 'وصفة إيليسون سويتس' : 'Elysonsweets Premium Recipe'}
+                recipeTitle={localizedTitle}
+                recipeDescription={localizedDescription || ''}
+                recipeIngredients={localizedIngredients}
+                recipeInstructions={localizedInstructions}
+                recipeCategory={recipe.category?.name_en || ''}
+                recipePrepTime={recipe.prep_time_minutes || 5}
+                locale={locale}
+                translations={{
+                  labelIngr: t.ingredients,
+                  labelInstr: t.instructions,
+                  labelCategory: t.category,
+                  successPdf: t.print, // Using print label as success since we don't have successPdf here
+                  errorPdf: "Error generating PDF",
+                  btnPdfLoading: "Loading..."
+                }}
+              />
               <LikeButton recipeId={recipe.id} initialLikes={recipe.likes_count || 0} />
             </div>
           </div>

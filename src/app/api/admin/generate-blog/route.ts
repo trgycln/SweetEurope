@@ -5,29 +5,51 @@ import { generateTextWithFallback } from '@/lib/ai/providers';
 // Vercel Pro/Hobby için maksimum çalışma süresi
 export const maxDuration = 300; 
 
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Kırılmaz Parse Fonksiyonu (XML formatı AI tarafından çevrilmez)
-function parseXMLText(text: string) {
-  // AI bazen MD blokları içine alabilir, temizleyelim
-  const cleanText = text.replace(/```xml/gi, '').replace(/```/g, '');
-  
+// Kırılmaz Parse Fonksiyonu
+function parseTextBlocks(text: string) {
   const getSection = (name: string) => {
-    const regex = new RegExp(`<${name}>([\\s\\S]*?)</${name}>`, 'i');
-    const match = cleanText.match(regex);
+    // 1. Omni-directional bracket match (handles [SECTION: TITLE], ]SECTION: TITLE[, vs) for Arabic RTL
+    let regex = new RegExp(`(?:\\[|\\])SECTION:\\s*${name}(?:\\[|\\])\\s*([\\s\\S]*?)(?=(?:\\[|\\])SECTION:|$)`, 'i');
+    let match = text.match(regex);
+    if (match && match[1].trim()) return match[1].trim();
+    
+    // 2. === NAME === format (in case AI used previous instructions)
+    regex = new RegExp(`===\\s*${name}\\s*===\\s*([\\s\\S]*?)(?====|$)`, 'i');
+    match = text.match(regex);
+    if (match && match[1].trim()) return match[1].trim();
+    
+    // 3. <<<NAME>>> format
+    regex = new RegExp(`<<<\\s*${name}\\s*>>>\\s*([\\s\\S]*?)(?=(?:<<<|(?:\\[|\\])SECTION:|===|$))`, 'i');
+    match = text.match(regex);
+    if (match && match[1].trim()) return match[1].trim();
+
+    // 4. Ultimate fallback (just the word e.g. "TITLE:")
+    regex = new RegExp(`\\b${name}:\\s*([\\s\\S]*?)(?=\\b(?:SLUG|TITLE|EXCERPT|CONTENT|META_TITLE|META_DESCRIPTION):|$)`, 'i');
+    match = text.match(regex);
     return match ? match[1].trim() : '';
   };
-  return {
-    slug: getSection('blog_slug'),
-    title: getSection('blog_title'),
-    excerpt: getSection('blog_excerpt'),
-    content: getSection('blog_content'),
-    meta_title: getSection('blog_meta_title'),
-    meta_description: getSection('blog_meta_description')
+  
+  const result = {
+    slug: getSection('SLUG'),
+    title: getSection('TITLE'),
+    excerpt: getSection('EXCERPT'),
+    content: getSection('CONTENT'),
+    meta_title: getSection('META_TITLE'),
+    meta_description: getSection('META_DESCRIPTION')
   };
+  
+  if (!result.title || result.title.trim() === '') {
+    console.error("Parse failed for text. Raw text was:", text.substring(0, 1000));
+    throw new Error("Failed to parse AI output. No title found.");
+  }
+  
+  return result;
 }
 
 // Slug'daki özel karakterleri temizleyen fonksiyon (404 hatasını önlemek için)
@@ -115,27 +137,23 @@ export async function POST(req: Request) {
       4. İÇ LİNKLEME (ÇOK ÖNEMLİ): Makalenin akışına uygun yerlerde şu iki linki doğal bir şekilde geçir:
          - Reçete ve kokteyl oluşturma aracı için: <a href="/de/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Rezept-Assistent</a>
          - Ürün tedariki için: <a href="/de/products/fo" class="text-blue-600 font-semibold hover:underline">FO Cocktail Sirupe</a>
-      
-      LÜTFEN ÇIKTIYI AŞAĞIDAKİ XML FORMATINDA VER (XML TAGLERİNİ DEĞİŞTİRME):
-      
-      <blog_slug>
+
+      STRICT INSTRUCTIONS:
+      - You MUST return the output using the exact [SECTION: NAME] separators below. 
+      - DO NOT translate or modify the separators themselves. 
+
+      [SECTION: SLUG]
       seo-friendly-url-in-english-without-special-characters
-      </blog_slug>
-      <blog_title>
+      [SECTION: TITLE]
       Makale Başlığı
-      </blog_title>
-      <blog_excerpt>
+      [SECTION: EXCERPT]
       Kısa Özet
-      </blog_excerpt>
-      <blog_meta_title>
+      [SECTION: META_TITLE]
       SEO Meta Başlığı
-      </blog_meta_title>
-      <blog_meta_description>
+      [SECTION: META_DESCRIPTION]
       SEO Meta Açıklaması
-      </blog_meta_description>
-      <blog_content>
+      [SECTION: CONTENT]
       <p>Burası makalenin HTML halidir...</p>
-      </blog_content>
     `;
 
     const { text: deText } = await generateTextWithFallback({
@@ -143,70 +161,74 @@ export async function POST(req: Request) {
       temperature: 0.7,
       maxTokens: 8192,
     });
-    const deData = parseXMLText(deText);
+    const deData = parseTextBlocks(deText);
 
     // 2. ADIM: Almanca metni diğer dillere çevir
     const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
       You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
-      DO NOT TRANSLATE OR MODIFY THE XML TAGS. You MUST keep the exact same XML tag names.
       Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
-      IMPORTANT: Change the internal links inside the 'blog_content' to match the language code:
-      - Change "/de/barista-ai" to "/${code}/barista-ai" and translate the anchor text to "${aiName}".
-      - Change "/de/products/fo" to "/${code}/products/fo" and translate the anchor text to "${foName}".
       
-      OUTPUT ONLY THE XML. DO NOT WRITE ANY EXTRA TEXT.
-      
-      <blog_slug>translated-slug</blog_slug>
-      <blog_title>Translated Title Here</blog_title>
-      <blog_excerpt>Translated Excerpt Here</blog_excerpt>
-      <blog_meta_title>Translated Meta Title Here</blog_meta_title>
-      <blog_meta_description>Translated Meta Description</blog_meta_description>
-      <blog_content><p>Translated HTML content here...</p></blog_content>
+      STRICT INSTRUCTIONS:
+      - You MUST return the output using the exact [SECTION: NAME] separators below. 
+      - DO NOT translate or modify the separators themselves. 
+      - Change internal links to match the language code: "/de/barista-ai" -> "/${code}/barista-ai" (anchor: "${aiName}") and "/de/products/fo" -> "/${code}/products/fo" (anchor: "${foName}").
 
+      [SECTION: SLUG]
+      translated-slug-here
+      [SECTION: TITLE]
+      Translated Title Here
+      [SECTION: EXCERPT]
+      Translated Excerpt Here
+      [SECTION: META_TITLE]
+      Translated Meta Title Here
+      [SECTION: META_DESCRIPTION]
+      Translated Meta Description Here
+      [SECTION: CONTENT]
+      <p>Translated HTML Content Here</p>
+      
       --- TEXT TO TRANSLATE BELOW ---
-      <blog_slug>
+      [SECTION: SLUG]
       ${deData.slug}
-      </blog_slug>
-      <blog_title>
+      [SECTION: TITLE]
       ${deData.title}
-      </blog_title>
-      <blog_excerpt>
+      [SECTION: EXCERPT]
       ${deData.excerpt}
-      </blog_excerpt>
-      <blog_meta_title>
+      [SECTION: META_TITLE]
       ${deData.meta_title}
-      </blog_meta_title>
-      <blog_meta_description>
+      [SECTION: META_DESCRIPTION]
       ${deData.meta_description}
-      </blog_meta_description>
-      <blog_content>
+      [SECTION: CONTENT]
       ${deData.content}
-      </blog_content>
     `;
 
     const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    await wait(1000); 
+    await wait(8000); // Kotaya takılmamak için süreyi artırdık
     const { text: enText } = await generateTextWithFallback({ 
       prompt: translatePrompt('English', 'en', 'Barista AI Recipe Assistant', 'FO Cocktail Syrups'),
       maxTokens: 8192
     });
     
-    await wait(1000); 
+    await wait(8000);
     const { text: trText } = await generateTextWithFallback({ 
       prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
       maxTokens: 8192
     });
     
-    await wait(1000); 
+    await wait(8000);
     const { text: arText } = await generateTextWithFallback({ 
       prompt: translatePrompt('Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO'),
       maxTokens: 8192
     });
 
-    const enData = parseXMLText(enText);
-    const trData = parseXMLText(trText);
-    const arData = parseXMLText(arText);
+    const enData = parseTextBlocks(enText);
+    const trData = parseTextBlocks(trText);
+    const arData = parseTextBlocks(arText);
+    
+    // YENİ DEBUG DOSYASI
+    require('fs').writeFileSync('debug-tr.txt', trText);
+    require('fs').writeFileSync('debug-ar.txt', arText);
+    require('fs').writeFileSync('debug-en.txt', enText);
 
     // 3. ADIM: Dinamik Görsel Çek
     const imageUrl = await fetchDynamicImage(topic);

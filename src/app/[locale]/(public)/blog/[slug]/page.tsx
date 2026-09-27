@@ -120,15 +120,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
       />
       
       <article>
-        <header className="mb-10 text-center">
-          <time className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-4 block">
-            {new Date(post.published_at).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
-          </time>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
+        <header className="mb-12 text-center max-w-3xl mx-auto">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <time className="text-sm font-semibold tracking-widest uppercase text-accent">
+              {new Date(post.published_at).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
+            </time>
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-primary dark:text-white mb-6 leading-tight">
             {title}
           </h1>
-          <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
+          <div className="flex items-center justify-center gap-3 text-text-main dark:text-gray-400 font-medium">
+            <span className="h-px w-8 bg-gray-300 dark:bg-gray-700"></span>
             <span>{t.by} {post.author_name}</span>
+            <span className="h-px w-8 bg-gray-300 dark:bg-gray-700"></span>
           </div>
         </header>
 

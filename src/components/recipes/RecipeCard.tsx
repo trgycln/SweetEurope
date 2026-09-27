@@ -22,28 +22,33 @@ export default function RecipeCard({ recipe, locale, categoryLabel, minLabel, us
   };
 
   const getImageUrl = (cat: string, id: string) => {
-    // Pexels has stable IDs and is permitted in next.config.ts
-    const pools: Record<string, string[]> = {
+    const unsplashPools: Record<string, string[]> = {
       coffee: [
-        '302899', '312418', '1695052', '977873', '414628', '885021'
+        '1556740767-414a9c4860c1', '1675435644687-562e8042b9db', '1509042239860-f550ce710b93',
+        '1447933601403-0c6688de566e', '1674327105074-46dd8319164b', '1541167760496-1628856ab772',
+        '1511920170033-f8396924c348', '1556742526-795a8eac090e', '1673545518947-ddf3240090b1',
+        '1495474472287-4d71bcdd2085', '1610632380989-680fe40816c6', '1677607237201-64668c2266ab',
+        '1553292218-4892c2e7e1ae', '1611162458324-aae1eb4129a4', '1502462041640-b3d7e50d0662'
       ],
       cocktail: [
-        '1189257', '338713', '248082', '1082729', '1282276', '1304541'
+        '1677000666461-fbefa43c2c7f', '1609951651556-5334e2706168', '1657313666513-70770d329ef4',
+        '1514362545857-3bc16c4c7d1b', '1670333183316-ab697ddd9b13', '1551024709-8f23befc6f87',
+        '1570598912132-0ba1dc952b7d', '1500217052183-bc01eee1a74e', '1671647122910-3fa8ab4990cb'
       ],
       mocktail: [
-        '1346347', '434295', '1200348', '1564506', '338714'
+        '1592858167090-2473780d894d', '1587223962930-cb7f31384c19', '1670270203164-aa65468a9c67',
+        '1615887023516-9b6bcd559e87', '1586338211598-e2d64cf97e28', '1568644396922-5c3bfae12521'
       ],
       smoothie: [
-        '616836', '277253', '845552', '1128678', '1346345'
-      ],
-      all: [
-        '302899', '1189257', '616836', '1346347'
+        '1505252585461-04db1eb84625', '1628557044797-f8ea2b1263c9', '1615478503562-b2d5c6439e7c',
+        '1589187635677-2fb07845f3c1', '1570598912132-0ba1dc952b7d', '1500217052183-bc01eee1a74e'
       ]
     };
-    const pool = pools[cat] || pools.all;
-    const index = hashString(id || 'default') % pool.length;
-    const photoId = pool[index];
-    return `https://images.pexels.com/photos/${photoId}/pexels-photo-${photoId}.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=1`;
+
+    const defaultPool = [...unsplashPools.coffee, ...unsplashPools.cocktail, ...unsplashPools.mocktail];
+    const uPool = unsplashPools[cat] || defaultPool;
+    const index = hashString(id || 'default') % uPool.length;
+    return `https://images.unsplash.com/photo-${uPool[index]}?auto=format&fit=crop&w=800&q=80`;
   };
 
   const getLocalizedText = (textObj: any): string => {

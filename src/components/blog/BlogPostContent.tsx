@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import CalculatorCTA from '@/components/blog/CalculatorCTA';
 
@@ -31,10 +31,12 @@ export default function BlogPostContent({ content, locale }: BlogPostContentProp
     return (
       <>
         <div
-          className="prose prose-lg md:prose-xl dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-500"
+          className="prose prose-lg md:prose-xl dark:prose-invert max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-primary dark:prose-headings:text-white prose-p:text-text-main dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-accent hover:prose-a:text-yellow-600 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-text-main dark:prose-li:text-gray-300"
           dangerouslySetInnerHTML={{ __html: content }}
         />
-        <CalculatorCTA locale={locale} />
+        <div className="my-16 max-w-3xl mx-auto">
+          <CalculatorCTA locale={locale} />
+        </div>
       </>
     );
   }
@@ -48,14 +50,16 @@ export default function BlogPostContent({ content, locale }: BlogPostContentProp
   return (
     <>
       <div
-        className="prose prose-lg md:prose-xl dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-500"
+        className="prose prose-lg md:prose-xl dark:prose-invert max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-primary dark:prose-headings:text-white prose-p:text-text-main dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-accent hover:prose-a:text-yellow-600 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-text-main dark:prose-li:text-gray-300"
         dangerouslySetInnerHTML={{ __html: firstHalf }}
       />
 
-      <CalculatorCTA locale={locale} />
+      <div className="my-16 max-w-3xl mx-auto">
+        <CalculatorCTA locale={locale} />
+      </div>
 
       <div
-        className="prose prose-lg md:prose-xl dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-500"
+        className="prose prose-lg md:prose-xl dark:prose-invert max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-primary dark:prose-headings:text-white prose-p:text-text-main dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-accent hover:prose-a:text-yellow-600 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-text-main dark:prose-li:text-gray-300"
         dangerouslySetInnerHTML={{ __html: secondHalf }}
       />
     </>

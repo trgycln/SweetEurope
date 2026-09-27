@@ -231,6 +231,9 @@ supabase-migrations/
 .gitignore
 .repomixignore
 database.types.ts
+debug-ar.txt
+debug-en.txt
+debug-tr.txt
 eslint.config.mjs
 header.md
 next.config.ts
@@ -240,6 +243,14 @@ postcss.config.js
 README.md
 receteler.md
 rules.md
+scratch-check-db.ts
+scratch-fix-db.ts
+scratch-test-ai.ts
+scratch-test-ar.ts
+scratch-test-regex.ts
+scratch-test-separators.ts
+scratch-test-variations.ts
+scratch-trigger-ai.ts
 seo-navigation-plan.md
 SMART_DMS_PROMPTS.md
 summarize_log.mjs
@@ -254,89 +265,6 @@ vitest.setup.ts
 
 <files>
 This section contains the contents of the repository's files.
-
-<file path="src/lib/ai/document-analyzer.ts">
-import { generateObject } from 'ai';
-import { z } from 'zod';
-import { getGeminiModel } from './providers';
-
-export interface AiDocumentAnalysis {
-  evrak_turu: string;
-  ozet: string;
-  kritik_bilgiler: string;
-  tarih: string;
-  etiketler: string[];
-  onerilen_dosya_adi: string;
-}
-
-/**
- * Analyzes a PDF document using Gemini (via Vercel AI SDK v7) and extracts structured data.
- *
- * In AI SDK v7 the `messages` array no longer accepts file/binary parts directly.
- * Instead we use the top-level `prompt` (string) combined with the provider's
- * file attachment mechanism via the `experimental_providerMetadata` + `messages`
- * workaround, OR we embed the PDF as a base64 data-URI inside the prompt and
- * rely on Gemini's native multimodal handling through @ai-sdk/google.
- *
- * @param pdfBuffer The PDF file as a Node.js Buffer
- * @param originalName The original filename from the upload
- */
-export async function analyzeDocument(
-  pdfBuffer: Buffer,
-  originalName: string
-): Promise<AiDocumentAnalysis> {
-  const base64 = pdfBuffer.toString('base64');
-
-  const systemPrompt = `Sen kıdemli bir B2B evrak analiz uzmanısın. Sana verilen PDF'i incele ve KESİNLİKLE istenen JSON alanlarını doldur. Orijinal dosya adı: ${originalName}`;
-
-  try {
-    const result = await generateObject({
-      model: getGeminiModel('gemini-3.6-flash'),
-      temperature: 0,
-      system: systemPrompt,
-      schema: z.object({
-        evrak_turu: z.string().describe('Evrakın türü: Fatura / Sözleşme / Resmi Yazı / Diğer'),
-        ozet: z.string().describe('Evrakın içeriğine dair 2 cümlelik Türkçe özet'),
-        kritik_bilgiler: z
-          .string()
-          .describe('Evrakta bulunan Şifre, TC Kimlik, IBAN, Dosya No gibi kritik bilgiler'),
-        tarih: z.string().describe("Evrakın tarihi YYYY-MM-DD formatında, bulunamazsa ''"),
-        etiketler: z
-          .array(z.string())
-          .describe('Evrakla ilgili aranabilirlik için etiketler dizisi'),
-        onerilen_dosya_adi: z
-          .string()
-          .describe('Kısa, boşluksuz, Türkçe karaktersiz önerilen dosya adı'),
-      }),
-      // In AI SDK v7 multimodal content lives inside `messages` but
-      // must follow the CoreMessage spec: user role + parts array.
-      messages: [
-        {
-          role: 'user' as const,
-          content: [
-            {
-              type: 'file' as const,
-              data: base64,
-              mediaType: 'application/pdf',
-            },
-            {
-              type: 'text' as const,
-              text: 'Lütfen yukarıdaki PDF evrakını inceleyip benden istenilen alanları Türkçe olarak doldur.',
-            },
-          ],
-        },
-      ],
-    });
-
-    return result.object;
-  } catch (error: any) {
-    console.error('[analyzeDocument] Error:', error);
-    throw new Error(
-      'Doküman analizi başarısız oldu: ' + (error.message || String(error))
-    );
-  }
-}
-</file>
 
 <file path="src/lib/crm/branchInheritanceUtils.ts">
 // Helper function to merge branch company data with parent company inherited data
@@ -618,157 +546,6 @@ export function eskiKategoryiYeniSistemeleDonustur(
   const mapped = ESKI_KATEGORI_MAPPING[eskiKategori];
   return mapped || "D"; // Tanınmayan kategori → D
 }
-</file>
-
-<file path="src/lib/google-drive/service.ts">
-import { google } from 'googleapis';
-import stream from 'stream';
-
-// Initialize the Google Drive API client using Service Account credentials
-function getDriveService() {
-  const clientEmail = process.env.GOOGLE_DRIVE_CLIENT_EMAIL;
-  // Replace actual literal \n with newline characters for the private key
-  const privateKey = process.env.GOOGLE_DRIVE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-  if (!clientEmail || !privateKey) {
-    throw new Error('Google Drive credentials are not properly configured in environment variables.');
-  }
-
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: clientEmail,
-      private_key: privateKey,
-    },
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
-  });
-
-  return google.drive({ version: 'v3', auth });
-}
-
-export interface DriveUploadResponse {
-  driveFileId: string;
-  webViewLink: string;
-}
-
-/**
- * Uploads a PDF buffer to Google Drive.
- * 
- * @param buffer The file content as a Buffer.
- * @param fileName The intended name of the file in Google Drive.
- * @param mimeType The mime type of the file, defaults to 'application/pdf'.
- * @returns An object containing the driveFileId and webViewLink.
- */
-export async function uploadPdfToDrive(
-  buffer: Buffer,
-  fileName: string,
-  mimeType: string = 'application/pdf'
-): Promise<DriveUploadResponse> {
-  try {
-    const driveService = getDriveService();
-    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-
-    if (!folderId) {
-      throw new Error('Google Drive folder ID is not configured.');
-    }
-
-    // Convert Buffer to a Readable Stream for the Google Drive API
-    const bufferStream = new stream.PassThrough();
-    bufferStream.end(buffer);
-
-    const fileMetadata = {
-      name: fileName,
-      parents: [folderId],
-    };
-
-    const media = {
-      mimeType,
-      body: bufferStream,
-    };
-
-    const response = await driveService.files.create({
-      requestBody: fileMetadata,
-      media: media,
-      fields: 'id, webViewLink',
-    });
-
-    if (!response.data.id || !response.data.webViewLink) {
-      throw new Error('Upload failed: Invalid response from Google Drive API');
-    }
-
-    return {
-      driveFileId: response.data.id,
-      webViewLink: response.data.webViewLink,
-    };
-  } catch (error) {
-    console.error('Error uploading file to Google Drive:', error);
-    throw error;
-  }
-}
-</file>
-
-<file path="src/lib/i18n/navigation.ts">
-export type Locale = 'de' | 'en' | 'tr' | 'ar';
-
-export type NavigationItem = {
-  key: string;
-  href: string;
-  label: Record<Locale, string>;
-  isNew?: boolean;
-};
-
-export const mainNavigation: NavigationItem[] = [
-  {
-    key: 'products',
-    href: '/products',
-    label: {
-      de: 'Produkte',
-      en: 'Products',
-      tr: 'Ürünler',
-      ar: 'منتجات'
-    }
-  },
-  {
-    key: 'recipes-ai',
-    href: '/recipes',
-    label: {
-      de: 'Rezepte & AI',
-      en: 'Recipes & AI',
-      tr: 'Tarifler & Yapay Zeka',
-      ar: 'وصفات وذكاء اصطناعي'
-    }
-  },
-  {
-    key: 'blog',
-    href: '/blog',
-    label: {
-      de: 'Blog',
-      en: 'Blog',
-      tr: 'Blog',
-      ar: 'مدونة'
-    },
-    isNew: true
-  },
-  {
-    key: 'about',
-    href: '/about',
-    label: {
-      de: 'Über uns',
-      en: 'About us',
-      tr: 'Hakkımızda',
-      ar: 'معلومات عنا'
-    }
-  },
-  {
-    key: 'contact',
-    href: '/contact',
-    label: {
-      de: 'Kontakt',
-      en: 'Contact',
-      tr: 'İletişim',
-      ar: 'اتصال'
-    }
-  }
-];
 </file>
 
 <file path="src/lib/supabase/browser.ts">
@@ -3632,56 +3409,6 @@ DO $$ BEGIN
             FOR DELETE USING (sahip_id = auth.uid());
     END IF;
 END $$;
-</file>
-
-<file path="supabase/migrations/20261001_smart_dms_columns.sql">
--- Migration: 20261001_smart_dms_columns.sql
--- Description: Add AI and Google Drive related columns to belgeler table for Smart DMS integration
-
-ALTER TABLE belgeler
-ADD COLUMN IF NOT EXISTS drive_file_id TEXT,
-ADD COLUMN IF NOT EXISTS drive_url TEXT,
-ADD COLUMN IF NOT EXISTS ai_summary TEXT,
-ADD COLUMN IF NOT EXISTS ai_tags TEXT[],
-ADD COLUMN IF NOT EXISTS ai_metadata JSONB;
-
--- Update the view or any related functions if necessary (none required for simple column addition)
-</file>
-
-<file path="supabase/migrations/20261002_smart_dms_refactor.sql">
--- 1. Create a sequence for dosya_no
-CREATE SEQUENCE IF NOT EXISTS belgeler_dosya_no_seq START 1000;
-
--- 2. Add dosya_no and other new columns
-ALTER TABLE belgeler 
-  ADD COLUMN IF NOT EXISTS dosya_no INTEGER DEFAULT nextval('belgeler_dosya_no_seq'),
-  ADD COLUMN IF NOT EXISTS evrak_turu TEXT,
-  ADD COLUMN IF NOT EXISTS kritik_bilgiler TEXT,
-  ADD COLUMN IF NOT EXISTS ai_ozet TEXT,
-  ADD COLUMN IF NOT EXISTS ai_etiketler TEXT[];
-
--- Ensure evrak_tarihi exists (type DATE). If it already exists as text, this won't change it unless we cast, but typically it exists as date or text.
--- We use DO block to add safely if not exists.
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                   WHERE table_name='belgeler' AND column_name='evrak_tarihi') THEN
-        ALTER TABLE belgeler ADD COLUMN evrak_tarihi DATE;
-    END IF;
-END $$;
-
--- 3. We can drop the previous ai_summary and ai_tags since they are being replaced
-ALTER TABLE belgeler 
-  DROP COLUMN IF EXISTS ai_summary,
-  DROP COLUMN IF EXISTS ai_tags;
-
--- 4. Create RPC to get next sequence value
-CREATE OR REPLACE FUNCTION get_next_dosya_no()
-RETURNS integer AS $$
-BEGIN
-  RETURN nextval('belgeler_dosya_no_seq');
-END;
-$$ LANGUAGE plpgsql;
 </file>
 
 <file path="supabase/migrations/belgeler_table.sql">
@@ -9374,6 +9101,110 @@ COMMIT;
 
 </file>
 
+<file path="debug-ar.txt">
+[SECTION: SLUG]
+lahaza-ham-yajd-lemirafar-al-sa'a-ba-al-maykati-al-ziyafah-al-ja'im
+[SECTION: TITLE]
+لماذا يعد قياس البركس ضروريًا في صناعة الكوكتيلات للمحترفين
+[SECTION: EXCERPT]
+تمتاز مصفوفة "بركس" بكفاءة عالية في قياس حلاوة المشروبات وتقليل التكاليف. اكتشف كيف يمكن استخدام هذه التقنية لخفض نفقات المواد الخام، وتعزيز جاذبية العلامة التجارية، ورفع رضا العملاء من خلال دقة القياس والذكاء الإداري.
+[SECTION: META_TITLE]
+قياس البركس في الكوكتيلات: أداة لا غنى عنها للمحترفين – نصائح للربحية وإدارة الأعمال
+[SECTION: META_DESCRIPTION]
+اكتشف أهمية تقنية بركس للمحترفين في مجال المشروبات. دليل عملي لإدارة التكاليف، تتبع الاتجاهات، وتحسين أداء المشاريع الفندقية والفنادق والمطاعم من خلال قراءات دقيقة وموثوقة.
+[SECTION: CONTENT]
+<p>في عالم الضيافة والفنادق والمطاعم (HORECA) المعاصر، أصبحت المواصفات الحسية والتحكم الدقيق وتقليل التكاليف عوامل حاسمة. ويستحوذ <strong>قياس البركس</strong> (للتحليل اليدوي والرقمي لحلاوة المشروبات) على اهتمام متزايد كأداة أساسية لتحسين الجودة. وبغض النظر عن كون هذه التقنية مستمدة أساسًا من صناعة العصائر، إلا أنها صارت ضرورية لرابطي الباريستا وصنّاع الكوكتيلات. يشرح هذا المقال لماذا يعد استخدام بركس في التحضير الدقيق ضروريًا، وكيف يمكنك توظيفه لـ<strong>تعظيم الهوامش الربحية</strong>، <strong>واستقطاب شريحة العملاء المعاصرين</strong>، و<strong>تحسين كفاءة العمليات التشغيلية</strong>.</p>
+
+<h2>ما هو قياس البركس وكيف يتم استقرائه؟</h2>
+<p>يرصد المؤشر البرازيلي النسبة المئوية للغلوكوز في الماء باستخدام قراءات رقمية. عمليًا، يعني قراء 12٪ بركس وجود 12 غرام من المحلول السكري لكل 100 مل من السائل. تتيح لك الأجهزة الرقمية الحديثة إجراء هذه القراءة في ثوانٍ، دون الحاجة لتسخين العينة أو غسل الفوهة. هذا التصميم يجعله جذابًا لرابطي الباريستا لأنه يوفر قراءة سريعة وآمنة ويضمن نتائج تقريبية متطابقة.</p>
+
+<h3>لماذا تعتبر الدقة في القياس أساسية في صناعة الكروكيتين<br></h3>
+<p>إن التعريج الطفيف في قراءات البركس يمكن أن يغير مذاق المشروب جذرياً. قد ترفع حلاوة زائدة عن أن تغمر نكهات المسكرات الراقية، بينما قد يجعل المحلول السكري السائل طعمه باهتًا وغير متوازن. من خلال قراءة دقيقة للبركس، يمكنك إنشاء <strong>وصفات قياسية</strong> تظل ثابتة القيمة الحسية عند كل تحضير، وهو عامل حاسم لضمان رضا العميل وتمايز علامتك التجارية.</p>
+
+<h2>حرية الكست عبر التحكم في مؤشر البركس</h2>
+<p>تعتمد معظم وصفات الكوكتيلات على شرابات وعصائر ومكونات سكرية. هذه المدخلات الغذائية من أكثر الأصول المكلفة عند اشتراءها بكميات كبيرة. عن طريق توزيع قراءات البركس، يمكنك ضبط مستويات الحلاوة بحيث تحافظ على القوام والمذاق في الوقت نفسه وتجنب <strong>الإسراف في السكر</strong>. قراءة البركس الدقيقة تتيح لك تقليل شحنات المحلول السكري دون ضرر جدي بالمغذيات، مما يترجم مباشرة إلى خفض في التكاليف التشغيلية.</p>
+
+<h3>أسلوب عملي: من الرسم البياني للمستوى المستهدف<br></h3>
+<p>ابدأ بـوصفة قياسية، ثم قدّر مستواك الحسي الكلي. حدد بعدها مستوى بركس مستهدف يوازن بين الحلاوة المطلوبة والميزانية. عدّل كميات الشرابة أو العصير أو المحلول السكري تدريجيًا، ثم أعد القراءة بعد كل تعديل. هذا النهج التكاملي يؤدي إلى <strong>وصفة مطبقة بفاعلية</strong> يمكن التنبؤ بها دون الحاجة لتخمين العواطف في كل مرة.</p>
+
+<h2>وظائف الاستقطاب: ابتكار الكروكيتين المعتمد على مؤشر البركس<h2>
+<p>يلفت المشهد الكروكيتي المعاصر اهتمامًا متزايدًا نحو الشفافية والأسلوب العلمي في التحضير. يحب العملاء فهم السياق خلف كل مشروب، ويمكن أن تشكل قراءة البركس جزءًا من هذا السرد. اجعل الأرقام على قائمة المشروباتك وسيلة لإثبات الثقة، مما يعزز <strong>علامتك التجارية كشريك مميز ومبتكر</strong>.</p>
+
+<h3>مثال: مزيج "بركس-فيس"
+<h3>
+<p>مشروب راقٍ يحمل مؤشر بركس قدره 10٪ دقيق. عبر عرض هذا الرقم، يمكنك توكيد المعلومة في أن الحلاوة مضبوطة بالكامل لتعادل الحموضة الحمضية والمرارة الكحولية، وهو ما يرفع من القيمة الحقيقية للمشروع وقد يبرر تسعيرًا أعلي.</p>
+
+<h2>الطبقتان داخل العمليات اليومية للبار
+<h2>
+<p>للاستفادة المثلى من هذه التقنية، يتطلب الأمر:
+<p><strong>الشريحة الأولى، جهاز قياسي دقيق:</strong> استثمر في أداة معطى بها تعويض آلي للجودة، مما يقلل من احتمالات ارتكاب أخطاء في القياس.
+<p><strong>الشريحة الثانية، التأهيل والتدريب:</strong> يجب على الأخصائيين أن يدمجوا عملية القياس في الجدول الزمني للعمل، وأن يبنوا القدرة على تفسير القيود الرقمية.
+<p><strong>الشريحة الثالثة، التحصيل الرقمي للوصفات:</strong> اطلع على أدوات تخزين البركس المستهدفة وربطها بصفحات الصواب. وهنا ننصح باستخدام <a href="/ar/barista-ai" class="text-blue-600 hover:underline">مساعد وصفات باريستا الذكي</a>, الذي لا يساعد في حساب التكلفة فحسب، بل يوفر توجيهًا فوريًا لضبط المكونات.</p>
+
+<h3>إدارة سلاسل التوريد وأصول المواد الخام</h3>
+<p>جوهر قيمة الشرابات والعصائر يؤثر بشكل كبير على قراءة البركس. استخدم مكونات عالية الجودة وثابتة القيمة لتفادي التقلبات في القياس. يوفر لنا شريكنا <a href="/ar/products/fo" class="text-blue-600 font-semibold hover:underline">شراب كوكتيل FO</a> تنوع عرائش الحلاوة بتكوينات منتظمة بركسية، ما يسهل عملية العمل ويضمن ثبات جودة النكهة.</p>
+
+<h2>الخلاصة: مقارنة البركس كأصل استراتيجي</h2>
+<p>ليس عرض قراءات البركس أداة قياسية تقنية فحسب، بل هو أصل استراتيجي لكل مشغل يقدم كوكتيلات في الفنادق والمطاعم. من خلال إدارة الحلاوة بحساب مضبوط، يمكنك خفض التكاليف، ورفع جودة عرضك، ومواكبة اتجاهات السوق. ادمج قياس البركس في بناء وصفاتك، وتأهل فريقك، واعتمد على شرابات قياسية. بهذه المسار، تطرق إلى عمالته مربحة وقابلة للاستدامة في قطاع الضيافة.</p>
+</file>
+
+<file path="debug-en.txt">
+[SECTION: SLUG]
+seo-friendly-url-in-english-without-special-characters
+[SECTION: TITLE]
+Why the Brix Value in Cocktails Is Essential for Baristas
+[SECTION: EXCERPT]
+The Brix value is a precise measurement tool that helps baristas control the sweetness, consistency, and profitability of cocktails. Learn how you can use this parameter to reduce costs, set trends, and increase guest satisfaction.
+[SECTION: META_TITLE]
+Brix Value in Cocktails: An Essential Tool for Baristas – Tips for Profit, Trends & Management
+[SECTION:
+</file>
+
+<file path="debug-tr.txt">
+[SECTION: SLUG]
+brix-degeri-neden-baristalar-icin-kokteyllerde-olmazsa-olmaz
+[SECTION: TITLE]
+Kokteyllerde Brüks Değeri Neden Baristalar İçin Olmazsa Olmazdır?
+[SECTION: EXCERPT]
+Brüks değeri, baristaların kokteyllerin tatlılığını, tutarlılığını ve ekonomik verimliliğini kontrol etmesine yardımcı olan hassas bir ölçüm aracıdır. Bu parametreyle maliyetleri nasıl düşüreceğinizi, trendleri belirleyeceğinizi ve müşteri memnuniyetini nasıl artıracağınızı öğrenin.
+[SECTION: META_TITLE]
+Kokteyllerde Brüks Değeri: Baristalar İçin Hayati Bir Araç – Kâr, Trend ve Yönetim İpuçları
+[SECTION: META_DESCRIPTION]
+Brüks değerinin neden baristalar ve kokteyl profesyonelleri için vazgeçilmez olduğunu keşfedin. Daha kârlı bir HORECA işi için pratik rehberler, ekonomi ipuçları ve güncel trendler.
+[SECTION: CONTENT]
+<p>Günümüz HORECA dünyasında, tat, tutarlılık ve ekonomik verimlilik eşit derecede önemliyken, içeceklerdeki şeker konsantrasyonunu ölçmek için kullanılan <strong>Brüks değeri</strong> giderek daha fazla önem kazanmaktadır. Geleneksel olarak şarap ve meyve suyu endüstrisinde kullanılan Brüks, baristalar ve kokteyl profesyonelleri için vazgeçilmez bir araç olarak kendini kanıtlamıştır. Bu makale, kokteyl hazırlanmasında Brüks değerinin neden vazgeçilmez olduğunu ve kazançlarınızın <strong>maksimum seviyeye çıkarılmasına</strong>, güncel <strong>trendlerin belirlenmesine</strong> ve işletme <strong>yönetiminizin optimize edilmesi</strong> için nasıl kullanılabileceğini açıklamaktadır.</p>
+
+<h2>Brüks Değeri Nedir ve Nasıl Ölçülür?</h2>
+<p>Brüks değeri, bir çözeltideki 100 ml'nin kaç gram sakaroz (şeker) içerdiğini gösterir. Pratik olarak bu, %12'lik bir Brüks değerinin 100 ml sıvı başına 12 g şekere karşılık geldiği anlamına gelir. Modern el aletleri olan dijital refraktometreler, numunenin sulandırılmasına veya renk değiştirmesine gerek kalmadan saniyeler içinde ölçüm yapılmasını sağlar. Bu özellik, ölçümün hızlı, hijyenik ve tekrarlanabilir olması nedeniyle baristalar için özellikle caziptir.</p>
+
+<h3>Neden Ölçüm Hassasiyeti Kokteyller İçin Hayati Önem Taşır?</h3>
+<p>Brüks değerindeki küçük bir fark, kokteylin tadını kökten değiştirebilir. Aşırı tatlılık, distile içkilerin ince aromalarını maskelerken, yetersiz tatlılık içeceği düz ve dengesiz hale getirebilir. Brüks değerinin hassas bir şekilde belirlenmesi, her sunumda aynı tadı veren <strong>standartize tarifler</strong> oluşturmanıza olanak tanır; bu da müşteri memnuniyeti ve markanızın tanınırlığı için kilit bir faktördür.</p>
+
+<h2>Brüks Optimizasyonu İle Maliyet Verimliliği</h2>
+<p>Kokteyl tariflerinin çoğu şuruplara, meyve sularına ve şekere dayanır. Bu malzemeler, özellikle büyük miktarlarda satın alındığında maliyetlidir. Brüks değerinin ölçülmesi, tatlandırıcıların optimal miktarını belirlemenize ve aynı zamanda <strong>aşırı dozajı önlemenize</strong> olanak tanır. Hassas bir Brüks değeri, tadı olumsuz etkilemeden şeker içeriğini azaltmanızı sağlar; bu da doğrudan maliyet tasarrufu anlamına gelir.</p>
+
+<h3>Pratik Yaklaşım: Tariftten Brüks Hedefine</h3>
+<p>Bir baz tarifle başlayın ve hazır kokteylin Brüks değerini ölçün. Ardından, hem istenen tadı hem de maliyet yapısını göz önünde bulunduran bir hedef Brüks seviyesi belirleyin. Şurup, meyve suyu veya şeker miktarını kademeli olarak ayarlayın ve her ayarlamadan sonra yeniden ölçün. Bu dürtüsel (iteratif) süreç, her seferinde tahmin etmek zorunda kalmadan yeniden üretebileceğiniz <strong>optimize edilmiş bir tarife</strong> ulaşmanızı sağlar.</p>
+
+<h2>Trend Potansiyeli: Brüks Tabanlı Kokteyl Ürünleri</h2>
+<p>Modern kokteyl kültürü, şeffaflığa ve bilimsel temelli hazırlama yöntemlerine giderek daha fazla önem vermektedir. Müşteriler içericin arkasındaki hikayeyi takdir eder – ve Brüks değeri bu hikayenin bir parçası olabilir. Müşteri güvenini artırmak ve <strong>inovatif bir sağlayıcı olarak marka imajınızı</strong> pekiştirmek için içecek menünüzde Brüks değerini paylaşın.</p>
+
+<h3>Örnek: "Brix-Fizz"</h3>
+<p>Brüks değeri tam olarak %10'da tutulan hafif, köpüren bir kokteyl. Bu değeri belirterek, içeceğin narenciyelerin asiditesini ve jinin acılığını dengelemek için tam doğru tatlılığa sahip olduğunu misafirlere açıklayabilirsiniz. Bu tür ayrıntılar, algılanan kaliteyi artırır ve daha yüksek fiyatları haklı kılabilir.</p>
+
+<h2>Günlük Bar İşletiminde Uygulama</h2>
+<p>Brüks değerini etkili bir şekilde kullanmak için şunlara ihtiyacınız var:</p>
+<p><strong>1. Güvenilir Bir Refraktometre:</strong> Ölçüm hatalarını en aza indirmek için otomatik sıcaklık telafisi olan bir cihaza yatırım yapın.</p>
+<p><strong>2. Personel Eğitimi:</strong> Baristaların, sonuçları nasıl yorumlayacaklarını anlayarak ölçümü iş akışlarına entegre etmeleri gerekir.</p>
+<p><strong>3. Dijital Tarif Yönetimi:</strong> Brüks hedeflerini saklayan ve mevcut tariflerinizle ilişkilendiren bir araç kullanın. Bu amaçla, yalnızca maliyet hesabında değil, aynı zamanda malzemeleri gerçek zamanlı olarak ayarlamanızda da size yardımcı olan <a href="/tr/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Reçete Sihirbazı</a> önerilmektedir.</p>
+
+<h3>Tedarik Zinciri ve Ürün Seçimi</h3>
+<p>Şuruplarınızın ve meyve sularınızın kalitesi, Brüks değerini önemli ölçüde etkiler. Ölçüm sapmalarını önlemek için yüksek kaliteli ve tutarlı ürünler kullanın. İş ortağımız <a href="/tr/products/fo" class="text-blue-600 font-semibold hover:underline">FO Kokteyl Şurupları</a>, çalışma hayatınızı kolaylaştıran ve aynı zamanda tat tutarlılığını garantileyen, hassas Brüks değerlerine sahip şurupların geniş bir yelpazesini sunmaktadır.</p>
+
+<h2>Sonuç: Brüks Değeri olarak Stratejik Bir Varlık</h2>
+<p>Brüks değeri, yalnızca teknik bir ölçüm aracı değil, kokteyl sunan her bar, kafe ve restoran için stratejik bir varlıktır. Tatlılığın hassas kontrolü sayesinde maliyetleri düşürebilir, içeceklerinizin kalitesini artırabilir ve güncel trendlerde yer alabilirsiniz. Brüks değerini tarif geliştirme sürecinize entegre edin, ekibinizi eğitin ve yüksek kaliteli şuruplara ulaşın. Böylece daha kârlı, müşteri odaklı ve geleceğe dönük bir HORECA işi oluşturursunuz.</p>
+</file>
+
 <file path="eslint.config.mjs">
 import { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -9400,77 +9231,6 @@ const eslintConfig = [
 ];
 
 export default eslintConfig;
-</file>
-
-<file path="header.md">
-# BAĞLAM (CONTEXT)
-Bu görev, `elysonsweets.de` projesinin ana navigasyon (Header) bileşeninin yeniden tasarlanması ve kodlanmasını kapsar. 
-
-**SEO Uzmanının Önerisinin Analizi ve Yeni Mimari Karar:**
-SEO uzmanı muhtemelen anahtar kelime yoğunluğunu artırmak için ("B2B Großhandel", "B2B Rechner") menüyü şişirmiş. Ancak B2B e-ticaret UX standartlarına göre bu tasarım **bilişsel yükü (cognitive overload) artırır** ve boş sayfalara yönlendirme yapmak dönüşüm oranını düşürür. 
-*   "Startseite" linki gereksizdir (Logo bu işi yapar).
-*   "B2B Großhandel" ayrı bir sayfa olmamalıdır; çünkü **sitenin tamamı zaten bir B2B toptan satış platformudur**. Bu anahtar kelime anasayfanın (Home) H1/Meta etiketlerinde çözülmelidir.
-*   "B2B Rechner" çok spesifik bir araçtır, ana menüde kalabalık yapmak yerine "Ürünler" veya "Sepet" akışı içinde sunulmalıdır.
-
-**Yeni ve Temiz Navigasyon Mimarisi:**
-1. Logo (Anasayfaya gider)
-2. Produkte (Katalog)
-3. Rezepte & AI (Reçeteler ve Barista AI birleşimi)
-4. Blog [NEU]
-5. Über uns
-6. Kontakt
-7. Sağ Aksiyonlar: Arama İkonu | Dil Seçici | Kundenportal (CTA Butonu)
-
-Çalışılacak Dosyalar:
-- `src/components/layout/Header.tsx` (veya mevcut Header bileşeninin yolu)
-- `src/components/layout/MobileMenu.tsx` (Gerekirse alt bileşen)
-- `src/lib/i18n/navigation.ts` (Menü linklerinin çoklu dil veri yapısı - oluşturulacak/güncellenecek)
-
-# BAĞIMLILIKLAR (DEPENDENCIES)
-- `next/link` ve `next/navigation` (Yönlendirmeler ve aktif link tespiti için)
-- `lucide-react` (Arama, Hamburger menü, Dil ikonları için)
-- `framer-motion` (Mobil menü ve dropdown animasyonları için)
-- `tailwind.config.ts` içindeki mevcut renk paleti (`primary`, `secondary`, `accent`)
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Çoklu Dil Navigasyon Veri Yapısının Oluşturulması**
-  - `src/lib/i18n/navigation.ts` (veya benzeri bir dosya) oluştur/güncelle.
-  - Menü öğelerini statik olarak tanımla. "B2B Großhandel" ve "Startseite" öğelerini kaldır.
-  - Örnek yapı: `[{ key: 'products', href: '/produkte', label: { de: 'Produkte', tr: 'Ürünler', en: 'Products', ar: 'منتجات' } }, ...]`
-
-- [ ] **Adım 2: Header İskeletinin ve Scroll Efektinin Kurulması**
-  - `Header.tsx` bileşenini `use client` olarak ayarla.
-  - Sayfa scroll edildiğinde arka planın hafif şeffaf (backdrop-blur) ve gölgeli olmasını sağlayan bir state (`isScrolled`) ekle.
-  - Tailwind sınıfları: `fixed top-0 w-full z-50 transition-all duration-300`. Arka plan rengi olarak `bg-primary` (Antrasit) kullan.
-
-- [ ] **Adım 3: Masaüstü Navigasyonun (Desktop Nav) Kodlanması**
-  - Logoyu en sola yerleştir.
-  - Orta kısma `map` fonksiyonu ile navigasyon linklerini diz.
-  - Linklerin varsayılan rengini `text-secondary` (Krem) yap.
-  - Hover durumunda ve aktif sayfada rengi `text-accent` (Altın) olarak değiştir.
-  - "Blog" linkinin yanına Tailwind ile küçük, dikkat çekici bir `[NEU]` (veya `[YENİ]`) badge'i ekle (Örn: `bg-accent text-primary text-[10px] px-1.5 py-0.5 rounded-sm`).
-
-- [ ] **Adım 4: Sağ Aksiyon Alanının (Action Area) Kodlanması**
-  - Arama İkonu (`Search` from `lucide-react`): Tıklanınca arama modalını açacak şekilde ayarla (şimdilik sadece UI).
-  - Dil Seçici Dropdown: Mevcut dili gösteren ve hover/click ile diğer dilleri açan kompakt bir menü.
-  - **Kundenportal / Partnerportal CTA Butonu:** Sitenin en belirgin butonu olmalı. 
-    - Sınıflar: `bg-accent text-primary font-bold px-5 py-2 rounded-md hover:bg-opacity-90 transition-colors`.
-    - Link: `/[locale]/login` veya `/[locale]/portal/dashboard` (Kullanıcı giriş yapmışsa).
-
-- [ ] **Adım 5: Mobil Menü (Hamburger) Entegrasyonu**
-  - Ekran boyutu `md` veya `lg` altına düştüğünde masaüstü menüyü gizle (`hidden lg:flex`).
-  - Hamburger ikonunu (`Menu` from `lucide-react`) göster.
-  - Tıklandığında ekranın sağından veya üstünden açılan, `framer-motion` ile animasyonlu bir mobil menü (Drawer) kodla.
-  - Mobil menü içinde tüm linkleri, dil seçiciyi ve Portal butonunu dikey düzende yerleştir.
-
-# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
-
-- **KESİNLİKLE YAPMA:** "B2B Großhandel" isimli boş veya anlamsız bir sayfaya link verme. Sitenin tamamı B2B'dir. SEO uzmanının önerdiği bu link UX açısından bir anti-pattern'dir.
-- **KESİNLİKLE YAPMA:** "Startseite" (Anasayfa) linkini metin olarak menüye koyma. Modern web standartlarında Logo bu işlevi görür.
-- **RENK KULLANIMI:** Sadece `tailwind.config.ts` dosyasında tanımlı olan `primary` (#2B2B2B), `secondary` (#FAF9F6) ve `accent` (#C69F6B) renklerini kullan. Hardcoded hex kodları yazma.
-- **PERFORMANS:** Header bileşeni her sayfada render edileceği için içine ağır veri çekme (fetch) işlemleri koyma. Kullanıcı oturum durumu (Portal butonu için) global state'ten veya middleware'den gelen proplarla yönetilmelidir.
-- **ERİŞİLEBİLİRLİK (a11y):** Tüm linklere `aria-label` ekle. Mobil menü açıldığında arka planın scroll olmasını engelle (`document.body.style.overflow = 'hidden'`).
 </file>
 
 <file path="postcss.config.js">
@@ -9522,223 +9282,464 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 </file>
 
-<file path="receteler.md">
-# BAĞLAM (CONTEXT)
-Bu görev, `elysonsweets.de` projesinin Reçeteler (`/[locale]/recipes/page.tsx`) sayfasının B2B (HoReCa) profesyonellerine (Baristalar, Kafe/Restoran İşletmecileri) yönelik olarak yeniden tasarlanmasını kapsar. (Not: Header link hatası giderilmiştir, bu görev tamamen Reçeteler sayfasına ve AI entegrasyonuna odaklanmaktadır.)
+<file path="scratch-check-db.ts">
+import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
 
-**Mevcut Sorunlar ve B2B UX Stratejisi:**
-1. **Header Çakışması:** Sayfa başlığı fixed header'ın altında kalıyor (Padding eksikliği).
-2. **Kullanıcı Niyeti (User Intent):** Bir işletmeci reçeteleri hobi için okumaz. Amacı; menüsünü zenginleştirmek, kâr marjı yüksek (profitable) imza içecekler bulmak ve elindeki malzemeyi (özellikle FO şuruplarını) nasıl değerlendireceğini görmektir. Bu nedenle arama ve filtreleme deneyimi "Menü Geliştirme" odaklı olmalıdır.
-3. **Görsel Zayıflık:** Sayfa renksiz ve sönük. Reçete tablosunda görsel kolon yoksa bile, kategori bazlı yüksek kaliteli Unsplash görselleri ile sayfa premium bir "Gourmet Atölyesi" hissiyatına kavuşturulmalıdır.
-4. **Yapay Zeka Entegrasyonu:** Reçeteler kendi Barista AI'ımız tarafından üretiliyor ve kendi ürünlerimize linkleniyor. Sayfada bu AI'ı kullanmaya teşvik eden güçlü bir CTA (Call to Action) olmalı ve AI'ın kimliği B2B odaklı güncellenmelidir.
+dotenv.config({ path: resolve('.env.local') });
 
-Çalışılacak Dosyalar:
-- `src/app/[locale]/recipes/page.tsx` (Ana sayfa düzeni, Hero Section ve veri çekme)
-- `src/components/recipes/RecipeGrid.tsx` (Filtreleme ve listeleme bileşeni)
-- `src/components/recipes/RecipeCard.tsx` (Tekil reçete kartı)
-- `src/lib/ai/prompts/barista-prompt.ts` (veya ilgili AI route dosyası - Barista AI kimlik güncellemesi)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-# BAĞIMLILIKLAR (DEPENDENCIES)
-- `next/link` ve `next/navigation` (Çoklu dil destekli yönlendirmeler için)
-- `next/image` (Unsplash görsellerinin optimizasyonu için)
-- `lucide-react` (Arama, Saat, Kategori, Filtre ikonları için)
-- `framer-motion` (Kategori geçişleri ve kart animasyonları için)
-- `src/lib/i18n/pages.ts` (Mevcut `recipesListingT` çevirileri)
+async function check() {
+  const { data, error } = await supabase
+    .from('blog_yazilari')
+    .select('slug, title, excerpt, content')
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+  if (error) {
+    console.error("DB Error:", error);
+    return;
+  }
 
-- [ ] **Adım 1: Layout ve Hero Section Düzeltmesi (`page.tsx`)**
-  - Sayfanın en üst kapsayıcısına (main container) `pt-24` veya `pt-32` ekleyerek Header çakışmasını kesin olarak çöz.
-  - Sayfa üstüne karanlık/premium bir Hero Section ekle. Arka planda Unsplash'ten çekilmiş yüksek kaliteli bir kahve/kokteyl görseli kullan (Örn: `https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2000&auto=format&fit=crop`).
-  - Görselin üzerine koyu bir overlay (`bg-black/60` veya `bg-primary/80`) at.
-  - `recipesListingT[locale].pageTitle` ve `pageDesc` metinlerini merkeze, şık bir tipografi ile yerleştir.
+  const post = data[0];
+  console.log("Slug:", post.slug);
+  console.log("Title DE:", post.title?.de);
+  console.log("Title TR:", post.title?.tr);
+  console.log("Title AR:", post.title?.ar);
+  
+  console.log("Content TR snippet:", post.content?.tr?.substring(0, 50));
+  console.log("Content AR snippet:", post.content?.ar?.substring(0, 50));
+}
 
-- [ ] **Adım 2: B2B Odaklı Arama ve Filtreleme Çubuğu (`RecipeGrid.tsx`)**
-  - Bu bileşeni `"use client"` yap.
-  - Kullanıcıların reçeteleri kolayca bulabilmesi için bir "Sticky" filtre çubuğu tasarla.
-  - **Arama Kutusu:** "Malzeme veya reçete ara... (Örn: Karamel, Frappe)" placeholder'ı ile.
-  - **Kategori Hapları (Pills):** Tümü, Kahve, Kokteyl, Mocktail, Smoothie. Seçili olan kategori `bg-accent text-primary` olsun.
-  - **Sıralama:** "En Yeniler", "En Çok Beğenilenler" (`likes_count`'a göre).
-
-- [ ] **Adım 3: Premium Reçete Kartı Tasarımı (`RecipeCard.tsx`)**
-  - Veritabanında resim yoksa, kategoriye göre deterministik (ID'ye bağlı hep aynı resmi getiren) Unsplash görselleri kullan. (Örn: Kahve için belirli bir Unsplash ID havuzu).
-  - Kartın üstünde kategori badge'i ve hazırlanma süresi (`prep_time_minutes` dk) olsun.
-  - Kartın içeriğinde Reçete Adı ve kısa açıklaması yer alsın.
-  - **B2B Vurgusu (Cross-sell):** Kartın alt kısmında "Kullanılan Ürün:" şeklinde, reçetenin bağlı olduğu `product_id`'ye ait ürünün adını (veya "FO Premium Şurup") gösteren küçük, dikkat çekici bir etiket ekle. Bu, SEO ve çapraz satış için kritiktir.
-  - Kartın tamamı `/[locale]/recipes/[slug]` adresine tıklanabilir olmalı.
-
-- [ ] **Adım 4: Barista AI CTA Banner Entegrasyonu**
-  - Reçete listesinin ortasında (örneğin 6. sıradan sonra) veya en altında, dikkat çekici bir Banner tasarla.
-  - Başlık: `recipesListingT[locale].ctaTitle` ("Kendi İmza Reçetenizi Yaratın").
-  - Açıklama: `recipesListingT[locale].ctaDesc`.
-  - Buton: `/[locale]/barista-ai` sayfasına giden, `bg-accent text-primary font-bold` renkli bir buton.
-  - Yanına bir "Yapay Zeka / Robot Barista" ikonografisi veya görseli ekle.
-
-- [ ] **Adım 5: Barista AI Kimlik Güncellemesi (Prompt İyileştirmesi)**
-  - Barista AI'ın prompt dosyasını bul.
-  - AI'ın kimliğine şu B2B kurallarını ekle: 
-    *"Sen sadece bir barmen değilsin; sen HoReCa işletmeleri için kârlılık (Cost per Serving) ve operasyonel hız (Speed of Service) odaklı bir Master Barista'sın. Önerdiğin reçeteler görsel olarak Instagrammable olmalı, hazırlanışı yoğun kafe saatlerinde baristayı yormamalı ve KESİNLİKLE Elyson Sweets'in FO marka şurup/soslarını başrolde kullanmalıdır. Her reçetenin sonunda işletmeciye bu içeceğin neden kârlı olduğunu bir cümleyle açıkla."*
-
-# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
-
-- **LİNK BÜTÜNLÜĞÜ (CRITICAL):** Next.js `<Link>` bileşenini kullanırken `href` değerinin başına mutlaka `/${locale}` ekle. Örn: `<Link href={\`/${locale}/recipes/${recipe.slug}\`}>`. `useRouter` kullanıyorsan import'un `next/navigation`'dan geldiğinden emin ol.
-- **VERİ ÇEKME (DATA FETCHING):** Reçeteleri çekerken mevcut Supabase sorgularını bozma. Eğer `RecipeGrid` client-side filtreleme yapacaksa, veriyi Server Component (`page.tsx`) içinde çekip Client Component'e (`RecipeGrid`) prop olarak geçir.
-- **GÖRSEL PERFORMANSI:** Unsplash resimlerini doğrudan `<img>` etiketiyle değil, `next/image` ile kullan. `next.config.ts` dosyasında `images.unsplash.com` zaten izinli. Resimlere `fill`, `object-cover` ve `sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"` proplarını eklemeyi unutma.
-- **B2B ODAĞI:** Reçeteleri ev hanımlarına yönelik yemek tarifleri gibi değil, profesyonel işletmelere yönelik "Menü Geliştirme (Menu Engineering)" konseptiyle sun. "Evde kolayca yapın" gibi B2C ifadelerinden kesinlikle kaçın.
+check();
 </file>
 
-<file path="seo-navigation-plan.md">
-# TASK BLUEPRINT: SEO & GEO Navigation Architecture Update
-**Context:** We need to optimize the Header and Footer navigation for B2B SEO, Silo Architecture, and GEO (Generative Engine Optimization) without breaking the existing UI/Tailwind design or i18n structure.
+<file path="scratch-fix-db.ts">
+import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+import { generateObjectWithFallback } from './src/lib/ai/providers';
+import { z } from 'zod';
 
-## ⚠️ CRITICAL RULES FOR THE AI AGENT
-1. Read `rules.md` before making any changes.
-2. DO NOT remove existing Tailwind classes, mobile menu logic (hamburger menu), or i18n implementations.
-3. Check off the tasks below as you complete them.
+dotenv.config({ path: resolve('.env.local') });
 
----
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
-## [ ] STEP 1: Header (Main Navigation) Optimization
-**Target File:** Find the main Header/Navbar component (likely `src/components/layout/Header.tsx` or `Navbar.tsx`).
+const blogSchema = z.object({
+  slug: z.string().describe('SEO friendly URL in English without special characters'),
+  title: z.string().describe('Makale Başlığı / Article Title'),
+  excerpt: z.string().describe('Kısa Özet / Excerpt'),
+  meta_title: z.string().describe('SEO Meta Başlığı / Meta Title'),
+  meta_description: z.string().describe('SEO Meta Açıklaması / Meta Description'),
+  content: z.string().describe('Makalenin HTML hali / HTML content (e.g. <h2>, <p>)'),
+});
 
-**Action Required:**
-1. Insert a new navigation link for the B2B Portal.
-2. Reorder the main navigation links to match this exact semantic order:
-   `Startseite` | `Produkte` | `B2B Großhandel` (NEW) | `Rezepte` | `Blog [NEU]` | `B2B Rechner` | `Über uns` | `Kontakt`
-3. Keep the golden "Partnerportal" button exactly where it is (usually on the far right).
+const translatePrompt = (lang: string, code: string, aiName: string, foName: string, deData: any) => `
+      You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
+      Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
+      IMPORTANT: Change the internal links inside the 'content' to match the language code:
+      - Change "/de/barista-ai" to "/${code}/barista-ai" and translate the anchor text to "${aiName}".
+      - Change "/de/products/fo" to "/${code}/products/fo" and translate the anchor text to "${foName}".
+      
+      --- TEXT TO TRANSLATE BELOW ---
+      Slug: ${deData.slug}
+      Title: ${deData.title.de}
+      Excerpt: ${deData.excerpt.de}
+      Meta Title: ${deData.meta_title.de}
+      Meta Description: ${deData.meta_description.de}
+      Content: ${deData.content.de}
+    `;
 
-**New Link Implementation (Adapt to existing i18n logic):**
-```tsx
-<Link href={`/${locale}/b2b-portal`} className="/* KEEP EXISTING NAV ITEM CLASSES */">
-  {locale === 'de' ? 'B2B Großhandel' : locale === 'tr' ? 'B2B Toptan' : locale === 'ar' ? 'B2B بالجملة' : 'B2B Wholesale'}
-</Link>
+async function fixPost() {
+  const { data, error } = await supabase
+    .from('blog_yazilari')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-STEP 2: Footer (Silo Architecture) Optimization
-Target File: Find the main Footer component (likely src/components/layout/Footer.tsx).
-Action Required:
-Restructure the Footer links into 3 semantic columns to establish Topical Authority for AI bots. Preserve all existing Tailwind grid layouts and styling.
-Column 1: Wissen & Inspiration (Knowledge & Inspiration)
-Produkte -> /${locale}/products (or /katalog)
-Rezept-Bibliothek -> /${locale}/recipes
-Barista AI -> /${locale}/barista-ai
-HORECA Blog -> /${locale}/blog
-Column 2: B2B & Tools
-B2B Kundenportal -> /${locale}/b2b-portal
-Partner Portal -> /${locale}/partner-portal
-Gewinnmargen-Rechner -> /${locale}/tools/margin-calculator
-Column 3: Unternehmen (Company)
-Über uns -> /${locale}/about
-Kontakt -> /${locale}/contact
-Impressum -> (Keep existing link)
-Datenschutz -> (Keep existing link)
-i18n Implementation Note:
-If the translations for these new footer links do not exist in the central dictionary (src/lib/i18n/pages.ts), implement them inline using a simple ternary or switch statement based on the locale prop, just like in Step 1.
-[ ] STEP 3: Final Verification
-Ensure there are no TypeScript errors.
-Ensure the mobile menu (if applicable) reflects the new Header links.
-Do not modify any other files outside of the Header and Footer components.
+  if (error || !data || data.length === 0) {
+    console.error("DB Error:", error);
+    return;
+  }
+
+  const post = data[0];
+  console.log("Fixing post:", post.slug);
+  
+  if (!post.title.tr || post.title.tr.trim() === '') {
+    console.log("Generating TR...");
+    const { object: trData } = await generateObjectWithFallback({ 
+      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları', post),
+      schema: blogSchema,
+      maxTokens: 8192
+    });
+    
+    post.title.tr = trData.title;
+    post.excerpt.tr = trData.excerpt;
+    post.meta_title.tr = trData.meta_title;
+    post.meta_description.tr = trData.meta_description;
+    post.content.tr = trData.content;
+  }
+
+  if (!post.title.ar || post.title.ar.trim() === '') {
+    console.log("Generating AR...");
+    const { object: arData } = await generateObjectWithFallback({ 
+      prompt: translatePrompt('Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO', post),
+      schema: blogSchema,
+      maxTokens: 8192
+    });
+    
+    post.title.ar = arData.title;
+    post.excerpt.ar = arData.excerpt;
+    post.meta_title.ar = arData.meta_title;
+    post.meta_description.ar = arData.meta_description;
+    post.content.ar = arData.content;
+  }
+
+  const { error: updateError } = await supabase
+    .from('blog_yazilari')
+    .update({
+      title: post.title,
+      excerpt: post.excerpt,
+      meta_title: post.meta_title,
+      meta_description: post.meta_description,
+      content: post.content
+    })
+    .eq('id', post.id);
+
+  if (updateError) {
+    console.error("Update Error:", updateError);
+  } else {
+    console.log("Successfully fixed missing translations in DB.");
+  }
+}
+
+fixPost();
 </file>
 
-<file path="SMART_DMS_PROMPTS.md">
-🏗️ Mimari ve İş Akışı Özeti
-Bu sistem 5 ana modülden oluşacaktır:
-DB Migration: belgeler tablosuna AI ve Drive kolonlarının eklenmesi.
-Google Drive Service: Service Account ile izole dosya yükleme modülü.
-Gemini AI Service: PDF'i okuyup JSON formatında yapılandırılmış veri (özet, etiket, tarih) çıkaran modül.
-Orchestrator API'ler: /analyze (Önizleme için) ve /confirm (Kayıt için) endpoint'leri.
-Frontend UI: Kullanıcının AI verilerini görüp onaylayacağı React (Next.js) bileşeni.
-🚀 ADIM 1: Veritabanı Güncellemesi (Supabase Migration)
-IDE'ye verilecek prompt:
-code
-Text
-Bir Supabase migration dosyası oluştur. Adı: `20261001_smart_dms_columns.sql` olsun.
-Mevcut `belgeler` tablosuna şu kolonları ekle:
-- `drive_file_id` (TEXT, nullable)
-- `drive_url` (TEXT, nullable)
-- `ai_summary` (TEXT, nullable)
-- `ai_tags` (TEXT[], nullable)
-- `ai_metadata` (JSONB, nullable) - Kritik tarihler, tutarlar vb. ekstra veriler için.
+<file path="scratch-test-ai.ts">
+import { getGeminiModel } from './src/lib/ai/providers';
+import { generateText } from 'ai';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
 
-Ayrıca `src/lib/supabase/database.types.ts` dosyasını bu yeni kolonları içerecek şekilde manuel olarak güncelle (gen:types komutunu beklemeden tipleri ekle).
-🚀 ADIM 2: Google Drive Servisinin Yazılması
-IDE'ye verilecek prompt:
-code
-Text
-`src/lib/google-drive/service.ts` adında yeni bir dosya oluştur.
-Bu dosya sadece Google Drive işlemlerinden sorumlu izole bir servis olmalıdır.
-Gereksinimler:
-1. `googleapis` paketini kullan.
-2. `.env.local` içinden `GOOGLE_DRIVE_CLIENT_EMAIL`, `GOOGLE_DRIVE_PRIVATE_KEY` ve `GOOGLE_DRIVE_FOLDER_ID` değişkenlerini kullanarak Service Account (JWT) kimlik doğrulaması yap.
-3. `uploadPdfToDrive(buffer: Buffer, fileName: string, mimeType: string = 'application/pdf')` adında bir fonksiyon yaz.
-4. Fonksiyon, dosyayı Drive'a yüklemeli ve geriye `{ driveFileId: string, webViewLink: string }` dönmelidir.
-5. Hata yönetimi (try/catch) ekle ve hataları konsola anlamlı şekilde bas.
-🚀 ADIM 3: Gemini AI Doküman Analiz Servisi
-IDE'ye verilecek prompt:
-code
-Text
-`src/lib/ai/document-analyzer.ts` adında yeni bir dosya oluştur.
-Bu dosya PDF buffer'ını alıp Gemini 1.5 Flash/Pro modeline gönderecek ve JSON dönecektir.
-Gereksinimler:
-1. `@google/genai` veya `@ai-sdk/google` kullan. (Projede halihazırda `src/lib/ai/providers.ts` var, oradaki yapıyı kullanabilirsin).
-2. `analyzeDocument(pdfBuffer: Buffer, originalName: string)` adında bir fonksiyon yaz.
-3. Gemini'a şu System Prompt'u ver: "Sen kıdemli bir B2B evrak analiz uzmanısın. Sana verilen PDF'i incele ve şu JSON formatında çıktı ver: { suggested_name: 'Kısa ve anlaşılır dosya adı', summary: 'Evrakın 2-3 cümlelik özeti', category: 'Fatura | Sözleşme | İrsaliye | Diğer', tags: ['etiket1', 'etiket2'], critical_dates: ['YYYY-MM-DD'] }."
-4. Modelin `temperature: 0` ve `response_mime_type: "application/json"` ayarlarını kesinlikle yap.
-5. Dönen JSON string'ini parse edip TypeScript interface'i (`AiDocumentAnalysis`) olarak geri döndür.
-🚀 ADIM 4: Orchestrator API - Aşama 1 (Analiz Endpoint'i)
-IDE'ye verilecek prompt:
-code
-Text
-`src/app/api/admin/documents/analyze/route.ts` adında bir Next.js App Router POST endpoint'i oluştur.
-İş Akışı:
-1. Request'ten `multipart/form-data` olarak gelen PDF dosyasını al.
-2. Dosyayı memory'de bir Buffer'a çevir (Vercel ortamında temp file yerine memory buffer daha güvenlidir, dosya boyutu limitlerine dikkat et).
-3. `document-analyzer.ts` içindeki `analyzeDocument` fonksiyonunu çağırarak PDF'i Gemini'a gönder.
-4. Gemini'dan dönen JSON verisini (önerilen isim, özet, etiketler) HTTP 200 ile Frontend'e dön.
-Not: Bu aşamada veritabanına veya Drive'a KAYIT YAPILMAYACAK. Sadece analiz verisi dönecek.
-🚀 ADIM 5: Orchestrator API - Aşama 2 (Onay ve Kayıt Endpoint'i)
-IDE'ye verilecek prompt:
-code
-Text
-`src/app/api/admin/documents/confirm/route.ts` adında bir POST endpoint'i oluştur.
-İş Akışı:
-1. Request'ten `multipart/form-data` olarak PDF dosyasını VE kullanıcının frontend'de düzenleyip onayladığı AI verilerini (JSON string olarak) al.
-2. `google-drive/service.ts` içindeki `uploadPdfToDrive` fonksiyonunu çağırarak dosyayı Google Drive'a yükle. Dosya adı olarak kullanıcının onayladığı `suggested_name` değerini kullan.
-3. Drive'dan dönen `driveFileId` ve `webViewLink` değerlerini al.
-4. Supabase Server Client (`src/lib/supabase/server.ts`) kullanarak `belgeler` tablosuna yeni bir kayıt at.
-   - Kaydedilecek alanlar: `ad` (onaylanan isim), `kategori`, `ai_summary`, `ai_tags`, `drive_file_id`, `drive_url`, `olusturma_tarihi` (şu an).
-5. Başarılı olursa HTTP 200 ile eklenen kaydın ID'sini dön.
-🚀 ADIM 6: Frontend - Akıllı Yükleme Modalı (Smart Upload UI)
-IDE'ye verilecek prompt:
-code
-Text
-`src/components/admin/documents/SmartUploadModal.tsx` adında bir React (Client Component) bileşeni oluştur.
-Bu bileşen Tailwind CSS ve Lucide-react ikonları kullanmalıdır.
-İş Akışı ve UI Durumları (States):
-1. **State 1 (Upload):** Kullanıcı bir PDF seçer/sürükler.
-2. **State 2 (Analyzing):** Dosya `/api/admin/documents/analyze` endpoint'ine gider. Ekranda "Yapay Zeka Dokümanı İnceliyor..." şeklinde şık bir loading animasyonu (Pulse/Spinner) çıkar.
-3. **State 3 (Review & Confirm):** AI'dan dönen veri bir form içinde gösterilir.
-   - Input: Dosya Adı (AI önerisi, değiştirilebilir)
-   - Textarea: Özet (AI önerisi, değiştirilebilir)
-   - Select: Kategori
-   - Badges/Tags: Etiketler (Silinebilir/Eklenebilir)
-4. Kullanıcı "Onayla ve Drive'a Kaydet" butonuna basar.
-5. Veriler ve PDF `/api/admin/documents/confirm` endpoint'ine gider.
-6. Başarılı olursa `sonner` toast ile "Evrak başarıyla akıllı sisteme kaydedildi" mesajı verilir ve modal kapanır.
-🚀 ADIM 7: Entegrasyon ve Temizlik
-IDE'ye verilecek prompt:
-code
-Text
-1. Oluşturduğumuz `SmartUploadModal` bileşenini, admin panelindeki mevcut Evrak Yönetimi sayfasına (`src/app/[locale]/admin/belgeleri-yonet/page.tsx` veya ilgili sayfa) entegre et. Eski yükleme butonunu "Akıllı Yükleme (AI)" butonu ile değiştir.
-2. `next.config.ts` dosyasında Google Drive resim/dosya URL'lerine izin vermek için `remotePatterns` kısmına `drive.google.com` ve `googleusercontent.com` domainlerini ekle.
-3. Kodda kullanılmayan importları temizle ve TypeScript hatalarını gider.
-💡 Mimar Olarak Ekstra Tavsiyelerim (Senin İçin):
-Çevre Değişkenleri (.env): Bu adımlara başlamadan önce Google Cloud Console'dan bir Service Account oluşturup JSON key'i indirmeyi ve .env.local dosyana şu değişkenleri eklemeyi unutma:
-code
-Env
-GOOGLE_DRIVE_CLIENT_EMAIL="senin-service-account@proje.iam.gserviceaccount.com"
-GOOGLE_DRIVE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-GOOGLE_DRIVE_FOLDER_ID="drive-klasor-id-buraya"
-Vercel Limitleri: Vercel'in Serverless fonksiyonlarında 4.5MB request body limiti vardır. Eğer çok büyük PDF'ler (10MB+) yükleyecekseniz, Adım 4 ve 5'teki mimariyi önce Supabase Storage'a yükle -> AI oradan okusun -> Drive'a aktar şeklinde revize etmemiz gerekebilir. Ancak standart fatura/sözleşmeler (1-2 MB) için memory buffer (yukarıdaki mimari) en hızlı ve masrafsız yoldur.
+dotenv.config({ path: resolve('.env.local') });
+
+async function check() {
+  const deData = {
+    slug: 'test-slug',
+    title: 'Test Titel',
+    excerpt: 'Test Auszug',
+    meta_title: 'Test Meta Titel',
+    meta_description: 'Test Meta Beschreibung',
+    content: '<p>Dies ist ein Testinhalt in Deutsch.</p>'
+  };
+
+  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
+      You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
+      DO NOT TRANSLATE OR MODIFY THE XML TAGS. You MUST keep the exact same XML tag names.
+      Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
+      IMPORTANT: Change the internal links inside the 'blog_content' to match the language code:
+      - Change "/de/barista-ai" to "/${code}/barista-ai" and translate the anchor text to "${aiName}".
+      - Change "/de/products/fo" to "/${code}/products/fo" and translate the anchor text to "${foName}".
+      
+      OUTPUT ONLY THE XML. DO NOT WRITE ANY EXTRA TEXT.
+      
+      <blog_slug>translated-slug</blog_slug>
+      <blog_title>Translated Title Here</blog_title>
+      <blog_excerpt>Translated Excerpt Here</blog_excerpt>
+      <blog_meta_title>Translated Meta Title Here</blog_meta_title>
+      <blog_meta_description>Translated Meta Description</blog_meta_description>
+      <blog_content><p>Translated HTML content here...</p></blog_content>
+
+      --- TEXT TO TRANSLATE BELOW ---
+      <blog_slug>
+      ${deData.slug}
+      </blog_slug>
+      <blog_title>
+      ${deData.title}
+      </blog_title>
+      <blog_excerpt>
+      ${deData.excerpt}
+      </blog_excerpt>
+      <blog_meta_title>
+      ${deData.meta_title}
+      </blog_meta_title>
+      <blog_meta_description>
+      ${deData.meta_description}
+      </blog_meta_description>
+      <blog_content>
+      ${deData.content}
+      </blog_content>
+    `;
+
+  try {
+    const { text: trText } = await generateText({
+      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
+      maxTokens: 1000,
+      model: getGeminiModel()
+    });
+    console.log("TR RAW OUTPUT:\n", trText);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+check();
+</file>
+
+<file path="scratch-test-ar.ts">
+import { generateText } from 'ai';
+import { getGeminiModel, groq } from './src/lib/ai/providers';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+
+dotenv.config({ path: resolve('.env.local') });
+
+async function check() {
+  const deData = {
+    slug: 'test-slug',
+    title: 'Wie man die Getränkekosten berechnet',
+    excerpt: 'Ein langer Auszug über Kosten...',
+    meta_title: 'Getränkekosten',
+    meta_description: 'Warum es wichtig ist',
+    content: '<p>Dies ist ein Testinhalt in Deutsch.</p>'
+  };
+
+  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
+You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
+Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
+
+STRICT INSTRUCTIONS:
+- You MUST return the output using the exact === NAME === separators below. 
+- DO NOT translate or modify the separators themselves. 
+- Change internal links to match the language code: "/de/barista-ai" -> "/${code}/barista-ai" (anchor: "${aiName}") and "/de/products/fo" -> "/${code}/products/fo" (anchor: "${foName}").
+
+=== SLUG ===
+translated-slug-here
+=== TITLE ===
+Translated Title Here
+=== EXCERPT ===
+Translated Excerpt Here
+=== META_TITLE ===
+Translated Meta Title Here
+=== META_DESCRIPTION ===
+Translated Meta Description Here
+=== CONTENT ===
+<p>Translated HTML Content Here</p>
+
+--- TEXT TO TRANSLATE BELOW ---
+=== SLUG ===
+${deData.slug}
+=== TITLE ===
+${deData.title}
+=== EXCERPT ===
+${deData.excerpt}
+=== META_TITLE ===
+${deData.meta_title}
+=== META_DESCRIPTION ===
+${deData.meta_description}
+=== CONTENT ===
+${deData.content}
+  `;
+
+  try {
+    const { text: arText } = await generateText({
+      prompt: translatePrompt('Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO'),
+      maxTokens: 2000,
+      model: groq('llama-3.1-70b-versatile') // testing with groq to bypass gemini limits
+    });
+    console.log("RAW ARABIC OUTPUT:\n", arText);
+    
+    // Test parsing
+    const getSection = (name: string) => {
+      let regex = new RegExp(`===\\s*${name}\\s*===\\s*([\\s\\S]*?)(?====|$)`, 'i');
+      let match = arText.match(regex);
+      if (match && match[1].trim()) return match[1].trim();
+      return '';
+    };
+    
+    console.log("Parsed TITLE:", getSection('TITLE'));
+    
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+check();
+</file>
+
+<file path="scratch-test-regex.ts">
+function parseTextBlocks(text: string) {
+  const getSection = (name: string) => {
+    const regex = new RegExp(`\\[SECTION:\\s*${name}\\]\\s*([\\s\\S]*?)(?=\\[SECTION:|$)`, 'i');
+    const match = text.match(regex);
+    return match ? match[1].trim() : '';
+  };
+  return {
+    slug: getSection('SLUG'),
+    title: getSection('TITLE'),
+    excerpt: getSection('EXCERPT'),
+    content: getSection('CONTENT'),
+    meta_title: getSection('META_TITLE'),
+    meta_description: getSection('META_DESCRIPTION')
+  };
+}
+
+const fakeAiOutput = `
+Here is the requested translation:
+
+[SECTION: SLUG]
+translated-slug
+[SECTION: TITLE]
+Çevrilmiş Başlık
+[SECTION: EXCERPT]
+Çevrilmiş özet
+[SECTION: META_TITLE]
+Meta Başlık
+[SECTION: META_DESCRIPTION]
+Meta Açıklama
+[SECTION: CONTENT]
+<p>Html content here</p>
+
+Hope this helps!
+`;
+
+console.log(parseTextBlocks(fakeAiOutput));
+</file>
+
+<file path="scratch-test-separators.ts">
+import { generateText } from 'ai';
+import { getGroqModel } from './src/lib/ai/providers';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+
+dotenv.config({ path: resolve('.env.local') });
+
+async function check() {
+  const deData = {
+    slug: 'test-slug',
+    title: 'Brix-Wert im Cocktail: Warum er für Baristas unverzichtbar ist',
+    excerpt: 'Ein langer Auszug über Brix...',
+    meta_title: 'Brix-Wert im Cocktail',
+    meta_description: 'Warum er für Baristas unverzichtbar ist',
+    content: '<p>Dies ist ein Testinhalt in Deutsch. ' + 'Sehr lang '.repeat(10) + '</p>'
+  };
+
+  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
+You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
+Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
+
+STRICT INSTRUCTIONS:
+- You MUST return the output using the exact separators below. 
+- DO NOT translate or modify the separators themselves. 
+
+<<<SLUG>>>
+translated-slug-here
+<<<TITLE>>>
+Translated Title Here
+<<<EXCERPT>>>
+Translated Excerpt Here
+<<<META_TITLE>>>
+Translated Meta Title Here
+<<<META_DESCRIPTION>>>
+Translated Meta Description Here
+<<<CONTENT>>>
+<p>Translated HTML Content Here</p>
+
+--- TEXT TO TRANSLATE BELOW ---
+<<<SLUG>>>
+${deData.slug}
+<<<TITLE>>>
+${deData.title}
+<<<EXCERPT>>>
+${deData.excerpt}
+<<<META_TITLE>>>
+${deData.meta_title}
+<<<META_DESCRIPTION>>>
+${deData.meta_description}
+<<<CONTENT>>>
+${deData.content}
+  `;
+
+  try {
+    const { text: trText } = await generateText({
+      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
+      maxTokens: 2000,
+      model: getGroqModel('llama-3.1-70b-versatile')
+    });
+    console.log("RAW OUTPUT:\n", trText);
+    
+    // Test parsing
+    const getSection = (name: string) => {
+      const regex = new RegExp(`<<<${name}>>>\\s*([\\s\\S]*?)(?:<<<|$)`, 'i');
+      const match = trText.match(regex);
+      return match ? match[1].trim() : '';
+    };
+    
+    console.log("Parsed TITLE:", getSection('TITLE'));
+    console.log("Parsed CONTENT snippet:", getSection('CONTENT').substring(0, 50));
+    
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+check();
+</file>
+
+<file path="scratch-test-variations.ts">
+function parseTextBlocks(text: string) {
+  const getSection = (name: string) => {
+    let regex = new RegExp(`(?:\\[|\\])SECTION:\\s*${name}(?:\\[|\\])\\s*([\\s\\S]*?)(?=(?:\\[|\\])SECTION:|$)`, 'i');
+    let match = text.match(regex);
+    if (match && match[1].trim()) return match[1].trim();
+
+    regex = new RegExp(`\\b${name}:\\s*([\\s\\S]*?)(?=\\b(?:SLUG|TITLE|EXCERPT|CONTENT|META_TITLE|META_DESCRIPTION):|$)`, 'i');
+    match = text.match(regex);
+    return match ? match[1].trim() : '';
+  };
+  return {
+    title: getSection('TITLE')
+  };
+}
+
+console.log("Test 1:", parseTextBlocks(`[SECTION: TITLE] My title`));
+console.log("Test 2:", parseTextBlocks(`[ SECTION: TITLE ] My title`));
+console.log("Test 3:", parseTextBlocks(`[SECTION:TITLE] My title`));
+console.log("Test 4:", parseTextBlocks(`[SECTION : TITLE] My title`));
+console.log("Test 5:", parseTextBlocks(`[SECTION: TITLE]
+My title
+[SECTION: EXCERPT]`));
+
+console.log("Test 6 fallback:", parseTextBlocks(`
+TITLE: My title
+EXCERPT: short
+`));
+</file>
+
+<file path="scratch-trigger-ai.ts">
+import fetch from 'node-fetch';
+
+async function trigger() {
+  console.log("Triggering API...");
+  const res = await fetch('http://localhost:3000/api/admin/generate-blog', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic: "Kafelerde personel eğitimi ve verimlilik" })
+  });
+  const data = await res.json();
+  console.log("Result:", data);
+}
+
+trigger();
 </file>
 
 <file path="tsconfig.json">
@@ -10137,6 +10138,7 @@ export class Crew {
         system: task.agent.getSystemPrompt(),
         prompt: prompt,
         temperature: task.agent.temperature,
+        maxTokens: 800,
       });
       return text.trim();
     } catch (error: any) {
@@ -10151,6 +10153,7 @@ export class Crew {
             system: task.agent.getSystemPrompt(),
             prompt: prompt,
             temperature: task.agent.temperature,
+            maxTokens: 800,
           });
           return `[Yedek Sistem Yanıtı] ${text.trim()}`;
         } catch (retryError) {
@@ -10306,6 +10309,89 @@ export async function runBoardMeeting(config: BoardMeetingConfig) {
     summary: finalResult,
     notes: meetingNotes,
   };
+}
+</file>
+
+<file path="src/lib/ai/document-analyzer.ts">
+import { generateObject } from 'ai';
+import { z } from 'zod';
+import { getGeminiModel } from './providers';
+
+export interface AiDocumentAnalysis {
+  evrak_turu: string;
+  ozet: string;
+  kritik_bilgiler: string;
+  tarih: string;
+  etiketler: string[];
+  onerilen_dosya_adi: string;
+}
+
+/**
+ * Analyzes a PDF document using Gemini (via Vercel AI SDK v7) and extracts structured data.
+ *
+ * In AI SDK v7 the `messages` array no longer accepts file/binary parts directly.
+ * Instead we use the top-level `prompt` (string) combined with the provider's
+ * file attachment mechanism via the `experimental_providerMetadata` + `messages`
+ * workaround, OR we embed the PDF as a base64 data-URI inside the prompt and
+ * rely on Gemini's native multimodal handling through @ai-sdk/google.
+ *
+ * @param pdfBuffer The PDF file as a Node.js Buffer
+ * @param originalName The original filename from the upload
+ */
+export async function analyzeDocument(
+  pdfBuffer: Buffer,
+  originalName: string
+): Promise<AiDocumentAnalysis> {
+  const base64 = pdfBuffer.toString('base64');
+
+  const systemPrompt = `Sen kıdemli bir B2B evrak analiz uzmanısın. Sana verilen PDF'i incele ve KESİNLİKLE istenen JSON alanlarını doldur. Orijinal dosya adı: ${originalName}`;
+
+  try {
+    const result = await generateObject({
+      model: getGeminiModel('gemini-3.6-flash'),
+      temperature: 0,
+      system: systemPrompt,
+      schema: z.object({
+        evrak_turu: z.string().describe('Evrakın türü: Fatura / Sözleşme / Resmi Yazı / Diğer'),
+        ozet: z.string().describe('Evrakın içeriğine dair 2 cümlelik Türkçe özet'),
+        kritik_bilgiler: z
+          .string()
+          .describe('Evrakta bulunan Şifre, TC Kimlik, IBAN, Dosya No gibi kritik bilgiler'),
+        tarih: z.string().describe("Evrakın tarihi YYYY-MM-DD formatında, bulunamazsa ''"),
+        etiketler: z
+          .array(z.string())
+          .describe('Evrakla ilgili aranabilirlik için etiketler dizisi'),
+        onerilen_dosya_adi: z
+          .string()
+          .describe('Kısa, boşluksuz, Türkçe karaktersiz önerilen dosya adı'),
+      }),
+      // In AI SDK v7 multimodal content lives inside `messages` but
+      // must follow the CoreMessage spec: user role + parts array.
+      messages: [
+        {
+          role: 'user' as const,
+          content: [
+            {
+              type: 'file' as const,
+              data: base64,
+              mediaType: 'application/pdf',
+            },
+            {
+              type: 'text' as const,
+              text: 'Lütfen yukarıdaki PDF evrakını inceleyip benden istenilen alanları Türkçe olarak doldur.',
+            },
+          ],
+        },
+      ],
+    });
+
+    return result.object;
+  } catch (error: any) {
+    console.error('[analyzeDocument] Error:', error);
+    throw new Error(
+      'Doküman analizi başarısız oldu: ' + (error.message || String(error))
+    );
+  }
 }
 </file>
 
@@ -10600,236 +10686,155 @@ export async function publishGooglePost(accountId: string, locationId: string, p
 }
 </file>
 
-<file path="src/lib/i18n/pages.ts">
-/**
- * Merkezi sayfa çevirileri — Blog, Rezept, Barista-AI sayfaları için
- * 4 dil: de | en | tr | ar
- */
+<file path="src/lib/google-drive/service.ts">
+import { google } from 'googleapis';
+import stream from 'stream';
 
+// Initialize the Google Drive API client using Service Account credentials
+function getDriveService() {
+  const clientEmail = process.env.GOOGLE_DRIVE_CLIENT_EMAIL;
+  // Replace actual literal \n with newline characters for the private key
+  const privateKey = process.env.GOOGLE_DRIVE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+  if (!clientEmail || !privateKey) {
+    throw new Error('Google Drive credentials are not properly configured in environment variables.');
+  }
+
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: clientEmail,
+      private_key: privateKey,
+    },
+    scopes: ['https://www.googleapis.com/auth/drive.file'],
+  });
+
+  return google.drive({ version: 'v3', auth });
+}
+
+export interface DriveUploadResponse {
+  driveFileId: string;
+  webViewLink: string;
+}
+
+/**
+ * Uploads a PDF buffer to Google Drive.
+ * 
+ * @param buffer The file content as a Buffer.
+ * @param fileName The intended name of the file in Google Drive.
+ * @param mimeType The mime type of the file, defaults to 'application/pdf'.
+ * @returns An object containing the driveFileId and webViewLink.
+ */
+export async function uploadPdfToDrive(
+  buffer: Buffer,
+  fileName: string,
+  mimeType: string = 'application/pdf'
+): Promise<DriveUploadResponse> {
+  try {
+    const driveService = getDriveService();
+    const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+
+    if (!folderId) {
+      throw new Error('Google Drive folder ID is not configured.');
+    }
+
+    // Convert Buffer to a Readable Stream for the Google Drive API
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(buffer);
+
+    const fileMetadata = {
+      name: fileName,
+      parents: [folderId],
+    };
+
+    const media = {
+      mimeType,
+      body: bufferStream,
+    };
+
+    const response = await driveService.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink',
+    });
+
+    if (!response.data.id || !response.data.webViewLink) {
+      throw new Error('Upload failed: Invalid response from Google Drive API');
+    }
+
+    return {
+      driveFileId: response.data.id,
+      webViewLink: response.data.webViewLink,
+    };
+  } catch (error) {
+    console.error('Error uploading file to Google Drive:', error);
+    throw error;
+  }
+}
+</file>
+
+<file path="src/lib/i18n/navigation.ts">
 export type Locale = 'de' | 'en' | 'tr' | 'ar';
 
-// ─── Blog ────────────────────────────────────────────────────────────────────
-export const blogListingT = {
-  de: {
-    pageTitle: 'B2B HORECA Wissen & News',
-    metaTitle: 'B2B HORECA Blog & Branchen-News | Elysonsweets',
-    metaDesc: 'Aktuelle Trends, Cocktail-Rezepte und B2B-Insights für die Gastronomie.',
-    readMore: 'Weiterlesen →',
-  },
-  en: {
-    pageTitle: 'B2B HORECA Knowledge & News',
-    metaTitle: 'B2B HORECA Blog & Industry News | Elysonsweets',
-    metaDesc: 'Latest trends, cocktail recipes, and B2B insights for the gastronomy sector.',
-    readMore: 'Read more →',
-  },
-  tr: {
-    pageTitle: 'B2B HORECA Bilgi & Haberler',
-    metaTitle: 'B2B HORECA Blog & Sektörel Haberler | Elysonsweets',
-    metaDesc: 'Gastronomi sektörü için en son trendler, kokteyl tarifleri ve B2B içgörüleri.',
-    readMore: 'Devamını Oku →',
-  },
-  ar: {
-    pageTitle: 'معرفة وأخبار B2B HORECA',
-    metaTitle: 'مدونة B2B HORECA وأخبار الصناعة | Elysonsweets',
-    metaDesc: 'أحدث الاتجاهات ووصفات الكوكتيل ورؤى B2B لقطاع فن الطهو.',
-    readMore: 'اقرأ المزيد ←',
-  },
-} as const;
+export type NavigationItem = {
+  key: string;
+  href: string;
+  label: Record<Locale, string>;
+  isNew?: boolean;
+};
 
-export const blogDetailT = {
-  de: { by: 'Von' },
-  en: { by: 'By' },
-  tr: { by: 'Yazan:' },
-  ar: { by: 'بقلم' },
-} as const;
-
-// ─── Recipes ─────────────────────────────────────────────────────────────────
-export const recipesListingT = {
-  de: {
-    metaTitle: 'Elysonsweets Rezept-Bibliothek | Professionelle Getränke-Inspiration',
-    metaDesc: 'Entdecken Sie professionelle Cocktail-, Mocktail- und Kaffeerezepte mit Premium-Produkten von Elysonsweets.',
-    pageTitle: 'Elysonsweets Rezept-Bibliothek',
-    pageDesc: 'Professionelle Getränke-Inspiration und Expertenrezepte für Ihr Café, Ihre Bar oder Ihr Restaurant.',
-    ctaBadge: 'EIGENES KONZEPT',
-    ctaTitle: 'Erstellen Sie Ihr Signature-Rezept',
-    ctaDesc: 'Geben Sie Ihre Zutaten ein und lassen Sie unsere KI individuelle Rezepte und PDF-Menükarten für Ihr Café erstellen.',
-    ctaButton: 'Rezept-Assistent starten',
-    allCategories: 'Alle',
-    noRecipesTitle: 'Noch keine Rezepte in dieser Kategorie.',
-    noRecipesDesc: 'Schauen Sie bald wieder vorbei oder wählen Sie eine andere Kategorie.',
-    minLabel: 'Min.',
+export const mainNavigation: NavigationItem[] = [
+  {
+    key: 'products',
+    href: '/products',
+    label: {
+      de: 'Produkte',
+      en: 'Products',
+      tr: 'Ürünler',
+      ar: 'منتجات'
+    }
   },
-  en: {
-    metaTitle: 'Elysonsweets Recipe Library | Professional Beverage Inspiration',
-    metaDesc: 'Discover professional cocktail, mocktail, and coffee recipes crafted with premium supplies from Elysonsweets.',
-    pageTitle: 'Elysonsweets Recipe Library',
-    pageDesc: 'Professional beverage inspiration and expert recipes for your cafe, bar, or restaurant.',
-    ctaBadge: 'CUSTOM CONCEPT',
-    ctaTitle: 'Create Your Signature Recipe',
-    ctaDesc: 'Enter your ingredients and let our AI assistant create custom recipes and PDF menus specifically for your cafe.',
-    ctaButton: 'Launch Recipe Wizard',
-    allCategories: 'All',
-    noRecipesTitle: 'No recipes found for this category yet.',
-    noRecipesDesc: 'Check back soon or try another category.',
-    minLabel: 'min',
+  {
+    key: 'recipes',
+    href: '/recipes',
+    label: {
+      de: 'Rezept-Bibliothek',
+      en: 'Recipe Library',
+      tr: 'Reçete Kütüphanesi',
+      ar: 'مكتبة الوصفات'
+    }
   },
-  tr: {
-    metaTitle: 'Elysonsweets Reçete Kütüphanesi | Profesyonel İçecek İlhami',
-    metaDesc: 'Elysonsweets premium ürünleriyle hazırlanan profesyonel kokteyl, mocktail ve kahve tariflerini keşfedin.',
-    pageTitle: 'Elysonsweets Reçete Kütüphanesi',
-    pageDesc: 'Kafeniz, barunuz veya restoranınız için profesyonel içecek ilhami ve uzman tarifleri.',
-    ctaBadge: 'ÖZEL KONSEPT',
-    ctaTitle: 'Kendi İmza Reçetenizi Yaratın',
-    ctaDesc: 'Yapay zeka asistanımızla elinizdeki malzemeleri girin, kafenize özel tarifler ve hazır PDF menüler oluşturalım.',
-    ctaButton: 'Reçete Sihirbazını Başlat',
-    allCategories: 'Tümü',
-    noRecipesTitle: 'Bu kategoride henüz reçete bulunamadı.',
-    noRecipesDesc: 'Yakında tekrar kontrol edin veya başka bir kategori seçin.',
-    minLabel: 'dk',
+  {
+    key: 'blog',
+    href: '/blog',
+    label: {
+      de: 'Blog',
+      en: 'Blog',
+      tr: 'Blog',
+      ar: 'مدونة'
+    },
+    isNew: true
   },
-  ar: {
-    metaTitle: 'مكتبة وصفات Elysonsweets | إلهام المشروبات الاحترافية',
-    metaDesc: 'اكتشف وصفات الكوكتيل والموكتيل والقهوة الاحترافية المُعدَّة بمنتجات Elysonsweets المتميزة.',
-    pageTitle: 'مكتبة وصفات Elysonsweets',
-    pageDesc: 'إلهام مشروبات احترافي ووصفات خبراء لمقهاك أو بارك أو مطعمك.',
-    ctaBadge: 'مفهوم مخصص',
-    ctaTitle: 'أنشئ وصفتك الحصرية',
-    ctaDesc: 'أدخل مكوناتك ودع مساعد الذكاء الاصطناعي يبتكر وصفات مخصصة وقوائم PDF لمقهاك.',
-    ctaButton: 'تشغيل صانع الوصفات',
-    allCategories: 'الكل',
-    noRecipesTitle: 'لا توجد وصفات في هذه الفئة بعد.',
-    noRecipesDesc: 'تفقد مرة أخرى قريباً أو جرب فئة أخرى.',
-    minLabel: 'دقيقة',
+  {
+    key: 'about',
+    href: '/about',
+    label: {
+      de: 'Über uns',
+      en: 'About us',
+      tr: 'Hakkımızda',
+      ar: 'معلومات عنا'
+    }
   },
-} as const;
-
-// ─── Barista AI ──────────────────────────────────────────────────────────────
-export const baristaAiT = {
-  de: {
-    metaTitle: 'Barista Rezept-Assistent – Signature Drinks | Elysonsweets',
-    metaDesc: 'Kreieren Sie professionelle Signature-Drink-Rezepte für Ihr Café und laden Sie diese als Menükarte herunter. Mit Premium FO Sirupen.',
-    schemaName: 'Elysonsweets Barista Rezept-Assistent',
-    schemaDesc: 'Ein professioneller Rezept-Assistent für Cafés und Barkeeper. Erstellen Sie individuelle Signature Drinks und PDF-Menükarten mit FO Sirupen.',
-    badgeLabel: 'Gourmet Rezeptur-Atelier',
-    headline1: 'Barista ',
-    headline2: 'Rezept-Assistent',
-    subline: 'Geben Sie Ihre Zutaten und Ihr Konzept an. Unser Barista-Experte kreiert exklusive Signature Drinks mit FO Sirupen für Ihr Café. Laden Sie Ihr Menü sofort als PDF herunter.',
-    // Form
-    formTitle: 'Rezept-Assistent',
-    labelCafeName: 'Name des Cafés (Optional)',
-    labelIngredients: 'Vorhandene Zutaten *',
-    placeholderIngredients: 'Espresso, Milch, Hafermilch, Erdbeeren...',
-    labelConcept: 'Konzept / Thema *',
-    placeholderConcept: 'Sommerliche Eiskaffees, Alkoholfreie Cocktails...',
-    btnGenerate: 'Signature Rezepte erstellen',
-    btnGenerating: 'Wird generiert...',
-    // Results
-    waiting: 'Unser Barista-Experte wartet auf Ihre Bestellung...',
-    menuTitle: 'Ihr individuelles Menü',
-    btnPdf: 'PDF herunterladen',
-    btnPdfLoading: 'Wird erstellt...',
-    labelIngr: 'Zutaten',
-    labelInstr: 'Zubereitung',
-    labelCategory: 'Kategorie',
-    // PDF Footer
-    pdfFooter: 'Dieses exklusive Rezept wurde mit professionellen FO-Produkten nach Barista-Standards kreiert.',
-    // Validation / Errors
-    errorRequired: 'Bitte füllen Sie die Pflichtfelder aus.',
-    errorApi: 'Ein Fehler ist aufgetreten.',
-    errorPdf: 'Fehler beim Erstellen der PDF.',
-    successPdf: 'PDF heruntergeladen!',
-  },
-  en: {
-    metaTitle: 'Barista Recipe Wizard – Signature Drinks | Elysonsweets',
-    metaDesc: 'Create professional signature drink recipes for your café and download them as a menu card. With premium FO syrups.',
-    schemaName: 'Elysonsweets Barista Recipe Wizard',
-    schemaDesc: 'A professional recipe assistant for cafes and bartenders. Create custom signature drinks and PDF menu cards with FO syrups.',
-    badgeLabel: 'Gourmet Recipe Atelier',
-    headline1: 'Barista ',
-    headline2: 'Recipe Wizard',
-    subline: 'Specify your ingredients and concept. Our barista expert will create exclusive signature drinks with FO syrups for your café. Download your menu instantly as PDF.',
-    formTitle: 'Recipe Wizard',
-    labelCafeName: 'Café Name (Optional)',
-    labelIngredients: 'Available Ingredients *',
-    placeholderIngredients: 'Espresso, Milk, Oat Milk, Strawberries...',
-    labelConcept: 'Concept / Theme *',
-    placeholderConcept: 'Summer iced coffees, Non-alcoholic cocktails...',
-    btnGenerate: 'Create Signature Recipes',
-    btnGenerating: 'Generating...',
-    waiting: 'Our barista expert is waiting for your order...',
-    menuTitle: 'Your Custom Menu',
-    btnPdf: 'Download PDF',
-    btnPdfLoading: 'Creating...',
-    labelIngr: 'Ingredients',
-    labelInstr: 'Instructions',
-    labelCategory: 'Category',
-    pdfFooter: 'This exclusive recipe was created with professional FO products following barista standards.',
-    errorRequired: 'Please fill in the required fields.',
-    errorApi: 'An error occurred.',
-    errorPdf: 'Error creating the PDF.',
-    successPdf: 'PDF downloaded!',
-  },
-  tr: {
-    metaTitle: 'Barista Reçete Sihirbazı – İmza İçecek Rehberi | Elysonsweets',
-    metaDesc: 'Kafeniz için uzman barista formülleriyle dengeli ve kârlı imza içecek reçeteleri oluşturun, menünüzü anında PDF olarak indirin.',
-    schemaName: 'Elysonsweets Reçete Sihirbazı',
-    schemaDesc: 'Kafeler ve barmenler için profesyonel reçete ve menü rehberi. FO şurupları ile özel imza içecekler ve PDF menüler oluşturun.',
-    badgeLabel: 'Gourmet Reçete Atölyesi',
-    headline1: 'Barista ',
-    headline2: 'Reçete Sihirbazı',
-    subline: 'Elinizdeki malzemeleri ve konseptinizi belirtin, uzman baristanız FO şuruplarıyla kafenize özel dengeli ve kârlı imza içecekler tasarlasın. Menünüzü anında PDF olarak indirin.',
-    formTitle: 'Reçete Sihirbazı',
-    labelCafeName: 'Mekan Adı (Opsiyonel)',
-    labelIngredients: 'Elinizdeki Malzemeler *',
-    placeholderIngredients: 'Espresso, Süt, Yulaf Sütü, Çilek...',
-    labelConcept: 'Konsept / Tema *',
-    placeholderConcept: 'Yazlık soğuk kahveler, Alkolsüz kokteyller...',
-    btnGenerate: 'İmza Reçetelerimi Yarat',
-    btnGenerating: 'Üretiliyor...',
-    waiting: 'Uzman baristanız siparişinizi bekliyor...',
-    menuTitle: 'Sizin İçin Hazırlanan Menü',
-    btnPdf: 'PDF İndir',
-    btnPdfLoading: 'Hazırlanıyor...',
-    labelIngr: 'Malzemeler',
-    labelInstr: 'Hazırlanışı',
-    labelCategory: 'Kategori',
-    pdfFooter: 'Bu özel reçete, profesyonel FO ürünleri ve uzman barista standartları ile hazırlanmıştır.',
-    errorRequired: 'Lütfen zorunlu alanları doldurun.',
-    errorApi: 'Bir hata oluştu.',
-    errorPdf: 'PDF oluşturulurken hata oluştu.',
-    successPdf: 'PDF indirildi!',
-  },
-  ar: {
-    metaTitle: 'معالج وصفات الباريستا – مشروبات حصرية | Elysonsweets',
-    metaDesc: 'أنشئ وصفات مشروبات حصرية احترافية لمقهاك وحمِّلها كقائمة طعام. مع شراب FO المتميز.',
-    schemaName: 'معالج وصفات باريستا Elysonsweets',
-    schemaDesc: 'مساعد وصفات احترافي للمقاهي والنادلين. أنشئ مشروبات حصرية وقوائم PDF مخصصة مع شراب FO.',
-    badgeLabel: 'أتيليه الوصفات الفاخرة',
-    headline1: 'باريستا ',
-    headline2: 'معالج الوصفات',
-    subline: 'حدد مكوناتك ومفهومك. سيبتكر خبير الباريستا لدينا مشروبات حصرية مع شراب FO لمقهاك. حمِّل قائمتك فوراً كـ PDF.',
-    formTitle: 'معالج الوصفات',
-    labelCafeName: 'اسم المقهى (اختياري)',
-    labelIngredients: 'المكونات المتوفرة *',
-    placeholderIngredients: 'إسبريسو، حليب، حليب الشوفان، فراولة...',
-    labelConcept: 'المفهوم / الموضوع *',
-    placeholderConcept: 'قهوة مثلجة صيفية، كوكتيلات بلا كحول...',
-    btnGenerate: 'إنشاء وصفات حصرية',
-    btnGenerating: 'جاري الإنشاء...',
-    waiting: 'خبير الباريستا لدينا ينتظر طلبك...',
-    menuTitle: 'قائمتك المخصصة',
-    btnPdf: 'تحميل PDF',
-    btnPdfLoading: 'جاري الإنشاء...',
-    labelIngr: 'المكونات',
-    labelInstr: 'طريقة التحضير',
-    labelCategory: 'التصنيف',
-    pdfFooter: 'تم إعداد هذه الوصفة الحصرية بمنتجات FO الاحترافية وفق معايير الباريستا.',
-    errorRequired: 'يرجى ملء الحقول المطلوبة.',
-    errorApi: 'حدث خطأ.',
-    errorPdf: 'خطأ في إنشاء PDF.',
-    successPdf: 'تم تحميل PDF!',
-  },
-} as const;
+  {
+    key: 'contact',
+    href: '/contact',
+    label: {
+      de: 'Kontakt',
+      en: 'Contact',
+      tr: 'İletişim',
+      ar: 'اتصال'
+    }
+  }
+];
 </file>
 
 <file path="src/lib/lexware/client.ts">
@@ -13448,6 +13453,56 @@ ON public.blog_yazilari FOR SELECT
 USING (is_published = TRUE);
 </file>
 
+<file path="supabase/migrations/20261001_smart_dms_columns.sql">
+-- Migration: 20261001_smart_dms_columns.sql
+-- Description: Add AI and Google Drive related columns to belgeler table for Smart DMS integration
+
+ALTER TABLE belgeler
+ADD COLUMN IF NOT EXISTS drive_file_id TEXT,
+ADD COLUMN IF NOT EXISTS drive_url TEXT,
+ADD COLUMN IF NOT EXISTS ai_summary TEXT,
+ADD COLUMN IF NOT EXISTS ai_tags TEXT[],
+ADD COLUMN IF NOT EXISTS ai_metadata JSONB;
+
+-- Update the view or any related functions if necessary (none required for simple column addition)
+</file>
+
+<file path="supabase/migrations/20261002_smart_dms_refactor.sql">
+-- 1. Create a sequence for dosya_no
+CREATE SEQUENCE IF NOT EXISTS belgeler_dosya_no_seq START 1000;
+
+-- 2. Add dosya_no and other new columns
+ALTER TABLE belgeler 
+  ADD COLUMN IF NOT EXISTS dosya_no INTEGER DEFAULT nextval('belgeler_dosya_no_seq'),
+  ADD COLUMN IF NOT EXISTS evrak_turu TEXT,
+  ADD COLUMN IF NOT EXISTS kritik_bilgiler TEXT,
+  ADD COLUMN IF NOT EXISTS ai_ozet TEXT,
+  ADD COLUMN IF NOT EXISTS ai_etiketler TEXT[];
+
+-- Ensure evrak_tarihi exists (type DATE). If it already exists as text, this won't change it unless we cast, but typically it exists as date or text.
+-- We use DO block to add safely if not exists.
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='belgeler' AND column_name='evrak_tarihi') THEN
+        ALTER TABLE belgeler ADD COLUMN evrak_tarihi DATE;
+    END IF;
+END $$;
+
+-- 3. We can drop the previous ai_summary and ai_tags since they are being replaced
+ALTER TABLE belgeler 
+  DROP COLUMN IF EXISTS ai_summary,
+  DROP COLUMN IF EXISTS ai_tags;
+
+-- 4. Create RPC to get next sequence value
+CREATE OR REPLACE FUNCTION get_next_dosya_no()
+RETURNS integer AS $$
+BEGIN
+  RETURN nextval('belgeler_dosya_no_seq');
+END;
+$$ LANGUAGE plpgsql;
+</file>
+
 <file path="supabase-migrations/create_ortak_islemleri.sql">
 CREATE TABLE IF NOT EXISTS public.ortak_islemleri (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -13483,57 +13538,290 @@ USING (
 );
 </file>
 
-<file path=".repomixignore">
-_backup/
-_archive/
-playwright-report/
-test-results/
-tests/
-e2e/
-__tests__/
-dokuments/
-public/
-.next/
-node_modules/
-package-lock.json
-yarn.lock
-tsconfig.tsbuildinfo
-categories.json
-premium_products.json
-*.svg
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.ico
-*.woff
-*.woff2
-*.ttf
-*.eot
-*.mp4
-*.webm
-*.pdf
-*.xlsx
-*.csv
-.vscode/
-.claude/
-.agents/
-repomix-output.*
-scratch/
-scratch_migrations.sql
-test-types.ts
-data/
-scripts/
-*backup*.json
-*_dump.json
-fo_*.json
-*_final.json
-src/components/
-src/app/
-src/dictionaries/
-src/hooks/
-src/utils/
-src/styles/
+<file path="header.md">
+# BAĞLAM (CONTEXT)
+Bu görev, `elysonsweets.de` projesinin ana navigasyon (Header) bileşeninin yeniden tasarlanması ve kodlanmasını kapsar. 
+
+**SEO Uzmanının Önerisinin Analizi ve Yeni Mimari Karar:**
+SEO uzmanı muhtemelen anahtar kelime yoğunluğunu artırmak için ("B2B Großhandel", "B2B Rechner") menüyü şişirmiş. Ancak B2B e-ticaret UX standartlarına göre bu tasarım **bilişsel yükü (cognitive overload) artırır** ve boş sayfalara yönlendirme yapmak dönüşüm oranını düşürür. 
+*   "Startseite" linki gereksizdir (Logo bu işi yapar).
+*   "B2B Großhandel" ayrı bir sayfa olmamalıdır; çünkü **sitenin tamamı zaten bir B2B toptan satış platformudur**. Bu anahtar kelime anasayfanın (Home) H1/Meta etiketlerinde çözülmelidir.
+*   "B2B Rechner" çok spesifik bir araçtır, ana menüde kalabalık yapmak yerine "Ürünler" veya "Sepet" akışı içinde sunulmalıdır.
+
+**Yeni ve Temiz Navigasyon Mimarisi:**
+1. Logo (Anasayfaya gider)
+2. Produkte (Katalog)
+3. Rezepte & AI (Reçeteler ve Barista AI birleşimi)
+4. Blog [NEU]
+5. Über uns
+6. Kontakt
+7. Sağ Aksiyonlar: Arama İkonu | Dil Seçici | Kundenportal (CTA Butonu)
+
+Çalışılacak Dosyalar:
+- `src/components/layout/Header.tsx` (veya mevcut Header bileşeninin yolu)
+- `src/components/layout/MobileMenu.tsx` (Gerekirse alt bileşen)
+- `src/lib/i18n/navigation.ts` (Menü linklerinin çoklu dil veri yapısı - oluşturulacak/güncellenecek)
+
+# BAĞIMLILIKLAR (DEPENDENCIES)
+- `next/link` ve `next/navigation` (Yönlendirmeler ve aktif link tespiti için)
+- `lucide-react` (Arama, Hamburger menü, Dil ikonları için)
+- `framer-motion` (Mobil menü ve dropdown animasyonları için)
+- `tailwind.config.ts` içindeki mevcut renk paleti (`primary`, `secondary`, `accent`)
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Çoklu Dil Navigasyon Veri Yapısının Oluşturulması**
+  - `src/lib/i18n/navigation.ts` (veya benzeri bir dosya) oluştur/güncelle.
+  - Menü öğelerini statik olarak tanımla. "B2B Großhandel" ve "Startseite" öğelerini kaldır.
+  - Örnek yapı: `[{ key: 'products', href: '/produkte', label: { de: 'Produkte', tr: 'Ürünler', en: 'Products', ar: 'منتجات' } }, ...]`
+
+- [ ] **Adım 2: Header İskeletinin ve Scroll Efektinin Kurulması**
+  - `Header.tsx` bileşenini `use client` olarak ayarla.
+  - Sayfa scroll edildiğinde arka planın hafif şeffaf (backdrop-blur) ve gölgeli olmasını sağlayan bir state (`isScrolled`) ekle.
+  - Tailwind sınıfları: `fixed top-0 w-full z-50 transition-all duration-300`. Arka plan rengi olarak `bg-primary` (Antrasit) kullan.
+
+- [ ] **Adım 3: Masaüstü Navigasyonun (Desktop Nav) Kodlanması**
+  - Logoyu en sola yerleştir.
+  - Orta kısma `map` fonksiyonu ile navigasyon linklerini diz.
+  - Linklerin varsayılan rengini `text-secondary` (Krem) yap.
+  - Hover durumunda ve aktif sayfada rengi `text-accent` (Altın) olarak değiştir.
+  - "Blog" linkinin yanına Tailwind ile küçük, dikkat çekici bir `[NEU]` (veya `[YENİ]`) badge'i ekle (Örn: `bg-accent text-primary text-[10px] px-1.5 py-0.5 rounded-sm`).
+
+- [ ] **Adım 4: Sağ Aksiyon Alanının (Action Area) Kodlanması**
+  - Arama İkonu (`Search` from `lucide-react`): Tıklanınca arama modalını açacak şekilde ayarla (şimdilik sadece UI).
+  - Dil Seçici Dropdown: Mevcut dili gösteren ve hover/click ile diğer dilleri açan kompakt bir menü.
+  - **Kundenportal / Partnerportal CTA Butonu:** Sitenin en belirgin butonu olmalı. 
+    - Sınıflar: `bg-accent text-primary font-bold px-5 py-2 rounded-md hover:bg-opacity-90 transition-colors`.
+    - Link: `/[locale]/login` veya `/[locale]/portal/dashboard` (Kullanıcı giriş yapmışsa).
+
+- [ ] **Adım 5: Mobil Menü (Hamburger) Entegrasyonu**
+  - Ekran boyutu `md` veya `lg` altına düştüğünde masaüstü menüyü gizle (`hidden lg:flex`).
+  - Hamburger ikonunu (`Menu` from `lucide-react`) göster.
+  - Tıklandığında ekranın sağından veya üstünden açılan, `framer-motion` ile animasyonlu bir mobil menü (Drawer) kodla.
+  - Mobil menü içinde tüm linkleri, dil seçiciyi ve Portal butonunu dikey düzende yerleştir.
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
+
+- **KESİNLİKLE YAPMA:** "B2B Großhandel" isimli boş veya anlamsız bir sayfaya link verme. Sitenin tamamı B2B'dir. SEO uzmanının önerdiği bu link UX açısından bir anti-pattern'dir.
+- **KESİNLİKLE YAPMA:** "Startseite" (Anasayfa) linkini metin olarak menüye koyma. Modern web standartlarında Logo bu işlevi görür.
+- **RENK KULLANIMI:** Sadece `tailwind.config.ts` dosyasında tanımlı olan `primary` (#2B2B2B), `secondary` (#FAF9F6) ve `accent` (#C69F6B) renklerini kullan. Hardcoded hex kodları yazma.
+- **PERFORMANS:** Header bileşeni her sayfada render edileceği için içine ağır veri çekme (fetch) işlemleri koyma. Kullanıcı oturum durumu (Portal butonu için) global state'ten veya middleware'den gelen proplarla yönetilmelidir.
+- **ERİŞİLEBİLİRLİK (a11y):** Tüm linklere `aria-label` ekle. Mobil menü açıldığında arka planın scroll olmasını engelle (`document.body.style.overflow = 'hidden'`).
+</file>
+
+<file path="receteler.md">
+# BAĞLAM (CONTEXT)
+Bu görev, `elysonsweets.de` projesinin SEO/GEO (Generative Engine Optimization) mimarisini güçlendirmek ve üç kritik modülün (Reçete Sihirbazı, Blog, Maliyet Hesap Aracı) kullanıcı deneyimini (UX) B2B standartlarına göre yeniden yapılandırmayı kapsar.
+
+**Mevcut Sorunlar ve Mimari Kararlar:**
+1. **"AI" Vurgusunun Kaldırılması:** B2B müşterilerinde güven sorunu yaratmaması için "Barista AI" veya "Reçete AI" isimlendirmeleri tamamen kaldırılarak "Reçete Sihirbazı" (Rezept-Assistent) olarak değiştirilecektir.
+2. **Reçete Sihirbazının Görünürlüğü:** Sihirbaz şu an reçete listesinin içinde kaybolmaktadır. Bu araç sitenin en güçlü "Lead Magnet" (Müşteri çekme) aracıdır. Reçeteler sayfasının en üstüne (Hero Section) entegre edilerek ilk bakışta görünür (Above the fold) hale getirilmelidir.
+3. **Maliyet Hesap Aracı (Margin Calculator) Entegrasyonu:** Araç şu an yetim (orphaned) sayfadır ve UI olarak site bütünlüğünden uzaktır. Ana menüyü (Header) şişirmemek adına bu araç; Footer'daki "B2B & Tools" SEO silosuna ve Müşteri Portalı (Dashboard) içine yerleştirilecektir. Ayrıca UI'ı `primary` (Antrasit) ve `accent` (Altın) renkleriyle modernize edilecektir.
+4. **SEO/GEO Silo Navigasyonu:** Footer, yapay zeka botlarının (ChatGPT, Perplexity, Google AI Overviews) site otoritesini (Topical Authority) anlaması için 3 ana sütuna (Wissen, Tools, Unternehmen) bölünecektir.
+
+**Çalışılacak Dosyalar:**
+- `src/lib/i18n/navigation.ts` ve `src/lib/i18n/pages.ts`
+- `src/components/layout/Header.tsx` ve `src/components/layout/Footer.tsx`
+- `src/app/[locale]/recipes/page.tsx` (Reçeteler Ana Sayfası)
+- `src/app/[locale]/tools/margin-calculator/page.tsx` (Hesap Aracı)
+
+# BAĞIMLILIKLAR (DEPENDENCIES)
+- `next/link` (Tüm yönlendirmeler locale parametresi ile yapılmalı)
+- `lucide-react` (İkonografi için: Calculator, Wand2, BookOpen)
+- Tailwind CSS (Mevcut `primary`, `secondary`, `accent` paleti)
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: İsimlendirme ve i18n Veri Yapısının Güncellenmesi**
+  - `src/lib/i18n/navigation.ts` dosyasını aç.
+  - `recipes-ai` anahtarını `recipes` olarak değiştir. Etiketleri şu şekilde güncelle: `{ de: 'Rezept-Bibliothek', en: 'Recipe Library', tr: 'Reçete Kütüphanesi', ar: 'مكتبة الوصفات' }`. (AI kelimesini tamamen çıkar).
+  - `src/lib/i18n/pages.ts` dosyasında `baristaAiT` objesinin adını `recipeWizardT` olarak değiştir ve içindeki tüm "AI" geçen metinleri "Assistent" veya "Sihirbaz" olarak güncelle.
+
+- [ ] **Adım 2: Header ve Footer (SEO Silo) Entegrasyonu**
+  - `Header.tsx`: Ana menü sıralamasını şu şekilde yap: `Produkte` | `Rezept-Bibliothek` | `Blog [NEU]` | `Über uns` | `Kontakt`. Hesap aracını buraya KOYMA.
+  - `Footer.tsx`: Footer'ı 3'lü SEO Silo mimarisine çevir:
+    - **Sütun 1 (Wissen & Inspiration):** Produkte, Rezept-Bibliothek, Rezept-Assistent (Sihirbaz linki: `/[locale]/barista-ai`), HORECA Blog.
+    - **Sütun 2 (B2B & Tools):** B2B Kundenportal, Partner Portal, Gewinnmargen-Rechner (Hesap Aracı linki: `/[locale]/tools/margin-calculator`).
+    - **Sütun 3 (Unternehmen):** Über uns, Kontakt, Impressum, Datenschutz.
+
+- [ ] **Adım 3: Reçeteler Sayfası (Hero Section) Revizyonu**
+  - `src/app/[locale]/recipes/page.tsx` dosyasını aç.
+  - Sayfanın en üstündeki Hero Section'ı "Split Screen" (İkiye bölünmüş) veya "Featured Card" yapısına çevir.
+  - **Sol/Üst Kısım:** Reçete Kütüphanesi başlığı ve açıklaması.
+  - **Sağ/Alt Kısım (DİKKAT ÇEKİCİ):** Reçete Sihirbazı CTA'sı. Bu alanı `bg-primary` arka plan, `border border-accent` ve altın rengi bir buton (`bg-accent text-primary`) ile tasarla. İkon olarak `Wand2` (Sihirli Değnek) kullan. Kullanıcı sayfaya girer girmez "Kendi İmza Reçeteni Yarat" kutusunu devasa şekilde görmeli.
+
+- [ ] **Adım 4: Maliyet Hesap Aracı (Margin Calculator) UI Modernizasyonu**
+  - `src/app/[locale]/tools/margin-calculator/page.tsx` dosyasını aç.
+  - Sayfa arka planını `bg-secondary` (Krem) yap.
+  - Hesaplama kartının (Card) arka planını `bg-primary` (Antrasit), metinleri `text-secondary` yap.
+  - Input alanlarını B2B form standartlarına getir: `bg-transparent border-b border-accent/50 focus:border-accent text-secondary outline-none`.
+  - Sonuç gösterim alanını (Kâr Marjı, Satış Fiyatı) büyük, okunabilir ve `text-accent` (Altın) renginde vurgula.
+  - Sayfanın en üstüne SEO uyumlu H1 başlığı ve kısa bir açıklama ekle (Örn: "B2B Gewinnmargen-Rechner für die Gastronomie").
+
+- [ ] **Adım 5: Hesap Aracına Portal İçinden Erişim (Contextual Linking)**
+  - `src/app/[locale]/portal/dashboard/page.tsx` (veya portalın ana bileşeni) dosyasını aç.
+  - "Hızlı İşlemler" (Quick Actions) veya "Finans" bölümüne "Maliyet Hesap Aracı" (Gewinnmargen-Rechner) için bir buton/link ekle. İkon olarak `Calculator` kullan.
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER
+
+- **YAPAY ZEKA KELİMESİ YASAK:** Müşteriye dönük hiçbir UI bileşeninde "AI", "Yapay Zeka", "Artificial Intelligence" kelimeleri kullanılmayacaktır. Sadece "Sihirbaz", "Assistent", "Wizard" kullanılacaktır.
+- **HESAP ARACI HEADER'A EKLENMEYECEK:** B2B kullanıcılarının bilişsel yükünü artırmamak için hesap makinesi ana navigasyona konulmayacak; sadece Footer (SEO için) ve Portal (Kullanım için) üzerinden erişilebilir olacaktır.
+- **RENK DİSİPLİNİ:** Hesap aracı ve Reçete Sihirbazı CTA'sı tasarlanırken kesinlikle `tailwind.config.ts` dışından hex kodu girilmeyecek. Sadece `primary`, `secondary` ve `accent` kullanılacaktır.
+- **LOKALİZASYON:** Eklenen tüm yeni linkler (Footer ve Portal içindekiler dahil) kesinlikle `/${locale}/...` formatında olmalıdır. Hardcoded `/de/` yazmak yasaktır.
+</file>
+
+<file path="seo-navigation-plan.md">
+# TASK BLUEPRINT: SEO & GEO Navigation Architecture Update
+**Context:** We need to optimize the Header and Footer navigation for B2B SEO, Silo Architecture, and GEO (Generative Engine Optimization) without breaking the existing UI/Tailwind design or i18n structure.
+
+## ⚠️ CRITICAL RULES FOR THE AI AGENT
+1. Read `rules.md` before making any changes.
+2. DO NOT remove existing Tailwind classes, mobile menu logic (hamburger menu), or i18n implementations.
+3. Check off the tasks below as you complete them.
+
+---
+
+## [ ] STEP 1: Header (Main Navigation) Optimization
+**Target File:** Find the main Header/Navbar component (likely `src/components/layout/Header.tsx` or `Navbar.tsx`).
+
+**Action Required:**
+1. Insert a new navigation link for the B2B Portal.
+2. Reorder the main navigation links to match this exact semantic order:
+   `Startseite` | `Produkte` | `B2B Großhandel` (NEW) | `Rezepte` | `Blog [NEU]` | `B2B Rechner` | `Über uns` | `Kontakt`
+3. Keep the golden "Partnerportal" button exactly where it is (usually on the far right).
+
+**New Link Implementation (Adapt to existing i18n logic):**
+```tsx
+<Link href={`/${locale}/b2b-portal`} className="/* KEEP EXISTING NAV ITEM CLASSES */">
+  {locale === 'de' ? 'B2B Großhandel' : locale === 'tr' ? 'B2B Toptan' : locale === 'ar' ? 'B2B بالجملة' : 'B2B Wholesale'}
+</Link>
+
+STEP 2: Footer (Silo Architecture) Optimization
+Target File: Find the main Footer component (likely src/components/layout/Footer.tsx).
+Action Required:
+Restructure the Footer links into 3 semantic columns to establish Topical Authority for AI bots. Preserve all existing Tailwind grid layouts and styling.
+Column 1: Wissen & Inspiration (Knowledge & Inspiration)
+Produkte -> /${locale}/products (or /katalog)
+Rezept-Bibliothek -> /${locale}/recipes
+Barista AI -> /${locale}/barista-ai
+HORECA Blog -> /${locale}/blog
+Column 2: B2B & Tools
+B2B Kundenportal -> /${locale}/b2b-portal
+Partner Portal -> /${locale}/partner-portal
+Gewinnmargen-Rechner -> /${locale}/tools/margin-calculator
+Column 3: Unternehmen (Company)
+Über uns -> /${locale}/about
+Kontakt -> /${locale}/contact
+Impressum -> (Keep existing link)
+Datenschutz -> (Keep existing link)
+i18n Implementation Note:
+If the translations for these new footer links do not exist in the central dictionary (src/lib/i18n/pages.ts), implement them inline using a simple ternary or switch statement based on the locale prop, just like in Step 1.
+[ ] STEP 3: Final Verification
+Ensure there are no TypeScript errors.
+Ensure the mobile menu (if applicable) reflects the new Header links.
+Do not modify any other files outside of the Header and Footer components.
+</file>
+
+<file path="SMART_DMS_PROMPTS.md">
+🏗️ Mimari ve İş Akışı Özeti
+Bu sistem 5 ana modülden oluşacaktır:
+DB Migration: belgeler tablosuna AI ve Drive kolonlarının eklenmesi.
+Google Drive Service: Service Account ile izole dosya yükleme modülü.
+Gemini AI Service: PDF'i okuyup JSON formatında yapılandırılmış veri (özet, etiket, tarih) çıkaran modül.
+Orchestrator API'ler: /analyze (Önizleme için) ve /confirm (Kayıt için) endpoint'leri.
+Frontend UI: Kullanıcının AI verilerini görüp onaylayacağı React (Next.js) bileşeni.
+🚀 ADIM 1: Veritabanı Güncellemesi (Supabase Migration)
+IDE'ye verilecek prompt:
+code
+Text
+Bir Supabase migration dosyası oluştur. Adı: `20261001_smart_dms_columns.sql` olsun.
+Mevcut `belgeler` tablosuna şu kolonları ekle:
+- `drive_file_id` (TEXT, nullable)
+- `drive_url` (TEXT, nullable)
+- `ai_summary` (TEXT, nullable)
+- `ai_tags` (TEXT[], nullable)
+- `ai_metadata` (JSONB, nullable) - Kritik tarihler, tutarlar vb. ekstra veriler için.
+
+Ayrıca `src/lib/supabase/database.types.ts` dosyasını bu yeni kolonları içerecek şekilde manuel olarak güncelle (gen:types komutunu beklemeden tipleri ekle).
+🚀 ADIM 2: Google Drive Servisinin Yazılması
+IDE'ye verilecek prompt:
+code
+Text
+`src/lib/google-drive/service.ts` adında yeni bir dosya oluştur.
+Bu dosya sadece Google Drive işlemlerinden sorumlu izole bir servis olmalıdır.
+Gereksinimler:
+1. `googleapis` paketini kullan.
+2. `.env.local` içinden `GOOGLE_DRIVE_CLIENT_EMAIL`, `GOOGLE_DRIVE_PRIVATE_KEY` ve `GOOGLE_DRIVE_FOLDER_ID` değişkenlerini kullanarak Service Account (JWT) kimlik doğrulaması yap.
+3. `uploadPdfToDrive(buffer: Buffer, fileName: string, mimeType: string = 'application/pdf')` adında bir fonksiyon yaz.
+4. Fonksiyon, dosyayı Drive'a yüklemeli ve geriye `{ driveFileId: string, webViewLink: string }` dönmelidir.
+5. Hata yönetimi (try/catch) ekle ve hataları konsola anlamlı şekilde bas.
+🚀 ADIM 3: Gemini AI Doküman Analiz Servisi
+IDE'ye verilecek prompt:
+code
+Text
+`src/lib/ai/document-analyzer.ts` adında yeni bir dosya oluştur.
+Bu dosya PDF buffer'ını alıp Gemini 1.5 Flash/Pro modeline gönderecek ve JSON dönecektir.
+Gereksinimler:
+1. `@google/genai` veya `@ai-sdk/google` kullan. (Projede halihazırda `src/lib/ai/providers.ts` var, oradaki yapıyı kullanabilirsin).
+2. `analyzeDocument(pdfBuffer: Buffer, originalName: string)` adında bir fonksiyon yaz.
+3. Gemini'a şu System Prompt'u ver: "Sen kıdemli bir B2B evrak analiz uzmanısın. Sana verilen PDF'i incele ve şu JSON formatında çıktı ver: { suggested_name: 'Kısa ve anlaşılır dosya adı', summary: 'Evrakın 2-3 cümlelik özeti', category: 'Fatura | Sözleşme | İrsaliye | Diğer', tags: ['etiket1', 'etiket2'], critical_dates: ['YYYY-MM-DD'] }."
+4. Modelin `temperature: 0` ve `response_mime_type: "application/json"` ayarlarını kesinlikle yap.
+5. Dönen JSON string'ini parse edip TypeScript interface'i (`AiDocumentAnalysis`) olarak geri döndür.
+🚀 ADIM 4: Orchestrator API - Aşama 1 (Analiz Endpoint'i)
+IDE'ye verilecek prompt:
+code
+Text
+`src/app/api/admin/documents/analyze/route.ts` adında bir Next.js App Router POST endpoint'i oluştur.
+İş Akışı:
+1. Request'ten `multipart/form-data` olarak gelen PDF dosyasını al.
+2. Dosyayı memory'de bir Buffer'a çevir (Vercel ortamında temp file yerine memory buffer daha güvenlidir, dosya boyutu limitlerine dikkat et).
+3. `document-analyzer.ts` içindeki `analyzeDocument` fonksiyonunu çağırarak PDF'i Gemini'a gönder.
+4. Gemini'dan dönen JSON verisini (önerilen isim, özet, etiketler) HTTP 200 ile Frontend'e dön.
+Not: Bu aşamada veritabanına veya Drive'a KAYIT YAPILMAYACAK. Sadece analiz verisi dönecek.
+🚀 ADIM 5: Orchestrator API - Aşama 2 (Onay ve Kayıt Endpoint'i)
+IDE'ye verilecek prompt:
+code
+Text
+`src/app/api/admin/documents/confirm/route.ts` adında bir POST endpoint'i oluştur.
+İş Akışı:
+1. Request'ten `multipart/form-data` olarak PDF dosyasını VE kullanıcının frontend'de düzenleyip onayladığı AI verilerini (JSON string olarak) al.
+2. `google-drive/service.ts` içindeki `uploadPdfToDrive` fonksiyonunu çağırarak dosyayı Google Drive'a yükle. Dosya adı olarak kullanıcının onayladığı `suggested_name` değerini kullan.
+3. Drive'dan dönen `driveFileId` ve `webViewLink` değerlerini al.
+4. Supabase Server Client (`src/lib/supabase/server.ts`) kullanarak `belgeler` tablosuna yeni bir kayıt at.
+   - Kaydedilecek alanlar: `ad` (onaylanan isim), `kategori`, `ai_summary`, `ai_tags`, `drive_file_id`, `drive_url`, `olusturma_tarihi` (şu an).
+5. Başarılı olursa HTTP 200 ile eklenen kaydın ID'sini dön.
+🚀 ADIM 6: Frontend - Akıllı Yükleme Modalı (Smart Upload UI)
+IDE'ye verilecek prompt:
+code
+Text
+`src/components/admin/documents/SmartUploadModal.tsx` adında bir React (Client Component) bileşeni oluştur.
+Bu bileşen Tailwind CSS ve Lucide-react ikonları kullanmalıdır.
+İş Akışı ve UI Durumları (States):
+1. **State 1 (Upload):** Kullanıcı bir PDF seçer/sürükler.
+2. **State 2 (Analyzing):** Dosya `/api/admin/documents/analyze` endpoint'ine gider. Ekranda "Yapay Zeka Dokümanı İnceliyor..." şeklinde şık bir loading animasyonu (Pulse/Spinner) çıkar.
+3. **State 3 (Review & Confirm):** AI'dan dönen veri bir form içinde gösterilir.
+   - Input: Dosya Adı (AI önerisi, değiştirilebilir)
+   - Textarea: Özet (AI önerisi, değiştirilebilir)
+   - Select: Kategori
+   - Badges/Tags: Etiketler (Silinebilir/Eklenebilir)
+4. Kullanıcı "Onayla ve Drive'a Kaydet" butonuna basar.
+5. Veriler ve PDF `/api/admin/documents/confirm` endpoint'ine gider.
+6. Başarılı olursa `sonner` toast ile "Evrak başarıyla akıllı sisteme kaydedildi" mesajı verilir ve modal kapanır.
+🚀 ADIM 7: Entegrasyon ve Temizlik
+IDE'ye verilecek prompt:
+code
+Text
+1. Oluşturduğumuz `SmartUploadModal` bileşenini, admin panelindeki mevcut Evrak Yönetimi sayfasına (`src/app/[locale]/admin/belgeleri-yonet/page.tsx` veya ilgili sayfa) entegre et. Eski yükleme butonunu "Akıllı Yükleme (AI)" butonu ile değiştir.
+2. `next.config.ts` dosyasında Google Drive resim/dosya URL'lerine izin vermek için `remotePatterns` kısmına `drive.google.com` ve `googleusercontent.com` domainlerini ekle.
+3. Kodda kullanılmayan importları temizle ve TypeScript hatalarını gider.
+💡 Mimar Olarak Ekstra Tavsiyelerim (Senin İçin):
+Çevre Değişkenleri (.env): Bu adımlara başlamadan önce Google Cloud Console'dan bir Service Account oluşturup JSON key'i indirmeyi ve .env.local dosyana şu değişkenleri eklemeyi unutma:
+code
+Env
+GOOGLE_DRIVE_CLIENT_EMAIL="senin-service-account@proje.iam.gserviceaccount.com"
+GOOGLE_DRIVE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_DRIVE_FOLDER_ID="drive-klasor-id-buraya"
+Vercel Limitleri: Vercel'in Serverless fonksiyonlarında 4.5MB request body limiti vardır. Eğer çok büyük PDF'ler (10MB+) yükleyecekseniz, Adım 4 ve 5'teki mimariyi önce Supabase Storage'a yükle -> AI oradan okusun -> Drive'a aktar şeklinde revize etmemiz gerekebilir. Ancak standart fatura/sözleşmeler (1-2 MB) için memory buffer (yukarıdaki mimari) en hızlı ve masrafsız yoldur.
 </file>
 
 <file path="summarize_log.mjs">
@@ -14052,118 +14340,252 @@ export function useVisitPlanner() {
 }
 </file>
 
-<file path="src/lib/actions/recipe-actions.ts">
-'use server';
+<file path="src/lib/i18n/pages.ts">
+/**
+ * Merkezi sayfa çevirileri — Blog, Rezept, Barista-AI sayfaları için
+ * 4 dil: de | en | tr | ar
+ */
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+export type Locale = 'de' | 'en' | 'tr' | 'ar';
 
-type MultiLangText = { tr: string; en: string; de: string; ar: string; };
-type MultiLangArray = { tr: string[]; en: string[]; de: string[]; ar: string[]; };
+// ─── Blog ────────────────────────────────────────────────────────────────────
+export const blogListingT = {
+  de: {
+    pageTitle: 'B2B HORECA Wissen & News',
+    metaTitle: 'B2B HORECA Blog & Branchen-News | Elysonsweets',
+    metaDesc: 'Aktuelle Trends, Cocktail-Rezepte und B2B-Insights für die Gastronomie.',
+    readMore: 'Weiterlesen →',
+  },
+  en: {
+    pageTitle: 'B2B HORECA Knowledge & News',
+    metaTitle: 'B2B HORECA Blog & Industry News | Elysonsweets',
+    metaDesc: 'Latest trends, cocktail recipes, and B2B insights for the gastronomy sector.',
+    readMore: 'Read more →',
+  },
+  tr: {
+    pageTitle: 'B2B HORECA Bilgi & Haberler',
+    metaTitle: 'B2B HORECA Blog & Sektörel Haberler | Elysonsweets',
+    metaDesc: 'Gastronomi sektörü için en son trendler, kokteyl tarifleri ve B2B içgörüleri.',
+    readMore: 'Devamını Oku →',
+  },
+  ar: {
+    pageTitle: 'معرفة وأخبار B2B HORECA',
+    metaTitle: 'مدونة B2B HORECA وأخبار الصناعة | Elysonsweets',
+    metaDesc: 'أحدث الاتجاهات ووصفات الكوكتيل ورؤى B2B لقطاع فن الطهو.',
+    readMore: 'اقرأ المزيد ←',
+  },
+} as const;
 
-type RecipeInput = {
-  title: MultiLangText;
-  description: MultiLangText;
-  ingredients: MultiLangArray;
-  instructions: MultiLangArray;
-  prep_time_minutes: number;
-  category: string;
-};
+export const blogDetailT = {
+  de: { by: 'Von' },
+  en: { by: 'By' },
+  tr: { by: 'Yazan:' },
+  ar: { by: 'بقلم' },
+} as const;
 
-export async function saveRecipeAndRedirect(
-  recipeData: RecipeInput, 
-  locale: string, 
-  productId: string | null
-) {
-  const cookieStore = await cookies();
-  const supabase = await createSupabaseServerClient(cookieStore);
+// ─── Recipes ─────────────────────────────────────────────────────────────────
+export const recipesListingT = {
+  de: {
+    metaTitle: 'Elysonsweets Rezept-Bibliothek | Professionelle Getränke-Inspiration',
+    metaDesc: 'Entdecken Sie professionelle Cocktail-, Mocktail- und Kaffeerezepte mit Premium-Produkten von Elysonsweets.',
+    pageTitle: 'Elysonsweets Rezept-Bibliothek',
+    pageDesc: 'Professionelle Getränke-Inspiration und Expertenrezepte für Ihr Café, Ihre Bar oder Ihr Restaurant.',
+    ctaBadge: 'EIGENES KONZEPT',
+    ctaTitle: 'Erstellen Sie Ihr Signature-Rezept',
+    ctaDesc: 'Geben Sie Ihre Zutaten ein und lassen Sie unseren Assistenten individuelle Rezepte und PDF-Menükarten für Ihr Café erstellen.',
+    ctaButton: 'Rezept-Assistent starten',
+    allCategories: 'Alle',
+    noRecipesTitle: 'Noch keine Rezepte in dieser Kategorie.',
+    noRecipesDesc: 'Schauen Sie bald wieder vorbei oder wählen Sie eine andere Kategorie.',
+    minLabel: 'Min.',
+    searchPlaceholder: 'Zutat oder Rezept suchen... (z.B.: Karamell, Frappe)',
+    sortNewest: 'Neueste',
+    sortPopular: 'Beliebteste',
+    usedProduct: 'Verwendetes Produkt:',
+  },
+  en: {
+    metaTitle: 'Elysonsweets Recipe Library | Professional Beverage Inspiration',
+    metaDesc: 'Discover professional cocktail, mocktail, and coffee recipes crafted with premium supplies from Elysonsweets.',
+    pageTitle: 'Elysonsweets Recipe Library',
+    pageDesc: 'Professional beverage inspiration and expert recipes for your cafe, bar, or restaurant.',
+    ctaBadge: 'CUSTOM CONCEPT',
+    ctaTitle: 'Create Your Signature Recipe',
+    ctaDesc: 'Enter your ingredients and let our wizard create custom recipes and PDF menus specifically for your cafe.',
+    ctaButton: 'Launch Recipe Wizard',
+    allCategories: 'All',
+    noRecipesTitle: 'No recipes found for this category yet.',
+    noRecipesDesc: 'Check back soon or try another category.',
+    minLabel: 'min',
+    searchPlaceholder: 'Search ingredient or recipe... (e.g., Caramel, Frappe)',
+    sortNewest: 'Newest',
+    sortPopular: 'Most Popular',
+    usedProduct: 'Used Product:',
+  },
+  tr: {
+    metaTitle: 'Elysonsweets Reçete Kütüphanesi | Profesyonel İçecek İlhami',
+    metaDesc: 'Elysonsweets premium ürünleriyle hazırlanan profesyonel kokteyl, mocktail ve kahve tariflerini keşfedin.',
+    pageTitle: 'Elysonsweets Reçete Kütüphanesi',
+    pageDesc: 'Kafeniz, barunuz veya restoranınız için profesyonel içecek ilhami ve uzman tarifleri.',
+    ctaBadge: 'ÖZEL KONSEPT',
+    ctaTitle: 'Kendi İmza Reçetenizi Yaratın',
+    ctaDesc: 'Sihirbazımızla elinizdeki malzemeleri girin, kafenize özel tarifler ve hazır PDF menüler oluşturalım.',
+    ctaButton: 'Reçete Sihirbazını Başlat',
+    allCategories: 'Tümü',
+    noRecipesTitle: 'Bu kategoride henüz reçete bulunamadı.',
+    noRecipesDesc: 'Yakında tekrar kontrol edin veya başka bir kategori seçin.',
+    minLabel: 'dk',
+    searchPlaceholder: 'Malzeme veya reçete ara... (Örn: Karamel, Frappe)',
+    sortNewest: 'En Yeniler',
+    sortPopular: 'En Çok Beğenilenler',
+    usedProduct: 'Kullanılan Ürün:',
+  },
+  ar: {
+    metaTitle: 'مكتبة وصفات Elysonsweets | إلهام المشروبات الاحترافية',
+    metaDesc: 'اكتشف وصفات الكوكتيل والموكتيل والقهوة الاحترافية المُعدَّة بمنتجات Elysonsweets المتميزة.',
+    pageTitle: 'مكتبة وصفات Elysonsweets',
+    pageDesc: 'إلهام مشروبات احترافي ووصفات خبراء لمقهاك أو بارك أو مطعمك.',
+    ctaBadge: 'مفهوم مخصص',
+    ctaTitle: 'أنشئ وصفتك الحصرية',
+    ctaDesc: 'أدخل مكوناتك ودع المعالج يبتكر وصفات مخصصة وقوائم PDF لمقهاك.',
+    ctaButton: 'تشغيل صانع الوصفات',
+    allCategories: 'الكل',
+    noRecipesTitle: 'لا توجد وصفات في هذه الفئة بعد.',
+    noRecipesDesc: 'تفقد مرة أخرى قريباً أو جرب فئة أخرى.',
+    minLabel: 'دقيقة',
+    searchPlaceholder: 'ابحث عن مكون أو وصفة... (مثل: كراميل، فرابيه)',
+    sortNewest: 'الأحدث',
+    sortPopular: 'الأكثر شعبية',
+    usedProduct: 'المنتج المستخدم:',
+  },
+} as const;
 
-  // Create a base slug from the Turkish or German title
-  const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
-  const baseSlug = baseTitle
-    .toLowerCase()
-    .replace(/[^a-z0-9\u00C0-\u024F]+/g, '-') // Türkçe/Almanca karakterleri de destekler
-    .replace(/(^-|-$)+/g, '');
-  const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
-
-  const { data, error } = await supabase
-    .from('recipes')
-    .insert({
-      slug: uniqueSlug,
-      locale: locale,
-      title: recipeData.title,
-      description: recipeData.description,
-      ingredients: recipeData.ingredients,
-      instructions: recipeData.instructions,
-      prep_time_minutes: recipeData.prep_time_minutes || 5,
-      category: recipeData.category || 'cocktail',
-      product_id: productId,
-    })
-    .select('slug')
-    .single();
-
-  if (error) {
-    console.error('Supabase Insert Error:', JSON.stringify(error, null, 2));
-    throw new Error(`Reçete kaydedilemedi: ${error.message} (code: ${error.code})`);
-  }
-
-  // Kullanıcıyı yeni oluşturulan SEO sayfasına yönlendir
-  redirect(`/${locale}/recipes/${data.slug}`);
-}
-
-export async function incrementRecipeLike(recipeId: string) {
-  const cookieStore = await cookies();
-  const supabase = await createSupabaseServerClient(cookieStore);
-  // Supabase RPC (Remote Procedure Call) kullanmak en güvenlisidir ama 
-  // basitlik için mevcut sayıyı alıp 1 artırıyoruz.
-  const { data: recipe } = await supabase.from('recipes').select('likes_count').eq('id', recipeId).single();
-  
-  if (recipe) {
-    await supabase.from('recipes').update({ likes_count: recipe.likes_count + 1 }).eq('id', recipeId);
-  }
-}
-
-export async function saveRecipesBulk(
-  recipesData: RecipeInput[], 
-  locale: string, 
-  productId: string | null
-) {
-  const cookieStore = await cookies();
-  const supabase = await createSupabaseServerClient(cookieStore);
-
-  const recipesToInsert = recipesData.map(recipeData => {
-    const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
-    const baseSlug = baseTitle
-      .toLowerCase()
-      .replace(/[^a-z0-9\u00C0-\u024F]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
-    const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
-
-    return {
-      slug: uniqueSlug,
-      locale: locale,
-      title: recipeData.title,
-      description: recipeData.description,
-      ingredients: recipeData.ingredients,
-      instructions: recipeData.instructions,
-      prep_time_minutes: recipeData.prep_time_minutes || 5,
-      category: recipeData.category || 'cocktail',
-      product_id: productId,
-    };
-  });
-
-  const { error } = await supabase
-    .from('recipes')
-    .insert(recipesToInsert);
-
-  if (error) {
-    console.error('Supabase Bulk Insert Error:', JSON.stringify(error, null, 2));
-    throw new Error(`Reçeteler kaydedilemedi: ${error.message} (code: ${error.code})`);
-  }
-
-  return true;
-}
+// ─── Barista AI ──────────────────────────────────────────────────────────────
+export const recipeWizardT = {
+  de: {
+    metaTitle: 'Barista Rezept-Assistent – Signature Drinks | Elysonsweets',
+    metaDesc: 'Kreieren Sie professionelle Signature-Drink-Rezepte für Ihr Café und laden Sie diese als Menükarte herunter. Mit Premium FO Sirupen.',
+    schemaName: 'Elysonsweets Barista Rezept-Assistent',
+    schemaDesc: 'Ein professioneller Rezept-Assistent für Cafés und Barkeeper. Erstellen Sie individuelle Signature Drinks und PDF-Menükarten mit FO Sirupen.',
+    badgeLabel: 'Gourmet Rezeptur-Atelier',
+    headline1: 'Barista ',
+    headline2: 'Rezept-Assistent',
+    subline: 'Geben Sie Ihre Zutaten und Ihr Konzept an. Unser Barista-Experte kreiert exklusive Signature Drinks mit FO Sirupen für Ihr Café. Laden Sie Ihr Menü sofort als PDF herunter.',
+    // Form
+    formTitle: 'Rezept-Assistent',
+    labelCafeName: 'Name des Cafés (Optional)',
+    labelIngredients: 'Vorhandene Zutaten *',
+    placeholderIngredients: 'Espresso, Milch, Hafermilch, Erdbeeren...',
+    labelConcept: 'Konzept / Thema *',
+    placeholderConcept: 'Sommerliche Eiskaffees, Alkoholfreie Cocktails...',
+    btnGenerate: 'Signature Rezepte erstellen',
+    btnGenerating: 'Wird generiert...',
+    // Results
+    waiting: 'Unser Barista-Experte wartet auf Ihre Bestellung...',
+    menuTitle: 'Ihr individuelles Menü',
+    btnPdf: 'PDF herunterladen',
+    btnPdfLoading: 'Wird erstellt...',
+    labelIngr: 'Zutaten',
+    labelInstr: 'Zubereitung',
+    labelCategory: 'Kategorie',
+    // PDF Footer
+    pdfFooter: 'Dieses exklusive Rezept wurde mit professionellen FO-Produkten nach Barista-Standards kreiert.',
+    // Validation / Errors
+    errorRequired: 'Bitte füllen Sie die Pflichtfelder aus.',
+    errorApi: 'Ein Fehler ist aufgetreten.',
+    errorPdf: 'Fehler beim Erstellen der PDF.',
+    successPdf: 'PDF heruntergeladen!',
+  },
+  en: {
+    metaTitle: 'Barista Recipe Wizard – Signature Drinks | Elysonsweets',
+    metaDesc: 'Create professional signature drink recipes for your café and download them as a menu card. With premium FO syrups.',
+    schemaName: 'Elysonsweets Barista Recipe Wizard',
+    schemaDesc: 'A professional recipe assistant for cafes and bartenders. Create custom signature drinks and PDF menu cards with FO syrups.',
+    badgeLabel: 'Gourmet Recipe Atelier',
+    headline1: 'Barista ',
+    headline2: 'Recipe Wizard',
+    subline: 'Specify your ingredients and concept. Our barista expert will create exclusive signature drinks with FO syrups for your café. Download your menu instantly as PDF.',
+    formTitle: 'Recipe Wizard',
+    labelCafeName: 'Café Name (Optional)',
+    labelIngredients: 'Available Ingredients *',
+    placeholderIngredients: 'Espresso, Milk, Oat Milk, Strawberries...',
+    labelConcept: 'Concept / Theme *',
+    placeholderConcept: 'Summer iced coffees, Non-alcoholic cocktails...',
+    btnGenerate: 'Create Signature Recipes',
+    btnGenerating: 'Generating...',
+    waiting: 'Our barista expert is waiting for your order...',
+    menuTitle: 'Your Custom Menu',
+    btnPdf: 'Download PDF',
+    btnPdfLoading: 'Creating...',
+    labelIngr: 'Ingredients',
+    labelInstr: 'Instructions',
+    labelCategory: 'Category',
+    pdfFooter: 'This exclusive recipe was created with professional FO products following barista standards.',
+    errorRequired: 'Please fill in the required fields.',
+    errorApi: 'An error occurred.',
+    errorPdf: 'Error creating the PDF.',
+    successPdf: 'PDF downloaded!',
+  },
+  tr: {
+    metaTitle: 'Barista Reçete Sihirbazı – İmza İçecek Rehberi | Elysonsweets',
+    metaDesc: 'Kafeniz için uzman barista formülleriyle dengeli ve kârlı imza içecek reçeteleri oluşturun, menünüzü anında PDF olarak indirin.',
+    schemaName: 'Elysonsweets Reçete Sihirbazı',
+    schemaDesc: 'Kafeler ve barmenler için profesyonel reçete ve menü rehberi. FO şurupları ile özel imza içecekler ve PDF menüler oluşturun.',
+    badgeLabel: 'Gourmet Reçete Atölyesi',
+    headline1: 'Barista ',
+    headline2: 'Reçete Sihirbazı',
+    subline: 'Elinizdeki malzemeleri ve konseptinizi belirtin, uzman baristanız FO şuruplarıyla kafenize özel dengeli ve kârlı imza içecekler tasarlasın. Menünüzü anında PDF olarak indirin.',
+    formTitle: 'Reçete Sihirbazı',
+    labelCafeName: 'Mekan Adı (Opsiyonel)',
+    labelIngredients: 'Elinizdeki Malzemeler *',
+    placeholderIngredients: 'Espresso, Süt, Yulaf Sütü, Çilek...',
+    labelConcept: 'Konsept / Tema *',
+    placeholderConcept: 'Yazlık soğuk kahveler, Alkolsüz kokteyller...',
+    btnGenerate: 'İmza Reçetelerimi Yarat',
+    btnGenerating: 'Üretiliyor...',
+    waiting: 'Uzman baristanız siparişinizi bekliyor...',
+    menuTitle: 'Sizin İçin Hazırlanan Menü',
+    btnPdf: 'PDF İndir',
+    btnPdfLoading: 'Hazırlanıyor...',
+    labelIngr: 'Malzemeler',
+    labelInstr: 'Hazırlanışı',
+    labelCategory: 'Kategori',
+    pdfFooter: 'Bu özel reçete, profesyonel FO ürünleri ve uzman barista standartları ile hazırlanmıştır.',
+    errorRequired: 'Lütfen zorunlu alanları doldurun.',
+    errorApi: 'Bir hata oluştu.',
+    errorPdf: 'PDF oluşturulurken hata oluştu.',
+    successPdf: 'PDF indirildi!',
+  },
+  ar: {
+    metaTitle: 'معالج وصفات الباريستا – مشروبات حصرية | Elysonsweets',
+    metaDesc: 'أنشئ وصفات مشروبات حصرية احترافية لمقهاك وحمِّلها كقائمة طعام. مع شراب FO المتميز.',
+    schemaName: 'معالج وصفات باريستا Elysonsweets',
+    schemaDesc: 'مساعد وصفات احترافي للمقاهي والنادلين. أنشئ مشروبات حصرية وقوائم PDF مخصصة مع شراب FO.',
+    badgeLabel: 'أتيليه الوصفات الفاخرة',
+    headline1: 'باريستا ',
+    headline2: 'معالج الوصفات',
+    subline: 'حدد مكوناتك ومفهومك. سيبتكر خبير الباريستا لدينا مشروبات حصرية مع شراب FO لمقهاك. حمِّل قائمتك فوراً كـ PDF.',
+    formTitle: 'معالج الوصفات',
+    labelCafeName: 'اسم المقهى (اختياري)',
+    labelIngredients: 'المكونات المتوفرة *',
+    placeholderIngredients: 'إسبريسو، حليب، حليب الشوفان، فراولة...',
+    labelConcept: 'المفهوم / الموضوع *',
+    placeholderConcept: 'قهوة مثلجة صيفية، كوكتيلات بلا كحول...',
+    btnGenerate: 'إنشاء وصفات حصرية',
+    btnGenerating: 'جاري الإنشاء...',
+    waiting: 'خبير الباريستا لدينا ينتظر طلبك...',
+    menuTitle: 'قائمتك المخصصة',
+    btnPdf: 'تحميل PDF',
+    btnPdfLoading: 'جاري الإنشاء...',
+    labelIngr: 'المكونات',
+    labelInstr: 'طريقة التحضير',
+    labelCategory: 'التصنيف',
+    pdfFooter: 'تم إعداد هذه الوصفة الحصرية بمنتجات FO الاحترافية وفق معايير الباريستا.',
+    errorRequired: 'يرجى ملء الحقول المطلوبة.',
+    errorApi: 'حدث خطأ.',
+    errorPdf: 'خطأ في إنشاء PDF.',
+    successPdf: 'تم تحميل PDF!',
+  },
+} as const;
 </file>
 
 <file path="src/lib/notificationUtils.ts">
@@ -15259,6 +15681,59 @@ export function computeTedarikDurumu(stok: number | null | undefined, tukenmeTar
 }
 </file>
 
+<file path=".repomixignore">
+_backup/
+_archive/
+playwright-report/
+test-results/
+tests/
+e2e/
+__tests__/
+dokuments/
+public/
+.next/
+node_modules/
+package-lock.json
+yarn.lock
+tsconfig.tsbuildinfo
+categories.json
+premium_products.json
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.mp4
+*.webm
+*.pdf
+*.xlsx
+*.csv
+.vscode/
+.claude/
+.agents/
+repomix-output.*
+scratch/
+scratch_migrations.sql
+test-types.ts
+data/
+scripts/
+*backup*.json
+*_dump.json
+fo_*.json
+*_final.json
+src/components/
+src/app/
+src/dictionaries/
+src/hooks/
+src/utils/
+src/styles/
+</file>
+
 <file path="playwright.config.ts">
 import { defineConfig, devices } from '@playwright/test';
 
@@ -15388,6 +15863,128 @@ export default defineConfig({
     exclude: ['e2e/**', 'tests/e2e/**', 'node_modules/**'],
   }
 })
+</file>
+
+<file path="src/lib/actions/recipe-actions.ts">
+'use server';
+
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+type MultiLangText = { tr: string; en: string; de: string; ar: string; };
+type MultiLangArray = { tr: string[]; en: string[]; de: string[]; ar: string[]; };
+
+type RecipeInput = {
+  title: MultiLangText;
+  description: MultiLangText;
+  ingredients: MultiLangArray;
+  instructions: MultiLangArray;
+  prep_time_minutes: number;
+  category: string;
+};
+
+export async function saveRecipeAndRedirect(
+  recipeData: RecipeInput, 
+  locale: string, 
+  productId: string | null
+) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+
+  // Türkçe karakterleri çevirmek için yardımcı harita
+  const trMap: Record<string, string> = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+  
+  // Create a base slug from the Turkish or German title
+  const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
+  const slugifiedTitle = baseTitle.replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m]);
+  const baseSlug = slugifiedTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+  const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
+
+  const { data, error } = await supabase
+    .from('recipes')
+    .insert({
+      slug: uniqueSlug,
+      locale: locale,
+      title: recipeData.title,
+      description: recipeData.description,
+      ingredients: recipeData.ingredients,
+      instructions: recipeData.instructions,
+      prep_time_minutes: recipeData.prep_time_minutes || 5,
+      category: recipeData.category || 'cocktail',
+      product_id: productId,
+    })
+    .select('slug')
+    .single();
+
+  if (error) {
+    console.error('Supabase Insert Error:', JSON.stringify(error, null, 2));
+    throw new Error(`Reçete kaydedilemedi: ${error.message} (code: ${error.code})`);
+  }
+
+  // Kullanıcıyı yeni oluşturulan SEO sayfasına yönlendir
+  redirect(`/${locale}/recipes/${data.slug}`);
+}
+
+export async function incrementRecipeLike(recipeId: string) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  // Supabase RPC (Remote Procedure Call) kullanmak en güvenlisidir ama 
+  // basitlik için mevcut sayıyı alıp 1 artırıyoruz.
+  const { data: recipe } = await supabase.from('recipes').select('likes_count').eq('id', recipeId).single();
+  
+  if (recipe) {
+    await supabase.from('recipes').update({ likes_count: recipe.likes_count + 1 }).eq('id', recipeId);
+  }
+}
+
+export async function saveRecipesBulk(
+  recipesData: RecipeInput[], 
+  locale: string, 
+  productId: string | null
+) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+
+  // Türkçe karakterleri çevirmek için yardımcı harita
+  const trMap: Record<string, string> = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+
+  const recipesToInsert = recipesData.map(recipeData => {
+    const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
+    const slugifiedTitle = baseTitle.replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m]);
+    const baseSlug = slugifiedTitle
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+    const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
+
+    return {
+      slug: uniqueSlug,
+      locale: locale,
+      title: recipeData.title,
+      description: recipeData.description,
+      ingredients: recipeData.ingredients,
+      instructions: recipeData.instructions,
+      prep_time_minutes: recipeData.prep_time_minutes || 5,
+      category: recipeData.category || 'cocktail',
+      product_id: productId,
+    };
+  });
+
+  const { error } = await supabase
+    .from('recipes')
+    .insert(recipesToInsert);
+
+  if (error) {
+    console.error('Supabase Bulk Insert Error:', JSON.stringify(error, null, 2));
+    throw new Error(`Reçeteler kaydedilemedi: ${error.message} (code: ${error.code})`);
+  }
+
+  return true;
+}
 </file>
 
 <file path="src/lib/public-category-visibility.ts">
@@ -15972,8 +16569,8 @@ export const getGroqModel = (modelName: string = 'qwen/qwen3.8-27b') => {
   return groq(modelName);
 };
 
-// Primary High Performance Model: gemini-3.6-flash
-export const getGeminiModel = (modelName: string = 'gemini-3.6-flash') => {
+// Primary High Performance Model: gemini-1.5-flash
+export const getGeminiModel = (modelName: string = 'gemini-1.5-flash') => {
   return google(modelName);
 };
 
@@ -15987,7 +16584,7 @@ export async function generateTextWithFallback(
   options: Omit<Parameters<typeof generateText>[0], 'model'>
 ) {
   const models = [
-    { name: 'Gemini 3.6 Flash', model: google('gemini-3.6-flash') },
+    { name: 'Gemini 1.5 Flash', model: google('gemini-1.5-flash') },
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
     { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
   ];
@@ -15995,11 +16592,31 @@ export async function generateTextWithFallback(
   let lastError: any;
   for (const item of models) {
     try {
-      return await generateText({
-        maxTokens: 4000,
-        ...options,
+      // Sadece Gemini modeliyse güvenlik filtrelerini devre dışı bırak
+      const isGoogle = item.name.includes('Gemini');
+      const googleSafety = isGoogle ? {
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+        ]
+      } : {};
+
+      // ai sdk tip uyuşmazlığını önlemek için as any kullanıyoruz
+      const optionsWithSafety = { ...options, ...googleSafety } as any;
+
+      const result = await generateText({
+        maxTokens: 800,
+        ...optionsWithSafety,
         model: item.model,
       });
+      
+      if (!result.text || result.text.trim() === '') {
+        throw new Error("AI returned empty text. (Possible rate limit or safety filter block)");
+      }
+      
+      return result;
     } catch (err: any) {
       console.warn(`[AI Providers] ${item.name} failed (${err.message}). Trying next fallback...`);
       lastError = err;
@@ -16016,7 +16633,7 @@ export async function generateObjectWithFallback(
   options: Omit<Parameters<typeof generateObject>[0], 'model'>
 ) {
   const models = [
-    { name: 'Gemini 3.6 Flash', model: google('gemini-3.6-flash') },
+    { name: 'Gemini 1.5 Flash', model: google('gemini-1.5-flash') },
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
     { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
   ];
@@ -16025,7 +16642,7 @@ export async function generateObjectWithFallback(
   for (const item of models) {
     try {
       return await generateObject({
-        maxTokens: 4000,
+        maxTokens: 800,
         ...options,
         model: item.model,
       });
