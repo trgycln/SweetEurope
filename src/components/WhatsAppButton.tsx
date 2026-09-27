@@ -36,12 +36,12 @@ interface LocaleContent {
 
 const CONTENT: Record<string, LocaleContent> = {
   de: {
-    tooltip: 'Fragen zu Staffelpreisen & Sortiment? Hier beraten lassen!',
-    headerTitle: 'Elyson B2B Gastro-Berater',
-    headerSubtitle: 'Staffelpreise, Logistik & Rezeptideen',
+    tooltip: 'Intelligenter B2B-Support für Ihre Großbestellungen',
+    headerTitle: 'Elyson Smart B2B Advisor',
+    headerSubtitle: 'Großhandelslösungen, Logistik & Preise',
     statusOnline: 'KI-Berater Aktiv',
     typicalReplyTime: 'Antwortet sofort mit Datenbank-Echtzeitwerten',
-    greetingText: 'Guten Tag! 👋 Ich bin Ihr persönlicher B2B-Fachberater bei Elyson Sweets. Wie kann ich Sie bei Staffelpreisen, Koli-Einheiten oder Sortimentsauswahl unterstützen?',
+    greetingText: 'Guten Tag! 👋 Ich bin Ihr intelligenter B2B-Berater bei Elyson Sweets. Wie kann ich Sie bei maßgeschneiderten Großhandelsangeboten, Logistikprozessen oder unserem Sortiment unterstützen?',
     placeholder: 'Frage zu Staffelpreisen, Koli oder Rezepten stellen...',
     sendTooltip: 'Absenden',
     startChatButton: 'Direkt auf WhatsApp anfragen',
@@ -58,12 +58,12 @@ const CONTENT: Record<string, LocaleContent> = {
     networkFallback: 'Gerne verbinde ich Sie für direkte Bestellungen oder individuelle Rabatte mit unserem WhatsApp-Team:',
   },
   tr: {
-    tooltip: 'Toptan fiyatlar ve koli adetleri için danışın!',
-    headerTitle: 'Elyson B2B Satış Danışmanı',
-    headerSubtitle: 'Kademeli Fiyatlar, Koli/Palet & Reçeteler',
+    tooltip: 'İşletmenize özel toptan avantajlar ve akıllı B2B desteği',
+    headerTitle: 'Elyson Akıllı B2B Danışmanı',
+    headerSubtitle: 'Toptan Çözümler, Lojistik ve Fiyatlandırma',
     statusOnline: 'AI Danışman Aktif',
     typicalReplyTime: 'Veritabanı anlık verileriyle hemen yanıtlar',
-    greetingText: 'Merhaba! 👋 Elyson Sweets B2B Danışmanıyım. Ürünlerimiz, fiyatlar veya sipariş süreçleri hakkında size nasıl yardımcı olabilirim?',
+    greetingText: 'Merhaba! 👋 Ben Elyson Sweets Akıllı B2B Danışmanınız. İşletmenize özel toptan alım avantajları, lojistik süreçler ve ürün portföyümüz hakkında size nasıl destek olabilirim?',
     placeholder: 'Koli, kademeli fiyat veya reçete sorun...',
     sendTooltip: 'Gönder',
     startChatButton: "WhatsApp'tan Doğrudan Ulaşın",
@@ -80,12 +80,12 @@ const CONTENT: Record<string, LocaleContent> = {
     networkFallback: 'Doğrudan sipariş, numune talepleri veya sorularınız için WhatsApp ekibimizle hemen görüşebilirsiniz:',
   },
   en: {
-    tooltip: 'Questions about wholesale pricing & cases? Ask our advisor!',
-    headerTitle: 'Elyson B2B Sales Advisor',
-    headerSubtitle: 'Tiered Pricing, Logistics & Recipes',
+    tooltip: 'Smart B2B support and custom wholesale advantages',
+    headerTitle: 'Elyson Smart B2B Advisor',
+    headerSubtitle: 'Wholesale Solutions, Logistics & Pricing',
     statusOnline: 'AI Advisor Active',
     typicalReplyTime: 'Replies instantly with real-time database specs',
-    greetingText: 'Hello! 👋 I am your B2B sales and HoReCa consultant at Elyson Sweets. How can I assist you with tiered pricing, case quantities, or product recipes?',
+    greetingText: 'Hello! 👋 I am your smart B2B advisor at Elyson Sweets. How can I assist you with custom wholesale advantages, logistics processes, or our product portfolio?',
     placeholder: 'Ask about pricing, cases, or recipes...',
     sendTooltip: 'Send',
     startChatButton: 'Inquire directly on WhatsApp',
@@ -102,12 +102,12 @@ const CONTENT: Record<string, LocaleContent> = {
     networkFallback: 'For direct orders, sample requests, or custom pricing, please connect with our WhatsApp team:',
   },
   ar: {
-    tooltip: 'استفسر عن أسعار الجملة والشحن وحجم الكرتونة',
-    headerTitle: 'مستشار Elyson Sweets لمبيعات الجملة',
-    headerSubtitle: 'أسعار الجملة، التعبئة اللوجستية والوصفات',
+    tooltip: 'دعم B2B ذكي ومزايا جملة مخصصة لعملك',
+    headerTitle: 'مستشار Elyson B2B الذكي',
+    headerSubtitle: 'حلول الجملة، الخدمات اللوجستية والتسعير',
     statusOnline: 'المستشار الذكي متصل',
     typicalReplyTime: 'إجابات فورية وفق بيانات المستودع المباشرة',
-    greetingText: 'مرحباً بكم! 👋 أنا مستشارك التجاري لخدمات المطاعم والمقاهي لدى Elyson Sweets. كيف يمكنني مساعدتكم في حساب أسعار الجملة أو تفاصيل الكرتونة؟',
+    greetingText: 'مرحباً! 👋 أنا مستشارك الذكي لخدمات B2B لدى Elyson Sweets. كيف يمكنني دعمك في مزايا الشراء بالجملة المخصصة لعملك، العمليات اللوجستية، أو محفظة منتجاتنا؟',
     placeholder: 'اكتب سؤالك حول الأسعار، الكراتين، أو النكهات...',
     sendTooltip: 'إرسال',
     startChatButton: 'متابعة المحادثة عبر واتساب',
@@ -233,7 +233,7 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
   return (
     <div
       ref={containerRef}
-      className={`fixed bottom-6 ${isRtl ? 'left-5 sm:left-6' : 'right-5 sm:right-6'} z-40 flex flex-col items-end pointer-events-auto`}
+      className={`fixed bottom-6 ${isRtl ? 'left-5 sm:left-6' : 'right-5 sm:right-6'} z-50 flex flex-col items-end pointer-events-auto`}
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       {/* Floating Chat Popup Card */}
@@ -244,7 +244,7 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
-            className="w-[92vw] sm:w-[420px] mb-4 bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col will-change-transform text-slate-800"
+            className="w-[92vw] sm:w-[400px] mb-4 bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col will-change-transform text-slate-800 max-h-[min(600px,calc(100vh-120px))]"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-[#0b3b2d] via-[#114b3a] to-[#165a46] text-white p-4 flex items-center justify-between relative shadow-sm">
@@ -282,7 +282,7 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
             </div>
 
             {/* Chat Body */}
-            <div className="p-4 bg-slate-50/80 space-y-3.5 max-h-[420px] overflow-y-auto">
+            <div className="p-4 bg-slate-50/80 space-y-3.5 flex-1 min-h-0 overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300/80 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400/80">
               <p className="text-[11px] text-center text-slate-500 font-medium bg-slate-200/50 py-1 px-2.5 rounded-full mx-auto w-fit">
                 {t.typicalReplyTime}
               </p>
