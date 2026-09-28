@@ -1,0 +1,33 @@
+name: Synthetic Monitoring
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Her saat başı çalışır
+  workflow_dispatch: # Manuel tetikleme için
+
+jobs:
+  smoke-test:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Production Smoke Test
+      run: npx playwright test tests/e2e/smoke-production.spec.ts
+    - name: Alert on Failure
+      if: failure()
+      run: |
+        echo "::error title=Smoke Test Failed::Production smoke test failed! The site might be down or degraded."
+        # Slack/Discord webhook curl command could go here
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: smoke-test-report
+        path: playwright-report/
+        retention-days: 7
