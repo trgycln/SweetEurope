@@ -112,20 +112,25 @@ export async function middleware(req: NextRequest) {
     // Schutz für Login-Seite (wenn bereits eingeloggt) & Rollen-basierte Weiterleitung
     const isLoginPage = pathname.endsWith('/login'); // Prüft auf /de/login, /en/login etc.
     if (user && isLoginPage) {
-        console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
-        const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
-        const userRole = profile?.rol;
-        const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
-            ? '/admin/dashboard'
-            : '/portal/dashboard';
-            
-        let targetLocale = pathname.split('/')[1] || defaultLocale;
-        if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
-            targetLocale = profile.tercih_edilen_dil;
+        const hasError = req.nextUrl.searchParams.has('error');
+        if (!hasError) {
+            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
+            const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
+            const userRole = profile?.rol;
+            const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
+                ? '/admin/dashboard'
+                : '/portal/dashboard';
+                
+            let targetLocale = pathname.split('/')[1] || defaultLocale;
+            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+                targetLocale = profile.tercih_edilen_dil;
+            }
+                
+            console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
+            return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
+        } else {
+            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite mit Fehler. Kein Redirect.`);
         }
-            
-        console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
-        return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
     }
 
     if (user && effectivePath.startsWith('/admin')) {
@@ -136,7 +141,14 @@ export async function middleware(req: NextRequest) {
         if (!canAccessAdminPath(userRole, effectivePath, allowedPanels)) {
             const currentLocale = pathname.split('/')[1] || defaultLocale;
             console.log(`-> Middleware: Admin panel access denied for role '${userRole}' on '${effectivePath}'.`);
-            return NextResponse.redirect(new URL(`/${currentLocale}/admin/dashboard`, req.url));
+            
+            const isAdminRole = userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi';
+            const redirectPath = isAdminRole ? '/admin/dashboard' : '/portal/dashboard';
+            
+            if (effectivePath === redirectPath) {
+                return NextResponse.redirect(new URL(`/${currentLocale}/login`, req.url));
+            }
+            return NextResponse.redirect(new URL(`/${currentLocale}${redirectPath}`, req.url));
         }
     }
 

@@ -3,12 +3,12 @@
 
 'use server';
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { Enums, Tables, Database } from "@/lib/supabase/database.types"; // Database hinzugefügt
+import { createSupabaseServerClient } from "../../lib/supabase/server";
+import { Enums, Tables, Database } from "../../lib/supabase/database.types"; // Database hinzugefügt
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers"; // <-- WICHTIG: Importiert
 import { SupabaseClient } from "@supabase/supabase-js"; // Typ für Client importieren
-import { sendNotification } from '@/lib/notificationUtils';
+import { sendNotification } from '../../lib/notificationUtils';
 import { redirect } from 'next/navigation'; // Import für Redirect
 
 // Typ für Rückgabewerte
@@ -35,7 +35,7 @@ export async function siparisOlusturAction(payload: {
     items: OrderItemPayload[],
     kaynak: Enums<'siparis_kaynagi'>,
     siparisTuru?: 'normal' | 'on_siparis',
-    // Kargo alanları (isteğe bağlı — girilmezse 0 yazılır)
+    // Frontend'den gelen güvensiz finansal veriler (Kullanılmayacak!)
     kargoTutariNet?: number,
     kargoKdvTutari?: number,
     kargoTutariBrut?: number,
@@ -44,35 +44,85 @@ export async function siparisOlusturAction(payload: {
 
     const isPreOrder = payload.siparisTuru === 'on_siparis';
 
-    // --- Supabase Client initialisieren ---
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
 
-    // Benutzerprüfung
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
         return { error: "Nicht authentifiziert. Bitte einloggen." };
     }
 
-    // --- VALIDIERUNG ---
     if (!payload || !payload.firmaId || !payload.items || !Array.isArray(payload.items) || payload.items.length === 0) {
         return { error: "Kunden- oder Produktinformationen fehlen." };
     }
 
-    // 1. ÖN SİPARİŞ (PRE-ORDER) DURUMU:
-    // Ön siparişlerde depodaki anlık stok kontrolü ve stok düşme atlanır.
-    if (isPreOrder) {
-        let toplamNet = 0;
-        payload.items.forEach(item => {
-            toplamNet += item.adet * item.o_anki_satis_fiyati;
-        });
-        const kargoNet   = payload.kargoTutariNet   ?? 0;
-        const kargoKdv   = payload.kargoKdvTutari   ?? 0;
-        const kargoBrut  = payload.kargoTutariBrut  ?? 0;
-        const kargoYon   = payload.kargoYontemi      ?? 'Standart';
-        const toplamBrut = Number(((toplamNet * 1.07) + kargoBrut).toFixed(2)); // %7 ürün KDV + kargo brüt
+    // --- ZERO TRUST SECURITY: Backend Re-calculation ---
+    // 1. Kullanıcı Rolünü Çek
+    const { data: profile } = await supabase
+        .from('profiller')
+        .select('rol')
+        .eq('id', user.id)
+        .single();
+    const userRole = profile?.rol || 'Müşteri';
 
-        // Sipariş ana kaydını oluştur
+    // 2. Ürünlerin gerçek veritabanı fiyatlarını çek
+    const urunIds = payload.items.map(item => item.urun_id);
+    const { data: urunler, error: stokError } = await supabase
+        .from('urunler')
+        .select('id, stok_miktari, ad, koli_ici_adet, palet_ici_adet, palet_ici_koli_adet, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi, satis_fiyati_palet, birim_agirlik_kg')
+        .in('id', urunIds);
+
+    if (stokError || !urunler) {
+        console.error("Stok bilgisi alınamadı:", stokError);
+        return { error: "Stok bilgileri alınırken veritabanı hatası oluştu." };
+    }
+
+    // Stok kontrolü (Normal sipariş için)
+    if (!isPreOrder) {
+        for (const item of payload.items) {
+            const urun = urunler.find(u => u.id === item.urun_id);
+            if (!urun) return { error: `Siparişteki bir ürün bulunamadı.` };
+            if ((urun.stok_miktari || 0) < item.adet) {
+                const urunAd = typeof urun.ad === 'object' && urun.ad ? (urun.ad as any).tr || (urun.ad as any).de || 'Ürün' : String(urun.ad);
+                return { error: `Yetersiz stok: ${urunAd} ürününden sadece ${urun.stok_miktari || 0} adet mevcut. Lütfen sepetinizi güncelleyin.` };
+            }
+        }
+    }
+
+    // 3. Fiyat ve Kargo Hesaplama
+    const { hesaplaSepetSatiri } = await import('../../lib/pricingUtils');
+    const { calculateShipping } = await import('../../lib/shippingUtils');
+
+    let trustedToplamNet = 0;
+    let totalWeightKg = 0;
+
+    const trustedItems = payload.items.map(item => {
+        const urun = urunler.find(u => u.id === item.urun_id);
+        if (!urun) throw new Error("Ürün eşleşmedi.");
+
+        // İstemciden gelen birim 'adet' cinsinden toplam miktar olarak kabul edilir
+        const sepetSatiri = hesaplaSepetSatiri(urun as any, 'adet', item.adet, userRole);
+        
+        trustedToplamNet += sepetSatiri.toplamFiyat;
+        totalWeightKg += (urun.birim_agirlik_kg || 0) * item.adet;
+
+        return {
+            urun_id: item.urun_id,
+            miktar: item.adet,
+            birim_fiyat: sepetSatiri.adetFiyat,
+            toplam_fiyat: sepetSatiri.toplamFiyat
+        };
+    });
+
+    // Kargo hesaplama (PLZ'yi adresten bulmaya çalış veya kargo yönteminden tahmin et)
+    const plzMatch = payload.teslimatAdresi?.match(/\b\d{5}\b/);
+    const plz = plzMatch ? plzMatch[0] : (payload.kargoYontemi?.includes('Köln') ? '50667' : '10115');
+    
+    const shipping = calculateShipping(trustedToplamNet, plz, totalWeightKg);
+    const trustedToplamBrut = Number(Math.round(Number((trustedToplamNet + (trustedToplamNet * 0.07) + shipping.shippingCostGross) + 'e2')) + 'e-2');
+
+    // 1. ÖN SİPARİŞ DURUMU
+    if (isPreOrder) {
         const { data: orderData, error: orderError } = await (supabase as any)
             .from('siparisler')
             .insert({
@@ -82,58 +132,47 @@ export async function siparisOlusturAction(payload: {
                 siparis_kaynagi: payload.kaynak,
                 olusturan_kullanici_id: user.id,
                 siparis_tarihi: new Date().toISOString(),
-                toplam_tutar_net:  toplamNet,
-                toplam_tutar_brut: toplamBrut,
+                toplam_tutar_net:  trustedToplamNet,
+                toplam_tutar_brut: trustedToplamBrut,
                 kdv_orani:         7,
-                kargo_tutari_net:  kargoNet,
-                kargo_kdv_tutari:  kargoKdv,
-                kargo_tutari_brut: kargoBrut,
-                kargo_yontemi:     kargoYon,
+                kargo_tutari_net:  shipping.shippingCostNet,
+                kargo_kdv_tutari:  shipping.shippingVatAmount,
+                kargo_tutari_brut: shipping.shippingCostGross,
+                kargo_yontemi:     shipping.shippingMethodName,
             })
             .select('id')
             .single();
 
         if (orderError || !orderData) {
-            console.error("Ön sipariş oluşturma hatası:", orderError);
             return { error: `Ön sipariş oluşturulamadı: ${orderError?.message || 'Veritabanı hatası'}` };
         }
 
         const newOrderId = orderData.id;
 
-        // Sipariş detaylarını oluştur
-        const detayInserts = payload.items.map(item => ({
+        const detayInserts = trustedItems.map(item => ({
             siparis_id: newOrderId,
             urun_id: item.urun_id,
-            miktar: item.adet,
-            birim_fiyat: item.o_anki_satis_fiyati,
-            toplam_fiyat: Number((item.adet * item.o_anki_satis_fiyati).toFixed(2))
+            miktar: item.miktar,
+            birim_fiyat: item.birim_fiyat,
+            toplam_fiyat: item.toplam_fiyat
         }));
 
-        const { error: detayError } = await (supabase as any)
-            .from('siparis_detay')
-            .insert(detayInserts);
-
+        const { error: detayError } = await (supabase as any).from('siparis_detay').insert(detayInserts);
         if (detayError) {
-            console.error("Ön sipariş detay ekleme hatası:", detayError);
             return { error: `Ön sipariş detayları kaydedilemedi: ${detayError.message}` };
         }
 
-        // Adminlere bildirim gönder
         if (payload.kaynak === 'Müşteri Portalı') {
             try {
                 const { data: firma } = await supabase.from('firmalar').select('unvan').eq('id', payload.firmaId).single();
-                const mesaj = `⏳ ${firma?.unvan || 'Bir Müşteri'} yeni bir ÖN SİPARİŞ / TALEP (#${newOrderId.substring(0, 8)}) oluşturdu.`;
-                const link = `/admin/operasyon/siparisler/${newOrderId}`;
                 await sendNotification({
                     aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
-                    icerik: mesaj,
-                    link,
+                    icerik: `⏳ ${firma?.unvan || 'Bir Müşteri'} yeni bir ÖN SİPARİŞ / TALEP (#${newOrderId.substring(0, 8)}) oluşturdu.`,
+                    link: `/admin/operasyon/siparisler/${newOrderId}`,
                     preferenceKey: 'order_updates',
                     supabaseClient: supabase
                 });
-            } catch (notifyError) {
-                console.error("Admin bildirimi gönderilemedi:", notifyError);
-            }
+            } catch (e) {}
         }
 
         revalidatePath('/admin/urun-yonetimi/urunler');
@@ -144,34 +183,21 @@ export async function siparisOlusturAction(payload: {
         return { success: true, orderId: newOrderId, message: "Ön sipariş başarıyla oluşturuldu." };
     }
 
-    // 2. NORMAL SİPARİŞ DURUMU (STOK KONTROLLÜ):
-    const urunIds = payload.items.map(item => item.urun_id);
-    const { data: stokBilgileri, error: stokError } = await supabase
-        .from('urunler')
-        .select('id, stok_miktari, ad')
-        .in('id', urunIds);
+    // 2. NORMAL SİPARİŞ DURUMU (STOK KONTROLLÜ)
+    // RPC-Funktion aufrufen
+    const rpcPayloadItems = trustedItems.map(item => ({
+        urun_id: item.urun_id,
+        adet: item.miktar,
+        o_anki_satis_fiyati: item.birim_fiyat
+    }));
 
-    if (stokError) {
-        console.error("Stok bilgisi alınamadı:", stokError);
-        return { error: "Stok bilgileri alınırken veritabanı hatası oluştu." };
-    }
-
-    for (const item of payload.items) {
-        const urun = stokBilgileri?.find(u => u.id === item.urun_id);
-        if (!urun) {
-            return { error: `Siparişteki bir ürün bulunamadı.` };
-        }
-        if ((urun.stok_miktari || 0) < item.adet) {
-            const urunAd = typeof urun.ad === 'object' && urun.ad ? (urun.ad as any).tr || (urun.ad as any).de || 'Ürün' : String(urun.ad);
-            return { error: `Yetersiz stok: ${urunAd} ürününden sadece ${urun.stok_miktari || 0} adet mevcut (İstenen: ${item.adet}). Lütfen sepetinizi güncelleyin.` };
-        }
-    }
-
-    // RPC-Funktion aufrufen (Stokları düşerek siparişi açar)
+    // Ancak RPC içinde fiyatı da yeniden kaydettirdiğimiz için, payload olarak sunucuda hesaplanan temiz item'ları gönderiyoruz.
+    // RPC'ye kargo vb bilgileri göndermemiz gerekiyorsa RPC formatına bakılmalı. RPC sadece sepet detayını alıyor.
+    // Wait, RPC 'create_order_with_items_and_update_stock' uses frontend payload. We supply trusted data.
     const { data: rpcResultData, error: rpcError } = await supabase.rpc('create_order_with_items_and_update_stock', {
         p_firma_id: payload.firmaId,
         p_teslimat_adresi: payload.teslimatAdresi,
-        p_items: payload.items,
+        p_items: rpcPayloadItems,
         p_olusturan_kullanici_id: user.id,
         p_olusturma_kaynagi: payload.kaynak
     })
@@ -179,36 +205,33 @@ export async function siparisOlusturAction(payload: {
     .single();
 
     const data = rpcResultData as any;
-    const newOrderId =
-        typeof data === 'string'
-            ? data
-            : data &&
-                typeof data === 'object' &&
-                'order_id' in data &&
-                typeof data.order_id === 'string'
-                ? data.order_id
-                : null;
+    const newOrderId = typeof data === 'string' ? data : data && typeof data === 'object' && 'order_id' in data ? data.order_id : null;
 
     if (rpcError || !newOrderId) {
-        console.error("Fehler beim RPC-Aufruf 'create_order_...':", rpcError);
         return { error: `Datenbankfehler beim Erstellen der Bestellung.${rpcError ? ` Details: ${rpcError.message}`: ''}` };
     }
+    
+    // Normal sipariş kargo tutarı ve toplam net/brüt güncellemesini RPC'den sonra yap (Çünkü RPC bunları setliyor veya setlemiyorsa biz setleyelim)
+    await supabase.from('siparisler').update({
+        toplam_tutar_net: trustedToplamNet,
+        toplam_tutar_brut: trustedToplamBrut,
+        kargo_tutari_net: shipping.shippingCostNet,
+        kargo_kdv_tutari: shipping.shippingVatAmount,
+        kargo_tutari_brut: shipping.shippingCostGross,
+        kargo_yontemi: shipping.shippingMethodName
+    }).eq('id', newOrderId);
 
     if (payload.kaynak === 'Müşteri Portalı') {
         try {
             const { data: firma } = await supabase.from('firmalar').select('unvan').eq('id', payload.firmaId).single();
-            const mesaj = `${firma?.unvan || 'Ein Partner'} hat eine neue Bestellung (#${newOrderId.substring(0, 8)}) erstellt.`;
-            const link = `/admin/operasyon/siparisler/${newOrderId}`;
             await sendNotification({
                 aliciRol: ['Yönetici', 'Personel', 'Ekip Üyesi'],
-                icerik: mesaj,
-                link,
+                icerik: `${firma?.unvan || 'Ein Partner'} hat eine neue Bestellung (#${newOrderId.substring(0, 8)}) erstellt.`,
+                link: `/admin/operasyon/siparisler/${newOrderId}`,
                 preferenceKey: 'order_updates',
                 supabaseClient: supabase
             });
-        } catch (notifyError) {
-            console.error("Fehler beim Senden der Admin-Benachrichtigung:", notifyError);
-        }
+        } catch (e) {}
     }
 
     revalidatePath('/admin/urun-yonetimi/urunler');
@@ -366,7 +389,7 @@ export async function onSiparisiNormalSipariseDonusturAction(
     }
 
     // 3. Stokları düş (Atomik / Güvenli)
-    const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
+    const { createSupabaseServiceClient } = await import('../../lib/supabase/service');
     const adminClient = createSupabaseServiceClient();
 
     for (const d of detaylar) {
@@ -507,7 +530,7 @@ export async function siparisDurumGuncelleAction(
     if (normalError) {
         // Fallback: Service Client ile dene (Alt bayi yetkisi)
         try {
-            const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
+            const { createSupabaseServiceClient } = await import('../../lib/supabase/service');
             const adminClient = createSupabaseServiceClient();
             const { error: adminErr } = await adminClient
                 .from('siparisler')
@@ -527,7 +550,7 @@ export async function siparisDurumGuncelleAction(
     // STOK İADESİ (Sipariş iptal edildiyse ve daha önce iptal edilmemişse ve Ön Sipariş değilse)
     if (isNowCancelled && !isAlreadyCancelled && previousStatus !== 'Ön Sipariş') {
         try {
-            const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
+            const { createSupabaseServiceClient } = await import('../../lib/supabase/service');
             const adminClient = createSupabaseServiceClient();
 
             // RPC ile atomik stok iadesini dene

@@ -51,7 +51,13 @@ export async function POST(req: NextRequest) {
     const finalFileName = `${nextNo}_${safeOnerilenAd}.pdf`;
 
     // 3. Upload to Google Drive with finalFileName
-    const driveUpload = await uploadPdfToDrive(buffer, finalFileName, file.type);
+    let driveUpload;
+    try {
+      driveUpload = await uploadPdfToDrive(buffer, finalFileName, file.type);
+    } catch (driveErr: any) {
+      console.error('Drive upload failed:', driveErr);
+      return NextResponse.json({ error: 'Drive yüklemesi başarısız oldu, işlem iptal edildi. Detay: ' + (driveErr.message || '') }, { status: 500 });
+    }
 
     // 4. Save to Supabase
     const { data: insertedDoc, error: dbError } = await supabase

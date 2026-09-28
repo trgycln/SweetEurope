@@ -91,9 +91,10 @@ function buildResult(
     weightKg?: number;
   }
 ): ShippingCalculationResult {
-  const cost = params.isFree ? 0 : params.netCost;
-  const vatAmount = Number((cost * SHIPPING_VAT_RATE).toFixed(2));
-  const grossCost = Number((cost + vatAmount).toFixed(2));
+  const costUnrounded = params.isFree ? 0 : params.netCost;
+  const cost = Number(Math.round(Number(costUnrounded + 'e2')) + 'e-2');
+  const vatAmount = Number(Math.round(Number((cost * SHIPPING_VAT_RATE) + 'e2')) + 'e-2');
+  const grossCost = Number(Math.round(Number((cost + vatAmount) + 'e2')) + 'e-2');
   const isLocal = params.zone === 'koln_bonn_local';
 
   return {

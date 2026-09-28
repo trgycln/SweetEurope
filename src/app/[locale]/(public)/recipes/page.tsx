@@ -14,9 +14,11 @@ type Props = {
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const t = recipesListingT[(locale as Locale)] ?? recipesListingT.de;
+  const { getI18nAlternates } = await import('@/lib/seo-utils');
   return {
     title: t.metaTitle,
     description: t.metaDesc,
+    alternates: getI18nAlternates('recipes'),
   };
 }
 

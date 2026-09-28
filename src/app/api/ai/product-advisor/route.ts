@@ -6,8 +6,35 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
+const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const limit = 3;
+  const windowMs = 10000;
+
+  let record = rateLimitMap.get(ip);
+  if (!record || now > record.resetTime) {
+    record = { count: 1, resetTime: now + windowMs };
+    rateLimitMap.set(ip, record);
+    return false;
+  }
+
+  if (record.count >= limit) {
+    return true;
+  }
+
+  record.count += 1;
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.ip ?? req.headers.get('x-forwarded-for') ?? 'unknown';
+    if (checkRateLimit(ip)) {
+      return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+    }
+
     const body: AgentRequest = await req.json();
 
     if (!body.messages || !Array.isArray(body.messages) || body.messages.length === 0) {

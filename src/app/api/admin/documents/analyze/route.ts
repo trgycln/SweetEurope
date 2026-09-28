@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Analyze API error:', error);
     return NextResponse.json(
-      { error: error.message || 'Analiz sırasında bir hata oluştu.' },
+      { error: 'AI Analizi başarısız oldu, lütfen bilgileri manuel giriniz', details: error.message },
       { status: 500 }
     );
   }

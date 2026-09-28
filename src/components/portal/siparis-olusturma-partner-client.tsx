@@ -234,7 +234,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
             {/* --- Warenkorb-Anzeige (JSX) --- */}
             <div className="lg:col-span-1 lg:sticky lg:top-20 self-start">
-                <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-lg space-y-3.5 border border-gray-200 max-h-[calc(100vh-6rem)] overflow-y-auto">
+                <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-lg space-y-3.5 border border-gray-200 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-none">
                     <div className="flex items-center justify-between">
                         <h2 className="font-serif text-lg lg:text-xl font-bold text-primary flex items-center gap-2">
                             <FiShoppingCart className="text-accent" /> {content.cartTitle || (locale === 'de' ? 'Ihr Warenkorb' : 'Sepetiniz')}
@@ -260,7 +260,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                         </div>
                     )}
 
-                    <div className="space-y-2.5 divide-y divide-gray-100 max-h-[24vh] overflow-y-auto pr-1">
+                    <div className="space-y-3 divide-y divide-gray-100">
                         {warenkorb.length > 0 ? warenkorb.map(item => {
                             const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
                             const { toplamAdet, adetFiyat, toplamFiyat, kademe, koliIciAdet, paletIciKoliAdet } = sepet;
@@ -283,9 +283,10 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                                 </p>
                                                 <button
                                                     onClick={() => removeFromWarenkorb(item.produkt.id)}
-                                                    className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0 p-0.5"
+                                                    className="text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0 p-1.5"
+                                                    title={locale === 'de' ? 'Entfernen' : 'Kaldır'}
                                                 >
-                                                    <FiTrash2 size={14} />
+                                                    <FiTrash2 size={15} />
                                                 </button>
                                             </div>
 
@@ -303,7 +304,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                                         <button
                                                             key={b}
                                                             onClick={() => updateWarenkorbBirim(item.produkt.id, b)}
-                                                            className={`px-2 py-0.5 rounded text-[11px] font-bold border transition-colors ${
+                                                            className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold border transition-all ${
                                                                 isActive
                                                                     ? b === 'palet'
                                                                         ? 'bg-purple-600 text-white border-purple-600'

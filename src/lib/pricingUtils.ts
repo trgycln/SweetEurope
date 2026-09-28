@@ -150,8 +150,9 @@ export function hesaplaSepetSatiri(
     const paletIciKoliAdet = getPaletIciKoliAdet(urun);
     const toplamAdet = hesaplaToplamAdet(urun, birim, miktar);
     const koliMiktar = hesaplaKoliMiktar(urun, birim, miktar);
-    const adetFiyat = hesaplaBirimFiyat(urun, birim, koliMiktar, userRole);
-    const toplamFiyat = toplamAdet * adetFiyat;
+    const adetFiyatUnrounded = hesaplaBirimFiyat(urun, birim, koliMiktar, userRole);
+    const adetFiyat = Number(Math.round(Number(adetFiyatUnrounded + 'e2')) + 'e-2');
+    const toplamFiyat = Number(Math.round(Number((toplamAdet * adetFiyat) + 'e2')) + 'e-2');
     const kademe = getAktifKademe(birim, koliMiktar);
 
     return {

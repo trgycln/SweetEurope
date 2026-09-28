@@ -9,9 +9,11 @@ import LoginForm from '@/components/LoginForm'; // Client-Komponente
 import { cookies } from 'next/headers'; // <-- WICHTIG: Importieren
 import { unstable_noStore as noStore } from 'next/cache'; // Für dynamische Daten
 
-export default async function LoginPage({ params }: { params: Promise<{ locale: Locale }> }) {
+export default async function LoginPage({ params, searchParams }: { params: Promise<{ locale: Locale }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
     noStore(); // Caching deaktivieren, um Session-Status immer neu zu prüfen
     const { locale } = await params; // Locale holen
+    const resolvedSearchParams = await searchParams;
+    const hasError = !!resolvedSearchParams?.error;
 
     // --- KORREKTUR: Supabase Client korrekt initialisieren ---
     const cookieStore = await cookies(); // await hinzufügen
@@ -23,7 +25,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
     const { data: { user } } = await supabase.auth.getUser(); // Funktioniert jetzt
 
     // Wenn der Benutzer bereits eingeloggt ist, zum entsprechenden Dashboard weiterleiten
-    if (user) {
+    if (user && !hasError) {
         const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
         
         const validLocales = ['de', 'en', 'tr', 'ar']; // Match with locales in i18n-config
@@ -41,6 +43,6 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
         // --- ENDE KORREKTUR ---
     }
     
-    // Benutzer ist nicht eingeloggt, Login-Formular anzeigen
+    // Benutzer ist nicht eingeloggt oder hat einen Fehler, Login-Formular anzeigen
     return <LoginForm dictionary={dictionary} locale={locale} />;
 }

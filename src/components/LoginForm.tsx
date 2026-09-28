@@ -22,6 +22,8 @@ export default function LoginForm({ dictionary, locale }: { dictionary: Dictiona
         const errorParam = searchParams.get('error');
         if (errorParam === 'unauthorized') {
             setError(content.unauthorizedError || 'Bu sayfaya erişim yetkiniz yok.');
+        } else if (errorParam === 'company_not_assigned') {
+            setError('Hesabınıza tanımlı bir firma bulunamadı. Lütfen site yöneticisiyle iletişime geçin.');
         } else if (errorParam) {
             setError(content.errorMessage || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
         }

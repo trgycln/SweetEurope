@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS public.blog_yazilari CASCADE;
+-- Removed DROP TABLE for safe migration in production
 
 CREATE TABLE IF NOT EXISTS public.blog_yazilari (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

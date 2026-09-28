@@ -56,7 +56,9 @@ src/
         crew.ts
         engine.ts
       prompts/
+        blog-prompt.ts
         system-prompt.ts
+        topic-generator.ts
       tools/
         catalog-tools.ts
       document-analyzer.ts
@@ -92,6 +94,7 @@ src/
     admin-pricing.ts
     allergen-highlighter.tsx
     blog-data.ts
+    blog-images.ts
     category-tree.ts
     constants.ts
     email.ts
@@ -252,10 +255,12 @@ scratch-test-separators.ts
 scratch-test-variations.ts
 scratch-trigger-ai.ts
 seo-navigation-plan.md
+seo-plan-seasonal-blog-optimization.md
 SMART_DMS_PROMPTS.md
 summarize_log.mjs
 supabase_update.sql
 tailwind.config.ts
+test-unsplash.js
 tsconfig.json
 update_gami.js
 vercel.json
@@ -9101,110 +9106,6 @@ COMMIT;
 
 </file>
 
-<file path="debug-ar.txt">
-[SECTION: SLUG]
-lahaza-ham-yajd-lemirafar-al-sa'a-ba-al-maykati-al-ziyafah-al-ja'im
-[SECTION: TITLE]
-لماذا يعد قياس البركس ضروريًا في صناعة الكوكتيلات للمحترفين
-[SECTION: EXCERPT]
-تمتاز مصفوفة "بركس" بكفاءة عالية في قياس حلاوة المشروبات وتقليل التكاليف. اكتشف كيف يمكن استخدام هذه التقنية لخفض نفقات المواد الخام، وتعزيز جاذبية العلامة التجارية، ورفع رضا العملاء من خلال دقة القياس والذكاء الإداري.
-[SECTION: META_TITLE]
-قياس البركس في الكوكتيلات: أداة لا غنى عنها للمحترفين – نصائح للربحية وإدارة الأعمال
-[SECTION: META_DESCRIPTION]
-اكتشف أهمية تقنية بركس للمحترفين في مجال المشروبات. دليل عملي لإدارة التكاليف، تتبع الاتجاهات، وتحسين أداء المشاريع الفندقية والفنادق والمطاعم من خلال قراءات دقيقة وموثوقة.
-[SECTION: CONTENT]
-<p>في عالم الضيافة والفنادق والمطاعم (HORECA) المعاصر، أصبحت المواصفات الحسية والتحكم الدقيق وتقليل التكاليف عوامل حاسمة. ويستحوذ <strong>قياس البركس</strong> (للتحليل اليدوي والرقمي لحلاوة المشروبات) على اهتمام متزايد كأداة أساسية لتحسين الجودة. وبغض النظر عن كون هذه التقنية مستمدة أساسًا من صناعة العصائر، إلا أنها صارت ضرورية لرابطي الباريستا وصنّاع الكوكتيلات. يشرح هذا المقال لماذا يعد استخدام بركس في التحضير الدقيق ضروريًا، وكيف يمكنك توظيفه لـ<strong>تعظيم الهوامش الربحية</strong>، <strong>واستقطاب شريحة العملاء المعاصرين</strong>، و<strong>تحسين كفاءة العمليات التشغيلية</strong>.</p>
-
-<h2>ما هو قياس البركس وكيف يتم استقرائه؟</h2>
-<p>يرصد المؤشر البرازيلي النسبة المئوية للغلوكوز في الماء باستخدام قراءات رقمية. عمليًا، يعني قراء 12٪ بركس وجود 12 غرام من المحلول السكري لكل 100 مل من السائل. تتيح لك الأجهزة الرقمية الحديثة إجراء هذه القراءة في ثوانٍ، دون الحاجة لتسخين العينة أو غسل الفوهة. هذا التصميم يجعله جذابًا لرابطي الباريستا لأنه يوفر قراءة سريعة وآمنة ويضمن نتائج تقريبية متطابقة.</p>
-
-<h3>لماذا تعتبر الدقة في القياس أساسية في صناعة الكروكيتين<br></h3>
-<p>إن التعريج الطفيف في قراءات البركس يمكن أن يغير مذاق المشروب جذرياً. قد ترفع حلاوة زائدة عن أن تغمر نكهات المسكرات الراقية، بينما قد يجعل المحلول السكري السائل طعمه باهتًا وغير متوازن. من خلال قراءة دقيقة للبركس، يمكنك إنشاء <strong>وصفات قياسية</strong> تظل ثابتة القيمة الحسية عند كل تحضير، وهو عامل حاسم لضمان رضا العميل وتمايز علامتك التجارية.</p>
-
-<h2>حرية الكست عبر التحكم في مؤشر البركس</h2>
-<p>تعتمد معظم وصفات الكوكتيلات على شرابات وعصائر ومكونات سكرية. هذه المدخلات الغذائية من أكثر الأصول المكلفة عند اشتراءها بكميات كبيرة. عن طريق توزيع قراءات البركس، يمكنك ضبط مستويات الحلاوة بحيث تحافظ على القوام والمذاق في الوقت نفسه وتجنب <strong>الإسراف في السكر</strong>. قراءة البركس الدقيقة تتيح لك تقليل شحنات المحلول السكري دون ضرر جدي بالمغذيات، مما يترجم مباشرة إلى خفض في التكاليف التشغيلية.</p>
-
-<h3>أسلوب عملي: من الرسم البياني للمستوى المستهدف<br></h3>
-<p>ابدأ بـوصفة قياسية، ثم قدّر مستواك الحسي الكلي. حدد بعدها مستوى بركس مستهدف يوازن بين الحلاوة المطلوبة والميزانية. عدّل كميات الشرابة أو العصير أو المحلول السكري تدريجيًا، ثم أعد القراءة بعد كل تعديل. هذا النهج التكاملي يؤدي إلى <strong>وصفة مطبقة بفاعلية</strong> يمكن التنبؤ بها دون الحاجة لتخمين العواطف في كل مرة.</p>
-
-<h2>وظائف الاستقطاب: ابتكار الكروكيتين المعتمد على مؤشر البركس<h2>
-<p>يلفت المشهد الكروكيتي المعاصر اهتمامًا متزايدًا نحو الشفافية والأسلوب العلمي في التحضير. يحب العملاء فهم السياق خلف كل مشروب، ويمكن أن تشكل قراءة البركس جزءًا من هذا السرد. اجعل الأرقام على قائمة المشروباتك وسيلة لإثبات الثقة، مما يعزز <strong>علامتك التجارية كشريك مميز ومبتكر</strong>.</p>
-
-<h3>مثال: مزيج "بركس-فيس"
-<h3>
-<p>مشروب راقٍ يحمل مؤشر بركس قدره 10٪ دقيق. عبر عرض هذا الرقم، يمكنك توكيد المعلومة في أن الحلاوة مضبوطة بالكامل لتعادل الحموضة الحمضية والمرارة الكحولية، وهو ما يرفع من القيمة الحقيقية للمشروع وقد يبرر تسعيرًا أعلي.</p>
-
-<h2>الطبقتان داخل العمليات اليومية للبار
-<h2>
-<p>للاستفادة المثلى من هذه التقنية، يتطلب الأمر:
-<p><strong>الشريحة الأولى، جهاز قياسي دقيق:</strong> استثمر في أداة معطى بها تعويض آلي للجودة، مما يقلل من احتمالات ارتكاب أخطاء في القياس.
-<p><strong>الشريحة الثانية، التأهيل والتدريب:</strong> يجب على الأخصائيين أن يدمجوا عملية القياس في الجدول الزمني للعمل، وأن يبنوا القدرة على تفسير القيود الرقمية.
-<p><strong>الشريحة الثالثة، التحصيل الرقمي للوصفات:</strong> اطلع على أدوات تخزين البركس المستهدفة وربطها بصفحات الصواب. وهنا ننصح باستخدام <a href="/ar/barista-ai" class="text-blue-600 hover:underline">مساعد وصفات باريستا الذكي</a>, الذي لا يساعد في حساب التكلفة فحسب، بل يوفر توجيهًا فوريًا لضبط المكونات.</p>
-
-<h3>إدارة سلاسل التوريد وأصول المواد الخام</h3>
-<p>جوهر قيمة الشرابات والعصائر يؤثر بشكل كبير على قراءة البركس. استخدم مكونات عالية الجودة وثابتة القيمة لتفادي التقلبات في القياس. يوفر لنا شريكنا <a href="/ar/products/fo" class="text-blue-600 font-semibold hover:underline">شراب كوكتيل FO</a> تنوع عرائش الحلاوة بتكوينات منتظمة بركسية، ما يسهل عملية العمل ويضمن ثبات جودة النكهة.</p>
-
-<h2>الخلاصة: مقارنة البركس كأصل استراتيجي</h2>
-<p>ليس عرض قراءات البركس أداة قياسية تقنية فحسب، بل هو أصل استراتيجي لكل مشغل يقدم كوكتيلات في الفنادق والمطاعم. من خلال إدارة الحلاوة بحساب مضبوط، يمكنك خفض التكاليف، ورفع جودة عرضك، ومواكبة اتجاهات السوق. ادمج قياس البركس في بناء وصفاتك، وتأهل فريقك، واعتمد على شرابات قياسية. بهذه المسار، تطرق إلى عمالته مربحة وقابلة للاستدامة في قطاع الضيافة.</p>
-</file>
-
-<file path="debug-en.txt">
-[SECTION: SLUG]
-seo-friendly-url-in-english-without-special-characters
-[SECTION: TITLE]
-Why the Brix Value in Cocktails Is Essential for Baristas
-[SECTION: EXCERPT]
-The Brix value is a precise measurement tool that helps baristas control the sweetness, consistency, and profitability of cocktails. Learn how you can use this parameter to reduce costs, set trends, and increase guest satisfaction.
-[SECTION: META_TITLE]
-Brix Value in Cocktails: An Essential Tool for Baristas – Tips for Profit, Trends & Management
-[SECTION:
-</file>
-
-<file path="debug-tr.txt">
-[SECTION: SLUG]
-brix-degeri-neden-baristalar-icin-kokteyllerde-olmazsa-olmaz
-[SECTION: TITLE]
-Kokteyllerde Brüks Değeri Neden Baristalar İçin Olmazsa Olmazdır?
-[SECTION: EXCERPT]
-Brüks değeri, baristaların kokteyllerin tatlılığını, tutarlılığını ve ekonomik verimliliğini kontrol etmesine yardımcı olan hassas bir ölçüm aracıdır. Bu parametreyle maliyetleri nasıl düşüreceğinizi, trendleri belirleyeceğinizi ve müşteri memnuniyetini nasıl artıracağınızı öğrenin.
-[SECTION: META_TITLE]
-Kokteyllerde Brüks Değeri: Baristalar İçin Hayati Bir Araç – Kâr, Trend ve Yönetim İpuçları
-[SECTION: META_DESCRIPTION]
-Brüks değerinin neden baristalar ve kokteyl profesyonelleri için vazgeçilmez olduğunu keşfedin. Daha kârlı bir HORECA işi için pratik rehberler, ekonomi ipuçları ve güncel trendler.
-[SECTION: CONTENT]
-<p>Günümüz HORECA dünyasında, tat, tutarlılık ve ekonomik verimlilik eşit derecede önemliyken, içeceklerdeki şeker konsantrasyonunu ölçmek için kullanılan <strong>Brüks değeri</strong> giderek daha fazla önem kazanmaktadır. Geleneksel olarak şarap ve meyve suyu endüstrisinde kullanılan Brüks, baristalar ve kokteyl profesyonelleri için vazgeçilmez bir araç olarak kendini kanıtlamıştır. Bu makale, kokteyl hazırlanmasında Brüks değerinin neden vazgeçilmez olduğunu ve kazançlarınızın <strong>maksimum seviyeye çıkarılmasına</strong>, güncel <strong>trendlerin belirlenmesine</strong> ve işletme <strong>yönetiminizin optimize edilmesi</strong> için nasıl kullanılabileceğini açıklamaktadır.</p>
-
-<h2>Brüks Değeri Nedir ve Nasıl Ölçülür?</h2>
-<p>Brüks değeri, bir çözeltideki 100 ml'nin kaç gram sakaroz (şeker) içerdiğini gösterir. Pratik olarak bu, %12'lik bir Brüks değerinin 100 ml sıvı başına 12 g şekere karşılık geldiği anlamına gelir. Modern el aletleri olan dijital refraktometreler, numunenin sulandırılmasına veya renk değiştirmesine gerek kalmadan saniyeler içinde ölçüm yapılmasını sağlar. Bu özellik, ölçümün hızlı, hijyenik ve tekrarlanabilir olması nedeniyle baristalar için özellikle caziptir.</p>
-
-<h3>Neden Ölçüm Hassasiyeti Kokteyller İçin Hayati Önem Taşır?</h3>
-<p>Brüks değerindeki küçük bir fark, kokteylin tadını kökten değiştirebilir. Aşırı tatlılık, distile içkilerin ince aromalarını maskelerken, yetersiz tatlılık içeceği düz ve dengesiz hale getirebilir. Brüks değerinin hassas bir şekilde belirlenmesi, her sunumda aynı tadı veren <strong>standartize tarifler</strong> oluşturmanıza olanak tanır; bu da müşteri memnuniyeti ve markanızın tanınırlığı için kilit bir faktördür.</p>
-
-<h2>Brüks Optimizasyonu İle Maliyet Verimliliği</h2>
-<p>Kokteyl tariflerinin çoğu şuruplara, meyve sularına ve şekere dayanır. Bu malzemeler, özellikle büyük miktarlarda satın alındığında maliyetlidir. Brüks değerinin ölçülmesi, tatlandırıcıların optimal miktarını belirlemenize ve aynı zamanda <strong>aşırı dozajı önlemenize</strong> olanak tanır. Hassas bir Brüks değeri, tadı olumsuz etkilemeden şeker içeriğini azaltmanızı sağlar; bu da doğrudan maliyet tasarrufu anlamına gelir.</p>
-
-<h3>Pratik Yaklaşım: Tariftten Brüks Hedefine</h3>
-<p>Bir baz tarifle başlayın ve hazır kokteylin Brüks değerini ölçün. Ardından, hem istenen tadı hem de maliyet yapısını göz önünde bulunduran bir hedef Brüks seviyesi belirleyin. Şurup, meyve suyu veya şeker miktarını kademeli olarak ayarlayın ve her ayarlamadan sonra yeniden ölçün. Bu dürtüsel (iteratif) süreç, her seferinde tahmin etmek zorunda kalmadan yeniden üretebileceğiniz <strong>optimize edilmiş bir tarife</strong> ulaşmanızı sağlar.</p>
-
-<h2>Trend Potansiyeli: Brüks Tabanlı Kokteyl Ürünleri</h2>
-<p>Modern kokteyl kültürü, şeffaflığa ve bilimsel temelli hazırlama yöntemlerine giderek daha fazla önem vermektedir. Müşteriler içericin arkasındaki hikayeyi takdir eder – ve Brüks değeri bu hikayenin bir parçası olabilir. Müşteri güvenini artırmak ve <strong>inovatif bir sağlayıcı olarak marka imajınızı</strong> pekiştirmek için içecek menünüzde Brüks değerini paylaşın.</p>
-
-<h3>Örnek: "Brix-Fizz"</h3>
-<p>Brüks değeri tam olarak %10'da tutulan hafif, köpüren bir kokteyl. Bu değeri belirterek, içeceğin narenciyelerin asiditesini ve jinin acılığını dengelemek için tam doğru tatlılığa sahip olduğunu misafirlere açıklayabilirsiniz. Bu tür ayrıntılar, algılanan kaliteyi artırır ve daha yüksek fiyatları haklı kılabilir.</p>
-
-<h2>Günlük Bar İşletiminde Uygulama</h2>
-<p>Brüks değerini etkili bir şekilde kullanmak için şunlara ihtiyacınız var:</p>
-<p><strong>1. Güvenilir Bir Refraktometre:</strong> Ölçüm hatalarını en aza indirmek için otomatik sıcaklık telafisi olan bir cihaza yatırım yapın.</p>
-<p><strong>2. Personel Eğitimi:</strong> Baristaların, sonuçları nasıl yorumlayacaklarını anlayarak ölçümü iş akışlarına entegre etmeleri gerekir.</p>
-<p><strong>3. Dijital Tarif Yönetimi:</strong> Brüks hedeflerini saklayan ve mevcut tariflerinizle ilişkilendiren bir araç kullanın. Bu amaçla, yalnızca maliyet hesabında değil, aynı zamanda malzemeleri gerçek zamanlı olarak ayarlamanızda da size yardımcı olan <a href="/tr/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Reçete Sihirbazı</a> önerilmektedir.</p>
-
-<h3>Tedarik Zinciri ve Ürün Seçimi</h3>
-<p>Şuruplarınızın ve meyve sularınızın kalitesi, Brüks değerini önemli ölçüde etkiler. Ölçüm sapmalarını önlemek için yüksek kaliteli ve tutarlı ürünler kullanın. İş ortağımız <a href="/tr/products/fo" class="text-blue-600 font-semibold hover:underline">FO Kokteyl Şurupları</a>, çalışma hayatınızı kolaylaştıran ve aynı zamanda tat tutarlılığını garantileyen, hassas Brüks değerlerine sahip şurupların geniş bir yelpazesini sunmaktadır.</p>
-
-<h2>Sonuç: Brüks Değeri olarak Stratejik Bir Varlık</h2>
-<p>Brüks değeri, yalnızca teknik bir ölçüm aracı değil, kokteyl sunan her bar, kafe ve restoran için stratejik bir varlıktır. Tatlılığın hassas kontrolü sayesinde maliyetleri düşürebilir, içeceklerinizin kalitesini artırabilir ve güncel trendlerde yer alabilirsiniz. Brüks değerini tarif geliştirme sürecinize entegre edin, ekibinizi eğitin ve yüksek kaliteli şuruplara ulaşın. Böylece daha kârlı, müşteri odaklı ve geleceğe dönük bir HORECA işi oluşturursunuz.</p>
-</file>
-
 <file path="eslint.config.mjs">
 import { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -9280,466 +9181,6 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-</file>
-
-<file path="scratch-check-db.ts">
-import { createClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
-import { resolve } from 'path';
-
-dotenv.config({ path: resolve('.env.local') });
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-async function check() {
-  const { data, error } = await supabase
-    .from('blog_yazilari')
-    .select('slug, title, excerpt, content')
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  if (error) {
-    console.error("DB Error:", error);
-    return;
-  }
-
-  const post = data[0];
-  console.log("Slug:", post.slug);
-  console.log("Title DE:", post.title?.de);
-  console.log("Title TR:", post.title?.tr);
-  console.log("Title AR:", post.title?.ar);
-  
-  console.log("Content TR snippet:", post.content?.tr?.substring(0, 50));
-  console.log("Content AR snippet:", post.content?.ar?.substring(0, 50));
-}
-
-check();
-</file>
-
-<file path="scratch-fix-db.ts">
-import { createClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
-import { resolve } from 'path';
-import { generateObjectWithFallback } from './src/lib/ai/providers';
-import { z } from 'zod';
-
-dotenv.config({ path: resolve('.env.local') });
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-const blogSchema = z.object({
-  slug: z.string().describe('SEO friendly URL in English without special characters'),
-  title: z.string().describe('Makale Başlığı / Article Title'),
-  excerpt: z.string().describe('Kısa Özet / Excerpt'),
-  meta_title: z.string().describe('SEO Meta Başlığı / Meta Title'),
-  meta_description: z.string().describe('SEO Meta Açıklaması / Meta Description'),
-  content: z.string().describe('Makalenin HTML hali / HTML content (e.g. <h2>, <p>)'),
-});
-
-const translatePrompt = (lang: string, code: string, aiName: string, foName: string, deData: any) => `
-      You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
-      Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
-      IMPORTANT: Change the internal links inside the 'content' to match the language code:
-      - Change "/de/barista-ai" to "/${code}/barista-ai" and translate the anchor text to "${aiName}".
-      - Change "/de/products/fo" to "/${code}/products/fo" and translate the anchor text to "${foName}".
-      
-      --- TEXT TO TRANSLATE BELOW ---
-      Slug: ${deData.slug}
-      Title: ${deData.title.de}
-      Excerpt: ${deData.excerpt.de}
-      Meta Title: ${deData.meta_title.de}
-      Meta Description: ${deData.meta_description.de}
-      Content: ${deData.content.de}
-    `;
-
-async function fixPost() {
-  const { data, error } = await supabase
-    .from('blog_yazilari')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  if (error || !data || data.length === 0) {
-    console.error("DB Error:", error);
-    return;
-  }
-
-  const post = data[0];
-  console.log("Fixing post:", post.slug);
-  
-  if (!post.title.tr || post.title.tr.trim() === '') {
-    console.log("Generating TR...");
-    const { object: trData } = await generateObjectWithFallback({ 
-      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları', post),
-      schema: blogSchema,
-      maxTokens: 8192
-    });
-    
-    post.title.tr = trData.title;
-    post.excerpt.tr = trData.excerpt;
-    post.meta_title.tr = trData.meta_title;
-    post.meta_description.tr = trData.meta_description;
-    post.content.tr = trData.content;
-  }
-
-  if (!post.title.ar || post.title.ar.trim() === '') {
-    console.log("Generating AR...");
-    const { object: arData } = await generateObjectWithFallback({ 
-      prompt: translatePrompt('Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO', post),
-      schema: blogSchema,
-      maxTokens: 8192
-    });
-    
-    post.title.ar = arData.title;
-    post.excerpt.ar = arData.excerpt;
-    post.meta_title.ar = arData.meta_title;
-    post.meta_description.ar = arData.meta_description;
-    post.content.ar = arData.content;
-  }
-
-  const { error: updateError } = await supabase
-    .from('blog_yazilari')
-    .update({
-      title: post.title,
-      excerpt: post.excerpt,
-      meta_title: post.meta_title,
-      meta_description: post.meta_description,
-      content: post.content
-    })
-    .eq('id', post.id);
-
-  if (updateError) {
-    console.error("Update Error:", updateError);
-  } else {
-    console.log("Successfully fixed missing translations in DB.");
-  }
-}
-
-fixPost();
-</file>
-
-<file path="scratch-test-ai.ts">
-import { getGeminiModel } from './src/lib/ai/providers';
-import { generateText } from 'ai';
-import * as dotenv from 'dotenv';
-import { resolve } from 'path';
-
-dotenv.config({ path: resolve('.env.local') });
-
-async function check() {
-  const deData = {
-    slug: 'test-slug',
-    title: 'Test Titel',
-    excerpt: 'Test Auszug',
-    meta_title: 'Test Meta Titel',
-    meta_description: 'Test Meta Beschreibung',
-    content: '<p>Dies ist ein Testinhalt in Deutsch.</p>'
-  };
-
-  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
-      You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
-      DO NOT TRANSLATE OR MODIFY THE XML TAGS. You MUST keep the exact same XML tag names.
-      Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
-      IMPORTANT: Change the internal links inside the 'blog_content' to match the language code:
-      - Change "/de/barista-ai" to "/${code}/barista-ai" and translate the anchor text to "${aiName}".
-      - Change "/de/products/fo" to "/${code}/products/fo" and translate the anchor text to "${foName}".
-      
-      OUTPUT ONLY THE XML. DO NOT WRITE ANY EXTRA TEXT.
-      
-      <blog_slug>translated-slug</blog_slug>
-      <blog_title>Translated Title Here</blog_title>
-      <blog_excerpt>Translated Excerpt Here</blog_excerpt>
-      <blog_meta_title>Translated Meta Title Here</blog_meta_title>
-      <blog_meta_description>Translated Meta Description</blog_meta_description>
-      <blog_content><p>Translated HTML content here...</p></blog_content>
-
-      --- TEXT TO TRANSLATE BELOW ---
-      <blog_slug>
-      ${deData.slug}
-      </blog_slug>
-      <blog_title>
-      ${deData.title}
-      </blog_title>
-      <blog_excerpt>
-      ${deData.excerpt}
-      </blog_excerpt>
-      <blog_meta_title>
-      ${deData.meta_title}
-      </blog_meta_title>
-      <blog_meta_description>
-      ${deData.meta_description}
-      </blog_meta_description>
-      <blog_content>
-      ${deData.content}
-      </blog_content>
-    `;
-
-  try {
-    const { text: trText } = await generateText({
-      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
-      maxTokens: 1000,
-      model: getGeminiModel()
-    });
-    console.log("TR RAW OUTPUT:\n", trText);
-  } catch(e) {
-    console.error(e);
-  }
-}
-
-check();
-</file>
-
-<file path="scratch-test-ar.ts">
-import { generateText } from 'ai';
-import { getGeminiModel, groq } from './src/lib/ai/providers';
-import * as dotenv from 'dotenv';
-import { resolve } from 'path';
-
-dotenv.config({ path: resolve('.env.local') });
-
-async function check() {
-  const deData = {
-    slug: 'test-slug',
-    title: 'Wie man die Getränkekosten berechnet',
-    excerpt: 'Ein langer Auszug über Kosten...',
-    meta_title: 'Getränkekosten',
-    meta_description: 'Warum es wichtig ist',
-    content: '<p>Dies ist ein Testinhalt in Deutsch.</p>'
-  };
-
-  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
-You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
-Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
-
-STRICT INSTRUCTIONS:
-- You MUST return the output using the exact === NAME === separators below. 
-- DO NOT translate or modify the separators themselves. 
-- Change internal links to match the language code: "/de/barista-ai" -> "/${code}/barista-ai" (anchor: "${aiName}") and "/de/products/fo" -> "/${code}/products/fo" (anchor: "${foName}").
-
-=== SLUG ===
-translated-slug-here
-=== TITLE ===
-Translated Title Here
-=== EXCERPT ===
-Translated Excerpt Here
-=== META_TITLE ===
-Translated Meta Title Here
-=== META_DESCRIPTION ===
-Translated Meta Description Here
-=== CONTENT ===
-<p>Translated HTML Content Here</p>
-
---- TEXT TO TRANSLATE BELOW ---
-=== SLUG ===
-${deData.slug}
-=== TITLE ===
-${deData.title}
-=== EXCERPT ===
-${deData.excerpt}
-=== META_TITLE ===
-${deData.meta_title}
-=== META_DESCRIPTION ===
-${deData.meta_description}
-=== CONTENT ===
-${deData.content}
-  `;
-
-  try {
-    const { text: arText } = await generateText({
-      prompt: translatePrompt('Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO'),
-      maxTokens: 2000,
-      model: groq('llama-3.1-70b-versatile') // testing with groq to bypass gemini limits
-    });
-    console.log("RAW ARABIC OUTPUT:\n", arText);
-    
-    // Test parsing
-    const getSection = (name: string) => {
-      let regex = new RegExp(`===\\s*${name}\\s*===\\s*([\\s\\S]*?)(?====|$)`, 'i');
-      let match = arText.match(regex);
-      if (match && match[1].trim()) return match[1].trim();
-      return '';
-    };
-    
-    console.log("Parsed TITLE:", getSection('TITLE'));
-    
-  } catch(e) {
-    console.error(e);
-  }
-}
-
-check();
-</file>
-
-<file path="scratch-test-regex.ts">
-function parseTextBlocks(text: string) {
-  const getSection = (name: string) => {
-    const regex = new RegExp(`\\[SECTION:\\s*${name}\\]\\s*([\\s\\S]*?)(?=\\[SECTION:|$)`, 'i');
-    const match = text.match(regex);
-    return match ? match[1].trim() : '';
-  };
-  return {
-    slug: getSection('SLUG'),
-    title: getSection('TITLE'),
-    excerpt: getSection('EXCERPT'),
-    content: getSection('CONTENT'),
-    meta_title: getSection('META_TITLE'),
-    meta_description: getSection('META_DESCRIPTION')
-  };
-}
-
-const fakeAiOutput = `
-Here is the requested translation:
-
-[SECTION: SLUG]
-translated-slug
-[SECTION: TITLE]
-Çevrilmiş Başlık
-[SECTION: EXCERPT]
-Çevrilmiş özet
-[SECTION: META_TITLE]
-Meta Başlık
-[SECTION: META_DESCRIPTION]
-Meta Açıklama
-[SECTION: CONTENT]
-<p>Html content here</p>
-
-Hope this helps!
-`;
-
-console.log(parseTextBlocks(fakeAiOutput));
-</file>
-
-<file path="scratch-test-separators.ts">
-import { generateText } from 'ai';
-import { getGroqModel } from './src/lib/ai/providers';
-import * as dotenv from 'dotenv';
-import { resolve } from 'path';
-
-dotenv.config({ path: resolve('.env.local') });
-
-async function check() {
-  const deData = {
-    slug: 'test-slug',
-    title: 'Brix-Wert im Cocktail: Warum er für Baristas unverzichtbar ist',
-    excerpt: 'Ein langer Auszug über Brix...',
-    meta_title: 'Brix-Wert im Cocktail',
-    meta_description: 'Warum er für Baristas unverzichtbar ist',
-    content: '<p>Dies ist ein Testinhalt in Deutsch. ' + 'Sehr lang '.repeat(10) + '</p>'
-  };
-
-  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
-You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
-Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
-
-STRICT INSTRUCTIONS:
-- You MUST return the output using the exact separators below. 
-- DO NOT translate or modify the separators themselves. 
-
-<<<SLUG>>>
-translated-slug-here
-<<<TITLE>>>
-Translated Title Here
-<<<EXCERPT>>>
-Translated Excerpt Here
-<<<META_TITLE>>>
-Translated Meta Title Here
-<<<META_DESCRIPTION>>>
-Translated Meta Description Here
-<<<CONTENT>>>
-<p>Translated HTML Content Here</p>
-
---- TEXT TO TRANSLATE BELOW ---
-<<<SLUG>>>
-${deData.slug}
-<<<TITLE>>>
-${deData.title}
-<<<EXCERPT>>>
-${deData.excerpt}
-<<<META_TITLE>>>
-${deData.meta_title}
-<<<META_DESCRIPTION>>>
-${deData.meta_description}
-<<<CONTENT>>>
-${deData.content}
-  `;
-
-  try {
-    const { text: trText } = await generateText({
-      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
-      maxTokens: 2000,
-      model: getGroqModel('llama-3.1-70b-versatile')
-    });
-    console.log("RAW OUTPUT:\n", trText);
-    
-    // Test parsing
-    const getSection = (name: string) => {
-      const regex = new RegExp(`<<<${name}>>>\\s*([\\s\\S]*?)(?:<<<|$)`, 'i');
-      const match = trText.match(regex);
-      return match ? match[1].trim() : '';
-    };
-    
-    console.log("Parsed TITLE:", getSection('TITLE'));
-    console.log("Parsed CONTENT snippet:", getSection('CONTENT').substring(0, 50));
-    
-  } catch(e) {
-    console.error(e);
-  }
-}
-
-check();
-</file>
-
-<file path="scratch-test-variations.ts">
-function parseTextBlocks(text: string) {
-  const getSection = (name: string) => {
-    let regex = new RegExp(`(?:\\[|\\])SECTION:\\s*${name}(?:\\[|\\])\\s*([\\s\\S]*?)(?=(?:\\[|\\])SECTION:|$)`, 'i');
-    let match = text.match(regex);
-    if (match && match[1].trim()) return match[1].trim();
-
-    regex = new RegExp(`\\b${name}:\\s*([\\s\\S]*?)(?=\\b(?:SLUG|TITLE|EXCERPT|CONTENT|META_TITLE|META_DESCRIPTION):|$)`, 'i');
-    match = text.match(regex);
-    return match ? match[1].trim() : '';
-  };
-  return {
-    title: getSection('TITLE')
-  };
-}
-
-console.log("Test 1:", parseTextBlocks(`[SECTION: TITLE] My title`));
-console.log("Test 2:", parseTextBlocks(`[ SECTION: TITLE ] My title`));
-console.log("Test 3:", parseTextBlocks(`[SECTION:TITLE] My title`));
-console.log("Test 4:", parseTextBlocks(`[SECTION : TITLE] My title`));
-console.log("Test 5:", parseTextBlocks(`[SECTION: TITLE]
-My title
-[SECTION: EXCERPT]`));
-
-console.log("Test 6 fallback:", parseTextBlocks(`
-TITLE: My title
-EXCERPT: short
-`));
-</file>
-
-<file path="scratch-trigger-ai.ts">
-import fetch from 'node-fetch';
-
-async function trigger() {
-  console.log("Triggering API...");
-  const res = await fetch('http://localhost:3000/api/admin/generate-blog', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topic: "Kafelerde personel eğitimi ve verimlilik" })
-  });
-  const data = await res.json();
-  console.log("Result:", data);
-}
-
-trigger();
 </file>
 
 <file path="tsconfig.json">
@@ -10034,173 +9475,6 @@ export const boardAgentMap: Record<string, Agent> = {
 };
 </file>
 
-<file path="src/lib/ai/board/crew.ts">
-import { generateText } from 'ai';
-import { getGroqModel, getGeminiModel } from '../providers';
-
-// ------------------------------------------------------------------
-// 1. Core Interfaces mimicking CrewAI Architecture
-// ------------------------------------------------------------------
-
-export interface AgentConfig {
-  role: string;
-  goal: string;
-  backstory: string;
-  temperature?: number;
-}
-
-export interface TaskConfig {
-  description: string;
-  expectedOutput: string;
-  agent: Agent;
-}
-
-// ------------------------------------------------------------------
-// 2. Agent Class
-// ------------------------------------------------------------------
-
-export class Agent {
-  public role: string;
-  public goal: string;
-  public backstory: string;
-  public temperature: number;
-
-  constructor(config: AgentConfig) {
-    this.role = config.role;
-    this.goal = config.goal;
-    this.backstory = config.backstory;
-    this.temperature = config.temperature ?? 0.3;
-  }
-
-  /**
-   * Generates the system prompt tailored to the CrewAI methodology.
-   */
-  public getSystemPrompt(): string {
-    return `Senin Rolün (Role): ${this.role}\n\nHedefin (Goal): ${this.goal}\n\nGeçmişin ve Karakterin (Backstory): ${this.backstory}\n\nSen, Elyson Sweets (Almanya) için çalışan uzman bir yönetim kurulu üyesisin. Halüsinasyon yapmadan, doğrudan hedefe odaklanan net analizler yaparsın. Gereksiz nezaket kelimeleri kullanma, doğrudan konuya gir. Çıktılarını her zaman beklenen çıktıya (Expected Output) uygun formatta vermelisin.`;
-  }
-}
-
-// ------------------------------------------------------------------
-// 3. Task Class
-// ------------------------------------------------------------------
-
-export class Task {
-  public description: string;
-  public expectedOutput: string;
-  public agent: Agent;
-  public result: string | null = null;
-
-  constructor(config: TaskConfig) {
-    this.description = config.description;
-    this.expectedOutput = config.expectedOutput;
-    this.agent = config.agent;
-  }
-}
-
-// ------------------------------------------------------------------
-// 4. Crew (Orchestrator) Class
-// ------------------------------------------------------------------
-
-export interface CrewConfig {
-  tasks: Task[];
-  onStepComplete?: (task: Task, result: string) => Promise<void>;
-}
-
-export class Crew {
-  private tasks: Task[];
-  private onStepComplete?: (task: Task, result: string) => Promise<void>;
-
-  constructor(config: CrewConfig) {
-    this.tasks = config.tasks;
-    this.onStepComplete = config.onStepComplete;
-  }
-
-  private async sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Executes the task via the Agent using Vercel AI SDK with Rate Limit protection.
-   */
-  private async executeTask(task: Task, context: string, attempt = 1): Promise<string> {
-    const prompt = `GÖREV (TASK):\n${task.description}\n\nBEKLENEN ÇIKTI (EXPECTED OUTPUT):\n${task.expectedOutput}\n\nŞU ANA KADARKİ TOPLANTI BAĞLAMI:\n${context || 'Bu ilk görevdir. Toplantıyı başlatan ve çerçeveyi çizen sizsiniz.'}`;
-    
-    // Everyone uses Groq since the Gemini API key provided is not compatible with standard models.
-    const activeModel = getGroqModel('openai/gpt-oss-120b');
-    const fallbackModel = getGroqModel('qwen/qwen3.8-27b');
-
-    // Throttle for Groq limits (TPM) -> wait 12 seconds between calls to stretch out the TPM bucket over a minute.
-    await this.sleep(12000);
-
-    try {
-      const { text } = await generateText({
-        model: activeModel,
-        system: task.agent.getSystemPrompt(),
-        prompt: prompt,
-        temperature: task.agent.temperature,
-        maxTokens: 800,
-      });
-      return text.trim();
-    } catch (error: any) {
-      const errorMessage = error?.message || String(error);
-      console.warn(`[Crew] Error executing task for ${task.agent.role} (Attempt ${attempt}):`, errorMessage);
-
-      if (attempt <= 2) {
-        await this.sleep(15000); // Exponential backoff waiting for TPM reset
-        try {
-          const { text } = await generateText({
-            model: fallbackModel,
-            system: task.agent.getSystemPrompt(),
-            prompt: prompt,
-            temperature: task.agent.temperature,
-            maxTokens: 800,
-          });
-          return `[Yedek Sistem Yanıtı] ${text.trim()}`;
-        } catch (retryError) {
-          console.error(`[Crew] Fallback failed for ${task.agent.role}.`);
-        }
-      }
-
-      return `[${task.agent.role} şu anda bu görevi sistem yoğunluğu sebebiyle tamamlayamadı. Diğer ekiplerin devam etmesi uygundur.]`;
-    }
-  }
-
-  /**
-   * Kicks off the Crew operation sequentially.
-   */
-  public async kickoff(): Promise<{ finalResult: string, history: Task[] }> {
-    let contextForDirectors = ''; // Truncated context to save TPM limit
-    let contextForCEO = '';       // Full context for the CEO to make the final decision
-    
-    for (const task of this.tasks) {
-      const isCEO = task.agent.role === 'ceo';
-      const currentContext = isCEO ? contextForCEO : contextForDirectors;
-
-      const result = await this.executeTask(task, currentContext);
-      task.result = result;
-      
-      // Update contexts
-      // Directors only see a heavily summarized version to prevent massive token usage (300 chars)
-      const shortResultForDirectors = result.length > 300 ? result.substring(0, 300) + '... (Özetlendi)' : result;
-      contextForDirectors += `\n\n--- [Bölüm: ${task.agent.role}] ---\nGÖREV ÇIKTISI:\n${shortResultForDirectors}\n`;
-      
-      // CEO gets a longer version but STILL truncated (1000 chars) to prevent Groq TPM bucket overflow on a single request
-      const shortResultForCEO = result.length > 1000 ? result.substring(0, 1000) + '... (Detaylar sistemde kayıtlıdır, bu kısımdan sonrasını özet kabul et.)' : result;
-      contextForCEO += `\n\n--- [Bölüm: ${task.agent.role}] ---\nGÖREV ÇIKTISI:\n${shortResultForCEO}\n`;
-
-      if (this.onStepComplete) {
-        await this.onStepComplete(task, result);
-      }
-    }
-
-    return {
-      finalResult: this.tasks[this.tasks.length - 1].result || '',
-      history: this.tasks
-    };
-  }
-}
-</file>
-
 <file path="src/lib/ai/board/engine.ts">
 import { boardAgentMap, AgentRole } from './agents';
 import { Task, Crew } from './crew';
@@ -10308,6 +9582,63 @@ export async function runBoardMeeting(config: BoardMeetingConfig) {
     sessionId,
     summary: finalResult,
     notes: meetingNotes,
+  };
+}
+</file>
+
+<file path="src/lib/ai/prompts/blog-prompt.ts">
+export function buildBlogGenerationPrompt(topic: string, currentMonth: string): string {
+  return `Sen Avrupa'nın en saygın Master Barista'sı, Miksoloji Uzmanı ve B2B HoReCa Danışmanısın.
+Şu anki mevsim/ay: ${currentMonth}. İçeriği bu mevsime uygun tüketim alışkanlıklarına göre şekillendir.
+
+Konu: "${topic}"
+
+Bana bu konu hakkında ALMANCA (German) dilinde ÇOK DETAYLI, UZUN ve PROFESYONEL bir blog yazısı hazırla.
+
+KURALLAR:
+1. Şirket adını KESİNLİKLE bitişik olarak **Elysonsweets** şeklinde yaz.
+2. Ürünlerden bahsederken KESİNLİKLE **FO Şurupları** (FO Sirupe / FO Syrups) terimini kullan.
+3. Rakiplerin (Monin, 1883 Routin, DaVinci, Giffard vb.) isimlerini KESİNLİKLE KULLANMA. DO NOT mention competitors like Monin, 1883 Routin, DaVinci, Giffard.
+4. Jenerik yapay zeka girişleri kullanma. Doğrudan teknik bilgiye, kârlılığa (Gewinnmarge), reçete maliyetlerine ve müşteri memnuniyetine odaklan.
+5. İçerikte mutlaka <h2> ve <h3> başlıkları, <p> paragrafları ve <strong> vurguları kullan (HTML formatında).
+6. İç linkleme için içerikte şunları doğal şekilde geçir:
+   - Reçete aracı için: <a href="/de/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Rezept-Assistent</a>
+   - Ürün tedariki için: <a href="/de/products/fo" class="text-blue-600 font-semibold hover:underline">FO Cocktail Sirupe</a>
+
+Çıktıyı KESİNLİKLE JSON formatında ver. JSON formatı aşağıdaki gibi olmalıdır:
+{
+  "slug": "seo-friendly-url-in-english-without-special-characters",
+  "title": "...",
+  "excerpt": "...",
+  "content": "<p>...</p>",
+  "meta_title": "...",
+  "meta_description": "..."
+}
+Sadece geçerli bir JSON string döndür, markdown formatında (${"```"}json ... ${"```"}) yazma.`;
+}
+</file>
+
+<file path="src/lib/ai/prompts/topic-generator.ts">
+import { generateTextWithFallback } from '@/lib/ai/providers';
+
+export async function generateSeasonalTopic(): Promise<{ topic: string, currentMonthName: string }> {
+  const currentMonth = new Date().getMonth();
+  const monthNames = [
+    "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", 
+    "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+  ];
+  const currentMonthName = monthNames[currentMonth];
+
+  const prompt = `Şu anki ay: ${currentMonthName}. Avrupa'daki kafeler, restoranlar ve oteller (HoReCa) için bu mevsime ve yaklaşan trendlere en uygun, B2B kârlılık odaklı 1 adet blog konusu belirle. Sadece konunun başlığını dön.`;
+
+  const { text: generatedTopic } = await generateTextWithFallback({
+    prompt,
+    temperature: 0.8,
+  });
+
+  return { 
+    topic: generatedTopic.trim(), 
+    currentMonthName 
   };
 }
 </file>
@@ -11732,6 +11063,71 @@ export const BLOG_POSTS: BlogPost[] = [
         tags: ['Kahve', 'Barista', 'Fo Şurup', 'HORECA']
     }
 ];
+</file>
+
+<file path="src/lib/blog-images.ts">
+export const WINTER_IMAGES = [
+  "https://images.unsplash.com/photo-1542475027-e435e0c5f214?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1495474472201-44401d81f26f?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1556740767-414a9c4860c1?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1675435644687-562e8042b9db?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1674327105074-46dd8319164b?q=80&w=2000&auto=format&fit=crop"
+];
+
+export const SUMMER_IMAGES = [
+  "https://images.unsplash.com/photo-1499638673689-79a0b5115d87?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1461023058943-07cb1ce8dd44?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1677000666461-fbefa43c2c7f?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1609951651556-5334e2706168?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1657313666513-70770d329ef4?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1670333183316-ab697ddd9b13?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1570598912132-0ba1dc952b7d?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1500217052183-bc01eee1a74e?q=80&w=2000&auto=format&fit=crop"
+];
+
+export const GENERAL_B2B_IMAGES = [
+  "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1497515114629-f71d768fd07c?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1521017430055-14446c65b93d?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1588697666995-1f9df881f19f?q=80&w=2000&auto=format&fit=crop", 
+  "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1556742526-795a8eac090e?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1673545518947-ddf3240090b1?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1610632380989-680fe40816c6?q=80&w=2000&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1677607237201-64668c2266ab?q=80&w=2000&auto=format&fit=crop"
+];
+
+export function getSeasonalBlogImage(month: number): string {
+  let selectedPool: string[] = GENERAL_B2B_IMAGES;
+  
+  if ([10, 11, 0, 1, 2].includes(month)) {
+    selectedPool = WINTER_IMAGES;
+  } 
+  else if ([4, 5, 6, 7, 8].includes(month)) {
+    selectedPool = SUMMER_IMAGES;
+  }
+  
+  // Mix it up slightly with general images so it feels less repetitive
+  if (Math.random() > 0.8) {
+    selectedPool = GENERAL_B2B_IMAGES;
+  }
+  
+  const randomIndex = Math.floor(Math.random() * selectedPool.length);
+  return selectedPool[randomIndex];
+}
 </file>
 
 <file path="src/lib/category-tree.ts">
@@ -13538,6 +12934,122 @@ USING (
 );
 </file>
 
+<file path="debug-ar.txt">
+[SECTION: SLUG]
+qimmiyah-al-brix-fi-al-makhtalat-lamma-hiya-ghayr-mustaghna-anah-lahum-al-barista
+[SECTION: TITLE]
+درجة بريكس في المشروبات المختلطة: لماذا لا غنى عنها للباريستات
+[SECTION: EXCERPT]
+تُعد درجة بريكس أداة القياس الأساسية لتحديد مستوى حلاوة الشرابات والمشروبات المختلطة. اكتشف كيف يستخدم الباريستات هذه الدرجة بشكل استراتيجي لتحسين النكهة والقوام وهوامش الربح- ودور <a href="/ar/barista-ai" class="text-blue-600 font-semibold hover:underline">مساعد وصفات باريستا الذكي</a> و<span class="text-blue-600 font-semibold hover:underline"><a href="/ar/products/fo">شراب كوكتيل FO</a></span> في تحقيق ذلك.
+[SECTION: META_TITLE]
+درجة بريكس في المشروبات المختلطة - غنيمة عن الباريستات | نصائح للربح والاتجاهات
+[SECTION: META_DESCRIPTION]
+اكتشف لماذا تُعد درجة بريكس ضرورة ملحة للباريستات. دليل عملي، استراتيجيات لتعظيم الأرباح، وأفضل الأدوات مثل مساعد باريستا الذكي وشراب FO للمشروبات المختلطة لنجاحك في قطاع الضيافة.
+[SECTION: CONTENT]
+<p>في مشهد قطاع الاستضافة والمطاعم (HORECA) الحالي، حيث يبتغي المستهلكون تجارب مذاقية بدقة متزايدة، تصبح <strong>درجة بريكس</strong> معياراً جوهرياً لمراقبة الجودة. بالنسبة للباريستات الذين لا يقتصر دورهم على تقديم القهوة فقط، بل يقدّمون أيضاً مفاهيم مشروبات مختلطة إبداعية، لم يعد فهم هذا المؤشر خياراً، بل أصبح عاملاً تنافسياً حقيقياً.</p>
+
+<h2>ما هي درجة بريكس ولماذا هي مهمة؟</h2>
+<p>تُمثّل درجة بريكس نسبة المواد الصلبة المذابة - والسكر هو المكوّن الأساسي - في السائل، وتُقاس درجات بريكس (°Bx). قيمة تساوي 10 °Bx تعني أن 10% من المحلول يتكوّن من السكر. عملياً، يتيح هذا الرقم <strong>معايرة دقيقة</strong> للشرابات، عصائر الفاكهة، والمكونات الحلوة الأخرى المستخدمة في المشروبات المختلطة.</p>
+
+<h3>ثبات النكهة عبر جميع الطبقات</h3>
+<p>يجعل الثبات في درجة بريكس المشروب المختلط يحتفظ بنفس مستوى الحلاوة من الطبقة الأولى حتى الأخيرة. وهذا أمر بالغ الأهمية عند تحضير عدة حصص مسبقاً أو عند تقديم إصدارات موسمية خاصة. بدون هذه السيطرة، قد تتفاوت الحلاوة من دفعة إنتاج إلى أخرى، مما قد يؤدي إلى إزعاج الضيوف وتلقي تقييمات سلبية عبر الإنترنت.</p>
+
+<h3>شفافية التكاليف وتحسين هوامش الربح</h3>
+<p>من خلال القياس الدقيق لدرجة بريكس، يمكنك تحديد نسبة السكر في شراباتك بدقة، مما يتيح لك حساب <strong>تكاليف الإنتاج</strong> بشكل أفضل. على سبيل المثال، عند تحضير شراب بتركيز 30 °Bx، تعرف بالضبط كمية السكر اللازمة وتجنب عمليات الشراء الخاطئة. تؤدي هذه الدقة إلى هامش ربح أعلى، لأنك تشتري كميات أقل من السكر الفائض مع الحفاظ على عمق النكهة المطلوب.</p>
+
+<h2>التطبيق العملي لدرجة بريكس في يوميات العمل البار</h2>
+<p>استخدام جهاز قياس بريكس في غاية البساطة، لكنه يتطلب اتباع منهج منظم. أولاً، قم بقياس درجة بريكس لشرابك الأساسي. ثم اضبط التركيز عن طريق إضافة الماء أو شراب إضافي حتى تصل إلى القيمة المطلوبة. يمكن أتمتة هذه العملية بأسلوب مثالي باستخدام <a href="/ar/barista-ai" class="text-blue-600 font-semibold hover:underline">مساعد وصفات باريستا الذكي</a>، الذي لا يقترح عليك فقط القيمة المستهدفة المثلى لدرجة بريكس، بل يحسب أيضاً الكميات الدقيقة لكل مكوّن.</p>
+
+<h3>الدمج مع أنظمة إدارة الوصفات</h3>
+<p>تتيح أنظمة إدارة المنازل حديثة النسخ حفظ قراءات بريكس كجزء من الوصفة. وبذلك يمكنك إنشاء ملف رقمي لكل نسخة من مشروب مختلط، يشمل درجة بريكس الدقيقة، قائمة المكوّنات، وخطوات التحضير. عند الحاجة إلى تحضير المشروب من قبل موظف جديد، يمكنه استرجاع الوصفة بنقرة واحدة، مما يضمن مطابقة المنتج النهائي لمعايير الجودة.</p>
+
+<h2>اتجاهات تركز اهتماماً متزايداً على درجة بريكس</h2>
+<p>يرفع الاتجاه الحالي نحو <strong>المشروبات المختلطة منخفضة السكر</strong> وال حلاوة الطبيعية من أهمية قراءة درجة بريكس. يطالب العملاء بالشفافية: يريدون معرفة كمية السكر في مشروبهم. من خلال ذكر درجة بريكس على بطاقة المشروبات، يمكنك بناء الثقة مع تعزيز خبرتك المهنية.</p>
+
+<h3>الشرابات الطبيعية وملحقات الحلاوة البدائل</h3>
+<p>يلجأ عدد متزايد من المقاهي إلى استخدام <a href="/ar/products/fo" class="text-blue-600 font-semibold hover:underline">شراب كوكتيل FO</a>، الذي يتم صنعه من فواكه طبيعية وسكر يخضع لمعالجة محدودة. تتمتع هذه الشرابات بدرجة بريكس محددة مسبقاً يسهل دمجها في وصفاتك. وبدمجها مع مساعد الباريستا الذكي، يمكنك حتى تجربة تراكيب نكهات جديدة دون المخاطرة بحلاوة غير متجانسة.</p>
+
+<h2>نصائح عملية لمالك الحانات والمقاهي</h2>
+<p>1. <strong>استثمر في ميزان انكسار ضوئي (Refractometer) موثوق</strong>. توفر الأجهزة الرقمية الحديثة دقة قياس تصل إلى ±0.1 °Bx ويمكن دمجها بسلاسة في إجراءات البيع اليومية.</p>
+<p>2. <strong>وحّد وصفات شراباتك</strong> بناءً على درجة بريكس، بدلاً من الاعتماد على مخططات الحجم فقط. يقلل هذا من التذبذبات ويزيد من الانتظام.</p>
+<p>3. <strong>استغل مساعد وصفات الباريستا الذكي</strong> لحساب كميات المكوّنات وللضبط الآلي عند أي تغيير في قيمة بريكس المستهدفة.</p>
+<p>4. <strong>اذكر درجة بريكس</strong> في بطاقة مشروباتك أو قائمة طعامك الرقمية لكسب ثقة العملاء المهتمين بالصحة.</p>
+<p>5. <strong>قُسّ مع الموردين</strong> حول شرائب تتمتع بدرجة بريكس مستوفاة مسبقاً- فهذا يوفر وقت المعايرة ويقلل من الهدر.</p>
+
+<h2>الخلاصة</h2>
+<p>إن درجة بريكس ليست مجرد مدخل تقني، لكنها أداة استراتيجية تساعد الباريستات على تعظيم <strong>ثبات النكهة</strong>، <strong>فحص التكاليف</strong>، و<strong>ثقة العملاء</strong>. ومن خلال الجمع بين القياس الدقيق، أدوات الوصفات الرقمية مثل <a href="/ar/barista-ai" class="text-blue-600 font-semibold hover:underline">مساعد وصفات الباريستا الذكي</a>، ومنتجات عالية الجودة مثل <span class="text-blue-600 font-semibold hover:underline"><a href="/ar/products/fo">شراب كوكتيل FO</a></span>، يمكنك تحديث قائمتك لتصبح أكثر ربحية. استخدم درجة بريكس بشكل موجّه، وشاهد كيف اكتسبت بطاقة مشروباتك جودة وجاذبية- وهذا فائد ضيوفك وشركتك.</p>
+</file>
+
+<file path="debug-en.txt">
+[SECTION: SLUG]
+brix-value-in-cocktail-why-indispensable-for-baristas
+[SECTION: TITLE]
+Brix Value in Cocktails: Why It Is Essential for Baristas
+[SECTION: EXCERPT]
+The Brix value is the central measurement tool for the sweetness of syrups and mixed drinks. Learn how baristas use it deliberately to optimize flavor, consistency, and profit margins – and what role the <a href="/en/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Recipe Assistant</a> and the <a href="/en/products/fo" class="text-blue-600 font-semibold hover:underline">FO Cocktail Syrups</a> play.
+[SECTION: META_TITLE]
+Brix Value in Cocktails – Essential for Baristas | Tips for Profit and Trends
+[SECTION: META_DESCRIPTION]
+Discover why the Brix value is a must for baristas. Practical guides, profit strategies, and the best tools like Barista AI and FO Cocktail Syrups for your success in the HORECA sector.
+[SECTION: CONTENT]
+<p>In today’s HORECA landscape, where consumers demand increasingly precise taste experiences, the <strong>Brix value</strong> becomes a decisive quality characteristic. For baristas who not only serve coffee but also offer creative cocktail concepts, understanding this measurement is no longer optional, but a real competitive factor.</p>
+
+<h2>What Is the Brix Value and Why Is It Relevant?</h2>
+<p>The Brix value indicates the proportion of dissolved solids—mainly sugar—in a liquid and is measured in degrees Brix (°Bx). A value of 10 °Bx means that 10 % of the solution consists of sugar. In practice, this value enables exact calibration of syrups, fruit juices, and other sweet components used in cocktails.</p>
+
+<h3>Flavor Consistency Across All Layers</h3>
+<p>A constant Brix value ensures that a cocktail maintains the same sweetness from the first to the last layer. This is especially important when you prepare multiple servings in advance or offer seasonal special editions. Without this control, sweetness can vary from batch to batch, leading to dissatisfied guests and negative online reviews.</p>
+
+<h3>Cost Transparency and Margin Optimization</h3>
+<p>By accurately measuring the Brix value, you can determine the sugar content of your syrups precisely and thus calculate production costs more accurately. For example, if you
+</file>
+
+<file path="debug-tr.txt">
+[SECTION: SLUG]
+kokteyldeki-brix-degeri-neden-baristalar-icin-vasagadir
+[SECTION: TITLE]
+Kokteylerde Brix Değeri: Neden Baristalar İçin Vazgeçilmezdir?
+[SECTION: EXCERPT]
+Brix değeri, şurupların ve karışık içeceklerin tatlılık seviyesini ölçmek için kullanılan merkezi bir araçtır. Baristaların bunu nasıl hedefli bir şekilde kullanarak lezzeti, tutarlılığı ve kârlılığı optimize ettiklerini keşfedin; ayrıca <a href="/tr/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Reçete Sihirbazı</a>'nın ve <a href="/tr/products/fo" class="text-blue-600 font-semibold hover:underline">FO Kokteyl Şurupları</a>'nın bu süreçteki rolünü öğrenin.
+[SECTION: META_TITLE]
+Kokteylerde Brix Değeri – Baristalar İçin Vazgeçilmez | Kâr ve Trend İpuçları
+[SECTION: META_DESCRIPTION]
+Brix değerinin neden baristalar için şart olduğunu keşfedin. HORECA sektöründeki başarınız için pratik rehberler, kârlılık stratejileri ve Barista AI ile FO Kokteyl Şurupları gibi en iyi araçlar.
+[SECTION: CONTENT]
+<p>Bugünün HORECA sektöründe, tüketicilerin giderek daha da hassas ve kesin lezzet deneyimleri aradığı bir dönemde, <strong>Brix değeri</strong> kritik bir kalite göstergesi haline gelmektedir. Sadece kahve değil, yaratıcı kokteyl konseptleri de sunan baristalar için bu ölçümün anlaşılması artık bir seçenek değil, gerçek bir rekabet avantajıdır.</p>
+
+<h2>Brix Değeri Nedir ve Neden Önemlidir?</h2>
+<p>Brix değeri, bir sıvıdaki çözünmüş katıların - ağırlıklı olarak şekerin - oranını gösterir ve Brix derece (°Bx) cinsinden ölçülür. 10 °Bx değeri, çözeltinin %10'unun şekerden oluştuğu anlamına gelmektedir. Uygulamada bu değer, kokteyllerde kullanılan şurupların, meyve sularının ve diğer tatlı bileşenlerin <strong>kesin kalibrasyonunu</strong> mümkün kılar.</p>
+
+<h3>Tüm Katmanlarda Lezzet Tutarlılığı</h3>
+<p>Sabit bir Brix değeri, bir kokteylin ilk damlasından son damlasına kadar aynı tatlılığa sahip olmasını sağlar. Bu, birden fazla porsiyonu önceden hazırlarken veya mevsimsel özel seriler sunarken özellikle önemlidir. Bu kontrolün yokluğunda, tatlılık oransız partiden partiye değişebilir; bu da memnuniyetsiz misafirlere ve olumsuz çevrimiçi yorumlara yol açabilir.</p>
+
+<h3>Maliyet Şeffaflığı ve Marj optimizasyonu</h3>
+<p>Brix değerinin hassas ölçümü sayesinde, şuruplarınızdaki şeker içeriğini kesin olarak belirleyebilir ve böylece <strong>üretim maliyetlerini</strong> daha iyi hesaplayabilirsiniz. Örneğin, 30 °Bx'lik bir şurup hazırlarken ne kadar şeker gerektiğini tam olarak bilir ve gereksiz alımlardan kaçınabilirsiniz. İstenen lezzet derinliğini korurken fazla şeker satın alınmaması, kâr marjınızın yükselmesini sağlar.</p>
+
+<h2>Günlük Barista İşlerinde Brix Değerinin Pratik Uygulaması</h2>
+<p>Brix ölçerinin kullanımı son derece kolaydır ancak sistematik bir yaklaşım gerektirir. Önce temel şurubunuzun Brix değerini ölçün. Ardından, istenen değere ulaşana kadar su veya ek şurup ekleyerek konsantrasyonu ayarlayın. Bu süreç, <a href="/tr/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Reçete Sihirbazı</a> ile ideal olarak otomatikleştirilebilir; bu araç size yalnızca optimal Brix hedef değerini önermekle kalmaz, aynı zamanda her malzeme için kesin miktarları da hesaplar.</p>
+
+<h3>Reçete Yönetimine Entegrasyon</h3>
+<p>Moderner bar yönetim sistemleri, Brix değerlerini reçetenin bir parçası olarak saklamanıza olanak tanır. Bu sayede her kokteyl varyantı için tam Brix değerini, malzeme listesini ve hazırlama adımlarını içeren bir dijital profil oluşturabilirsiniz. Yeni bir çalışan kokteyli yeniden karıştırmak zorunda kaldığında, tek bir tıklamayla reçeteye erişebilir ve nihai ürünün kalite standartlarına uygunluğunu sağlayabilir.</p>
+
+<h2>Brix Değerini Öne Çıkaran Trendler</h2>
+<p>Güncel <strong>Düşük Şekerli Kokteyller</strong> ve doğal tatlandırıcılara olan trend, Brix değerinin önemini artırmaktadır. Müşteriler şeffaflık talep ediyor: İçeceklerinde ne kadar şeker olduğunu bilmek istiyorlar. İçecek menülerinde Brix değerini belirterek güven oluşturabilir ve aynı zamanda uzmanlığınızı sergileyebilirsiniz.</p>
+
+<h3>Doğal Şuruplar ve Alternatif Tatlandırıcılar</h3>
+<p>Artık daha fazla kafe, doğal meyvelerden ve minimum işlenmiş şekerden üretilen <a href="/tr/products/fo" class="text-blue-600 font-semibold hover:underline">FO Kokteyl Şurupları</a>'na yöneliyor. Bu şuruplar, standart olarak tanımlanmış bir Brix değerine sahiptir ve reçetelerinize kolayca entegre edilebilir. Barista AI ile birleştirildiğinde, düzensiz tatlılık riskini almadan yeni lezzet kombinasyonlarını test edebilirsiniz.</p>
+
+<h2>Bar ve Kafe İşletmecileri İçin Uygulanabilir İpuçları</h2>
+<p>1. <strong>Güvenilir bir refraktometre satın alın</strong>. Modern dijital cihazlar ±0,1 °Bx ölçüm hassasiyeti sunar ve günlük iş akışına sorunsuz şekilde entegre edilebilir.</p>
+<p>2. Sadece hacim ölçümlerine güvenilecektense, şurup reçetelerinizi Brix değerleri temelinde <strong>standartlaştırın</strong>. Bu, dalgalanmaları azaltır ve tutarlılığı artırır.</p>
+<p>3. Malzeme miktarlarının hesaplanması ve Brix hedef değerindeki değişikliklerde otomatik ayarlamalar için <strong>Barista AI Reçete Sihirbazı</strong>'nı kullanın.</p>
+<p>4. Sağlık bilincine sahip müşterilerin güvenini kazanmak için içecek menünüzde veya çevrimiçi menünüzde <strong>Brix değerini belirtin</strong>.</p>
+<p>5. Zaten test edilmiş ve onaylanmış bir Brix değerine sahip şuruplar konusunda <strong>tedarikçilerle müzakere edin</strong> – bu, kalibrasyon için harcanan zamanı kısaltır ve israfı azaltır.</p>
+
+<h2>Sonuç</h2>
+<p>Brix değeri, yalnızca teknik bir ölçüm değeri olmakla kalmaz; aynı zamanda baristaların <strong>lezzet tutarlılığını</strong>, <strong>maliyet verimliliğini</strong> ve <strong>müşteri güvenini</strong> maksimize etmesine yardımcı olan stratejik bir araçtır. Hassas ölçüm, <a href="/tr/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Reçete Sihirbazı</a> gibi dijital reçete araçları ve <a href="/tr/products/fo" class="text-blue-600 font-semibold hover:underline">FO Kokteyl Şurupları</a> gibi yüksek kaliteli ürünlerin birleştirilmesi ile teklifinizi hem modernleştirebilir hem de daha kârlı hale getirebilirsiniz. Brix değerini stratejik olarak kullanın ve içecek menünüzün kalite ve cazibe kazanışını izleyin – misafirleriniz ve işletmeniz için bir avantaj olarak.</p>
+</file>
+
 <file path="header.md">
 # BAĞLAM (CONTEXT)
 Bu görev, `elysonsweets.de` projesinin ana navigasyon (Header) bileşeninin yeniden tasarlanması ve kodlanmasını kapsar. 
@@ -13670,6 +13182,466 @@ Bu görev, `elysonsweets.de` projesinin SEO/GEO (Generative Engine Optimization)
 - **LOKALİZASYON:** Eklenen tüm yeni linkler (Footer ve Portal içindekiler dahil) kesinlikle `/${locale}/...` formatında olmalıdır. Hardcoded `/de/` yazmak yasaktır.
 </file>
 
+<file path="scratch-check-db.ts">
+import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+
+dotenv.config({ path: resolve('.env.local') });
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+async function check() {
+  const { data, error } = await supabase
+    .from('blog_yazilari')
+    .select('slug, title, excerpt, content')
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  if (error) {
+    console.error("DB Error:", error);
+    return;
+  }
+
+  const post = data[0];
+  console.log("Slug:", post.slug);
+  console.log("Title DE:", post.title?.de);
+  console.log("Title TR:", post.title?.tr);
+  console.log("Title AR:", post.title?.ar);
+  
+  console.log("Content TR snippet:", post.content?.tr?.substring(0, 50));
+  console.log("Content AR snippet:", post.content?.ar?.substring(0, 50));
+}
+
+check();
+</file>
+
+<file path="scratch-fix-db.ts">
+import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+import { generateObjectWithFallback } from './src/lib/ai/providers';
+import { z } from 'zod';
+
+dotenv.config({ path: resolve('.env.local') });
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+const blogSchema = z.object({
+  slug: z.string().describe('SEO friendly URL in English without special characters'),
+  title: z.string().describe('Makale Başlığı / Article Title'),
+  excerpt: z.string().describe('Kısa Özet / Excerpt'),
+  meta_title: z.string().describe('SEO Meta Başlığı / Meta Title'),
+  meta_description: z.string().describe('SEO Meta Açıklaması / Meta Description'),
+  content: z.string().describe('Makalenin HTML hali / HTML content (e.g. <h2>, <p>)'),
+});
+
+const translatePrompt = (lang: string, code: string, aiName: string, foName: string, deData: any) => `
+      You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
+      Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
+      IMPORTANT: Change the internal links inside the 'content' to match the language code:
+      - Change "/de/barista-ai" to "/${code}/barista-ai" and translate the anchor text to "${aiName}".
+      - Change "/de/products/fo" to "/${code}/products/fo" and translate the anchor text to "${foName}".
+      
+      --- TEXT TO TRANSLATE BELOW ---
+      Slug: ${deData.slug}
+      Title: ${deData.title.de}
+      Excerpt: ${deData.excerpt.de}
+      Meta Title: ${deData.meta_title.de}
+      Meta Description: ${deData.meta_description.de}
+      Content: ${deData.content.de}
+    `;
+
+async function fixPost() {
+  const { data, error } = await supabase
+    .from('blog_yazilari')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  if (error || !data || data.length === 0) {
+    console.error("DB Error:", error);
+    return;
+  }
+
+  const post = data[0];
+  console.log("Fixing post:", post.slug);
+  
+  if (!post.title.tr || post.title.tr.trim() === '') {
+    console.log("Generating TR...");
+    const { object: trData } = await generateObjectWithFallback({ 
+      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları', post),
+      schema: blogSchema,
+      maxTokens: 8192
+    });
+    
+    post.title.tr = trData.title;
+    post.excerpt.tr = trData.excerpt;
+    post.meta_title.tr = trData.meta_title;
+    post.meta_description.tr = trData.meta_description;
+    post.content.tr = trData.content;
+  }
+
+  if (!post.title.ar || post.title.ar.trim() === '') {
+    console.log("Generating AR...");
+    const { object: arData } = await generateObjectWithFallback({ 
+      prompt: translatePrompt('Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO', post),
+      schema: blogSchema,
+      maxTokens: 8192
+    });
+    
+    post.title.ar = arData.title;
+    post.excerpt.ar = arData.excerpt;
+    post.meta_title.ar = arData.meta_title;
+    post.meta_description.ar = arData.meta_description;
+    post.content.ar = arData.content;
+  }
+
+  const { error: updateError } = await supabase
+    .from('blog_yazilari')
+    .update({
+      title: post.title,
+      excerpt: post.excerpt,
+      meta_title: post.meta_title,
+      meta_description: post.meta_description,
+      content: post.content
+    })
+    .eq('id', post.id);
+
+  if (updateError) {
+    console.error("Update Error:", updateError);
+  } else {
+    console.log("Successfully fixed missing translations in DB.");
+  }
+}
+
+fixPost();
+</file>
+
+<file path="scratch-test-ai.ts">
+import { getGeminiModel } from './src/lib/ai/providers';
+import { generateText } from 'ai';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+
+dotenv.config({ path: resolve('.env.local') });
+
+async function check() {
+  const deData = {
+    slug: 'test-slug',
+    title: 'Test Titel',
+    excerpt: 'Test Auszug',
+    meta_title: 'Test Meta Titel',
+    meta_description: 'Test Meta Beschreibung',
+    content: '<p>Dies ist ein Testinhalt in Deutsch.</p>'
+  };
+
+  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
+      You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
+      DO NOT TRANSLATE OR MODIFY THE XML TAGS. You MUST keep the exact same XML tag names.
+      Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
+      IMPORTANT: Change the internal links inside the 'blog_content' to match the language code:
+      - Change "/de/barista-ai" to "/${code}/barista-ai" and translate the anchor text to "${aiName}".
+      - Change "/de/products/fo" to "/${code}/products/fo" and translate the anchor text to "${foName}".
+      
+      OUTPUT ONLY THE XML. DO NOT WRITE ANY EXTRA TEXT.
+      
+      <blog_slug>translated-slug</blog_slug>
+      <blog_title>Translated Title Here</blog_title>
+      <blog_excerpt>Translated Excerpt Here</blog_excerpt>
+      <blog_meta_title>Translated Meta Title Here</blog_meta_title>
+      <blog_meta_description>Translated Meta Description</blog_meta_description>
+      <blog_content><p>Translated HTML content here...</p></blog_content>
+
+      --- TEXT TO TRANSLATE BELOW ---
+      <blog_slug>
+      ${deData.slug}
+      </blog_slug>
+      <blog_title>
+      ${deData.title}
+      </blog_title>
+      <blog_excerpt>
+      ${deData.excerpt}
+      </blog_excerpt>
+      <blog_meta_title>
+      ${deData.meta_title}
+      </blog_meta_title>
+      <blog_meta_description>
+      ${deData.meta_description}
+      </blog_meta_description>
+      <blog_content>
+      ${deData.content}
+      </blog_content>
+    `;
+
+  try {
+    const { text: trText } = await generateText({
+      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
+      maxTokens: 1000,
+      model: getGeminiModel()
+    });
+    console.log("TR RAW OUTPUT:\n", trText);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+check();
+</file>
+
+<file path="scratch-test-ar.ts">
+import { generateText } from 'ai';
+import { getGeminiModel, groq } from './src/lib/ai/providers';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+
+dotenv.config({ path: resolve('.env.local') });
+
+async function check() {
+  const deData = {
+    slug: 'test-slug',
+    title: 'Wie man die Getränkekosten berechnet',
+    excerpt: 'Ein langer Auszug über Kosten...',
+    meta_title: 'Getränkekosten',
+    meta_description: 'Warum es wichtig ist',
+    content: '<p>Dies ist ein Testinhalt in Deutsch.</p>'
+  };
+
+  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
+You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
+Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
+
+STRICT INSTRUCTIONS:
+- You MUST return the output using the exact === NAME === separators below. 
+- DO NOT translate or modify the separators themselves. 
+- Change internal links to match the language code: "/de/barista-ai" -> "/${code}/barista-ai" (anchor: "${aiName}") and "/de/products/fo" -> "/${code}/products/fo" (anchor: "${foName}").
+
+=== SLUG ===
+translated-slug-here
+=== TITLE ===
+Translated Title Here
+=== EXCERPT ===
+Translated Excerpt Here
+=== META_TITLE ===
+Translated Meta Title Here
+=== META_DESCRIPTION ===
+Translated Meta Description Here
+=== CONTENT ===
+<p>Translated HTML Content Here</p>
+
+--- TEXT TO TRANSLATE BELOW ---
+=== SLUG ===
+${deData.slug}
+=== TITLE ===
+${deData.title}
+=== EXCERPT ===
+${deData.excerpt}
+=== META_TITLE ===
+${deData.meta_title}
+=== META_DESCRIPTION ===
+${deData.meta_description}
+=== CONTENT ===
+${deData.content}
+  `;
+
+  try {
+    const { text: arText } = await generateText({
+      prompt: translatePrompt('Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO'),
+      maxTokens: 2000,
+      model: groq('llama-3.1-70b-versatile') // testing with groq to bypass gemini limits
+    });
+    console.log("RAW ARABIC OUTPUT:\n", arText);
+    
+    // Test parsing
+    const getSection = (name: string) => {
+      let regex = new RegExp(`===\\s*${name}\\s*===\\s*([\\s\\S]*?)(?====|$)`, 'i');
+      let match = arText.match(regex);
+      if (match && match[1].trim()) return match[1].trim();
+      return '';
+    };
+    
+    console.log("Parsed TITLE:", getSection('TITLE'));
+    
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+check();
+</file>
+
+<file path="scratch-test-regex.ts">
+function parseTextBlocks(text: string) {
+  const getSection = (name: string) => {
+    const regex = new RegExp(`\\[SECTION:\\s*${name}\\]\\s*([\\s\\S]*?)(?=\\[SECTION:|$)`, 'i');
+    const match = text.match(regex);
+    return match ? match[1].trim() : '';
+  };
+  return {
+    slug: getSection('SLUG'),
+    title: getSection('TITLE'),
+    excerpt: getSection('EXCERPT'),
+    content: getSection('CONTENT'),
+    meta_title: getSection('META_TITLE'),
+    meta_description: getSection('META_DESCRIPTION')
+  };
+}
+
+const fakeAiOutput = `
+Here is the requested translation:
+
+[SECTION: SLUG]
+translated-slug
+[SECTION: TITLE]
+Çevrilmiş Başlık
+[SECTION: EXCERPT]
+Çevrilmiş özet
+[SECTION: META_TITLE]
+Meta Başlık
+[SECTION: META_DESCRIPTION]
+Meta Açıklama
+[SECTION: CONTENT]
+<p>Html content here</p>
+
+Hope this helps!
+`;
+
+console.log(parseTextBlocks(fakeAiOutput));
+</file>
+
+<file path="scratch-test-separators.ts">
+import { generateText } from 'ai';
+import { getGroqModel } from './src/lib/ai/providers';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+
+dotenv.config({ path: resolve('.env.local') });
+
+async function check() {
+  const deData = {
+    slug: 'test-slug',
+    title: 'Brix-Wert im Cocktail: Warum er für Baristas unverzichtbar ist',
+    excerpt: 'Ein langer Auszug über Brix...',
+    meta_title: 'Brix-Wert im Cocktail',
+    meta_description: 'Warum er für Baristas unverzichtbar ist',
+    content: '<p>Dies ist ein Testinhalt in Deutsch. ' + 'Sehr lang '.repeat(10) + '</p>'
+  };
+
+  const translatePrompt = (lang: string, code: string, aiName: string, foName: string) => `
+You are a professional translator and copywriter. Translate the following text from German to ${lang}. 
+Translate the entire title, excerpt, and HTML content accurately and fluently into ${lang}. Do not leave German words in the title or content.
+
+STRICT INSTRUCTIONS:
+- You MUST return the output using the exact separators below. 
+- DO NOT translate or modify the separators themselves. 
+
+<<<SLUG>>>
+translated-slug-here
+<<<TITLE>>>
+Translated Title Here
+<<<EXCERPT>>>
+Translated Excerpt Here
+<<<META_TITLE>>>
+Translated Meta Title Here
+<<<META_DESCRIPTION>>>
+Translated Meta Description Here
+<<<CONTENT>>>
+<p>Translated HTML Content Here</p>
+
+--- TEXT TO TRANSLATE BELOW ---
+<<<SLUG>>>
+${deData.slug}
+<<<TITLE>>>
+${deData.title}
+<<<EXCERPT>>>
+${deData.excerpt}
+<<<META_TITLE>>>
+${deData.meta_title}
+<<<META_DESCRIPTION>>>
+${deData.meta_description}
+<<<CONTENT>>>
+${deData.content}
+  `;
+
+  try {
+    const { text: trText } = await generateText({
+      prompt: translatePrompt('Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
+      maxTokens: 2000,
+      model: getGroqModel('llama-3.1-70b-versatile')
+    });
+    console.log("RAW OUTPUT:\n", trText);
+    
+    // Test parsing
+    const getSection = (name: string) => {
+      const regex = new RegExp(`<<<${name}>>>\\s*([\\s\\S]*?)(?:<<<|$)`, 'i');
+      const match = trText.match(regex);
+      return match ? match[1].trim() : '';
+    };
+    
+    console.log("Parsed TITLE:", getSection('TITLE'));
+    console.log("Parsed CONTENT snippet:", getSection('CONTENT').substring(0, 50));
+    
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+check();
+</file>
+
+<file path="scratch-test-variations.ts">
+function parseTextBlocks(text: string) {
+  const getSection = (name: string) => {
+    let regex = new RegExp(`(?:\\[|\\])SECTION:\\s*${name}(?:\\[|\\])\\s*([\\s\\S]*?)(?=(?:\\[|\\])SECTION:|$)`, 'i');
+    let match = text.match(regex);
+    if (match && match[1].trim()) return match[1].trim();
+
+    regex = new RegExp(`\\b${name}:\\s*([\\s\\S]*?)(?=\\b(?:SLUG|TITLE|EXCERPT|CONTENT|META_TITLE|META_DESCRIPTION):|$)`, 'i');
+    match = text.match(regex);
+    return match ? match[1].trim() : '';
+  };
+  return {
+    title: getSection('TITLE')
+  };
+}
+
+console.log("Test 1:", parseTextBlocks(`[SECTION: TITLE] My title`));
+console.log("Test 2:", parseTextBlocks(`[ SECTION: TITLE ] My title`));
+console.log("Test 3:", parseTextBlocks(`[SECTION:TITLE] My title`));
+console.log("Test 4:", parseTextBlocks(`[SECTION : TITLE] My title`));
+console.log("Test 5:", parseTextBlocks(`[SECTION: TITLE]
+My title
+[SECTION: EXCERPT]`));
+
+console.log("Test 6 fallback:", parseTextBlocks(`
+TITLE: My title
+EXCERPT: short
+`));
+</file>
+
+<file path="scratch-trigger-ai.ts">
+import fetch from 'node-fetch';
+
+async function trigger() {
+  console.log("Triggering API...");
+  const res = await fetch('http://localhost:3000/api/admin/generate-blog', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic: "Kafelerde personel eğitimi ve verimlilik" })
+  });
+  const data = await res.json();
+  console.log("Result:", data);
+}
+
+trigger();
+</file>
+
 <file path="seo-navigation-plan.md">
 # TASK BLUEPRINT: SEO & GEO Navigation Architecture Update
 **Context:** We need to optimize the Header and Footer navigation for B2B SEO, Silo Architecture, and GEO (Generative Engine Optimization) without breaking the existing UI/Tailwind design or i18n structure.
@@ -13720,6 +13692,62 @@ If the translations for these new footer links do not exist in the central dicti
 Ensure there are no TypeScript errors.
 Ensure the mobile menu (if applicable) reflects the new Header links.
 Do not modify any other files outside of the Header and Footer components.
+</file>
+
+<file path="seo-plan-seasonal-blog-optimization.md">
+# BAĞLAM (CONTEXT)
+Bu görev, `elysonsweets.de` projesinin otomatik blog oluşturma (AI Blog Generation) altyapısını, Google'ın "Helpful Content" ve GEO (Generative Engine Optimization) algoritmalarına tam uyumlu hale getirmek için yeniden yapılandırılmasını kapsar.
+
+**SEO Uzmanının Stratejik Kararları ve Düzeltmeler:**
+1. **Mevsimsel ve Trend Odaklı İçerik (Seasonal Topical Authority):** Google Discover ve AI Overviews, zamanlaması doğru olan (timely) içerikleri öne çıkarır. Kışın ortasında "teras kokteylleri" yazmak SEO açısından intihardır. AI'a mevcut ay ve mevsim bilgisi dinamik olarak verilecek; içerikler yaklaşan trendlere (örn: Kasım ayında "Kış Menüsü ve Zencefilli Latte", Mayıs ayında "Soğuk Demleme ve Frappe") göre otomatik belirlenecektir.
+2. **Marka Kimliği Düzeltmeleri:** Şirket adı kesinlikle bitişik olarak **"Elysonsweets"** yazılacaktır. Şurup markası için "Premium" ön eki zorunlu tutulmayacak, hem standart hem premium serileri kapsayacak şekilde sadece **"FO Şurupları"** (FO Sirupe / FO Syrups) terimi kullanılacaktır.
+3. **Görsel Havuzunun Mevsime Göre Ayrılması:** Rastgele görsel seçimi yerine; görseller "Sıcak İçecekler/Kış", "Soğuk İçecekler/Yaz" ve "Genel B2B/Depo" olarak kategorize edilecek ve mevsime uygun görsel çekilecektir.
+
+**Etkilenecek Dosyalar:**
+- `src/lib/ai/prompts/topic-generator.ts` (Yeni - Mevsimsel konu belirleyici)
+- `src/lib/ai/prompts/blog-prompt.ts` (Güncellenecek - Master Barista Persona)
+- `src/lib/blog-images.ts` (Yeni - Kategorize edilmiş görsel havuzu)
+- `src/app/api/cron/auto-blog/route.ts` (Cron job API'si)
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Mevsimsel Görsel Havuzunun Oluşturulması**
+  - `src/lib/blog-images.ts` dosyasını oluştur.
+  - Görselleri kategorilere ayır: `WINTER_IMAGES` (Sıcak çikolata, latte art, tarçınlı içecekler), `SUMMER_IMAGES` (Frappe, buzlu kokteyller, soğuk demleme), `GENERAL_B2B_IMAGES` (Barista çalışırken, depo, toptan kutular).
+  - `getSeasonalBlogImage(month: number)` adında bir fonksiyon yaz. Ay bilgisine göre (Örn: 11, 12, 1, 2 -> Kış; 5, 6, 7, 8 -> Yaz) ilgili havuzdan rastgele yüksek çözünürlüklü bir görsel URL'si dönsün.
+
+- [ ] **Adım 2: Dinamik ve Mevsimsel Konu Üretici (Topic Generator) Yazılması**
+  - `src/lib/ai/prompts/topic-generator.ts` dosyasını oluştur.
+  - `generateSeasonalTopic()` adında bir fonksiyon yaz. Bu fonksiyon sistemin o anki tarihini (`new Date().getMonth()`) alarak AI'a şu promptu göndersin:
+    *"Şu anki ay: [Mevcut Ay]. Avrupa'daki kafeler, restoranlar ve oteller (HoReCa) için bu mevsime ve yaklaşan trendlere en uygun, B2B kârlılık odaklı 1 adet blog konusu belirle. Sadece konunun başlığını dön."*
+
+- [ ] **Adım 3: Master Barista & HoReCa Uzmanı Prompt'unun Revize Edilmesi**
+  - `src/lib/ai/prompts/blog-prompt.ts` dosyasını oluştur/güncelle.
+  - `buildBlogGenerationPrompt(topic: string, currentMonth: string)` fonksiyonunu yaz.
+  - **Prompt İçeriği (Çok Sıkı Kurallar):**
+    - "Sen Avrupa'nın en saygın Master Barista'sı, Miksoloji Uzmanı ve B2B HoReCa Danışmanısın."
+    - "Şu anki mevsim/ay: {currentMonth}. İçeriği bu mevsime uygun tüketim alışkanlıklarına göre şekillendir."
+    - "Şirket adını KESİNLİKLE bitişik olarak **Elysonsweets** şeklinde yaz."
+    - "Ürünlerden bahsederken KESİNLİKLE **FO Şurupları** (FO Sirupe / FO Syrups) terimini kullan."
+    - "Rakiplerin (Monin, 1883 Routin, DaVinci, Giffard vb.) isimlerini KESİNLİKLE KULLANMA."
+    - "Jenerik yapay zeka girişleri kullanma. Doğrudan teknik bilgiye, kârlılığa (Gewinnmarge), reçete maliyetlerine ve müşteri memnuniyetine odaklan."
+    - "Çıktıyı KESİNLİKLE JSON formatında ver: `{ slug, title: {de, en, tr, ar}, excerpt: {de, en, tr, ar}, content: {de, en, tr, ar}, meta_title: {de, en, tr, ar}, meta_description: {de, en, tr, ar} }`"
+
+- [ ] **Adım 4: Cron Job (Auto-Blog) API'sinin İki Aşamalı Hale Getirilmesi**
+  - `src/app/api/cron/auto-blog/route.ts` dosyasını aç.
+  - İş akışını şu şekilde güncelle:
+    1. `generateSeasonalTopic()` fonksiyonunu çağırarak mevsime uygun trend konuyu al.
+    2. Bu konuyu `buildBlogGenerationPrompt` içine vererek asıl makaleyi (JSON) ürettir.
+    3. `getSeasonalBlogImage(currentMonth)` fonksiyonunu çağırarak mevsime uygun görseli al ve AI'ın JSON'ına `image_url` olarak ekle (AI'ın görsel uydurmasını engelle).
+    4. Supabase `blog_yazilari` tablosuna kaydet.
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
+
+- **MARKA YAZIMI:** "Elyson Sweets" (ayrı) yazımı kesinlikle yasaktır. Sadece "Elysonsweets" kullanılacaktır.
+- **ÜRÜN YAZIMI:** "Premium FO Şurupları" zorunluluğu yoktur. Sadece "FO Şurupları" (FO Sirupe) kullanılacaktır.
+- **MEVSİMSEL TUTARLILIK:** Kış aylarında soğuk içecek, yaz aylarında sıcak içecek makalesi üretilmesi GEO (Generative Engine Optimization) açısından spam sinyali yaratır. Tarih/Ay context'i AI'a kesinlikle geçilmelidir.
+- **GÖRSEL HALÜSİNASYONU YASAKTIR:** AI'ın `image_url` üretmesine kesinlikle izin verilmeyecek. Görseller her zaman `src/lib/blog-images.ts` içindeki mevsime duyarlı havuzdan seçilecek.
+- **RAKİP İSİMLERİ YASAKTIR:** Prompt içine "DO NOT mention competitors like Monin, 1883 Routin, DaVinci, Giffard" kuralı büyük harflerle eklenecek.
 </file>
 
 <file path="SMART_DMS_PROMPTS.md">
@@ -13883,35 +13911,53 @@ CREATE POLICY "Kullanicilar kendi taleplerini ekleyebilir" ON public.urun_talepl
 -- Adminler her seyi yapabilir (Gerekiyorsa, projeye gore admin rolune izin verebilirsiniz)
 </file>
 
-<file path="tailwind.config.ts">
-// tailwind.config.ts
+<file path="test-unsplash.js">
+const https = require('https');
 
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+const pools = {
+  coffee: [
+    '1556740767-414a9c4860c1', '1675435644687-562e8042b9db', '1509042239860-f550ce710b93',
+    '1447933601403-0c6688de566e', '1674327105074-46dd8319164b', '1541167760496-1628856ab772',
+    '1511920170033-f8396924c348', '1556742526-795a8eac090e', '1673545518947-ddf3240090b1',
+    '1495474472287-4d71bcdd2085', '1610632380989-680fe40816c6', '1677607237201-64668c2266ab',
+    '1553292218-4892c2e7e1ae', '1611162458324-aae1eb4129a4', '1502462041640-b3d7e50d0662'
   ],
-  theme: {
-    extend: {
-      colors: {
-        primary: '#2B2B2B',       // Ana Renk (Antrasit)
-        secondary: '#FAF9F6',    // İkincil Renk (Krem Arka Plan)
-        accent: '#C69F6B',        // Vurgu Rengi (Altın)
-        'text-main': '#3D3D3D',     // Ana Metin Rengi
-        'bg-subtle': '#EAE8E1',     // Hafif Arka Plan
-      },
-      fontFamily: {
-        sans: ['var(--font-lato)', 'sans-serif'],
-        serif: ['var(--font-playfair)', 'serif'],
-      },
-    },
-  },
-  plugins: [],
+  cocktail: [
+    '1677000666461-fbefa43c2c7f', '1609951651556-5334e2706168', '1657313666513-70770d329ef4',
+    '1514362545857-3bc16c4c7d1b', '1670333183316-ab697ddd9b13', '1551024709-8f23befc6f87',
+    '1570598912132-0ba1dc952b7d', '1500217052183-bc01eee1a74e', '1671647122910-3fa8ab4990cb'
+  ],
+  mocktail: [
+    '1536935338788-846bb2268fbb', '1595981267035-7b04d84b48ae', '1670270203164-aa65468a9c67',
+    '1615887023516-9b6bcd559e87', '1586338211598-e2d64cf97e28', '1568644396922-5c3bfae12521'
+  ],
+  smoothie: [
+    '1505252585461-04db1eb84625', '1628557044797-f8ea2b1263c9', '1615478503562-b2d5c6439e7c',
+    '1589187635677-2fb07845f3c1', '1570598912132-0ba1dc952b7d', '1500217052183-bc01eee1a74e'
+  ]
+};
+
+async function main() {
+  for (const [cat, ids] of Object.entries(pools)) {
+    console.log('\nCategory: ' + cat);
+    const valid = [];
+    for (const id of ids) {
+      try {
+        const res = await fetch('https://images.unsplash.com/photo-' + id + '?auto=format&fit=crop&w=800&q=80', { method: 'HEAD' });
+        if (res.ok || res.status === 200) {
+          valid.push(id);
+        } else {
+          console.log('[INVALID] ' + id + ' - Status: ' + res.status);
+        }
+      } catch (e) {
+        console.log('[ERROR] ' + id + ' - ' + e.message);
+      }
+    }
+    console.log('Valid IDs for ' + cat + ': ', valid);
+  }
 }
-export default config
+
+main();
 </file>
 
 <file path="update_gami.js">
@@ -14340,252 +14386,171 @@ export function useVisitPlanner() {
 }
 </file>
 
-<file path="src/lib/i18n/pages.ts">
-/**
- * Merkezi sayfa çevirileri — Blog, Rezept, Barista-AI sayfaları için
- * 4 dil: de | en | tr | ar
- */
+<file path="src/lib/ai/board/crew.ts">
+import { generateText } from 'ai';
+import { getGroqModel, getGeminiModel } from '../providers';
 
-export type Locale = 'de' | 'en' | 'tr' | 'ar';
+// ------------------------------------------------------------------
+// 1. Core Interfaces mimicking CrewAI Architecture
+// ------------------------------------------------------------------
 
-// ─── Blog ────────────────────────────────────────────────────────────────────
-export const blogListingT = {
-  de: {
-    pageTitle: 'B2B HORECA Wissen & News',
-    metaTitle: 'B2B HORECA Blog & Branchen-News | Elysonsweets',
-    metaDesc: 'Aktuelle Trends, Cocktail-Rezepte und B2B-Insights für die Gastronomie.',
-    readMore: 'Weiterlesen →',
-  },
-  en: {
-    pageTitle: 'B2B HORECA Knowledge & News',
-    metaTitle: 'B2B HORECA Blog & Industry News | Elysonsweets',
-    metaDesc: 'Latest trends, cocktail recipes, and B2B insights for the gastronomy sector.',
-    readMore: 'Read more →',
-  },
-  tr: {
-    pageTitle: 'B2B HORECA Bilgi & Haberler',
-    metaTitle: 'B2B HORECA Blog & Sektörel Haberler | Elysonsweets',
-    metaDesc: 'Gastronomi sektörü için en son trendler, kokteyl tarifleri ve B2B içgörüleri.',
-    readMore: 'Devamını Oku →',
-  },
-  ar: {
-    pageTitle: 'معرفة وأخبار B2B HORECA',
-    metaTitle: 'مدونة B2B HORECA وأخبار الصناعة | Elysonsweets',
-    metaDesc: 'أحدث الاتجاهات ووصفات الكوكتيل ورؤى B2B لقطاع فن الطهو.',
-    readMore: 'اقرأ المزيد ←',
-  },
-} as const;
+export interface AgentConfig {
+  role: string;
+  goal: string;
+  backstory: string;
+  temperature?: number;
+}
 
-export const blogDetailT = {
-  de: { by: 'Von' },
-  en: { by: 'By' },
-  tr: { by: 'Yazan:' },
-  ar: { by: 'بقلم' },
-} as const;
+export interface TaskConfig {
+  description: string;
+  expectedOutput: string;
+  agent: Agent;
+}
 
-// ─── Recipes ─────────────────────────────────────────────────────────────────
-export const recipesListingT = {
-  de: {
-    metaTitle: 'Elysonsweets Rezept-Bibliothek | Professionelle Getränke-Inspiration',
-    metaDesc: 'Entdecken Sie professionelle Cocktail-, Mocktail- und Kaffeerezepte mit Premium-Produkten von Elysonsweets.',
-    pageTitle: 'Elysonsweets Rezept-Bibliothek',
-    pageDesc: 'Professionelle Getränke-Inspiration und Expertenrezepte für Ihr Café, Ihre Bar oder Ihr Restaurant.',
-    ctaBadge: 'EIGENES KONZEPT',
-    ctaTitle: 'Erstellen Sie Ihr Signature-Rezept',
-    ctaDesc: 'Geben Sie Ihre Zutaten ein und lassen Sie unseren Assistenten individuelle Rezepte und PDF-Menükarten für Ihr Café erstellen.',
-    ctaButton: 'Rezept-Assistent starten',
-    allCategories: 'Alle',
-    noRecipesTitle: 'Noch keine Rezepte in dieser Kategorie.',
-    noRecipesDesc: 'Schauen Sie bald wieder vorbei oder wählen Sie eine andere Kategorie.',
-    minLabel: 'Min.',
-    searchPlaceholder: 'Zutat oder Rezept suchen... (z.B.: Karamell, Frappe)',
-    sortNewest: 'Neueste',
-    sortPopular: 'Beliebteste',
-    usedProduct: 'Verwendetes Produkt:',
-  },
-  en: {
-    metaTitle: 'Elysonsweets Recipe Library | Professional Beverage Inspiration',
-    metaDesc: 'Discover professional cocktail, mocktail, and coffee recipes crafted with premium supplies from Elysonsweets.',
-    pageTitle: 'Elysonsweets Recipe Library',
-    pageDesc: 'Professional beverage inspiration and expert recipes for your cafe, bar, or restaurant.',
-    ctaBadge: 'CUSTOM CONCEPT',
-    ctaTitle: 'Create Your Signature Recipe',
-    ctaDesc: 'Enter your ingredients and let our wizard create custom recipes and PDF menus specifically for your cafe.',
-    ctaButton: 'Launch Recipe Wizard',
-    allCategories: 'All',
-    noRecipesTitle: 'No recipes found for this category yet.',
-    noRecipesDesc: 'Check back soon or try another category.',
-    minLabel: 'min',
-    searchPlaceholder: 'Search ingredient or recipe... (e.g., Caramel, Frappe)',
-    sortNewest: 'Newest',
-    sortPopular: 'Most Popular',
-    usedProduct: 'Used Product:',
-  },
-  tr: {
-    metaTitle: 'Elysonsweets Reçete Kütüphanesi | Profesyonel İçecek İlhami',
-    metaDesc: 'Elysonsweets premium ürünleriyle hazırlanan profesyonel kokteyl, mocktail ve kahve tariflerini keşfedin.',
-    pageTitle: 'Elysonsweets Reçete Kütüphanesi',
-    pageDesc: 'Kafeniz, barunuz veya restoranınız için profesyonel içecek ilhami ve uzman tarifleri.',
-    ctaBadge: 'ÖZEL KONSEPT',
-    ctaTitle: 'Kendi İmza Reçetenizi Yaratın',
-    ctaDesc: 'Sihirbazımızla elinizdeki malzemeleri girin, kafenize özel tarifler ve hazır PDF menüler oluşturalım.',
-    ctaButton: 'Reçete Sihirbazını Başlat',
-    allCategories: 'Tümü',
-    noRecipesTitle: 'Bu kategoride henüz reçete bulunamadı.',
-    noRecipesDesc: 'Yakında tekrar kontrol edin veya başka bir kategori seçin.',
-    minLabel: 'dk',
-    searchPlaceholder: 'Malzeme veya reçete ara... (Örn: Karamel, Frappe)',
-    sortNewest: 'En Yeniler',
-    sortPopular: 'En Çok Beğenilenler',
-    usedProduct: 'Kullanılan Ürün:',
-  },
-  ar: {
-    metaTitle: 'مكتبة وصفات Elysonsweets | إلهام المشروبات الاحترافية',
-    metaDesc: 'اكتشف وصفات الكوكتيل والموكتيل والقهوة الاحترافية المُعدَّة بمنتجات Elysonsweets المتميزة.',
-    pageTitle: 'مكتبة وصفات Elysonsweets',
-    pageDesc: 'إلهام مشروبات احترافي ووصفات خبراء لمقهاك أو بارك أو مطعمك.',
-    ctaBadge: 'مفهوم مخصص',
-    ctaTitle: 'أنشئ وصفتك الحصرية',
-    ctaDesc: 'أدخل مكوناتك ودع المعالج يبتكر وصفات مخصصة وقوائم PDF لمقهاك.',
-    ctaButton: 'تشغيل صانع الوصفات',
-    allCategories: 'الكل',
-    noRecipesTitle: 'لا توجد وصفات في هذه الفئة بعد.',
-    noRecipesDesc: 'تفقد مرة أخرى قريباً أو جرب فئة أخرى.',
-    minLabel: 'دقيقة',
-    searchPlaceholder: 'ابحث عن مكون أو وصفة... (مثل: كراميل، فرابيه)',
-    sortNewest: 'الأحدث',
-    sortPopular: 'الأكثر شعبية',
-    usedProduct: 'المنتج المستخدم:',
-  },
-} as const;
+// ------------------------------------------------------------------
+// 2. Agent Class
+// ------------------------------------------------------------------
 
-// ─── Barista AI ──────────────────────────────────────────────────────────────
-export const recipeWizardT = {
-  de: {
-    metaTitle: 'Barista Rezept-Assistent – Signature Drinks | Elysonsweets',
-    metaDesc: 'Kreieren Sie professionelle Signature-Drink-Rezepte für Ihr Café und laden Sie diese als Menükarte herunter. Mit Premium FO Sirupen.',
-    schemaName: 'Elysonsweets Barista Rezept-Assistent',
-    schemaDesc: 'Ein professioneller Rezept-Assistent für Cafés und Barkeeper. Erstellen Sie individuelle Signature Drinks und PDF-Menükarten mit FO Sirupen.',
-    badgeLabel: 'Gourmet Rezeptur-Atelier',
-    headline1: 'Barista ',
-    headline2: 'Rezept-Assistent',
-    subline: 'Geben Sie Ihre Zutaten und Ihr Konzept an. Unser Barista-Experte kreiert exklusive Signature Drinks mit FO Sirupen für Ihr Café. Laden Sie Ihr Menü sofort als PDF herunter.',
-    // Form
-    formTitle: 'Rezept-Assistent',
-    labelCafeName: 'Name des Cafés (Optional)',
-    labelIngredients: 'Vorhandene Zutaten *',
-    placeholderIngredients: 'Espresso, Milch, Hafermilch, Erdbeeren...',
-    labelConcept: 'Konzept / Thema *',
-    placeholderConcept: 'Sommerliche Eiskaffees, Alkoholfreie Cocktails...',
-    btnGenerate: 'Signature Rezepte erstellen',
-    btnGenerating: 'Wird generiert...',
-    // Results
-    waiting: 'Unser Barista-Experte wartet auf Ihre Bestellung...',
-    menuTitle: 'Ihr individuelles Menü',
-    btnPdf: 'PDF herunterladen',
-    btnPdfLoading: 'Wird erstellt...',
-    labelIngr: 'Zutaten',
-    labelInstr: 'Zubereitung',
-    labelCategory: 'Kategorie',
-    // PDF Footer
-    pdfFooter: 'Dieses exklusive Rezept wurde mit professionellen FO-Produkten nach Barista-Standards kreiert.',
-    // Validation / Errors
-    errorRequired: 'Bitte füllen Sie die Pflichtfelder aus.',
-    errorApi: 'Ein Fehler ist aufgetreten.',
-    errorPdf: 'Fehler beim Erstellen der PDF.',
-    successPdf: 'PDF heruntergeladen!',
-  },
-  en: {
-    metaTitle: 'Barista Recipe Wizard – Signature Drinks | Elysonsweets',
-    metaDesc: 'Create professional signature drink recipes for your café and download them as a menu card. With premium FO syrups.',
-    schemaName: 'Elysonsweets Barista Recipe Wizard',
-    schemaDesc: 'A professional recipe assistant for cafes and bartenders. Create custom signature drinks and PDF menu cards with FO syrups.',
-    badgeLabel: 'Gourmet Recipe Atelier',
-    headline1: 'Barista ',
-    headline2: 'Recipe Wizard',
-    subline: 'Specify your ingredients and concept. Our barista expert will create exclusive signature drinks with FO syrups for your café. Download your menu instantly as PDF.',
-    formTitle: 'Recipe Wizard',
-    labelCafeName: 'Café Name (Optional)',
-    labelIngredients: 'Available Ingredients *',
-    placeholderIngredients: 'Espresso, Milk, Oat Milk, Strawberries...',
-    labelConcept: 'Concept / Theme *',
-    placeholderConcept: 'Summer iced coffees, Non-alcoholic cocktails...',
-    btnGenerate: 'Create Signature Recipes',
-    btnGenerating: 'Generating...',
-    waiting: 'Our barista expert is waiting for your order...',
-    menuTitle: 'Your Custom Menu',
-    btnPdf: 'Download PDF',
-    btnPdfLoading: 'Creating...',
-    labelIngr: 'Ingredients',
-    labelInstr: 'Instructions',
-    labelCategory: 'Category',
-    pdfFooter: 'This exclusive recipe was created with professional FO products following barista standards.',
-    errorRequired: 'Please fill in the required fields.',
-    errorApi: 'An error occurred.',
-    errorPdf: 'Error creating the PDF.',
-    successPdf: 'PDF downloaded!',
-  },
-  tr: {
-    metaTitle: 'Barista Reçete Sihirbazı – İmza İçecek Rehberi | Elysonsweets',
-    metaDesc: 'Kafeniz için uzman barista formülleriyle dengeli ve kârlı imza içecek reçeteleri oluşturun, menünüzü anında PDF olarak indirin.',
-    schemaName: 'Elysonsweets Reçete Sihirbazı',
-    schemaDesc: 'Kafeler ve barmenler için profesyonel reçete ve menü rehberi. FO şurupları ile özel imza içecekler ve PDF menüler oluşturun.',
-    badgeLabel: 'Gourmet Reçete Atölyesi',
-    headline1: 'Barista ',
-    headline2: 'Reçete Sihirbazı',
-    subline: 'Elinizdeki malzemeleri ve konseptinizi belirtin, uzman baristanız FO şuruplarıyla kafenize özel dengeli ve kârlı imza içecekler tasarlasın. Menünüzü anında PDF olarak indirin.',
-    formTitle: 'Reçete Sihirbazı',
-    labelCafeName: 'Mekan Adı (Opsiyonel)',
-    labelIngredients: 'Elinizdeki Malzemeler *',
-    placeholderIngredients: 'Espresso, Süt, Yulaf Sütü, Çilek...',
-    labelConcept: 'Konsept / Tema *',
-    placeholderConcept: 'Yazlık soğuk kahveler, Alkolsüz kokteyller...',
-    btnGenerate: 'İmza Reçetelerimi Yarat',
-    btnGenerating: 'Üretiliyor...',
-    waiting: 'Uzman baristanız siparişinizi bekliyor...',
-    menuTitle: 'Sizin İçin Hazırlanan Menü',
-    btnPdf: 'PDF İndir',
-    btnPdfLoading: 'Hazırlanıyor...',
-    labelIngr: 'Malzemeler',
-    labelInstr: 'Hazırlanışı',
-    labelCategory: 'Kategori',
-    pdfFooter: 'Bu özel reçete, profesyonel FO ürünleri ve uzman barista standartları ile hazırlanmıştır.',
-    errorRequired: 'Lütfen zorunlu alanları doldurun.',
-    errorApi: 'Bir hata oluştu.',
-    errorPdf: 'PDF oluşturulurken hata oluştu.',
-    successPdf: 'PDF indirildi!',
-  },
-  ar: {
-    metaTitle: 'معالج وصفات الباريستا – مشروبات حصرية | Elysonsweets',
-    metaDesc: 'أنشئ وصفات مشروبات حصرية احترافية لمقهاك وحمِّلها كقائمة طعام. مع شراب FO المتميز.',
-    schemaName: 'معالج وصفات باريستا Elysonsweets',
-    schemaDesc: 'مساعد وصفات احترافي للمقاهي والنادلين. أنشئ مشروبات حصرية وقوائم PDF مخصصة مع شراب FO.',
-    badgeLabel: 'أتيليه الوصفات الفاخرة',
-    headline1: 'باريستا ',
-    headline2: 'معالج الوصفات',
-    subline: 'حدد مكوناتك ومفهومك. سيبتكر خبير الباريستا لدينا مشروبات حصرية مع شراب FO لمقهاك. حمِّل قائمتك فوراً كـ PDF.',
-    formTitle: 'معالج الوصفات',
-    labelCafeName: 'اسم المقهى (اختياري)',
-    labelIngredients: 'المكونات المتوفرة *',
-    placeholderIngredients: 'إسبريسو، حليب، حليب الشوفان، فراولة...',
-    labelConcept: 'المفهوم / الموضوع *',
-    placeholderConcept: 'قهوة مثلجة صيفية، كوكتيلات بلا كحول...',
-    btnGenerate: 'إنشاء وصفات حصرية',
-    btnGenerating: 'جاري الإنشاء...',
-    waiting: 'خبير الباريستا لدينا ينتظر طلبك...',
-    menuTitle: 'قائمتك المخصصة',
-    btnPdf: 'تحميل PDF',
-    btnPdfLoading: 'جاري الإنشاء...',
-    labelIngr: 'المكونات',
-    labelInstr: 'طريقة التحضير',
-    labelCategory: 'التصنيف',
-    pdfFooter: 'تم إعداد هذه الوصفة الحصرية بمنتجات FO الاحترافية وفق معايير الباريستا.',
-    errorRequired: 'يرجى ملء الحقول المطلوبة.',
-    errorApi: 'حدث خطأ.',
-    errorPdf: 'خطأ في إنشاء PDF.',
-    successPdf: 'تم تحميل PDF!',
-  },
-} as const;
+export class Agent {
+  public role: string;
+  public goal: string;
+  public backstory: string;
+  public temperature: number;
+
+  constructor(config: AgentConfig) {
+    this.role = config.role;
+    this.goal = config.goal;
+    this.backstory = config.backstory;
+    this.temperature = config.temperature ?? 0.3;
+  }
+
+  /**
+   * Generates the system prompt tailored to the CrewAI methodology.
+   */
+  public getSystemPrompt(): string {
+    return `Senin Rolün (Role): ${this.role}\n\nHedefin (Goal): ${this.goal}\n\nGeçmişin ve Karakterin (Backstory): ${this.backstory}\n\nSen, Elyson Sweets (Almanya) için çalışan uzman bir yönetim kurulu üyesisin. Halüsinasyon yapmadan, doğrudan hedefe odaklanan net analizler yaparsın. Gereksiz nezaket kelimeleri kullanma, doğrudan konuya gir. Çıktılarını her zaman beklenen çıktıya (Expected Output) uygun formatta vermelisin.`;
+  }
+}
+
+// ------------------------------------------------------------------
+// 3. Task Class
+// ------------------------------------------------------------------
+
+export class Task {
+  public description: string;
+  public expectedOutput: string;
+  public agent: Agent;
+  public result: string | null = null;
+
+  constructor(config: TaskConfig) {
+    this.description = config.description;
+    this.expectedOutput = config.expectedOutput;
+    this.agent = config.agent;
+  }
+}
+
+// ------------------------------------------------------------------
+// 4. Crew (Orchestrator) Class
+// ------------------------------------------------------------------
+
+export interface CrewConfig {
+  tasks: Task[];
+  onStepComplete?: (task: Task, result: string) => Promise<void>;
+}
+
+export class Crew {
+  private tasks: Task[];
+  private onStepComplete?: (task: Task, result: string) => Promise<void>;
+
+  constructor(config: CrewConfig) {
+    this.tasks = config.tasks;
+    this.onStepComplete = config.onStepComplete;
+  }
+
+  private async sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Executes the task via the Agent using Vercel AI SDK with Rate Limit protection.
+   */
+  private async executeTask(task: Task, context: string, attempt = 1): Promise<string> {
+    const prompt = `GÖREV (TASK):\n${task.description}\n\nBEKLENEN ÇIKTI (EXPECTED OUTPUT):\n${task.expectedOutput}\n\nŞU ANA KADARKİ TOPLANTI BAĞLAMI:\n${context || 'Bu ilk görevdir. Toplantıyı başlatan ve çerçeveyi çizen sizsiniz.'}`;
+    
+    // Everyone uses Groq since the Gemini API key provided is not compatible with standard models.
+    const activeModel = getGroqModel('openai/gpt-oss-120b');
+    const fallbackModel = getGroqModel('qwen/qwen3.8-27b');
+
+    // Throttle for Groq limits (TPM) -> wait 12 seconds between calls to stretch out the TPM bucket over a minute.
+    await this.sleep(12000);
+
+    try {
+      const { text } = await generateText({
+        model: activeModel,
+        system: task.agent.getSystemPrompt(),
+        prompt: prompt,
+        temperature: task.agent.temperature,
+        maxTokens: 800,
+      });
+      return text.trim();
+    } catch (error: any) {
+      const errorMessage = error?.message || String(error);
+      console.warn(`[Crew] Error executing task for ${task.agent.role} (Attempt ${attempt}):`, errorMessage);
+
+      if (attempt <= 2) {
+        await this.sleep(15000); // Exponential backoff waiting for TPM reset
+        try {
+          const { text } = await generateText({
+            model: fallbackModel,
+            system: task.agent.getSystemPrompt(),
+            prompt: prompt,
+            temperature: task.agent.temperature,
+            maxTokens: 800,
+          });
+          return `[Yedek Sistem Yanıtı] ${text.trim()}`;
+        } catch (retryError) {
+          console.error(`[Crew] Fallback failed for ${task.agent.role}.`);
+        }
+      }
+
+      return `[${task.agent.role} şu anda bu görevi sistem yoğunluğu sebebiyle tamamlayamadı. Diğer ekiplerin devam etmesi uygundur.]`;
+    }
+  }
+
+  /**
+   * Kicks off the Crew operation sequentially.
+   */
+  public async kickoff(): Promise<{ finalResult: string, history: Task[] }> {
+    let contextForDirectors = ''; // Truncated context to save TPM limit
+    let contextForCEO = '';       // Full context for the CEO to make the final decision
+    
+    for (const task of this.tasks) {
+      const isCEO = task.agent.role === 'ceo';
+      const currentContext = isCEO ? contextForCEO : contextForDirectors;
+
+      const result = await this.executeTask(task, currentContext);
+      task.result = result;
+      
+      // Update contexts
+      // Directors only see a heavily summarized version to prevent massive token usage (300 chars)
+      const shortResultForDirectors = result.length > 300 ? result.substring(0, 300) + '... (Özetlendi)' : result;
+      contextForDirectors += `\n\n--- [Bölüm: ${task.agent.role}] ---\nGÖREV ÇIKTISI:\n${shortResultForDirectors}\n`;
+      
+      // CEO gets a longer version but STILL truncated (1000 chars) to prevent Groq TPM bucket overflow on a single request
+      const shortResultForCEO = result.length > 1000 ? result.substring(0, 1000) + '... (Detaylar sistemde kayıtlıdır, bu kısımdan sonrasını özet kabul et.)' : result;
+      contextForCEO += `\n\n--- [Bölüm: ${task.agent.role}] ---\nGÖREV ÇIKTISI:\n${shortResultForCEO}\n`;
+
+      if (this.onStepComplete) {
+        await this.onStepComplete(task, result);
+      }
+    }
+
+    return {
+      finalResult: this.tasks[this.tasks.length - 1].result || '',
+      history: this.tasks
+    };
+  }
+}
 </file>
 
 <file path="src/lib/notificationUtils.ts">
@@ -15681,6 +15646,249 @@ export function computeTedarikDurumu(stok: number | null | undefined, tukenmeTar
 }
 </file>
 
+<file path="src/middleware.ts">
+// src/middleware.ts (Mit Logging)
+
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+import { canAccessAdminPath, normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
+
+const locales = ['de', 'en', 'tr', 'ar'];
+const defaultLocale = 'de';
+
+// Update function for handling cookies within middleware
+async function updateSession(request: NextRequest) {
+    console.log("--- updateSession gestartet ---"); // Log Start
+    let response = NextResponse.next({
+        request: {
+            headers: request.headers,
+        },
+    });
+
+    // Wichtig: In Middleware MUSS createServerClient OHNE await cookies()
+    // verwendet werden, da die Cookies direkt vom 'request'-Objekt kommen.
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    return request.cookies.get(name)?.value;
+                },
+                set(name: string, value: string, options: CookieOptions) {
+                    // Wichtig: Request UND Response Cookies aktualisieren
+                    request.cookies.set({ name, value, ...options });
+                    response = NextResponse.next({ // Response neu erstellen, um aktualisierte Request-Cookies zu haben
+                        request: { headers: request.headers },
+                    });
+                    response.cookies.set({ name, value, ...options });
+                },
+                remove(name: string, options: CookieOptions) {
+                    request.cookies.set({ name, value: '', ...options });
+                    response = NextResponse.next({
+                        request: { headers: request.headers },
+                    });
+                    response.cookies.set({ name, value: '', ...options });
+                },
+            },
+        }
+    );
+
+    // Session aktualisieren
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(); // Session Refresh
+        if (error) {
+             console.error("Fehler in updateSession bei getUser:", error);
+        } else {
+             console.log("updateSession getUser erfolgreich:", user ? `User ID: ${user.id}` : "Kein User (Session Refresh)");
+        }
+    } catch (e) {
+        console.error("Kritischer Fehler in updateSession bei getUser:", e);
+    }
+
+    console.log("--- updateSession beendet ---"); // Log Ende
+    return response;
+}
+
+
+export async function middleware(req: NextRequest) {
+    console.log(`--- Middleware gestartet für Pfad: ${req.nextUrl.pathname} ---`); // Log Start
+
+    // Session aktualisieren und Response erhalten
+    const res = await updateSession(req);
+    const pathname = req.nextUrl.pathname;
+
+    // Statische Dateien, API-Routen und Auth-Routen überspringen
+    if (
+        pathname.startsWith('/api') ||
+        pathname.startsWith('/_next') ||
+        pathname.includes('.') || // Prüft auf Dateiendungen wie .css, .js, .png etc.
+        pathname.startsWith('/auth/') // Auth-Callback Routen etc.
+       ) {
+        console.log(`--- Middleware übersprungen (statisch/api/auth): ${pathname} ---`);
+        return res; // Wichtig: 'res' (die Response von updateSession) zurückgeben, nicht 'NextResponse.next()'
+    }
+
+    // Supabase Client *nur zum Lesen* des Benutzers erstellen (nach updateSession)
+    // Nutzt die aktualisierten Cookies aus 'req' (die von updateSession modifiziert wurden)
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) { return req.cookies.get(name)?.value; },
+                // set/remove sind hier nicht nötig
+            },
+        }
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log("Middleware getUser nach updateSession:", user ? `User ID: ${user.id}` : "Kein User");
+
+    // Geschützte Routen erkennen (auch mit Locale-Präfix)
+    const pathSegments = pathname.split('/').filter(Boolean); // ['', 'de', 'admin', 'dashboard'] -> ['de','admin','dashboard']
+    const possibleLocale = pathSegments[0];
+    const hasLocalePrefix = locales.includes(possibleLocale);
+    const effectivePath = hasLocalePrefix ? `/${pathSegments.slice(1).join('/')}` : pathname; // '/admin/dashboard'
+    const isProtectedRoute = effectivePath.startsWith('/admin') || effectivePath.startsWith('/portal');
+    if (!user && isProtectedRoute) {
+        const requestedLocale = pathname.split('/')[1] || defaultLocale; // Locale aus Pfad holen oder Default
+        console.log(`-> Middleware: Nicht eingeloggter Zugriff auf ${pathname}. Redirect zu /${requestedLocale}/login`);
+        const loginUrl = new URL(`/${requestedLocale}/login`, req.url);
+        loginUrl.searchParams.set('next', pathname); // Optional: Nach Login zurückleiten
+        return NextResponse.redirect(loginUrl);
+    }
+
+    // Schutz für Login-Seite (wenn bereits eingeloggt) & Rollen-basierte Weiterleitung
+    const isLoginPage = pathname.endsWith('/login'); // Prüft auf /de/login, /en/login etc.
+    if (user && isLoginPage) {
+        const hasError = req.nextUrl.searchParams.has('error');
+        if (!hasError) {
+            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
+            const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
+            const userRole = profile?.rol;
+            const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
+                ? '/admin/dashboard'
+                : '/portal/dashboard';
+                
+            let targetLocale = pathname.split('/')[1] || defaultLocale;
+            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+                targetLocale = profile.tercih_edilen_dil;
+            }
+                
+            console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
+            return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
+        } else {
+            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite mit Fehler. Kein Redirect.`);
+        }
+    }
+
+    if (user && effectivePath.startsWith('/admin')) {
+        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();
+        const userRole = profile?.rol;
+        const allowedPanels = normalizeAllowedAdminPanels(user.user_metadata?.allowed_admin_panels);
+
+        if (!canAccessAdminPath(userRole, effectivePath, allowedPanels)) {
+            const currentLocale = pathname.split('/')[1] || defaultLocale;
+            console.log(`-> Middleware: Admin panel access denied for role '${userRole}' on '${effectivePath}'.`);
+            return NextResponse.redirect(new URL(`/${currentLocale}/admin/dashboard`, req.url));
+        }
+    }
+
+    // Hier könnte optional noch die Rollen-basierte Zugriffskontrolle eingefügt werden,
+    // um z.B. 'Müşteri' am Zugriff auf '/admin/*' zu hindern, falls nötig.
+
+    // --- i18n Logik (Locale-Präfix hinzufügen, wenn fehlt) ---
+    const pathnameHasLocale = locales.some(
+        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+    );
+
+    // Wenn Locale fehlt, hinzufügen und neu schreiben
+    if (!pathnameHasLocale) {
+        // Regel:
+        // - Geschützte Routen (/admin, /portal): Profil tercih edilen dil kullanılmaya çalışılır, yoksa defaultLocale
+        // - Public Routen: Her zaman defaultLocale (de)
+        let localeToAdd = defaultLocale;
+
+        if (isProtectedRoute && user) {
+            try {
+                const { data: profile } = await supabase
+                    .from('profiller')
+                    .select('tercih_edilen_dil')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+                    localeToAdd = profile.tercih_edilen_dil;
+                    console.log(`-> Middleware: (Protected) Benutzer bevorzugte Sprache: ${localeToAdd}`);
+                } else {
+                    console.log(`-> Middleware: (Protected) Bevorzugte Sprache nicht gesetzt, defaultLocale verwendet: ${localeToAdd}`);
+                }
+            } catch (error) {
+                console.error("Fehler beim Abrufen der bevorzugten Sprache (Protected Pfad):", error);
+            }
+        } else {
+            // Public: immer defaultLocale
+            console.log(`-> Middleware: (Public) Locale fehlt, defaultLocale verwendet: ${defaultLocale}`);
+        }
+
+        console.log(`-> Middleware: Locale fehlt für ${pathname}. Redirect zu '${localeToAdd}' hinzu.`);
+        return NextResponse.redirect(
+            new URL(`/${localeToAdd}${pathname.startsWith('/') ? '' : '/'}${pathname}`, req.url)
+        );
+    }
+
+    // Für eingeloggte Benutzer auf geschützten Routen: Aktuelle Locale mit bevorzugter Sprache erzwingen
+    if (user && pathnameHasLocale && isProtectedRoute) {
+        try {
+            const { data: profile } = await supabase.from('profiller').select('tercih_edilen_dil').eq('id', user.id).single();
+            const currentUrlLocale = pathname.split('/')[1];
+            
+            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil) && currentUrlLocale !== profile.tercih_edilen_dil) {
+                // Nur das erste Vorkommen der Locale ersetzen, um Probleme bei z.B. /de/admin/de-stuff zu vermeiden
+                const newPath = `/${profile.tercih_edilen_dil}${pathname.substring(currentUrlLocale.length + 1)}`;
+                console.log(`-> Middleware: (Protected) Falsche Sprache (${currentUrlLocale}). Redirect zu ${newPath}`);
+                const redirectUrl = new URL(newPath, req.url);
+                redirectUrl.search = req.nextUrl.search; // Suchparameter beibehalten
+                return NextResponse.redirect(redirectUrl);
+            }
+        } catch (error) {
+            console.error("Fehler beim Abrufen der bevorzugten Sprache für Redirect:", error);
+        }
+    }
+
+    // x-locale header: root layout html lang attribute icin (Dem Request hinzufügen!)
+    const localeFromPath = pathname.split('/')[1];
+    if (locales.includes(localeFromPath)) {
+        res.headers.set('x-locale', localeFromPath); // Bleibt für Response (falls nützlich)
+        req.headers.set('x-locale', localeFromPath); // WICHTIG: Setze es im Request für Server Components
+    }
+
+    console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
+    
+    // Wir müssen die aktualisierten Request-Header an Next.js weitergeben
+    const finalRes = NextResponse.next({
+        request: {
+            headers: req.headers,
+        }
+    });
+
+    // Cookies aus der Supabase-Antwort (res) in die finale Antwort übernehmen
+    res.cookies.getAll().forEach(cookie => {
+        finalRes.cookies.set(cookie.name, cookie.value, cookie);
+    });
+    
+    return finalRes;
+}
+
+export const config = {
+    matcher: [
+        // Matcher schließt statische Dateien, Bilder und API-Routen aus.
+        // Auth-Routen werden im Code oben behandelt.
+        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    ],
+};
+</file>
+
 <file path=".repomixignore">
 _backup/
 _archive/
@@ -15847,6 +16055,39 @@ Projede yüklü olan 26 beceri (Skills) şu B2B fazlarında zorunlu rehber olara
 > ⚠️ **KATI KURAL:** Gelecekteki herhangi bir geliştirmede veya kod revizyonunda, salt görsel güzelleştirme uğruna yukarıdaki 4 sütundan (B2B Mantığı, Stok Güvenliği, i18n Bütünlüğü, CWV/Performans) taviz verilmesi KESİNLİKLE YASAKTIR.
 </file>
 
+<file path="tailwind.config.ts">
+// tailwind.config.ts
+
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#2B2B2B',       // Ana Renk (Antrasit)
+        secondary: '#FAF9F6',    // İkincil Renk (Krem Arka Plan)
+        accent: '#C69F6B',        // Vurgu Rengi (Altın)
+        'text-main': '#3D3D3D',     // Ana Metin Rengi
+        'bg-subtle': '#EAE8E1',     // Hafif Arka Plan
+      },
+      fontFamily: {
+        sans: ['var(--font-lato)', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'serif'],
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
+}
+export default config
+</file>
+
 <file path="vitest.config.ts">
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
@@ -15984,404 +16225,6 @@ export async function saveRecipesBulk(
   }
 
   return true;
-}
-</file>
-
-<file path="src/lib/public-category-visibility.ts">
-type CategoryLike = {
-  id: string;
-  slug?: string | null;
-  ust_kategori_id?: string | null;
-};
-
-// FO brand's 14 product categories (Barista, Sirupe & Backzutaten)
-export const FO_CATEGORY_SLUGS = [
-  'powder-drinks',
-  'fruit-pastes',
-  'topping-decor-sauces',
-  'topping-ice-cream-sauces',
-  'special-sauces-940g',
-  'fruited-sauces',
-  'premium-syrups',
-  'cocktail-syrups',
-  'silvery-syrups',
-  'iced-tea-syrup-bases',
-  'cafe-bar-sauces',
-  'cocktail-mixes',
-  'foamer',
-  'special-pistachio-sauce',
-] as const;
-
-export type FoCategorySlug = typeof FO_CATEGORY_SLUGS[number];
-
-// Sweet Heaven categories are hidden (is_public: false, status: coming_soon)
-export const SWEET_HEAVEN_CATEGORY_SLUGS = [
-  'cakes-and-tarts',
-  'cookies-and-muffins',
-] as const;
-
-export const PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS = [
-  'pizza-and-fast-food',
-  'cakes-and-tarts',
-  'cookies-and-muffins',
-] as const;
-
-export const PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER = [
-  'syrups',
-  'cafe-bar-sauces',
-  'powdered-beverages',
-  'premium',
-  'cocktail-mixes',
-  'foamer',
-  'flavored-cocktail-syrups',
-  'fruit-sauces',
-  'professional-bar-sauces',
-  'decoration-sauces',
-  'ice-cream-and-dessert-sauces',
-  'flavored-beverage-base',
-  'flavored-beverage-powders',
-  'premium-cocktail-syrups',
-  'premium-bar-sauces',
-  'special-sauces',
-] as const;
-
-const HIDDEN_MENU_PATH_SEGMENTS = ['/pizza', '/pizzas'];
-
-export function isPublicCategorySlugHidden(slug?: string | null): boolean {
-  if (!slug) return false;
-  return PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS.includes(
-    slug as (typeof PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS)[number]
-  );
-}
-
-export function buildHiddenPublicCategoryIds(categories: CategoryLike[] = []): Set<string> {
-  const hiddenIds = new Set<string>();
-  const queue = categories
-    .filter((category) => isPublicCategorySlugHidden(category.slug))
-    .map((category) => category.id);
-
-  while (queue.length > 0) {
-    const currentId = queue.shift();
-    if (!currentId || hiddenIds.has(currentId)) continue;
-
-    hiddenIds.add(currentId);
-
-    categories
-      .filter((category) => category.ust_kategori_id === currentId)
-      .forEach((category) => queue.push(category.id));
-  }
-
-  return hiddenIds;
-}
-
-export function isPublicMegaMenuCategoryHidden(category: {
-  subCategories?: Array<{ href?: string | null }>;
-}): boolean {
-  return (category.subCategories || []).some((subCategory) =>
-    HIDDEN_MENU_PATH_SEGMENTS.some((segment) => subCategory.href?.includes(segment))
-  );
-}
-</file>
-
-<file path="src/lib/stripe.ts">
-import Stripe from 'stripe';
-
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
-
-const isProduction = process.env.NODE_ENV === 'production';
-const vercelEnv = process.env.VERCEL_ENV; // 'production' | 'preview' | 'development' | undefined
-
-export const isStripeLiveKey = stripeSecretKey.startsWith('sk_live_');
-// Lokal geliştirme, test veya Vercel Preview (ön izleme) ortamları "canlı olmayan" ortamlardır
-export const isNonProductionEnv = !isProduction || vercelEnv === 'preview' || vercelEnv === 'development';
-
-// 1. Ortam Kontrolleri & Güvenlik Logları
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('⚠️ STRIPE_SECRET_KEY ortam değişkeni tanımlı değil. Build için geçici placeholder kullanılıyor.');
-} else if (isNonProductionEnv && isStripeLiveKey) {
-  console.error('🛑 GÜVENLİK KİLİDİ: Test/Geliştirme ortamında CANLI Stripe anahtarı (sk_live_) tespit edildi! Gerçek banka ve kart çekimlerini önlemek için işlemler sınırlandırılmalıdır.');
-} else if (isProduction && vercelEnv === 'production' && !isStripeLiveKey) {
-  console.warn('⚠️ DİKKAT: Canlı ortamda (Production) Stripe TEST anahtarı (sk_test_) tanımlı. Gerçek ödemeler alınamaz.');
-}
-
-/**
- * Güvenlik kontrolü: Bir ödeme oturumu veya işlem başlatılmadan önce çağrılır.
- * Test/Lokal ortamda kazara canlı anahtar kullanılarak gerçek banka veya karttan
- * para çekilmesini kesin olarak engeller.
- */
-export function assertStripeEnvironmentSafety(): { safe: boolean; error?: string } {
-  if (isNonProductionEnv && isStripeLiveKey) {
-    return {
-      safe: false,
-      error: 'Güvenlik Koruması: Geliştirme/Test ortamında canlı Stripe anahtarı ile işlem yapılamaz. Lütfen test anahtarınızı (sk_test_...) kullanın.',
-    };
-  }
-  return { safe: true };
-}
-
-export const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2024-06-20' as any,
-  appInfo: {
-    name: 'ElysonSweets B2B',
-    version: '1.0.0',
-  },
-});
-</file>
-
-<file path="src/middleware.ts">
-// src/middleware.ts (Mit Logging)
-
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
-import { canAccessAdminPath, normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
-
-const locales = ['de', 'en', 'tr', 'ar'];
-const defaultLocale = 'de';
-
-// Update function for handling cookies within middleware
-async function updateSession(request: NextRequest) {
-    console.log("--- updateSession gestartet ---"); // Log Start
-    let response = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
-    });
-
-    // Wichtig: In Middleware MUSS createServerClient OHNE await cookies()
-    // verwendet werden, da die Cookies direkt vom 'request'-Objekt kommen.
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) {
-                    return request.cookies.get(name)?.value;
-                },
-                set(name: string, value: string, options: CookieOptions) {
-                    // Wichtig: Request UND Response Cookies aktualisieren
-                    request.cookies.set({ name, value, ...options });
-                    response = NextResponse.next({ // Response neu erstellen, um aktualisierte Request-Cookies zu haben
-                        request: { headers: request.headers },
-                    });
-                    response.cookies.set({ name, value, ...options });
-                },
-                remove(name: string, options: CookieOptions) {
-                    request.cookies.set({ name, value: '', ...options });
-                    response = NextResponse.next({
-                        request: { headers: request.headers },
-                    });
-                    response.cookies.set({ name, value: '', ...options });
-                },
-            },
-        }
-    );
-
-    // Session aktualisieren
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser(); // Session Refresh
-        if (error) {
-             console.error("Fehler in updateSession bei getUser:", error);
-        } else {
-             console.log("updateSession getUser erfolgreich:", user ? `User ID: ${user.id}` : "Kein User (Session Refresh)");
-        }
-    } catch (e) {
-        console.error("Kritischer Fehler in updateSession bei getUser:", e);
-    }
-
-    console.log("--- updateSession beendet ---"); // Log Ende
-    return response;
-}
-
-
-export async function middleware(req: NextRequest) {
-    console.log(`--- Middleware gestartet für Pfad: ${req.nextUrl.pathname} ---`); // Log Start
-
-    // Session aktualisieren und Response erhalten
-    const res = await updateSession(req);
-    const pathname = req.nextUrl.pathname;
-
-    // Statische Dateien, API-Routen und Auth-Routen überspringen
-    if (
-        pathname.startsWith('/api') ||
-        pathname.startsWith('/_next') ||
-        pathname.includes('.') || // Prüft auf Dateiendungen wie .css, .js, .png etc.
-        pathname.startsWith('/auth/') // Auth-Callback Routen etc.
-       ) {
-        console.log(`--- Middleware übersprungen (statisch/api/auth): ${pathname} ---`);
-        return res; // Wichtig: 'res' (die Response von updateSession) zurückgeben, nicht 'NextResponse.next()'
-    }
-
-    // Supabase Client *nur zum Lesen* des Benutzers erstellen (nach updateSession)
-    // Nutzt die aktualisierten Cookies aus 'req' (die von updateSession modifiziert wurden)
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return req.cookies.get(name)?.value; },
-                // set/remove sind hier nicht nötig
-            },
-        }
-    );
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log("Middleware getUser nach updateSession:", user ? `User ID: ${user.id}` : "Kein User");
-
-    // Geschützte Routen erkennen (auch mit Locale-Präfix)
-    const pathSegments = pathname.split('/').filter(Boolean); // ['', 'de', 'admin', 'dashboard'] -> ['de','admin','dashboard']
-    const possibleLocale = pathSegments[0];
-    const hasLocalePrefix = locales.includes(possibleLocale);
-    const effectivePath = hasLocalePrefix ? `/${pathSegments.slice(1).join('/')}` : pathname; // '/admin/dashboard'
-    const isProtectedRoute = effectivePath.startsWith('/admin') || effectivePath.startsWith('/portal');
-    if (!user && isProtectedRoute) {
-        const requestedLocale = pathname.split('/')[1] || defaultLocale; // Locale aus Pfad holen oder Default
-        console.log(`-> Middleware: Nicht eingeloggter Zugriff auf ${pathname}. Redirect zu /${requestedLocale}/login`);
-        const loginUrl = new URL(`/${requestedLocale}/login`, req.url);
-        loginUrl.searchParams.set('next', pathname); // Optional: Nach Login zurückleiten
-        return NextResponse.redirect(loginUrl);
-    }
-
-    // Schutz für Login-Seite (wenn bereits eingeloggt) & Rollen-basierte Weiterleitung
-    const isLoginPage = pathname.endsWith('/login'); // Prüft auf /de/login, /en/login etc.
-    if (user && isLoginPage) {
-        console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
-        const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
-        const userRole = profile?.rol;
-        const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
-            ? '/admin/dashboard'
-            : '/portal/dashboard';
-            
-        let targetLocale = pathname.split('/')[1] || defaultLocale;
-        if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
-            targetLocale = profile.tercih_edilen_dil;
-        }
-            
-        console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
-        return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
-    }
-
-    if (user && effectivePath.startsWith('/admin')) {
-        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();
-        const userRole = profile?.rol;
-        const allowedPanels = normalizeAllowedAdminPanels(user.user_metadata?.allowed_admin_panels);
-
-        if (!canAccessAdminPath(userRole, effectivePath, allowedPanels)) {
-            const currentLocale = pathname.split('/')[1] || defaultLocale;
-            console.log(`-> Middleware: Admin panel access denied for role '${userRole}' on '${effectivePath}'.`);
-            return NextResponse.redirect(new URL(`/${currentLocale}/admin/dashboard`, req.url));
-        }
-    }
-
-    // Hier könnte optional noch die Rollen-basierte Zugriffskontrolle eingefügt werden,
-    // um z.B. 'Müşteri' am Zugriff auf '/admin/*' zu hindern, falls nötig.
-
-    // --- i18n Logik (Locale-Präfix hinzufügen, wenn fehlt) ---
-    const pathnameHasLocale = locales.some(
-        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-    );
-
-    // Wenn Locale fehlt, hinzufügen und neu schreiben
-    if (!pathnameHasLocale) {
-        // Regel:
-        // - Geschützte Routen (/admin, /portal): Profil tercih edilen dil kullanılmaya çalışılır, yoksa defaultLocale
-        // - Public Routen: Her zaman defaultLocale (de)
-        let localeToAdd = defaultLocale;
-
-        if (isProtectedRoute && user) {
-            try {
-                const { data: profile } = await supabase
-                    .from('profiller')
-                    .select('tercih_edilen_dil')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
-                    localeToAdd = profile.tercih_edilen_dil;
-                    console.log(`-> Middleware: (Protected) Benutzer bevorzugte Sprache: ${localeToAdd}`);
-                } else {
-                    console.log(`-> Middleware: (Protected) Bevorzugte Sprache nicht gesetzt, defaultLocale verwendet: ${localeToAdd}`);
-                }
-            } catch (error) {
-                console.error("Fehler beim Abrufen der bevorzugten Sprache (Protected Pfad):", error);
-            }
-        } else {
-            // Public: immer defaultLocale
-            console.log(`-> Middleware: (Public) Locale fehlt, defaultLocale verwendet: ${defaultLocale}`);
-        }
-
-        console.log(`-> Middleware: Locale fehlt für ${pathname}. Redirect zu '${localeToAdd}' hinzu.`);
-        return NextResponse.redirect(
-            new URL(`/${localeToAdd}${pathname.startsWith('/') ? '' : '/'}${pathname}`, req.url)
-        );
-    }
-
-    // Für eingeloggte Benutzer auf geschützten Routen: Aktuelle Locale mit bevorzugter Sprache erzwingen
-    if (user && pathnameHasLocale && isProtectedRoute) {
-        try {
-            const { data: profile } = await supabase.from('profiller').select('tercih_edilen_dil').eq('id', user.id).single();
-            const currentUrlLocale = pathname.split('/')[1];
-            
-            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil) && currentUrlLocale !== profile.tercih_edilen_dil) {
-                // Nur das erste Vorkommen der Locale ersetzen, um Probleme bei z.B. /de/admin/de-stuff zu vermeiden
-                const newPath = `/${profile.tercih_edilen_dil}${pathname.substring(currentUrlLocale.length + 1)}`;
-                console.log(`-> Middleware: (Protected) Falsche Sprache (${currentUrlLocale}). Redirect zu ${newPath}`);
-                const redirectUrl = new URL(newPath, req.url);
-                redirectUrl.search = req.nextUrl.search; // Suchparameter beibehalten
-                return NextResponse.redirect(redirectUrl);
-            }
-        } catch (error) {
-            console.error("Fehler beim Abrufen der bevorzugten Sprache für Redirect:", error);
-        }
-    }
-
-    // x-locale header: root layout html lang attribute icin (Dem Request hinzufügen!)
-    const localeFromPath = pathname.split('/')[1];
-    if (locales.includes(localeFromPath)) {
-        res.headers.set('x-locale', localeFromPath); // Bleibt für Response (falls nützlich)
-        req.headers.set('x-locale', localeFromPath); // WICHTIG: Setze es im Request für Server Components
-    }
-
-    console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
-    
-    // Wir müssen die aktualisierten Request-Header an Next.js weitergeben
-    const finalRes = NextResponse.next({
-        request: {
-            headers: req.headers,
-        }
-    });
-
-    // Cookies aus der Supabase-Antwort (res) in die finale Antwort übernehmen
-    res.cookies.getAll().forEach(cookie => {
-        finalRes.cookies.set(cookie.name, cookie.value, cookie);
-    });
-    
-    return finalRes;
-}
-
-export const config = {
-    matcher: [
-        // Matcher schließt statische Dateien, Bilder und API-Routen aus.
-        // Auth-Routen werden im Code oben behandelt.
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    ],
-};
-</file>
-
-<file path="vercel.json">
-{
-  "crons": [
-    {
-      "path": "/api/gbp/cron-post",
-      "schedule": "0 9 * * 1"
-    },
-    {
-      "path": "/api/gbp/sync-reviews",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/auto-blog",
-      "schedule": "0 9 * * 2,5"
-    }
-  ]
 }
 </file>
 
@@ -16548,111 +16391,427 @@ export const getCachedDashboardData = unstable_cache(
 );
 </file>
 
-<file path="src/lib/ai/providers.ts">
-import { createOpenAI } from '@ai-sdk/openai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { generateText, generateObject } from 'ai';
-
-// Create a custom provider for Groq using the OpenAI SDK structure
-export const groq = createOpenAI({
-  baseURL: 'https://api.groq.com/openai/v1',
-  apiKey: process.env.GROQ_API_KEY,
-});
-
-// Create a provider for Google Gemini
-export const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-});
-
-// Helper to easily get Groq models
-export const getGroqModel = (modelName: string = 'qwen/qwen3.8-27b') => {
-  return groq(modelName);
-};
-
-// Primary High Performance Model: gemini-1.5-flash
-export const getGeminiModel = (modelName: string = 'gemini-1.5-flash') => {
-  return google(modelName);
-};
-
+<file path="src/lib/i18n/pages.ts">
 /**
- * Executes generateText with automatic fallback across models and providers:
- * 1. Google Gemini 3.6 Flash (High context, superior multilingual translation)
- * 2. Groq GPT-OSS 120B (Fast, reliable high parameter model)
- * 3. Groq Qwen 3.8 27B (Fast fallback)
+ * Merkezi sayfa çevirileri — Blog, Rezept, Barista-AI sayfaları için
+ * 4 dil: de | en | tr | ar
  */
-export async function generateTextWithFallback(
-  options: Omit<Parameters<typeof generateText>[0], 'model'>
-) {
-  const models = [
-    { name: 'Gemini 1.5 Flash', model: google('gemini-1.5-flash') },
-    { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
-    { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
-  ];
 
-  let lastError: any;
-  for (const item of models) {
-    try {
-      // Sadece Gemini modeliyse güvenlik filtrelerini devre dışı bırak
-      const isGoogle = item.name.includes('Gemini');
-      const googleSafety = isGoogle ? {
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-        ]
-      } : {};
+export type Locale = 'de' | 'en' | 'tr' | 'ar';
 
-      // ai sdk tip uyuşmazlığını önlemek için as any kullanıyoruz
-      const optionsWithSafety = { ...options, ...googleSafety } as any;
+// ─── Blog ────────────────────────────────────────────────────────────────────
+export const blogListingT = {
+  de: {
+    pageTitle: 'B2B HORECA Wissen & News',
+    pageSubtitle: 'Entdecken Sie, lassen Sie sich inspirieren und begeben Sie sich auf eine Reise in die faszinierende Welt der Mixologie.',
+    metaTitle: 'B2B HORECA Blog & Branchen-News | Elysonsweets',
+    metaDesc: 'Aktuelle Trends, Cocktail-Rezepte und B2B-Insights für die Gastronomie.',
+    readMore: 'Weiterlesen →',
+    editorsPicks: 'Empfehlungen der Redaktion',
+    latestUpdates: 'Aktuelle Updates',
+    archive: 'Archiv',
+  },
+  en: {
+    pageTitle: 'B2B HORECA Knowledge & News',
+    pageSubtitle: 'Discover, get inspired, and embark on a journey into the fascinating world of mixology.',
+    metaTitle: 'B2B HORECA Blog & Industry News | Elysonsweets',
+    metaDesc: 'Latest trends, cocktail recipes, and B2B insights for the gastronomy sector.',
+    readMore: 'Read more →',
+    editorsPicks: 'Editor\'s Picks',
+    latestUpdates: 'Latest Updates',
+    archive: 'Archive',
+  },
+  tr: {
+    pageTitle: 'B2B HORECA Bilgi & Haberler',
+    pageSubtitle: 'Keşfedin, ilham alın ve miksolojinin büyüleyici dünyasında bir yolculuğa çıkın.',
+    metaTitle: 'B2B HORECA Blog & Sektörel Haberler | Elysonsweets',
+    metaDesc: 'Gastronomi sektörü için en son trendler, kokteyl tarifleri ve B2B içgörüleri.',
+    readMore: 'Devamını Oku →',
+    editorsPicks: 'Editörün Seçimleri',
+    latestUpdates: 'En Son Güncellemeler',
+    archive: 'Arşiv',
+  },
+  ar: {
+    pageTitle: 'معرفة وأخبار B2B HORECA',
+    pageSubtitle: 'اكتشف، استلهم، وانطلق في رحلة إلى عالم الميكسولوجي الرائع.',
+    metaTitle: 'مدونة B2B HORECA وأخبار الصناعة | Elysonsweets',
+    metaDesc: 'أحدث الاتجاهات ووصفات الكوكتيل ورؤى B2B لقطاع فن الطهو.',
+    readMore: 'اقرأ المزيد ←',
+    editorsPicks: 'اختيارات المحرر',
+    latestUpdates: 'آخر التحديثات',
+    archive: 'الأرشيف',
+  },
+} as const;
 
-      const result = await generateText({
-        maxTokens: 800,
-        ...optionsWithSafety,
-        model: item.model,
-      });
-      
-      if (!result.text || result.text.trim() === '') {
-        throw new Error("AI returned empty text. (Possible rate limit or safety filter block)");
-      }
-      
-      return result;
-    } catch (err: any) {
-      console.warn(`[AI Providers] ${item.name} failed (${err.message}). Trying next fallback...`);
-      lastError = err;
-    }
+export const blogDetailT = {
+  de: { by: 'Von' },
+  en: { by: 'By' },
+  tr: { by: 'Yazan:' },
+  ar: { by: 'بقلم' },
+} as const;
+
+// ─── Recipes ─────────────────────────────────────────────────────────────────
+export const recipesListingT = {
+  de: {
+    metaTitle: 'Elysonsweets Rezept-Bibliothek | Professionelle Getränke-Inspiration',
+    metaDesc: 'Entdecken Sie professionelle Cocktail-, Mocktail- und Kaffeerezepte mit Premium-Produkten von Elysonsweets.',
+    pageTitle: 'Elysonsweets Rezept-Bibliothek',
+    pageDesc: 'Professionelle Getränke-Inspiration und Expertenrezepte für Ihr Café, Ihre Bar oder Ihr Restaurant.',
+    ctaBadge: 'EIGENES KONZEPT',
+    ctaTitle: 'Erstellen Sie Ihr Signature-Rezept',
+    ctaDesc: 'Geben Sie Ihre Zutaten ein und lassen Sie unseren Assistenten individuelle Rezepte und PDF-Menükarten für Ihr Café erstellen.',
+    ctaButton: 'Rezept-Assistent starten',
+    allCategories: 'Alle',
+    noRecipesTitle: 'Noch keine Rezepte in dieser Kategorie.',
+    noRecipesDesc: 'Schauen Sie bald wieder vorbei oder wählen Sie eine andere Kategorie.',
+    minLabel: 'Min.',
+    searchPlaceholder: 'Zutat oder Rezept suchen... (z.B.: Karamell, Frappe)',
+    sortNewest: 'Neueste',
+    sortPopular: 'Beliebteste',
+    usedProduct: 'Verwendetes Produkt:',
+  },
+  en: {
+    metaTitle: 'Elysonsweets Recipe Library | Professional Beverage Inspiration',
+    metaDesc: 'Discover professional cocktail, mocktail, and coffee recipes crafted with premium supplies from Elysonsweets.',
+    pageTitle: 'Elysonsweets Recipe Library',
+    pageDesc: 'Professional beverage inspiration and expert recipes for your cafe, bar, or restaurant.',
+    ctaBadge: 'CUSTOM CONCEPT',
+    ctaTitle: 'Create Your Signature Recipe',
+    ctaDesc: 'Enter your ingredients and let our wizard create custom recipes and PDF menus specifically for your cafe.',
+    ctaButton: 'Launch Recipe Wizard',
+    allCategories: 'All',
+    noRecipesTitle: 'No recipes found for this category yet.',
+    noRecipesDesc: 'Check back soon or try another category.',
+    minLabel: 'min',
+    searchPlaceholder: 'Search ingredient or recipe... (e.g., Caramel, Frappe)',
+    sortNewest: 'Newest',
+    sortPopular: 'Most Popular',
+    usedProduct: 'Used Product:',
+  },
+  tr: {
+    metaTitle: 'Elysonsweets Reçete Kütüphanesi | Profesyonel İçecek İlhami',
+    metaDesc: 'Elysonsweets premium ürünleriyle hazırlanan profesyonel kokteyl, mocktail ve kahve tariflerini keşfedin.',
+    pageTitle: 'Elysonsweets Reçete Kütüphanesi',
+    pageDesc: 'Kafeniz, barunuz veya restoranınız için profesyonel içecek ilhami ve uzman tarifleri.',
+    ctaBadge: 'ÖZEL KONSEPT',
+    ctaTitle: 'Kendi İmza Reçetenizi Yaratın',
+    ctaDesc: 'Sihirbazımızla elinizdeki malzemeleri girin, kafenize özel tarifler ve hazır PDF menüler oluşturalım.',
+    ctaButton: 'Reçete Sihirbazını Başlat',
+    allCategories: 'Tümü',
+    noRecipesTitle: 'Bu kategoride henüz reçete bulunamadı.',
+    noRecipesDesc: 'Yakında tekrar kontrol edin veya başka bir kategori seçin.',
+    minLabel: 'dk',
+    searchPlaceholder: 'Malzeme veya reçete ara... (Örn: Karamel, Frappe)',
+    sortNewest: 'En Yeniler',
+    sortPopular: 'En Çok Beğenilenler',
+    usedProduct: 'Kullanılan Ürün:',
+  },
+  ar: {
+    metaTitle: 'مكتبة وصفات Elysonsweets | إلهام المشروبات الاحترافية',
+    metaDesc: 'اكتشف وصفات الكوكتيل والموكتيل والقهوة الاحترافية المُعدَّة بمنتجات Elysonsweets المتميزة.',
+    pageTitle: 'مكتبة وصفات Elysonsweets',
+    pageDesc: 'إلهام مشروبات احترافي ووصفات خبراء لمقهاك أو بارك أو مطعمك.',
+    ctaBadge: 'مفهوم مخصص',
+    ctaTitle: 'أنشئ وصفتك الحصرية',
+    ctaDesc: 'أدخل مكوناتك ودع المعالج يبتكر وصفات مخصصة وقوائم PDF لمقهاك.',
+    ctaButton: 'تشغيل صانع الوصفات',
+    allCategories: 'الكل',
+    noRecipesTitle: 'لا توجد وصفات في هذه الفئة بعد.',
+    noRecipesDesc: 'تفقد مرة أخرى قريباً أو جرب فئة أخرى.',
+    minLabel: 'دقيقة',
+    searchPlaceholder: 'ابحث عن مكون أو وصفة... (مثل: كراميل، فرابيه)',
+    sortNewest: 'الأحدث',
+    sortPopular: 'الأكثر شعبية',
+    usedProduct: 'المنتج المستخدم:',
+  },
+} as const;
+
+// ─── Barista AI ──────────────────────────────────────────────────────────────
+export const recipeWizardT = {
+  de: {
+    metaTitle: 'Barista Rezept-Assistent – Signature Drinks | Elysonsweets',
+    metaDesc: 'Kreieren Sie professionelle Signature-Drink-Rezepte für Ihr Café und laden Sie diese als Menükarte herunter. Mit Premium FO Sirupen.',
+    schemaName: 'Elysonsweets Barista Rezept-Assistent',
+    schemaDesc: 'Ein professioneller Rezept-Assistent für Cafés und Barkeeper. Erstellen Sie individuelle Signature Drinks und PDF-Menükarten mit FO Sirupen.',
+    badgeLabel: 'Gourmet Rezeptur-Atelier',
+    headline1: 'Barista ',
+    headline2: 'Rezept-Assistent',
+    subline: 'Geben Sie Ihre Zutaten und Ihr Konzept an. Unser Barista-Experte kreiert exklusive Signature Drinks mit FO Sirupen für Ihr Café. Laden Sie Ihr Menü sofort als PDF herunter.',
+    // Form
+    formTitle: 'Rezept-Assistent',
+    labelCafeName: 'Name des Cafés (Optional)',
+    labelIngredients: 'Vorhandene Zutaten *',
+    placeholderIngredients: 'Espresso, Milch, Hafermilch, Erdbeeren...',
+    labelConcept: 'Konzept / Thema *',
+    placeholderConcept: 'Sommerliche Eiskaffees, Alkoholfreie Cocktails...',
+    btnGenerate: 'Signature Rezepte erstellen',
+    btnGenerating: 'Wird generiert...',
+    // Results
+    waiting: 'Unser Barista-Experte wartet auf Ihre Bestellung...',
+    menuTitle: 'Ihr individuelles Menü',
+    btnPdf: 'PDF herunterladen',
+    btnPdfLoading: 'Wird erstellt...',
+    labelIngr: 'Zutaten',
+    labelInstr: 'Zubereitung',
+    labelCategory: 'Kategorie',
+    // PDF Footer
+    pdfFooter: 'Dieses exklusive Rezept wurde mit professionellen FO-Produkten nach Barista-Standards kreiert.',
+    // Validation / Errors
+    errorRequired: 'Bitte füllen Sie die Pflichtfelder aus.',
+    errorApi: 'Ein Fehler ist aufgetreten.',
+    errorPdf: 'Fehler beim Erstellen der PDF.',
+    successPdf: 'PDF heruntergeladen!',
+  },
+  en: {
+    metaTitle: 'Barista Recipe Wizard – Signature Drinks | Elysonsweets',
+    metaDesc: 'Create professional signature drink recipes for your café and download them as a menu card. With premium FO syrups.',
+    schemaName: 'Elysonsweets Barista Recipe Wizard',
+    schemaDesc: 'A professional recipe assistant for cafes and bartenders. Create custom signature drinks and PDF menu cards with FO syrups.',
+    badgeLabel: 'Gourmet Recipe Atelier',
+    headline1: 'Barista ',
+    headline2: 'Recipe Wizard',
+    subline: 'Specify your ingredients and concept. Our barista expert will create exclusive signature drinks with FO syrups for your café. Download your menu instantly as PDF.',
+    formTitle: 'Recipe Wizard',
+    labelCafeName: 'Café Name (Optional)',
+    labelIngredients: 'Available Ingredients *',
+    placeholderIngredients: 'Espresso, Milk, Oat Milk, Strawberries...',
+    labelConcept: 'Concept / Theme *',
+    placeholderConcept: 'Summer iced coffees, Non-alcoholic cocktails...',
+    btnGenerate: 'Create Signature Recipes',
+    btnGenerating: 'Generating...',
+    waiting: 'Our barista expert is waiting for your order...',
+    menuTitle: 'Your Custom Menu',
+    btnPdf: 'Download PDF',
+    btnPdfLoading: 'Creating...',
+    labelIngr: 'Ingredients',
+    labelInstr: 'Instructions',
+    labelCategory: 'Category',
+    pdfFooter: 'This exclusive recipe was created with professional FO products following barista standards.',
+    errorRequired: 'Please fill in the required fields.',
+    errorApi: 'An error occurred.',
+    errorPdf: 'Error creating the PDF.',
+    successPdf: 'PDF downloaded!',
+  },
+  tr: {
+    metaTitle: 'Barista Reçete Sihirbazı – İmza İçecek Rehberi | Elysonsweets',
+    metaDesc: 'Kafeniz için uzman barista formülleriyle dengeli ve kârlı imza içecek reçeteleri oluşturun, menünüzü anında PDF olarak indirin.',
+    schemaName: 'Elysonsweets Reçete Sihirbazı',
+    schemaDesc: 'Kafeler ve barmenler için profesyonel reçete ve menü rehberi. FO şurupları ile özel imza içecekler ve PDF menüler oluşturun.',
+    badgeLabel: 'Gourmet Reçete Atölyesi',
+    headline1: 'Barista ',
+    headline2: 'Reçete Sihirbazı',
+    subline: 'Elinizdeki malzemeleri ve konseptinizi belirtin, uzman baristanız FO şuruplarıyla kafenize özel dengeli ve kârlı imza içecekler tasarlasın. Menünüzü anında PDF olarak indirin.',
+    formTitle: 'Reçete Sihirbazı',
+    labelCafeName: 'Mekan Adı (Opsiyonel)',
+    labelIngredients: 'Elinizdeki Malzemeler *',
+    placeholderIngredients: 'Espresso, Süt, Yulaf Sütü, Çilek...',
+    labelConcept: 'Konsept / Tema *',
+    placeholderConcept: 'Yazlık soğuk kahveler, Alkolsüz kokteyller...',
+    btnGenerate: 'İmza Reçetelerimi Yarat',
+    btnGenerating: 'Üretiliyor...',
+    waiting: 'Uzman baristanız siparişinizi bekliyor...',
+    menuTitle: 'Sizin İçin Hazırlanan Menü',
+    btnPdf: 'PDF İndir',
+    btnPdfLoading: 'Hazırlanıyor...',
+    labelIngr: 'Malzemeler',
+    labelInstr: 'Hazırlanışı',
+    labelCategory: 'Kategori',
+    pdfFooter: 'Bu özel reçete, profesyonel FO ürünleri ve uzman barista standartları ile hazırlanmıştır.',
+    errorRequired: 'Lütfen zorunlu alanları doldurun.',
+    errorApi: 'Bir hata oluştu.',
+    errorPdf: 'PDF oluşturulurken hata oluştu.',
+    successPdf: 'PDF indirildi!',
+  },
+  ar: {
+    metaTitle: 'معالج وصفات الباريستا – مشروبات حصرية | Elysonsweets',
+    metaDesc: 'أنشئ وصفات مشروبات حصرية احترافية لمقهاك وحمِّلها كقائمة طعام. مع شراب FO المتميز.',
+    schemaName: 'معالج وصفات باريستا Elysonsweets',
+    schemaDesc: 'مساعد وصفات احترافي للمقاهي والنادلين. أنشئ مشروبات حصرية وقوائم PDF مخصصة مع شراب FO.',
+    badgeLabel: 'أتيليه الوصفات الفاخرة',
+    headline1: 'باريستا ',
+    headline2: 'معالج الوصفات',
+    subline: 'حدد مكوناتك ومفهومك. سيبتكر خبير الباريستا لدينا مشروبات حصرية مع شراب FO لمقهاك. حمِّل قائمتك فوراً كـ PDF.',
+    formTitle: 'معالج الوصفات',
+    labelCafeName: 'اسم المقهى (اختياري)',
+    labelIngredients: 'المكونات المتوفرة *',
+    placeholderIngredients: 'إسبريسو، حليب، حليب الشوفان، فراولة...',
+    labelConcept: 'المفهوم / الموضوع *',
+    placeholderConcept: 'قهوة مثلجة صيفية، كوكتيلات بلا كحول...',
+    btnGenerate: 'إنشاء وصفات حصرية',
+    btnGenerating: 'جاري الإنشاء...',
+    waiting: 'خبير الباريستا لدينا ينتظر طلبك...',
+    menuTitle: 'قائمتك المخصصة',
+    btnPdf: 'تحميل PDF',
+    btnPdfLoading: 'جاري الإنشاء...',
+    labelIngr: 'المكونات',
+    labelInstr: 'طريقة التحضير',
+    labelCategory: 'التصنيف',
+    pdfFooter: 'تم إعداد هذه الوصفة الحصرية بمنتجات FO الاحترافية وفق معايير الباريستا.',
+    errorRequired: 'يرجى ملء الحقول المطلوبة.',
+    errorApi: 'حدث خطأ.',
+    errorPdf: 'خطأ في إنشاء PDF.',
+    successPdf: 'تم تحميل PDF!',
+  },
+} as const;
+</file>
+
+<file path="src/lib/public-category-visibility.ts">
+type CategoryLike = {
+  id: string;
+  slug?: string | null;
+  ust_kategori_id?: string | null;
+};
+
+// FO brand's 14 product categories (Barista, Sirupe & Backzutaten)
+export const FO_CATEGORY_SLUGS = [
+  'powder-drinks',
+  'fruit-pastes',
+  'topping-decor-sauces',
+  'topping-ice-cream-sauces',
+  'special-sauces-940g',
+  'fruited-sauces',
+  'premium-syrups',
+  'cocktail-syrups',
+  'silvery-syrups',
+  'iced-tea-syrup-bases',
+  'cafe-bar-sauces',
+  'cocktail-mixes',
+  'foamer',
+  'special-pistachio-sauce',
+] as const;
+
+export type FoCategorySlug = typeof FO_CATEGORY_SLUGS[number];
+
+// Sweet Heaven categories are hidden (is_public: false, status: coming_soon)
+export const SWEET_HEAVEN_CATEGORY_SLUGS = [
+  'cakes-and-tarts',
+  'cookies-and-muffins',
+] as const;
+
+export const PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS = [
+  'pizza-and-fast-food',
+  'cakes-and-tarts',
+  'cookies-and-muffins',
+] as const;
+
+export const PUBLIC_VISIBLE_MAIN_CATEGORY_ORDER = [
+  'syrups',
+  'cafe-bar-sauces',
+  'powdered-beverages',
+  'premium',
+  'cocktail-mixes',
+  'foamer',
+  'flavored-cocktail-syrups',
+  'fruit-sauces',
+  'professional-bar-sauces',
+  'decoration-sauces',
+  'ice-cream-and-dessert-sauces',
+  'flavored-beverage-base',
+  'flavored-beverage-powders',
+  'premium-cocktail-syrups',
+  'premium-bar-sauces',
+  'special-sauces',
+] as const;
+
+const HIDDEN_MENU_PATH_SEGMENTS = ['/pizza', '/pizzas'];
+
+export function isPublicCategorySlugHidden(slug?: string | null): boolean {
+  if (!slug) return false;
+  return PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS.includes(
+    slug as (typeof PUBLIC_HIDDEN_MAIN_CATEGORY_SLUGS)[number]
+  );
+}
+
+export function buildHiddenPublicCategoryIds(categories: CategoryLike[] = []): Set<string> {
+  const hiddenIds = new Set<string>();
+  const queue = categories
+    .filter((category) => isPublicCategorySlugHidden(category.slug))
+    .map((category) => category.id);
+
+  while (queue.length > 0) {
+    const currentId = queue.shift();
+    if (!currentId || hiddenIds.has(currentId)) continue;
+
+    hiddenIds.add(currentId);
+
+    categories
+      .filter((category) => category.ust_kategori_id === currentId)
+      .forEach((category) => queue.push(category.id));
   }
 
-  throw lastError;
+  return hiddenIds;
+}
+
+export function isPublicMegaMenuCategoryHidden(category: {
+  subCategories?: Array<{ href?: string | null }>;
+}): boolean {
+  return (category.subCategories || []).some((subCategory) =>
+    HIDDEN_MENU_PATH_SEGMENTS.some((segment) => subCategory.href?.includes(segment))
+  );
+}
+</file>
+
+<file path="src/lib/stripe.ts">
+import Stripe from 'stripe';
+
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
+
+const isProduction = process.env.NODE_ENV === 'production';
+const vercelEnv = process.env.VERCEL_ENV; // 'production' | 'preview' | 'development' | undefined
+
+export const isStripeLiveKey = stripeSecretKey.startsWith('sk_live_');
+// Lokal geliştirme, test veya Vercel Preview (ön izleme) ortamları "canlı olmayan" ortamlardır
+export const isNonProductionEnv = !isProduction || vercelEnv === 'preview' || vercelEnv === 'development';
+
+// 1. Ortam Kontrolleri & Güvenlik Logları
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.warn('⚠️ STRIPE_SECRET_KEY ortam değişkeni tanımlı değil. Build için geçici placeholder kullanılıyor.');
+} else if (isNonProductionEnv && isStripeLiveKey) {
+  console.error('🛑 GÜVENLİK KİLİDİ: Test/Geliştirme ortamında CANLI Stripe anahtarı (sk_live_) tespit edildi! Gerçek banka ve kart çekimlerini önlemek için işlemler sınırlandırılmalıdır.');
+} else if (isProduction && vercelEnv === 'production' && !isStripeLiveKey) {
+  console.warn('⚠️ DİKKAT: Canlı ortamda (Production) Stripe TEST anahtarı (sk_test_) tanımlı. Gerçek ödemeler alınamaz.');
 }
 
 /**
- * Executes generateObject with automatic fallback across models and providers
+ * Güvenlik kontrolü: Bir ödeme oturumu veya işlem başlatılmadan önce çağrılır.
+ * Test/Lokal ortamda kazara canlı anahtar kullanılarak gerçek banka veya karttan
+ * para çekilmesini kesin olarak engeller.
  */
-export async function generateObjectWithFallback(
-  options: Omit<Parameters<typeof generateObject>[0], 'model'>
-) {
-  const models = [
-    { name: 'Gemini 1.5 Flash', model: google('gemini-1.5-flash') },
-    { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
-    { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
-  ];
-
-  let lastError: any;
-  for (const item of models) {
-    try {
-      return await generateObject({
-        maxTokens: 800,
-        ...options,
-        model: item.model,
-      });
-    } catch (err: any) {
-      console.warn(`[AI Providers] ${item.name} failed (${err.message}). Trying next fallback...`);
-      lastError = err;
-    }
+export function assertStripeEnvironmentSafety(): { safe: boolean; error?: string } {
+  if (isNonProductionEnv && isStripeLiveKey) {
+    return {
+      safe: false,
+      error: 'Güvenlik Koruması: Geliştirme/Test ortamında canlı Stripe anahtarı ile işlem yapılamaz. Lütfen test anahtarınızı (sk_test_...) kullanın.',
+    };
   }
+  return { safe: true };
+}
 
-  throw lastError;
+export const stripe = new Stripe(stripeSecretKey, {
+  apiVersion: '2024-06-20' as any,
+  appInfo: {
+    name: 'ElysonSweets B2B',
+    version: '1.0.0',
+  },
+});
+</file>
+
+<file path="vercel.json">
+{
+  "crons": [
+    {
+      "path": "/api/gbp/cron-post",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/gbp/sync-reviews",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/auto-blog",
+      "schedule": "0 9 * * 2,5"
+    }
+  ]
 }
 </file>
 
@@ -16986,6 +17145,116 @@ scratch_migrations.sql
 
 # supabase temp files
 supabase/.temp/
+</file>
+
+<file path="src/lib/ai/providers.ts">
+import { createOpenAI } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { generateText, generateObject } from 'ai';
+
+// Create a custom provider for Groq using the OpenAI SDK structure
+export const groq = createOpenAI({
+  baseURL: 'https://api.groq.com/openai/v1',
+  apiKey: process.env.GROQ_API_KEY,
+});
+
+// Create a provider for Google Gemini
+export const google = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+});
+
+// Helper to easily get Groq models
+export const getGroqModel = (modelName: string = 'qwen/qwen3.8-27b') => {
+  return groq(modelName);
+};
+
+// Primary High Performance Model: gemini-1.5-flash
+export const getGeminiModel = (modelName: string = 'gemini-1.5-flash') => {
+  return google(modelName);
+};
+
+/**
+ * Executes generateText with automatic fallback across models and providers:
+ * 1. Google Gemini 3.6 Flash (High context, superior multilingual translation)
+ * 2. Groq GPT-OSS 120B (Fast, reliable high parameter model)
+ * 3. Groq Qwen 3.8 27B (Fast fallback)
+ */
+export async function generateTextWithFallback(
+  options: Omit<Parameters<typeof generateText>[0], 'model'>
+) {
+  const models = [
+    { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
+    { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
+    { name: 'Gemini 1.5 Flash', model: google('gemini-1.5-flash') },
+  ];
+
+  let lastError: any;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    for (const item of models) {
+      try {
+        console.log(`[AI Providers] Attempt ${attempt}: Trying model ${item.name}...`);
+        const isGoogle = item.name.includes('Gemini');
+        const googleSafety = isGoogle ? {
+          safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+          ]
+        } : {};
+
+        const optionsWithSafety = { ...options, ...googleSafety } as any;
+
+        const result = await generateText({
+          ...optionsWithSafety,
+          model: item.model,
+        });
+        
+        if (!result.text || result.text.trim() === '') {
+          throw new Error("AI returned empty text. (Possible rate limit or safety filter block)");
+        }
+        
+        return result;
+      } catch (err: any) {
+        console.warn(`[AI Providers] ${item.name} failed (${err.message})`);
+        lastError = err;
+      }
+    }
+  }
+
+  throw lastError;
+}
+
+/**
+ * Executes generateObject with automatic fallback across models and providers
+ */
+export async function generateObjectWithFallback(
+  options: Omit<Parameters<typeof generateObject>[0], 'model'>
+) {
+  const models = [
+    { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
+    { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
+    { name: 'Gemini 1.5 Flash', model: google('gemini-1.5-flash') },
+  ];
+
+  let allErrors: any[] = [];
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    for (const item of models) {
+      try {
+        console.log(`[AI Providers] Attempt ${attempt}: Trying model ${item.name}...`);
+        return await generateObject({
+          ...options,
+          model: item.model,
+        });
+      } catch (err: any) {
+        console.warn(`[AI Providers] ${item.name} failed (${err.message})`);
+        allErrors.push(`${item.name}: ${err.message}`);
+      }
+    }
+  }
+
+  throw new Error(`All models failed. Errors: ${allErrors.join(' | ')}`);
+}
 </file>
 
 <file path="next.config.ts">
@@ -21962,6 +22231,7 @@ export const Constants = {
     "gsap": "^3.15.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
+    "lucide-react": "^1.48.0",
     "next": "^15.5.4",
     "pdf-parse": "^2.4.5",
     "react": "19.1.0",
@@ -21985,6 +22255,7 @@ export const Constants = {
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.62.1",
+    "@tailwindcss/typography": "^0.5.20",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
