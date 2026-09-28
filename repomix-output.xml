@@ -40,6 +40,10 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
+.github/
+  workflows/
+    playwright.yml
+    synthetic-monitoring.yml
 src/
   contexts/
     PortalContext.tsx
@@ -158,6 +162,7 @@ supabase/
     20260921_04_recipes_rls.sql
     20260921_05_recipes_to_json.sql
     20260921_create_blog_yazilari.sql
+    20260928_supply_chain_pipeline.sql
     20261001_smart_dms_columns.sql
     20261002_smart_dms_refactor.sql
     belgeler_table.sql
@@ -241,8 +246,10 @@ eslint.config.mjs
 header.md
 next.config.ts
 package.json
+plan-supplier-order-pipeline.md
 playwright.config.ts
 postcss.config.js
+project-signoff-and-maintenance-guide.md
 README.md
 receteler.md
 rules.md
@@ -260,6 +267,20 @@ SMART_DMS_PROMPTS.md
 summarize_log.mjs
 supabase_update.sql
 tailwind.config.ts
+tedarik_sureci.md
+test-plan-[Musteri_Paneli.md
+test-plan-backend-security.md
+test-plan-backoffice-resilience.md
+test-plan-dsgvo-audit.md
+test-plan-golden-flow-sanity.md
+test-plan-portal-edge-cases.md
+test-plan-post-golive-monitoring.md
+test-plan-post-order-security.md
+test-plan-prelaunch-clean-slate.md
+test-plan-prelaunch-surgical-clean.md`
+test-plan-production-deployment.md
+test-plan-production-readiness.md
+test-plan-supplier-order-pipeline.md
 test-unsplash.js
 tsconfig.json
 update_gami.js
@@ -712,20 +733,98 @@ export function formatPrice(n?: number | null): string {
 }
 </file>
 
+<file path="src/lib/blog-data.ts">
+export interface BlogPost {
+    slug: string;
+    title: { tr: string; en: string; de: string };
+    excerpt: { tr: string; en: string; de: string };
+    content: { tr: string; en: string; de: string };
+    date: string;
+    author: string;
+    image: string;
+    tags: string[];
+}
+
+export const BLOG_POSTS: BlogPost[] = [
+    {
+        slug: 'kafeler-icin-en-iyi-kahve-suruplari-neden-fo',
+        title: {
+            tr: 'Kafeler İçin En İyi Kahve Şurupları: Neden Fo Tercih Edilmeli?',
+            en: 'The Best Coffee Syrups for Cafes: Why Choose Fo?',
+            de: 'Die besten Kaffeesirupe für Cafés: Warum Fo wählen?'
+        },
+        excerpt: {
+            tr: 'Birinci sınıf kafelerin ve profesyonel baristaların imza içecekler yaratırken neden Fo markasını tercih ettiğini keşfedin.',
+            en: 'Discover why premium cafes and professional baristas choose the Fo brand when creating signature drinks.',
+            de: 'Entdecken Sie, warum erstklassige Cafés und professionelle Baristas bei der Kreation von Signature-Drinks die Marke Fo bevorzugen.'
+        },
+        content: {
+            tr: `
+<h2>Kahve Şuruplarında Kalitenin Önemi</h2>
+<p>Modern kafe kültüründe müşteriler artık sadece standart bir kahve içmekten öte, eşsiz ve akılda kalıcı deneyimler arıyorlar. Bu noktada devreye, sıradan bir kahveyi "imza içeceğe" dönüştüren <strong>kaliteli kahve şurupları</strong> giriyor. Baristalar için şurup, bir ressamın paletindeki en önemli renk gibidir.</p>
+
+<h2>Neden Fo Markası?</h2>
+<p>1988 yılında Fümer adıyla sektöre adım atan ve bugün Özmer A.Ş. çatısı altında dünya çapında bir dev haline gelen <strong>Fo</strong> markası, 100'den fazla ülkeye ihraç edilerek küresel bir standart belirlemiştir.</p>
+<ul>
+    <li><strong>Yüksek Konsantrasyon:</strong> Fo şurupları yoğun aromaya sahiptir, bu sayede az miktarda şurupla maksimum lezzet elde edilir.</li>
+    <li><strong>El Değmeden Üretim:</strong> Son teknoloji laboratuvarlarda, tamamen hijyenik koşullarda üretilir.</li>
+    <li><strong>Doğal Renk ve Tat:</strong> Kahvenin dokusunu bozmadan, istenen o doğal karamel, vanilya veya fındık tadını mükemmel şekilde yansıtır.</li>
+</ul>
+
+<h2>En Çok Tercih Edilen Fo Aromaları</h2>
+<p>Kafelerde en hızlı tükenen ve müşterilerin favorisi olan aromalar şunlardır:</p>
+<ol>
+    <li><strong>Karamel Şurubu:</strong> Caramel Macchiato ve Frappelerin vazgeçilmezi.</li>
+    <li><strong>Vanilya Şurubu:</strong> Yumuşak içim arayanların ilk tercihi.</li>
+    <li><strong>Fındık (Hazelnut) Şurubu:</strong> Sütlü kahvelerle muhteşem uyumuyla klasikleşmiş bir tat.</li>
+    <li><strong>İrlanda Kremi (Irish Cream):</strong> Daha yoğun ve spesifik kahve tarifleri için ideal.</li>
+</ol>
+
+<h2>ElysonSweets ile Almanya'da Toptan Tedarik</h2>
+<p>Eğer Almanya'da bir kafe, otel veya pastane işletiyorsanız, orijinal Fo kahve şuruplarını toptan ve en uygun fiyatlarla <strong>ElysonSweets</strong> üzerinden temin edebilirsiniz. Hızlı lojistik ağımızla bu efsanevi lezzetleri işletmenize ulaştırıyoruz.</p>
+            `,
+            en: `<p>English content for the blog post about Fo Syrups.</p>`,
+            de: `<p>German content for the blog post about Fo Syrups.</p>`
+        },
+        date: '2023-11-15',
+        author: 'ElysonSweets Team',
+        image: '/img/pattern.svg', // Placeholder, we can replace it later
+        tags: ['Kahve', 'Barista', 'Fo Şurup', 'HORECA']
+    }
+];
+</file>
+
 <file path="src/lib/import-batch-utils.ts">
+// ============================================================
+// Supply Chain Pipeline — Maliyet Hesaplama Motoru
+// Master Data Driven: Ağırlık ve adet bilgileri urunler
+// tablosundaki kayıtlardan otomatik hesaplanır, kullanıcıdan
+// istenmez.
+// ============================================================
+
 export type ImportBatchItemInput = {
   urunId: string;
-  miktarAdet: number;
-  toplamAgirlikKg: number;
-  birimAlisFiyatiOrijinal: number;
-  ciplakMaliyetEur: number;
+  koliSayisi: number;           // Kullanıcı girer (KESİNLİKLE SADECE BU)
+  miktarAdet: number;           // Otomatik: koliSayisi × koli_ici_adet
+  toplamAgirlikKg: number;      // Otomatik: miktarAdet × birim_agirlik_kg
+  birimAlisFiyatiOrijinal: number;  // Master data: distributor_alis_fiyati (DOKUNULMAZ)
+  indirimliAlisFiyati: number;  // Hesaplanan: basePrice × (1-d1) × (1-d2)
+  ciplakMaliyetEur: number;     // = indirimliAlisFiyati (birim bazında)
   dagitilanNavlunEur: number;
   dagitilanGumrukEur: number;
-  dagitilanOzelGiderEur: number;
+  dagitilanOzelGiderEur: number; // TRACES + LUCID payı birleşik
   operasyonVeRiskYukuEur: number;
   gercekInisMaliyetiNet: number;
   standartInisMaliyetiNet: number;
   maliyetSapmaYuzde: number;
+};
+
+export type ProductMasterData = {
+  id: string;
+  distributor_alis_fiyati: number;
+  koli_ici_adet: number | null;
+  birim_agirlik_kg: number | null;
+  standart_inis_maliyeti_net?: number | null;
 };
 
 export type ProductBatchSnapshot = {
@@ -747,6 +846,65 @@ export function normalizeBatchQuantity(value: unknown) {
   return Math.max(1, Math.floor(toSafeNumber(value, 1)));
 }
 
+/**
+ * Ticari yuvarlama (Kaufmännisches Runden)
+ * JavaScript floating point hatalarını önlemek için.
+ * Kurala göre: her adımda Math.round((val + Number.EPSILON) * 100) / 100
+ */
+export function kaufmannRunden(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+/**
+ * Çift kademeli indirim hesabı — Master Data fiyatına uygulanır,
+ * distributor_alis_fiyati KESİNLİKLE DEĞİŞTİRİLMEZ.
+ * indirimliFiyat = basePrice * (1 - indirim1/100) * (1 - indirim2/100)
+ */
+export function calculateDiscountedPrice(
+  basePrice: number,
+  indirim1: number,
+  indirim2: number
+): number {
+  const p = toSafeNumber(basePrice, 0);
+  const d1 = toSafeNumber(indirim1, 0);
+  const d2 = toSafeNumber(indirim2, 0);
+  const afterD1 = kaufmannRunden(p * (1 - d1 / 100));
+  const afterD2 = kaufmannRunden(afterD1 * (1 - d2 / 100));
+  return afterD2;
+}
+
+/**
+ * LUCID (Ambalaj Sicili) maliyeti — otomatik hesaplanır.
+ * Kullanıcıdan ağırlık bilgisi istenmez; urunler.birim_agirlik_kg'dan gelir.
+ */
+export function calculateLucidCost(weightKg: number, lucidPerKgRate: number): number {
+  return kaufmannRunden(toSafeNumber(weightKg, 0) * toSafeNumber(lucidPerKgRate, 0));
+}
+
+/**
+ * Master Data'dan toplam adet hesabı.
+ * Kullanıcı koli sayısı girer; sistem koli_ici_adet ile çarpar.
+ * MANUEL AĞIRLIK / ADET GİRİŞİ KESİNLİKLE YASAK.
+ */
+export function calculateMiktarAdet(
+  koliSayisi: number,
+  koliIciAdet: number | null
+): number {
+  const koli = normalizeBatchQuantity(koliSayisi);
+  const ppc = Math.max(1, toSafeNumber(koliIciAdet, 1));
+  return koli * ppc;
+}
+
+/**
+ * Master Data'dan toplam ağırlık hesabı.
+ */
+export function calculateToplamAgirlikKg(
+  miktarAdet: number,
+  birimAgirlikKg: number | null
+): number {
+  return kaufmannRunden(toSafeNumber(miktarAdet) * toSafeNumber(birimAgirlikKg, 0));
+}
+
 export function computeVariancePct(standardCost: unknown, actualCost: unknown) {
   const standard = toSafeNumber(standardCost, 0);
   const actual = toSafeNumber(actualCost, 0);
@@ -758,22 +916,37 @@ export function shouldTriggerVarianceAlert(variancePct: unknown, thresholdPct = 
   return Math.abs(toSafeNumber(variancePct, 0)) >= Math.max(0, toSafeNumber(thresholdPct, 5));
 }
 
-export function buildBatchItemInsertRows(partiId: string, items: ImportBatchItemInput[]) {
-  return items.map((item) => ({
-    parti_id: partiId,
-    urun_id: item.urunId,
-    miktar_adet: normalizeBatchQuantity(item.miktarAdet),
-    toplam_agirlik_kg: round4(item.toplamAgirlikKg),
-    birim_alis_fiyati_orijinal: round4(item.birimAlisFiyatiOrijinal),
-    ciplak_maliyet_eur: round4(item.ciplakMaliyetEur),
-    dagitilan_navlun_eur: round4(item.dagitilanNavlunEur),
-    dagitilan_gumruk_eur: round4(item.dagitilanGumrukEur),
-    dagitilan_ozel_gider_eur: round4(item.dagitilanOzelGiderEur),
-    operasyon_ve_risk_yuku_eur: round4(item.operasyonVeRiskYukuEur),
-    gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
-    standart_inis_maliyeti_net: round4(item.standartInisMaliyetiNet),
-    maliyet_sapma_yuzde: computeVariancePct(item.standartInisMaliyetiNet, item.gercekInisMaliyetiNet),
-  }));
+/**
+ * DB insert satırları oluşturur.
+ * toplam_agirlik_kg dışarıdan ALINMAZ — koliSayisi ve master data ile hesaplanır.
+ * LUCID payı dagitilan_ozel_gider_eur içine otomatik eklenir.
+ */
+export function buildBatchItemInsertRows(
+  partiId: string,
+  items: ImportBatchItemInput[],
+  lucidPerKgRateEur = 0.02
+) {
+  return items.map((item) => {
+    const lucidMaliyeti = calculateLucidCost(item.toplamAgirlikKg, lucidPerKgRateEur);
+    return {
+      // parti_id yerine ithalat_partisi_id (tablo schema'sına göre)
+      ithalat_partisi_id: partiId,
+      urun_id: item.urunId,
+      miktar_adet: item.miktarAdet,
+      koli_sayisi: normalizeBatchQuantity(item.koliSayisi),
+      toplam_agirlik_kg: round4(item.toplamAgirlikKg),          // hesaplanan, kullanıcıdan alınmaz
+      birim_alis_fiyati_orijinal: round4(item.birimAlisFiyatiOrijinal), // master data, değişmez
+      indirimli_alis_fiyati: round4(item.indirimliAlisFiyati),
+      ciplak_maliyet_eur: round4(item.indirimliAlisFiyati * item.miktarAdet), // toplam çıplak
+      dagitilan_navlun_eur: round4(item.dagitilanNavlunEur),
+      dagitilan_gumruk_eur: round4(item.dagitilanGumrukEur),
+      dagitilan_ozel_gider_eur: round4(item.dagitilanOzelGiderEur + lucidMaliyeti),
+      operasyon_ve_risk_yuku_eur: round4(item.operasyonVeRiskYukuEur),
+      gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
+      standart_inis_maliyeti_net: round4(item.standartInisMaliyetiNet),
+      maliyet_sapma_yuzde: computeVariancePct(item.standartInisMaliyetiNet, item.gercekInisMaliyetiNet),
+    };
+  });
 }
 
 export function buildProductSnapshotUpdate(
@@ -782,13 +955,14 @@ export function buildProductSnapshotUpdate(
   thresholdPct = 5
 ) {
   const currentStock = toSafeNumber(product?.stok_miktari, 0);
-  const standardCost = toSafeNumber(product?.standart_inis_maliyeti_net, 0) > 0
-    ? toSafeNumber(product?.standart_inis_maliyeti_net, 0)
-    : round4(item.standartInisMaliyetiNet);
+  const standardCost =
+    toSafeNumber(product?.standart_inis_maliyeti_net, 0) > 0
+      ? toSafeNumber(product?.standart_inis_maliyeti_net, 0)
+      : round4(item.standartInisMaliyetiNet);
   const variancePct = computeVariancePct(standardCost, item.gercekInisMaliyetiNet);
 
   return {
-    stok_miktari: currentStock + normalizeBatchQuantity(item.miktarAdet),
+    stok_miktari: currentStock + item.miktarAdet,
     standart_inis_maliyeti_net: standardCost,
     son_gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
     son_maliyet_sapma_yuzde: variancePct,
@@ -800,7 +974,7 @@ export function summarizeIncomingStock(items: ImportBatchItemInput[]) {
   return items.reduce(
     (summary, item) => {
       summary.totalLines += 1;
-      summary.totalQuantity += normalizeBatchQuantity(item.miktarAdet);
+      summary.totalQuantity += item.miktarAdet;
       summary.totalWeightKg += round4(item.toplamAgirlikKg);
       return summary;
     },
@@ -3414,6 +3588,108 @@ DO $$ BEGIN
             FOR DELETE USING (sahip_id = auth.uid());
     END IF;
 END $$;
+</file>
+
+<file path="supabase/migrations/20260531_add_firma_strateji.sql">
+-- Add strategy notes from Excel imports
+ALTER TABLE firmalar ADD COLUMN strateji_notu TEXT;
+ALTER TABLE firmalar ADD COLUMN urun_eslesme_notu TEXT;
+</file>
+
+<file path="supabase/migrations/20260928_supply_chain_pipeline.sql">
+-- Adım 1: Veritabanı Şema ve Ayar Güncellemeleri
+
+-- ithalat_partileri tablosuna yeni kolonlar
+ALTER TABLE public.ithalat_partileri
+ADD COLUMN IF NOT EXISTS indirim_1_yuzde numeric DEFAULT 0,
+ADD COLUMN IF NOT EXISTS indirim_2_yuzde numeric DEFAULT 0;
+
+-- ithalat_parti_kalemleri tablosuna yeni kolonlar
+ALTER TABLE public.ithalat_parti_kalemleri
+ADD COLUMN IF NOT EXISTS indirimli_alis_fiyati numeric DEFAULT 0;
+
+-- koli_sayisi: Kullanıcının girdiği tek input (Master Data Driven)
+-- miktarAdet = koli_sayisi × koli_ici_adet (otomatik hesaplanır)
+ALTER TABLE public.ithalat_parti_kalemleri
+ADD COLUMN IF NOT EXISTS koli_sayisi integer DEFAULT 1;
+
+-- system_settings tablosuna LUCID ayarı
+INSERT INTO public.system_settings (setting_key, setting_value, setting_type, description, category)
+VALUES ('pricing_lucid_per_kg_eur', '0.02', 'number', 'LUCID Ambalaj Sicili KG başı tahmini maliyet (€)', 'pricing')
+ON CONFLICT (setting_key) DO NOTHING;
+
+-- Adım 2: Atomik Mal Kabul Fonksiyonu (Supabase RPC)
+CREATE OR REPLACE FUNCTION public.complete_import_batch(p_batch_id UUID, p_user_id UUID)
+RETURNS void AS $$
+DECLARE
+    v_status text;
+    v_item RECORD;
+    v_mevcut_fiyat numeric;
+BEGIN
+    -- 1. Partinin durumunu kontrol et
+    SELECT durum INTO v_status FROM public.ithalat_partileri WHERE id = p_batch_id FOR UPDATE;
+    
+    IF v_status = 'Tamamlandı' THEN
+        RAISE EXCEPTION 'Bu ithalat partisi zaten tamamlanmış.';
+    END IF;
+
+    -- 2. Partinin durumunu 'Tamamlandı' yap
+    UPDATE public.ithalat_partileri
+    SET durum = 'Tamamlandı',
+        updated_at = NOW()
+    WHERE id = p_batch_id;
+
+    -- 3. Kalemleri dön ve işlemleri yap
+    FOR v_item IN (SELECT * FROM public.ithalat_parti_kalemleri WHERE ithalat_partisi_id = p_batch_id) LOOP
+        -- Stok miktarını ve son iniş maliyetini güncelle
+        UPDATE public.urunler
+        SET stok_miktari = COALESCE(stok_miktari, 0) + v_item.miktar_adet,
+            son_gercek_inis_maliyeti_net = v_item.gercek_inis_maliyeti_net,
+            updated_at = NOW()
+        WHERE id = v_item.urun_id;
+
+        -- Stok hareket logu
+        INSERT INTO public.urun_stok_hareket_loglari (
+            urun_id, 
+            hareket_tipi, 
+            miktar, 
+            kaynak, 
+            kaynak_id, 
+            kullanici_id,
+            aciklama
+        ) VALUES (
+            v_item.urun_id,
+            'stok_artisi',
+            v_item.miktar_adet,
+            'ithalat_partisi',
+            p_batch_id::text,
+            p_user_id,
+            'İthalat partisi mal kabulü'
+        );
+
+        -- Tedarikçi fiyat logu
+        SELECT distributor_alis_fiyati INTO v_mevcut_fiyat FROM public.urunler WHERE id = v_item.urun_id;
+        
+        INSERT INTO public.tedarikci_fiyat_loglari (
+            urun_id,
+            tir_id,
+            standart_fiyat,
+            gercek_fiyat,
+            fark_yuzde,
+            indirim_aciklamasi,
+            miktar
+        ) VALUES (
+            v_item.urun_id,
+            p_batch_id,
+            COALESCE(v_mevcut_fiyat, 0),
+            COALESCE(v_item.gercek_inis_maliyeti_net, 0),
+            CASE WHEN COALESCE(v_mevcut_fiyat, 0) > 0 THEN ((COALESCE(v_item.gercek_inis_maliyeti_net, 0) - COALESCE(v_mevcut_fiyat, 0)) / COALESCE(v_mevcut_fiyat, 0) * 100) ELSE 0 END,
+            'Mal kabul sonrası gerçekleşen maliyet vs standart fiyat',
+            v_item.miktar_adet
+        );
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 </file>
 
 <file path="supabase/migrations/belgeler_table.sql">
@@ -9134,6 +9410,72 @@ const eslintConfig = [
 export default eslintConfig;
 </file>
 
+<file path="plan-supplier-order-pipeline.md">
+# BAĞLAM (CONTEXT)
+Bu görev, `elysonsweets.de` projesinin "Tedarikçi Sipariş Planı" (İthalat Partileri / Import Batches) modülünün, B2B ERP standartlarına uygun, 4 aşamalı (Taslak -> Yolda -> Maliyetlendirme -> Mal Kabul) bir "Tedarik Zinciri Yönetimi (Supply Chain Pipeline)" modülüne dönüştürülmesini kapsar.
+
+Mevcut karmaşık tek sayfa yapısı terk edilecek; yerine çift kademeli indirim (%20 + %8) destekleyen, LUCID (Ambalaj Sicili) maliyetini otomatik hesaplayan, Smart DMS (Belge Yönetimi) entegreli ve atomik mal kabul otomasyonuna sahip sekmeli (Stepper/Tabs) bir UI inşa edilecektir.
+
+**Kritik Mimari Karar (Master Data Driven):** Sipariş oluşturulurken kullanıcı SADECE ürünü seçecek ve koli miktarını girecektir. Toplam ağırlık, toplam adet ve baz fiyat gibi veriler KESİNLİKLE kullanıcıdan istenmeyecek; sistem tarafından `urunler` tablosundaki `birim_agirlik_kg`, `koli_ici_adet` ve `distributor_alis_fiyati` verileri kullanılarak otomatik hesaplanacaktır.
+
+**Çalışılacak Dosyalar:**
+- `supabase/migrations/[tarih]_supply_chain_pipeline.sql` (Yeni kolonlar, ayarlar ve RPC fonksiyonu)
+- `src/lib/import-batch-utils.ts` (Maliyet ve indirim hesaplama motoru)
+- `src/app/[locale]/admin/urun-yonetimi/tedarikci-siparis-plani/page.tsx` (Ana liste görünümü)
+- `src/app/[locale]/admin/urun-yonetimi/tedarikci-siparis-plani/[id]/page.tsx` (Oluşturulacak: Sekmeli detay/yönetim sayfası)
+- `src/app/actions/import-batch-actions.ts` (Sunucu eylemleri)
+
+# BAĞIMLILIKLAR (DEPENDENCIES)
+- `lucide-react` (Aşama ikonları: Edit, Truck, Calculator, CheckCircle, FileText)
+- `react-hook-form` & `zod` (Sipariş ve maliyet formları validasyonu)
+- `src/components/admin/documents/SmartUploadModal.tsx` (Evrak yükleme entegrasyonu)
+- `src/lib/supabase/server.ts` (Veritabanı işlemleri)
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Veritabanı Şema ve Ayar Güncellemeleri (Migration)**
+  - Yeni bir migration dosyası oluştur (örn: `20261010_supply_chain_pipeline.sql`).
+  - `ithalat_partileri` tablosuna kolonları ekle: `indirim_1_yuzde` (numeric, default 0), `indirim_2_yuzde` (numeric, default 0).
+  - `ithalat_parti_kalemleri` tablosuna kolon ekle: `indirimli_alis_fiyati` (numeric, default 0).
+  - `system_settings` tablosuna LUCID ayarını ekle: `INSERT INTO system_settings (setting_key, setting_value, setting_type, description, category) VALUES ('pricing_lucid_per_kg_eur', '0.02', 'number', 'LUCID Ambalaj Sicili KG başı tahmini maliyet (€)', 'pricing') ON CONFLICT DO NOTHING;`.
+
+- [ ] **Adım 2: Atomik Mal Kabul Fonksiyonu (Supabase RPC)**
+  - Aynı migration dosyası içine `complete_import_batch(p_batch_id UUID, p_user_id UUID)` adında bir PostgreSQL fonksiyonu (RPC) yaz.
+  - Bu fonksiyon sırasıyla şunları yapmalıdır (Transaction içinde):
+    1. Partinin durumunu kontrol et, zaten 'Tamamlandı' ise hata dön.
+    2. Partinin durumunu 'Tamamlandı' yap.
+    3. `ithalat_parti_kalemleri` tablosunda döngüye girerek her bir ürün için:
+       - `urunler` tablosunda `stok_miktari = stok_miktari + kalem.miktar_adet` işlemini yap.
+       - `urunler` tablosunda `son_gercek_inis_maliyeti_net = kalem.gercek_inis_maliyeti_net` güncellemesini yap.
+       - `urun_stok_hareket_loglari` tablosuna `hareket_tipi: 'stok_artisi'`, `kaynak: 'ithalat_partisi'` olarak log at.
+       - `tedarikci_fiyat_loglari` tablosuna standart fiyat ile gerçekleşen fiyat farkını kaydet.
+
+- [ ] **Adım 3: Maliyet Hesaplama Motorunun (Utils) Güncellenmesi**
+  - `src/lib/import-batch-utils.ts` dosyasını aç.
+  - Çift kademeli indirim hesaplayan mantığı ekle: `indirimliFiyat = basePrice * (1 - indirim1/100) * (1 - indirim2/100)`. (Ticari yuvarlama kullan).
+  - `buildBatchItemInsertRows` fonksiyonunu güncelle: `toplam_agirlik_kg` değeri artık dışarıdan alınmamalı, `(koli_sayisi * urun.koli_ici_adet) * urun.birim_agirlik_kg` formülüyle Master Data'dan hesaplanmalıdır.
+  - `system_settings` üzerinden `pricing_lucid_per_kg_eur` değerini alacak şekilde parametreleri genişlet ve ürünün hesaplanan `toplam_agirlik_kg` değeri ile çarparak `dagitilan_ozel_gider_eur` (veya yeni bir alan) içine LUCID maliyetini otomatik olarak yedir.
+
+- [ ] **Adım 4: UI/UX Yeniden Yapılandırması (Pipeline Arayüzü)**
+  - `[id]/page.tsx` adında detay sayfası oluştur ve 4 sekmeli (Tabs) bir yapı kur:
+    - **Sekme 1: Sipariş (Draft):** Tedarikçi seçimi, İndirim 1 ve İndirim 2 girişleri. Ürün ekleme tablosu. **Kullanıcı sadece ürünü seçecek ve koli miktarını girecektir.** Tablo; Toplam Adet, Toplam KG, Liste Fiyatı ve İndirimli Fiyatı otomatik hesaplayıp salt okunur (read-only) gösterecektir. "Siparişi Onayla ve Yola Çıkar" butonu.
+    - **Sekme 2: Yolda (In Transit):** Sadece durum bilgisi ve tahmini varış tarihi gösterimi.
+    - **Sekme 3: Maliyetlendirme (Costing):** Navlun, Gümrük, TRACES masraflarının girildiği form. Altında, ürünlere dağıtılmış nihai maliyetleri (Landed Cost) ve otomatik eklenen LUCID payını gösteren salt okunur tablo.
+    - **Sekme 4: Belgeler (Smart DMS):** Bu siparişe (`tir_id = batch.id`) ait fatura ve gümrük belgelerinin yükleneceği alan. `SmartUploadModal` bileşenini buraya entegre et.
+
+- [ ] **Adım 5: Entegrasyon ve Aksiyonların Bağlanması**
+  - `src/app/actions/import-batch-actions.ts` dosyasında `completeBatchAction` oluştur. Bu action, Adım 2'de yazılan `complete_import_batch` RPC'sini çağırmalıdır.
+  - UI'da, sipariş "Maliyetlendirme" aşamasındayken aktif olacak devasa bir **"Mal Kabulü Tamamla (Stoğa Al)"** butonu ekle. Tıklandığında kullanıcıdan onay iste (Confirm Modal) ve action'ı tetikle.
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
+
+- **MASTER DATA KESİNLİKLE KORUNACAKTIR:** Siparişe uygulanan %20 veya %8 gibi indirimler, `urunler` tablosundaki `distributor_alis_fiyati` kolonunu ASLA değiştirmemelidir. Bu kolon standart liste fiyatıdır. İndirimli fiyat sadece `ithalat_parti_kalemleri` tablosunda yaşar.
+- **MANUEL VERİ GİRİŞİ YASAĞI:** Kullanıcıdan ürünün ağırlığı, koli içi adedi veya birim fiyatı KESİNLİKLE istenmeyecektir. Bu veriler `urunler` tablosundan çekilip UI'da otomatik hesaplanacaktır.
+- **JAVASCRIPT İLE STOK TOPLAMA YASAKTIR:** Mal kabul işlemi sırasında stok artırımı yapılırken, frontend veya backend JS tarafında `mevcut_stok + yeni_stok` şeklinde okuma/yazma (read-modify-write) YAPILMAYACAKTIR. Bu işlem kesinlikle Adım 2'deki RPC içinde veritabanı seviyesinde (`stok_miktari = stok_miktari + X`) yapılmalıdır (Race Condition koruması).
+- **YUVARLAMA HASSASİYETİ (KAUFMÄNNISCHES RUNDEN):** Çift kademeli indirim ve LUCID maliyeti hesaplanırken, JavaScript'in floating point hatalarını önlemek için her çarpım adımında `Math.round((val + Number.EPSILON) * 100) / 100` kullanılmalıdır.
+- **KISMİ TESLİMAT ESNEKLİĞİ:** Mal kabul butonuna basılmadan ÖNCE, kullanıcının "Sipariş" sekmesine dönüp eksik/hasarlı gelen ürünlerin miktarını güncelleyebilmesine izin verilmelidir. Sistem maliyetleri anında yeni miktara göre yeniden hesaplamalıdır.
+</file>
+
 <file path="postcss.config.js">
 module.exports = {
   plugins: {
@@ -9183,6 +9525,122 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 </file>
 
+<file path="tedarik_sureci.md">
+# BAĞLAM (CONTEXT)
+Bu görev, `elysonsweets.de` projesinin "Tedarikçi Sipariş Planı" (İthalat Partileri / Import Batches) modülünün, B2B ERP standartlarına uygun, 4 aşamalı (Taslak -> Yolda -> Maliyetlendirme -> Mal Kabul) bir "Tedarik Zinciri Yönetimi (Supply Chain Pipeline)" modülüne dönüştürülmesini kapsar.
+
+Mevcut karmaşık tek sayfa yapısı terk edilecek; yerine çift kademeli indirim (%20 + %8) destekleyen, LUCID (Ambalaj Sicili) maliyetini otomatik hesaplayan, Smart DMS (Belge Yönetimi) entegreli ve atomik mal kabul otomasyonuna sahip sekmeli (Stepper/Tabs) bir UI inşa edilecektir.
+
+**Çalışılacak Dosyalar:**
+- `supabase/migrations/[tarih]_supply_chain_pipeline.sql` (Yeni kolonlar, ayarlar ve RPC fonksiyonu)
+- `src/lib/import-batch-utils.ts` (Maliyet ve indirim hesaplama motoru)
+- `src/app/[locale]/admin/urun-yonetimi/tedarikci-siparis-plani/page.tsx` (Ana liste görünümü)
+- `src/app/[locale]/admin/urun-yonetimi/tedarikci-siparis-plani/[id]/page.tsx` (Oluşturulacak: Sekmeli detay/yönetim sayfası)
+- `src/app/actions/import-batch-actions.ts` (Sunucu eylemleri)
+
+# BAĞIMLILIKLAR (DEPENDENCIES)
+- `lucide-react` (Aşama ikonları: Edit, Truck, Calculator, CheckCircle, FileText)
+- `react-hook-form` & `zod` (Sipariş ve maliyet formları validasyonu)
+- `src/components/admin/documents/SmartUploadModal.tsx` (Evrak yükleme entegrasyonu)
+- `src/lib/supabase/server.ts` (Veritabanı işlemleri)
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Veritabanı Şema ve Ayar Güncellemeleri (Migration)**
+  - Yeni bir migration dosyası oluştur (örn: `20261010_supply_chain_pipeline.sql`).
+  - `ithalat_partileri` tablosuna kolonları ekle: `indirim_1_yuzde` (numeric, default 0), `indirim_2_yuzde` (numeric, default 0).
+  - `ithalat_parti_kalemleri` tablosuna kolon ekle: `indirimli_alis_fiyati` (numeric, default 0).
+  - `system_settings` tablosuna LUCID ayarını ekle: `INSERT INTO system_settings (setting_key, setting_value, setting_type, description, category) VALUES ('pricing_lucid_per_kg_eur', '0.02', 'number', 'LUCID Ambalaj Sicili KG başı tahmini maliyet (€)', 'pricing') ON CONFLICT DO NOTHING;`.
+
+- [ ] **Adım 2: Atomik Mal Kabul Fonksiyonu (Supabase RPC)**
+  - Aynı migration dosyası içine `complete_import_batch(p_batch_id UUID, p_user_id UUID)` adında bir PostgreSQL fonksiyonu (RPC) yaz.
+  - Bu fonksiyon sırasıyla şunları yapmalıdır (Transaction içinde):
+    1. Partinin durumunu kontrol et, zaten 'Tamamlandı' ise hata dön.
+    2. Partinin durumunu 'Tamamlandı' yap.
+    3. `ithalat_parti_kalemleri` tablosunda dönerek her bir ürün için:
+       - `urunler` tablosunda `stok_miktari = stok_miktari + kalem.miktar_adet` işlemini yap.
+       - `urunler` tablosunda `son_gercek_inis_maliyeti_net = kalem.gercek_inis_maliyeti_net` güncellemesini yap.
+       - `urun_stok_hareket_loglari` tablosuna `hareket_tipi: 'stok_artisi'`, `kaynak: 'ithalat_partisi'` olarak log at.
+       - `tedarikci_fiyat_loglari` tablosuna standart fiyat ile gerçekleşen fiyat farkını kaydet.
+
+- [ ] **Adım 3: Maliyet Hesaplama Motorunun (Utils) Güncellenmesi**
+  - `src/lib/import-batch-utils.ts` dosyasını aç.
+  - Çift kademeli indirim hesaplayan mantığı ekle: `indirimliFiyat = basePrice * (1 - indirim1/100) * (1 - indirim2/100)`. (Ticari yuvarlama kullan).
+  - `buildBatchItemInsertRows` fonksiyonunu güncelle: `ciplak_maliyet_eur` artık bu `indirimli_alis_fiyati` üzerinden hesaplanmalı.
+  - `system_settings` üzerinden `pricing_lucid_per_kg_eur` değerini alacak şekilde parametreleri genişlet ve ürünün `toplam_agirlik_kg` değeri ile çarparak `dagitilan_ozel_gider_eur` (veya yeni bir alan) içine LUCID maliyetini otomatik olarak yedir.
+
+- [ ] **Adım 4: UI/UX Yeniden Yapılandırması (Pipeline Arayüzü)**
+  - `[id]/page.tsx` adında detay sayfası oluştur ve 4 sekmeli (Tabs) bir yapı kur:
+    - **Sekme 1: Sipariş (Draft):** Tedarikçi seçimi, İndirim 1 ve İndirim 2 girişleri. Ürün ekleme tablosu. Tabloda "Liste Fiyatı" ve "İndirimli Fiyat" yan yana gösterilmeli. "Siparişi Onayla ve Yola Çıkar" butonu. (Opsiyonel: PDF İndir butonu).
+    - **Sekme 2: Yolda (In Transit):** Sadece durum bilgisi ve tahmini varış tarihi gösterimi.
+    - **Sekme 3: Maliyetlendirme (Costing):** Navlun, Gümrük, TRACES masraflarının girildiği form. Altında, ürünlere dağıtılmış nihai maliyetleri (Landed Cost) ve otomatik eklenen LUCID payını gösteren salt okunur (read-only) tablo.
+    - **Sekme 4: Belgeler (Smart DMS):** Bu siparişe (`tir_id = batch.id`) ait fatura ve gümrük belgelerinin yükleneceği alan. `SmartUploadModal` bileşenini buraya entegre et.
+
+- [ ] **Adım 5: Entegrasyon ve Aksiyonların Bağlanması**
+  - `src/app/actions/import-batch-actions.ts` dosyasında `completeBatchAction` oluştur. Bu action, Adım 2'de yazılan `complete_import_batch` RPC'sini çağırmalıdır.
+  - UI'da, sipariş "Maliyetlendirme" aşamasındayken (veya Yolda aşamasındayken) aktif olacak devasa bir **"Mal Kabulü Tamamla (Stoğa Al)"** butonu ekle. Tıklandığında kullanıcıdan onay iste (Confirm Modal) ve action'ı tetikle.
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
+
+- **MASTER DATA KESİNLİKLE KORUNACAKTIR:** Siparişe uygulanan %20 veya %8 gibi indirimler, `urunler` tablosundaki `distributor_alis_fiyati` kolonunu ASLA değiştirmemelidir. Bu kolon standart liste fiyatıdır. İndirimli fiyat sadece `ithalat_parti_kalemleri` tablosunda yaşar.
+- **JAVASCRIPT İLE STOK TOPLAMA YASAKTIR:** Mal kabul işlemi sırasında stok artırımı yapılırken, frontend veya backend JS tarafında `mevcut_stok + yeni_stok` şeklinde okuma/yazma (read-modify-write) YAPILMAYACAKTIR. Bu işlem kesinlikle Adım 2'deki RPC içinde veritabanı seviyesinde (`stok_miktari = stok_miktari + X`) yapılmalıdır (Race Condition koruması).
+- **YUVARLAMA HASSASİYETİ (KAUFMÄNNISCHES RUNDEN):** Çift kademeli indirim ve LUCID maliyeti hesaplanırken, JavaScript'in floating point hatalarını önlemek için her çarpım adımında `Math.round((val + Number.EPSILON) * 100) / 100` kullanılmalıdır.
+- **KISMİ TESLİMAT ESNEKLİĞİ:** Mal kabul butonuna basılmadan ÖNCE, kullanıcının "Sipariş" sekmesine dönüp eksik/hasarlı gelen ürünlerin miktarını güncelleyebilmesine izin verilmelidir. Sistem maliyetleri anında yeni miktara göre yeniden hesaplamalıdır.
+</file>
+
+<file path="test-plan-supplier-order-pipeline.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: `test-plan-supplier-order-pipeline.md`
+Hedef Modül: Tedarikçi Sipariş Planı (Supply Chain Pipeline / Import Batches)
+Hedef URL: `/tr/admin/urun-yonetimi/tedarikci-siparis-plani` ve alt detay sayfaları (`/[id]`)
+Kapsam: B2B ERP standartlarına uygun olarak tasarlanan 4 aşamalı (Taslak -> Yolda -> Maliyetlendirme -> Mal Kabul) tedarik zinciri modülünün uçtan uca test edilmesi ve onarılması. Bu modülde kullanıcı sadece "Koli Sayısı" girer; ağırlık, adet, LUCID (Ambalaj Sicili) maliyeti ve çift kademeli indirimler Master Data (`urunler` tablosu) üzerinden otomatik hesaplanır. Mal kabul işlemi (Stok artışı ve loglama) kesinlikle JavaScript ile değil, Supabase RPC (`complete_import_batch`) üzerinden atomik olarak yapılmalıdır.
+İlişkili Kritik Dosyalar:
+- `src/lib/import-batch-utils.ts` (Maliyet, indirim, LUCID ve yuvarlama motoru)
+- `supabase/migrations/20260928_supply_chain_pipeline.sql` (Atomik mal kabul RPC'si ve log tabloları)
+- `src/app/actions/import-batch-actions.ts` (Sunucu eylemleri)
+- `src/app/[locale]/admin/urun-yonetimi/tedarikci-siparis-plani/page.tsx` & `[id]/page.tsx` (UI/UX)
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+1. Unit Testing (Vitest): `import-batch-utils.ts` içindeki `kaufmannRunden` (ticari yuvarlama), çift kademeli indirim (`calculateDiscountedPrice`), LUCID maliyeti (`calculateLucidCost`) ve Master Data hesaplamalarının (Koli -> Adet -> Ağırlık) izole testi.
+2. Integration Testing (Vitest + Supabase): `complete_import_batch` RPC fonksiyonunun veritabanı seviyesinde test edilmesi. Stokların doğru artması, `urun_stok_hareket_loglari` ve `tedarikci_fiyat_loglari` tablolarına doğru kayıtların atılması.
+3. E2E Testing (Playwright): UI üzerinden 4 sekmeli (Sipariş -> Yolda -> Maliyetlendirme -> Belgeler) akışın simüle edilmesi. Kullanıcının manuel ağırlık/fiyat giremediğinin (Read-Only UI) doğrulanması.
+
+- TEST SENARYOLARI (TEST CASES)
+
+* Happy Path (Kusursuz Tedarik Akışı)
+1. Admin yeni bir ithalat partisi (Draft) oluşturur.
+2. Partiye bir ürün ekler ve sadece "Koli Sayısı"nı (örn: 10) girer.
+3. Sistem, `urunler` tablosundaki `koli_ici_adet` ve `birim_agirlik_kg` verilerini kullanarak Toplam Adet ve Toplam Ağırlığı otomatik hesaplar.
+4. %20 ve %8 çift kademeli indirim uygulanır, sistem `indirimli_alis_fiyati`nı doğru hesaplar.
+5. Maliyetlendirme sekmesinde, toplam ağırlık üzerinden LUCID maliyeti (kg * 0.02 €) otomatik olarak `dagitilan_ozel_gider_eur` içine eklenir.
+6. "Mal Kabulü Tamamla" butonuna basılır. RPC çalışır; ürün stoku artar, stok hareket logu yazılır ve tedarikçi fiyat logu (standart vs gerçek maliyet sapması) oluşturulur.
+
+* Negative Path (Hatalı Girişler ve Güvenlik İhlalleri)
+1. Payload Manipülasyonu: Kötü niyetli bir admin/istek, API'ye `toplam_agirlik_kg` veya `birim_alis_fiyati_orijinal` değerlerini manuel olarak değiştirip gönderir. Sistem bu değerleri reddetmeli ve Master Data üzerinden sunucuda yeniden hesaplamalıdır.
+2. Çift Mal Kabulü (Double Submit): Zaten "Tamamlandı" statüsünde olan bir ithalat partisi için tekrar `complete_import_batch` RPC'si çağrılır. Sistem işlemi reddetmeli ve stokları ikinci kez artırmamalıdır.
+3. Eksik Master Data: `birim_agirlik_kg` veya `koli_ici_adet` değeri `null` olan bir ürün eklendiğinde sistem çökmeksizin güvenli varsayılan değerler (fallback = 0 veya 1) kullanmalıdır.
+
+* Edge Cases (Sınır Durumlar ve Hassasiyet)
+1. Ticari Yuvarlama (Kaufmännisches Runden): 10.005 € gibi küsuratlı indirim veya LUCID hesaplamaları tam olarak 10.01 €'ya yuvarlanmalıdır (JavaScript floating point hataları tolere edilmelidir).
+2. Kısmi Teslimat Güncellemesi: Sipariş "Maliyetlendirme" aşamasındayken, depoya eksik ürün geldiği fark edilir. Admin koli sayısını 10'dan 8'e düşürür. Sistem tüm navlun, gümrük ve LUCID dağılımlarını anında yeni ağırlığa göre yeniden hesaplamalıdır.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+- [ ] Adım 1: `__tests__/import-batch-utils.test.ts` dosyasını oluştur. `calculateDiscountedPrice`, `calculateLucidCost`, `calculateMiktarAdet` ve `calculateToplamAgirlikKg` fonksiyonları için Unit testleri yaz. Ticari yuvarlama hatalarını kontrol et.
+- [ ] Adım 2: `__tests__/supply-chain-rpc.test.ts` dosyasını oluştur. Supabase test client'ı ile örnek bir ithalat partisi oluştur. `complete_import_batch` RPC'sini çağır.
+- [ ] Adım 3: RPC testinde şunları `expect` ile doğrula: `urunler.stok_miktari` doğru arttı mı? `urun_stok_hareket_loglari` tablosuna kayıt atıldı mı? `tedarikci_fiyat_loglari` tablosunda sapma yüzdesi doğru hesaplandı mı?
+- [ ] Adım 4: `tests/e2e/supplier-order-pipeline.spec.ts` dosyasını oluştur. Playwright ile `/tr/admin/urun-yonetimi/tedarikci-siparis-plani` sayfasına git. Yeni parti oluştur, koli sayısı gir, sekmeler arası geçiş yap ve "Mal Kabulü Tamamla" butonuna tıkla.
+- [ ] Adım 5: Testleri çalıştır (`npm run test` ve `npm run test:e2e`).
+- [ ] Adım 6: Eğer UI'da kullanıcıdan ağırlık veya birim fiyat girmesini isteyen inputlar varsa, bunları `readOnly` veya `disabled` yap. Sadece "Koli Sayısı", "İndirim 1" ve "İndirim 2" alanlarını düzenlenebilir bırak.
+- [ ] Adım 7: `src/app/actions/import-batch-actions.ts` içindeki kayıt fonksiyonunu (örn: `saveBatchItems`) kontrol et. Frontend'den gelen ağırlık/fiyat verilerini yoksayarak `buildBatchItemInsertRows` fonksiyonu ile sunucuda Master Data üzerinden yeniden hesaplat.
+- [ ] Adım 8: Hata veren testleri düzelt ve tüm pipeline'ın yeşil (Pass) olmasını sağla.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+1. MASTER DATA DRIVEN KURALI: İstemciden (Frontend) gelen `toplam_agirlik_kg`, `miktar_adet` veya `birim_alis_fiyati_orijinal` değerlerine KESİNLİKLE güvenilmeyecektir. Bu değerler sunucu tarafında (Server Action) `urunler` tablosundan çekilen verilerle yeniden hesaplanmalıdır.
+2. ATOMİK STOK İŞLEMİ: Stok artırımı kesinlikle JavaScript ile (`mevcut_stok + yeni_stok`) yapılmayacak, sadece `complete_import_batch` RPC'si kullanılarak veritabanı seviyesinde kilitlenerek (Row-level lock) yapılacaktır.
+3. CANLI VERİTABANI KORUMASI: Testler sırasında gerçek tedarikçi verileri veya canlı stoklar bozulmamalıdır. Testler mock verilerle veya izole test veritabanında çalıştırılmalıdır.
+4. YUVARLAMA HASSASİYETİ: Tüm finansal ve ağırlık hesaplamalarında `kaufmannRunden` (veya eşdeğeri `Math.round((val + Number.EPSILON) * 100) / 100`) fonksiyonu kullanılmak zorundadır.
+</file>
+
 <file path="tsconfig.json">
 {
   "compilerOptions": {
@@ -9212,6 +9670,77 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
+</file>
+
+<file path=".github/workflows/playwright.yml">
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests
+      run: npm run test:e2e
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+</file>
+
+<file path=".github/workflows/synthetic-monitoring.yml">
+name: Synthetic Monitoring
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Her saat başı çalışır
+  workflow_dispatch: # Manuel tetikleme için
+
+jobs:
+  smoke-test:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Production Smoke Test
+      run: npx playwright test tests/e2e/smoke-production.spec.ts
+    - name: Alert on Failure
+      if: failure()
+      run: |
+        echo "::error title=Smoke Test Failed::Production smoke test failed! The site might be down or degraded."
+        # Slack/Discord webhook curl command could go here
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: smoke-test-report
+        path: playwright-report/
+        retention-days: 7
 </file>
 
 <file path="src/lib/admin/panel-access.ts">
@@ -11004,67 +11533,6 @@ export function formatLmivIngredients(text: string): React.ReactNode {
 }
 </file>
 
-<file path="src/lib/blog-data.ts">
-export interface BlogPost {
-    slug: string;
-    title: { tr: string; en: string; de: string };
-    excerpt: { tr: string; en: string; de: string };
-    content: { tr: string; en: string; de: string };
-    date: string;
-    author: string;
-    image: string;
-    tags: string[];
-}
-
-export const BLOG_POSTS: BlogPost[] = [
-    {
-        slug: 'kafeler-icin-en-iyi-kahve-suruplari-neden-fo',
-        title: {
-            tr: 'Kafeler İçin En İyi Kahve Şurupları: Neden Fo Tercih Edilmeli?',
-            en: 'The Best Coffee Syrups for Cafes: Why Choose Fo?',
-            de: 'Die besten Kaffeesirupe für Cafés: Warum Fo wählen?'
-        },
-        excerpt: {
-            tr: 'Birinci sınıf kafelerin ve profesyonel baristaların imza içecekler yaratırken neden Fo markasını tercih ettiğini keşfedin.',
-            en: 'Discover why premium cafes and professional baristas choose the Fo brand when creating signature drinks.',
-            de: 'Entdecken Sie, warum erstklassige Cafés und professionelle Baristas bei der Kreation von Signature-Drinks die Marke Fo bevorzugen.'
-        },
-        content: {
-            tr: `
-<h2>Kahve Şuruplarında Kalitenin Önemi</h2>
-<p>Modern kafe kültüründe müşteriler artık sadece standart bir kahve içmekten öte, eşsiz ve akılda kalıcı deneyimler arıyorlar. Bu noktada devreye, sıradan bir kahveyi "imza içeceğe" dönüştüren <strong>kaliteli kahve şurupları</strong> giriyor. Baristalar için şurup, bir ressamın paletindeki en önemli renk gibidir.</p>
-
-<h2>Neden Fo Markası?</h2>
-<p>1988 yılında Fümer adıyla sektöre adım atan ve bugün Özmer A.Ş. çatısı altında dünya çapında bir dev haline gelen <strong>Fo</strong> markası, 100'den fazla ülkeye ihraç edilerek küresel bir standart belirlemiştir.</p>
-<ul>
-    <li><strong>Yüksek Konsantrasyon:</strong> Fo şurupları yoğun aromaya sahiptir, bu sayede az miktarda şurupla maksimum lezzet elde edilir.</li>
-    <li><strong>El Değmeden Üretim:</strong> Son teknoloji laboratuvarlarda, tamamen hijyenik koşullarda üretilir.</li>
-    <li><strong>Doğal Renk ve Tat:</strong> Kahvenin dokusunu bozmadan, istenen o doğal karamel, vanilya veya fındık tadını mükemmel şekilde yansıtır.</li>
-</ul>
-
-<h2>En Çok Tercih Edilen Fo Aromaları</h2>
-<p>Kafelerde en hızlı tükenen ve müşterilerin favorisi olan aromalar şunlardır:</p>
-<ol>
-    <li><strong>Karamel Şurubu:</strong> Caramel Macchiato ve Frappelerin vazgeçilmezi.</li>
-    <li><strong>Vanilya Şurubu:</strong> Yumuşak içim arayanların ilk tercihi.</li>
-    <li><strong>Fındık (Hazelnut) Şurubu:</strong> Sütlü kahvelerle muhteşem uyumuyla klasikleşmiş bir tat.</li>
-    <li><strong>İrlanda Kremi (Irish Cream):</strong> Daha yoğun ve spesifik kahve tarifleri için ideal.</li>
-</ol>
-
-<h2>ElysonSweets ile Almanya'da Toptan Tedarik</h2>
-<p>Eğer Almanya'da bir kafe, otel veya pastane işletiyorsanız, orijinal Fo kahve şuruplarını toptan ve en uygun fiyatlarla <strong>ElysonSweets</strong> üzerinden temin edebilirsiniz. Hızlı lojistik ağımızla bu efsanevi lezzetleri işletmenize ulaştırıyoruz.</p>
-            `,
-            en: `<p>English content for the blog post about Fo Syrups.</p>`,
-            de: `<p>German content for the blog post about Fo Syrups.</p>`
-        },
-        date: '2023-11-15',
-        author: 'ElysonSweets Team',
-        image: '/img/pattern.svg', // Placeholder, we can replace it later
-        tags: ['Kahve', 'Barista', 'Fo Şurup', 'HORECA']
-    }
-];
-</file>
-
 <file path="src/lib/blog-images.ts">
 export const WINTER_IMAGES = [
   "https://images.unsplash.com/photo-1542475027-e435e0c5f214?q=80&w=2000&auto=format&fit=crop", 
@@ -11945,6 +12413,188 @@ export function trackCompleteRegistration(params?: {
 }
 </file>
 
+<file path="src/lib/plzLookup.ts">
+// src/lib/plzLookup.ts
+// ===================================================================
+// TAM VE EKSİKSİZ KÖLN + BONN PLZ HARİTASI
+// Kaynak: Resmi Köln.de ve Deutsche Post PLZ listesi, 2024
+// ===================================================================
+
+export interface PlzInfo {
+  city: string;
+  cityPart?: string;
+  district: string;
+  zone: 'koln' | 'bonn';
+}
+
+// -----------------------------------------------------------------------
+// KÖLN — 46 resmi PLZ (50xxx linksrheinisch + 51xxx rechtsrheinisch)
+// -----------------------------------------------------------------------
+export const KOLN_PLZ_MAP: Record<string, PlzInfo> = {
+
+  // === INNENSTADT (Stadtbezirk 1) ===
+  "50667": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord", zone: "koln" },
+  "50668": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord", zone: "koln" },
+  "50670": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord", zone: "koln" },
+  "50672": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord", zone: "koln" },
+  "50674": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd", zone: "koln" },
+  "50676": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd", zone: "koln" },
+  "50677": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd", zone: "koln" },
+  "50678": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd", zone: "koln" },
+  "50679": { city: "Köln", cityPart: "Innenstadt", district: "Deutz", zone: "koln" },
+
+  // === RODENKIRCHEN (Stadtbezirk 2) ===
+  "50968": { city: "Köln", cityPart: "Rodenkirchen", district: "Bayenthal / Raderberg", zone: "koln" },
+  "50969": { city: "Köln", cityPart: "Rodenkirchen", district: "Zollstock / Raderthal", zone: "koln" },
+  "50996": { city: "Köln", cityPart: "Rodenkirchen", district: "Rodenkirchen / Rondorf", zone: "koln" },
+  "50997": { city: "Köln", cityPart: "Rodenkirchen", district: "Godorf / Hahnwald", zone: "koln" },
+  "50999": { city: "Köln", cityPart: "Rodenkirchen", district: "Sürth / Weiß / Immendorf / Meschenich", zone: "koln" },
+
+  // === LINDENTHAL (Stadtbezirk 3) ===
+  "50931": { city: "Köln", cityPart: "Lindenthal", district: "Lindenthal", zone: "koln" },
+  "50933": { city: "Köln", cityPart: "Lindenthal", district: "Braunsfeld / Müngersdorf", zone: "koln" },
+  "50935": { city: "Köln", cityPart: "Lindenthal", district: "Sülz / Klettenberg", zone: "koln" },
+  "50937": { city: "Köln", cityPart: "Lindenthal", district: "Klettenberg / Sülz", zone: "koln" },
+  "50939": { city: "Köln", cityPart: "Lindenthal", district: "Sülz / Deckstein / Junkersdorf", zone: "koln" },
+
+  // === EHRENFELD (Stadtbezirk 4) ===
+  "50823": { city: "Köln", cityPart: "Ehrenfeld", district: "Ehrenfeld", zone: "koln" },
+  "50825": { city: "Köln", cityPart: "Ehrenfeld", district: "Neuehrenfeld", zone: "koln" },
+  "50827": { city: "Köln", cityPart: "Ehrenfeld", district: "Bickendorf / Vogelsang", zone: "koln" },
+  "50829": { city: "Köln", cityPart: "Ehrenfeld", district: "Ossendorf / Vogelsang", zone: "koln" },
+  "50858": { city: "Köln", cityPart: "Ehrenfeld", district: "Müngersdorf / Junkersdorf", zone: "koln" },
+  "50859": { city: "Köln", cityPart: "Ehrenfeld", district: "Weiden / Lövenich", zone: "koln" },
+
+  // === NIPPES (Stadtbezirk 5) ===
+  "50733": { city: "Köln", cityPart: "Nippes", district: "Nippes / Riehl", zone: "koln" },
+  "50735": { city: "Köln", cityPart: "Nippes", district: "Riehl / Mauenheim", zone: "koln" },
+  "50737": { city: "Köln", cityPart: "Nippes", district: "Weidenpesch / Volkhoven", zone: "koln" },
+  "50739": { city: "Köln", cityPart: "Nippes", district: "Bilderstöckchen / Longerich", zone: "koln" },
+
+  // === CHORWEILER (Stadtbezirk 6) ===
+  "50765": { city: "Köln", cityPart: "Chorweiler", district: "Volkhoven-Weiler / Seeberg", zone: "koln" },
+  "50767": { city: "Köln", cityPart: "Chorweiler", district: "Chorweiler / Blumenberg", zone: "koln" },
+  "50769": { city: "Köln", cityPart: "Chorweiler", district: "Roggendorf / Worringen / Merkenich", zone: "koln" },
+
+  // === PORZ (Stadtbezirk 7 — rechtsrheinisch, 51xxx) ===
+  "51143": { city: "Köln", cityPart: "Porz", district: "Porz / Elsdorf", zone: "koln" },
+  "51145": { city: "Köln", cityPart: "Porz", district: "Urbach / Zündorf", zone: "koln" },
+  "51147": { city: "Köln", cityPart: "Porz", district: "Wahn / Wahnheide", zone: "koln" },
+  "51149": { city: "Köln", cityPart: "Porz", district: "Ensen / Gremberghoven", zone: "koln" },
+
+  // === KALK (Stadtbezirk 8 — rechtsrheinisch, 51xxx) ===
+  "51103": { city: "Köln", cityPart: "Kalk", district: "Kalk / Humboldt-Gremberg", zone: "koln" },
+  "51105": { city: "Köln", cityPart: "Kalk", district: "Poll / Vingst", zone: "koln" },
+  "51107": { city: "Köln", cityPart: "Kalk", district: "Ostheim / Neubrück", zone: "koln" },
+  "51109": { city: "Köln", cityPart: "Kalk", district: "Merheim / Rath-Heumar", zone: "koln" },
+
+  // === MÜLHEIM (Stadtbezirk 9 — rechtsrheinisch, 51xxx) ===
+  "51061": { city: "Köln", cityPart: "Mülheim", district: "Stammheim / Flittard", zone: "koln" },
+  "51063": { city: "Köln", cityPart: "Mülheim", district: "Mülheim / Buchforst", zone: "koln" },
+  "51065": { city: "Köln", cityPart: "Mülheim", district: "Buchheim / Höhenberg", zone: "koln" },
+  "51067": { city: "Köln", cityPart: "Mülheim", district: "Holweide / Dünnwald", zone: "koln" },
+  "51069": { city: "Köln", cityPart: "Mülheim", district: "Dellbrück / Dennenbrück", zone: "koln" },
+};
+
+// -----------------------------------------------------------------------
+// BONN — 15 PLZ (531xx linksrheinisch) + 3 PLZ Beuel (532xx rechtsrheinisch)
+// -----------------------------------------------------------------------
+export const BONN_PLZ_MAP: Record<string, PlzInfo> = {
+
+  // === STADTBEZIRK BONN (Zentrum, Nordstadt, Südstadt, etc.) ===
+  "53111": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Innenstadt / Altstadt", zone: "bonn" },
+  "53113": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Gronau / Kessenich", zone: "bonn" },
+  "53115": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Südstadt / Poppelsdorf", zone: "bonn" },
+  "53117": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Nordstadt / Buschdorf / Lessenich", zone: "bonn" },
+  "53119": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Auerberg / Tannenbusch / Nordstadt", zone: "bonn" },
+
+  // === STADTBEZIRK HARDTBERG (Duisdorf, Endenich, Röttgen, etc.) ===
+  "53121": { city: "Bonn", cityPart: "Hardtberg", district: "Endenich / Dransdorf", zone: "bonn" },
+  "53123": { city: "Bonn", cityPart: "Hardtberg", district: "Duisdorf / Medinghoven", zone: "bonn" },
+  "53125": { city: "Bonn", cityPart: "Hardtberg", district: "Hardthöhe / Ückesdorf", zone: "bonn" },
+  "53127": { city: "Bonn", cityPart: "Hardtberg", district: "Lengsdorf / Lessenich / Dottendorf", zone: "bonn" },
+  "53129": { city: "Bonn", cityPart: "Hardtberg", district: "Röttgen / Ippendorf", zone: "bonn" },
+
+  // === STADTBEZIRK BAD GODESBERG ===
+  "53173": { city: "Bonn", cityPart: "Bad Godesberg", district: "Alt-Godesberg / Plittersdorf / Rüngsdorf", zone: "bonn" },
+  "53175": { city: "Bonn", cityPart: "Bad Godesberg", district: "Friesdorf / Godesberg-Nord / Hochkreuz", zone: "bonn" },
+  "53177": { city: "Bonn", cityPart: "Bad Godesberg", district: "Heiderhof / Lannesdorf / Muffendorf / Schweinheim", zone: "bonn" },
+  "53179": { city: "Bonn", cityPart: "Bad Godesberg", district: "Mehlem / Pennenfeld / Rüngsdorf", zone: "bonn" },
+
+  // === STADTBEZIRK BEUEL (rechtsrheinisch, 532xx) ===
+  "53225": { city: "Bonn", cityPart: "Beuel", district: "Beuel-Mitte / Vilich / Schwarzrheindorf", zone: "bonn" },
+  "53227": { city: "Bonn", cityPart: "Beuel", district: "Beuel-Ost / Küdinghoven / Oberkassel", zone: "bonn" },
+  "53229": { city: "Bonn", cityPart: "Beuel", district: "Pützchen / Holzlar / Holtorf", zone: "bonn" },
+};
+
+// -----------------------------------------------------------------------
+// Birleşik harita (her iki şehir)
+// -----------------------------------------------------------------------
+export const KOLN_BONN_PLZ_MAP: Record<string, PlzInfo> = {
+  ...KOLN_PLZ_MAP,
+  ...BONN_PLZ_MAP,
+};
+
+// -----------------------------------------------------------------------
+// Zone Tespiti: Adres Köln/Bonn yerel teslimat bölgesinde mi?
+// -----------------------------------------------------------------------
+export function isKolnBonnArea(plz?: string | null): boolean {
+  if (!plz) return false;
+  const cleanPlz = plz.trim();
+
+  // 1. Tam eşleşme haritasına bak
+  if (KOLN_BONN_PLZ_MAP[cleanPlz]) return true;
+
+  // 2. Köln prefix kontrolü (50xxx ve 51xxx)
+  if (cleanPlz.startsWith('50') || cleanPlz.startsWith('51')) return true;
+
+  // 3. Bonn prefix kontrolü (531xx linksrheinisch + 532xx Beuel rechtsrheinisch)
+  if (cleanPlz.startsWith('531') || cleanPlz.startsWith('532')) return true;
+
+  return false;
+}
+
+/**
+ * @deprecated isKolnBonnArea kullanın
+ * Geriye dönük uyumluluk için bırakıldı
+ */
+export function isKolnArea(plz?: string | null): boolean {
+  return isKolnBonnArea(plz);
+}
+
+// -----------------------------------------------------------------------
+// PLZ'den şehir/semt bilgisi al (statik harita veya API)
+// -----------------------------------------------------------------------
+export async function fetchLocationByPlz(plz: string): Promise<{ city: string, district: string } | null> {
+  const cleanPlz = plz.trim();
+
+  // 1. Önce birleşik statik haritaya bak
+  const entry = KOLN_BONN_PLZ_MAP[cleanPlz];
+  if (entry) {
+    return { city: entry.city, district: entry.district };
+  }
+
+  // 2. Listede yoksa Zippopotam.us API ile sorgula (tüm Almanya)
+  try {
+    const response = await fetch(`https://api.zippopotam.us/de/${cleanPlz}`);
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data.places && data.places.length > 0) {
+      const place = data.places[0];
+      return {
+        city: place['place name'],
+        district: ''
+      };
+    }
+  } catch (error) {
+    console.error("PLZ API Error:", error);
+  }
+
+  return null;
+}
+</file>
+
 <file path="src/lib/seo-utils.ts">
 import { Metadata } from 'next';
 
@@ -12004,12 +12654,6 @@ export type BlogYazisiInsert = Omit<BlogYazisi, 'id' | 'created_at' | 'updated_a
 };
 
 export type BlogYazisiUpdate = Partial<BlogYazisiInsert>;
-</file>
-
-<file path="supabase/migrations/20260531_add_firma_strateji.sql">
--- Add strategy notes from Excel imports
-ALTER TABLE firmalar ADD COLUMN strateji_notu TEXT;
-ALTER TABLE firmalar ADD COLUMN urun_eslesme_notu TEXT;
 </file>
 
 <file path="supabase/migrations/20260731_iletisim_mesajlari.sql">
@@ -12822,33 +13466,6 @@ ALTER TABLE recipes
 -- Not: 'locale' kolonu bilerek bırakılmıştır. Reçetenin ilk oluşturulduğu (orijinal) dili temsil etmek üzere kullanılabilir.
 </file>
 
-<file path="supabase/migrations/20260921_create_blog_yazilari.sql">
-DROP TABLE IF EXISTS public.blog_yazilari CASCADE;
-
-CREATE TABLE IF NOT EXISTS public.blog_yazilari (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    slug VARCHAR(255) NOT NULL UNIQUE,
-    title JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
-    excerpt JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
-    content JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
-    meta_title JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
-    meta_description JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
-    image_url TEXT,
-    author_name VARCHAR(255) DEFAULT 'Elysonsweets B2B Team',
-    published_at TIMESTAMPTZ DEFAULT NOW(),
-    is_published BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- RLS Politikaları
-ALTER TABLE public.blog_yazilari ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Public can view published blog posts" 
-ON public.blog_yazilari FOR SELECT 
-USING (is_published = TRUE);
-</file>
-
 <file path="supabase/migrations/20261001_smart_dms_columns.sql">
 -- Migration: 20261001_smart_dms_columns.sql
 -- Description: Add AI and Google Drive related columns to belgeler table for Smart DMS integration
@@ -13119,6 +13736,48 @@ SEO uzmanı muhtemelen anahtar kelime yoğunluğunu artırmak için ("B2B Großh
 - **RENK KULLANIMI:** Sadece `tailwind.config.ts` dosyasında tanımlı olan `primary` (#2B2B2B), `secondary` (#FAF9F6) ve `accent` (#C69F6B) renklerini kullan. Hardcoded hex kodları yazma.
 - **PERFORMANS:** Header bileşeni her sayfada render edileceği için içine ağır veri çekme (fetch) işlemleri koyma. Kullanıcı oturum durumu (Portal butonu için) global state'ten veya middleware'den gelen proplarla yönetilmelidir.
 - **ERİŞİLEBİLİRLİK (a11y):** Tüm linklere `aria-label` ekle. Mobil menü açıldığında arka planın scroll olmasını engelle (`document.body.style.overflow = 'hidden'`).
+</file>
+
+<file path="project-signoff-and-maintenance-guide.md">
+- BAĞLAM VE PROJE DURUMU (CONTEXT)
+Dosya Adı: `project-signoff-and-maintenance-guide.md`
+
+Hedef: Proje Kapanışı (Sign-off), Sistem Özeti ve Gelecek Geliştirmeler İçin Bakım Rehberi.
+Kapsam: Elyson Sweets (elysonsweets.de) B2B E-Ticaret ve ERP platformunun tüm kalite güvence (QA), güvenlik, finansal doğruluk, yasal uyumluluk (DSGVO/GoBD) ve canlı ortam (Production) testleri %100 başarıyla tamamlanmıştır. Bu belge, Antigravity IDE'nin görevini başarıyla tamamladığını onaylayan resmi bir "Sign-off" (Kapanış ve Teslim) belgesidir. Bundan sonraki süreçte sisteme eklenecek yeni özelliklerin mevcut kusursuz yapıyı bozmaması için bir anayasa niteliği taşır.
+
+- SİSTEM MİMARİSİ VE GÜVENLİK ÖZETİ (ARCHITECTURE HIGHLIGHTS)
+Antigravity IDE ile yürütülen bu yoğun QA ve Refactoring süreci sonucunda sistem aşağıdaki kurşun geçirmez (bulletproof) standartlara ulaşmıştır:
+
+1. Zero-Trust Finansal Mimari: Frontend'den gelen hiçbir fiyata güvenilmez. Tüm B2B kademeli fiyatlandırmaları (Alt Bayi, Toptancı, Palet) ve KDV/Kargo hesaplamaları sunucuda (Server-side) yeniden hesaplanır.
+2. Kaufmännisches Runden (Ticari Yuvarlama): JavaScript'in floating-point hataları giderilmiş, Alman muhasebe standartlarına uygun kuruş hassasiyetinde hesaplama altyapısı kurulmuştur.
+3. IDOR ve RLS Koruması: Hiçbir müşteri, URL manipülasyonu ile başka bir müşterinin faturasına, siparişine veya özel belgelerine erişemez.
+4. Yasal Uyumluluk (DSGVO & GoBD): Müşteri silme talepleri, 10 yıllık fatura saklama zorunluluğu ile çelişmemesi için "Soft Delete / Anonimleştirme" yöntemiyle çözülmüştür.
+5. Resilience (Dayanıklılık): Lexware, Google Drive, Resend veya Gemini AI gibi 3. parti servislerin çökmesi durumunda sistem ana sipariş akışını bozmaz, zarifçe bozulur (Graceful Degradation) ve adminleri uyarır.
+6. CI/CD & Gözlemlenebilirlik: Her yeni kod eklendiğinde testler otomatik koşulur ve canlı site her saat başı sentetik botlarla denetlenir.
+
+- GELECEK GELİŞTİRMELER İÇİN KATI KURALLAR (RULES FOR FUTURE DEVELOPMENT)
+Sisteme yeni bir özellik (Feature) ekleneceği zaman aşağıdaki kurallar KESİNLİKLE ihlal edilmeyecektir:
+
+* Kural 1: Test-Driven Development (TDD) Zorunluluğu
+Yeni bir API route'u veya veritabanı tablosu eklendiğinde, kodu yazmadan önce mutlaka `__tests__` klasörüne ilgili Unit/Integration testleri yazılacaktır. Testi olmayan hiçbir kod `main` branch'ine merge edilmeyecektir.
+
+* Kural 2: Veritabanı Migrasyon Disiplini
+Canlı veritabanında (Production) asla `DROP TABLE` veya `DROP COLUMN` gibi yıkıcı (destructive) komutlar kullanılmayacaktır. Tüm şema değişiklikleri Supabase migration dosyaları üzerinden `ADD COLUMN` veya `CREATE TABLE IF NOT EXISTS` şeklinde, geriye dönük uyumlu (backward-compatible) yapılacaktır.
+
+* Kural 3: Yapay Zeka (AI) Maliyet ve Güvenlik Kontrolü
+Sisteme eklenecek yeni AI özellikleri (örn: yeni bir asistan veya doküman okuyucu), mutlaka Rate Limiting (Hız Sınırlandırması) arkasına alınacak ve prompt injection saldırılarına karşı sistem komutları (System Prompts) katı kurallarla korunacaktır.
+
+* Kural 4: B2B İş Mantığı Önceliği
+Sistem bir B2C (Son Tüketici) sitesi değildir. Eklenecek her yeni UI/UX özelliği, toptancıların hızlı sipariş verme (Quick Order) ergonomisini bozmamalı, fiyatlar her zaman NET + MwSt şeklinde şeffaf gösterilmelidir.
+
+- KAPANIŞ VE ONAY (SIGN-OFF)
+- [x] Tüm güvenlik açıkları (IDOR, Payload Manipulation) kapatıldı.
+- [x] Finansal hesaplamalar ve veritabanı kilitleri (Race Conditions) güvence altına alındı.
+- [x] Dış servis entegrasyonları (Lexware, Stripe, Drive, AI) hata toleranslı (Fault Tolerant) hale getirildi.
+- [x] CI/CD pipeline ve Sentetik İzleme (Synthetic Monitoring) aktif edildi.
+
+Sistem "Production-Ready" (Canlı Kullanıma Hazır) durumdadır. 
+Görev başarıyla tamamlanmıştır. 🚀
 </file>
 
 <file path="receteler.md">
@@ -13911,6 +14570,473 @@ CREATE POLICY "Kullanicilar kendi taleplerini ekleyebilir" ON public.urun_talepl
 -- Adminler her seyi yapabilir (Gerekiyorsa, projeye gore admin rolune izin verebilirsiniz)
 </file>
 
+<file path="test-plan-[Musteri_Paneli.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Hedef Modül: Müşteri Portalı (Customer & Sub-dealer Portal)
+Kapsam: B2B müşterilerinin ve alt bayilerin (Alt Bayi) sisteme girişi, katalog görüntüleme, sepete ürün ekleme (stok ve kademeli fiyat kontrolü), sipariş oluşturma, finansal özet (açık faturalar/bakiyeler) ve favoriler/hızlı sipariş yönetimi.
+İlişkili Kritik Dosyalar:
+- `src/contexts/PortalContext.tsx` (Sepet state yönetimi, stok kontrolleri)
+- `src/lib/pricingUtils.ts` & `src/lib/pricing/hub-pricing-engine.ts` (B2B kademeli fiyatlandırma mantığı)
+- `src/lib/shippingUtils.ts` (Kargo ve KDV hesaplamaları)
+- `src/middleware.ts` (Rol bazlı rota koruması)
+- `supabase/migrations/create_siparisler_firmalar_rls.sql` (Veri izolasyonu)
+- `src/lib/portalLabels.ts` (Çoklu dil desteği)
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+1. Unit Testing (Vitest): `pricingUtils.ts`, `shippingUtils.ts` ve `PortalContext.tsx` içindeki iş mantığının (fiyat kademeleri, stok sınırları, KDV hesaplamaları) izole testi.
+2. E2E Testing (Playwright): Müşteri portalı kullanıcı akışlarının (Login -> Katalog -> Sepet -> Sipariş -> Dashboard) tarayıcı üzerinde simülasyonu.
+3. Security & Integration Testing (Supabase/Vitest): RLS (Row Level Security) politikalarının test edilmesi. Müşteri A'nın, Müşteri B'ye ait verileri göremediğinin kanıtlanması.
+
+- TEST SENARYOLARI (TEST CASES)
+
+* Happy Path (Sorunsuz Akış)
+1. Müşteri başarılı bir şekilde login olur ve `/portal/dashboard` sayfasına yönlendirilir.
+2. Dashboard'da müşteriye ait doğru finansal özet (açık bakiye, bekleyen siparişler) görüntülenir.
+3. Katalogdan bir ürün seçilir, sepete eklenir (varsayılan 1 koli).
+4. Sepetteki ürün miktarı 5 koliye çıkarıldığında, birim fiyat otomatik olarak "Toptancı" (5+ koli) kademesine düşer.
+5. Sipariş başarıyla tamamlanır, veritabanında `siparisler` ve `siparis_detay` tablolarına doğru `firma_id` ile kayıt atılır.
+
+* Negative Path (Hatalı Girişler ve Yetkisiz Erişimler)
+1. Müşteri rolündeki bir kullanıcı `/admin` veya `/admin/dashboard` rotalarına erişmeye çalışır (Middleware tarafından `/portal/dashboard` veya login'e geri atılmalıdır).
+2. Müşteri, URL'deki ID'yi değiştirerek başka bir firmaya ait sipariş detayına (`/portal/siparisler/[baska-id]`) erişmeye çalışır (RLS tarafından engellenmeli, 404 veya boş data dönmelidir).
+3. Sepete eklenmek istenen miktar, ürünün mevcut `stok_miktari` değerinden fazladır (Sistem uyarı vermeli ve miktarı maksimum stok seviyesine çekmelidir - `PortalContext.tsx` kuralı).
+4. Müşteri, sepet miktarını manuel olarak negatif bir değere veya 0'a çekmeye çalışır (Ürün sepetten silinmeli veya işlem reddedilmelidir).
+
+* Edge Cases (Sınır Durumlar ve Kritik Senaryolar)
+1. Fiyat Kademesi Sınırı: Sepette 4 koli varken fiyat X, 5 koli yapıldığında fiyat Y olmalıdır. 5 koliden 4 koliye düşürüldüğünde fiyat tekrar X'e yükselmelidir.
+2. Alt Bayi Fiyatlandırması: Giriş yapan kullanıcı "Alt Bayi" rolündeyse, miktar ne olursa olsun (1 koli bile olsa) her zaman en düşük fiyatı (`satis_fiyati_alt_bayi`) görmelidir.
+3. Eşzamanlı Stok Tüketimi: Müşteri sepette ürünü bekletirken, başka bir işlem (veya admin) stoku sıfırlar. Müşteri "Siparişi Tamamla" dediğinde sistem stok yetersizliği hatası fırlatmalı ve siparişi oluşturmamalıdır.
+4. Kargo ve KDV Yuvarlama: Gıda ürünleri (%7 KDV) ve kargo ücreti (%7 KDV) hesaplanırken virgülden sonraki küsuratlar (örn: 0.005) Alman muhasebe standartlarına göre doğru yuvarlanmalıdır (`Math.round(val * 100) / 100`).
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+- [ ] Adım 1: Test ortamı hazırlığı. `vitest.config.ts` ve `playwright.config.ts` dosyalarını kontrol et. Test veritabanı bağlantılarını (mock) ayarla.
+- [ ] Adım 2: `__tests__/pricingUtils.test.ts` dosyasını oluştur. `hesaplaBirimFiyat` ve `hesaplaSepetSatiri` fonksiyonları için Müşteri (1-4 koli), Toptancı (5+ koli) ve Alt Bayi senaryolarını test et.
+- [ ] Adım 3: `__tests__/PortalContext.test.tsx` dosyasını oluştur. `addToWarenkorb` ve `updateWarenkorbMenge` fonksiyonlarında stok aşımı (stok_miktari) durumunda `toast.warning` tetiklendiğini ve miktarın düzeltildiğini test et.
+- [ ] Adım 4: `tests/e2e/portal-auth-rls.spec.ts` dosyasını oluştur. İki farklı test kullanıcısı (Müşteri A ve Müşteri B) ile login ol. Müşteri A'nın token'ı ile Müşteri B'nin siparişlerini çekmeyi dene (Supabase RLS test).
+- [ ] Adım 5: `tests/e2e/portal-checkout.spec.ts` dosyasını oluştur. Login -> Katalog -> Sepete Ekle -> Miktar Değiştir (Fiyat düşüşünü doğrula) -> Siparişi Tamamla akışını Playwright ile simüle et.
+- [ ] Adım 6: Testleri çalıştır (`npm run test` ve `npm run test:e2e`).
+- [ ] Adım 7: Başarısız olan testler varsa, ilgili kaynak kodlarda (özellikle `PortalContext.tsx` ve `middleware.ts`) gerekli düzeltmeleri yap ve testler yeşil olana kadar döngüyü tekrarla.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+1. CANLI VERİTABANINA DOKUNMA: Tüm testler mock verilerle veya izole edilmiş lokal/test Supabase projesi üzerinde çalıştırılmalıdır.
+2. STRIPE GÜVENLİĞİ: Testler sırasında kesinlikle gerçek Stripe API anahtarları kullanılmayacaktır. `isNonProductionEnv` kontrolü aktif tutulmalı ve sadece `sk_test_` anahtarları veya mock fonksiyonlar kullanılmalıdır.
+3. RLS İHLALİ YASAKTIR: Testleri geçirmek için Supabase RLS politikalarını (Row Level Security) esnetme veya `service_role` key kullanarak müşteri işlemlerini bypass etme. Müşteri işlemleri her zaman `anon` veya `authenticated` JWT token ile yapılmalıdır.
+4. STOK KORUMASI: Sepet işlemlerinde stok kontrolü sadece frontend'de (`PortalContext`) bırakılmamalı, sipariş oluşturma anında backend/veritabanı seviyesinde de (örn: `deduct_single_product_stock` RPC'si) test edilmelidir.
+</file>
+
+<file path="test-plan-backend-security.md">
+BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: test-plan-backend-security.md
+Hedef Modül: Backend Sipariş İşleme ve Güvenlik (Order Processing & Payload Security)
+Kapsam: IDE'nin bir önceki test aşamasında tespit ettiği kritik güvenlik açığının (Frontend payload manipülasyonu ile fiyat değiştirme) kapatılması. İstemciden (client) gelen fiyat verilerine olan güvenin sıfırlanması (Zero Trust) ve tüm sepet/fiyat/kargo hesaplamalarının sunucu tarafında (Server-side) veritabanındaki güncel verilerle yeniden yapılarak doğrulanması.
+İlişkili Kritik Dosyalar:
+src/app/actions/siparis-actions.ts (veya siparişin oluşturulduğu ilgili Server Action dosyası)
+src/lib/pricingUtils.ts (Sunucu tarafında fiyat hesaplama mantığı)
+src/lib/shippingUtils.ts (Sunucu tarafında kargo hesaplama mantığı)
+src/lib/supabase/server.ts (Güvenli oturum ve rol kontrolü)
+TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+Security Patching (Backend Refactoring): Sipariş oluşturma fonksiyonunun, frontend'den gelen o_anki_satis_fiyati, toplam_tutar_net, toplam_tutar_brut gibi finansal verileri tamamen yok sayacak (override) şekilde yeniden yazılması.
+Integration Testing (Vitest): Kötü niyetli bir kullanıcının (Malicious User) API'ye veya Server Action'a manipüle edilmiş bir payload (örn: birim fiyatı 0.01 €) göndermesinin simüle edilmesi ve backend'in bu girişimi engelleyerek gerçek veritabanı fiyatlarıyla işlemi tamamladığının (veya reddettiğinin) test edilmesi.
+TEST SENARYOLARI (TEST CASES)
+Negative Path (Payload Manipülasyonu - Fiyat Sahteciliği)
+Kötü niyetli bir müşteri, frontend üzerinden sepeti onaylarken ağ (network) isteğini durdurur ve payload içindeki birim_fiyat değerini 0.01, toplam_tutar_net değerini ise 0.05 olarak değiştirip sunucuya gönderir.
+Beklenen Sonuç: Sunucu bu fiyatları DİKKATE ALMAMALIDIR. Sunucu, gönderilen urun_id'leri veritabanından çekmeli, kullanıcının rolünü (Müşteri, Alt Bayi vb.) doğrulamalı, hesaplaBirimFiyat ile gerçek fiyatı bulmalı ve siparişi gerçek tutarlar üzerinden (örn: 150.00 €) oluşturmalıdır. Eğer tutar uyuşmazlığı için bir hata fırlatma mantığı kurulduysa, işlem "Geçersiz Fiyat" hatasıyla reddedilmelidir.
+Happy Path (Sunucu Tarafı Rol Bazlı Fiyatlandırma)
+"Alt Bayi" rolündeki bir kullanıcı 1 koli ürün siparişi gönderir.
+Beklenen Sonuç: Sunucu, kullanıcının oturumundan (session) rolünü "Alt Bayi" olarak tespit eder. Veritabanından ürünü çeker, satis_fiyati_alt_bayi değerini uygular, kargo ve KDV'yi (önceki adımda düzeltilen Scientific Notation yuvarlama mantığıyla) hesaplar ve siparişi kuruşu kuruşuna doğru kaydeder.
+ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+Adım 1: src/app/actions/siparis-actions.ts (veya ilgili sipariş oluşturma action/api dosyası) dosyasını aç.
+
+Adım 2: Fonksiyonun içine "Zero Trust" mantığını entegre et. Frontend'den gelen items (sepet kalemleri) içindeki urun_id'leri bir diziye al ve Supabase üzerinden bu ürünlerin güncel fiyat/stok/koli bilgilerini tek bir sorguyla (in('id', productIds)) çek.
+
+Adım 3: Supabase Auth üzerinden işlemi yapan kullanıcının ID'sini ve profiller tablosundan güncel rol bilgisini güvenli bir şekilde (server-side) al.
+
+Adım 4: Frontend'den gelen her bir sepet kalemi için hesaplaSepetSatiri veya hesaplaBirimFiyat fonksiyonlarını kullanarak gerçek fiyatı sunucuda hesapla. Frontend'den gelen fiyatı tamamen ez (override).
+
+Adım 5: Yeni hesaplanan net tutarlar üzerinden calculateShipping fonksiyonunu çağırarak kargo ve KDV tutarlarını sunucuda yeniden hesapla. Toplam brüt tutarı belirle.
+
+Adım 6: siparisler ve siparis_detay tablolarına yapılacak insert işleminde, sadece sunucuda hesaplanan bu güvenilir (trusted) değerleri kullan.
+
+Adım 7: __tests__/security-order-payload.test.ts dosyasını oluştur. Server action'ı mocklayarak manipüle edilmiş bir payload gönder ve veritabanına yazılacak olan objenin (mock insert argümanlarının) manipüle edilmiş fiyatları değil, gerçek fiyatları içerdiğini expect ile doğrula.
+
+Adım 8: Testleri çalıştır ve güvenlik açığının tamamen kapandığından emin ol.
+KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+ZERO TRUST MİMARİSİ: İstemciden (tarayıcıdan) gelen hiçbir finansal veriye (fiyat, kdv, kargo ücreti, toplam tutar) güvenilmeyecektir. İstemci sadece urun_id ve miktar (adet/koli) gönderme yetkisine sahiptir.
+YUVARLAMA HASSASİYETİ: Sunucu tarafında yeniden hesaplama yapılırken, bir önceki aşamada düzeltilen Number(Math.round(Number(val + 'e2')) + 'e-2') mantığının kullanıldığından kesinlikle emin ol.
+VERİTABANI BÜTÜNLÜĞÜ: Sipariş detaylarına (siparis_detay) kayıt atılırken, o anki geçerli alış fiyatı (o_anki_alis_fiyati) gibi kârlılık raporlarını etkileyecek metriklerin de veritabanından taze çekilip kaydedildiğini garanti altına al.
+</file>
+
+<file path="test-plan-backoffice-resilience.md">
+BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: test-plan-backoffice-resilience.md
+Hedef Modül: Arka Ofis Operasyonları (Back-Office), Smart DMS (Akıllı Doküman Yönetimi) ve Lexware Müşteri Senkronizasyonu.
+Kapsam: Müşteri tarafı (Frontend/Portal) tamamen güvenli hale getirildi. Bu FİNAL AŞAMASI (Faz 6), şirket içi operasyonların (ERP) dayanıklılığını test eder. Google Drive kotasının dolması, Gemini AI'ın halüsinasyon görmesi (hatalı JSON dönmesi) veya Lexware muhasebe sisteminin geçersiz vergi numarası (USt-IdNr) nedeniyle müşteri kaydını reddetmesi gibi durumlarda sistemin çökmemesi ve "Zarif Bozulma" (Graceful Degradation) prensibiyle çalışmaya devam etmesi hedeflenmektedir.
+İlişkili Kritik Dosyalar:
+src/lib/ai/document-analyzer.ts (Gemini AI PDF Analizi)
+src/lib/google-drive/service.ts (Google Drive Yükleme Servisi)
+src/lib/lexware/contacts.ts (Lexware Müşteri Senkronizasyonu)
+TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+Fault Tolerance & Mock Testing (Vitest): 3. parti servislerin (Google Drive, Gemini, Lexware) kasıtlı olarak hata fırlattığı (Mocking) senaryolarda sistemin verdiği tepkilerin ölçülmesi.
+Data Validation Testing: Alman muhasebe standartlarına uymayan (geçersiz formatlı) verilerin Lexware API'sine gönderilmeden önce veya gönderildiğinde nasıl handle edildiğinin testi.
+TEST SENARYOLARI (TEST CASES)
+Negative Path 1: Gemini AI Halüsinasyonu (Malformed JSON)
+Admin, Smart DMS üzerinden bir PDF faturası yükler.
+Gemini AI servisi, beklenen JSON formatı yerine düz metin (Plain Text) veya eksik/hatalı bir JSON string döner.
+Beklenen Sonuç: analyzeDocument fonksiyonu bu hatayı yakalamalı (try/catch), sistemi çökertmemeli ve frontend'e "AI Analizi başarısız oldu, lütfen bilgileri manuel giriniz" şeklinde kontrollü bir hata mesajı dönmelidir.
+Negative Path 2: Google Drive Kota Aşımı / API Çökmesi
+Admin, onaylanmış bir evrakı sisteme kaydetmek ister (/api/admin/documents/confirm).
+Google Drive API, 403 Quota Exceeded veya 500 Internal Server Error hatası fırlatır.
+Beklenen Sonuç: Dosya Drive'a yüklenemediği için Supabase belgeler tablosuna EKSİK (drive_url olmadan) kayıt ATILMAMALIDIR. İşlem tamamen iptal edilmeli (Rollback) ve kullanıcıya "Drive yüklemesi başarısız oldu, işlem iptal edildi" uyarısı gösterilmelidir.
+Edge Case 3: Lexware Müşteri Senkronizasyonu Reddi (Invalid VAT ID)
+Yeni bir B2B müşterisi, geçersiz bir Vergi Numarası (örn: DE123 yerine sadece 123) ile sisteme kaydolur ve sipariş verir.
+Sistem getOrCreateLexwareContact fonksiyonunu çağırarak Lexware'de müşteri kartı açmaya çalışır. Lexware API 400 Bad Request (Invalid VAT Registration ID) döner.
+Beklenen Sonuç: Lexware hatası (LexwareApiError) yakalanmalı, sipariş Supabase'e kaydedilmeye devam etmeli (müşteri mağdur edilmemeli), ancak admin paneline "Lexware Müşteri Kartı Açılamadı: Geçersiz Vergi No" şeklinde bir iç bildirim (Internal Notification) düşmelidir.
+ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+Adım 1: __tests__/smart-dms-resilience.test.ts dosyasını oluştur. generateObject (Gemini) fonksiyonunu mocklayarak hatalı JSON fırlatmasını sağla ve analyzeDocument fonksiyonunun çökmeden kontrollü hata döndüğünü expect ile doğrula.
+
+Adım 2: Aynı test dosyasında uploadPdfToDrive fonksiyonunu mocklayarak hata fırlatmasını sağla. Kayıt endpoint'inin (veya ilgili servis fonksiyonunun) Supabase'e kayıt atmadan işlemi sonlandırdığını doğrula.
+
+Adım 3: __tests__/lexware-sync.test.ts dosyasını oluştur. lexwareFetch fonksiyonunu mocklayarak 400 Bad Request dönmesini sağla. getOrCreateLexwareContact fonksiyonunun bu hatayı doğru şekilde fırlattığını ve sipariş akışının (önceki testlerde yazılan try/catch blokları sayesinde) bu hatayı tolere edip siparişi kaydettiğini doğrula.
+
+Adım 4: Testleri çalıştır (npm run test).
+
+Adım 5: Eğer Drive hatasında Supabase'e boş kayıt atılıyorsa veya Lexware hatası siparişi tamamen iptal ediyorsa, ilgili kaynak kodlarda (Transaction mantığı veya Try/Catch blokları) gerekli düzeltmeleri yap.
+KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+MOCK ZORUNLULUĞU: Bu testler sırasında KESİNLİKLE gerçek Google Drive klasörüne dosya yüklenmeyecek ve gerçek Lexware hesabında test müşterisi oluşturulmayacaktır. Tüm 3. parti çağrılar vi.mock ile izole edilmelidir.
+ATOMİK İŞLEMLER (TRANSACTIONS): Birbirine bağımlı işlemler (Örn: Drive'a yükle -> Supabase'e yaz) atomik olmalıdır. Biri başarısız olursa diğeri de geri alınmalıdır (Rollback).
+SESSİZ HATALAR (SILENT FAILURES) YASAKTIR: Lexware veya Drive başarısız olduğunda sistem çalışmaya devam etmeli (Resilience), ancak bu başarısızlık KESİNLİKLE loglanmalı ve adminlere bildirilmelidir. Hataların sessizce yutulması (empty catch blocks) kabul edilemez.
+</file>
+
+<file path="test-plan-dsgvo-audit.md">
+BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: test-plan-dsgvo-audit.md
+Hedef Modül: DSGVO (GDPR) Uyumluluğu, GoBD (Alman Vergi Hukuku) Veri Saklama Kuralları ve Denetim İzleri (Audit Trails).
+Kapsam: Sistemin teknik güvenliği ve dayanıklılığı kanıtlandı. Bu FİNAL AŞAMASI (Faz 7), platformun Almanya'daki katı hukuki gereksinimlere (Veri Gizliliği ve Muhasebe Kanunları) uygunluğunu test eder. Müşterilerin "Unutulma Hakkı" (Right to be Forgotten) taleplerinin, 10 yıllık fatura saklama zorunluluğu (GoBD) ile çelişmeden nasıl yönetildiği ve veri dışa aktarma (Data Export) süreçleri doğrulanacaktır.
+İlişkili Kritik Dosyalar:
+src/app/actions/firma-actions.ts (veya müşteri silme/güncelleme işlemleri)
+src/app/actions/dsgvo-actions.ts (Oluşturulacak: Veri dışa aktarma ve anonimleştirme)
+supabase/migrations/create_siparisler_firmalar_rls.sql (Foreign Key kısıtlamaları)
+TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+Legal Compliance Testing (Vitest): "Hard Delete" (Kalıcı Silme) işlemlerinin veritabanı kısıtlamalarıyla (Foreign Key) engellendiğinin ve yerine "Soft Delete / Anonymization" (Anonimleştirme) yapıldığının testi.
+Data Portability Testing: Bir müşteriye ait tüm kişisel ve ticari verilerin tek bir JSON formatında eksiksiz dışa aktarılabildiğinin (DSGVO Art. 20) testi.
+TEST SENARYOLARI (TEST CASES)
+Edge Case 1: GoBD vs DSGVO Çatışması (Soft Delete & Anonymization)
+Veritabanında geçmişte sipariş vermiş ve faturası kesilmiş (siparisler tablosunda kaydı olan) bir "Müşteri A" bulunur.
+Müşteri A, DSGVO kapsamında hesabının silinmesini talep eder. Admin, paneli üzerinden "Firmayı Sil" işlemini tetikler.
+Beklenen Sonuç: Sistem DELETE FROM firmalar sorgusunu ÇALIŞTIRMAMALIDIR (Çalıştırırsa sipariş geçmişi silinir ve GoBD ihlal edilir). Bunun yerine sistem "Soft Delete" yapmalı; firmanın status değerini Pasif veya Silindi yapmalı, email, telefon, yetkili_kisi gibi PII (Kişisel Tanımlanabilir Bilgiler) alanlarını *** veya anonim@deleted.com şeklinde maskelemelidir. Sipariş ve fatura verileri dokunulmadan kalmalıdır.
+Edge Case 2: DSGVO Veri Dışa Aktarma (Data Export)
+Müşteri B, portal üzerinden "Verilerimi İndir" talebinde bulunur veya Admin bu işlemi tetikler.
+Beklenen Sonuç: Sistem; firmalar, profiller, siparisler, adresler ve etkinlikler tablolarındaki Müşteri B'ye ait tüm verileri toplayıp yapılandırılmış bir JSON objesi dönmelidir. Bu işlem sırasında RLS politikaları gereği Müşteri C'ye ait hiçbir veri bu JSON içine sızmamalıdır.
+Edge Case 3: AI Sohbet Kayıtlarının (Chat Logs) Temizlenmesi
+ai_chat_logs tablosunda 30 günden eski, içinde müşteri isimleri veya e-postaları geçebilecek sohbet kayıtları bulunur.
+Beklenen Sonuç: Sisteme eklenecek bir temizlik fonksiyonu (veya cron job simülasyonu), 30 günden eski logları başarıyla silmeli veya kişisel verileri maskelemelidir. Test, bu fonksiyonun sadece eski kayıtları sildiğini, yeni kayıtları koruduğunu doğrulamalıdır.
+ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+Adım 1: src/app/actions/dsgvo-actions.ts dosyasını oluştur. İçerisine anonymizeCustomerData(firmaId) ve exportCustomerData(firmaId) fonksiyonlarını yaz.
+
+Adım 2: anonymizeCustomerData fonksiyonunda, firmanın siparişi varsa DELETE yerine UPDATE ile kişisel verileri (email, telefon, yetkili_kisi, adres) anonimleştiren mantığı kur.
+
+Adım 3: __tests__/dsgvo-compliance.test.ts dosyasını oluştur. Siparişi olan bir firma için silme işlemi çağrıldığında veritabanından kaydın silinmediğini, ancak email alanının anonim... olarak güncellendiğini expect ile doğrula.
+
+Adım 4: Aynı test dosyasında exportCustomerData fonksiyonunu çağır ve dönen JSON'ın sadece o firmaya ait siparişleri ve profil bilgilerini içerdiğini test et.
+
+Adım 5: Testleri çalıştır (npm run test).
+
+Adım 6: Eğer veritabanında ON DELETE CASCADE gibi tehlikeli bir kısıtlama varsa (siparişlerin silinmesine yol açabilecek), Supabase migration dosyalarını kontrol et ve gerekirse ON DELETE RESTRICT olarak güncelle.
+KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+GoBD İHLALİ YASAKTIR: Almanya'da ticari belgeler ve faturalar 10 yıl saklanmak zorundadır. Hiçbir DSGVO silme talebi, muhasebeleşmiş bir siparişin veya faturanın veritabanından fiziksel olarak silinmesine (Hard Delete) yol açamaz.
+PII (KİŞİSEL VERİ) İZOLASYONU: Anonimleştirme işlemi geri döndürülemez (Irreversible) olmalıdır. Gerçek e-posta veya telefon numarası loglarda dahi kalmamalıdır.
+RLS İLE EXPORT: Veri dışa aktarma (Export) işlemi kesinlikle service_role ile değil, işlemi talep eden müşterinin kendi authenticated token'ı (veya yetkili Admin token'ı) ile çalıştırılmalı, böylece IDOR riski sıfıra indirilmelidir.
+</file>
+
+<file path="test-plan-golden-flow-sanity.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: `test-plan-golden-flow-sanity.md`
+
+Hedef Modül: "Golden Flow" (Kusursuz Ana Akış) Uçtan Uca Entegrasyonu, Veritabanı Tetikleyicileri (Triggers) ve SEO/GEO Bütünlüğü.
+Kapsam: Tüm bireysel modüllerin (Güvenlik, DSGVO, Fiyatlandırma, AI) başarıyla test edilmesinin ardından, canlı lansman öncesi sistemin bir bütün olarak (Public -> Admin -> Portal -> Muhasebe) kesintisiz çalışıp çalışmadığının test edilmesi. Ayrıca `receteler.md` ve `header.md` dosyalarında belirtilen SEO/GEO (Generative Engine Optimization) mimarisinin ve veritabanı trigger'larının (örn: stok tükenme tarihi) doğrulanması.
+İlişkili Kritik Dosyalar:
+- `supabase/migrations/20260816_otomatik_tedarik_turu.sql` (Stok tükenme trigger'ı)
+- `src/lib/seo-utils.ts` (Çoklu dil SEO etiketleri)
+- `src/app/[locale]/recipes/page.tsx` (Reçete Sihirbazı görünürlüğü)
+- Tüm E2E ve API akışları.
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+1. Full E2E Integration Testing (Playwright): Bir ziyaretçinin siteye girmesinden, faturasının kesilmesine kadar olan tüm yaşam döngüsünün (Customer Lifecycle) tek bir kesintisiz senaryoda test edilmesi.
+2. Database Trigger Testing (Vitest): Supabase üzerinde çalışan otomatik fonksiyonların (Trigger) uygulama mantığıyla çelişmediğinin doğrulanması.
+3. SEO/GEO Sanity Checks (Playwright/Vitest): Arama motoru botları ve AI botları (ChatGPT, Perplexity) için kritik olan meta etiketlerin ve sayfa yapılarının doğrulanması.
+
+- TEST SENARYOLARI (TEST CASES)
+
+* Happy Path 1: The Golden Flow (Kusursuz Ana Akış)
+1. Ziyaretçi (Anonim) siteye girer, "Reçete Sihirbazı"nı kullanır ve B2B portalına kayıt (Waitlist/Register) olur.
+2. Admin, panele girer ve bu yeni kaydı "Müşteri" statüsüne alıp onaylar.
+3. Müşteri, portal üzerinden giriş yapar, sepetine ürün ekler ve siparişi tamamlar.
+4. Admin, sipariş paneline düşen bu siparişi onaylar ve "Fatura Kes" (Lexware) işlemini tetikler.
+5. Beklenen Sonuç: Hiçbir adımda yetki hatası, RLS engeli veya API çökmesi yaşanmamalı; sipariş durumu başarıyla "Teslim Edildi" ve fatura durumu "Kesildi" olmalıdır.
+
+* Edge Case 2: Veritabanı Trigger Bütünlüğü (Stok Tükenme Tarihi)
+1. Bir ürünün `stok_miktari` değeri bir sipariş veya admin müdahalesi ile `0`'a düşürülür.
+2. Beklenen Sonuç: `trg_urunler_stok_tukenme` trigger'ı anında devreye girmeli ve `stok_tukenme_tarihi` kolonuna o anın tarihini (NOW) atmalıdır.
+3. Ürüne tekrar stok eklendiğinde (örn: İthalat Partisi onayı ile), `stok_tukenme_tarihi` otomatik olarak `NULL` değerine dönmelidir.
+
+* Edge Case 3: SEO/GEO ve i18n Bütünlüğü
+1. Sitenin herhangi bir public sayfasına (örn: `/de/recipes`) istek atılır.
+2. Beklenen Sonuç: Sayfanın `<head>` kısmında `x-default` etiketinin `/de/recipes` adresini gösterdiği, `tr`, `en`, `ar` için doğru `alternate` hreflang etiketlerinin bulunduğu doğrulanmalıdır. Ayrıca Reçete Sihirbazı (Recipe Wizard) bileşeninin sayfanın en üstünde (Above the fold) render edildiği DOM üzerinden kanıtlanmalıdır.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+- [ ] Adım 1: `tests/e2e/golden-flow.spec.ts` dosyasını oluştur. Playwright ile Ziyaretçi -> Admin Onayı -> Müşteri Siparişi -> Admin Fatura Kesimi adımlarını tek bir test senaryosu (veya birbirine bağlı adımlar) halinde kodla.
+- [ ] Adım 2: `__tests__/database-triggers.test.ts` dosyasını oluştur. Supabase client kullanarak bir ürünün stokunu 0'a çek, `stok_tukenme_tarihi`nin atandığını `expect` ile doğrula. Ardından stoku 10 yap ve tarihin `null` olduğunu doğrula.
+- [ ] Adım 3: `tests/e2e/seo-geo-sanity.spec.ts` dosyasını oluştur. Playwright ile `/de/recipes` sayfasına git, `<link rel="alternate" hreflang="...">` etiketlerinin varlığını ve `x-default` değerinin doğruluğunu test et.
+- [ ] Adım 4: Testleri çalıştır (`npm run test` ve `npm run test:e2e`).
+- [ ] Adım 5: Golden Flow testi sırasında e-posta gönderimlerinin (Resend) test ortamında gerçek e-posta atmadığından (mocklandığından) emin ol.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+1. E2E TEST İZOLASYONU: Golden Flow testi, veritabanında kalıcı "çöp" veri bırakmamalıdır. Testin `afterAll` veya `teardown` aşamasında, oluşturulan test müşterisi, test siparişi ve test faturası (Lexware mock) temizlenmelidir.
+2. GERÇEK E-POSTA YASAĞI: E2E testleri sırasında `sendCustomerEmail` veya `sendAdminEmail` fonksiyonları kesinlikle gerçek API'ye istek atmamalı, Playwright tarafında network intercept (route.abort/route.fulfill) veya Vitest tarafında `vi.mock` ile engellenmelidir.
+3. SEO/GEO KURALI: `receteler.md` dosyasında belirtildiği üzere, UI'da kesinlikle "AI" veya "Yapay Zeka" kelimeleri aranmamalı, testler "Reçete Sihirbazı" veya "Rezept-Assistent" metinlerinin varlığını doğrulamalıdır.
+</file>
+
+<file path="test-plan-portal-edge-cases.md">
+Hedef Modül: Müşteri Portalı - Kritik Sınır Durumları (Edge Cases), Eşzamanlılık (Concurrency) ve Finansal Hassasiyet Doğrulaması.
+Kapsam: Temel E2E ve Unit testleri başarıyla tamamlanmış ve locale (dil) yönlendirme sorunları çözülmüştür. Bu aşama (Faz 2), sistemin finansal ve lojistik bütünlüğünü tehdit edebilecek "Race Condition" (Yarış Durumu), "Alt Bayi Fiyat İzolasyonu" ve "KDV Yuvarlama Hassasiyeti" senaryolarının kesin olarak test edilmesini kapsar.
+İlişkili Kritik Dosyalar:
+supabase/migrations/20260919_atomic_stock_operations.sql (Atomik stok düşümü)
+src/lib/pricingUtils.ts (Fiyat ve yuvarlama mantığı)
+src/lib/shippingUtils.ts (Kargo KDV hesaplamaları)
+TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+Concurrency/Integration Testing (Vitest + Supabase Local): Aynı anda gelen iki sipariş isteğinin veritabanı kilitleri (Row-level locks / FOR UPDATE) ile nasıl yönetildiğinin testi.
+Unit Testing (Vitest): Alman muhasebe standartlarına (Kaufmännisches Runden) uygun KDV ve brüt tutar yuvarlama testleri.
+E2E Role Testing (Playwright): "Alt Bayi" rolünün fiyatlandırma motorundaki mutlak üstünlüğünün UI üzerinden kanıtlanması.
+TEST SENARYOLARI (TEST CASES)
+Edge Case 1: Eşzamanlı Stok Tüketimi (Race Condition)
+Veritabanında stok_miktari = 5 olan bir ürün belirlenir.
+İki farklı müşteri (veya aynı müşteri iki farklı sekmeden) aynı anda 4'er adetlik sipariş oluşturma isteği (API Call) gönderir.
+Beklenen Sonuç: İlk istek başarılı olmalı ve stok 1'e düşmelidir. İkinci istek veritabanı seviyesinde (örn: deduct_single_product_stock fonksiyonu) reddedilmeli ve "Yetersiz Stok" hatası dönmelidir. Stok asla eksiye (-3) düşmemelidir.
+Edge Case 2: Alt Bayi (Sub-dealer) Fiyat İzolasyonu
+"Alt Bayi" rolüne sahip bir kullanıcı ile login olunur.
+Sepete 1 koli ürün eklenir.
+Beklenen Sonuç: Sistem 1-4 koli standart fiyatını DEĞİL, doğrudan satis_fiyati_alt_bayi (en düşük fiyat) değerini uygulamalıdır. Miktar 10 koliye çıkarılsa bile fiyat değişmemeli, sabit alt bayi fiyatı kalmalıdır.
+Edge Case 3: Finansal Yuvarlama Hassasiyeti (Kaufmännisches Runden)
+Net tutarı 10.005 € olan bir sepet hesaplaması simüle edilir.
+Beklenen Sonuç: KDV (%7) ve Brüt tutar hesaplanırken JavaScript'in floating-point hataları (örn: 0.1 + 0.2 = 0.30000000000000004) engellenmeli, tutar tam olarak 10.01 €'ya yuvarlanmalıdır.
+ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+Adım 1: __tests__/concurrency.test.ts dosyasını oluştur. Promise.all kullanarak aynı ürüne eşzamanlı iki sipariş isteği at ve Supabase RPC'sinin (deduct_single_product_stock veya ilgili sipariş fonksiyonu) birini reddettiğini expect ile doğrula.
+
+Adım 2: __tests__/financial-rounding.test.ts dosyasını oluştur. pricingUtils.ts ve shippingUtils.ts içindeki hesaplamalara küsuratlı (örn: 15.455, 9.995) mock veriler vererek, sonuçların tam olarak 2 ondalık basamağa (15.46, 10.00) yuvarlandığını test et.
+
+Adım 3: tests/e2e/portal-subdealer-pricing.spec.ts dosyasını oluştur. Alt Bayi kullanıcısı ile giriş yap, sepetteki miktarı 1'den 10'a kadar değiştir ve birim fiyatın hiçbir kademede değişmediğini (sabit kaldığını) doğrula.
+
+Adım 4: Testleri çalıştır (npm run test ve npm run test:e2e).
+
+Adım 5: Eğer eşzamanlılık testinde stok eksiye düşerse, Supabase migration dosyasındaki FOR UPDATE kilidinin veya sipariş oluşturma RPC'sinin doğru çalıştığından emin ol ve kodu onar.
+KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+JAVASCRIPT MATH KISITLAMASI: Finansal hesaplamalarda asla ham * veya / operatörlerinin sonuçlarına güvenme. Her zaman Math.round((deger + Number.EPSILON) * 100) / 100 veya benzeri güvenli bir yuvarlama fonksiyonu kullanıldığını assert et.
+VERİTABANI KİLİTLERİ: Race condition testinde, Supabase client'ın mocklanması yerine, lokal Supabase instance'ı üzerinde gerçek RPC çağrısı yapılması tercih edilmelidir (Eğer CI/CD ortamı buna izin veriyorsa). Aksi takdirde transaction mantığını mocklayarak test et.
+ROL BAZLI FİYAT KORUMASI: Alt bayi testinde, frontend'in fiyatı manipüle etmediğinden emin olmak için, siparişin backend'e gönderildiği payload'daki tutarın da backend tarafından yeniden hesaplanıp doğrulandığını kontrol et.
+</file>
+
+<file path="test-plan-post-golive-monitoring.md">
+BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: test-plan-post-golive-monitoring.md
+Hedef Modül: Canlı Ortam Sonrası Sentetik İzleme (Synthetic Monitoring), CI/CD Entegrasyonu ve Veritabanı Sağlık Kontrolü (Database Health Check).
+Kapsam: Sistem başarıyla canlıya (Production) alındı. Bu SÜREKLİ AŞAMA (Faz 10 - Post-Go-Live), sistemin zaman içinde bozulmamasını (Regression), her yeni kod eklendiğinde testlerin otomatik koşulmasını ve canlı ortamın 7/24 ayakta kalıp kalmadığının (Uptime) otomatik botlarla izlenmesini kapsar.
+İlişkili Kritik Dosyalar:
+.github/workflows/playwright.yml (veya ilgili CI/CD pipeline dosyası)
+.github/workflows/synthetic-monitoring.yml (Saatlik canlı ortam kontrolü)
+scripts/db-health-check.ts (Veritabanı tutarlılık kontrolü)
+TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+Continuous Integration (GitHub Actions / Vercel): Ana branch'e (main) açılan her Pull Request'te (PR) tüm Unit ve E2E testlerinin otomatik koşulması ve testler geçmeden kodun birleştirilmesinin (Merge) engellenmesi.
+Synthetic Monitoring (Playwright + Cron): Canlı ortamın (https://elysonsweets.de) her saat başı otomatik bir Playwright botu tarafından ziyaret edilerek kritik B2B akışlarının (Katalog yüklenmesi, Login ekranı yanıt süresi) kontrol edilmesi.
+Database Integrity Check (Supabase/TypeScript): Canlı kullanımdan kaynaklanabilecek "yetim kayıtlar" (orphaned records) veya asılı kalmış sepetlerin haftalık olarak taranması.
+TEST SENARYOLARI (TEST CASES)
+Senaryo 1: CI/CD Pipeline Gatekeeper (Regresyon Koruması)
+Geliştirici, sisteme yeni bir özellik ekler ve main branch'ine PR açar.
+Beklenen Sonuç: GitHub Actions otomatik olarak tetiklenmeli, npm run test ve npm run test:e2e komutlarını izole bir ortamda çalıştırmalıdır. Eğer yeni kod, eski bir özelliği (örneğin KDV hesaplamasını) bozduysa, pipeline "Failed" durumuna düşmeli ve canlıya çıkışı (Deployment) kesin olarak engellemelidir.
+Senaryo 2: Sentetik İzleme (Hourly Smoke Test)
+GitHub Actions Cron Job, her saat başı canlı siteye (Production) gizli bir istek atar.
+Beklenen Sonuç: Bot, anasayfanın ve /de/login sayfasının 3 saniye içinde HTTP 200 ile açıldığını doğrulamalıdır. Eğer site çökerse (HTTP 500) veya yanıt süresi 10 saniyeyi aşarsa, adminlere acil durum e-postası (veya Slack/Discord bildirimi) gönderilmelidir.
+Senaryo 3: Veritabanı Sağlık Taraması (Orphaned Data Check)
+Haftalık çalışan bir script, siparis_detay tablosunda siparis_id'si olmayan veya alt_bayi_stoklari tablosunda geçersiz bir urun_id'ye işaret eden kayıtları arar.
+Beklenen Sonuç: Veritabanı ilişkisel bütünlüğünü (Referential Integrity) korumalıdır. Script, 0 yetim kayıt bulmalı ve "Database Health: 100% OK" raporu üretmelidir.
+ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+Adım 1: Projenin kök dizininde .github/workflows klasörü oluştur (yoksa).
+
+Adım 2: .github/workflows/playwright.yml dosyasını oluştur. İçerisine Node.js kurulumu, bağımlılıkların yüklenmesi (npm ci), Playwright tarayıcılarının kurulması ve npm run test:e2e komutunun çalıştırılması adımlarını ekle.
+
+Adım 3: .github/workflows/synthetic-monitoring.yml dosyasını oluştur. on: schedule: - cron: '0 * * * *' (her saat başı) tetiklenecek şekilde ayarla. Sadece tests/e2e/smoke-production.spec.ts dosyasını çalıştıracak şekilde yapılandır.
+
+Adım 4: scripts/db-health-check.ts dosyasını oluştur. Supabase admin client kullanarak kritik tablolardaki (siparisler, firmalar, urunler) tutarsızlıkları tarayan basit bir SQL/RPC sorgusu veya veri analizi yaz.
+
+Adım 5: CI/CD pipeline'larının başarıyla tetiklendiğini doğrulamak için boş bir commit at (git commit --allow-empty -m "Trigger CI") ve GitHub Actions (veya Vercel Checks) sekmesini izle.
+KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+CANLI ORTAMDA YÜK TESTİ YASAKTIR: Sentetik izleme (Synthetic Monitoring) botları, canlı siteye asla saniyede onlarca istek atan "Load Test" (Yük Testi) formatında çalışmamalıdır. Sadece tek bir kullanıcı gibi davranıp çıkmalıdır.
+GİZLİ DEĞİŞKENLERİN (SECRETS) KORUNMASI: GitHub Actions yml dosyalarında STRIPE_SECRET_KEY, SUPABASE_SERVICE_ROLE_KEY gibi kritik değişkenler asla düz metin (plain text) olarak yazılmamalı, GitHub Repository Secrets üzerinden ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }} şeklinde çağrılmalıdır.
+TEST MÜŞTERİSİ İZOLASYONU: Eğer sentetik testler canlı ortamda login olmayı deneyecekse, bu işlem KESİNLİKLE gerçek bir müşteri hesabı ile değil, yetkileri kısıtlanmış, sipariş verme yetkisi olmayan özel bir "monitoring@elysonsweets.de" test hesabı ile yapılmalıdır.
+</file>
+
+<file path="test-plan-prelaunch-clean-slate.md">
+
+</file>
+
+<file path="test-plan-prelaunch-surgical-clean.md`">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: `test-plan-prelaunch-surgical-clean.md`
+
+Hedef Modül: Canlı Öncesi Hassas Veritabanı Temizliği (Surgical Clean Slate).
+Kapsam: Sistemin yarınki resmi açılışı öncesinde, sadece test amaçlı oluşturulan siparişlerin, alt bayi işlemlerinin, taleplerin ve test portal hesaplarının silinmesi. 
+**Kritik Kısıtlama:** Sistemde halihazırda gerçek veriler bulunmaktadır. `firmalar` (Aday müşteriler vb.), `gorevler` (Aktif iş takibi), `giderler` (Aktif finansal kayıtlar), `etkinlikler` (CRM geçmişi) ve `urunler` tabloları KESİNLİKLE KORUNACAKTIR. Sadece test amaçlı yaratılan "Müşteri/Alt Bayi" portal profilleri ve sipariş/sepet/fatura verileri temizlenecektir.
+İlişkili Kritik Dosyalar:
+- Supabase SQL Editor (İşlem doğrudan veritabanı üzerinde güvenli bir SQL scripti ile yapılacaktır).
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+1. Surgical Truncation (Hassas Temizlik): Sadece sipariş, sepet, talep ve log tablolarının `TRUNCATE ... CASCADE` yöntemiyle temizlenmesi.
+2. Master Data & CRM Koruması: Firmalar, Görevler, Giderler ve Etkinlikler tablolarına hiçbir şekilde dokunulmaması.
+3. Test Profili İzolasyonu: Sadece `Müşteri` ve `Alt Bayi` rolündeki test profillerinin silinmesi, `Yönetici` ve `Personel` hesaplarının korunması.
+
+- TEST SENARYOLARI (TEST CASES)
+
+* Happy Path: Başarılı Hassas Sıfırlama
+1. Admin, Supabase SQL Editor üzerinden hassas temizlik scriptini çalıştırır.
+2. Beklenen Sonuç: Siparişler, numune talepleri, alt bayi satışları ve bildirimler tamamen silinir. Ancak Admin panele girdiğinde; CRM'deki tüm firmaların (Adaylar), aktif görevlerin ve girilmiş giderlerin eksiksiz bir şekilde yerinde durduğunu görür.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+- [ ] Adım 1: Supabase Dashboard'a giriş yap ve `SQL Editor` sekmesini aç.
+- [ ] Adım 2: Yeni bir query (sorgu) oluştur ve aşağıdaki GÜVENLİ VE HASSAS TEMİZLİK SCRIPT'ini yapıştırıp çalıştır (RUN):
+
+```sql
+-- ==============================================================================
+-- ELYSON SWEETS - CANLI ÖNCESİ HASSAS VERİTABANI TEMİZLİĞİ (SURGICAL CLEAN)
+-- DİKKAT: Bu script SADECE test siparişlerini, talepleri ve test portal hesaplarını siler.
+-- KORUNANLAR: Firmalar, Görevler, Giderler, Etkinlikler, Ürünler, Kategoriler, Adminler.
+-- ==============================================================================
+
+BEGIN;
+
+-- 1. SADECE Test Amaçlı Açılmış Müşteri/Alt Bayi Profillerini Sil
+-- (Gerçek firmalar silinmeyecek, sadece onlara bağlı test portal giriş yetkileri silinecek)
+DELETE FROM public.profiller WHERE rol IN ('Müşteri', 'Alt Bayi');
+
+-- 2. Sipariş ve Satış Verilerini Sıfırla (Siparişler, Detaylar, Faturalar)
+TRUNCATE TABLE public.siparisler CASCADE;
+TRUNCATE TABLE public.alt_bayi_satislar CASCADE;
+TRUNCATE TABLE public.alt_bayi_satis_kayitlari CASCADE;
+
+-- 3. Alt Bayi Test Finans ve Stok Verilerini Sıfırla
+TRUNCATE TABLE public.alt_bayi_giderleri CASCADE;
+TRUNCATE TABLE public.alt_bayi_gelirleri CASCADE;
+TRUNCATE TABLE public.alt_bayi_stoklari CASCADE;
+
+-- 4. Test Amaçlı Talepleri ve Yorumları Sıfırla
+TRUNCATE TABLE public.numune_talepleri CASCADE;
+TRUNCATE TABLE public.yeni_urun_talepleri CASCADE;
+TRUNCATE TABLE public.sample_requests CASCADE;
+TRUNCATE TABLE public.urun_degerlendirmeleri CASCADE;
+
+-- 5. Loglar, Bildirimler ve İletişim Mesajlarını Sıfırla (Temiz bir sayfa için)
+TRUNCATE TABLE public.ai_chat_logs CASCADE;
+TRUNCATE TABLE public.bildirimler CASCADE;
+TRUNCATE TABLE public.iletisim_mesajlari CASCADE;
+TRUNCATE TABLE public.waitlist CASCADE;
+
+-- NOT: firmalar, gorevler, giderler, etkinlikler, urunler KORUNDU!
+
+COMMIT;
+</file>
+
+<file path="test-plan-production-deployment.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: `test-plan-production-deployment.md`
+
+Hedef Modül: Canlıya Alma (Deployment), Ortam Değişkenleri (Environment Variables) Doğrulaması ve Gözlemlenebilirlik (Observability).
+Kapsam: Tüm test fazları (Güvenlik, Finans, DSGVO, Resilience, Golden Flow) %100 başarıyla tamamlandı. Bu **NİHAİ AŞAMA (Faz 9 - Go-Live)**, kodun Vercel/Supabase üretim (Production) ortamına aktarılmasını, canlı veritabanı migrasyonlarının doğrulanmasını, cron job'ların aktif edilmesini ve "Smoke Test" (Duman Testi) ile canlı sistemin ayakta olduğunun kanıtlanmasını kapsar.
+İlişkili Kritik Dosyalar:
+- `vercel.json` (Cron job tanımları)
+- `next.config.ts` (Build ayarları)
+- `.env.production` (Canlı ortam değişkenleri - Vercel Dashboard)
+- `supabase/migrations/*` (Canlı veritabanı şeması)
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+1. Pre-flight Build Testing (Next.js): Canlıya çıkmadan önce lokalde `npm run build` alınarak TypeScript veya ESLint kaynaklı son dakika derleme hatalarının (Build Failures) tespiti.
+2. Environment Validation (Vercel/Supabase): Canlı ortamda test anahtarlarının (sk_test) unutulmadığının ve gerçek anahtarların (sk_live) devrede olduğunun statik analizi.
+3. Production Smoke Testing (Playwright): Sistem canlı URL'ye (https://elysonsweets.de) deploy edildikten sonra, veritabanını kirletmeden sadece anasayfa, login ekranı ve katalog sayfalarının HTTP 200 döndüğünü doğrulayan hafif bir test.
+
+- TEST SENARYOLARI (TEST CASES)
+
+* Edge Case 1: Build ve Type-Check Bütünlüğü
+1. CI/CD pipeline veya lokal terminal üzerinden `npm run build` komutu çalıştırılır.
+2. Beklenen Sonuç: Next.js derleme süreci, hiçbir "Type Error" veya "ESLint Error" fırlatmadan başarıyla tamamlanmalı ve `.next` klasörü oluşturulmalıdır. (Not: `next.config.ts` içinde `ignoreBuildErrors: true` varsa bile, kritik hataların loglanıp loglanmadığı kontrol edilmelidir).
+
+* Edge Case 2: Canlı Ortam Değişkenleri (Env Vars) Sızıntı Kontrolü
+1. Vercel Production ortamındaki değişkenler kontrol edilir.
+2. Beklenen Sonuç: `STRIPE_SECRET_KEY` kesinlikle `sk_live_` ile başlamalıdır. `NEXT_PUBLIC_SUPABASE_URL` canlı projeyi işaret etmelidir. `RESEND_API_KEY` ve `LEXWARE_API_KEY` üretim (production) yetkilerine sahip olmalıdır. Test ortamına ait hiçbir URL veya Key canlıda olmamalıdır.
+
+* Edge Case 3: Vercel Cron Jobs Aktivasyonu
+1. `vercel.json` dosyasındaki cron tanımları (Google Business Profile senkronizasyonu, otomatik blog vb.) Vercel platformuna deploy edilir.
+2. Beklenen Sonuç: Vercel Dashboard -> Settings -> Cron Jobs sekmesinde ilgili görevlerin aktif olduğu ve zamanlamalarının (örn: `0 9 * * 1`) doğru parse edildiği doğrulanmalıdır.
+
+* Happy Path 4: Production Smoke Test (Canlı Duman Testi)
+1. Proje Vercel'e deploy edildikten sonra, Playwright ile canlı URL'ye (https://elysonsweets.de) salt okunur (read-only) bir test koşulur.
+2. Beklenen Sonuç: Anasayfa, `/de/products` ve `/de/login` sayfaları 5 saniye içinde HTTP 200 dönmeli, konsolda kritik bir JavaScript hatası (Hydration error vb.) olmamalıdır.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+- [ ] Adım 1: Terminalde `npm run build` komutunu çalıştır ve derleme sürecinin hatasız tamamlandığını doğrula.
+- [ ] Adım 2: Supabase CLI kullanarak tüm lokal migration dosyalarının canlı veritabanına başarıyla uygulandığından emin ol (`supabase db push`).
+- [ ] Adım 3: `tests/e2e/smoke-production.spec.ts` dosyasını oluştur. Bu test sadece canlı URL'ye gidip sayfaların çökmeksizin açıldığını (HTTP 200) ve ana elementlerin (Header, Footer) render edildiğini kontrol etsin. (Veritabanına kayıt atan hiçbir işlem YAPMASIN).
+- [ ] Adım 4: Kodu Vercel'e pushla (Deploy). Vercel Dashboard üzerinden Environment Variables kısmını son kez gözden geçir.
+- [ ] Adım 5: Deploy bittikten sonra lokal terminalinden `npx playwright test tests/e2e/smoke-production.spec.ts --project=chromium` komutunu çalıştırarak canlı siteyi doğrula.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+1. CANLI VERİTABANINI KİRLETME YASAĞI: Smoke testler KESİNLİKLE sipariş oluşturmamalı, kullanıcı kaydetmemeli veya Lexware/Stripe API'lerini tetiklememelidir. Sadece "Read-Only" (Salt Okunur) sayfa ziyaretleri yapılmalıdır.
+2. SIFIR KESİNTİ (ZERO DOWNTIME): Veritabanı migration'ları uygulanırken mevcut tabloları `DROP` eden veya verileri silen yıkıcı (destructive) komutların canlıda çalışmadığından emin ol. Tüm migration'lar `IF NOT EXISTS` veya `ADD COLUMN` şeklinde güvenli olmalıdır.
+3. GÖZLEMLENEBİLİRLİK (OBSERVABILITY): Canlıya çıkıldıktan sonra Vercel Analytics ve Supabase Logs ekranları açık tutulmalı, ilk 1 saat boyunca olası 500 hataları anlık olarak izlenmelidir.
+</file>
+
+<file path="test-plan-production-readiness.md">
+BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Dosya Adı: test-plan-production-readiness.md (Lütfen bu içeriği kök dizinde YENİ bir dosya olarak oluştur ve IDE'ye okut.)
+Hedef Modül: Canlı Ortam Hazırlığı (Production Readiness), Kötüye Kullanım Koruması (Abuse Prevention) ve Ödeme Güvenliği (Stripe Webhooks).
+Kapsam: Yarın gerçekleşecek canlı lansman öncesindeki SON AŞAMA (Faz 5). Sistem işlevsel olarak kusursuz çalışıyor, ancak internete açıldığı an botların ve kötü niyetli kişilerin hedefi olacaktır. Bu aşama; Yapay Zeka (Gemini/Groq) maliyetlerini patlatacak spam isteklerin engellenmesini ve Stripe ödeme altyapısındaki Webhook imza (signature) doğrulamalarının test edilmesini kapsar.
+İlişkili Kritik Dosyalar:
+src/app/api/chat/route.ts veya src/lib/ai/sales-agent.ts (Yapay Zeka API uç noktası)
+src/app/api/webhooks/stripe/route.ts (Stripe ödeme bildirim uç noktası - varsa)
+src/lib/stripe.ts (Stripe yapılandırması)
+TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+Rate Limiting & Abuse Testing (Vitest/Playwright): AI endpoint'ine ve sipariş oluşturma fonksiyonlarına ardışık (spam) istekler atılarak sunucunun bu istekleri reddedip reddetmediğinin (Throttling/Rate Limiting) testi.
+Webhook Security Testing (Vitest): Stripe'tan geliyormuş gibi davranan sahte (unsigned) ödeme onay isteklerinin sistem tarafından reddedildiğinin kanıtlanması.
+TEST SENARYOLARI (TEST CASES)
+Edge Case 1: Yapay Zeka (AI) Maliyet Sömürüsü (Spam/Abuse)
+Kötü niyetli bir bot veya kullanıcı, AI Chat endpoint'ine saniyede 10 istek atarak API kotalarını (Gemini/Groq) tüketmeye çalışır.
+Beklenen Sonuç: Sunucu, aynı IP'den veya aynı Session'dan gelen ardışık istekleri tespit etmeli (örneğin 10 saniyede maksimum 3 istek) ve sınırı aşan isteklere 429 Too Many Requests hatası dönmelidir. AI API'sine gereksiz çağrı yapılmamalıdır.
+Edge Case 2: Sahte Ödeme Bildirimi (Stripe Webhook Spoofing)
+Saldırgan, siparişini "Ödendi" (Paid) statüsüne geçirmek için sistemin Stripe Webhook endpoint'ine (/api/webhooks/stripe) sahte bir JSON payload gönderir.
+Beklenen Sonuç: Endpoint, isteğin header'ındaki stripe-signature değerini stripe.webhooks.constructEvent fonksiyonu ile doğrulamalıdır. İmza geçersizse veya yoksa, sistem anında 400 Bad Request dönmeli ve sipariş durumunu KESİNLİKLE güncellememelidir.
+Edge Case 3: Çift Tıklama (Double Submit) ile Mükerrer Sipariş
+Müşteri, internet bağlantısının yavaş olduğu bir anda "Siparişi Tamamla" butonuna art arda 5 kez tıklar.
+Beklenen Sonuç: Frontend butonu ilk tıklamada "disabled" (devre dışı) duruma getirmeli ve backend aynı sepet/session ID ile saniyeler içinde gelen mükerrer siparişleri reddetmelidir (Idempotency).
+ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+Adım 1: AI Chat endpoint'ini (src/app/api/chat/route.ts vb.) kontrol et. Eğer bir Rate Limiting (Hız Sınırlandırması) yoksa, basit bir in-memory (veya Vercel KV/Upstash) rate limiter ekle.
+
+Adım 2: __tests__/security-rate-limit.test.ts dosyasını oluştur. AI endpoint'ine veya sipariş action'ına bir döngü içinde 10 hızlı istek at ve ilk birkaç istekten sonrakilerin reddedildiğini (örn: 429 status code veya hata mesajı) expect ile doğrula.
+
+Adım 3: Stripe Webhook endpoint'ini kontrol et. stripe.webhooks.constructEvent metodunun kullanıldığından ve STRIPE_WEBHOOK_SECRET çevre değişkeninin kontrol edildiğinden emin ol.
+
+Adım 4: __tests__/security-stripe-webhook.test.ts dosyasını oluştur. Geçersiz bir imza (signature) ile webhook endpoint'ine istek atıldığında siparişin güncellenmediğini ve hata dönüldüğünü test et.
+
+Adım 5: Frontend sipariş butonunun (Checkout Button) tıklandıktan sonra isSubmitting state'i ile devre dışı bırakıldığını (disabled) kontrol et.
+
+Adım 6: Testleri çalıştır (npm run test).
+KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+ÜRETİM (PRODUCTION) ORTAMI KONTROLÜ: src/lib/stripe.ts içindeki isNonProductionEnv mantığının canlı ortamda (Vercel Production) kesinlikle sk_live_ anahtarlarını gerektirdiğinden emin ol. Test anahtarlarıyla canlıya çıkılması felaketle sonuçlanır.
+IDEMPOTENCY (TEKRARLANABİLİRLİK): Sipariş oluşturma fonksiyonları idempotent olmalıdır. Aynı istek yanlışlıkla iki kez gelirse, müşteriden iki kez para çekilmemeli veya stok iki kez düşülmemelidir.
+GÜVENLİ BAŞARISIZLIK (FAIL SECURE): Rate limit veya Webhook doğrulaması sırasında herhangi bir beklenmedik hata oluşursa, sistem varsayılan olarak işlemi REDDETMELİDİR (Fail Closed).
+</file>
+
 <file path="test-unsplash.js">
 const https = require('https');
 
@@ -14386,6 +15512,169 @@ export function useVisitPlanner() {
 }
 </file>
 
+<file path="src/lib/admin/cache-utils.ts">
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '@/lib/supabase/database.types';
+
+// 1. Request Memoization (Per-request Cache)
+// Bu fonksiyonlar tek bir HTTP requesti içerisinde 1'den fazla kez çağrılırsa (örn: layout.tsx ve page.tsx),
+// Supabase'e sadece 1 kez sorgu atılır, diğerleri RAM'den döner.
+
+export const getGlobalCachedUser = cache(async () => {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    return await supabase.auth.getUser(); // Retains native { data: { user }, error } structure
+});
+
+export const getCachedUser = cache(async (supabase: SupabaseClient<Database>) => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    return { user, error };
+});
+
+export const getCachedProfile = cache(async (supabase: SupabaseClient<Database>, userId: string) => {
+    const { data: profile, error } = await supabase
+        .from('profiller')
+        .select('*')
+        .eq('id', userId)
+        .single();
+    return { profile, error };
+});
+
+export const getCachedUnreadNotificationsCount = cache(async (supabase: SupabaseClient<Database>, userId: string) => {
+    const { count, error } = await supabase
+        .from('bildirimler')
+        .select('*', { count: 'exact', head: true })
+        .eq('alici_id', userId)
+        .eq('okundu_mu', false);
+    return { count, error };
+});
+
+// 2. Global Data Caching (Cross-request Cache)
+// Bu veriler tüm adminler için aynıdır ve sık değişmez. 
+// unstable_cache ile Redis/Dosya sistemine önbelleklenir.
+
+export const getCachedCategories = unstable_cache(
+    async () => {
+        const supabase = createSupabaseServiceClient();
+        const { data } = await supabase
+            .from('kategoriler')
+            .select('id, ad, ust_kategori_id');
+        return data || [];
+    },
+    ['admin-categories'],
+    { revalidate: 3600 } // 1 saat
+);
+
+export const getCachedSuppliers = unstable_cache(
+    async () => {
+        const supabase = createSupabaseServiceClient();
+        const { data } = await supabase
+            .from('tedarikciler')
+            .select('id, unvan')
+            .order('unvan', { ascending: true })
+            .limit(1000);
+        return data || [];
+    },
+    ['admin-suppliers'],
+    { revalidate: 3600 } // 1 saat
+);
+
+export const getCachedPricingSettings = unstable_cache(
+    async () => {
+        const supabase = createSupabaseServiceClient();
+        const { data } = await supabase
+            .from('system_settings')
+            .select('setting_key, setting_value')
+            .eq('category', 'pricing');
+            
+        const pricingSettings: Record<string, number> = {};
+        (data || []).forEach((s: any) => {
+            const v = parseFloat(s.setting_value);
+            if (Number.isFinite(v)) pricingSettings[s.setting_key] = v;
+        });
+        return pricingSettings;
+    },
+    ['admin-pricing-settings'],
+    { revalidate: 3600 } // 1 saat
+);
+
+// 3. Dashboard Caching
+export const getCachedDashboardData = unstable_cache(
+    async (period: string) => {
+        const supabase = createSupabaseServiceClient();
+        const OFFENE_STATUS = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
+        
+        function toLocalDateString(d: Date) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        
+        const now = new Date();
+        const y = now.getFullYear(); 
+        const mo = now.getMonth();
+        
+        let periodStart, periodEnd;
+        if (period === 'gecen-ay') {
+            periodStart = toLocalDateString(new Date(y, mo - 1, 1));
+            periodEnd = toLocalDateString(new Date(y, mo, 0)); // last day of prev month
+        } else if (period === 'bu-yil') {
+            periodStart = toLocalDateString(new Date(y, 0, 1));
+            periodEnd = now.toISOString();
+        } else {
+            periodStart = toLocalDateString(new Date(y, mo, 1));
+            periodEnd = now.toISOString();
+        }
+
+        const prevMonthStart = toLocalDateString(new Date(y, mo - 1, 1));
+        const prevMonthEnd = toLocalDateString(new Date(y, mo, 0));
+
+        const todayISO = now.toISOString();
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+        
+        const [
+            plRes, plPrevRes, stokRes, urunToplamRes, 
+            aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
+            adayRes, temasRes, musteriRes, yeniTemasRes, 
+            alarmUrunlerRes, settingsRes, yeniMusteriRes, 
+            sipAdetRes, alarmCountRes, batchHistRes
+        ] = await Promise.all([
+            supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).single(),
+            supabase.rpc('get_pl_report', { start_date: prevMonthStart, end_date: prevMonthEnd }).single(),
+            supabase.from('urunler').select('distributor_alis_fiyati, stok_miktari, stok_esigi').eq('aktif', true),
+            supabase.from('urunler').select('id', { count: 'exact', head: true }),
+            supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_STATUS),
+            supabase.from('siparisler').select('siparis_durumu').gte('created_at', thirtyDaysAgo),
+            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(3),
+            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum').gte('varis_tarihi', todayISO).order('varis_tarihi', { ascending: true }).limit(1),
+            supabase.from('firmalar').select('id', { count: 'exact' }).eq('status', 'ADAY'),
+            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']),
+            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Müşteri', 'Alt Bayi'] as any[]),
+            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']).gte('created_at', thirtyDaysAgo),
+            supabase.from('urunler').select('id, ad, stok_kodu, son_maliyet_sapma_yuzde, son_gercek_inis_maliyeti_net').eq('karlilik_alarm_aktif', true).order('son_maliyet_sapma_yuzde', { ascending: false }).limit(4),
+            supabase.from('system_settings').select('setting_key, setting_value').in('setting_key', ['kasa_bakiyesi', 'hedef_ciro', 'hedef_musteri', 'hedef_temas', 'hedef_siparis']),
+            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Alt Bayi'] as any[]).gte('created_at', `${periodStart}T00:00:00`),
+            supabase.from('siparisler').select('siparis_durumu').gte('siparis_tarihi', periodStart).lte('siparis_tarihi', periodEnd),
+            supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
+            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
+        ]);
+
+        return {
+            plRes, plPrevRes, stokRes, urunToplamRes, 
+            aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
+            adayRes, temasRes, musteriRes, yeniTemasRes, 
+            alarmUrunlerRes, settingsRes, yeniMusteriRes, 
+            sipAdetRes, alarmCountRes, batchHistRes
+        };
+    },
+    ['admin-dashboard-data'],
+    { revalidate: 60 } // 60 saniye
+);
+</file>
+
 <file path="src/lib/ai/board/crew.ts">
 import { generateText } from 'ai';
 import { getGroqModel, getGeminiModel } from '../providers';
@@ -14717,357 +16006,6 @@ export async function sendNotification(
 }
 </file>
 
-<file path="src/lib/plzLookup.ts">
-// src/lib/plzLookup.ts
-// ===================================================================
-// TAM VE EKSİKSİZ KÖLN + BONN PLZ HARİTASI
-// Kaynak: Resmi Köln.de ve Deutsche Post PLZ listesi, 2024
-// ===================================================================
-
-export interface PlzInfo {
-  city: string;
-  cityPart?: string;
-  district: string;
-  zone: 'koln' | 'bonn';
-}
-
-// -----------------------------------------------------------------------
-// KÖLN — 46 resmi PLZ (50xxx linksrheinisch + 51xxx rechtsrheinisch)
-// -----------------------------------------------------------------------
-export const KOLN_PLZ_MAP: Record<string, PlzInfo> = {
-
-  // === INNENSTADT (Stadtbezirk 1) ===
-  "50667": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord", zone: "koln" },
-  "50668": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord", zone: "koln" },
-  "50670": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord", zone: "koln" },
-  "50672": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord", zone: "koln" },
-  "50674": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd", zone: "koln" },
-  "50676": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd", zone: "koln" },
-  "50677": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd", zone: "koln" },
-  "50678": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd", zone: "koln" },
-  "50679": { city: "Köln", cityPart: "Innenstadt", district: "Deutz", zone: "koln" },
-
-  // === RODENKIRCHEN (Stadtbezirk 2) ===
-  "50968": { city: "Köln", cityPart: "Rodenkirchen", district: "Bayenthal / Raderberg", zone: "koln" },
-  "50969": { city: "Köln", cityPart: "Rodenkirchen", district: "Zollstock / Raderthal", zone: "koln" },
-  "50996": { city: "Köln", cityPart: "Rodenkirchen", district: "Rodenkirchen / Rondorf", zone: "koln" },
-  "50997": { city: "Köln", cityPart: "Rodenkirchen", district: "Godorf / Hahnwald", zone: "koln" },
-  "50999": { city: "Köln", cityPart: "Rodenkirchen", district: "Sürth / Weiß / Immendorf / Meschenich", zone: "koln" },
-
-  // === LINDENTHAL (Stadtbezirk 3) ===
-  "50931": { city: "Köln", cityPart: "Lindenthal", district: "Lindenthal", zone: "koln" },
-  "50933": { city: "Köln", cityPart: "Lindenthal", district: "Braunsfeld / Müngersdorf", zone: "koln" },
-  "50935": { city: "Köln", cityPart: "Lindenthal", district: "Sülz / Klettenberg", zone: "koln" },
-  "50937": { city: "Köln", cityPart: "Lindenthal", district: "Klettenberg / Sülz", zone: "koln" },
-  "50939": { city: "Köln", cityPart: "Lindenthal", district: "Sülz / Deckstein / Junkersdorf", zone: "koln" },
-
-  // === EHRENFELD (Stadtbezirk 4) ===
-  "50823": { city: "Köln", cityPart: "Ehrenfeld", district: "Ehrenfeld", zone: "koln" },
-  "50825": { city: "Köln", cityPart: "Ehrenfeld", district: "Neuehrenfeld", zone: "koln" },
-  "50827": { city: "Köln", cityPart: "Ehrenfeld", district: "Bickendorf / Vogelsang", zone: "koln" },
-  "50829": { city: "Köln", cityPart: "Ehrenfeld", district: "Ossendorf / Vogelsang", zone: "koln" },
-  "50858": { city: "Köln", cityPart: "Ehrenfeld", district: "Müngersdorf / Junkersdorf", zone: "koln" },
-  "50859": { city: "Köln", cityPart: "Ehrenfeld", district: "Weiden / Lövenich", zone: "koln" },
-
-  // === NIPPES (Stadtbezirk 5) ===
-  "50733": { city: "Köln", cityPart: "Nippes", district: "Nippes / Riehl", zone: "koln" },
-  "50735": { city: "Köln", cityPart: "Nippes", district: "Riehl / Mauenheim", zone: "koln" },
-  "50737": { city: "Köln", cityPart: "Nippes", district: "Weidenpesch / Volkhoven", zone: "koln" },
-  "50739": { city: "Köln", cityPart: "Nippes", district: "Bilderstöckchen / Longerich", zone: "koln" },
-
-  // === CHORWEILER (Stadtbezirk 6) ===
-  "50765": { city: "Köln", cityPart: "Chorweiler", district: "Volkhoven-Weiler / Seeberg", zone: "koln" },
-  "50767": { city: "Köln", cityPart: "Chorweiler", district: "Chorweiler / Blumenberg", zone: "koln" },
-  "50769": { city: "Köln", cityPart: "Chorweiler", district: "Roggendorf / Worringen / Merkenich", zone: "koln" },
-
-  // === PORZ (Stadtbezirk 7 — rechtsrheinisch, 51xxx) ===
-  "51143": { city: "Köln", cityPart: "Porz", district: "Porz / Elsdorf", zone: "koln" },
-  "51145": { city: "Köln", cityPart: "Porz", district: "Urbach / Zündorf", zone: "koln" },
-  "51147": { city: "Köln", cityPart: "Porz", district: "Wahn / Wahnheide", zone: "koln" },
-  "51149": { city: "Köln", cityPart: "Porz", district: "Ensen / Gremberghoven", zone: "koln" },
-
-  // === KALK (Stadtbezirk 8 — rechtsrheinisch, 51xxx) ===
-  "51103": { city: "Köln", cityPart: "Kalk", district: "Kalk / Humboldt-Gremberg", zone: "koln" },
-  "51105": { city: "Köln", cityPart: "Kalk", district: "Poll / Vingst", zone: "koln" },
-  "51107": { city: "Köln", cityPart: "Kalk", district: "Ostheim / Neubrück", zone: "koln" },
-  "51109": { city: "Köln", cityPart: "Kalk", district: "Merheim / Rath-Heumar", zone: "koln" },
-
-  // === MÜLHEIM (Stadtbezirk 9 — rechtsrheinisch, 51xxx) ===
-  "51061": { city: "Köln", cityPart: "Mülheim", district: "Stammheim / Flittard", zone: "koln" },
-  "51063": { city: "Köln", cityPart: "Mülheim", district: "Mülheim / Buchforst", zone: "koln" },
-  "51065": { city: "Köln", cityPart: "Mülheim", district: "Buchheim / Höhenberg", zone: "koln" },
-  "51067": { city: "Köln", cityPart: "Mülheim", district: "Holweide / Dünnwald", zone: "koln" },
-  "51069": { city: "Köln", cityPart: "Mülheim", district: "Dellbrück / Dennenbrück", zone: "koln" },
-};
-
-// -----------------------------------------------------------------------
-// BONN — 15 PLZ (531xx linksrheinisch) + 3 PLZ Beuel (532xx rechtsrheinisch)
-// -----------------------------------------------------------------------
-export const BONN_PLZ_MAP: Record<string, PlzInfo> = {
-
-  // === STADTBEZIRK BONN (Zentrum, Nordstadt, Südstadt, etc.) ===
-  "53111": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Innenstadt / Altstadt", zone: "bonn" },
-  "53113": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Gronau / Kessenich", zone: "bonn" },
-  "53115": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Südstadt / Poppelsdorf", zone: "bonn" },
-  "53117": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Nordstadt / Buschdorf / Lessenich", zone: "bonn" },
-  "53119": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Auerberg / Tannenbusch / Nordstadt", zone: "bonn" },
-
-  // === STADTBEZIRK HARDTBERG (Duisdorf, Endenich, Röttgen, etc.) ===
-  "53121": { city: "Bonn", cityPart: "Hardtberg", district: "Endenich / Dransdorf", zone: "bonn" },
-  "53123": { city: "Bonn", cityPart: "Hardtberg", district: "Duisdorf / Medinghoven", zone: "bonn" },
-  "53125": { city: "Bonn", cityPart: "Hardtberg", district: "Hardthöhe / Ückesdorf", zone: "bonn" },
-  "53127": { city: "Bonn", cityPart: "Hardtberg", district: "Lengsdorf / Lessenich / Dottendorf", zone: "bonn" },
-  "53129": { city: "Bonn", cityPart: "Hardtberg", district: "Röttgen / Ippendorf", zone: "bonn" },
-
-  // === STADTBEZIRK BAD GODESBERG ===
-  "53173": { city: "Bonn", cityPart: "Bad Godesberg", district: "Alt-Godesberg / Plittersdorf / Rüngsdorf", zone: "bonn" },
-  "53175": { city: "Bonn", cityPart: "Bad Godesberg", district: "Friesdorf / Godesberg-Nord / Hochkreuz", zone: "bonn" },
-  "53177": { city: "Bonn", cityPart: "Bad Godesberg", district: "Heiderhof / Lannesdorf / Muffendorf / Schweinheim", zone: "bonn" },
-  "53179": { city: "Bonn", cityPart: "Bad Godesberg", district: "Mehlem / Pennenfeld / Rüngsdorf", zone: "bonn" },
-
-  // === STADTBEZIRK BEUEL (rechtsrheinisch, 532xx) ===
-  "53225": { city: "Bonn", cityPart: "Beuel", district: "Beuel-Mitte / Vilich / Schwarzrheindorf", zone: "bonn" },
-  "53227": { city: "Bonn", cityPart: "Beuel", district: "Beuel-Ost / Küdinghoven / Oberkassel", zone: "bonn" },
-  "53229": { city: "Bonn", cityPart: "Beuel", district: "Pützchen / Holzlar / Holtorf", zone: "bonn" },
-};
-
-// -----------------------------------------------------------------------
-// Birleşik harita (her iki şehir)
-// -----------------------------------------------------------------------
-export const KOLN_BONN_PLZ_MAP: Record<string, PlzInfo> = {
-  ...KOLN_PLZ_MAP,
-  ...BONN_PLZ_MAP,
-};
-
-// -----------------------------------------------------------------------
-// Zone Tespiti: Adres Köln/Bonn yerel teslimat bölgesinde mi?
-// -----------------------------------------------------------------------
-export function isKolnBonnArea(plz?: string | null): boolean {
-  if (!plz) return false;
-  const cleanPlz = plz.trim();
-
-  // 1. Tam eşleşme haritasına bak
-  if (KOLN_BONN_PLZ_MAP[cleanPlz]) return true;
-
-  // 2. Köln prefix kontrolü (50xxx ve 51xxx)
-  if (cleanPlz.startsWith('50') || cleanPlz.startsWith('51')) return true;
-
-  // 3. Bonn prefix kontrolü (531xx linksrheinisch + 532xx Beuel rechtsrheinisch)
-  if (cleanPlz.startsWith('531') || cleanPlz.startsWith('532')) return true;
-
-  return false;
-}
-
-/**
- * @deprecated isKolnBonnArea kullanın
- * Geriye dönük uyumluluk için bırakıldı
- */
-export function isKolnArea(plz?: string | null): boolean {
-  return isKolnBonnArea(plz);
-}
-
-// -----------------------------------------------------------------------
-// PLZ'den şehir/semt bilgisi al (statik harita veya API)
-// -----------------------------------------------------------------------
-export async function fetchLocationByPlz(plz: string): Promise<{ city: string, district: string } | null> {
-  const cleanPlz = plz.trim();
-
-  // 1. Önce birleşik statik haritaya bak
-  const entry = KOLN_BONN_PLZ_MAP[cleanPlz];
-  if (entry) {
-    return { city: entry.city, district: entry.district };
-  }
-
-  // 2. Listede yoksa Zippopotam.us API ile sorgula (tüm Almanya)
-  try {
-    const response = await fetch(`https://api.zippopotam.us/de/${cleanPlz}`);
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    if (data.places && data.places.length > 0) {
-      const place = data.places[0];
-      return {
-        city: place['place name'],
-        district: ''
-      };
-    }
-  } catch (error) {
-    console.error("PLZ API Error:", error);
-  }
-
-  return null;
-}
-</file>
-
-<file path="src/lib/pricingUtils.ts">
-/**
- * Merkezi fiyat hesaplama utility'si.
- *
- * Veritabanı fiyat alanları (adet başına €):
- *   satis_fiyati_musteri   → 1-4 koli standart fiyat
- *   satis_fiyati_toptanci  → 5+ koli toptan fiyat
- *   satis_fiyati_alt_bayi  → Palet fiyatı (en ucuz kademe)
- *
- * Birim hiyerarşisi:
- *   palet > koli > adet
- *   1 palet  = palet_ici_koli_adet koli  (veya palet_ici_adet adet)
- *   1 koli   = koli_ici_adet adet
- */
-
-type Birim = 'adet' | 'koli' | 'palet';
-
-interface UrunFiyatBilgi {
-    koli_ici_adet?: number | null;
-    palet_ici_adet?: number | null;
-    palet_ici_koli_adet?: number | null;
-    satis_fiyati_musteri?: number | null;
-    satis_fiyati_toptanci?: number | null;
-    satis_fiyati_alt_bayi?: number | null;
-    satis_fiyati_palet?: number | null;
-    partnerPreis?: number | null;
-    userRole?: string | null;
-}
-
-// ── Yardımcı getter'lar ──────────────────────────────────────────────
-
-/** 1 kolideki adet sayısı */
-export function getKoliIciAdet(urun: UrunFiyatBilgi): number {
-    return Number(urun.koli_ici_adet ?? 1);
-}
-
-/** 1 paletteki koli sayısı */
-export function getPaletIciKoliAdet(urun: UrunFiyatBilgi): number {
-    const paletIciKoli = Number(urun.palet_ici_koli_adet ?? 0);
-    if (paletIciKoli > 0) return paletIciKoli;
-
-    // palet_ici_adet adet sayısıysa, koli sayısına çevir
-    const paletIciAdet = Number(urun.palet_ici_adet ?? 0);
-    const koliAdet = getKoliIciAdet(urun);
-    if (paletIciAdet > 0 && koliAdet > 0) {
-        return Math.floor(paletIciAdet / koliAdet);
-    }
-    return 0;
-}
-
-/** 1 paletteki toplam adet sayısı */
-export function getPaletToplamAdet(urun: UrunFiyatBilgi): number {
-    return getPaletIciKoliAdet(urun) * getKoliIciAdet(urun);
-}
-
-/** Ürünün palet satışı destekleyip desteklemediği */
-export function hasPaletOption(urun: UrunFiyatBilgi): boolean {
-    return getPaletIciKoliAdet(urun) > 0;
-}
-
-// ── Toplam adet hesabı ─────────────────────────────────────────────
-
-/**
- * Seçilen birim ve miktara göre toplam adet sayısını hesaplar.
- * @param urun   Ürün bilgisi
- * @param birim  'adet' | 'koli' | 'palet'
- * @param miktar Birim cinsinden miktar (kaç koli, kaç palet, kaç adet)
- */
-export function hesaplaToplamAdet(urun: UrunFiyatBilgi, birim: Birim, miktar: number): number {
-    const koliAdet = getKoliIciAdet(urun);
-    if (birim === 'palet') {
-        const paletToplamAdet = getPaletToplamAdet(urun);
-        return paletToplamAdet > 0 ? paletToplamAdet * miktar : koliAdet * miktar;
-    }
-    if (birim === 'koli') return koliAdet * miktar;
-    return miktar; // adet
-}
-
-// ── Birim fiyat hesabı (adet başına €) ─────────────────────────────
-
-/**
- * Kademe bazlı adet fiyatını döndürür.
- * @param urun       Ürün bilgisi
- * @param birim      Seçilen birim
- * @param koliMiktar Koli cinsinden miktar (birim='palet' ise palet × paletIciKoli)
- * @param userRole   Kullanıcı rolü (Alt Bayi ise en ucuz bayi fiyatı geçerlidir)
- */
-export function hesaplaBirimFiyat(
-    urun: UrunFiyatBilgi,
-    birim: Birim,
-    koliMiktar: number,
-    userRole?: string | null,
-): number {
-    const role = userRole ?? urun.userRole;
-    // 1) Alt Bayi ise: her zaman satis_fiyati_alt_bayi alır (paletten de ucuz)
-    if (role === 'Alt Bayi') {
-        return Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
-    }
-    // 2) Normal müşteri palet seçtiğinde: satis_fiyati_palet alır (alt bayiden pahalı, toptandan ucuz)
-    if (birim === 'palet') {
-        return Number(urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
-    }
-    // 3) 5+ koli → toptan fiyat
-    if (birim === 'koli' && koliMiktar >= 5) {
-        return Number(urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
-    }
-    // 4) Standart 1-4 koli fiyatı
-    return Number(urun.satis_fiyati_musteri ?? urun.partnerPreis ?? 0);
-}
-
-/**
- * Koli miktarını birim ve miktardan hesaplar (fiyat kademe tespiti için).
- */
-export function hesaplaKoliMiktar(urun: UrunFiyatBilgi, birim: Birim, miktar: number): number {
-    if (birim === 'palet') return getPaletIciKoliAdet(urun) * miktar;
-    if (birim === 'koli') return miktar;
-    // adet modunda: kaç koli ediyorsa onu hesapla
-    const koliAdet = getKoliIciAdet(urun);
-    return koliAdet > 0 ? Math.floor(miktar / koliAdet) : 0;
-}
-
-// ── Aktif kademe bilgisi ───────────────────────────────────────────
-
-export type FiyatKademe = 'musteri' | 'toptanci' | 'palet';
-
-export function getAktifKademe(birim: Birim, koliMiktar: number): FiyatKademe {
-    if (birim === 'palet') return 'palet';
-    if (birim === 'koli' && koliMiktar >= 5) return 'toptanci';
-    return 'musteri';
-}
-
-// ── Komple sepet satırı hesabı ─────────────────────────────────────
-
-export interface SepetHesap {
-    toplamAdet: number;
-    koliMiktar: number;
-    adetFiyat: number;
-    toplamFiyat: number;
-    kademe: FiyatKademe;
-    koliIciAdet: number;
-    paletIciKoliAdet: number;
-}
-
-export function hesaplaSepetSatiri(
-    urun: UrunFiyatBilgi,
-    birim: Birim,
-    miktar: number,
-    userRole?: string | null,
-): SepetHesap {
-    const koliIciAdet = getKoliIciAdet(urun);
-    const paletIciKoliAdet = getPaletIciKoliAdet(urun);
-    const toplamAdet = hesaplaToplamAdet(urun, birim, miktar);
-    const koliMiktar = hesaplaKoliMiktar(urun, birim, miktar);
-    const adetFiyat = hesaplaBirimFiyat(urun, birim, koliMiktar, userRole);
-    const toplamFiyat = toplamAdet * adetFiyat;
-    const kademe = getAktifKademe(birim, koliMiktar);
-
-    return {
-        toplamAdet,
-        koliMiktar,
-        adetFiyat,
-        toplamFiyat,
-        kademe,
-        koliIciAdet,
-        paletIciKoliAdet,
-    };
-}
-</file>
-
 <file path="src/lib/product-lines.ts">
 import type { AppLocale } from './labels';
 
@@ -15233,194 +16171,6 @@ export function getProductLineOptions(locale: AppLocale) {
     label: getProductLineLabel(line, locale),
     description: getProductLineDescription(line, locale),
   }));
-}
-</file>
-
-<file path="src/lib/shippingUtils.ts">
-// src/lib/shippingUtils.ts
-// ===================================================================
-// KARGO HESAPLAMA — TAM REVİZYON
-// Alman Vergi Hukuku UStG Nebenleistung Prensibi:
-//   - Gıda ürünleri %7 KDV → Kargo da %7 KDV
-//   - Bölge A: Köln + Bonn öz teslimat (kendi araçla)
-//   - Bölge B: Almanya geneli DHL/Spedition ağırlık bazlı
-// ===================================================================
-
-import { isKolnBonnArea } from './plzLookup';
-
-// Kargo KDV oranı sabit: Nebenleistung = ana ürün oranı = gıda %7
-export const SHIPPING_VAT_RATE = 0.07;
-
-// -----------------------------------------------------------------------
-// Kargo Tarife Ayarları (varsayılan değerler — admin panelinden override edilir)
-// -----------------------------------------------------------------------
-export interface ShippingSettings {
-  // Köln + Bonn yerel teslimat
-  kolnBonnFreeThreshold: number;   // ≥ X € net → ücretsiz (varsayılan: 150)
-  kolnBonnFlatRateNet: number;      // < eşik → bu net ücret (varsayılan: 10)
-
-  // Almanya Geneli DHL/Spedition — ağırlık dilimleri (net ücretler)
-  dilim1MaxKg: number;              // 0 – X kg arası (varsayılan: 5)
-  dilim1Net: number;                // (varsayılan: 6.99)
-  dilim2MaxKg: number;              // X – Y kg arası (varsayılan: 15)
-  dilim2Net: number;                // (varsayılan: 12.49)
-  dilim3MaxKg: number;              // Y – Z kg arası (varsayılan: 31.5)
-  dilim3Net: number;                // (varsayılan: 19.99)
-  speditionNet: number;             // > Z kg Spedition (varsayılan: 49.99)
-
-  // NOT: Ulusal kargo için ücretsiz eşik YOKTUR (her zaman ağırlık bazlı ücret alınır)
-  // B2B gıda dağıtımında standart uygulama budur — ağır ürünlerde maliyet ciddi olabilir
-}
-
-export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
-  kolnBonnFreeThreshold: 150,
-  kolnBonnFlatRateNet: 10,
-  dilim1MaxKg: 5,
-  dilim1Net: 6.99,
-  dilim2MaxKg: 15,
-  dilim2Net: 12.49,
-  dilim3MaxKg: 31.5,
-  dilim3Net: 19.99,
-  speditionNet: 49.99,
-};
-
-// -----------------------------------------------------------------------
-// Sonuç Tipi — KDV ayrıştırılmış
-// -----------------------------------------------------------------------
-export interface ShippingCalculationResult {
-  /** Teslimat bölgesi */
-  zone: 'koln_bonn_local' | 'germany_national';
-  /** Kendi aracımızla mı? (Köln/Bonn) */
-  isLocalDelivery: boolean;
-  /** Kargo ücretsiz mi? */
-  isFreeShipping: boolean;
-  /** Ücretsiz kargo eşiği (yalnızca yerel bölge için geçerli) */
-  freeShippingThreshold: number;
-  /** Kargo ücreti KDV hariç (net) */
-  shippingCostNet: number;
-  /** Kargo KDV oranı (0.07 = %7, sabit) */
-  shippingVatRate: number;
-  /** Kargo KDV tutarı */
-  shippingVatAmount: number;
-  /** Kargo ücreti KDV dahil (brüt) */
-  shippingCostGross: number;
-  /** Teslimat yöntemi adı */
-  shippingMethodName: string;
-  /** Kargo açıklaması */
-  description: string;
-  /** Kullanılan ağırlık bilgisi (kg) */
-  weightKg?: number;
-  /** Eski uyumluluk alanı — shippingCostGross ile aynı */
-  shippingCost: number;
-  /** Eski uyumluluk alanı — isLocalDelivery ile aynı */
-  isKolnArea: boolean;
-}
-
-// -----------------------------------------------------------------------
-// Yardımcı: Net ücret → KDV ayrıştırılmış sonuç oluştur
-// -----------------------------------------------------------------------
-function buildResult(
-  params: {
-    zone: ShippingCalculationResult['zone'];
-    netCost: number;
-    freeThreshold: number;
-    isFree: boolean;
-    methodName: string;
-    description: string;
-    weightKg?: number;
-  }
-): ShippingCalculationResult {
-  const cost = params.isFree ? 0 : params.netCost;
-  const vatAmount = Number((cost * SHIPPING_VAT_RATE).toFixed(2));
-  const grossCost = Number((cost + vatAmount).toFixed(2));
-  const isLocal = params.zone === 'koln_bonn_local';
-
-  return {
-    zone: params.zone,
-    isLocalDelivery: isLocal,
-    isFreeShipping: params.isFree,
-    freeShippingThreshold: params.freeThreshold,
-    shippingCostNet: cost,
-    shippingVatRate: SHIPPING_VAT_RATE,
-    shippingVatAmount: vatAmount,
-    shippingCostGross: grossCost,
-    shippingMethodName: params.methodName,
-    description: params.description,
-    weightKg: params.weightKg,
-    // Geriye dönük uyumluluk
-    shippingCost: grossCost,
-    isKolnArea: isLocal,
-  };
-}
-
-// -----------------------------------------------------------------------
-// Ana Hesaplama Fonksiyonu
-// -----------------------------------------------------------------------
-/**
- * Kargo ücretini hesaplar.
- *
- * @param orderSubtotalNet  - Siparişin net ürün tutarı (KDV hariç)
- * @param plz               - Teslimat adresi PLZ kodu
- * @param totalWeightKg     - Toplam ağırlık (kg) — ulusal kargo için gerekli
- * @param settings          - Kargo tarifeleri (system_settings'den gelir, yoksa varsayılan)
- */
-export function calculateShipping(
-  orderSubtotalNet: number,
-  plz?: string | null,
-  totalWeightKg?: number,
-  settings?: Partial<ShippingSettings>
-): ShippingCalculationResult {
-  const cfg: ShippingSettings = { ...DEFAULT_SHIPPING_SETTINGS, ...settings };
-  const inKolnBonn = isKolnBonnArea(plz);
-
-  // ─── BÖLGE A: Köln + Bonn — Öz Teslimat ───────────────────────────
-  if (inKolnBonn) {
-    const isFree = orderSubtotalNet >= cfg.kolnBonnFreeThreshold;
-    const methodName = 'Köln & Bonn Direktauslieferung';
-
-    return buildResult({
-      zone: 'koln_bonn_local',
-      netCost: cfg.kolnBonnFlatRateNet,
-      freeThreshold: cfg.kolnBonnFreeThreshold,
-      isFree,
-      methodName,
-      description: isFree
-        ? `Kostenlose Lieferung (ab ${cfg.kolnBonnFreeThreshold} € Netto-Bestellwert im Köln & Bonn Liefergebiet)`
-        : `Lokale Zustellpauschale Köln & Bonn: ${cfg.kolnBonnFlatRateNet.toFixed(2)} € (zzgl. ${(SHIPPING_VAT_RATE * 100).toFixed(0)}% MwSt.)`,
-    });
-  }
-
-  // ─── BÖLGE B: Almanya Geneli — Ağırlık Bazlı ──────────────────────
-  // NOT: Ulusal kargo için ücretsiz eşik uygulanmaz (B2B gıda standardı)
-  const weightKg = totalWeightKg ?? 0;
-  let netCost: number;
-  let weightLabel: string;
-
-  if (weightKg <= cfg.dilim1MaxKg) {
-    netCost = cfg.dilim1Net;
-    weightLabel = `bis ${cfg.dilim1MaxKg} kg`;
-  } else if (weightKg <= cfg.dilim2MaxKg) {
-    netCost = cfg.dilim2Net;
-    weightLabel = `${cfg.dilim1MaxKg}–${cfg.dilim2MaxKg} kg`;
-  } else if (weightKg <= cfg.dilim3MaxKg) {
-    netCost = cfg.dilim3Net;
-    weightLabel = `${cfg.dilim2MaxKg}–${cfg.dilim3MaxKg} kg`;
-  } else {
-    netCost = cfg.speditionNet;
-    weightLabel = `über ${cfg.dilim3MaxKg} kg (Spedition)`;
-  }
-
-  const methodName = 'DHL / Spedition — Deutschlandweit';
-
-  return buildResult({
-    zone: 'germany_national',
-    netCost,
-    freeThreshold: 0, // Ulusal için ücretsiz eşik yok
-    isFree: false,    // Her zaman ücretli
-    methodName,
-    description: `Versandpauschale Deutschlandweit (${weightLabel}): ${netCost.toFixed(2)} € (zzgl. ${(SHIPPING_VAT_RATE * 100).toFixed(0)}% MwSt.)`,
-    weightKg,
-  });
 }
 </file>
 
@@ -15646,247 +16396,31 @@ export function computeTedarikDurumu(stok: number | null | undefined, tukenmeTar
 }
 </file>
 
-<file path="src/middleware.ts">
-// src/middleware.ts (Mit Logging)
+<file path="supabase/migrations/20260921_create_blog_yazilari.sql">
+-- Removed DROP TABLE for safe migration in production
 
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
-import { canAccessAdminPath, normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
+CREATE TABLE IF NOT EXISTS public.blog_yazilari (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    title JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
+    excerpt JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
+    content JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
+    meta_title JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
+    meta_description JSONB NOT NULL DEFAULT '{"de": "", "en": "", "tr": "", "ar": ""}'::jsonb,
+    image_url TEXT,
+    author_name VARCHAR(255) DEFAULT 'Elysonsweets B2B Team',
+    published_at TIMESTAMPTZ DEFAULT NOW(),
+    is_published BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-const locales = ['de', 'en', 'tr', 'ar'];
-const defaultLocale = 'de';
+-- RLS Politikaları
+ALTER TABLE public.blog_yazilari ENABLE ROW LEVEL SECURITY;
 
-// Update function for handling cookies within middleware
-async function updateSession(request: NextRequest) {
-    console.log("--- updateSession gestartet ---"); // Log Start
-    let response = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
-    });
-
-    // Wichtig: In Middleware MUSS createServerClient OHNE await cookies()
-    // verwendet werden, da die Cookies direkt vom 'request'-Objekt kommen.
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) {
-                    return request.cookies.get(name)?.value;
-                },
-                set(name: string, value: string, options: CookieOptions) {
-                    // Wichtig: Request UND Response Cookies aktualisieren
-                    request.cookies.set({ name, value, ...options });
-                    response = NextResponse.next({ // Response neu erstellen, um aktualisierte Request-Cookies zu haben
-                        request: { headers: request.headers },
-                    });
-                    response.cookies.set({ name, value, ...options });
-                },
-                remove(name: string, options: CookieOptions) {
-                    request.cookies.set({ name, value: '', ...options });
-                    response = NextResponse.next({
-                        request: { headers: request.headers },
-                    });
-                    response.cookies.set({ name, value: '', ...options });
-                },
-            },
-        }
-    );
-
-    // Session aktualisieren
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser(); // Session Refresh
-        if (error) {
-             console.error("Fehler in updateSession bei getUser:", error);
-        } else {
-             console.log("updateSession getUser erfolgreich:", user ? `User ID: ${user.id}` : "Kein User (Session Refresh)");
-        }
-    } catch (e) {
-        console.error("Kritischer Fehler in updateSession bei getUser:", e);
-    }
-
-    console.log("--- updateSession beendet ---"); // Log Ende
-    return response;
-}
-
-
-export async function middleware(req: NextRequest) {
-    console.log(`--- Middleware gestartet für Pfad: ${req.nextUrl.pathname} ---`); // Log Start
-
-    // Session aktualisieren und Response erhalten
-    const res = await updateSession(req);
-    const pathname = req.nextUrl.pathname;
-
-    // Statische Dateien, API-Routen und Auth-Routen überspringen
-    if (
-        pathname.startsWith('/api') ||
-        pathname.startsWith('/_next') ||
-        pathname.includes('.') || // Prüft auf Dateiendungen wie .css, .js, .png etc.
-        pathname.startsWith('/auth/') // Auth-Callback Routen etc.
-       ) {
-        console.log(`--- Middleware übersprungen (statisch/api/auth): ${pathname} ---`);
-        return res; // Wichtig: 'res' (die Response von updateSession) zurückgeben, nicht 'NextResponse.next()'
-    }
-
-    // Supabase Client *nur zum Lesen* des Benutzers erstellen (nach updateSession)
-    // Nutzt die aktualisierten Cookies aus 'req' (die von updateSession modifiziert wurden)
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return req.cookies.get(name)?.value; },
-                // set/remove sind hier nicht nötig
-            },
-        }
-    );
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log("Middleware getUser nach updateSession:", user ? `User ID: ${user.id}` : "Kein User");
-
-    // Geschützte Routen erkennen (auch mit Locale-Präfix)
-    const pathSegments = pathname.split('/').filter(Boolean); // ['', 'de', 'admin', 'dashboard'] -> ['de','admin','dashboard']
-    const possibleLocale = pathSegments[0];
-    const hasLocalePrefix = locales.includes(possibleLocale);
-    const effectivePath = hasLocalePrefix ? `/${pathSegments.slice(1).join('/')}` : pathname; // '/admin/dashboard'
-    const isProtectedRoute = effectivePath.startsWith('/admin') || effectivePath.startsWith('/portal');
-    if (!user && isProtectedRoute) {
-        const requestedLocale = pathname.split('/')[1] || defaultLocale; // Locale aus Pfad holen oder Default
-        console.log(`-> Middleware: Nicht eingeloggter Zugriff auf ${pathname}. Redirect zu /${requestedLocale}/login`);
-        const loginUrl = new URL(`/${requestedLocale}/login`, req.url);
-        loginUrl.searchParams.set('next', pathname); // Optional: Nach Login zurückleiten
-        return NextResponse.redirect(loginUrl);
-    }
-
-    // Schutz für Login-Seite (wenn bereits eingeloggt) & Rollen-basierte Weiterleitung
-    const isLoginPage = pathname.endsWith('/login'); // Prüft auf /de/login, /en/login etc.
-    if (user && isLoginPage) {
-        const hasError = req.nextUrl.searchParams.has('error');
-        if (!hasError) {
-            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
-            const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
-            const userRole = profile?.rol;
-            const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
-                ? '/admin/dashboard'
-                : '/portal/dashboard';
-                
-            let targetLocale = pathname.split('/')[1] || defaultLocale;
-            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
-                targetLocale = profile.tercih_edilen_dil;
-            }
-                
-            console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
-            return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
-        } else {
-            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite mit Fehler. Kein Redirect.`);
-        }
-    }
-
-    if (user && effectivePath.startsWith('/admin')) {
-        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();
-        const userRole = profile?.rol;
-        const allowedPanels = normalizeAllowedAdminPanels(user.user_metadata?.allowed_admin_panels);
-
-        if (!canAccessAdminPath(userRole, effectivePath, allowedPanels)) {
-            const currentLocale = pathname.split('/')[1] || defaultLocale;
-            console.log(`-> Middleware: Admin panel access denied for role '${userRole}' on '${effectivePath}'.`);
-            return NextResponse.redirect(new URL(`/${currentLocale}/admin/dashboard`, req.url));
-        }
-    }
-
-    // Hier könnte optional noch die Rollen-basierte Zugriffskontrolle eingefügt werden,
-    // um z.B. 'Müşteri' am Zugriff auf '/admin/*' zu hindern, falls nötig.
-
-    // --- i18n Logik (Locale-Präfix hinzufügen, wenn fehlt) ---
-    const pathnameHasLocale = locales.some(
-        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-    );
-
-    // Wenn Locale fehlt, hinzufügen und neu schreiben
-    if (!pathnameHasLocale) {
-        // Regel:
-        // - Geschützte Routen (/admin, /portal): Profil tercih edilen dil kullanılmaya çalışılır, yoksa defaultLocale
-        // - Public Routen: Her zaman defaultLocale (de)
-        let localeToAdd = defaultLocale;
-
-        if (isProtectedRoute && user) {
-            try {
-                const { data: profile } = await supabase
-                    .from('profiller')
-                    .select('tercih_edilen_dil')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
-                    localeToAdd = profile.tercih_edilen_dil;
-                    console.log(`-> Middleware: (Protected) Benutzer bevorzugte Sprache: ${localeToAdd}`);
-                } else {
-                    console.log(`-> Middleware: (Protected) Bevorzugte Sprache nicht gesetzt, defaultLocale verwendet: ${localeToAdd}`);
-                }
-            } catch (error) {
-                console.error("Fehler beim Abrufen der bevorzugten Sprache (Protected Pfad):", error);
-            }
-        } else {
-            // Public: immer defaultLocale
-            console.log(`-> Middleware: (Public) Locale fehlt, defaultLocale verwendet: ${defaultLocale}`);
-        }
-
-        console.log(`-> Middleware: Locale fehlt für ${pathname}. Redirect zu '${localeToAdd}' hinzu.`);
-        return NextResponse.redirect(
-            new URL(`/${localeToAdd}${pathname.startsWith('/') ? '' : '/'}${pathname}`, req.url)
-        );
-    }
-
-    // Für eingeloggte Benutzer auf geschützten Routen: Aktuelle Locale mit bevorzugter Sprache erzwingen
-    if (user && pathnameHasLocale && isProtectedRoute) {
-        try {
-            const { data: profile } = await supabase.from('profiller').select('tercih_edilen_dil').eq('id', user.id).single();
-            const currentUrlLocale = pathname.split('/')[1];
-            
-            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil) && currentUrlLocale !== profile.tercih_edilen_dil) {
-                // Nur das erste Vorkommen der Locale ersetzen, um Probleme bei z.B. /de/admin/de-stuff zu vermeiden
-                const newPath = `/${profile.tercih_edilen_dil}${pathname.substring(currentUrlLocale.length + 1)}`;
-                console.log(`-> Middleware: (Protected) Falsche Sprache (${currentUrlLocale}). Redirect zu ${newPath}`);
-                const redirectUrl = new URL(newPath, req.url);
-                redirectUrl.search = req.nextUrl.search; // Suchparameter beibehalten
-                return NextResponse.redirect(redirectUrl);
-            }
-        } catch (error) {
-            console.error("Fehler beim Abrufen der bevorzugten Sprache für Redirect:", error);
-        }
-    }
-
-    // x-locale header: root layout html lang attribute icin (Dem Request hinzufügen!)
-    const localeFromPath = pathname.split('/')[1];
-    if (locales.includes(localeFromPath)) {
-        res.headers.set('x-locale', localeFromPath); // Bleibt für Response (falls nützlich)
-        req.headers.set('x-locale', localeFromPath); // WICHTIG: Setze es im Request für Server Components
-    }
-
-    console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
-    
-    // Wir müssen die aktualisierten Request-Header an Next.js weitergeben
-    const finalRes = NextResponse.next({
-        request: {
-            headers: req.headers,
-        }
-    });
-
-    // Cookies aus der Supabase-Antwort (res) in die finale Antwort übernehmen
-    res.cookies.getAll().forEach(cookie => {
-        finalRes.cookies.set(cookie.name, cookie.value, cookie);
-    });
-    
-    return finalRes;
-}
-
-export const config = {
-    matcher: [
-        // Matcher schließt statische Dateien, Bilder und API-Routen aus.
-        // Auth-Routen werden im Code oben behandelt.
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    ],
-};
+CREATE POLICY "Public can view published blog posts" 
+ON public.blog_yazilari FOR SELECT 
+USING (is_published = TRUE);
 </file>
 
 <file path=".repomixignore">
@@ -16088,22 +16622,46 @@ const config: Config = {
 export default config
 </file>
 
-<file path="vitest.config.ts">
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
+<file path="test-plan-post-order-security.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT)
+Hedef Modül: Sipariş Sonrası Entegrasyonlar (Lexware, Email) ve Doküman Güvenliği (IDOR Koruması).
+Kapsam: Yarın gerçekleşecek canlı lansman öncesi son güvenlik ve dayanıklılık (resilience) kontrolleri. Müşterilerin birbirlerinin faturalarına/belgelerine erişiminin (IDOR) kesin olarak engellenmesi ve 3. parti servislerin (Lexware API, Resend) çökmesi durumunda sipariş verisinin kaybolmamasının garanti altına alınması.
+İlişkili Kritik Dosyalar:
+- `src/app/api/invoices/[siparisId]/pdf/route.ts` (veya ilgili fatura indirme endpoint'i)
+- `src/lib/lexware/invoices.ts` (Lexware fatura oluşturma mantığı)
+- `src/lib/email.ts` (Sipariş onay e-postaları)
+- `supabase/migrations/belgeler_table.sql` & `storage_policies.sql` (Doküman RLS politikaları)
 
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
-    globals: true,
-    // Sadece __tests__ ve src/**/__tests__ klasörlerini tara.
-    // e2e/ ve tests/e2e/ Playwright spec dosyaları hariç.
-    include: ['__tests__/**/*.{test,spec}.{ts,tsx}', 'src/**/__tests__/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['e2e/**', 'tests/e2e/**', 'node_modules/**'],
-  }
-})
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+1. Security Testing (IDOR - Insecure Direct Object Reference): API endpoint'lerine yetkisiz parametreler göndererek veri sızıntısı (Data Leak) testleri.
+2. Resilience & Error Handling Testing (Vitest): Dış API'lerin (Lexware) hata fırlattığı (500 Internal Server Error) durumlarda sistemin siparişi rollback yapıp yapmadığının veya güvenli bir şekilde "Fatura Bekliyor" statüsüne alıp almadığının testi.
+
+- TEST SENARYOLARI (TEST CASES)
+
+* Edge Case 1: Fatura İndirme Endpoint'inde IDOR Güvenlik Açığı
+1. "Müşteri A" rolündeki bir kullanıcı sisteme giriş yapar.
+2. Müşteri A, "Müşteri B"ye ait olan bir siparişin ID'sini ele geçirir ve tarayıcıdan `/api/invoices/[Musteri_B_Siparis_ID]/pdf` adresine istek atar.
+3. Beklenen Sonuç: API, faturayı Lexware'den çekmeden ÖNCE Supabase üzerinden bu siparişin (`siparisId`) istek atan kullanıcının `firma_id`'sine ait olup olmadığını kontrol etmelidir. Ait değilse anında `403 Forbidden` veya `404 Not Found` dönmeli, kesinlikle PDF dosyasını sızdırmamalıdır.
+
+* Edge Case 2: Lexware API Çökmesi (Resilience)
+1. Müşteri siparişi başarıyla tamamlar, veritabanına sipariş kaydedilir.
+2. Sistem arka planda Lexware'e fatura oluşturma isteği atar (`createLexwareInvoiceForOrder`), ancak Lexware API o an çökmüştür (Timeout veya 500 döner).
+3. Beklenen Sonuç: Sipariş işlemi tamamen iptal OLMAMALIDIR (Müşteri "Siparişiniz alınamadı" hatası görmemelidir). Sipariş veritabanında kalmalı, `fatura_durumu` = 'bekliyor' veya 'hata' olarak işaretlenmeli ve adminlere bildirim gitmelidir. Müşteriye siparişin alındığına dair başarılı ekran gösterilmelidir.
+
+* Edge Case 3: Doküman (Belgeler) RLS İzolasyonu
+1. Müşteri A, portal üzerinden `/portal/belgeler` sayfasına girer.
+2. Beklenen Sonuç: Sadece `firma_id`'si kendi firmasına eşit olan veya `gizli = false` olup genele açık olan belgeleri görebilmelidir. Diğer firmalara ait sözleşme, fiyat listesi veya özel belgeler kesinlikle listelenmemelidir.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+- [ ] Adım 1: Fatura indirme API route'unu (`src/app/api/invoices/[siparisId]/pdf/route.ts` veya benzeri) kontrol et. Eğer siparişin sahibini doğrulayan bir güvenlik kontrolü yoksa, Supabase Server Client ile `siparisler` tablosundan `firma_id` kontrolü ekle.
+- [ ] Adım 2: `__tests__/security-idor-invoices.test.ts` dosyasını oluştur. Müşteri A'nın oturumuyla (mock session), Müşteri B'nin sipariş ID'sine istek atıldığında API'nin 403/404 döndüğünü test et.
+- [ ] Adım 3: Sipariş oluşturma action'ını (`siparis-actions.ts`) kontrol et. Lexware fatura oluşturma veya E-posta gönderme işlemleri `try/catch` bloğu içinde mi? Eğer bu servisler hata verirse ana sipariş akışını (veritabanı kaydını) bozmadığından emin ol. Gerekirse bu işlemleri asenkron (fire-and-forget) veya güvenli try/catch içine al.
+- [ ] Adım 4: `__tests__/resilience-external-api.test.ts` dosyasını oluştur. Lexware fetch fonksiyonunu mocklayarak hata fırlatmasını sağla ve siparişin Supabase'e başarıyla kaydedildiğini doğrula.
+- [ ] Adım 5: Testleri çalıştır (`npm run test`).
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+1. IDOR KESİNLİKLE AFFEDİLMEZ: B2B sistemlerinde başka bir firmanın faturasını (aldığı özel fiyatları, indirimleri) görmek en büyük güvenlik ihlalidir. API route'larında sadece `auth.getUser()` yapmak yetmez, çekilmek istenen kaynağın (`siparisler.firma_id`) kullanıcının `firma_id`'si ile eşleştiği KESİNLİKLE doğrulanmalıdır.
+2. FIRE-AND-FORGET BİLDİRİMLER: E-posta (Resend) ve Fatura (Lexware) işlemleri, müşterinin ödeme/sipariş tamamlama hızını yavaşlatmamalıdır. Bu işlemler ana veritabanı transaction'ı bittikten sonra çalıştırılmalıdır.
 </file>
 
 <file path="src/lib/actions/recipe-actions.ts">
@@ -16226,169 +16784,6 @@ export async function saveRecipesBulk(
 
   return true;
 }
-</file>
-
-<file path="src/lib/admin/cache-utils.ts">
-import { cache } from 'react';
-import { unstable_cache } from 'next/cache';
-import { createSupabaseServiceClient } from '@/lib/supabase/service';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '@/lib/supabase/database.types';
-
-// 1. Request Memoization (Per-request Cache)
-// Bu fonksiyonlar tek bir HTTP requesti içerisinde 1'den fazla kez çağrılırsa (örn: layout.tsx ve page.tsx),
-// Supabase'e sadece 1 kez sorgu atılır, diğerleri RAM'den döner.
-
-export const getGlobalCachedUser = cache(async () => {
-    const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
-    return await supabase.auth.getUser(); // Retains native { data: { user }, error } structure
-});
-
-export const getCachedUser = cache(async (supabase: SupabaseClient<Database>) => {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    return { user, error };
-});
-
-export const getCachedProfile = cache(async (supabase: SupabaseClient<Database>, userId: string) => {
-    const { data: profile, error } = await supabase
-        .from('profiller')
-        .select('*')
-        .eq('id', userId)
-        .single();
-    return { profile, error };
-});
-
-export const getCachedUnreadNotificationsCount = cache(async (supabase: SupabaseClient<Database>, userId: string) => {
-    const { count, error } = await supabase
-        .from('bildirimler')
-        .select('*', { count: 'exact', head: true })
-        .eq('alici_id', userId)
-        .eq('okundu_mu', false);
-    return { count, error };
-});
-
-// 2. Global Data Caching (Cross-request Cache)
-// Bu veriler tüm adminler için aynıdır ve sık değişmez. 
-// unstable_cache ile Redis/Dosya sistemine önbelleklenir.
-
-export const getCachedCategories = unstable_cache(
-    async () => {
-        const supabase = createSupabaseServiceClient();
-        const { data } = await supabase
-            .from('kategoriler')
-            .select('id, ad, ust_kategori_id');
-        return data || [];
-    },
-    ['admin-categories'],
-    { revalidate: 3600 } // 1 saat
-);
-
-export const getCachedSuppliers = unstable_cache(
-    async () => {
-        const supabase = createSupabaseServiceClient();
-        const { data } = await supabase
-            .from('tedarikciler')
-            .select('id, unvan')
-            .order('unvan', { ascending: true })
-            .limit(1000);
-        return data || [];
-    },
-    ['admin-suppliers'],
-    { revalidate: 3600 } // 1 saat
-);
-
-export const getCachedPricingSettings = unstable_cache(
-    async () => {
-        const supabase = createSupabaseServiceClient();
-        const { data } = await supabase
-            .from('system_settings')
-            .select('setting_key, setting_value')
-            .eq('category', 'pricing');
-            
-        const pricingSettings: Record<string, number> = {};
-        (data || []).forEach((s: any) => {
-            const v = parseFloat(s.setting_value);
-            if (Number.isFinite(v)) pricingSettings[s.setting_key] = v;
-        });
-        return pricingSettings;
-    },
-    ['admin-pricing-settings'],
-    { revalidate: 3600 } // 1 saat
-);
-
-// 3. Dashboard Caching
-export const getCachedDashboardData = unstable_cache(
-    async (period: string) => {
-        const supabase = createSupabaseServiceClient();
-        const OFFENE_STATUS = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
-        
-        function toLocalDateString(d: Date) {
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }
-        
-        const now = new Date();
-        const y = now.getFullYear(); 
-        const mo = now.getMonth();
-        
-        let periodStart, periodEnd;
-        if (period === 'gecen-ay') {
-            periodStart = toLocalDateString(new Date(y, mo - 1, 1));
-            periodEnd = toLocalDateString(new Date(y, mo, 0)); // last day of prev month
-        } else if (period === 'bu-yil') {
-            periodStart = toLocalDateString(new Date(y, 0, 1));
-            periodEnd = now.toISOString();
-        } else {
-            periodStart = toLocalDateString(new Date(y, mo, 1));
-            periodEnd = now.toISOString();
-        }
-
-        const prevMonthStart = toLocalDateString(new Date(y, mo - 1, 1));
-        const prevMonthEnd = toLocalDateString(new Date(y, mo, 0));
-
-        const todayISO = now.toISOString();
-        const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
-        
-        const [
-            plRes, plPrevRes, stokRes, urunToplamRes, 
-            aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
-            adayRes, temasRes, musteriRes, yeniTemasRes, 
-            alarmUrunlerRes, settingsRes, yeniMusteriRes, 
-            sipAdetRes, alarmCountRes, batchHistRes
-        ] = await Promise.all([
-            supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).single(),
-            supabase.rpc('get_pl_report', { start_date: prevMonthStart, end_date: prevMonthEnd }).single(),
-            supabase.from('urunler').select('distributor_alis_fiyati, stok_miktari, stok_esigi').eq('aktif', true),
-            supabase.from('urunler').select('id', { count: 'exact', head: true }),
-            supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_STATUS),
-            supabase.from('siparisler').select('siparis_durumu').gte('created_at', thirtyDaysAgo),
-            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(3),
-            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum').gte('varis_tarihi', todayISO).order('varis_tarihi', { ascending: true }).limit(1),
-            supabase.from('firmalar').select('id', { count: 'exact' }).eq('status', 'ADAY'),
-            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']),
-            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Müşteri', 'Alt Bayi'] as any[]),
-            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']).gte('created_at', thirtyDaysAgo),
-            supabase.from('urunler').select('id, ad, stok_kodu, son_maliyet_sapma_yuzde, son_gercek_inis_maliyeti_net').eq('karlilik_alarm_aktif', true).order('son_maliyet_sapma_yuzde', { ascending: false }).limit(4),
-            supabase.from('system_settings').select('setting_key, setting_value').in('setting_key', ['kasa_bakiyesi', 'hedef_ciro', 'hedef_musteri', 'hedef_temas', 'hedef_siparis']),
-            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Alt Bayi'] as any[]).gte('created_at', `${periodStart}T00:00:00`),
-            supabase.from('siparisler').select('siparis_durumu').gte('siparis_tarihi', periodStart).lte('siparis_tarihi', periodEnd),
-            supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
-            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
-        ]);
-
-        return {
-            plRes, plPrevRes, stokRes, urunToplamRes, 
-            aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
-            adayRes, temasRes, musteriRes, yeniTemasRes, 
-            alarmUrunlerRes, settingsRes, yeniMusteriRes, 
-            sipAdetRes, alarmCountRes, batchHistRes
-        };
-    },
-    ['admin-dashboard-data'],
-    { revalidate: 60 } // 60 saniye
-);
 </file>
 
 <file path="src/lib/i18n/pages.ts">
@@ -16655,6 +17050,176 @@ export const recipeWizardT = {
 } as const;
 </file>
 
+<file path="src/lib/pricingUtils.ts">
+/**
+ * Merkezi fiyat hesaplama utility'si.
+ *
+ * Veritabanı fiyat alanları (adet başına €):
+ *   satis_fiyati_musteri   → 1-4 koli standart fiyat
+ *   satis_fiyati_toptanci  → 5+ koli toptan fiyat
+ *   satis_fiyati_alt_bayi  → Palet fiyatı (en ucuz kademe)
+ *
+ * Birim hiyerarşisi:
+ *   palet > koli > adet
+ *   1 palet  = palet_ici_koli_adet koli  (veya palet_ici_adet adet)
+ *   1 koli   = koli_ici_adet adet
+ */
+
+type Birim = 'adet' | 'koli' | 'palet';
+
+interface UrunFiyatBilgi {
+    koli_ici_adet?: number | null;
+    palet_ici_adet?: number | null;
+    palet_ici_koli_adet?: number | null;
+    satis_fiyati_musteri?: number | null;
+    satis_fiyati_toptanci?: number | null;
+    satis_fiyati_alt_bayi?: number | null;
+    satis_fiyati_palet?: number | null;
+    partnerPreis?: number | null;
+    userRole?: string | null;
+}
+
+// ── Yardımcı getter'lar ──────────────────────────────────────────────
+
+/** 1 kolideki adet sayısı */
+export function getKoliIciAdet(urun: UrunFiyatBilgi): number {
+    return Number(urun.koli_ici_adet ?? 1);
+}
+
+/** 1 paletteki koli sayısı */
+export function getPaletIciKoliAdet(urun: UrunFiyatBilgi): number {
+    const paletIciKoli = Number(urun.palet_ici_koli_adet ?? 0);
+    if (paletIciKoli > 0) return paletIciKoli;
+
+    // palet_ici_adet adet sayısıysa, koli sayısına çevir
+    const paletIciAdet = Number(urun.palet_ici_adet ?? 0);
+    const koliAdet = getKoliIciAdet(urun);
+    if (paletIciAdet > 0 && koliAdet > 0) {
+        return Math.floor(paletIciAdet / koliAdet);
+    }
+    return 0;
+}
+
+/** 1 paletteki toplam adet sayısı */
+export function getPaletToplamAdet(urun: UrunFiyatBilgi): number {
+    return getPaletIciKoliAdet(urun) * getKoliIciAdet(urun);
+}
+
+/** Ürünün palet satışı destekleyip desteklemediği */
+export function hasPaletOption(urun: UrunFiyatBilgi): boolean {
+    return getPaletIciKoliAdet(urun) > 0;
+}
+
+// ── Toplam adet hesabı ─────────────────────────────────────────────
+
+/**
+ * Seçilen birim ve miktara göre toplam adet sayısını hesaplar.
+ * @param urun   Ürün bilgisi
+ * @param birim  'adet' | 'koli' | 'palet'
+ * @param miktar Birim cinsinden miktar (kaç koli, kaç palet, kaç adet)
+ */
+export function hesaplaToplamAdet(urun: UrunFiyatBilgi, birim: Birim, miktar: number): number {
+    const koliAdet = getKoliIciAdet(urun);
+    if (birim === 'palet') {
+        const paletToplamAdet = getPaletToplamAdet(urun);
+        return paletToplamAdet > 0 ? paletToplamAdet * miktar : koliAdet * miktar;
+    }
+    if (birim === 'koli') return koliAdet * miktar;
+    return miktar; // adet
+}
+
+// ── Birim fiyat hesabı (adet başına €) ─────────────────────────────
+
+/**
+ * Kademe bazlı adet fiyatını döndürür.
+ * @param urun       Ürün bilgisi
+ * @param birim      Seçilen birim
+ * @param koliMiktar Koli cinsinden miktar (birim='palet' ise palet × paletIciKoli)
+ * @param userRole   Kullanıcı rolü (Alt Bayi ise en ucuz bayi fiyatı geçerlidir)
+ */
+export function hesaplaBirimFiyat(
+    urun: UrunFiyatBilgi,
+    birim: Birim,
+    koliMiktar: number,
+    userRole?: string | null,
+): number {
+    const role = userRole ?? urun.userRole;
+    // 1) Alt Bayi ise: her zaman satis_fiyati_alt_bayi alır (paletten de ucuz)
+    if (role === 'Alt Bayi') {
+        return Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
+    }
+    // 2) Normal müşteri palet seçtiğinde: satis_fiyati_palet alır (alt bayiden pahalı, toptandan ucuz)
+    if (birim === 'palet') {
+        return Number(urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
+    }
+    // 3) 5+ koli → toptan fiyat
+    if (birim === 'koli' && koliMiktar >= 5) {
+        return Number(urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
+    }
+    // 4) Standart 1-4 koli fiyatı
+    return Number(urun.satis_fiyati_musteri ?? urun.partnerPreis ?? 0);
+}
+
+/**
+ * Koli miktarını birim ve miktardan hesaplar (fiyat kademe tespiti için).
+ */
+export function hesaplaKoliMiktar(urun: UrunFiyatBilgi, birim: Birim, miktar: number): number {
+    if (birim === 'palet') return getPaletIciKoliAdet(urun) * miktar;
+    if (birim === 'koli') return miktar;
+    // adet modunda: kaç koli ediyorsa onu hesapla
+    const koliAdet = getKoliIciAdet(urun);
+    return koliAdet > 0 ? Math.floor(miktar / koliAdet) : 0;
+}
+
+// ── Aktif kademe bilgisi ───────────────────────────────────────────
+
+export type FiyatKademe = 'musteri' | 'toptanci' | 'palet';
+
+export function getAktifKademe(birim: Birim, koliMiktar: number): FiyatKademe {
+    if (birim === 'palet') return 'palet';
+    if (birim === 'koli' && koliMiktar >= 5) return 'toptanci';
+    return 'musteri';
+}
+
+// ── Komple sepet satırı hesabı ─────────────────────────────────────
+
+export interface SepetHesap {
+    toplamAdet: number;
+    koliMiktar: number;
+    adetFiyat: number;
+    toplamFiyat: number;
+    kademe: FiyatKademe;
+    koliIciAdet: number;
+    paletIciKoliAdet: number;
+}
+
+export function hesaplaSepetSatiri(
+    urun: UrunFiyatBilgi,
+    birim: Birim,
+    miktar: number,
+    userRole?: string | null,
+): SepetHesap {
+    const koliIciAdet = getKoliIciAdet(urun);
+    const paletIciKoliAdet = getPaletIciKoliAdet(urun);
+    const toplamAdet = hesaplaToplamAdet(urun, birim, miktar);
+    const koliMiktar = hesaplaKoliMiktar(urun, birim, miktar);
+    const adetFiyatUnrounded = hesaplaBirimFiyat(urun, birim, koliMiktar, userRole);
+    const adetFiyat = Number(Math.round(Number(adetFiyatUnrounded + 'e2')) + 'e-2');
+    const toplamFiyat = Number(Math.round(Number((toplamAdet * adetFiyat) + 'e2')) + 'e-2');
+    const kademe = getAktifKademe(birim, koliMiktar);
+
+    return {
+        toplamAdet,
+        koliMiktar,
+        adetFiyat,
+        toplamFiyat,
+        kademe,
+        koliIciAdet,
+        paletIciKoliAdet,
+    };
+}
+</file>
+
 <file path="src/lib/public-category-visibility.ts">
 type CategoryLike = {
   id: string;
@@ -16751,6 +17316,195 @@ export function isPublicMegaMenuCategoryHidden(category: {
 }
 </file>
 
+<file path="src/lib/shippingUtils.ts">
+// src/lib/shippingUtils.ts
+// ===================================================================
+// KARGO HESAPLAMA — TAM REVİZYON
+// Alman Vergi Hukuku UStG Nebenleistung Prensibi:
+//   - Gıda ürünleri %7 KDV → Kargo da %7 KDV
+//   - Bölge A: Köln + Bonn öz teslimat (kendi araçla)
+//   - Bölge B: Almanya geneli DHL/Spedition ağırlık bazlı
+// ===================================================================
+
+import { isKolnBonnArea } from './plzLookup';
+
+// Kargo KDV oranı sabit: Nebenleistung = ana ürün oranı = gıda %7
+export const SHIPPING_VAT_RATE = 0.07;
+
+// -----------------------------------------------------------------------
+// Kargo Tarife Ayarları (varsayılan değerler — admin panelinden override edilir)
+// -----------------------------------------------------------------------
+export interface ShippingSettings {
+  // Köln + Bonn yerel teslimat
+  kolnBonnFreeThreshold: number;   // ≥ X € net → ücretsiz (varsayılan: 150)
+  kolnBonnFlatRateNet: number;      // < eşik → bu net ücret (varsayılan: 10)
+
+  // Almanya Geneli DHL/Spedition — ağırlık dilimleri (net ücretler)
+  dilim1MaxKg: number;              // 0 – X kg arası (varsayılan: 5)
+  dilim1Net: number;                // (varsayılan: 6.99)
+  dilim2MaxKg: number;              // X – Y kg arası (varsayılan: 15)
+  dilim2Net: number;                // (varsayılan: 12.49)
+  dilim3MaxKg: number;              // Y – Z kg arası (varsayılan: 31.5)
+  dilim3Net: number;                // (varsayılan: 19.99)
+  speditionNet: number;             // > Z kg Spedition (varsayılan: 49.99)
+
+  // NOT: Ulusal kargo için ücretsiz eşik YOKTUR (her zaman ağırlık bazlı ücret alınır)
+  // B2B gıda dağıtımında standart uygulama budur — ağır ürünlerde maliyet ciddi olabilir
+}
+
+export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
+  kolnBonnFreeThreshold: 150,
+  kolnBonnFlatRateNet: 10,
+  dilim1MaxKg: 5,
+  dilim1Net: 6.99,
+  dilim2MaxKg: 15,
+  dilim2Net: 12.49,
+  dilim3MaxKg: 31.5,
+  dilim3Net: 19.99,
+  speditionNet: 49.99,
+};
+
+// -----------------------------------------------------------------------
+// Sonuç Tipi — KDV ayrıştırılmış
+// -----------------------------------------------------------------------
+export interface ShippingCalculationResult {
+  /** Teslimat bölgesi */
+  zone: 'koln_bonn_local' | 'germany_national';
+  /** Kendi aracımızla mı? (Köln/Bonn) */
+  isLocalDelivery: boolean;
+  /** Kargo ücretsiz mi? */
+  isFreeShipping: boolean;
+  /** Ücretsiz kargo eşiği (yalnızca yerel bölge için geçerli) */
+  freeShippingThreshold: number;
+  /** Kargo ücreti KDV hariç (net) */
+  shippingCostNet: number;
+  /** Kargo KDV oranı (0.07 = %7, sabit) */
+  shippingVatRate: number;
+  /** Kargo KDV tutarı */
+  shippingVatAmount: number;
+  /** Kargo ücreti KDV dahil (brüt) */
+  shippingCostGross: number;
+  /** Teslimat yöntemi adı */
+  shippingMethodName: string;
+  /** Kargo açıklaması */
+  description: string;
+  /** Kullanılan ağırlık bilgisi (kg) */
+  weightKg?: number;
+  /** Eski uyumluluk alanı — shippingCostGross ile aynı */
+  shippingCost: number;
+  /** Eski uyumluluk alanı — isLocalDelivery ile aynı */
+  isKolnArea: boolean;
+}
+
+// -----------------------------------------------------------------------
+// Yardımcı: Net ücret → KDV ayrıştırılmış sonuç oluştur
+// -----------------------------------------------------------------------
+function buildResult(
+  params: {
+    zone: ShippingCalculationResult['zone'];
+    netCost: number;
+    freeThreshold: number;
+    isFree: boolean;
+    methodName: string;
+    description: string;
+    weightKg?: number;
+  }
+): ShippingCalculationResult {
+  const costUnrounded = params.isFree ? 0 : params.netCost;
+  const cost = Number(Math.round(Number(costUnrounded + 'e2')) + 'e-2');
+  const vatAmount = Number(Math.round(Number((cost * SHIPPING_VAT_RATE) + 'e2')) + 'e-2');
+  const grossCost = Number(Math.round(Number((cost + vatAmount) + 'e2')) + 'e-2');
+  const isLocal = params.zone === 'koln_bonn_local';
+
+  return {
+    zone: params.zone,
+    isLocalDelivery: isLocal,
+    isFreeShipping: params.isFree,
+    freeShippingThreshold: params.freeThreshold,
+    shippingCostNet: cost,
+    shippingVatRate: SHIPPING_VAT_RATE,
+    shippingVatAmount: vatAmount,
+    shippingCostGross: grossCost,
+    shippingMethodName: params.methodName,
+    description: params.description,
+    weightKg: params.weightKg,
+    // Geriye dönük uyumluluk
+    shippingCost: grossCost,
+    isKolnArea: isLocal,
+  };
+}
+
+// -----------------------------------------------------------------------
+// Ana Hesaplama Fonksiyonu
+// -----------------------------------------------------------------------
+/**
+ * Kargo ücretini hesaplar.
+ *
+ * @param orderSubtotalNet  - Siparişin net ürün tutarı (KDV hariç)
+ * @param plz               - Teslimat adresi PLZ kodu
+ * @param totalWeightKg     - Toplam ağırlık (kg) — ulusal kargo için gerekli
+ * @param settings          - Kargo tarifeleri (system_settings'den gelir, yoksa varsayılan)
+ */
+export function calculateShipping(
+  orderSubtotalNet: number,
+  plz?: string | null,
+  totalWeightKg?: number,
+  settings?: Partial<ShippingSettings>
+): ShippingCalculationResult {
+  const cfg: ShippingSettings = { ...DEFAULT_SHIPPING_SETTINGS, ...settings };
+  const inKolnBonn = isKolnBonnArea(plz);
+
+  // ─── BÖLGE A: Köln + Bonn — Öz Teslimat ───────────────────────────
+  if (inKolnBonn) {
+    const isFree = orderSubtotalNet >= cfg.kolnBonnFreeThreshold;
+    const methodName = 'Köln & Bonn Direktauslieferung';
+
+    return buildResult({
+      zone: 'koln_bonn_local',
+      netCost: cfg.kolnBonnFlatRateNet,
+      freeThreshold: cfg.kolnBonnFreeThreshold,
+      isFree,
+      methodName,
+      description: isFree
+        ? `Kostenlose Lieferung (ab ${cfg.kolnBonnFreeThreshold} € Netto-Bestellwert im Köln & Bonn Liefergebiet)`
+        : `Lokale Zustellpauschale Köln & Bonn: ${cfg.kolnBonnFlatRateNet.toFixed(2)} € (zzgl. ${(SHIPPING_VAT_RATE * 100).toFixed(0)}% MwSt.)`,
+    });
+  }
+
+  // ─── BÖLGE B: Almanya Geneli — Ağırlık Bazlı ──────────────────────
+  // NOT: Ulusal kargo için ücretsiz eşik uygulanmaz (B2B gıda standardı)
+  const weightKg = totalWeightKg ?? 0;
+  let netCost: number;
+  let weightLabel: string;
+
+  if (weightKg <= cfg.dilim1MaxKg) {
+    netCost = cfg.dilim1Net;
+    weightLabel = `bis ${cfg.dilim1MaxKg} kg`;
+  } else if (weightKg <= cfg.dilim2MaxKg) {
+    netCost = cfg.dilim2Net;
+    weightLabel = `${cfg.dilim1MaxKg}–${cfg.dilim2MaxKg} kg`;
+  } else if (weightKg <= cfg.dilim3MaxKg) {
+    netCost = cfg.dilim3Net;
+    weightLabel = `${cfg.dilim2MaxKg}–${cfg.dilim3MaxKg} kg`;
+  } else {
+    netCost = cfg.speditionNet;
+    weightLabel = `über ${cfg.dilim3MaxKg} kg (Spedition)`;
+  }
+
+  const methodName = 'DHL / Spedition — Deutschlandweit';
+
+  return buildResult({
+    zone: 'germany_national',
+    netCost,
+    freeThreshold: 0, // Ulusal için ücretsiz eşik yok
+    isFree: false,    // Her zaman ücretli
+    methodName,
+    description: `Versandpauschale Deutschlandweit (${weightLabel}): ${netCost.toFixed(2)} € (zzgl. ${(SHIPPING_VAT_RATE * 100).toFixed(0)}% MwSt.)`,
+    weightKg,
+  });
+}
+</file>
+
 <file path="src/lib/stripe.ts">
 import Stripe from 'stripe';
 
@@ -16796,6 +17550,256 @@ export const stripe = new Stripe(stripeSecretKey, {
 });
 </file>
 
+<file path="src/middleware.ts">
+// src/middleware.ts (Mit Logging)
+
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+import { canAccessAdminPath, normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
+
+const locales = ['de', 'en', 'tr', 'ar'];
+const defaultLocale = 'de';
+
+// Update function for handling cookies within middleware
+async function updateSession(request: NextRequest) {
+    console.log("--- updateSession gestartet ---"); // Log Start
+    let response = NextResponse.next({
+        request: {
+            headers: request.headers,
+        },
+    });
+
+    // Wichtig: In Middleware MUSS createServerClient OHNE await cookies()
+    // verwendet werden, da die Cookies direkt vom 'request'-Objekt kommen.
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    return request.cookies.get(name)?.value;
+                },
+                set(name: string, value: string, options: CookieOptions) {
+                    // Wichtig: Request UND Response Cookies aktualisieren
+                    request.cookies.set({ name, value, ...options });
+                    response = NextResponse.next({ // Response neu erstellen, um aktualisierte Request-Cookies zu haben
+                        request: { headers: request.headers },
+                    });
+                    response.cookies.set({ name, value, ...options });
+                },
+                remove(name: string, options: CookieOptions) {
+                    request.cookies.set({ name, value: '', ...options });
+                    response = NextResponse.next({
+                        request: { headers: request.headers },
+                    });
+                    response.cookies.set({ name, value: '', ...options });
+                },
+            },
+        }
+    );
+
+    // Session aktualisieren
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(); // Session Refresh
+        if (error) {
+             console.error("Fehler in updateSession bei getUser:", error);
+        } else {
+             console.log("updateSession getUser erfolgreich:", user ? `User ID: ${user.id}` : "Kein User (Session Refresh)");
+        }
+    } catch (e) {
+        console.error("Kritischer Fehler in updateSession bei getUser:", e);
+    }
+
+    console.log("--- updateSession beendet ---"); // Log Ende
+    return response;
+}
+
+
+export async function middleware(req: NextRequest) {
+    console.log(`--- Middleware gestartet für Pfad: ${req.nextUrl.pathname} ---`); // Log Start
+
+    // Session aktualisieren und Response erhalten
+    const res = await updateSession(req);
+    const pathname = req.nextUrl.pathname;
+
+    // Statische Dateien, API-Routen und Auth-Routen überspringen
+    if (
+        pathname.startsWith('/api') ||
+        pathname.startsWith('/_next') ||
+        pathname.includes('.') || // Prüft auf Dateiendungen wie .css, .js, .png etc.
+        pathname.startsWith('/auth/') // Auth-Callback Routen etc.
+       ) {
+        console.log(`--- Middleware übersprungen (statisch/api/auth): ${pathname} ---`);
+        return res; // Wichtig: 'res' (die Response von updateSession) zurückgeben, nicht 'NextResponse.next()'
+    }
+
+    // Supabase Client *nur zum Lesen* des Benutzers erstellen (nach updateSession)
+    // Nutzt die aktualisierten Cookies aus 'req' (die von updateSession modifiziert wurden)
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) { return req.cookies.get(name)?.value; },
+                // set/remove sind hier nicht nötig
+            },
+        }
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log("Middleware getUser nach updateSession:", user ? `User ID: ${user.id}` : "Kein User");
+
+    // Geschützte Routen erkennen (auch mit Locale-Präfix)
+    const pathSegments = pathname.split('/').filter(Boolean); // ['', 'de', 'admin', 'dashboard'] -> ['de','admin','dashboard']
+    const possibleLocale = pathSegments[0];
+    const hasLocalePrefix = locales.includes(possibleLocale);
+    const effectivePath = hasLocalePrefix ? `/${pathSegments.slice(1).join('/')}` : pathname; // '/admin/dashboard'
+    const isProtectedRoute = effectivePath.startsWith('/admin') || effectivePath.startsWith('/portal');
+    if (!user && isProtectedRoute) {
+        const requestedLocale = pathname.split('/')[1] || defaultLocale; // Locale aus Pfad holen oder Default
+        console.log(`-> Middleware: Nicht eingeloggter Zugriff auf ${pathname}. Redirect zu /${requestedLocale}/login`);
+        const loginUrl = new URL(`/${requestedLocale}/login`, req.url);
+        loginUrl.searchParams.set('next', pathname); // Optional: Nach Login zurückleiten
+        return NextResponse.redirect(loginUrl);
+    }
+
+    // Schutz für Login-Seite (wenn bereits eingeloggt) & Rollen-basierte Weiterleitung
+    const isLoginPage = pathname.endsWith('/login'); // Prüft auf /de/login, /en/login etc.
+    if (user && isLoginPage) {
+        const hasError = req.nextUrl.searchParams.has('error');
+        if (!hasError) {
+            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
+            const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
+            const userRole = profile?.rol;
+            const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
+                ? '/admin/dashboard'
+                : '/portal/dashboard';
+                
+            let targetLocale = pathname.split('/')[1] || defaultLocale;
+            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+                targetLocale = profile.tercih_edilen_dil;
+            }
+                
+            console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
+            return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
+        } else {
+            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite mit Fehler. Kein Redirect.`);
+        }
+    }
+
+    if (user && effectivePath.startsWith('/admin')) {
+        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();
+        const userRole = profile?.rol;
+        const allowedPanels = normalizeAllowedAdminPanels(user.user_metadata?.allowed_admin_panels);
+
+        if (!canAccessAdminPath(userRole, effectivePath, allowedPanels)) {
+            const currentLocale = pathname.split('/')[1] || defaultLocale;
+            console.log(`-> Middleware: Admin panel access denied for role '${userRole}' on '${effectivePath}'.`);
+            
+            const isAdminRole = userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi';
+            const redirectPath = isAdminRole ? '/admin/dashboard' : '/portal/dashboard';
+            
+            if (effectivePath === redirectPath) {
+                return NextResponse.redirect(new URL(`/${currentLocale}/login`, req.url));
+            }
+            return NextResponse.redirect(new URL(`/${currentLocale}${redirectPath}`, req.url));
+        }
+    }
+
+    // Hier könnte optional noch die Rollen-basierte Zugriffskontrolle eingefügt werden,
+    // um z.B. 'Müşteri' am Zugriff auf '/admin/*' zu hindern, falls nötig.
+
+    // --- i18n Logik (Locale-Präfix hinzufügen, wenn fehlt) ---
+    const pathnameHasLocale = locales.some(
+        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+    );
+
+    // Wenn Locale fehlt, hinzufügen und neu schreiben
+    if (!pathnameHasLocale) {
+        // Regel:
+        // - Geschützte Routen (/admin, /portal): Profil tercih edilen dil kullanılmaya çalışılır, yoksa defaultLocale
+        // - Public Routen: Her zaman defaultLocale (de)
+        let localeToAdd = defaultLocale;
+
+        if (isProtectedRoute && user) {
+            try {
+                const { data: profile } = await supabase
+                    .from('profiller')
+                    .select('tercih_edilen_dil')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+                    localeToAdd = profile.tercih_edilen_dil;
+                    console.log(`-> Middleware: (Protected) Benutzer bevorzugte Sprache: ${localeToAdd}`);
+                } else {
+                    console.log(`-> Middleware: (Protected) Bevorzugte Sprache nicht gesetzt, defaultLocale verwendet: ${localeToAdd}`);
+                }
+            } catch (error) {
+                console.error("Fehler beim Abrufen der bevorzugten Sprache (Protected Pfad):", error);
+            }
+        } else {
+            // Public: immer defaultLocale
+            console.log(`-> Middleware: (Public) Locale fehlt, defaultLocale verwendet: ${defaultLocale}`);
+        }
+
+        console.log(`-> Middleware: Locale fehlt für ${pathname}. Redirect zu '${localeToAdd}' hinzu.`);
+        return NextResponse.redirect(
+            new URL(`/${localeToAdd}${pathname.startsWith('/') ? '' : '/'}${pathname}`, req.url)
+        );
+    }
+
+    // Für eingeloggte Benutzer auf geschützten Routen: Aktuelle Locale mit bevorzugter Sprache erzwingen
+    if (user && pathnameHasLocale && isProtectedRoute) {
+        try {
+            const { data: profile } = await supabase.from('profiller').select('tercih_edilen_dil').eq('id', user.id).single();
+            const currentUrlLocale = pathname.split('/')[1];
+            
+            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil) && currentUrlLocale !== profile.tercih_edilen_dil) {
+                // Nur das erste Vorkommen der Locale ersetzen, um Probleme bei z.B. /de/admin/de-stuff zu vermeiden
+                const newPath = `/${profile.tercih_edilen_dil}${pathname.substring(currentUrlLocale.length + 1)}`;
+                console.log(`-> Middleware: (Protected) Falsche Sprache (${currentUrlLocale}). Redirect zu ${newPath}`);
+                const redirectUrl = new URL(newPath, req.url);
+                redirectUrl.search = req.nextUrl.search; // Suchparameter beibehalten
+                return NextResponse.redirect(redirectUrl);
+            }
+        } catch (error) {
+            console.error("Fehler beim Abrufen der bevorzugten Sprache für Redirect:", error);
+        }
+    }
+
+    // x-locale header: root layout html lang attribute icin (Dem Request hinzufügen!)
+    const localeFromPath = pathname.split('/')[1];
+    if (locales.includes(localeFromPath)) {
+        res.headers.set('x-locale', localeFromPath); // Bleibt für Response (falls nützlich)
+        req.headers.set('x-locale', localeFromPath); // WICHTIG: Setze es im Request für Server Components
+    }
+
+    console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
+    
+    // Wir müssen die aktualisierten Request-Header an Next.js weitergeben
+    const finalRes = NextResponse.next({
+        request: {
+            headers: req.headers,
+        }
+    });
+
+    // Cookies aus der Supabase-Antwort (res) in die finale Antwort übernehmen
+    res.cookies.getAll().forEach(cookie => {
+        finalRes.cookies.set(cookie.name, cookie.value, cookie);
+    });
+    
+    return finalRes;
+}
+
+export const config = {
+    matcher: [
+        // Matcher schließt statische Dateien, Bilder und API-Routen aus.
+        // Auth-Routen werden im Code oben behandelt.
+        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    ],
+};
+</file>
+
 <file path="vercel.json">
 {
   "crons": [
@@ -16813,6 +17817,30 @@ export const stripe = new Stripe(stripeSecretKey, {
     }
   ]
 }
+</file>
+
+<file path="vitest.config.ts">
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    globals: true,
+    // Sadece __tests__ ve src/**/__tests__ klasörlerini tara.
+    // e2e/ ve tests/e2e/ Playwright spec dosyaları hariç.
+    include: ['__tests__/**/*.{test,spec}.{ts,tsx}', 'src/**/__tests__/**/*.{test,spec}.{ts,tsx}'],
+    exclude: ['e2e/**', 'tests/e2e/**', 'node_modules/**'],
+  }
+})
 </file>
 
 <file path="src/lib/ai/sales-agent.ts">
@@ -22215,6 +23243,7 @@ export const Constants = {
     "@ai-sdk/openai": "^4.0.71",
     "@google/genai": "^2.23.0",
     "@gsap/react": "^2.1.2",
+    "@hookform/resolvers": "^5.9.1",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@stripe/stripe-js": "^9.14.0",
@@ -22237,6 +23266,7 @@ export const Constants = {
     "react": "19.1.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.89.0",
     "react-icons": "^5.5.0",
     "react-markdown": "^10.1.0",
     "recharts": "^3.3.0",

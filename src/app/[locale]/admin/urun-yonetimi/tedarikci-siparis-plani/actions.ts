@@ -607,3 +607,34 @@ export async function confirmOrderCreateGiderAndLogAction(
 
   return { success: true };
 }
+
+export async function deleteBatch(id: string) {
+  const { user, supabase } = await getAuthedClientWithRole();
+  if (!user) return { success: false, message: 'Unauthorized' };
+
+  const { data: batch } = await supabase
+    .from('ithalat_partileri')
+    .select('durum')
+    .eq('id', id)
+    .single();
+    
+  if (batch?.durum !== 'Taslak') {
+    return { success: false, message: 'Sadece taslak durumundaki partiler silinebilir.' };
+  }
+
+  const { error: itemsError } = await supabase
+    .from('ithalat_parti_kalemleri')
+    .delete()
+    .eq('parti_id', id);
+    
+  if (itemsError) return { success: false, message: itemsError.message };
+
+  const { error } = await supabase
+    .from('ithalat_partileri')
+    .delete()
+    .eq('id', id);
+    
+  if (error) return { success: false, message: error.message };
+
+  return { success: true };
+}
