@@ -50,6 +50,27 @@ const PortalContext = createContext<PortalContextType | null>(null);
 export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb' | 'isCartOpen' | 'setIsCartOpen'> }) {
     const [warenkorb, setWarenkorb] = useState<SepetUrunu[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Initialisiere Warenkorb aus localStorage beim Client-Mount
+    useEffect(() => {
+        setIsMounted(true);
+        try {
+            const savedCart = localStorage.getItem('elyson_b2b_cart');
+            if (savedCart) {
+                setWarenkorb(JSON.parse(savedCart));
+            }
+        } catch (e) {
+            console.error('Fehler beim Lesen des Warenkorbs aus localStorage:', e);
+        }
+    }, []);
+
+    // Speichere Warenkorb in localStorage bei jeder Änderung
+    useEffect(() => {
+        if (isMounted) {
+            localStorage.setItem('elyson_b2b_cart', JSON.stringify(warenkorb));
+        }
+    }, [warenkorb, isMounted]);
 
     // --- PWA: App Badge API (Uygulama İkonunda Okunmamış Bildirim Sayısı) ---
     useEffect(() => {
@@ -161,8 +182,9 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
 
     // Hilfsfunktion für Gesamtanzahl der Artikel
      const getGesamtMengeImWarenkorb = useCallback(() => {
+         if (!isMounted) return 0; // Vermeide Hydration-Mismatch (Client/Server)
          return warenkorb.reduce((total, item) => total + item.menge, 0);
-     }, [warenkorb]);
+     }, [warenkorb, isMounted]);
 
      // ++ NEUE FUNKTION: Setzt den Warenkorb direkt ++
      const setInitialWarenkorb = useCallback((items: SepetUrunu[]) => {

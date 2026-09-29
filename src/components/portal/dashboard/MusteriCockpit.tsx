@@ -225,7 +225,8 @@ export default async function MusteriCockpit({ userId, firmaId, locale, firmaUnv
     const enCokSatilanlar = (enCokSatilanlarRes.data ?? []) as any[];
 
     // ── Sık Sipariş Edilen Ürünleri Tüm Fiyat & Paket Alanlarıyla Zenginleştir ──
-    const rawSikUrunler = ((sikUrunlerRes.data as any[]) ?? []).slice(0, 8);
+    const hasPastOrders = sonSiparisler.length > 0;
+    const rawSikUrunler = hasPastOrders ? (((sikUrunlerRes.data as any[]) ?? []).slice(0, 8)) : [];
     const sikUrunIds = rawSikUrunler.map(u => u.id || u.urun_id).filter(Boolean);
 
     let sikUrunler: any[] = [];
