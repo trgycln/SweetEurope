@@ -30,7 +30,9 @@ function sanitizeSlug(text: string) {
 
 function parseAiJson(text: string) {
   try {
-    const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    // <think>...</think> bloklarını temizle (Qwen/DeepSeek thinking modeller)
+    const withoutThink = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    const jsonStr = withoutThink.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(jsonStr);
   } catch (e) {
     console.error("Failed to parse AI JSON:", text);
@@ -76,12 +78,13 @@ export async function GET(req: Request) {
     
     const deData = parseAiJson(deText);
 
-    // 3-5. Tüm çeviriler paralel çalışır (rate limit bekleme kaldırıldı — Vercel Hobby 60sn limiti)
-    console.log('Tüm çeviriler paralel başlatılıyor...');
+    // 3-5. Çeviriler hafif stagger ile paralel — rate limit ve Hobby 60sn dengesi
+    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+    console.log('Çeviriler başlatılıyor...');
     const [enData, trData, arData] = await Promise.all([
       translateJson(deData, 'English', 'en', 'Barista AI Recipe Assistant', 'FO Cocktail Syrups'),
-      translateJson(deData, 'Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
-      translateJson(deData, 'Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO'),
+      sleep(3000).then(() => translateJson(deData, 'Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları')),
+      sleep(6000).then(() => translateJson(deData, 'Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO')),
     ]);
 
     // 6. getSeasonalBlogImage fonksiyonunu çağırarak mevsime uygun görseli al
