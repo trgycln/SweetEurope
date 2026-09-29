@@ -47,14 +47,13 @@ export function PushNotificationManager() {
   }, []);
 
   const registerSubscription = useCallback(async () => {
-    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-    if (!vapidPublicKey) {
-      console.warn('[PushNotificationManager] NEXT_PUBLIC_VAPID_PUBLIC_KEY tanımlı değil.');
-      return false;
-    }
-
     try {
       setIsLoading(true);
+      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidPublicKey) {
+        throw new Error('[PushNotificationManager] NEXT_PUBLIC_VAPID_PUBLIC_KEY tanımlı değil.');
+      }
+
       const registration = await navigator.serviceWorker.ready;
 
       let subscription = await registration.pushManager.getSubscription();

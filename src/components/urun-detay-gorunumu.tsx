@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Tables } from '@/lib/supabase/database.types';
 import { getLocalizedName, Locale } from '@/lib/utils';
-import { FiTag, FiInfo, FiMail, FiDownload, FiAlertTriangle } from 'react-icons/fi';
+import { FiTag, FiInfo, FiMail, FiDownload, FiAlertTriangle, FiShoppingCart } from 'react-icons/fi';
 import { LuPackage, LuPackage2, LuWarehouse, LuBarcode, LuTruck, LuThermometerSnowflake, LuThermometer, LuShieldCheck, LuClock, LuCalendar } from 'react-icons/lu';
 import { getBadgeText, getFlavorLabel } from '@/lib/labels';
 import { ProductDescriptionRenderer } from '@/components/common/ProductDescriptionRenderer';
@@ -30,6 +30,7 @@ interface UrunDetayGorunumuProps {
     ozellikSablonu: Sablon[];
     locale: Locale;
     dict?: any;
+    portalOrderHref?: string | null;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -136,7 +137,7 @@ function AllergenRow({ present, label, icon }: { present: boolean; label: string
 
 // ── FO Product Detail Component ────────────────────────────────────────────────
 
-export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale, dict }: UrunDetayGorunumuProps) {
+export function FoUrunDetayGorunumu({ urun, ozellikSablonu, locale, dict, portalOrderHref }: UrunDetayGorunumuProps) {
     const lc = dict?.foProductDetail || {};
     const urunAdi = getLocalizedName(urun.ad, locale);
 const aciklamaRaw = (urun.aciklamalar as Record<string, string> | null) ?? {};
@@ -712,6 +713,12 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
                                             className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-900 text-white lg:bg-white lg:text-slate-900 font-bold text-sm px-5 py-3.5 rounded-xl hover:bg-slate-800 lg:hover:bg-slate-100 transition-colors shadow-sm lg:shadow-none">
                                             <FiMail size={16} /> {lc.contact}
                                         </Link>
+                                        {portalOrderHref && (
+                                            <Link href={portalOrderHref}
+                                                className="flex-1 inline-flex items-center justify-center gap-2 bg-amber-600 text-white font-bold text-sm px-5 py-3.5 rounded-xl hover:bg-amber-700 transition-colors shadow-md">
+                                                <FiShoppingCart size={16} /> {locale === 'de' ? 'Jetzt bestellen' : locale === 'en' ? 'Order Now' : locale === 'ar' ? 'اطلب الان' : 'Sipariş Ver'}
+                                            </Link>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -729,8 +736,8 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function UrunDetayGorunumu({ urun, ozellikSablonu, locale, dict }: UrunDetayGorunumuProps) {
-    return <FoUrunDetayGorunumu urun={urun} ozellikSablonu={ozellikSablonu} locale={locale} dict={dict} />;
+export function UrunDetayGorunumu({ urun, ozellikSablonu, locale, dict, portalOrderHref }: UrunDetayGorunumuProps) {
+    return <FoUrunDetayGorunumu urun={urun} ozellikSablonu={ozellikSablonu} locale={locale} dict={dict} portalOrderHref={portalOrderHref} />;
 
     // SweetHeaven ürünleri için mevcut bileşen
     const lc = dict?.foProductDetail || {};

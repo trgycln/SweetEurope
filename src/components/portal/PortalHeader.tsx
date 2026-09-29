@@ -31,7 +31,7 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
     const locale = params.locale as string;
 
     // Warenkorb-Daten aus dem Context holen
-    const { getGesamtMengeImWarenkorb } = usePortal();
+    const { getGesamtMengeImWarenkorb, setIsCartOpen } = usePortal();
     const gesamtMenge = getGesamtMengeImWarenkorb();
 
     // Logout-Logik
@@ -71,18 +71,18 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
                 <Bildirimler />
                 
                 {/* Warenkorb-Shortcut */}
-                <Link
-                    href={`/${locale}/portal/siparisler/yeni`}
-                    className="relative p-2 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors"
+                <button
+                    onClick={() => setIsCartOpen(true)}
+                    className="relative z-50 p-2 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors cursor-pointer"
                     title={locale === 'ar' ? 'طلب جديد / السلة' : locale === 'tr' ? 'Yeni Sipariş / Sepet' : 'Neue Bestellung / Warenkorb'}
                 >
                     <FiShoppingCart size={21} />
                     {gesamtMenge > 0 && (
-                        <span className="absolute 1 top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold shadow-xs animate-pulse">
+                        <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold shadow-xs animate-pulse">
                             {gesamtMenge}
                         </span>
                     )}
-                </Link>
+                </button>
 
                 <div className="h-6 w-px bg-slate-200 hidden sm:block mx-1" />
                 

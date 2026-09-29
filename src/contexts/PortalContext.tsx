@@ -30,6 +30,8 @@ interface PortalContextType {
 
     // Warenkorb-Status
     warenkorb: SepetUrunu[];
+    isCartOpen: boolean;
+    setIsCartOpen: (val: boolean) => void;
 
     // Warenkorb-Funktionen
     addToWarenkorb: (produkt: ProduktImWarenkorb, menge?: number, birim?: 'koli' | 'adet' | 'palet') => void;
@@ -45,8 +47,9 @@ interface PortalContextType {
 const PortalContext = createContext<PortalContextType | null>(null);
 
 // --- Provider Implementierung ---
-export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb'> }) {
+export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb' | 'isCartOpen' | 'setIsCartOpen'> }) {
     const [warenkorb, setWarenkorb] = useState<SepetUrunu[]>([]);
+    const [isCartOpen, setIsCartOpen] = useState(false);
 
     // --- PWA: App Badge API (Uygulama İkonunda Okunmamış Bildirim Sayısı) ---
     useEffect(() => {
@@ -171,6 +174,8 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
     const contextValue: PortalContextType = {
         ...value,
         warenkorb,
+        isCartOpen,
+        setIsCartOpen,
         addToWarenkorb,
         removeFromWarenkorb,
         updateWarenkorbMenge,

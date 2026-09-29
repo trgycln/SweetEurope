@@ -124,6 +124,24 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
         return notFound();
     }
 
+    // Portal kullanıcısı kontrolü: giriş yapmış ve Müşteri/Alt Bayi rolündeyse sipariş linki göster
+    let portalOrderHref: string | null = null;
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: profile } = await supabase
+                .from('profiller')
+                .select('rol')
+                .eq('id', user.id)
+                .maybeSingle();
+            if (profile?.rol === 'Müşteri' || profile?.rol === 'Alt Bayi') {
+                portalOrderHref = `/${locale}/portal/siparisler/yeni?urun_${urun.id}=1`;
+            }
+        }
+    } catch {
+        // Kullanıcı kontrolü başarısız olursa sessizce devam et
+    }
+
     const kategoriId = urun.kategoriler?.id;
     const parentId = (urun.kategoriler as any)?.ust_kategori_id as string | undefined;
     let ozellikSablonu: Sablon[] = [];
@@ -254,6 +272,7 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                 ozellikSablonu={ozellikSablonu as any}
                 locale={locale}
                 dict={dictionary}
+                portalOrderHref={portalOrderHref}
             />
 
             {/* GEO & UX: Barista AI Cross-Selling Banner */}
