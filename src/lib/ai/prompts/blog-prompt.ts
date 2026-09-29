@@ -15,6 +15,8 @@ KURALLAR:
 6. İç linkleme için içerikte şunları doğal şekilde geçir:
    - Reçete aracı için: <a href="/de/barista-ai" class="text-blue-600 font-semibold hover:underline">Barista AI Rezept-Assistent</a>
    - Ürün tedariki için: <a href="/de/products/fo" class="text-blue-600 font-semibold hover:underline">FO Cocktail Sirupe</a>
+7. ⚠️ KESİNLİKLE UYDURMA YASAK: Elysonsweets'in gerçekte SUNMADIĞI hiçbir ürünü, kiti, programı veya hizmeti icat etme ya da ima etme. Sadece FO Şurupları ürün serisi ve Barista AI aracından bahsedebilirsin.
+8. ⚠️ ALFABE KURALI: Çıktıda YALNIZCA Latin alfabesi ve Almanca karakterler (ä, ö, ü, ß) kullan. Çince, Japonca, Arapça veya başka hiçbir alfabe/karakter sistemi KESİNLİKLE KULLANMA.
 
 Çıktıyı KESİNLİKLE JSON formatında ver. JSON formatı aşağıdaki gibi olmalıdır:
 {
@@ -25,5 +27,5 @@ KURALLAR:
   "meta_title": "...",
   "meta_description": "..."
 }
-Sadece geçerli bir JSON string döndür, markdown formatında (${"```"}json ... ${"```"}) yazma.`;
+Sadece geçerli bir JSON string döndür, markdown formatında (\`\`\`json ... \`\`\`) yazma.`;
 }

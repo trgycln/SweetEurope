@@ -44,6 +44,7 @@ async function translateJson(baseJson: any, targetLang: string, targetLangCode: 
   const prompt = `You are a professional translator and copywriter. Translate the following German JSON blog post into ${targetLang}.
 Keep the EXACT same JSON keys, only translate the values accurately and fluently. Do not leave German words in the title or content.
 Change internal links to match the language code: "/de/barista-ai" -> "/${targetLangCode}/barista-ai" (anchor: "${linkKeyword1}") and "/de/products/fo" -> "/${targetLangCode}/products/fo" (anchor: "${linkKeyword2}").
+⚠️ CRITICAL: Use ONLY the target language's characters. Do NOT mix in Chinese, Japanese, or any other unrelated script. Every character in the output must belong to ${targetLang}.
 
 German JSON to translate:
 ${JSON.stringify(baseJson, null, 2)}
