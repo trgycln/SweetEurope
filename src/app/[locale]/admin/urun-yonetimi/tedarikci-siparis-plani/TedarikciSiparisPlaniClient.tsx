@@ -1866,6 +1866,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
             <div className="flex items-center gap-1">
               <span className="text-xs text-slate-500">%</span>
               <input type="number" min={0} max={99} step={0.5}
+                name="indirim1"
                 value={bulkDisc1} onChange={(e) => setBulkDisc1(e.target.value)}
                 placeholder="örn. 20"
                 className="w-20 rounded-md border border-slate-300 px-2 py-1.5 text-sm text-right" />
@@ -1874,6 +1875,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                   <span className="text-xs text-slate-400 font-bold">+</span>
                   <span className="text-xs text-slate-500">%</span>
                   <input type="number" min={0} max={99} step={0.5}
+                    name="indirim2"
                     value={bulkDisc2} onChange={(e) => setBulkDisc2(e.target.value)}
                     placeholder="örn. 8"
                     className="w-20 rounded-md border border-slate-300 px-2 py-1.5 text-sm text-right" />
@@ -2164,6 +2166,7 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                     <td className="px-2 py-2 text-right whitespace-nowrap">
                       <input
                         type="number"
+                        name="koliSayisi"
                         min={1}
                         step={1}
                         value={row.quantity}
@@ -2200,23 +2203,13 @@ export default function TedarikciSiparisPlaniClient({ locale, products, supplier
                             value={row.isModified && row.gercek_alis_fiyati != null
                               ? Number(row.gercek_alis_fiyati).toFixed(3)
                               : Number(row.purchaseBoxCost).toFixed(3)}
-                            onChange={(e) => {
-                              const val = parseFloat(e.target.value);
-                              if (!Number.isFinite(val) || val < 0) return;
-                              const roundedVal = Math.round(val * 1000) / 1000;
-                              const isChanged = Math.abs(roundedVal - row.purchaseBoxCost) > 0.0005;
-                              updateRow(row.id, {
-                                gercek_alis_fiyati: isChanged ? roundedVal : null,
-                                fiyat_duzenlendi: isChanged,
-                                indirim_aciklamasi: isChanged ? 'Manuel düzenleme' : null,
-                              });
-                            }}
+                            readOnly
                             className={`w-20 rounded-md border px-1.5 py-1 text-right text-xs font-semibold transition-colors ${
                               row.isModified
                                 ? 'border-orange-400 bg-orange-100/80 text-orange-800 focus:ring-orange-400'
                                 : 'border-slate-300 bg-white text-slate-800 focus:ring-primary'
-                            }`}
-                            title={row.isModified ? `Standart: ${formatUnitCost(row.stdUnitCost)}` : 'Standart fiyat'}
+                            } bg-slate-50 cursor-not-allowed`}
+                            title={row.isModified ? `Standart: ${formatUnitCost(row.stdUnitCost)}` : 'Standart fiyat (Otomatik)'}
                           />
                           {row.isModified && (
                             <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity z-20">

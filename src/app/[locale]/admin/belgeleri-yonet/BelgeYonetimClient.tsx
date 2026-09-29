@@ -845,16 +845,15 @@ function BelgeRow({
                     <span className="text-[11px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                         <FiFolder size={10} /> {findKategoriLabel(belge.kategori)}
                     </span>
-                    {belge.sira_no && (
-                        <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md block w-max mt-1">
-                            Sıra No: <strong>{belge.sira_no}</strong>
+                    {belge.sira_no ? (
+                        <span className="text-[10px] text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded-md block w-max mt-1">
+                            Evrak No: <strong>{belge.sira_no}</strong>
                         </span>
-                    )}
-                    {belge.dosya_no && (
-                        <span className="text-[10px] text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded-md block w-max mt-1">
-                            Sistem No: <strong>{belge.dosya_no}</strong>
+                    ) : belge.dosya_no ? (
+                        <span className="text-[10px] text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded-md block w-max mt-1">
+                            Evrak No: <strong>{belge.dosya_no}</strong>
                         </span>
-                    )}
+                    ) : null}
                 </div>
             </td>
 
@@ -955,20 +954,27 @@ export default function BelgeYonetimClient({
             result = result.filter(b => new Date(b.olusturma_tarihi).getTime() > thisMonthStart);
         }
 
-        // Sıra numarasına göre doğal sıralama (örn: "2" < "10")
+        // En son eklenen evrak en üstte olacak şekilde sıralama (Yeni evraklar en üstte)
         result.sort((a, b) => {
             const noA = a.sira_no || '';
             const noB = b.sira_no || '';
-            
-            // Eğer her ikisi de boşsa oluşturma tarihine göre (yeni en üstte)
-            if (!noA && !noB) {
-                return new Date(b.olusturma_tarihi).getTime() - new Date(a.olusturma_tarihi).getTime();
+
+            // Kategori içinde sıra numarasına göre azalan sıralama (örn: "10" > "2")
+            if (noA && noB && noA !== noB) {
+                return noB.localeCompare(noA, 'tr', { numeric: true });
             }
-            if (!noA) return 1;
-            if (!noB) return -1;
-            
-            // localeCompare numeric ile doğal sıralama ("001" vs "2" vs "A10")
-            return noA.localeCompare(noB, 'tr', { numeric: true });
+
+            // Oluşturma tarihine göre (en yeni en üstte)
+            const timeA = a.olusturma_tarihi ? new Date(a.olusturma_tarihi).getTime() : 0;
+            const timeB = b.olusturma_tarihi ? new Date(b.olusturma_tarihi).getTime() : 0;
+            if (timeA !== timeB) {
+                return timeB - timeA;
+            }
+
+            if (noA && !noB) return -1;
+            if (!noA && noB) return 1;
+
+            return (b.dosya_no || 0) - (a.dosya_no || 0);
         });
 
         return result;

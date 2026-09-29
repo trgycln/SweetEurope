@@ -76,23 +76,13 @@ export async function GET(req: Request) {
     
     const deData = parseAiJson(deText);
 
-    // Bekleme fonksiyonu (Rate limitleri aşmamak için)
-    const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-    // 3. İngilizceye Çevir (Bekleme ile)
-    console.log('İngilizce çeviriye başlanıyor, rate limit için bekleniyor...');
-    await wait(62000);
-    const enData = await translateJson(deData, 'English', 'en', 'Barista AI Recipe Assistant', 'FO Cocktail Syrups');
-
-    // 4. Türkçeye Çevir (Bekleme ile)
-    console.log('Türkçe çeviriye başlanıyor, rate limit için bekleniyor...');
-    await wait(62000);
-    const trData = await translateJson(deData, 'Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları');
-
-    // 5. Arapçaya Çevir (Bekleme ile)
-    console.log('Arapça çeviriye başlanıyor, rate limit için bekleniyor...');
-    await wait(62000);
-    const arData = await translateJson(deData, 'Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO');
+    // 3-5. Tüm çeviriler paralel çalışır (rate limit bekleme kaldırıldı — Vercel Hobby 60sn limiti)
+    console.log('Tüm çeviriler paralel başlatılıyor...');
+    const [enData, trData, arData] = await Promise.all([
+      translateJson(deData, 'English', 'en', 'Barista AI Recipe Assistant', 'FO Cocktail Syrups'),
+      translateJson(deData, 'Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
+      translateJson(deData, 'Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO'),
+    ]);
 
     // 6. getSeasonalBlogImage fonksiyonunu çağırarak mevsime uygun görseli al
     const currentMonthIndex = new Date().getMonth();

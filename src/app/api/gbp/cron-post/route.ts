@@ -80,7 +80,7 @@ export async function GET(req: Request) {
     `;
 
     const { text: generatedPostContent } = await generateText({
-      model: google('gemini-3.5-flash'),
+      model: google('gemini-1.5-flash'),
       system: systemPrompt,
       prompt: `Google Benim İşletmem profilimiz için haftalık güncel, SEO odaklı ürün tanıtım gönderisini ALMANCA (German) dilinde yazar mısın?`,
     });

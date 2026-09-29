@@ -31,50 +31,65 @@ export async function analyzeDocument(
 
   const systemPrompt = `Sen kıdemli bir B2B evrak analiz uzmanısın. Sana verilen PDF'i incele ve KESİNLİKLE istenen JSON alanlarını doldur. Orijinal dosya adı: ${originalName}`;
 
-  try {
-    const result = await generateObject({
-      model: getGeminiModel('gemini-3.6-flash'),
-      temperature: 0,
-      system: systemPrompt,
-      schema: z.object({
-        evrak_turu: z.string().describe('Evrakın türü: Fatura / Sözleşme / Resmi Yazı / Diğer'),
-        ozet: z.string().describe('Evrakın içeriğine dair 2 cümlelik Türkçe özet'),
-        kritik_bilgiler: z
-          .string()
-          .describe('Evrakta bulunan Şifre, TC Kimlik, IBAN, Dosya No gibi kritik bilgiler'),
-        tarih: z.string().describe("Evrakın tarihi YYYY-MM-DD formatında, bulunamazsa ''"),
-        etiketler: z
-          .array(z.string())
-          .describe('Evrakla ilgili aranabilirlik için etiketler dizisi'),
-        onerilen_dosya_adi: z
-          .string()
-          .describe('Kısa, boşluksuz, Türkçe karaktersiz önerilen dosya adı'),
-      }),
-      // In AI SDK v7 multimodal content lives inside `messages` but
-      // must follow the CoreMessage spec: user role + parts array.
-      messages: [
-        {
-          role: 'user' as const,
-          content: [
-            {
-              type: 'file' as const,
-              data: base64,
-              mediaType: 'application/pdf',
-            },
-            {
-              type: 'text' as const,
-              text: 'Lütfen yukarıdaki PDF evrakını inceleyip benden istenilen alanları Türkçe olarak doldur.',
-            },
-          ],
-        },
-      ],
-    });
+  const candidateModels = [
+    'gemini-3.1-flash-lite',
+    'gemini-flash-lite-latest',
+    'gemini-3.5-flash-lite',
+    'gemini-3.8-flash',
+  ];
 
-    return result.object;
-  } catch (error: any) {
-    console.error('[analyzeDocument] Error:', error);
-    throw new Error(
-      'Doküman analizi başarısız oldu: ' + (error.message || String(error))
-    );
+  let lastError: any;
+  
+  for (const modelName of candidateModels) {
+    try {
+      console.log(`[analyzeDocument] Analiz başlatılıyor: Model ${modelName}...`);
+      const result = await generateObject({
+        model: getGeminiModel(modelName),
+        temperature: 0,
+        system: systemPrompt,
+        schema: z.object({
+          evrak_turu: z.string().describe('Evrakın türü: Fatura / Sözleşme / Resmi Yazı / Diğer'),
+          ozet: z.string().describe('Evrakın içeriğine dair 2 cümlelik Türkçe özet'),
+          kritik_bilgiler: z
+            .string()
+            .describe('Evrakta bulunan Şifre, TC Kimlik, IBAN, Dosya No gibi kritik bilgiler'),
+          tarih: z.string().describe("Evrakın tarihi YYYY-MM-DD formatında, bulunamazsa ''"),
+          etiketler: z
+            .array(z.string())
+            .describe('Evrakla ilgili aranabilirlik için etiketler dizisi'),
+          onerilen_dosya_adi: z
+            .string()
+            .describe('Kısa, boşluksuz, Türkçe karaktersiz önerilen dosya adı'),
+        }),
+        messages: [
+          {
+            role: 'user' as const,
+            content: [
+              {
+                type: 'file' as const,
+                data: base64,
+                mediaType: 'application/pdf',
+              },
+              {
+                type: 'text' as const,
+                text: 'Lütfen yukarıdaki PDF evrakını inceleyip benden istenilen alanları Türkçe olarak doldur.',
+              },
+            ],
+          },
+        ],
+      });
+
+      return result.object;
+    } catch (error: any) {
+      console.warn(`[analyzeDocument] Model ${modelName} kotası veya hatası (${error.message}), fasıla konup yedek modele geçiliyor...`);
+      lastError = error;
+      // Kota aşımında API'yi boğmamak ve fasıla koymak için 2 saniye bekle
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
+
+  console.error('[analyzeDocument] All attempts failed. Last Error:', lastError);
+  throw new Error(
+    'Doküman analizi başarısız oldu: ' + (lastError?.message || String(lastError))
+  );
 }

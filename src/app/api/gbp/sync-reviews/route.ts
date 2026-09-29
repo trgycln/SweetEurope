@@ -87,7 +87,7 @@ export async function GET(req: Request) {
       `;
 
       const { text: generatedReply } = await generateText({
-        model: google('gemini-3.5-flash'),
+        model: google('gemini-1.5-flash'),
         system: systemPrompt,
         prompt: `Müşteri Puanı: ${starRating}\nMüşteri Yorumu: ${commentText}\nLütfen uygun yanıtı ALMANCA (German) dilinde oluştur.`,
       });

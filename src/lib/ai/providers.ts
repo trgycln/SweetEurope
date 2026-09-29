@@ -18,8 +18,8 @@ export const getGroqModel = (modelName: string = 'qwen/qwen3.8-27b') => {
   return groq(modelName);
 };
 
-// Primary High Performance Model: gemini-1.5-flash
-export const getGeminiModel = (modelName: string = 'gemini-1.5-flash') => {
+// Primary High Performance Model with generous free tier: gemini-3.1-flash-lite
+export const getGeminiModel = (modelName: string = 'gemini-3.1-flash-lite') => {
   return google(modelName);
 };
 
@@ -70,6 +70,9 @@ export async function generateTextWithFallback(
         lastError = err;
       }
     }
+    if (attempt < 3) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
 
   throw lastError;
@@ -100,6 +103,9 @@ export async function generateObjectWithFallback(
         console.warn(`[AI Providers] ${item.name} failed (${err.message})`);
         allErrors.push(`${item.name}: ${err.message}`);
       }
+    }
+    if (attempt < 3) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
 

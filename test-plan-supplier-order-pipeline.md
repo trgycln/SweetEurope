@@ -34,14 +34,14 @@ Kapsam: B2B ERP standartlarına uygun olarak tasarlanan 4 aşamalı (Taslak -> Y
 2. Kısmi Teslimat Güncellemesi: Sipariş "Maliyetlendirme" aşamasındayken, depoya eksik ürün geldiği fark edilir. Admin koli sayısını 10'dan 8'e düşürür. Sistem tüm navlun, gümrük ve LUCID dağılımlarını anında yeni ağırlığa göre yeniden hesaplamalıdır.
 
 - ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-- [ ] Adım 1: `__tests__/import-batch-utils.test.ts` dosyasını oluştur. `calculateDiscountedPrice`, `calculateLucidCost`, `calculateMiktarAdet` ve `calculateToplamAgirlikKg` fonksiyonları için Unit testleri yaz. Ticari yuvarlama hatalarını kontrol et.
-- [ ] Adım 2: `__tests__/supply-chain-rpc.test.ts` dosyasını oluştur. Supabase test client'ı ile örnek bir ithalat partisi oluştur. `complete_import_batch` RPC'sini çağır.
-- [ ] Adım 3: RPC testinde şunları `expect` ile doğrula: `urunler.stok_miktari` doğru arttı mı? `urun_stok_hareket_loglari` tablosuna kayıt atıldı mı? `tedarikci_fiyat_loglari` tablosunda sapma yüzdesi doğru hesaplandı mı?
-- [ ] Adım 4: `tests/e2e/supplier-order-pipeline.spec.ts` dosyasını oluştur. Playwright ile `/tr/admin/urun-yonetimi/tedarikci-siparis-plani` sayfasına git. Yeni parti oluştur, koli sayısı gir, sekmeler arası geçiş yap ve "Mal Kabulü Tamamla" butonuna tıkla.
-- [ ] Adım 5: Testleri çalıştır (`npm run test` ve `npm run test:e2e`).
-- [ ] Adım 6: Eğer UI'da kullanıcıdan ağırlık veya birim fiyat girmesini isteyen inputlar varsa, bunları `readOnly` veya `disabled` yap. Sadece "Koli Sayısı", "İndirim 1" ve "İndirim 2" alanlarını düzenlenebilir bırak.
-- [ ] Adım 7: `src/app/actions/import-batch-actions.ts` içindeki kayıt fonksiyonunu (örn: `saveBatchItems`) kontrol et. Frontend'den gelen ağırlık/fiyat verilerini yoksayarak `buildBatchItemInsertRows` fonksiyonu ile sunucuda Master Data üzerinden yeniden hesaplat.
-- [ ] Adım 8: Hata veren testleri düzelt ve tüm pipeline'ın yeşil (Pass) olmasını sağla.
+- [x] Adım 1: `__tests__/import-batch-utils.test.ts` dosyasını oluştur. `calculateDiscountedPrice`, `calculateLucidCost`, `calculateMiktarAdet` ve `calculateToplamAgirlikKg` fonksiyonları için Unit testleri yaz. Ticari yuvarlama hatalarını kontrol et.
+- [x] Adım 2: `__tests__/supply-chain-rpc.test.ts` dosyasını oluştur. Supabase test client'ı ile örnek bir ithalat partisi oluştur. `complete_import_batch` RPC'sini çağır.
+- [x] Adım 3: RPC testinde şunları `expect` ile doğrula: `urunler.stok_miktari` doğru arttı mı? `urun_stok_hareket_loglari` tablosuna kayıt atıldı mı? `tedarikci_fiyat_loglari` tablosunda sapma yüzdesi doğru hesaplandı mı?
+- [x] Adım 4: `tests/e2e/supplier-order-pipeline.spec.ts` dosyasını oluştur. Playwright ile `/tr/admin/urun-yonetimi/tedarikci-siparis-plani` sayfasına git. Yeni parti oluştur, koli sayısı gir, sekmeler arası geçiş yap ve "Mal Kabulü Tamamla" butonuna tıkla.
+- [x] Adım 5: Testleri çalıştır (`npm run test` ve `npm run test:e2e`).
+- [x] Adım 6: Eğer UI'da kullanıcıdan ağırlık veya birim fiyat girmesini isteyen inputlar varsa, bunları `readOnly` veya `disabled` yap. Sadece "Koli Sayısı", "İndirim 1" ve "İndirim 2" alanlarını düzenlenebilir bırak.
+- [x] Adım 7: `src/app/actions/import-batch-actions.ts` içindeki kayıt fonksiyonunu (örn: `saveBatchItems`) kontrol et. Frontend'den gelen ağırlık/fiyat verilerini yoksayarak `buildBatchItemInsertRows` fonksiyonu ile sunucuda Master Data üzerinden yeniden hesaplat.
+- [x] Adım 8: Hata veren testleri düzelt ve tüm pipeline'ın yeşil (Pass) olmasını sağla.
 
 - KATI KURALLAR VE GÜVENLİK KISITLAMALARI
 1. MASTER DATA DRIVEN KURALI: İstemciden (Frontend) gelen `toplam_agirlik_kg`, `miktar_adet` veya `birim_alis_fiyati_orijinal` değerlerine KESİNLİKLE güvenilmeyecektir. Bu değerler sunucu tarafında (Server Action) `urunler` tablosundan çekilen verilerle yeniden hesaplanmalıdır.

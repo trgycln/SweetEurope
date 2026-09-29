@@ -4,7 +4,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const VARSAYILAN_KLASORLER = [
     { id: 'gelen_evrak_dosyasi', label: 'Gelen Evrak Dosyası', icon: '📥', sira: 10, varsayilan: true },
+    { id: 'gelen_faturalar', label: 'Gelen Faturalar', icon: '🧾', sira: 15, varsayilan: true },
     { id: 'giden_evrak_dosyasi', label: 'Giden Evrak Dosyası', icon: '📤', sira: 20, varsayilan: true },
+    { id: 'giden_faturalar', label: 'Giden Faturalar', icon: '🧾', sira: 25, varsayilan: true },
     { id: 'sozlesmeler_dosyasi', label: 'Sözleşmeler Dosyası', icon: '📋', sira: 30, varsayilan: true },
     { id: 'arac_dosyasi', label: 'Araç Dosyası & Evrakları', icon: '🚗', sira: 35, varsayilan: true },
     { id: 'kurulus_evraklari', label: 'Resmi Kuruluş Evrakları', icon: '🏛️', sira: 40, varsayilan: true },

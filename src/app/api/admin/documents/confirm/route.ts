@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { uploadPdfToDrive } from '@/lib/google-drive/service';
+import { uploadPdfToDrive, getDriveFolderIdForKategori, getDriveService } from '@/lib/google-drive/service';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
@@ -13,16 +13,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Dosya veya onaylanmış AI verisi eksik.' }, { status: 400 });
     }
 
-    let aiData;
+    let aiData: {
+      onerilen_dosya_adi: string;
+      ozet: string;
+      evrak_turu: string;
+      kategori: string;
+      etiketler: string[];
+      kritik_bilgiler: string;
+      tarih: string;
+    };
     try {
       aiData = JSON.parse(aiDataString);
     } catch (e) {
       return NextResponse.json({ error: 'Geçersiz AI verisi formatı.' }, { status: 400 });
     }
 
-    // Convert file to Buffer
-    // Not: Dosya memory'de Buffer olarak işlendiği için sunucuda fiziki bir temp dosya oluşmaz. 
-    // Bu yüzden fs.unlinkSync ile silinecek bir temp dosyası bulunmamaktadır.
+    // Convert file to Buffer (memory-based, no temp file on disk)
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -35,37 +41,96 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Yetkisiz erişim.' }, { status: 401 });
     }
 
-    // 1. Get next sequence number BEFORE uploading to Drive
-    const { data: nextNo, error: seqError } = await supabase.rpc('get_next_dosya_no');
-    
-    if (seqError || nextNo === null) {
-      console.error('Sequence Error:', seqError);
-      return NextResponse.json({ error: 'Dosya numarası (sequence) alınamadı. Lütfen veritabanı RPC fonksiyonunun tanımlı olduğundan emin olun.' }, { status: 500 });
+    const kategori = aiData.kategori || 'gelen_evrak_dosyasi';
+
+    // 1. Resolve the correct Drive subfolder for this kategori
+    const kategoriFolderId = await getDriveFolderIdForKategori(supabase, kategori);
+
+    // 2. Calculate next sequence number for this specific folder/category
+    let maxSira = 0;
+
+    // Check existing documents in this category in Supabase
+    try {
+      const { data: catDocs } = await supabase
+        .from('belgeler')
+        .select('sira_no, dosya_no, ad')
+        .eq('kategori', kategori);
+
+      if (catDocs && catDocs.length > 0) {
+        for (const doc of catDocs) {
+          if (doc.sira_no) {
+            const p = parseInt(doc.sira_no, 10);
+            if (!isNaN(p) && p > maxSira) maxSira = p;
+          }
+          if (doc.ad) {
+            const m = doc.ad.match(/^(\d{1,3})[_\s.]/);
+            if (m) {
+              const p = parseInt(m[1], 10);
+              if (!isNaN(p) && p < 1000 && p > maxSira) maxSira = p;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not query catDocs from Supabase:', e);
     }
 
-    // 2. Generate final file name with sequence number
+    // Also check Drive folder for any existing files with numbers (e.g. 01_, 02_, 03_)
+    try {
+      const driveService = getDriveService();
+      if (kategoriFolderId) {
+        const driveFiles = await driveService.files.list({
+          q: `'${kategoriFolderId}' in parents and trashed = false`,
+          fields: 'files(name)',
+          supportsAllDrives: true,
+          includeItemsFromAllDrives: true,
+        });
+        if (driveFiles.data.files) {
+          for (const df of driveFiles.data.files) {
+            const m = df.name?.match(/^(\d{1,3})[_\s.]/);
+            if (m) {
+              const p = parseInt(m[1], 10);
+              if (!isNaN(p) && p < 1000 && p > maxSira) maxSira = p;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not query Drive files for sequence:', e);
+    }
+
+    const nextSiraNo = maxSira + 1;
+    const formattedPrefix = String(nextSiraNo).padStart(2, '0');
+
+    // 3. Generate final file name: <01, 02...>_<onaylanan_ad>.pdf
     let safeOnerilenAd = aiData.onerilen_dosya_adi || file.name;
+    // Strip leading number if user or AI already prepended it
+    safeOnerilenAd = safeOnerilenAd.replace(/^\d+[\s._-]+/, '');
     if (safeOnerilenAd.toLowerCase().endsWith('.pdf')) {
       safeOnerilenAd = safeOnerilenAd.slice(0, -4);
     }
-    const finalFileName = `${nextNo}_${safeOnerilenAd}.pdf`;
+    const finalFileName = `${formattedPrefix}_${safeOnerilenAd}.pdf`;
 
-    // 3. Upload to Google Drive with finalFileName
-    let driveUpload;
+    // 4. Upload to Google Drive (category-specific folder or root folder)
+    let driveUpload: { driveFileId: string; webViewLink: string };
     try {
-      driveUpload = await uploadPdfToDrive(buffer, finalFileName, file.type);
+      driveUpload = await uploadPdfToDrive(buffer, finalFileName, kategoriFolderId, file.type);
     } catch (driveErr: any) {
       console.error('Drive upload failed:', driveErr);
-      return NextResponse.json({ error: 'Drive yüklemesi başarısız oldu, işlem iptal edildi. Detay: ' + (driveErr.message || '') }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Drive yüklemesi başarısız oldu, işlem iptal edildi. Detay: ' + (driveErr.message || '') },
+        { status: 500 }
+      );
     }
 
-    // 4. Save to Supabase
+    // 5. Save metadata to Supabase belgeler table (only metadata — no file content)
     const { data: insertedDoc, error: dbError } = await supabase
       .from('belgeler')
       .insert({
-        dosya_no: nextNo,
+        sira_no: String(nextSiraNo),
+        dosya_no: nextSiraNo,
         ad: finalFileName,
-        kategori: aiData.kategori || 'gelen_evrak_dosyasi',
+        kategori,
         evrak_turu: aiData.evrak_turu,
         ai_ozet: aiData.ozet,
         ai_etiketler: aiData.etiketler,
@@ -74,7 +139,7 @@ export async function POST(req: NextRequest) {
         drive_file_id: driveUpload.driveFileId,
         drive_url: driveUpload.webViewLink,
         olusturma_tarihi: new Date().toISOString(),
-        yukleyen_id: userSession.user.id
+        yukleyen_id: userSession.user.id,
       })
       .select('id')
       .single();
