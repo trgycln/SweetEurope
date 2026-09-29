@@ -53,7 +53,7 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
   const randomHeroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
 
   return (
-    <main className="min-h-screen bg-[#FBF9F5] pb-20">
+    <div className="min-h-screen bg-[#FBF9F5] pb-20">
       {/* Editorial Hero Section */}
       <section className="relative w-full min-h-[550px] md:min-h-[650px] mb-16 overflow-hidden">
         <Image
@@ -119,6 +119,6 @@ export default async function RecipesHubPage({ params, searchParams }: Props) {
           initialCategory={initialCategory} 
         />
       </div>
-    </main>
+    </div>
   );
 }

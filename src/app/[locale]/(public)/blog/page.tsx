@@ -41,9 +41,9 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
   const otherPosts = posts?.slice(4);
 
   return (
-    <main className="min-h-screen bg-[#FBF9F5] text-stone-900 pb-24 selection:bg-amber-900/20 selection:text-stone-900">
+    <div className="min-h-screen bg-[#FBF9F5] text-stone-900 pb-24 selection:bg-amber-900/20 selection:text-stone-900">
       
-      <div className="pt-32 md:pt-40 lg:pt-48 pb-12 px-4 md:px-8 max-w-[90rem] mx-auto">
+      <div className="pt-8 md:pt-12 lg:pt-16 pb-12 px-4 md:px-8 max-w-[90rem] mx-auto">
         {/* Editorial Header */}
         <header className="mb-16 md:mb-24 flex flex-col lg:flex-row lg:items-end justify-between gap-8 lg:gap-16 border-b border-stone-300 pb-12 md:pb-16 relative">
           <div className="max-w-4xl relative z-10">
@@ -227,7 +227,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
 

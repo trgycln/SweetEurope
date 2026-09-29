@@ -34,7 +34,7 @@ export default async function LocaleLayout({
         }}
       />
       <Header dictionary={dictionary} />
-      <main>{children}</main>
+      <main className="pt-20">{children}</main>
       <Footer dictionary={dictionary} locale={locale} />
       <WhatsAppButton locale={locale} />
     </>

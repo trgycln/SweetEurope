@@ -27,7 +27,7 @@ export default async function MarkalarPage({ params }: { params: Promise<{ local
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-24 pb-20">
+        <div className="min-h-screen bg-slate-50 pt-8 md:pt-12 pb-20">
             <BrandListSchema 
               brands={markalar.map((marka: any) => ({
                 name: marka.isim || marka.name || marka.title,

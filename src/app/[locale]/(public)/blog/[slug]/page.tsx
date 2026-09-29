@@ -112,7 +112,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   };
 
   return (
-    <main className="container mx-auto px-4 py-12 max-w-4xl">
+    <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
       <Script
         id={`json-ld-article-${post.id}`}
         type="application/ld+json"
@@ -151,6 +151,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
         <BlogPostContent content={content} locale={locale} />
       </article>
-    </main>
+    </div>
   );
 }

@@ -9,7 +9,7 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
   const [videoHasError, setVideoHasError] = useState(false);
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center text-center overflow-hidden bg-primary">
+    <div className="relative min-h-screen w-full flex items-center justify-center text-center overflow-hidden bg-primary -mt-20">
       {!videoHasError && (
         <video
           key="local-hero-video"
@@ -35,7 +35,7 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
       {/* Subtle overlay for text readability */}
       <div className="absolute top-0 left-0 w-full h-full bg-black/60 md:bg-black/50 z-10 pointer-events-none" />
 
-      <div className="relative z-20 text-white px-4 sm:px-8 md:px-12 lg:px-20 max-w-5xl mx-auto py-16 sm:py-24 flex flex-col items-center pt-28">
+      <div className="relative z-20 text-white px-4 sm:px-8 md:px-12 lg:px-20 max-w-5xl mx-auto py-16 sm:py-24 flex flex-col items-center pt-32 sm:pt-36">
         {/* Kicker Badge */}
         {dictionary.hero?.kicker && (
           <motion.div

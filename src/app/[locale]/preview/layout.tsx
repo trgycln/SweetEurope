@@ -29,7 +29,7 @@ export default async function LocaleLayout({
   return (
     <div>
       <Header dictionary={dictionary} />
-      <main className="bg-gray-50">
+      <main className="bg-gray-50 pt-20">
         {children}
       </main>
       <Footer dictionary={dictionary} locale={locale} />

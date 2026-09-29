@@ -45,7 +45,7 @@ export default async function BaristaAiPage({ params }: { params: Promise<{ loca
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] pt-32 pb-12">
+    <div className="min-h-screen bg-[#FBF9F5] pt-8 md:pt-12 pb-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       
       <div className="container mx-auto px-4 max-w-6xl">
