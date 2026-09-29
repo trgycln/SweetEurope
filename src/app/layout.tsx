@@ -34,7 +34,7 @@ const lato = Lato({
 
 // PWA: Viewport — iOS ve Android'de tema rengi
 export const viewport: Viewport = {
-  themeColor: '#2B2B2B',
+  themeColor: '#FAF9F6',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
