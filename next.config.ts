@@ -1,4 +1,14 @@
 // next.config.ts
+import withSerwistInit from '@serwist/next';
+
+const withSerwist = withSerwistInit({
+  // Service Worker kaynak dosyası (TypeScript)
+  swSrc: 'src/app/sw.ts',
+  // Derlenmiş SW çıktısı (public klasörüne)
+  swDest: 'public/sw.js',
+  // GELİŞTİRME ortamında SW'yi devre dışı bırak (debug kolaylığı)
+  disable: process.env.NODE_ENV === 'development',
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -70,4 +80,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withSerwist(nextConfig);

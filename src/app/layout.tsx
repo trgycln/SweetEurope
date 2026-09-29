@@ -1,7 +1,7 @@
 // app/layout.tsx (YENİ ANA KÖK LAYOUT)
 
 import { ReactNode } from 'react';
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
 import { headers } from "next/headers";
 import MetaPixel from "@/components/MetaPixel";
@@ -32,6 +32,15 @@ const lato = Lato({
   variable: "--font-lato",
 });
 
+// PWA: Viewport — iOS ve Android'de tema rengi
+export const viewport: Viewport = {
+  themeColor: '#2B2B2B',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   title: {
     default: "ElysonSweets | B2B Großhandel HoReCa",
@@ -54,6 +63,12 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
   },
   manifest: "/manifest.webmanifest",
+  // PWA: iOS Add to Home Screen desteği
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Elyson Sweets',
+  },
   openGraph: {
     title: "ElysonSweets | Premium B2B Großhandel",
     description: "B2B Großhandel für Cafés, Hotels und Patisserien. Sirupe, Saucen, Desserts und Backzutaten.",

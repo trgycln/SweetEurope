@@ -1,20 +1,26 @@
+// src/app/manifest.ts
+// Next.js App Router — Web App Manifest
+// Renkler: tailwind.config.ts → primary: #2B2B2B, secondary: #FAF9F6
+
 import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'ElysonSweets | B2B Großhandel HoReCa',
-    short_name: 'ElysonSweets',
-    description: 'B2B Großhandel für Cafés, Hotels und Patisserien.',
+    name: 'Elyson Sweets B2B',
+    short_name: 'Elyson Sweets',
+    description: 'B2B Großhandel für Premium-Sirupe und Dessert-Zutaten',
     start_url: '/',
-    display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#0e3d2f',
+    display: 'standalone',         // Tarayıcı çubukları gizlenir → native app hissi
+    background_color: '#FAF9F6',   // tailwind secondary rengi
+    theme_color: '#2B2B2B',        // tailwind primary rengi
+    orientation: 'portrait',
+    scope: '/',
     icons: [
       {
         src: '/android-chrome-192x192.png',
         sizes: '192x192',
         type: 'image/png',
-        purpose: 'maskable',
+        purpose: 'any',
       },
       {
         src: '/android-chrome-512x512.png',
