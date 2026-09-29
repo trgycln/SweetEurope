@@ -85,3 +85,76 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+// ----------------------------------------------------------------
+// WEB PUSH BİLDİRİMLERİ (PUSH NOTIFICATIONS)
+// ----------------------------------------------------------------
+
+// 1. Push Bildirimini Yakala ve Ekranda Göster
+self.addEventListener('push', (event: any) => {
+  if (!event.data) {
+    console.warn('[SW] Push verisi boş geldi.');
+    return;
+  }
+
+  try {
+    const data = event.data.json();
+    const title = data.title || 'Elyson Sweets';
+    const options: NotificationOptions = {
+      body: data.body || data.icerik || 'Yeni bir bildiriminiz var.',
+      icon: data.icon || '/android-chrome-192x192.png',
+      badge: data.badge || '/favicon-32x32.png',
+      data: {
+        url: data.url || data.link || '/portal/dashboard',
+      },
+      tag: data.tag || 'elyson-sweets-notification',
+      renotify: true,
+      vibrate: [100, 50, 100],
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+  } catch (err) {
+    console.error('[SW] Push bildirimi parse/gösterim hatası:', err);
+    // Düz metin olarak gelmişse fallback
+    const text = event.data.text();
+    event.waitUntil(
+      self.registration.showNotification('Elyson Sweets', {
+        body: text,
+        icon: '/android-chrome-192x192.png',
+        data: { url: '/portal/dashboard' },
+      })
+    );
+  }
+});
+
+// 2. Bildirime Tıklandığında İlgili URL'yi Aç veya Mevcut Pencereye Odaklan
+self.addEventListener('notificationclick', (event: any) => {
+  event.notification.close();
+
+  const targetUrl = event.notification.data?.url || '/portal/dashboard';
+
+  event.waitUntil(
+    (async () => {
+      const windowClients = await (self as any).clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true,
+      });
+
+      // Açık bir sekme varsa ve aynı origin ise ona odaklanıp navigate et
+      for (const client of windowClients) {
+        if ('focus' in client) {
+          await client.focus();
+          if ('navigate' in client && targetUrl) {
+            return client.navigate(targetUrl);
+          }
+          return;
+        }
+      }
+
+      // Açık sekme yoksa yeni pencere aç
+      if ((self as any).clients.openWindow) {
+        return (self as any).clients.openWindow(targetUrl);
+      }
+    })()
+  );
+});

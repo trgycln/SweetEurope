@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { usePortal } from '@/contexts/PortalContext';
 import { PortalHeader } from '@/components/portal/PortalHeader';
 import { PortalSidebar } from '@/components/portal/PortalSidebar';
+import { PushNotificationManager } from '@/components/portal/PushNotificationManager';
 import { Dictionary } from '@/dictionaries'; // DİKKAT: Bu import'u ekliyoruz
 
 // DİKKAT: Prop'lara 'dictionary' eklendi
@@ -38,6 +39,7 @@ export function PortalContainer({ children, dictionary }: { children: React.Reac
                     dictionary={dictionary}
                 />
                 <main className="p-4 sm:p-6 lg:p-8">
+                    <PushNotificationManager />
                     {children}
                 </main>
             </div>

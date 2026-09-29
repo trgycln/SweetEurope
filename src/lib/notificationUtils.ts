@@ -8,6 +8,7 @@ import { Enums } from '@/lib/supabase/database.types';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
+import { sendWebPushToUser } from '@/lib/web-push';
 
 type NotificationRecipient = {
     id: string;
@@ -152,6 +153,22 @@ export async function sendNotification(
             console.error('[sendNotification] Bildirim ekleme hatası:', insertError);
             throw insertError;
         }
+
+        // --- PWA Web Push Bildirimi Tetikleme (Fire-and-forget) ---
+        // Veritabanı işlemi başarılı oldu; push bildirimlerini arka planda gönderiyoruz, ana akışı bekletmiyoruz.
+        Promise.all(
+            filteredRecipients.map((recipient) =>
+                sendWebPushToUser(recipient.id, {
+                    title: 'Elyson Sweets',
+                    body: icerik,
+                    url: link || '/portal/dashboard',
+                }).catch((pushErr) => {
+                    console.warn(`[sendNotification] Web push gönderim uyarısı (${recipient.id}):`, pushErr);
+                })
+            )
+        ).catch((err) => {
+            console.warn('[sendNotification] Web push genel gönderim uyarısı:', err);
+        });
 
         return { success: true, recipientCount: filteredRecipients.length };
     } catch (error) {

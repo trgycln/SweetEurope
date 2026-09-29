@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react';
 import { Tables } from '@/lib/supabase/database.types';
 import { toast } from 'sonner'; // Für Feedback
 
@@ -47,6 +47,29 @@ const PortalContext = createContext<PortalContextType | null>(null);
 // --- Provider Implementierung ---
 export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb'> }) {
     const [warenkorb, setWarenkorb] = useState<SepetUrunu[]>([]);
+
+    // --- PWA: App Badge API (Uygulama İkonunda Okunmamış Bildirim Sayısı) ---
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const count = value.unreadNotificationCount ?? 0;
+
+        try {
+            if ('setAppBadge' in navigator && typeof (navigator as any).setAppBadge === 'function') {
+                if (count > 0) {
+                    (navigator as any).setAppBadge(count).catch((err: any) => {
+                        console.debug('[AppBadge] setAppBadge çağrısı sessizce yoksayıldı:', err);
+                    });
+                } else if ('clearAppBadge' in navigator && typeof (navigator as any).clearAppBadge === 'function') {
+                    (navigator as any).clearAppBadge().catch((err: any) => {
+                        console.debug('[AppBadge] clearAppBadge çağrısı sessizce yoksayıldı:', err);
+                    });
+                }
+            }
+        } catch (error) {
+            console.debug('[AppBadge] Desteklenmiyor veya hata:', error);
+        }
+    }, [value.unreadNotificationCount]);
 
     // addToWarenkorb (Logik für bestehende Artikel bleibt additiv)
      const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1, birim: 'koli' | 'adet' | 'palet' = 'koli') => {
