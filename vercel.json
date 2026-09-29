@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/auto-blog",
-      "schedule": "0 9 * * 2,5"
+      "schedule": "0 3 * * 3,6"
     }
   ]
 }

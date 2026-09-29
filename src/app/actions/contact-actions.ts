@@ -1,10 +1,25 @@
 'use server';
 
 import { sendAdminEmail, sendCustomerEmail } from '@/lib/email';
+import { headers } from 'next/headers';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function submitContactForm(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
+  // HONEYPOT KONTROLÜ
+  const botField = formData.get('bot_field');
+  if (botField) {
+    console.log('[contact-actions] Honeypot tetiklendi, istek reddedildi (sessizce).');
+    return { success: true }; // Botu kandırmak için başarılı dönüyoruz
+  }
+
+  // RATE LIMITING KONTROLÜ
+  const headerStore = await headers();
+  const ip = headerStore.get('x-forwarded-for') || '127.0.0.1';
+  if (!checkRateLimit(ip)) {
+    throw new Error('429 Too Many Requests');
+  }
   const name    = (formData.get('name')    || '').toString().trim();
   const email   = (formData.get('email')   || '').toString().trim();
   const message = (formData.get('message') || '').toString().trim();

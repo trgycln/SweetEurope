@@ -7,6 +7,7 @@ export interface WaitlistFormData {
   yetkili_kisi: string;
   email: string;
   telefon?: string;
+  bot_field?: string; // Honeypot field
 }
 
 export interface WaitlistResponse {
@@ -30,6 +31,21 @@ export interface UpdatePreferencesResponse {
 export async function submitWaitlistForm(
   formData: WaitlistFormData
 ): Promise<WaitlistResponse> {
+  // HONEYPOT KONTROLÜ
+  if (formData.bot_field) {
+    console.log('[waitlist] Honeypot tetiklendi, istek reddedildi (sessizce).');
+    return { success: true, message: 'Vielen Dank! Bitte wählen Sie jetzt Ihre bevorzugten Produkte aus.' }; 
+  }
+
+  // RATE LIMITING KONTROLÜ
+  const { headers } = await import('next/headers');
+  const { checkRateLimit } = await import('@/lib/rate-limit');
+  const headerStore = await headers();
+  const ip = headerStore.get('x-forwarded-for') || '127.0.0.1';
+  if (!checkRateLimit(ip)) {
+    throw new Error('429 Too Many Requests');
+  }
+
   try {
     // Use service role key to bypass RLS for anonymous users
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

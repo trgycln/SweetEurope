@@ -238,9 +238,20 @@ export async function cancelLexwareInvoiceForOrder(
     throw new Error(`Sipariş bulunamadı: ${error?.message}`);
   }
 
+  // Idempotency: Zaten iptal edilmişse (storno kesilmişse) tekrar kesme
+  if (siparis.lexware_storno_id) {
+    return {
+      creditNoteId: siparis.lexware_storno_id,
+      creditNoteNo: siparis.lexware_storno_no,
+      stornoPdfUrl: siparis.lexware_storno_pdf_url,
+      skipped: true
+    } as any;
+  }
+
   const originalInvoiceId = siparis.lexware_invoice_id;
   if (!originalInvoiceId) {
-    throw new Error('Bu siparişe ait kesilmiş bir Lexware faturası bulunamadı.');
+    // Graceful degradation: Fatura yoksa hata fırlatma, geç
+    return { creditNoteId: '', creditNoteNo: '', stornoPdfUrl: '', skipped: true } as any;
   }
 
   // Orijinal faturayı Lexware'den çek

@@ -95,7 +95,8 @@ export async function POST(request: Request) {
       locale,
     });
   } catch (err) {
-    console.warn('ElysonSweets e-posta gönderim hatası:', err);
+    console.error('ElysonSweets e-posta gönderim hatası:', err);
+    return new NextResponse(JSON.stringify({ error: 'E-posta gönderilemedi.' }), { status: 500 });
   }
 
   return NextResponse.json({

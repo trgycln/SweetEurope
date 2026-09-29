@@ -66,6 +66,9 @@ export default function ContactFormClient({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* HONEYPOT: Botları yakalamak için gizli alan */}
+        <input type="text" name="bot_field" className="hidden" tabIndex={-1} autoComplete="off" />
+        
         <div>
           <label htmlFor="name" className="block text-sm font-bold font-sans text-primary mb-2">
             {labels.formName} <span className="text-red-500">*</span>

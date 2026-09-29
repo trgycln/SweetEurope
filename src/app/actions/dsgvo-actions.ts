@@ -114,7 +114,7 @@ export async function anonymizeCustomerData(firmaId: string) {
       // Siparişi var -> GoBD kuralları gereği SİLİNEMEZ, ANONİMLEŞTİRİLMELİ
       const dummyString = '***_ANONYMIZED_***';
       
-      const { error: updateError } = await supabaseAdmin
+        const { error: updateError } = await supabaseAdmin
         .from('firmalar')
         .update({
           email: `anonim_${firmaId.substring(0,8)}@deleted.com`,
@@ -124,7 +124,8 @@ export async function anonymizeCustomerData(firmaId: string) {
           posta_kodu: '00000',
           unvan: `SİLİNMİŞ MÜŞTERİ (${firmaId.substring(0,8)})`,
           vergi_no: dummyString,
-          // Status alanı varsa pasife çekilebilir (schema'ya göre opsiyonel eklenebilir)
+          yetkili_kisi: dummyString,
+          status: 'PASİF'
         })
         .eq('id', firmaId);
 

@@ -7,10 +7,16 @@ import { toast } from 'sonner';
 
 export default function ComingSoonLandingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    firma_adi: string;
+    yetkili_kisi: string;
+    email: string;
+    bot_field?: string;
+  }>({
     firma_adi: '',
     yetkili_kisi: '',
     email: '',
+    bot_field: '',
   });
   const [waitlistId, setWaitlistId] = useState<string | null>(null);
   const [showPreferences, setShowPreferences] = useState(false);
@@ -43,7 +49,7 @@ export default function ComingSoonLandingPage() {
         setWaitlistId(result.id);
         toast.success(result.message);
         // İlk formu temizle ama ID sakla
-        setFormData({ firma_adi: '', yetkili_kisi: '', email: '' });
+        setFormData({ firma_adi: '', yetkili_kisi: '', email: '', bot_field: '' });
         // Tercih modalını aç
         setShowPreferences(true);
       } else {
@@ -160,6 +166,16 @@ export default function ComingSoonLandingPage() {
             </h3>
 
             <form onSubmit={handleSubmit} className="bg-gray-50 rounded-2xl shadow-xl p-8 space-y-6 border-2 border-accent/20">
+              {/* HONEYPOT: Botları yakalamak için gizli alan */}
+              <input 
+                type="text" 
+                name="bot_field" 
+                className="hidden" 
+                tabIndex={-1} 
+                autoComplete="off" 
+                onChange={(e) => setFormData({...formData, bot_field: e.target.value})} 
+              />
+              
               <div>
                 <label htmlFor="firma_adi" className="block text-sm font-bold text-gray-700 mb-2">
                   Firma Name <span className="text-red-500">*</span>

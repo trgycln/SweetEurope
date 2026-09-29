@@ -152,6 +152,31 @@ export async function middleware(req: NextRequest) {
         }
     }
 
+    // Portal Erişim Kontrolü: Firma durumu PASİF veya REDDEDİLDİ ise oturum düşür
+    if (user && effectivePath.startsWith('/portal')) {
+        const { data: profile } = await supabase.from('profiller').select('firma_id').eq('id', user.id).maybeSingle();
+        if (profile?.firma_id) {
+            const { data: firma } = await supabase.from('firmalar').select('status').eq('id', profile.firma_id).maybeSingle();
+            const status = firma?.status?.toUpperCase();
+            
+            if (status === 'PASİF' || status === 'REDDEDİLDİ') {
+                console.log(`-> Middleware: Portal access revoked for user ${user.id} (Firma Status: ${status}). Logging out.`);
+                await supabase.auth.signOut();
+                
+                // Çerezleri temizlemek için response'u sıfırdan oluşturalım veya signOut yeterli olabilir.
+                // Supabase SSR'de signOut() cookie'leri client'ta temizler ama NextResponse ile override etmek daha güvenlidir.
+                const currentLocale = pathname.split('/')[1] || defaultLocale;
+                const redirectUrl = new URL(`/${currentLocale}/login?error=access_revoked`, req.url);
+                const logoutResponse = NextResponse.redirect(redirectUrl);
+                
+                // Remove auth cookies from redirect response
+                logoutResponse.cookies.delete('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1].split('.')[0] + '-auth-token');
+                
+                return logoutResponse;
+            }
+        }
+    }
+
     // Hier könnte optional noch die Rollen-basierte Zugriffskontrolle eingefügt werden,
     // um z.B. 'Müşteri' am Zugriff auf '/admin/*' zu hindern, falls nötig.
 

@@ -30,7 +30,14 @@ function generateFriendlyPassword(): string {
   return `Sweet${num}!`;
 }
 
+import { verifyCsrfOrigin } from '@/lib/security-utils';
+
 export async function POST(request: Request) {
+  // CSRF Koruması
+  if (!verifyCsrfOrigin(request)) {
+    return new NextResponse(JSON.stringify({ error: 'CSRF validation failed' }), { status: 403 });
+  }
+
   const cookieStore = await cookies();
   const supabase = await createSupabaseServerClient(cookieStore);
 
@@ -269,8 +276,22 @@ export async function POST(request: Request) {
         loginUrl: `${siteUrl}/${locale}/login`,
         locale,
       });
-    } catch (err) {
-      console.warn('ElysonSweets portal e-posta gönderim hatası:', err);
+    } catch (err: any) {
+      console.error('ElysonSweets portal e-posta gönderim hatası:', err);
+      
+      if (authUser && !usedExistingUser) {
+        await supabaseAdmin.auth.admin.deleteUser(authUser.id);
+        if (isPortalRole && firmaId) {
+           // İsteğe bağlı: Firmayı eski statüsüne (ör. ADAY) geri döndürebiliriz
+           // ama en önemlisi auth kullanıcısını silmek
+           await supabaseAdmin.from('firmalar').update({ status: 'ADAY' }).eq('id', firmaId);
+        }
+      }
+
+      return new NextResponse(JSON.stringify({ 
+        success: false, 
+        error: "E-posta gönderilemedi, işlem iptal edildi." 
+      }), { status: 500 });
     }
   }
 

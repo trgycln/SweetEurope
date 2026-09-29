@@ -389,7 +389,7 @@ export async function onSiparisiNormalSipariseDonusturAction(
     }
 
     // 3. Stokları düş (Atomik / Güvenli)
-    const { createSupabaseServiceClient } = await import('../../lib/supabase/service');
+    const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
     const adminClient = createSupabaseServiceClient();
 
     for (const d of detaylar) {
@@ -530,7 +530,7 @@ export async function siparisDurumGuncelleAction(
     if (normalError) {
         // Fallback: Service Client ile dene (Alt bayi yetkisi)
         try {
-            const { createSupabaseServiceClient } = await import('../../lib/supabase/service');
+            const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
             const adminClient = createSupabaseServiceClient();
             const { error: adminErr } = await adminClient
                 .from('siparisler')
@@ -550,7 +550,7 @@ export async function siparisDurumGuncelleAction(
     // STOK İADESİ (Sipariş iptal edildiyse ve daha önce iptal edilmemişse ve Ön Sipariş değilse)
     if (isNowCancelled && !isAlreadyCancelled && previousStatus !== 'Ön Sipariş') {
         try {
-            const { createSupabaseServiceClient } = await import('../../lib/supabase/service');
+            const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
             const adminClient = createSupabaseServiceClient();
 
             // RPC ile atomik stok iadesini dene
@@ -709,6 +709,10 @@ export async function iptalSiparisAction(formData: FormData): Promise<ActionResu
             return { error: 'Sie haben keine Berechtigung, diese Bestellung zu ändern.' };
         }
 
+                if (siparis.siparis_durumu === 'İptal Edildi' || siparis.siparis_durumu === 'cancelled') {
+            return { success: true, message: 'Zaten iptal edildi' };
+        }
+
         // 5. Statusprüfung
         // Annahme: Nur 'Beklemede' oder 'processing' können storniert werden
         if (siparis.siparis_durumu !== 'Beklemede' && siparis.siparis_durumu !== 'processing') {
@@ -728,7 +732,22 @@ export async function iptalSiparisAction(formData: FormData): Promise<ActionResu
             throw updateError;
         }
 
-        // TODO Optional: Lagerbestand wieder erhöhen? (Besser DB-Funktion/Trigger)
+                // 6.1. Stokları iade et
+        try {
+            const { createSupabaseServiceClient } = await import('@/lib/supabase/service');
+            const adminClient = createSupabaseServiceClient();
+            await adminClient.rpc('restore_order_stock' as any, { p_siparis_id: siparisId });
+        } catch (e) {
+            console.error('Stok iadesi yapılamadı:', e);
+        }
+
+        // 6.2. Lexware faturasını iptal et (Storno)
+        try {
+            const { cancelLexwareInvoiceForOrder } = await import('@/lib/lexware/invoices');
+            await cancelLexwareInvoiceForOrder(siparisId, 'Kundenstornierung');
+        } catch (e) {
+            console.error('Lexware faturası iptal edilemedi:', e);
+        }
 
         // 7. Adminlere bildirim gönder
         try {

@@ -48,11 +48,13 @@ export async function sendAdminEmail({
     });
     if (error) {
       console.error('[email] Admin e-posta Resend hatası:', error);
+      throw new Error(error.message);
     } else {
       console.log('[email] Admin e-postası başarıyla Resend kuyruğuna iletildi:', data?.id);
     }
   } catch (err) {
     console.error('[email] Gönderim hatası:', err);
+    throw err;
   }
 }
 
@@ -81,11 +83,13 @@ export async function sendCustomerEmail({
     });
     if (error) {
       console.error('[email] Müşteri e-posta Resend hatası:', error);
+      throw new Error(error.message);
     } else {
       console.log('[email] Müşteri onay e-postası iletildi:', data?.id);
     }
   } catch (err) {
     console.error('[email] Müşteri e-posta gönderim hatası:', err);
+    throw err;
   }
 }
 

@@ -13,7 +13,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-function sanitizeSlug(text: string) {
+export function sanitizeSlug(text: string) {
   if (!text) return `blog-${Date.now()}`;
   return text.toLowerCase()
     .replace(/ü/g, 'u')
@@ -28,7 +28,7 @@ function sanitizeSlug(text: string) {
     .replace(/(^-|-$)+/g, '');
 }
 
-function parseAiJson(text: string) {
+export function parseAiJson(text: string) {
   try {
     // <think>...</think> bloklarını temizle (Qwen/DeepSeek thinking modeller)
     const withoutThink = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
