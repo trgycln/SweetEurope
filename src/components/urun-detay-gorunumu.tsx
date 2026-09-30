@@ -200,7 +200,7 @@ const aciklama = aciklamaRaw[locale] || aciklamaRaw['de'] || aciklamaRaw['en'] |
     const hacimMl = Number(tekniks.hacim_ml ?? 0) || null;
     const koliIciAdet = Number(urun.koli_ici_adet ?? 0) || null;
     const paletIciAdet = Number(urun.palet_ici_adet ?? 0) || null;
-    const paletIciKoli = Number(urun.palet_ici_koli_adet ?? 0) || null;
+    const paletIciKoli = Number((urun as any).palet_ici_koli_adet ?? 0) || null;
 
     const koliAgirlik = (unitWeightKg && koliIciAdet)
         ? fmtWeight(unitWeightKg * koliIciAdet, null)
@@ -815,10 +815,10 @@ const isAllergenFree = allergeneRaw.allergen_free === true;
     const unitWeightKg = urun.birim_agirlik_kg ?? null;
     const unitWeightG = Number(tekniks.net_agirlik_gram ?? tekniks.net_agirlik_gr ?? tekniks.net_agirlik ?? tekniks.gramaj ?? 0) || null;
     const hacimMl = Number(tekniks.hacim_ml ?? 0) || null;
-    const koliIciKutu = Number(urun.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu ?? 0) || null;
+    const koliIciKutu = Number((urun as any).koli_ici_kutu_adet ?? tekniks.koli_ici_kutu_adet ?? tekniks.koli_ici_kutu ?? 0) || null;
     const koliIciAdet = Number((urun as any).koli_ici_adet ?? tekniks.koli_ici_adet ?? 0) || null;
-    const paletIciKoli = Number(urun.palet_ici_koli_adet ?? 0) || null;
-    const paletIciKutu = Number(urun.palet_ici_kutu_adet ?? 0) || null;
+    const paletIciKoli = Number((urun as any).palet_ici_koli_adet ?? 0) || null;
+    const paletIciKutu = Number((urun as any).palet_ici_kutu_adet ?? 0) || null;
     const paletIciAdet = Number(urun.palet_ici_adet ?? 0) || null;
 
     const koliAgirlik = (unitWeightKg != null && koliIciKutu != null)

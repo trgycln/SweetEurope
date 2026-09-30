@@ -85,9 +85,9 @@ export default async function ProductRecipes({ locale, productId }: ProductRecip
                 {recipe.category}
               </span>
               <div className="flex items-center gap-3 text-sm text-gray-500 font-medium">
-                {recipe.likes_count > 0 && (
+                {(recipe.likes_count ?? 0) > 0 && (
                   <span className="flex items-center gap-1 text-red-500">
-                    <Heart className="w-4 h-4 fill-current" /> {recipe.likes_count}
+                    <Heart className="w-4 h-4 fill-current" /> {recipe.likes_count ?? 0}
                   </span>
                 )}
                 <span className="flex items-center gap-1">

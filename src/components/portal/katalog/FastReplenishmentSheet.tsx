@@ -224,7 +224,7 @@ export function FastReplenishmentSheet({
           const sel = selections[produkt.id] || { menge: 0, birim: "koli" };
           const koliAdet = Number(produkt.koli_ici_adet ?? 1);
           const paletKoli = Number(
-            produkt.palet_ici_koli_adet ?? produkt.palet_ici_adet ?? 0,
+            (produkt as any).palet_ici_koli_adet ?? produkt.palet_ici_adet ?? 0,
           );
 
           const unitPrice = getBirimFiyatKatalog(

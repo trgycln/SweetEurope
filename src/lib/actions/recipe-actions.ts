@@ -48,7 +48,7 @@ export async function saveRecipeAndRedirect(
       prep_time_minutes: recipeData.prep_time_minutes || 5,
       category: recipeData.category || 'cocktail',
       product_id: productId,
-    })
+    } as any)
     .select('slug')
     .single();
 
@@ -69,7 +69,7 @@ export async function incrementRecipeLike(recipeId: string) {
   const { data: recipe } = await supabase.from('recipes').select('likes_count').eq('id', recipeId).single();
   
   if (recipe) {
-    await supabase.from('recipes').update({ likes_count: recipe.likes_count + 1 }).eq('id', recipeId);
+    await supabase.from('recipes').update({ likes_count: (recipe.likes_count || 0) + 1 }).eq('id', recipeId);
   }
 }
 
@@ -108,7 +108,7 @@ export async function saveRecipesBulk(
 
   const { error } = await supabase
     .from('recipes')
-    .insert(recipesToInsert);
+    .insert(recipesToInsert as any);
 
   if (error) {
     console.error('Supabase Bulk Insert Error:', JSON.stringify(error, null, 2));

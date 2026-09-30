@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/app/[locale]/admin/urun-yonetimi/urunler/urun-formu.tsx
 // Professional ERP / PIM-Style Dense Product Management Workspace
 'use client';

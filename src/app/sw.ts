@@ -91,7 +91,7 @@ serwist.addEventListeners();
 // ----------------------------------------------------------------
 
 // 1. Push Bildirimini Yakala ve Ekranda Göster
-self.addEventListener('push', (event: any) => {
+(self as any).addEventListener('push', (event: any) => {
   if (!event.data) {
     console.warn('[SW] Push verisi boş geldi.');
     return;
@@ -100,7 +100,7 @@ self.addEventListener('push', (event: any) => {
   try {
     const data = event.data.json();
     const title = data.title || 'Elyson Sweets';
-    const options: NotificationOptions = {
+    const options: any = {
       body: data.body || data.icerik || 'Yeni bir bildiriminiz var.',
       icon: data.icon || '/android-chrome-192x192.png',
       badge: data.badge || '/favicon-32x32.png',
@@ -112,13 +112,13 @@ self.addEventListener('push', (event: any) => {
       vibrate: [100, 50, 100],
     };
 
-    event.waitUntil(self.registration.showNotification(title, options));
+    event.waitUntil((self as any).registration.showNotification(title, options));
   } catch (err) {
     console.error('[SW] Push bildirimi parse/gösterim hatası:', err);
     // Düz metin olarak gelmişse fallback
     const text = event.data.text();
     event.waitUntil(
-      self.registration.showNotification('Elyson Sweets', {
+      (self as any).registration.showNotification('Elyson Sweets', {
         body: text,
         icon: '/android-chrome-192x192.png',
         data: { url: '/portal/dashboard' },
@@ -128,7 +128,7 @@ self.addEventListener('push', (event: any) => {
 });
 
 // 2. Bildirime Tıklandığında İlgili URL'yi Aç veya Mevcut Pencereye Odaklan
-self.addEventListener('notificationclick', (event: any) => {
+(self as any).addEventListener('notificationclick', (event: any) => {
   event.notification.close();
 
   const targetUrl = event.notification.data?.url || '/portal/dashboard';
@@ -158,3 +158,4 @@ self.addEventListener('notificationclick', (event: any) => {
     })()
   );
 });
+

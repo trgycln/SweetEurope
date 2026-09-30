@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fi';
 import DurumGuncellePaneli from './DurumGuncellePaneli';
 import LexwareFaturaPaneli from './LexwareFaturaPaneli';
+import KargoPaneli from './KargoPaneli';
 import { assignSiparisPersonelAction } from '../actions';
 import { cookies } from 'next/headers';
 import { Locale } from '@/i18n-config';
@@ -330,6 +331,16 @@ export default async function OperasyonSiparisDetayPage({ params, searchParams }
                         stornoPdfUrl={siparis.lexware_storno_pdf_url}
                         faturaDurumu={siparis.fatura_durumu}
                         siparisDurumu={siparis.siparis_durumu}
+                        odemeDurumu={siparis.odeme_durumu}
+                    />
+
+                    {/* Kargo & Teslimat Yönetimi */}
+                    <KargoPaneli
+                        siparisId={siparis.id}
+                        siparisDurumu={siparis.siparis_durumu}
+                        mevcutKargoFirmasi={siparis.kargo_firmasi}
+                        mevcutTakipNo={siparis.kargo_takip_no}
+                        mevcutTakipUrl={siparis.kargo_takip_url}
                     />
 
                     {/* Durum güncelleme */}

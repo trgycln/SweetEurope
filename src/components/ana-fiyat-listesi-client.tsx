@@ -160,8 +160,8 @@ export function AnaFiyatListesiClient({ serverUrunler, serverKategoriler }: { se
                                     <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.distributor_fiyati_kutu ?? ''} onChange={(e) => handleInputChange('distributor_fiyati_kutu', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-blue-700">{formatCurrency(urun.distributor_fiyati_kutu as number, 'de')}</span>}</td>
                                     <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.distributor_fiyati_dilim_birim ?? ''} onChange={(e) => handleInputChange('distributor_fiyati_dilim_birim', e.target.value)} className="w-20 p-1 border rounded text-right" /> : <span className="font-semibold text-blue-600">{formatCurrency(urun.distributor_fiyati_dilim_birim as number, 'de')}</span>}</td>
                                     <td className="px-3 py-2 text-right">{isEditing ? <input type="number" step="0.01" value={editedData.iskonto_orani ?? ''} onChange={(e) => handleInputChange('iskonto_orani', e.target.value)} className="w-16 p-1 border rounded text-right" /> : <span>{urun.iskonto_orani ? `${urun.iskonto_orani}%` : '-'}</span>}</td>
-                                    <td className="px-3 py-2 text-right">{urun.kutu_ici_adet || '-'}</td>
-                                    <td className="px-3 py-2 text-right">{urun.koli_ici_kutu_adet || '-'}</td>
+                                    <td className="px-3 py-2 text-right">{(urun as any).kutu_ici_adet || '-'}</td>
+                                    <td className="px-3 py-2 text-right">{(urun as any).koli_ici_kutu_adet || '-'}</td>
                                     <td className="px-3 py-2 text-right">
                                         <div className="flex justify-end gap-3 items-center">
                                             {isEditing ? (

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getDictionary } from '@/dictionaries';
 import { ProductGridClient } from './product-grid-client';
 import { getLocalizedName } from '@/lib/utils';

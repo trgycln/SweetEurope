@@ -293,3 +293,374 @@ export async function sendPortalWelcomeEmail({
     html,
   });
 }
+
+/**
+ * Müşteriye resmi Lexware faturasını PDF eki ile birlikte Almanca gönderir.
+ * Stripe veya Havale ödemesi tamamlandığında tetiklenir.
+ */
+export async function sendInvoiceEmail({
+  to,
+  orderNo,
+  invoiceNo,
+  pdfBuffer,
+  pdfFilename,
+}: {
+  to: string;
+  orderNo: string;
+  invoiceNo: string;
+  pdfBuffer: Buffer;
+  pdfFilename: string;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — fatura e-postası gönderilmedi.');
+    return;
+  }
+
+  const subject = `Ihre Rechnung ${invoiceNo} – Elysonsweets GmbH`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+
+    <!-- Header -->
+    <div style="background-color: #0f172a; padding: 36px 30px; text-align: center; border-bottom: 3px solid #16a34a;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: #94a3b8; margin: 6px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Rechnung / Fatura</p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 36px 32px;">
+      <h2 style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
+
+      <p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
+        vielen Dank für Ihre Bestellung! Ihre Zahlung wurde erfolgreich verarbeitet.<br>
+        Im Anhang dieser E-Mail finden Sie Ihre offizielle Rechnung als PDF-Datei.
+      </p>
+
+      <!-- Order Info Card -->
+      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+        <h3 style="margin: 0 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #166534; font-weight: 700;">Rechnungsdetails</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 180px;">Rechnungsnummer:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">${invoiceNo}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Bestellnummer:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Portal Link -->
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${LIVE_BASE_URL}/de/portal/siparisler" style="display: inline-block; background-color: #16a34a; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);">
+          Bestellung im Portal ansehen →
+        </a>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+        <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
+          Die Originalrechnung finden Sie als PDF-Anhang in dieser E-Mail.<br>
+          Bei Fragen stehen wir Ihnen jederzeit unter <a href="mailto:info@elysonsweets.de" style="color: #0f172a; font-weight: 600; text-decoration: underline;">info@elysonsweets.de</a> zur Verfügung.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+        © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Elysonsweets GmbH <info@elysonsweets.de>',
+      to,
+      subject,
+      html,
+      replyTo: 'info@elysonsweets.de',
+      attachments: [
+        {
+          filename: pdfFilename,
+          content: pdfBuffer,
+        },
+      ],
+    });
+    if (error) {
+      console.error('[email] Fatura e-postası Resend hatası:', error);
+      throw new Error(error.message);
+    } else {
+      console.log('[email] Fatura e-postası iletildi:', data?.id);
+    }
+  } catch (err) {
+    console.error('[email] Fatura e-postası gönderim hatası:', err);
+    throw err;
+  }
+}
+
+/**
+ * Müşteriye storno/iptal faturasını (Rechnungskorrektur) PDF eki ile birlikte Almanca gönderir.
+ * Sipariş iptal edildiğinde tetiklenir.
+ */
+export async function sendStornoEmail({
+  to,
+  orderNo,
+  creditNoteNo,
+  pdfBuffer,
+  pdfFilename,
+}: {
+  to: string;
+  orderNo: string;
+  creditNoteNo: string;
+  pdfBuffer: Buffer;
+  pdfFilename: string;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — storno e-postası gönderilmedi.');
+    return;
+  }
+
+  const subject = `Stornierung Ihrer Bestellung #${orderNo} – Elysonsweets GmbH`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+
+    <!-- Header -->
+    <div style="background-color: #0f172a; padding: 36px 30px; text-align: center; border-bottom: 3px solid #e11d48;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: #94a3b8; margin: 6px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Rechnungskorrektur / Storno</p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 36px 32px;">
+      <h2 style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
+
+      <p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
+        Ihre Bestellung <strong>#${orderNo}</strong> wurde storniert.<br>
+        Im Anhang finden Sie das offizielle <strong>Rechnungskorrektur-Dokument</strong> (Storno) als PDF-Datei.
+      </p>
+
+      <!-- Storno Info Card -->
+      <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+        <h3 style="margin: 0 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #9f1239; font-weight: 700;">Storno-Details</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 200px;">Rechnungskorrektur-Nr.:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">${creditNoteNo}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Stornierte Bestellnummer:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+        <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
+          Das Rechnungskorrektur-Dokument ist als PDF-Anhang beigefügt.<br>
+          Bei Fragen stehen wir Ihnen unter <a href="mailto:info@elysonsweets.de" style="color: #0f172a; font-weight: 600; text-decoration: underline;">info@elysonsweets.de</a> gerne zur Verfügung.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+        © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Elysonsweets GmbH <info@elysonsweets.de>',
+      to,
+      subject,
+      html,
+      replyTo: 'info@elysonsweets.de',
+      attachments: [
+        {
+          filename: pdfFilename,
+          content: pdfBuffer,
+        },
+      ],
+    });
+    if (error) {
+      console.error('[email] Storno e-postası Resend hatası:', error);
+      throw new Error(error.message);
+    } else {
+      console.log('[email] Storno e-postası iletildi:', data?.id);
+    }
+  } catch (err) {
+    console.error('[email] Storno e-postası gönderim hatası:', err);
+    throw err;
+  }
+}
+
+/**
+ * Müşteriye "Siparişiniz Yola Çıktı" bildirim e-postasını Almanca gönderir.
+ * trackingUrl varsa "Sendung verfolgen" butonu gösterilir.
+ * Kargo firması "Eigenversand" ise takip bilgileri olmayabilir.
+ * GRACEFUL: Bu fonksiyon hata fırlatırsa çağıran action log basar ama durmaz.
+ */
+export async function sendShippingEmail({
+  to,
+  orderNo,
+  courier,
+  trackingNo,
+  trackingUrl,
+}: {
+  to: string;
+  orderNo: string;
+  courier: string;
+  trackingNo?: string | null;
+  trackingUrl?: string | null;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — kargo e-postası gönderilmedi.');
+    return;
+  }
+
+  const subject = `Ihre Bestellung #${orderNo} wurde versandt – Elysonsweets GmbH`;
+
+  const trackingSection = trackingNo
+    ? `
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+          <h3 style="margin: 0 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #166534; font-weight: 700;">Versanddetails</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 160px;">Bestellnummer:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Versanddienstleister:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">${courier}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Sendungsnummer:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">${trackingNo}</td>
+            </tr>
+          </table>
+          ${trackingUrl ? `
+          <div style="margin-top: 20px;">
+            <a href="${trackingUrl}" target="_blank" style="display: inline-block; background-color: #16a34a; color: #ffffff; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);">
+              Sendung verfolgen →
+            </a>
+          </div>` : ''}
+        </div>
+    `
+    : `
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 160px;">Bestellnummer:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Versandart:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">${courier}</td>
+            </tr>
+          </table>
+        </div>
+    `;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+
+    <!-- Header -->
+    <div style="background-color: #0f172a; padding: 36px 30px; text-align: center; border-bottom: 3px solid #16a34a;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: #94a3b8; margin: 6px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Ihre Bestellung ist unterwegs 🚚</p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 36px 32px;">
+      <h2 style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
+
+      <p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
+        wir freuen uns, Ihnen mitteilen zu können, dass Ihre Bestellung <strong>#${orderNo}</strong> soeben versandt wurde!<br>
+        Ihr Paket ist auf dem Weg zu Ihnen.
+      </p>
+
+      ${trackingSection}
+
+      <!-- Portal Link -->
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${LIVE_BASE_URL}/de/portal/siparisler" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none;">
+          Bestellung im Portal ansehen →
+        </a>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+        <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
+          Bei Fragen stehen wir Ihnen unter <a href="mailto:info@elysonsweets.de" style="color: #0f172a; font-weight: 600; text-decoration: underline;">info@elysonsweets.de</a> zur Verfügung.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+        © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Elysonsweets GmbH <info@elysonsweets.de>',
+      to,
+      subject,
+      html,
+      replyTo: 'info@elysonsweets.de',
+    });
+    if (error) {
+      console.error('[email] Kargo e-postası Resend hatası:', error);
+      throw new Error(error.message);
+    } else {
+      console.log('[email] Kargo e-postası iletildi:', data?.id);
+    }
+  } catch (err) {
+    console.error('[email] Kargo e-postası gönderim hatası:', err);
+    throw err;
+  }
+}
+

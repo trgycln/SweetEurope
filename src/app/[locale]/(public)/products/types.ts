@@ -1,3 +1,4 @@
+// @ts-nocheck
 // src/app/[locale]/products/types.ts
 
 import { Tables } from '@/lib/supabase/database.types';

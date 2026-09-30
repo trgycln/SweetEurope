@@ -96,7 +96,7 @@ export async function generateObjectWithFallback(
       try {
         console.log(`[AI Providers] Attempt ${attempt}: Trying model ${item.name}...`);
         return await generateObject({
-          ...options,
+          ...(options as any),
           model: item.model,
         });
       } catch (err: any) {

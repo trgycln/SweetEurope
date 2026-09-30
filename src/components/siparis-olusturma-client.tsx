@@ -16,9 +16,9 @@ import { Locale } from '@/i18n-config';
 export type ProductOption = Pick<Tables<'urunler'>,
     'id' | 'ad' | 'stok_kodu' | 'ana_resim_url' |
     'satis_fiyati_musteri' | 'satis_fiyati_toptanci' |
-    'satis_fiyati_alt_bayi' | 'satis_fiyati_palet' | 'stok_miktari' |
+    'satis_fiyati_alt_bayi' | 'stok_miktari' |
     'koli_ici_adet' | 'palet_ici_adet'
->;
+> & { satis_fiyati_palet?: number | null };
 type FirmaWithFinanz = Tables<'firmalar'> & {
     firmalar_finansal: Tables<'firmalar_finansal'> | null
 };

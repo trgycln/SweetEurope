@@ -33,9 +33,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   if (!post) return { title: 'Not Found' };
 
-  const loc = locale as keyof typeof post.title;
-  const title = post.meta_title[loc] || post.meta_title['de'] || post.title[loc] || post.title['de'];
-  const description = post.meta_description[loc] || post.meta_description['de'] || post.excerpt[loc] || post.excerpt['de'];
+  const loc = locale;
+  const title = (post.meta_title as any)?.[loc] || (post.meta_title as any)?.['de'] || (post.title as any)?.[loc] || (post.title as any)?.['de'];
+  const description = (post.meta_description as any)?.[loc] || (post.meta_description as any)?.['de'] || (post.excerpt as any)?.[loc] || (post.excerpt as any)?.['de'];
 
   return {
     title,
@@ -47,8 +47,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title,
       description,
       type: 'article',
-      publishedTime: post.published_at,
-      authors: [post.author_name],
+      publishedTime: post.published_at || undefined,
+      authors: post.author_name ? [post.author_name] : [],
       images: post.image_url ? [post.image_url] : [],
     }
   };
@@ -82,10 +82,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     notFound();
   }
 
-  const loc = locale as keyof typeof post.title;
-  const title = post.title[loc] || post.title['de'];
-  const content = post.content[loc] || post.content['de'];
-  const excerpt = post.excerpt[loc] || post.excerpt['de'];
+  const loc = locale;
+  const title = (post.title as any)?.[loc] || (post.title as any)?.['de'] || '';
+  const content = (post.content as any)?.[loc] || (post.content as any)?.['de'] || '';
+  const excerpt = (post.excerpt as any)?.[loc] || (post.excerpt as any)?.['de'] || '';
 
   // GEO & SEO: Article JSON-LD
   const jsonLd = {
@@ -94,8 +94,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     "headline": title,
     "description": excerpt,
     "image": post.image_url ? [post.image_url] : [],
-    "datePublished": post.published_at,
-    "dateModified": post.updated_at,
+    "datePublished": post.published_at || undefined,
+    "dateModified": post.updated_at || undefined,
     "author": [{
         "@type": "Person",
         "name": post.author_name,
@@ -123,7 +123,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
         <header className="mb-12 text-center max-w-3xl mx-auto">
           <div className="flex items-center justify-center gap-4 mb-6">
             <time className="text-sm font-semibold tracking-widest uppercase text-accent">
-              {new Date(post.published_at).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
+              {new Date(post.published_at || '').toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-stone-900 mb-6 leading-tight">

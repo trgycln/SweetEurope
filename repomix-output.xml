@@ -248,6 +248,14 @@ eslint.config.mjs
 guvenli_pva.md
 header.md
 knip_report.txt
+musteri_portal.md
+musteri_portal2.md
+musteri_portal3.md
+musteri_portal4.md
+musteri_portal5.md
+musteri_portal6.md
+musteri_portal7.md
+musteri_portal8.md
 next.config.ts
 package.json
 playwright.config.ts
@@ -3530,6 +3538,100 @@ BEGIN
     (v_nakit_satis - v_nakit_gider + v_nakit_sermaye + v_nakit_borc + v_nakit_transfer_giris - v_nakit_transfer_cikis) as nakit_bakiye;
 END;
 $$;
+</file>
+
+<file path="supabase/migrations/20260812_02_sirket_resmi_bilgiler.sql">
+-- Migration: Create sirket_resmi_bilgiler table for Secure Company Vault
+
+CREATE TABLE IF NOT EXISTS public.sirket_resmi_bilgiler (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    kategori TEXT NOT NULL,
+    baslik TEXT NOT NULL,
+    deger TEXT NOT NULL,
+    sira INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE public.sirket_resmi_bilgiler ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Only 'Yönetici' can SELECT
+CREATE POLICY "Yöneticiler sirket resmi bilgilerini görebilir"
+ON public.sirket_resmi_bilgiler
+FOR SELECT
+USING (
+    EXISTS (
+        SELECT 1 FROM public.profiller
+        WHERE id = auth.uid() AND rol = 'Yönetici'
+    )
+);
+
+-- Policy: Only 'Yönetici' can INSERT
+CREATE POLICY "Yöneticiler sirket resmi bilgisi ekleyebilir"
+ON public.sirket_resmi_bilgiler
+FOR INSERT
+WITH CHECK (
+    EXISTS (
+        SELECT 1 FROM public.profiller
+        WHERE id = auth.uid() AND rol = 'Yönetici'
+    )
+);
+
+-- Policy: Only 'Yönetici' can UPDATE
+CREATE POLICY "Yöneticiler sirket resmi bilgilerini güncelleyebilir"
+ON public.sirket_resmi_bilgiler
+FOR UPDATE
+USING (
+    EXISTS (
+        SELECT 1 FROM public.profiller
+        WHERE id = auth.uid() AND rol = 'Yönetici'
+    )
+)
+WITH CHECK (
+    EXISTS (
+        SELECT 1 FROM public.profiller
+        WHERE id = auth.uid() AND rol = 'Yönetici'
+    )
+);
+
+-- Policy: Only 'Yönetici' can DELETE
+CREATE POLICY "Yöneticiler sirket resmi bilgilerini silebilir"
+ON public.sirket_resmi_bilgiler
+FOR DELETE
+USING (
+    EXISTS (
+        SELECT 1 FROM public.profiller
+        WHERE id = auth.uid() AND rol = 'Yönetici'
+    )
+);
+</file>
+
+<file path="supabase/migrations/20260812_03_sirket_resmi_bilgiler_onemli.sql">
+-- Migration: Add onemli_mi column to sirket_resmi_bilgiler
+
+ALTER TABLE public.sirket_resmi_bilgiler ADD COLUMN onemli_mi BOOLEAN DEFAULT false;
+</file>
+
+<file path="supabase/migrations/20260812_belgeler_fihrist_donusumu.sql">
+-- ============================================================
+-- Belge Yönetimi Modülünü "Evrak Fihristi"ne Dönüştürme SQL'i
+-- Mevcut tüm kayıtları SİLER ve fiziksel konum takibi için 
+-- tablo yapısını günceller.
+-- ============================================================
+
+-- 1. Eski kayıtları tamamen temizle (Dikkat: Geri alınamaz!)
+DELETE FROM belgeler;
+
+-- 2. Artık kullanılmayacak dosya/storage kolonlarını düşür
+ALTER TABLE belgeler DROP COLUMN IF EXISTS dosya_url;
+ALTER TABLE belgeler DROP COLUMN IF EXISTS dosya_boyutu;
+ALTER TABLE belgeler DROP COLUMN IF EXISTS dosya_tipi;
+
+-- 3. Fiziksel evrak fihristi için gerekli yeni kolonları ekle
+ALTER TABLE public.belgeler 
+ADD COLUMN IF NOT EXISTS sira_no VARCHAR(50),
+ADD COLUMN IF NOT EXISTS evrak_tarihi DATE;   -- Evrakın asıl tarihi
 </file>
 
 <file path="supabase/migrations/belgeler_table.sql">
@@ -12122,100 +12224,6 @@ export type BlogYazisiInsert = Omit<BlogYazisi, 'id' | 'created_at' | 'updated_a
 export type BlogYazisiUpdate = Partial<BlogYazisiInsert>;
 </file>
 
-<file path="supabase/migrations/20260812_02_sirket_resmi_bilgiler.sql">
--- Migration: Create sirket_resmi_bilgiler table for Secure Company Vault
-
-CREATE TABLE IF NOT EXISTS public.sirket_resmi_bilgiler (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    kategori TEXT NOT NULL,
-    baslik TEXT NOT NULL,
-    deger TEXT NOT NULL,
-    sira INTEGER DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Enable RLS
-ALTER TABLE public.sirket_resmi_bilgiler ENABLE ROW LEVEL SECURITY;
-
--- Policy: Only 'Yönetici' can SELECT
-CREATE POLICY "Yöneticiler sirket resmi bilgilerini görebilir"
-ON public.sirket_resmi_bilgiler
-FOR SELECT
-USING (
-    EXISTS (
-        SELECT 1 FROM public.profiller
-        WHERE id = auth.uid() AND rol = 'Yönetici'
-    )
-);
-
--- Policy: Only 'Yönetici' can INSERT
-CREATE POLICY "Yöneticiler sirket resmi bilgisi ekleyebilir"
-ON public.sirket_resmi_bilgiler
-FOR INSERT
-WITH CHECK (
-    EXISTS (
-        SELECT 1 FROM public.profiller
-        WHERE id = auth.uid() AND rol = 'Yönetici'
-    )
-);
-
--- Policy: Only 'Yönetici' can UPDATE
-CREATE POLICY "Yöneticiler sirket resmi bilgilerini güncelleyebilir"
-ON public.sirket_resmi_bilgiler
-FOR UPDATE
-USING (
-    EXISTS (
-        SELECT 1 FROM public.profiller
-        WHERE id = auth.uid() AND rol = 'Yönetici'
-    )
-)
-WITH CHECK (
-    EXISTS (
-        SELECT 1 FROM public.profiller
-        WHERE id = auth.uid() AND rol = 'Yönetici'
-    )
-);
-
--- Policy: Only 'Yönetici' can DELETE
-CREATE POLICY "Yöneticiler sirket resmi bilgilerini silebilir"
-ON public.sirket_resmi_bilgiler
-FOR DELETE
-USING (
-    EXISTS (
-        SELECT 1 FROM public.profiller
-        WHERE id = auth.uid() AND rol = 'Yönetici'
-    )
-);
-</file>
-
-<file path="supabase/migrations/20260812_03_sirket_resmi_bilgiler_onemli.sql">
--- Migration: Add onemli_mi column to sirket_resmi_bilgiler
-
-ALTER TABLE public.sirket_resmi_bilgiler ADD COLUMN onemli_mi BOOLEAN DEFAULT false;
-</file>
-
-<file path="supabase/migrations/20260812_belgeler_fihrist_donusumu.sql">
--- ============================================================
--- Belge Yönetimi Modülünü "Evrak Fihristi"ne Dönüştürme SQL'i
--- Mevcut tüm kayıtları SİLER ve fiziksel konum takibi için 
--- tablo yapısını günceller.
--- ============================================================
-
--- 1. Eski kayıtları tamamen temizle (Dikkat: Geri alınamaz!)
-DELETE FROM belgeler;
-
--- 2. Artık kullanılmayacak dosya/storage kolonlarını düşür
-ALTER TABLE belgeler DROP COLUMN IF EXISTS dosya_url;
-ALTER TABLE belgeler DROP COLUMN IF EXISTS dosya_boyutu;
-ALTER TABLE belgeler DROP COLUMN IF EXISTS dosya_tipi;
-
--- 3. Fiziksel evrak fihristi için gerekli yeni kolonları ekle
-ALTER TABLE public.belgeler 
-ADD COLUMN IF NOT EXISTS sira_no VARCHAR(50),
-ADD COLUMN IF NOT EXISTS evrak_tarihi DATE;   -- Evrakın asıl tarihi
-</file>
-
 <file path="supabase/migrations/20260816_otomatik_tedarik_turu.sql">
 -- Add stok_tukenme_tarihi column
 ALTER TABLE public.urunler ADD COLUMN IF NOT EXISTS stok_tukenme_tarihi TIMESTAMP WITH TIME ZONE;
@@ -13741,6 +13749,276 @@ ProductDescriptionRenderer|default     src/components/common/ProductDescriptionR
 ProductSpecsAccordion|default          src/components/common/ProductSpecsAccordion.tsx     
 ProductDietaryBadges|DietaryBadgeList  src/components/DietaryStickers.tsx                  
 info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+</file>
+
+<file path="musteri_portal.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT):
+Hedef: `elysonsweets.de` B2B Müşteri Portalı (`/portal/*` rotaları).
+Kapsam: Müşterinin sisteme giriş yapmasından, katalogda gezinmesine, ürünleri sepete eklemesine, sepeti görüntülemesine (özellikle mobilde tıklanamama sorunu), siparişi tamamlamasına, ödeme/fatura adımlarına ve Web Push (Anlık Bildirim) abonelik sürecine kadar olan tüm uçtan uca (E2E) akış.
+Mevcut Hatalar: 
+1. Sepet ikonuna tıklanamaması / sepetin açılamaması (Özellikle mobil görünümde z-index, eksik `href` veya overlay çakışması şüphesi).
+2. Web Push bildirimlerine izin verilmesine rağmen "Abonelik sağlanamadı" hatası (VAPID key eksikliği, Service Worker kayıt hatası veya `/api/push/subscribe` endpoint'indeki RLS/Auth sorunları şüphesi).
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
+1. Statik Analiz ve UI Onarımı: Playwright testleri yazılmadan önce, `NavbarElegant.tsx`, `Header.tsx` veya `MobileMenu.tsx` içindeki sepet butonu DOM yapısı incelenip onarılacaktır. Aynı şekilde Push API endpoint'i kontrol edilecektir.
+2. E2E (Uçtan Uca) Testler: `Playwright` kullanılarak hem Masaüstü (Chromium) hem de Mobil (Mobile Safari/Chrome) cihaz emülasyonları ile gerçek kullanıcı senaryoları simüle edilecektir.
+3. Birim Testleri (Unit Tests): `Vitest` kullanılarak `PortalContext.tsx` içindeki sepet mantığı ve `pricingUtils.ts` içindeki B2B fiyat hesaplamaları test edilecektir.
+4. Ortam: Testler lokalde çalıştırılacak ancak Vercel/Production ortamını simüle edecek şekilde (Next.js build & start) koşulacaktır.
+
+- TEST SENARYOLARI (TEST CASES):
+  * Happy Path (Sorunsuz akış):
+    - Müşteri başarılı şekilde login olur ve `/portal/dashboard` sayfasına yönlendirilir.
+    - Katalogdan bir ürünü (örn: FO Şurup) sepete ekler.
+    - Sepet ikonuna (mobilde ve masaüstünde) tıklar, sepet sayfası/çekmecesi (drawer) sorunsuz açılır.
+    - Sipariş onayı verilir, veritabanında `siparisler` ve `siparis_detay` tablolarına doğru fiyatlar (Net, KDV, Kargo) ile kayıt atılır.
+    - Sipariş sonrası "Siparişlerim" sayfasında yeni sipariş "Beklemede" veya "Taslak" statüsünde görünür.
+    - Kullanıcı bildirim izni verir, Supabase `push_subscriptions` tablosuna kayıt başarılı şekilde atılır.
+  * Negative Path (Hatalı girişler, yetkisiz erişimler):
+    - Sepet boşken ödeme (checkout) sayfasına gidilmeye çalışılması (engellenmeli).
+    - Müşteri rolündeki kullanıcının `/admin` rotalarına erişmeye çalışması (middleware ile engellenmeli).
+    - Push bildirim izni reddedildiğinde uygulamanın çökmemesi ve sessizce (graceful degradation) çalışmaya devam etmesi.
+  * Edge Cases (Sınır durumlar):
+    - Sepete `stok_miktari` değerinden fazla ürün eklenmeye çalışılması (PortalContext içindeki uyarı tetiklenmeli).
+    - Mobil cihazda (375px genişlik) sepet ikonunun üzerine başka bir görünmez div'in (z-index sorunu) binip binmediğinin tespiti.
+    - Koli ve Palet bazlı alımlarda fiyat kademelerinin (Tier Pricing) kuruşu kuruşuna doğru hesaplanması (virgül/nokta yuvarlama hataları).
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
+  - [ ] Adım 1: Sepet UI/UX Hata Tespiti ve Onarımı. `src/components/NavbarElegant.tsx`, `Header.tsx` ve mobil menü bileşenlerini aç. Sepet ikonunun bir `<Link href="/[locale]/portal/sepet">` veya `onClick` eventine sahip bir `<button>` olduğundan emin ol. Mobil görünümde `z-index` veya `pointer-events-none` gibi tıklamayı engelleyen CSS hatalarını düzelt.
+  - [ ] Adım 2: Push Bildirim Hatası Onarımı. `src/app/api/push/subscribe/route.ts` dosyasını ve `PushNotificationManager.tsx` bileşenini incele. Supabase Auth token'ının API'ye doğru iletildiğinden ve `push_subscriptions` tablosundaki RLS politikalarının (kullanıcının kendi ID'si ile kayıt atabilmesi) çalıştığından emin ol. VAPID key kontrollerini try-catch blokları ile güvenli hale getir.
+  - [ ] Adım 3: Playwright E2E Test Dosyasının Oluşturulması. `tests/e2e/portal/customer-journey.spec.ts` dosyasını oluştur. İçerisine şu testleri yaz:
+        1. Mobil cihaz emülasyonu ile login olma.
+        2. Katalogdan sepete ürün ekleme.
+        3. Sepet ikonuna tıklama (Tıklanabilirliği `toBeVisible` ve `toBeEnabled` ile zorla test et).
+        4. Checkout işlemini tamamlama.
+  - [ ] Adım 4: Playwright Push Notification Testi. Aynı dosyaya, tarayıcı izinlerini (permissions: ['notifications']) mock'layarak Push abonelik akışının API'den 200 OK dönüp dönmediğini test eden bir blok ekle.
+  - [ ] Adım 5: Vitest Birim Testlerinin Yazılması. `src/contexts/__tests__/PortalContext.test.tsx` dosyasını oluştur. `addToWarenkorb` fonksiyonunun stok sınırlarını aşıp aşmadığını ve fiyatları doğru hesapladığını test et.
+  - [ ] Adım 6: Testlerin Koşulması. Terminalde `npm run build` ve ardından `npm run start` ile production simülasyonunu başlat. Başka bir terminalde `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştır.
+  - [ ] Adım 7: Hata Çözümü. Playwright testleri sepetin açılamadığını veya siparişin tamamlanamadığını raporlarsa, ilgili sayfalardaki (örn: `SiparisDetayClient.tsx` veya sepet sayfası) mantıksal hataları düzelt ve testler yeşil (pass) olana kadar döngüyü tekrarla.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
+  - MEVCUT VERİTABANINI BOZMA: Playwright testlerinde gerçek Stripe API'sine istek atma. Stripe test anahtarlarını kullan veya ödeme adımını mock'la.
+  - TEST KULLANICISI KULLAN: Testler için Supabase'de `test_musteri@elysonsweets.de` gibi izole bir kullanıcı oluştur. Gerçek müşteri verileri üzerinde test yapma.
+  - MOBİL ÖNCELİKLİ TEST: Müşterinin yaşadığı sorun mobilde olduğu için, Playwright testlerinde `viewport: { width: 375, height: 812 }` (iPhone X/12) ayarını kesinlikle kullan.
+  - FİYAT HESAPLAMALARI: B2B sisteminde KDV (%7) ve Net fiyat ayrımları kritiktir. Testlerde sepet toplamının `(Net * 1.07) + Kargo` formülüne kuruşu kuruşuna uyduğunu `expect` ile doğrula.
+</file>
+
+<file path="musteri_portal2.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT):
+Hedef: `elysonsweets.de` B2B Müşteri Portalı Sepet (Cart) UI/UX Revizyonu ve E2E Test Süreci.
+Mevcut Durum ve Hata Tespiti: Kullanıcı manuel testinde kritik bir UX hatası tespit etmiştir. Sepet ikonu işlevsizdir ve sepet içeriği katalog sayfasının (`KatalogClient.tsx`) en altında statik olarak render edilmektedir. Bu durum, kullanıcının sepeti fark etmesini imkansız kılmaktadır.
+Kapsam: Sepet UI'ının sayfa altından kaldırılarak, modern e-ticaret standartlarına uygun bir "Sağdan Açılan Çekmece (Right Drawer / Slide-over)" veya "Modal" yapısına dönüştürülmesi. Header'daki sepet ikonunun bu çekmeceyi tetiklemesi. Ardından mevcut `yarn dev` sunucusu üzerinden E2E testlerinin koşulması.
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
+1. UI/UX Refactoring: Sepet bileşeni sayfa akışından (document flow) koparılıp, `fixed` pozisyonlu bir Drawer bileşenine taşınacaktır.
+2. State Management: `PortalContext.tsx` içerisine sepetin açık/kapalı durumunu tutacak `isCartOpen` ve `setIsCartOpen` state'leri eklenecektir.
+3. E2E Test Execution: Hızlı iterasyon için testler öncelikle aktif olan `yarn dev` sunucusu üzerinde koşulacaktır.
+4. Test Data Preparation: Playwright testlerinin takılmaması için Supabase üzerinde test kullanıcısının (`test_musteri@elysonsweets.de`) varlığı bir script ile garanti altına alınacaktır.
+
+- TEST SENARYOLARI (TEST CASES):
+  * Happy Path (Sorunsuz akış):
+    - Kullanıcı katalogda "Sepete Ekle" butonuna basar.
+    - Header'daki sepet ikonuna tıklar.
+    - Ekranın sağından (mobilde tüm ekranı kaplayacak şekilde) Sepet Çekmecesi (Cart Drawer) açılır.
+    - Çekmece içindeki ürünler, miktarlar ve toplam fiyat doğru görünür.
+    - "Siparişi Tamamla" butonuna basıldığında sipariş başarıyla oluşturulur ve çekmece kapanır.
+  * Negative Path (Hatalı girişler, yetkisiz erişimler):
+    - Çekmece dışına (backdrop) tıklandığında veya "X" butonuna basıldığında çekmece kapanmalıdır.
+    - Sepet boşken çekmece açıldığında "Sepetiniz boş" uyarısı çıkmalı ve sipariş butonu inaktif (disabled) olmalıdır.
+  * Edge Cases (Sınır durumlar):
+    - Mobil cihazda (375px) çekmece açıldığında arka planın (body) kaydırılması (scroll) engellenmelidir (`overflow: hidden`).
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
+  - [ ] Adım 1: State Yönetiminin Eklenmesi. `src/contexts/PortalContext.tsx` dosyasını aç. `PortalContextType` arayüzüne `isCartOpen: boolean` ve `setIsCartOpen: (val: boolean) => void` ekle. Provider içinde bu state'i tanımla ve context value olarak dışarı aktar.
+  - [ ] Adım 2: Sepet Çekmecesi (Cart Drawer) Bileşeninin Oluşturulması. `src/components/portal/siparisler/CartDrawer.tsx` (veya uygun bir dizin) adında yeni bir bileşen oluştur. Bu bileşen `usePortal` hook'unu kullanarak `isCartOpen` state'ini dinlemeli. Açık olduğunda ekranın sağından kayarak giren (Tailwind: `fixed inset-y-0 right-0 z-[100] w-full md:w-96 bg-white shadow-xl transform transition-transform duration-300`), arka planı karartan (backdrop) bir UI inşa et.
+  - [ ] Adım 3: Katalog Sayfasının Temizlenmesi. `src/app/[locale]/portal/katalog/KatalogClient.tsx` (veya sepetin en altta render edildiği ilgili dosya) dosyasını aç. Sayfanın en altındaki statik sepet render kodlarını KESİNLİKLE SİL. Sepet içeriğini ve sipariş tamamlama butonunu yeni oluşturduğun `CartDrawer.tsx` içine taşı.
+  - [ ] Adım 4: Header İkonunun Bağlanması. `src/components/portal/PortalHeader.tsx` (veya ilgili header bileşeni) dosyasını aç. Sepet ikonunun `onClick` eventine `setIsCartOpen(true)` fonksiyonunu bağla.
+  - [ ] Adım 5: Drawer'ın Layout'a Eklenmesi. `CartDrawer` bileşenini `PortalContainer.tsx` veya portalın ana `layout.tsx` dosyasına ekle ki her sayfada erişilebilir olsun.
+  - [ ] Adım 6: Test Kullanıcısının Oluşturulması. `scripts/setup-test-user.mjs` adında kısa bir script yazarak Supabase Admin API ile `test_musteri@elysonsweets.de` (şifre: `password123`) kullanıcısını oluştur ve `firmalar` tablosunda 'Müşteri' statüsünde bir firmaya bağla. Bu scripti çalıştır.
+  - [ ] Adım 7: E2E Testlerinin Dev Ortamında Koşulması. Terminalde `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştırarak (mevcut `yarn dev` sunucusunu hedef alarak) yeni Drawer yapısının ve sipariş akışının mobilde ve masaüstünde kusursuz çalıştığını doğrula.
+  - [ ] Adım 8: Hata Çözümü. Testler başarısız olursa, özellikle mobil görünümdeki tıklanabilirlik (pointer-events, z-index) ve scroll kilitlenmesi sorunlarını çözerek testleri tekrar koş.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
+  - UX STANDARDI: Sepet kesinlikle sayfanın altında statik olarak kalmamalıdır. Modern B2B e-ticaret standartlarına uygun olarak her zaman erişilebilir bir Drawer (Çekmece) veya Modal olmalıdır.
+  - MOBİL UYUM: Drawer mobilde (`w-full`) tam ekran, masaüstünde (`md:w-96` veya `md:w-[400px]`) sağda bir panel olmalıdır.
+  - TEST ORTAMI: Testleri hızlandırmak için şu an `yarn dev` kullan. Ancak tüm testler yeşil yandıktan sonra, canlıya almadan önce mutlaka production build (`npm run build`) ile son bir kontrol yapılacaktır.
+  - KOD SİLME: `KatalogClient.tsx` içindeki eski sepet kodlarını yorum satırına alma, tamamen sil. Temiz kod prensibine uy.
+</file>
+
+<file path="musteri_portal3.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT):
+Hedef: Müşteri giriş (Login) ekranına "Şifreyi Göster/Gizle" (Eye Icon) özelliğinin eklenmesi ve E2E testlerindeki performans/zaman aşımı (timeout) sorunlarının çözülerek test sürecinin production (canlı) build üzerinde tamamlanması.
+Mevcut Durum: 
+1. Müşteriler şifre girerken yazdıklarını göremiyor, bu da UX açısından hatalı girişlere sebep oluyor.
+2. IDE, `yarn dev` ve `npm run build` komutlarını aynı anda çalıştırdığı için CPU/RAM darboğazı yaşanmış ve Playwright testleri timeout'a düşmüş.
+Kapsam: Login formundaki şifre input'una `lucide-react` ikonları (`Eye`, `EyeOff`) ile toggle özelliği eklenecek. Ardından sistem kaynaklarını tüketmemek adına işlemler sıraya konacak: Önce build tamamlanacak, sonra `npm run start` ile production sunucusu ayağa kaldırılacak ve E2E testleri bu stabil sunucu üzerinde koşulacak.
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
+1. UI/UX Geliştirmesi: Login form bileşeninde (örn. `LoginForm.tsx` veya `app/[locale]/(public)/login/page.tsx`) `useState` kullanılarak şifre görünürlüğü kontrol edilecek.
+2. Performans ve Test Stratejisi: E2E testleri geliştirme (dev) sunucusunun hantallığından kurtarılıp, optimize edilmiş production build üzerinde çalıştırılacak. Eşzamanlı ağır işlemler (build + test) KESİNLİKLE yapılmayacak.
+3. Test Kapsamı Genişletmesi: Playwright testine, şifre göz ikonuna tıklanıp input tipinin `password`'den `text`'e dönüştüğünü doğrulayan küçük bir assertion eklenecek.
+
+- TEST SENARYOLARI (TEST CASES):
+  * Happy Path (Sorunsuz akış):
+    - Kullanıcı login sayfasına gelir, şifresini yazar.
+    - Şifre alanının sağındaki "Göz" ikonuna tıklar.
+    - Input `type="password"` niteliği `type="text"` olarak değişir ve şifre görünür olur. İkon `EyeOff` (üstü çizili göz) olarak değişir.
+    - Tekrar tıklandığında şifre gizlenir.
+    - Login işlemi başarıyla gerçekleşir, katalogdan ürün sepete eklenir, Drawer (Çekmece) açılır ve sipariş tamamlanır.
+  * Negative Path (Hatalı girişler, yetkisiz erişimler):
+    - Göz ikonuna tıklanması formu KESİNLİKLE submit etmemelidir (Buton `type="button"` olmalıdır).
+  * Edge Cases (Sınır durumlar):
+    - Şifre göster/gizle butonu klavye ile erişilebilir (Tab ile odaklanılabilir) olmalıdır.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
+  - [ ] Adım 1: Login Bileşeninin Tespiti ve Güncellenmesi. Projedeki müşteri giriş formunu bul (muhtemelen `src/app/[locale]/(public)/login/page.tsx` veya `src/components/auth/...`). 
+  - [ ] Adım 2: Şifre Göster/Gizle Mantığının Eklenmesi. İlgili bileşene `const [showPassword, setShowPassword] = useState(false)` ekle. Şifre input'unu kapsayan bir `relative` div oluştur. Input'un `type` özelliğini `showPassword ? 'text' : 'password'` yap. Input'un sağına `absolute right-3 top-1/2 -translate-y-1/2` class'ları ile bir `<button type="button" onClick={() => setShowPassword(!showPassword)}>` ekle. İçerisinde duruma göre `Eye` veya `EyeOff` ikonlarını (lucide-react) göster.
+  - [ ] Adım 3: Playwright Testinin Güncellenmesi. `tests/e2e/portal/customer-journey.spec.ts` dosyasını aç. Login adımına şu kontrolü ekle: Şifreyi yazdıktan sonra göz ikonuna tıkla, input'un görünür metin içerdiğini doğrula, tekrar tıkla.
+  - [ ] Adım 4: Build İşleminin Beklenmesi ve Hata Kontrolü. Arka planda devam eden `npm run build` işleminin bitmesini bekle. Eğer TypeScript veya ESLint hatası verirse, ÖNCE BU HATALARI ÇÖZ ve tekrar build al.
+  - [ ] Adım 5: Production Sunucusunun Başlatılması. Build başarıyla bittikten sonra, terminalde `npm run start` komutunu çalıştırarak projeyi canlı ortam simülasyonunda (genelde port 3000) ayağa kaldır.
+  - [ ] Adım 6: E2E Testlerinin Koşulması. Sunucu hazır olduğunda, YENİ BİR TERMİNAL sekmesinde `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştır. (Timeout hatalarını önlemek için build ve test aynı anda çalışmamış olacak).
+  - [ ] Adım 7: Sonuç Raporlaması. Testler başarıyla geçerse, sepet çekmecesinin ve şifre göster/gizle butonunun production ortamında kusursuz çalıştığını onayla.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
+  - ERİŞİLEBİLİRLİK: Şifre göster/gizle butonuna mutlaka `aria-label="Şifreyi göster/gizle"` ekle.
+  - FORM GÜVENLİĞİ: Göz ikonunu saran buton KESİNLİKLE `type="button"` olmalıdır. Aksi takdirde varsayılan olarak `type="submit"` davranışı sergiler ve formu yanlışlıkla gönderir.
+  - KAYNAK YÖNETİMİ: `build` işlemi ile `playwright test` işlemini KESİNLİKLE aynı anda çalıştırma. Vercel/Next.js build işlemi çok fazla RAM/CPU tüketir ve testlerin timeout'a düşmesine sebep olur. Sıralı işlem yap.
+</file>
+
+<file path="musteri_portal4.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT):
+Hedef: B2B Müşteri Portalı'nda tespit edilen 4 kritik mantık ve UX hatasının giderilmesi.
+Mevcut Hatalar:
+1. Dil Varsayılanı: Yeni müşteriler için varsayılan dilin kesin olarak Almanca (DE) olmaması.
+2. Sepet Kalıcılığı (Persistence): Sayfa yenilendiğinde (F5) sepetteki ürünlerin kaybolması (State'in sıfırlanması).
+3. Rutin Siparişler Mantığı: Hiç siparişi olmayan yeni müşterilere "Sık Aldığınız Ürünler" listesinin (muhtemelen dummy data veya hatalı sorgu ile) gösterilmesi.
+4. Sepet Çekmecesi (Cart Drawer) Eksiklikleri: Yeni yapılan yandan açılır sepetin, eski sepetin sahip olduğu B2B hesaplamalarını (Koli/Adet/Palet fiyat kademeleri, KDV, Kargo hesaplaması ve Checkout butonu) içermemesi. Sadece basit bir liste olarak yapılmış olması.
+Kapsam: `PortalContext.tsx` içine `localStorage` entegrasyonu, `CartDrawer.tsx` içine eski kapsamlı sepet mantığının taşınması, "Sık Aldığınız Ürünler" bileşenine veri kontrolü eklenmesi ve profil oluşturma/middleware aşamasında 'de' dilinin zorunlu kılınması.
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
+1. State Persistence: `PortalContext.tsx` içinde sepet verisi `localStorage`'a yazılacak ve sayfa yüklendiğinde (hydration uyarılarına dikkat edilerek `useEffect` içinde) geri okunacak.
+2. Component Refactoring: Eski `KatalogClient.tsx` altındaki detaylı sepet (KDV, Kargo, Toplam Brüt/Net, Siparişi Tamamla butonu) kodları birebir `CartDrawer.tsx` içine entegre edilecek.
+3. Conditional Rendering: "Sık Aldığınız Ürünler" (Frequent Products) sorgusu, kullanıcının geçmiş sipariş sayısını kontrol edecek. Sipariş yoksa bu bölüm gizlenecek.
+4. E2E Test Güncellemesi: Playwright testine "Sayfayı yenile, sepetin hala dolu olduğunu doğrula" adımı eklenecek.
+
+- TEST SENARYOLARI (TEST CASES):
+  * Happy Path (Sorunsuz akış):
+    - Müşteri sepete 2 koli ürün ekler. Sayfayı yeniler (F5). Sepet ikonundaki sayı ve çekmece içindeki ürünler kaybolmaz.
+    - Sepet çekmecesi açıldığında; ürünün koli fiyatı, KDV (%7), Kargo ücreti ve Genel Toplam (Brüt) kuruşu kuruşuna doğru hesaplanmış olarak görünür. "Siparişi Tamamla" butonu aktiftir.
+    - Yeni kayıt olmuş bir müşteri portala girdiğinde "Sık Aldığınız Ürünler" bölümünü görmez.
+    - Sisteme ilk kez giren kullanıcının arayüzü otomatik olarak Almanca (de) başlar.
+  * Negative Path (Hatalı girişler, yetkisiz erişimler):
+    - Sepetteki ürün miktarı 0'a düşürüldüğünde ürün sepetten silinir ve `localStorage` güncellenir.
+  * Edge Cases (Sınır durumlar):
+    - Next.js Hydration Mismatch: Sunucu (SSR) tarafında `localStorage` olmadığı için, sepetin ilk render'da boş gelip client-side'da dolması sırasında UI titremesi (flicker) veya React hydration hatası olmaması için `isMounted` state'i kullanılmalıdır.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
+  - [ ] Adım 1: Sepet Kalıcılığı (LocalStorage). `src/contexts/PortalContext.tsx` dosyasını aç. `isMounted` adında bir state ekle (`false` ile başlasın, `useEffect` içinde `true` olsun). `warenkorb` state'ini başlatırken veya bir `useEffect` içinde `localStorage.getItem('elyson_b2b_cart')` üzerinden veriyi oku. `warenkorb` her değiştiğinde `localStorage.setItem` ile kaydet. Hydration hatasını önlemek için `isMounted` false ise sepet ikonunda 0 göster.
+  - [ ] Adım 2: Kapsamlı Sepet Mantığının Drawer'a Taşınması. `src/components/portal/siparisler/CartDrawer.tsx` dosyasını aç. Eski sepetin sahip olduğu `hesaplaSepetSatiri` (pricingUtils.ts) ve `calculateShipping` (shippingUtils.ts) fonksiyonlarını import et. Çekmece içinde sadece ürün adını değil; Koli/Adet seçimi, Birim Fiyat, Ara Toplam (Net), KDV (%7), Kargo Ücreti ve Genel Toplam (Brüt) değerlerini gösteren tablo/liste yapısını kur. Alt kısma orijinal "Siparişi Tamamla / Ödeme Adımına Geç" butonunu ve fonksiyonunu ekle.
+  - [ ] Adım 3: Rutin Siparişler Mantığının Düzeltilmesi. `src/app/[locale]/portal/katalog/KatalogClient.tsx` veya `RecentOrders.tsx` (Sık Aldığınız Ürünler nerede render ediliyorsa) dosyasını aç. Bu listeyi besleyen veriyi kontrol et. Eğer kullanıcının geçmiş siparişi yoksa (veya dönen liste boşsa), bu bölümü `return null` ile tamamen gizle. Dummy data kullanımını kaldır.
+  - [ ] Adım 4: Varsayılan Dilin Almanca (DE) Yapılması. `src/middleware.ts` ve profil oluşturma mantığını (örn. `src/app/actions/partner-actions.ts` veya Supabase trigger'ı) kontrol et. Yeni bir profil oluşturulduğunda `tercih_edilen_dil` alanının kesinlikle `'de'` olarak kaydedildiğinden emin ol.
+  - [ ] Adım 5: Playwright Testinin Güncellenmesi. `tests/e2e/portal/customer-journey.spec.ts` dosyasını aç. Sepete ürün ekledikten sonra `await page.reload()` komutu ile sayfayı yenile. Yenilemeden sonra sepet ikonuna tıklayıp ürünün hala orada olduğunu ve KDV/Kargo hesaplamalarının göründüğünü `expect` ile doğrula.
+  - [ ] Adım 6: Testlerin Koşulması. Terminalde `npm run build` al. Başarılı olursa `npm run start` ile sunucuyu başlat ve `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştırarak tüm hataların giderildiğini doğrula.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
+  - HYDRATION UYARISI: Next.js'de `localStorage` kullanırken `Text content did not match. Server: "0" Client: "1"` hatası almamak için sepet sayısını ve içeriğini sadece bileşen mount olduktan (`useEffect` çalıştıktan) sonra render et.
+  - B2B FİYATLANDIRMA: `CartDrawer.tsx` içindeki hesaplamalar KESİNLİKLE `pricingUtils.ts` ve `shippingUtils.ts` üzerinden yapılmalıdır. Manuel çarpma/bölme işlemi yapma.
+  - DİL ZORUNLULUĞU: Sistemin ana dili Almancadır. Fallback veya tanımsız durumlarda her zaman `de` kullanılmalıdır.
+</file>
+
+<file path="musteri_portal5.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT):
+Hedef: B2B Müşteri Portalı'nda "Siparişi Tamamla" (Checkout) akışının uçtan uca tamamlanması ve "Bildirim aboneliği sağlanamadı" (Web Push Subscription) hatasının giderilmesi.
+Mevcut Hatalar:
+1. Push Bildirim Hatası: Kullanıcı bildirim izni verdiğinde sistem çökmekte veya "Abonelik sağlanamadı" hatası fırlatmaktadır. Bunun sebebi büyük ihtimalle `.env.local` dosyasında `NEXT_PUBLIC_VAPID_PUBLIC_KEY` eksikliği, Service Worker'ın hazır olmaması veya `/api/push/subscribe` endpoint'indeki bir 500/Auth hatasıdır.
+2. Checkout Akışı Eksikliği: Sepet çekmecesi (Cart Drawer) yapıldı ancak "Siparişi Tamamla" butonuna basıldığında siparişin veritabanına yazılması, sepetin temizlenmesi (`clearWarenkorb`), çekmecenin kapanması ve kullanıcının "Siparişlerim" sayfasına yönlendirilmesi adımlarının tam olarak test edilip onaylanması gerekiyor.
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
+1. Hata Yakalama (Graceful Degradation): Push bildirim aboneliği kritik bir işlev değildir. Eğer VAPID key eksikse veya tarayıcı desteklemiyorsa, sistem hata fırlatıp kullanıcı deneyimini bozmamalı, sessizce (console.warn ile) geçmelidir.
+2. Uçtan Uca (E2E) Sipariş Testi: Playwright ile sepetteki ürünün siparişe dönüştürülmesi, LocalStorage'ın sıfırlanması ve `/portal/siparisler` sayfasında yeni siparişin listelenmesi test edilecektir.
+3. API ve Client Refactoring: Push API route'u ve Client bileşeni (PushNotificationManager) try-catch blokları ile zırhlanacaktır.
+
+- TEST SENARYOLARI (TEST CASES):
+  * Happy Path (Sorunsuz akış):
+    - Kullanıcı "Siparişi Tamamla" butonuna basar.
+    - Sistem (Server Action veya API) siparişi `siparisler` ve `siparis_detay` tablolarına kaydeder.
+    - Başarı mesajı (toast) gösterilir.
+    - `clearWarenkorb()` çalışır, sepet ikonu "0" olur.
+    - Çekmece kapanır ve kullanıcı `/portal/siparisler` sayfasına yönlendirilir (`router.push`).
+    - Siparişlerim sayfasında en üstte yeni sipariş görünür.
+  * Negative Path (Hatalı girişler, yetkisiz erişimler):
+    - Push bildirim izni verilse bile `.env` dosyasında VAPID key yoksa, ekranda kırmızı hata (toast.error) ÇIKMAMALI, işlem sessizce iptal edilmelidir.
+    - Sepet boşken "Siparişi Tamamla" butonu tıklanamaz (disabled) olmalıdır.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
+  - [ ] Adım 1: Push Bildirim Hatasının Giderilmesi (Client). `src/components/portal/PushNotificationManager.tsx` (veya aboneliği tetikleyen bileşen) dosyasını aç. `pushManager.subscribe` çağrısını ve API'ye yapılan `fetch` isteğini incele. Eğer `process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY` yoksa, fonksiyonu `return` ile sessizce sonlandır (Kullanıcıya hata gösterme). Try-catch bloğundaki `toast.error` mesajını kaldır veya sadece geliştirme ortamında `console.warn` olarak bırak.
+  - [ ] Adım 2: Push Bildirim Hatasının Giderilmesi (Server). `src/app/api/push/subscribe/route.ts` dosyasını kontrol et. Supabase Auth üzerinden `user.id`'yi güvenli şekilde aldığından ve `push_subscriptions` tablosuna doğru formatta insert yaptığından emin ol. Hata durumunda 500 dönse bile uygulamanın çökmemesini sağla.
+  - [ ] Adım 3: Checkout (Sipariş Tamamlama) Mantığının Entegrasyonu. `src/components/portal/siparisler/CartDrawer.tsx` dosyasını aç. "Siparişi Tamamla" butonunun `onClick` eventine bir fonksiyon bağla. Bu fonksiyon:
+        1. Sepetteki ürünleri alıp ilgili Server Action'a (örn: `createPortalOrderAction`) göndersin.
+        2. Başarılı olursa: `clearWarenkorb()` çağrısı yapsın.
+        3. `setIsCartOpen(false)` ile çekmeceyi kapatsın.
+        4. `toast.success('Siparişiniz başarıyla alındı')` göstersin.
+        5. `router.push('/[locale]/portal/siparisler')` ile yönlendirme yapsın.
+  - [ ] Adım 4: Playwright Testinin Genişletilmesi. `tests/e2e/portal/customer-journey.spec.ts` dosyasını aç. Testin sonuna şu adımları ekle:
+        - Çekmece içindeki "Siparişi Tamamla" butonuna tıkla.
+        - Başarı mesajının (toast) çıkmasını bekle.
+        - URL'in `/portal/siparisler` olarak değiştiğini doğrula (`await page.waitForURL('**/portal/siparisler')`).
+        - Header'daki sepet ikonunun "0" olduğunu doğrula.
+        - Siparişlerim tablosunda yeni bir satırın oluştuğunu doğrula.
+  - [ ] Adım 5: Testlerin Koşulması. Terminalde `npm run build` al. Başarılı olursa `npm run start` ile sunucuyu başlat ve `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştırarak tüm sipariş akışının ve push bildirim sessizleştirilmesinin kusursuz çalıştığını kanıtla.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
+  - GRACEFUL DEGRADATION: Push bildirimleri "Nice-to-have" (olsa iyi olur) bir özelliktir. Çalışmaması durumunda ana iş akışını (sipariş verme, gezinme) KESİNLİKLE bloklamamalı veya kullanıcıyı rahatsız edici hata mesajları göstermemelidir.
+  - VERİ BÜTÜNLÜĞÜ: Sipariş oluşturulurken KDV (%7), Kargo ve Net/Brüt toplamlar Server Action tarafında da (güvenlik için) tekrar hesaplanmalı veya client'tan gelen veriler Supabase'e doğru formatta yazılmalıdır.
+  - YÖNLENDİRME: Sipariş verildikten sonra kullanıcının boş bir sepet ekranında kalması UX hatasıdır. Mutlaka sipariş takip sayfasına (`/portal/siparisler`) yönlendirilmelidir.
+</file>
+
+<file path="musteri_portal6.md">
+
+</file>
+
+<file path="musteri_portal7.md">
+- BAĞLAM VE TEST KAPSAMI (CONTEXT):
+Hedef: B2B Müşteri Portalı'nda yanlış anlaşılan "Yandan Açılan Sepet (Drawer)" mimarisinin tamamen iptal edilip, orijinal tasarıma (sayfanın en altındaki kapsamlı ödeme/sepet alanına) geri dönülmesi ve sepet ikonunun bu alana kaydırma (scroll) işlevi görmesi.
+Mevcut Durum: IDE, sepeti yandan açılan bir çekmece (Drawer) yaptı ve eski kodu sildi. Ancak müşteri, sayfanın en altındaki orijinal, ödeme kanallarını da içeren kapsamlı sepet aracını kullanmak istiyor. Çekmece (Drawer) UX açısından kafa karışıklığı yarattı.
+Kapsam: 
+1. `CartDrawer.tsx` bileşeninin ve `isCartOpen` state'inin tamamen silinmesi.
+2. `KatalogClient.tsx` (veya orijinal sepetin bulunduğu sayfa) dosyasının en altındaki orijinal sepet/ödeme alanının Git geçmişinden (veya yeniden yazılarak) geri getirilmesi.
+3. Header'daki sepet ikonuna tıklandığında sayfanın en altındaki bu sepet alanına yumuşak bir kaydırma (smooth scroll) yapılması.
+4. LocalStorage kalıcılığı ve Push bildirim sessizleştirme (Graceful Degradation) özelliklerinin KORUNMASI.
+5. E2E testlerinin bu yeni "Scroll to bottom" akışına göre güncellenmesi.
+
+- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
+1. Kod Geri Alma (Revert & Refactor): Drawer mimarisi tamamen kaldırılacak. Orijinal sepet UI'ı sayfa altına geri eklenecek ve bir `id` (örn: `cart-checkout-section`) verilecek.
+2. DOM Manipülasyonu: Header'daki sepet butonu `document.getElementById('cart-checkout-section')?.scrollIntoView({ behavior: 'smooth' })` mantığıyla çalışacak.
+3. E2E Test Güncellemesi: Playwright testi, sepet ikonuna tıkladıktan sonra sayfanın altına inildiğini ve orijinal sipariş tamamlama butonuna basıldığını doğrulayacak.
+
+- TEST SENARYOLARI (TEST CASES):
+  * Happy Path (Sorunsuz akış):
+    - Kullanıcı katalogdan ürünleri sepete ekler.
+    - Header'daki sepet ikonuna tıklar.
+    - Sayfa otomatik olarak en alta, ödeme ve sepet detaylarının olduğu bölüme kayar (smooth scroll).
+    - Kullanıcı bu alanda KDV, Kargo ve ödeme seçeneklerini görür, "Siparişi Tamamla" butonuna basar.
+    - Sipariş başarıyla oluşturulur, sepet (LocalStorage dahil) temizlenir ve `/portal/siparisler` sayfasına yönlendirilir.
+  * Negative Path (Hatalı girişler, yetkisiz erişimler):
+    - Sepet boşken sayfa altındaki sipariş tamamlama butonu inaktif (disabled) olmalıdır.
+  * Edge Cases (Sınır durumlar):
+    - Mobil cihazda (375px) sepet ikonuna tıklandığında scroll işleminin doğru hesaplanması ve hedefin tam ekranda görünür olması.
+
+- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
+  - [ ] Adım 1: Drawer Mimarisinin Silinmesi. `src/components/portal/siparisler/CartDrawer.tsx` dosyasını tamamen SİL. `src/contexts/PortalContext.tsx` içindeki `isCartOpen` ve `setIsCartOpen` state'lerini ve tiplerini SİL (Ancak `localStorage` kalıcılığını sağlayan `isMounted` ve `useEffect` kodlarını KESİNLİKLE KORU). `PortalContainer.tsx` içindeki `CartDrawer` importunu ve bileşenini kaldır.
+  - [ ] Adım 2: Orijinal Sepet Alanının Geri Getirilmesi. `src/app/[locale]/portal/katalog/KatalogClient.tsx` dosyasını aç. Sayfanın en altına, daha önce sildiğin kapsamlı sepet ve ödeme alanını (KDV, Kargo, Brüt hesaplamaları ve Siparişi Tamamla butonu dahil) geri ekle. Bu alanı kapsayan en dış `div` elemanına `id="cart-checkout-section"` özelliğini ekle.
+  - [ ] Adım 3: Header İkonunun Scroll İşlevine Çevrilmesi. `src/components/portal/PortalHeader.tsx` (veya ilgili header bileşeni) dosyasını aç. Sepet ikonunu saran butonun `onClick` eventini şu şekilde değiştir: `document.getElementById('cart-checkout-section')?.scrollIntoView({ behavior: 'smooth' })`.
+  - [ ] Adım 4: Playwright Testinin Güncellenmesi. `tests/e2e/portal/customer-journey.spec.ts` dosyasını aç. Drawer açılmasını bekleyen kodları sil. Yerine: Sepet ikonuna tıkla, sayfanın altına kaymasını bekle, `id="cart-checkout-section"` içindeki "Siparişi Tamamla" butonuna tıkla ve siparişin başarıyla oluşup yönlendirildiğini doğrula.
+  - [ ] Adım 5: Testlerin Koşulması. Terminalde `npm run build` al. Başarılı olursa `npm run start` ile sunucuyu başlat ve `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştırarak yeni "Scroll" akışının kusursuz çalıştığını kanıtla.
+
+- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
+  - YENİ SEPET YAPMA: Müşterinin talebi çok nettir. Ayrı bir sepet (Drawer, Modal veya ayrı sayfa) İSTENMİYOR. Sadece sayfanın altındaki mevcut alan kullanılacak.
+  - KOD KORUMASI: Önceki adımlarda başarıyla çözülen "Push Bildirimlerinin Sessizleştirilmesi (Graceful Degradation)" ve "LocalStorage Sepet Kalıcılığı" kodlarına KESİNLİKLE DOKUNMA, onlar olduğu gibi kalmalı.
+  - UX STANDARDI: Scroll işlemi aniden (jump) olmamalı, `behavior: 'smooth'` kullanılarak kullanıcının sayfanın altına indiğini hissetmesi sağlanmalıdır.
+</file>
+
+<file path="musteri_portal8.md">
+
 </file>
 
 <file path="PWA_bildirimler.md">
@@ -16050,243 +16328,6 @@ Projede yüklü olan 26 beceri (Skills) şu B2B fazlarında zorunlu rehber olara
 > ⚠️ **KATI KURAL:** Gelecekteki herhangi bir geliştirmede veya kod revizyonunda, salt görsel güzelleştirme uğruna yukarıdaki 4 sütundan (B2B Mantığı, Stok Güvenliği, i18n Bütünlüğü, CWV/Performans) taviz verilmesi KESİNLİKLE YASAKTIR.
 </file>
 
-<file path="tailwind.config.ts">
-// tailwind.config.ts
-
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: '#2B2B2B',       // Ana Renk (Antrasit)
-        secondary: '#FAF9F6',    // İkincil Renk (Krem Arka Plan)
-        accent: '#C69F6B',        // Vurgu Rengi (Altın)
-        'text-main': '#3D3D3D',     // Ana Metin Rengi
-        'bg-subtle': '#EAE8E1',     // Hafif Arka Plan
-      },
-      fontFamily: {
-        sans: ['var(--font-lato)', 'sans-serif'],
-        serif: ['var(--font-playfair)', 'serif'],
-      },
-    },
-  },
-  plugins: [
-    require('@tailwindcss/typography'),
-  ],
-}
-export default config
-</file>
-
-<file path="src/contexts/PortalContext.tsx">
-'use client';
-
-import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react';
-import { Tables } from '@/lib/supabase/database.types';
-import { toast } from 'sonner'; // Für Feedback
-
-// --- Typdefinitionen ---
-export type Profile = Tables<'profiller'>;
-export type Firma = Tables<'firmalar'> & { firmalar_finansal?: Tables<'firmalar_finansal'>[] | null };
-export type Bildirim = Tables<'bildirimler'>;
-
-export type ProduktImWarenkorb = Tables<'urunler'> & {
-    partnerPreis: number | null;
-    ana_resim_url?: string | null;
-    galeri_resim_urls?: any | null;
-};
-export type SepetUrunu = {
-    produkt: ProduktImWarenkorb;
-    menge: number;       // koli modunda: koli sayısı, adet modunda: adet sayısı
-    birim: 'koli' | 'adet' | 'palet';  // varsayılan: 'koli'
-};
-
-// --- Context Typ erweitern ---
-interface PortalContextType {
-    // Bestehende Daten
-    profile: Profile;
-    firma: Firma;
-    initialNotifications: Bildirim[];
-    unreadNotificationCount: number;
-
-    // Warenkorb-Status
-    warenkorb: SepetUrunu[];
-
-    // Warenkorb-Funktionen
-    addToWarenkorb: (produkt: ProduktImWarenkorb, menge?: number, birim?: 'koli' | 'adet' | 'palet') => void;
-    removeFromWarenkorb: (produktId: string) => void;
-    updateWarenkorbMenge: (produktId: string, neueMenge: number) => void;
-    updateWarenkorbBirim: (produktId: string, birim: 'koli' | 'adet' | 'palet') => void;
-    clearWarenkorb: () => void;
-    getGesamtMengeImWarenkorb: () => number;
-    // ++ NEUE FUNKTION ++
-    setInitialWarenkorb: (items: SepetUrunu[]) => void;
-}
-
-const PortalContext = createContext<PortalContextType | null>(null);
-
-// --- Provider Implementierung ---
-export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb'> }) {
-    const [warenkorb, setWarenkorb] = useState<SepetUrunu[]>([]);
-
-    // --- PWA: App Badge API (Uygulama İkonunda Okunmamış Bildirim Sayısı) ---
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-
-        const count = value.unreadNotificationCount ?? 0;
-
-        try {
-            if ('setAppBadge' in navigator && typeof (navigator as any).setAppBadge === 'function') {
-                if (count > 0) {
-                    (navigator as any).setAppBadge(count).catch((err: any) => {
-                        console.debug('[AppBadge] setAppBadge çağrısı sessizce yoksayıldı:', err);
-                    });
-                } else if ('clearAppBadge' in navigator && typeof (navigator as any).clearAppBadge === 'function') {
-                    (navigator as any).clearAppBadge().catch((err: any) => {
-                        console.debug('[AppBadge] clearAppBadge çağrısı sessizce yoksayıldı:', err);
-                    });
-                }
-            }
-        } catch (error) {
-            console.debug('[AppBadge] Desteklenmiyor veya hata:', error);
-        }
-    }, [value.unreadNotificationCount]);
-
-    // addToWarenkorb (Logik für bestehende Artikel bleibt additiv)
-     const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1, birim: 'koli' | 'adet' | 'palet' = 'koli') => {
-         setWarenkorb(prevWarenkorb => {
-             const existingItemIndex = prevWarenkorb.findIndex(item => item.produkt.id === produkt.id);
-             let angeforderteMenge = Math.max(1, menge); // Menge, die hinzugefügt werden soll
-
-             const isPreOrder = (produkt.stok_miktari ?? 0) <= 0;
-
-             // Stokprüfung für die angeforderte Menge (nur bei Artikeln auf Lager)
-             if (!isPreOrder && angeforderteMenge > (produkt.stok_miktari ?? 0)) {
-                 toast.warning(`Stok yetersiz! İstenen miktar stoğu aşıyor (Maks: ${produkt.stok_miktari}). Miktar ${produkt.stok_miktari} olarak ayarlandı.`);
-                 angeforderteMenge = produkt.stok_miktari ?? 0;
-             }
-             if (!isPreOrder && angeforderteMenge <= 0) return prevWarenkorb;
-
-             if (existingItemIndex > -1) {
-                 // Produkt ist bereits im Warenkorb, Menge erhöhen
-                 const vorhandeneMenge = prevWarenkorb[existingItemIndex].menge;
-                 let neueGesamtMenge = vorhandeneMenge + angeforderteMenge;
-
-                 // Erneute Stokprüfung für die Gesamtmenge (nur bei lagernden Artikeln)
-                 if (!isPreOrder && neueGesamtMenge > (produkt.stok_miktari ?? 0)) {
-                     toast.warning(`Stok yetersiz! Sepetteki ve eklenen miktar stoğu aşıyor (Maks: ${produkt.stok_miktari}). Sepetteki miktar ${produkt.stok_miktari} olarak ayarlandı.`);
-                     neueGesamtMenge = produkt.stok_miktari ?? 0;
-                 }
-
-                 // Warenkorb aktualisieren
-                 const updatedWarenkorb = [...prevWarenkorb];
-                 updatedWarenkorb[existingItemIndex] = { ...updatedWarenkorb[existingItemIndex], menge: neueGesamtMenge, birim };
-                 return updatedWarenkorb;
-             } else {
-                 // Produkt ist neu, hinzufügen
-                 return [...prevWarenkorb, { produkt, menge: angeforderteMenge, birim }];
-             }
-         });
-     }, []);
-
-    // Funktion zum Entfernen aus dem Warenkorb
-    const removeFromWarenkorb = useCallback((produktId: string) => {
-        setWarenkorb(prevWarenkorb => prevWarenkorb.filter(item => item.produkt.id !== produktId));
-        toast.info("Artikel aus dem Warenkorb entfernt."); // Feedback angepasst
-    }, []);
-
-    // Funktion zum Aktualisieren der Menge im Warenkorb
-    const updateWarenkorbMenge = useCallback((produktId: string, neueMenge: number) => {
-        setWarenkorb(prevWarenkorb => {
-            const itemIndex = prevWarenkorb.findIndex(item => item.produkt.id === produktId);
-            if (itemIndex === -1) return prevWarenkorb;
-
-            const produkt = prevWarenkorb[itemIndex].produkt;
-            let finaleMenge = Math.max(0, neueMenge); // Menge darf nicht negativ sein
-
-            if (finaleMenge > produkt.stok_miktari) {
-                toast.warning(`Nicht genügend Lagerbestand! Max. ${produkt.stok_miktari} verfügbar.`); // Übersetzt
-                finaleMenge = produkt.stok_miktari;
-            }
-
-            if (finaleMenge === 0) {
-                // Wenn Menge 0 ist, Produkt entfernen
-                 toast.info("Artikel aus dem Warenkorb entfernt."); // Feedback hinzugefügt
-                return prevWarenkorb.filter(item => item.produkt.id !== produktId);
-            } else {
-                // Menge aktualisieren
-                const updatedWarenkorb = [...prevWarenkorb];
-                updatedWarenkorb[itemIndex] = { ...updatedWarenkorb[itemIndex], menge: finaleMenge };
-                return updatedWarenkorb;
-            }
-        });
-    }, []);
-
-    const updateWarenkorbBirim = useCallback((produktId: string, birim: 'koli' | 'adet' | 'palet') => {
-        setWarenkorb(prevWarenkorb =>
-            prevWarenkorb.map(item =>
-                item.produkt.id === produktId
-                    ? { ...item, birim, menge: 1 }
-                    : item
-            )
-        );
-    }, []);
-
-    // Funktion zum Leeren des Warenkorbs
-    const clearWarenkorb = useCallback(() => {
-        setWarenkorb([]);
-    }, []);
-
-    // Hilfsfunktion für Gesamtanzahl der Artikel
-     const getGesamtMengeImWarenkorb = useCallback(() => {
-         return warenkorb.reduce((total, item) => total + item.menge, 0);
-     }, [warenkorb]);
-
-     // ++ NEUE FUNKTION: Setzt den Warenkorb direkt ++
-     const setInitialWarenkorb = useCallback((items: SepetUrunu[]) => {
-         // Hier könnten zusätzliche Prüfungen erfolgen, falls nötig
-         setWarenkorb(items);
-         // Toast wird jetzt im useEffect der aufrufenden Komponente ausgelöst
-     }, []);
-
-    const contextValue: PortalContextType = {
-        ...value,
-        warenkorb,
-        addToWarenkorb,
-        removeFromWarenkorb,
-        updateWarenkorbMenge,
-        updateWarenkorbBirim,
-        clearWarenkorb,
-        getGesamtMengeImWarenkorb,
-        setInitialWarenkorb, // Neue Funktion hinzufügen
-    };
-
-    return (
-        <PortalContext.Provider value={contextValue}>
-            {children}
-        </PortalContext.Provider>
-    );
-}
-
-// --- Hook ---
-export function usePortal() {
-    const context = useContext(PortalContext);
-    if (!context) {
-        throw new Error('usePortal must be used within a PortalProvider');
-    }
-    return context;
-}
-
-export function useOptionalPortal() {
-    return useContext(PortalContext);
-}
-</file>
-
 <file path="src/lib/actions/recipe-actions.ts">
 'use server';
 
@@ -17354,6 +17395,40 @@ export const stripe = new Stripe(stripeSecretKey, {
 });
 </file>
 
+<file path="tailwind.config.ts">
+// tailwind.config.ts
+
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  darkMode: 'class',
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#2B2B2B',       // Ana Renk (Antrasit)
+        secondary: '#FAF9F6',    // İkincil Renk (Krem Arka Plan)
+        accent: '#C69F6B',        // Vurgu Rengi (Altın)
+        'text-main': '#3D3D3D',     // Ana Metin Rengi
+        'bg-subtle': '#EAE8E1',     // Hafif Arka Plan
+      },
+      fontFamily: {
+        sans: ['var(--font-lato)', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'serif'],
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
+}
+export default config
+</file>
+
 <file path="vitest.config.ts">
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
@@ -17726,6 +17801,232 @@ export async function runSalesAgent(req: AgentRequest): Promise<{ reply: string;
     reply: FALLBACK_RATE_LIMIT[locale] || FALLBACK_RATE_LIMIT.de,
     toolsUsed,
   };
+}
+</file>
+
+<file path="src/contexts/PortalContext.tsx">
+'use client';
+
+import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react';
+import { Tables } from '@/lib/supabase/database.types';
+import { toast } from 'sonner'; // Für Feedback
+
+// --- Typdefinitionen ---
+export type Profile = Tables<'profiller'>;
+export type Firma = Tables<'firmalar'> & { firmalar_finansal?: Tables<'firmalar_finansal'>[] | null };
+export type Bildirim = Tables<'bildirimler'>;
+
+export type ProduktImWarenkorb = Tables<'urunler'> & {
+    partnerPreis: number | null;
+    ana_resim_url?: string | null;
+    galeri_resim_urls?: any | null;
+};
+export type SepetUrunu = {
+    produkt: ProduktImWarenkorb;
+    menge: number;       // koli modunda: koli sayısı, adet modunda: adet sayısı
+    birim: 'koli' | 'adet' | 'palet';  // varsayılan: 'koli'
+};
+
+// --- Context Typ erweitern ---
+interface PortalContextType {
+    // Bestehende Daten
+    profile: Profile;
+    firma: Firma;
+    initialNotifications: Bildirim[];
+    unreadNotificationCount: number;
+
+    // Warenkorb-Status
+    warenkorb: SepetUrunu[];
+
+    // Warenkorb-Funktionen
+    addToWarenkorb: (produkt: ProduktImWarenkorb, menge?: number, birim?: 'koli' | 'adet' | 'palet') => void;
+    removeFromWarenkorb: (produktId: string) => void;
+    updateWarenkorbMenge: (produktId: string, neueMenge: number) => void;
+    updateWarenkorbBirim: (produktId: string, birim: 'koli' | 'adet' | 'palet') => void;
+    clearWarenkorb: () => void;
+    getGesamtMengeImWarenkorb: () => number;
+    // ++ NEUE FUNKTION ++
+    setInitialWarenkorb: (items: SepetUrunu[]) => void;
+}
+
+const PortalContext = createContext<PortalContextType | null>(null);
+
+// --- Provider Implementierung ---
+export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb'> }) {
+    const [warenkorb, setWarenkorb] = useState<SepetUrunu[]>([]);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Initialisiere Warenkorb aus localStorage beim Client-Mount
+    useEffect(() => {
+        setIsMounted(true);
+        try {
+            const savedCart = localStorage.getItem('elyson_b2b_cart');
+            if (savedCart) {
+                setWarenkorb(JSON.parse(savedCart));
+            }
+        } catch (e) {
+            console.error('Fehler beim Lesen des Warenkorbs aus localStorage:', e);
+        }
+    }, []);
+
+    // Speichere Warenkorb in localStorage bei jeder Änderung
+    useEffect(() => {
+        if (isMounted) {
+            localStorage.setItem('elyson_b2b_cart', JSON.stringify(warenkorb));
+        }
+    }, [warenkorb, isMounted]);
+
+    // --- PWA: App Badge API (Uygulama İkonunda Okunmamış Bildirim Sayısı) ---
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const count = value.unreadNotificationCount ?? 0;
+
+        try {
+            if ('setAppBadge' in navigator && typeof (navigator as any).setAppBadge === 'function') {
+                if (count > 0) {
+                    (navigator as any).setAppBadge(count).catch((err: any) => {
+                        console.debug('[AppBadge] setAppBadge çağrısı sessizce yoksayıldı:', err);
+                    });
+                } else if ('clearAppBadge' in navigator && typeof (navigator as any).clearAppBadge === 'function') {
+                    (navigator as any).clearAppBadge().catch((err: any) => {
+                        console.debug('[AppBadge] clearAppBadge çağrısı sessizce yoksayıldı:', err);
+                    });
+                }
+            }
+        } catch (error) {
+            console.debug('[AppBadge] Desteklenmiyor veya hata:', error);
+        }
+    }, [value.unreadNotificationCount]);
+
+    // addToWarenkorb (Logik für bestehende Artikel bleibt additiv)
+     const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1, birim: 'koli' | 'adet' | 'palet' = 'koli') => {
+         setWarenkorb(prevWarenkorb => {
+             const existingItemIndex = prevWarenkorb.findIndex(item => item.produkt.id === produkt.id);
+             let angeforderteMenge = Math.max(1, menge); // Menge, die hinzugefügt werden soll
+
+             const isPreOrder = (produkt.stok_miktari ?? 0) <= 0;
+
+             // Stokprüfung für die angeforderte Menge (nur bei Artikeln auf Lager)
+             if (!isPreOrder && angeforderteMenge > (produkt.stok_miktari ?? 0)) {
+                 toast.warning(`Stok yetersiz! İstenen miktar stoğu aşıyor (Maks: ${produkt.stok_miktari}). Miktar ${produkt.stok_miktari} olarak ayarlandı.`);
+                 angeforderteMenge = produkt.stok_miktari ?? 0;
+             }
+             if (!isPreOrder && angeforderteMenge <= 0) return prevWarenkorb;
+
+             if (existingItemIndex > -1) {
+                 // Produkt ist bereits im Warenkorb, Menge erhöhen
+                 const vorhandeneMenge = prevWarenkorb[existingItemIndex].menge;
+                 let neueGesamtMenge = vorhandeneMenge + angeforderteMenge;
+
+                 // Erneute Stokprüfung für die Gesamtmenge (nur bei lagernden Artikeln)
+                 if (!isPreOrder && neueGesamtMenge > (produkt.stok_miktari ?? 0)) {
+                     toast.warning(`Stok yetersiz! Sepetteki ve eklenen miktar stoğu aşıyor (Maks: ${produkt.stok_miktari}). Sepetteki miktar ${produkt.stok_miktari} olarak ayarlandı.`);
+                     neueGesamtMenge = produkt.stok_miktari ?? 0;
+                 }
+
+                 // Warenkorb aktualisieren
+                 const updatedWarenkorb = [...prevWarenkorb];
+                 updatedWarenkorb[existingItemIndex] = { ...updatedWarenkorb[existingItemIndex], menge: neueGesamtMenge, birim };
+                 return updatedWarenkorb;
+             } else {
+                 // Produkt ist neu, hinzufügen
+                 return [...prevWarenkorb, { produkt, menge: angeforderteMenge, birim }];
+             }
+         });
+     }, []);
+
+    // Funktion zum Entfernen aus dem Warenkorb
+    const removeFromWarenkorb = useCallback((produktId: string) => {
+        setWarenkorb(prevWarenkorb => prevWarenkorb.filter(item => item.produkt.id !== produktId));
+        toast.info("Artikel aus dem Warenkorb entfernt."); // Feedback angepasst
+    }, []);
+
+    // Funktion zum Aktualisieren der Menge im Warenkorb
+    const updateWarenkorbMenge = useCallback((produktId: string, neueMenge: number) => {
+        setWarenkorb(prevWarenkorb => {
+            const itemIndex = prevWarenkorb.findIndex(item => item.produkt.id === produktId);
+            if (itemIndex === -1) return prevWarenkorb;
+
+            const produkt = prevWarenkorb[itemIndex].produkt;
+            let finaleMenge = Math.max(0, neueMenge); // Menge darf nicht negativ sein
+
+            if (finaleMenge > produkt.stok_miktari) {
+                toast.warning(`Nicht genügend Lagerbestand! Max. ${produkt.stok_miktari} verfügbar.`); // Übersetzt
+                finaleMenge = produkt.stok_miktari;
+            }
+
+            if (finaleMenge === 0) {
+                // Wenn Menge 0 ist, Produkt entfernen
+                 toast.info("Artikel aus dem Warenkorb entfernt."); // Feedback hinzugefügt
+                return prevWarenkorb.filter(item => item.produkt.id !== produktId);
+            } else {
+                // Menge aktualisieren
+                const updatedWarenkorb = [...prevWarenkorb];
+                updatedWarenkorb[itemIndex] = { ...updatedWarenkorb[itemIndex], menge: finaleMenge };
+                return updatedWarenkorb;
+            }
+        });
+    }, []);
+
+    const updateWarenkorbBirim = useCallback((produktId: string, birim: 'koli' | 'adet' | 'palet') => {
+        setWarenkorb(prevWarenkorb =>
+            prevWarenkorb.map(item =>
+                item.produkt.id === produktId
+                    ? { ...item, birim, menge: 1 }
+                    : item
+            )
+        );
+    }, []);
+
+    // Funktion zum Leeren des Warenkorbs
+    const clearWarenkorb = useCallback(() => {
+        setWarenkorb([]);
+    }, []);
+
+    // Hilfsfunktion für Gesamtanzahl der Artikel
+     const getGesamtMengeImWarenkorb = useCallback(() => {
+         if (!isMounted) return 0; // Vermeide Hydration-Mismatch (Client/Server)
+         return warenkorb.reduce((total, item) => total + item.menge, 0);
+     }, [warenkorb, isMounted]);
+
+     // ++ NEUE FUNKTION: Setzt den Warenkorb direkt ++
+     const setInitialWarenkorb = useCallback((items: SepetUrunu[]) => {
+         // Hier könnten zusätzliche Prüfungen erfolgen, falls nötig
+         setWarenkorb(items);
+         // Toast wird jetzt im useEffect der aufrufenden Komponente ausgelöst
+     }, []);
+
+    const contextValue: PortalContextType = {
+        ...value,
+        warenkorb,
+        addToWarenkorb,
+        removeFromWarenkorb,
+        updateWarenkorbMenge,
+        updateWarenkorbBirim,
+        clearWarenkorb,
+        getGesamtMengeImWarenkorb,
+        setInitialWarenkorb, // Neue Funktion hinzufügen
+    };
+
+    return (
+        <PortalContext.Provider value={contextValue}>
+            {children}
+        </PortalContext.Provider>
+    );
+}
+
+// --- Hook ---
+export function usePortal() {
+    const context = useContext(PortalContext);
+    if (!context) {
+        throw new Error('usePortal must be used within a PortalProvider');
+    }
+    return context;
+}
+
+export function useOptionalPortal() {
+    return useContext(PortalContext);
 }
 </file>
 

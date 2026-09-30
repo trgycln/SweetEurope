@@ -1270,8 +1270,8 @@ export function KatalogClient({
                         </span>
                       )}
                     </div>
-                    <span className={`font-semibold ${cartShippingInfo.isFree ? 'text-emerald-600' : 'text-slate-800'}`}>
-                      {cartShippingInfo.isFree
+                    <span className={`font-semibold ${(cartShippingInfo as any).isFree ? 'text-emerald-600' : 'text-slate-800'}`}>
+                      {(cartShippingInfo as any).isFree
                         ? (locale === 'de' ? 'Kostenlos' : 'Ücretsiz')
                         : formatEuro(cartKargoTutarKdvDahil)}
                     </span>

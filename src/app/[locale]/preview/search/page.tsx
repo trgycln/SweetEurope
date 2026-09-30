@@ -19,7 +19,7 @@ type SearchPageProps = {
 
 // Typen für die Suchergebnisse
 type ProductResult = Pick<Tables<'urunler'>, 'id' | 'ad' | 'slug' | 'ana_resim_url' | 'aciklamalar' | 'kategori_id'>;
-type BlogResult = Pick<Tables<'blog_yazilari'>, 'id' | 'baslik' | 'slug' | 'one_cikan_gorsel_url' | 'meta_aciklama'>;
+type BlogResult = Pick<Tables<'blog_yazilari'>, 'id' | 'title' | 'slug' | 'image_url' | 'excerpt'>;
 
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
@@ -174,8 +174,8 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                                             <Link href={`/${locale}/blog/${post.slug}`} className="group flex items-center gap-4">
                                                  <div className="relative w-16 h-16 rounded-md overflow-hidden bg-white border flex-shrink-0">
                                                     <Image 
-                                                        src={post.one_cikan_gorsel_url || '/placeholder.png'} 
-                                                        alt={post.baslik}
+                                                        src={post.image_url || '/placeholder.png'} 
+                                                        alt={(post.title as any)?.[locale] || (post.title as any)?.de || ''}
                                                         fill
                                                         sizes="64px"
                                                         className="object-cover"
@@ -183,10 +183,10 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                                                 </div>
                                                 <div>
                                                     <h3 className="text-md font-semibold text-accent group-hover:underline">
-                                                        {post.baslik}
+                                                        {(post.title as any)?.[locale] || (post.title as any)?.de || ''}
                                                     </h3>
                                                     <p className="text-sm text-text-main/80 line-clamp-2">
-                                                        {post.meta_aciklama}
+                                                        {(post.excerpt as any)?.[locale] || (post.excerpt as any)?.de || ''}
                                                     </p>
                                                 </div>
                                             </Link>

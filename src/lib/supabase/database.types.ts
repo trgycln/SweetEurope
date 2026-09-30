@@ -673,60 +673,51 @@ export type Database = {
       }
       blog_yazilari: {
         Row: {
-          baslik: string
-          created_at: string
-          durum: Database["public"]["Enums"]["yazi_durumu"]
-          icerik: Json | null
           id: string
-          meta_aciklama: string
-          meta_baslik: string
-          one_cikan_gorsel_url: string | null
+          created_at: string
+          updated_at: string | null
           slug: string
-          yayinlanma_tarihi: string | null
-          yazar_id: string | null
+          title: Json
+          excerpt: Json
+          content: Json
+          meta_title: Json
+          meta_description: Json
+          image_url: string | null
+          author_name: string | null
+          published_at: string | null
+          is_published: boolean | null
         }
         Insert: {
-          baslik: string
-          created_at?: string
-          durum?: Database["public"]["Enums"]["yazi_durumu"]
-          icerik?: Json | null
           id?: string
-          meta_aciklama: string
-          meta_baslik: string
-          one_cikan_gorsel_url?: string | null
+          created_at?: string
+          updated_at?: string | null
           slug: string
-          yayinlanma_tarihi?: string | null
-          yazar_id?: string | null
+          title: Json
+          excerpt?: Json
+          content?: Json
+          meta_title?: Json
+          meta_description?: Json
+          image_url?: string | null
+          author_name?: string | null
+          published_at?: string | null
+          is_published?: boolean | null
         }
         Update: {
-          baslik?: string
-          created_at?: string
-          durum?: Database["public"]["Enums"]["yazi_durumu"]
-          icerik?: Json | null
           id?: string
-          meta_aciklama?: string
-          meta_baslik?: string
-          one_cikan_gorsel_url?: string | null
+          created_at?: string
+          updated_at?: string | null
           slug?: string
-          yayinlanma_tarihi?: string | null
-          yazar_id?: string | null
+          title?: Json
+          excerpt?: Json
+          content?: Json
+          meta_title?: Json
+          meta_description?: Json
+          image_url?: string | null
+          author_name?: string | null
+          published_at?: string | null
+          is_published?: boolean | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "blog_yazilari_yazar_id_fkey"
-            columns: ["yazar_id"]
-            isOneToOne: false
-            referencedRelation: "kullanici_segment_bilgileri"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_yazilari_yazar_id_fkey"
-            columns: ["yazar_id"]
-            isOneToOne: false
-            referencedRelation: "profiller"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       degerlendirme_oylari: {
         Row: {
@@ -1182,6 +1173,7 @@ export type Database = {
           iskonto_orani: number
           kategori: string | null
           kaynak: string | null
+          lexware_contact_id: string | null
           linkedin_url: string | null
           mahalle: string | null
           musteri_profil_id: string | null
@@ -1229,6 +1221,7 @@ export type Database = {
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
+          lexware_contact_id?: string | null
           linkedin_url?: string | null
           mahalle?: string | null
           musteri_profil_id?: string | null
@@ -1276,6 +1269,7 @@ export type Database = {
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
+          lexware_contact_id?: string | null
           linkedin_url?: string | null
           mahalle?: string | null
           musteri_profil_id?: string | null
@@ -1416,7 +1410,8 @@ export type Database = {
           created_by: string
           id: string
           notlar: string | null
-          proposed_satis_fiyati_alt_bayi: number | null
+          proposed_satis_fiyati_alt_bayi: number
+          satis_fiyati_palet: number | null | null
           proposed_satis_fiyati_musteri: number | null
           status: string
           urun_id: string
@@ -1428,7 +1423,8 @@ export type Database = {
           created_by: string
           id?: string
           notlar?: string | null
-          proposed_satis_fiyati_alt_bayi?: number | null
+          proposed_satis_fiyati_alt_bayi?: number
+          satis_fiyati_palet?: number | null | null
           proposed_satis_fiyati_musteri?: number | null
           status?: string
           urun_id: string
@@ -1440,7 +1436,8 @@ export type Database = {
           created_by?: string
           id?: string
           notlar?: string | null
-          proposed_satis_fiyati_alt_bayi?: number | null
+          proposed_satis_fiyati_alt_bayi?: number
+          satis_fiyati_palet?: number | null | null
           proposed_satis_fiyati_musteri?: number | null
           status?: string
           urun_id?: string
@@ -2645,9 +2642,24 @@ export type Database = {
         Row: {
           atanan_kisi_id: string | null
           created_at: string
+          fatura_durumu: string | null
           firma_id: string
           id: string
+          kargo_firmasi: string | null
+          kargo_kdv_tutari: number | null
+          kargo_takip_no: string | null
+          kargo_takip_url: string | null
+          kargo_tutari_net: number | null
+          kargo_yontemi: string | null
+          kaynak: string | null
           kdv_orani: number
+          lexware_invoice_id: string | null
+          lexware_invoice_no: string | null
+          lexware_pdf_url: string | null
+          lexware_storno_id: string | null
+          lexware_storno_no: string | null
+          lexware_storno_pdf_url: string | null
+          notlar: string | null
           odeme_durumu: string | null
           odeme_kasa_tipi: string | null
           olusturan_kullanici_id: string | null
@@ -2661,9 +2673,24 @@ export type Database = {
         Insert: {
           atanan_kisi_id?: string | null
           created_at?: string
+          fatura_durumu?: string | null
           firma_id: string
           id?: string
+          kargo_firmasi?: string | null
+          kargo_kdv_tutari?: number | null
+          kargo_takip_no?: string | null
+          kargo_takip_url?: string | null
+          kargo_tutari_net?: number | null
+          kargo_yontemi?: string | null
+          kaynak?: string | null
           kdv_orani: number
+          lexware_invoice_id?: string | null
+          lexware_invoice_no?: string | null
+          lexware_pdf_url?: string | null
+          lexware_storno_id?: string | null
+          lexware_storno_no?: string | null
+          lexware_storno_pdf_url?: string | null
+          notlar?: string | null
           odeme_durumu?: string | null
           odeme_kasa_tipi?: string | null
           olusturan_kullanici_id?: string | null
@@ -2679,9 +2706,24 @@ export type Database = {
         Update: {
           atanan_kisi_id?: string | null
           created_at?: string
+          fatura_durumu?: string | null
           firma_id?: string
           id?: string
+          kargo_firmasi?: string | null
+          kargo_kdv_tutari?: number | null
+          kargo_takip_no?: string | null
+          kargo_takip_url?: string | null
+          kargo_tutari_net?: number | null
+          kargo_yontemi?: string | null
+          kaynak?: string | null
           kdv_orani?: number
+          lexware_invoice_id?: string | null
+          lexware_invoice_no?: string | null
+          lexware_pdf_url?: string | null
+          lexware_storno_id?: string | null
+          lexware_storno_no?: string | null
+          lexware_storno_pdf_url?: string | null
+          notlar?: string | null
           odeme_durumu?: string | null
           odeme_kasa_tipi?: string | null
           olusturan_kullanici_id?: string | null
@@ -3048,6 +3090,7 @@ export type Database = {
           palet_ici_adet: number | null
           produktdatenblatt_url: string | null
           satis_fiyati_alt_bayi: number
+          satis_fiyati_palet: number | null
           satis_fiyati_musteri: number
           satis_fiyati_toptanci: number | null
           seo_meta: Json | null
@@ -3109,6 +3152,7 @@ export type Database = {
           palet_ici_adet?: number | null
           produktdatenblatt_url?: string | null
           satis_fiyati_alt_bayi?: number
+          satis_fiyati_palet?: number | null
           satis_fiyati_musteri?: number
           satis_fiyati_toptanci?: number | null
           seo_meta?: Json | null
@@ -3170,6 +3214,7 @@ export type Database = {
           palet_ici_adet?: number | null
           produktdatenblatt_url?: string | null
           satis_fiyati_alt_bayi?: number
+          satis_fiyati_palet?: number | null
           satis_fiyati_musteri?: number
           satis_fiyati_toptanci?: number | null
           seo_meta?: Json | null
@@ -3327,6 +3372,212 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          endpoint: string
+          p256dh: string
+          auth: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          endpoint: string
+          p256dh: string
+          auth: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          endpoint?: string
+          p256dh?: string
+          auth?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "kullanici_segment_bilgileri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiller"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      gbp_settings: {
+        Row: {
+          id: string
+          account_id: string | null
+          location_id: string | null
+          refresh_token: string | null
+          business_name: string | null
+          business_category: string | null
+          target_keywords: string | null
+          target_locations: string | null
+          default_post_image_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          account_id?: string | null
+          location_id?: string | null
+          refresh_token?: string | null
+          business_name?: string | null
+          business_category?: string | null
+          target_keywords?: string | null
+          target_locations?: string | null
+          default_post_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          location_id?: string | null
+          refresh_token?: string | null
+          business_name?: string | null
+          business_category?: string | null
+          target_keywords?: string | null
+          target_locations?: string | null
+          default_post_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      google_business_reviews: {
+        Row: {
+          id: string
+          review_id: string
+          reviewer_name: string | null
+          star_rating: number | null
+          comment: string | null
+          reply_text: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          review_id: string
+          reviewer_name?: string | null
+          star_rating?: number | null
+          comment?: string | null
+          reply_text?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          review_id?: string
+          reviewer_name?: string | null
+          star_rating?: number | null
+          comment?: string | null
+          reply_text?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_chat_logs: {
+        Row: {
+          id: string
+          session_id: string
+          user_message: string
+          ai_response: string
+          channel: string
+          tools_used: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_message: string
+          ai_response: string
+          channel?: string
+          tools_used?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_message?: string
+          ai_response?: string
+          channel?: string
+          tools_used?: Json
+          created_at?: string
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          id: string
+          slug: string
+          locale: string
+          title: string
+          description: string | null
+          ingredients: Json
+          instructions: Json
+          prep_time_minutes: number | null
+          product_id: string | null
+          category: string
+          is_featured: boolean | null
+          likes_count: number | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          slug: string
+          locale: string
+          title: string
+          description?: string | null
+          ingredients: Json
+          instructions: Json
+          prep_time_minutes?: number | null
+          product_id?: string | null
+          category: string
+          is_featured?: boolean | null
+          likes_count?: number | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          slug?: string
+          locale?: string
+          title?: string
+          description?: string | null
+          ingredients?: Json
+          instructions?: Json
+          prep_time_minutes?: number | null
+          product_id?: string | null
+          category?: string
+          is_featured?: boolean | null
+          likes_count?: number | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "urunler"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       favori_urunler_istatistik: {
@@ -3413,6 +3664,12 @@ export type Database = {
       }
     }
     Functions: {
+      restore_order_stock: {
+        Args: {
+          p_siparis_id: string
+        }
+        Returns: void
+      }
       alt_bayi_satis_olustur_ve_stok_dus: {
         Args: {
           p_bayi_firma_id: string
@@ -3522,6 +3779,7 @@ export type Database = {
           ana_resim_url: string
           id: string
           satis_fiyati_alt_bayi: number
+          satis_fiyati_palet: number | null
           satis_fiyati_musteri: number
           stok_esigi: number
           stok_kodu: string

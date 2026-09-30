@@ -91,11 +91,14 @@ export async function sendWebPushToUser(
 
     // Süresi dolmuş / geçersiz abonelikleri temizle
     if (expiredSubIds.length > 0) {
-      await supabaseAdmin
-        .from('push_subscriptions')
-        .delete()
-        .in('id', expiredSubIds)
-        .catch((err) => console.error('[sendWebPushToUser] Eski abonelik temizleme hatası:', err));
+      try {
+        await supabaseAdmin
+          .from('push_subscriptions')
+          .delete()
+          .in('id', expiredSubIds);
+      } catch (err) {
+        console.error('[sendWebPushToUser] Eski abonelik temizleme hatası:', err);
+      }
     }
 
     return { success: true, sentCount };

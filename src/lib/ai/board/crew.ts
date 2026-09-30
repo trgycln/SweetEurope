@@ -101,7 +101,6 @@ export class Crew {
         system: task.agent.getSystemPrompt(),
         prompt: prompt,
         temperature: task.agent.temperature,
-        maxTokens: 800,
       });
       return text.trim();
     } catch (error: any) {
@@ -116,7 +115,6 @@ export class Crew {
             system: task.agent.getSystemPrompt(),
             prompt: prompt,
             temperature: task.agent.temperature,
-            maxTokens: 800,
           });
           return `[Yedek Sistem Yanıtı] ${text.trim()}`;
         } catch (retryError) {

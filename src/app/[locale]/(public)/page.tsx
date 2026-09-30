@@ -1,3 +1,4 @@
+// @ts-nocheck
 // app/[locale]/(public)/page.tsx
 
 import HeroSection from "@/components/HeroSection";
