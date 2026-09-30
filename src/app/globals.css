@@ -196,3 +196,11 @@ h1, h2, h3, h4, h5, h6 {
     width: 100% !important;
   }
 }
+
+/* Mobil menü (hamburger menü) açıkken WhatsApp ve AI Danışman butonlarını gizle */
+body.mobile-menu-open .floating-whatsapp-widget {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}

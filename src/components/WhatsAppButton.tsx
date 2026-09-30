@@ -130,6 +130,7 @@ const PHONE_NUMBER_INTL = '4922039899714';
 export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isThinking, setIsThinking] = useState(false);
@@ -139,6 +140,28 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
 
   const t = CONTENT[locale] || CONTENT.de;
   const isRtl = locale === 'ar';
+
+  // Listen for mobile menu state to hide WhatsApp and advisor buttons when hamburger menu is open
+  useEffect(() => {
+    const handleMenuToggle = (e: Event) => {
+      const customEvent = e as CustomEvent<{ isOpen: boolean }>;
+      const open = Boolean(customEvent.detail?.isOpen);
+      setIsMobileMenuOpen(open);
+      if (open) {
+        setIsOpen(false);
+        setShowTooltip(false);
+      }
+    };
+
+    window.addEventListener('mobile-menu-toggle', handleMenuToggle);
+    if (typeof document !== 'undefined' && document.body.classList.contains('mobile-menu-open')) {
+      setIsMobileMenuOpen(true);
+    }
+
+    return () => {
+      window.removeEventListener('mobile-menu-toggle', handleMenuToggle);
+    };
+  }, []);
 
   // Extract current product slug if on product page
   const currentProductSlug = pathname.includes('/products/')
@@ -233,8 +256,11 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
   return (
     <div
       ref={containerRef}
-      className={`fixed bottom-6 ${isRtl ? 'left-5 sm:left-6' : 'right-5 sm:right-6'} z-50 flex flex-col items-end pointer-events-auto`}
+      className={`floating-whatsapp-widget fixed bottom-6 ${isRtl ? 'left-5 sm:left-6' : 'right-5 sm:right-6'} z-50 flex flex-col items-end pointer-events-auto transition-all duration-200 ${
+        isMobileMenuOpen ? 'opacity-0 pointer-events-none scale-90 invisible' : 'opacity-100 scale-100 visible'
+      }`}
       dir={isRtl ? 'rtl' : 'ltr'}
+      style={isMobileMenuOpen ? { display: 'none' } : undefined}
     >
       {/* Floating Chat Popup Card */}
       <AnimatePresence>

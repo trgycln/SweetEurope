@@ -371,9 +371,17 @@ export async function topluSiparisOlusturAction(payload: {
             }
             
             const reqHeaders = await headers();
-            const origin = reqHeaders.get('origin') || 'http://localhost:3000';
+            // Server Actions'ta 'origin' header gelmeyebilir (özellikle Vercel Production'da).
+            // NEXT_PUBLIC_SITE_URL her zaman güvenilir bir fallback'tir.
+            const origin = reqHeaders.get('origin') 
+                || process.env.NEXT_PUBLIC_SITE_URL 
+                || 'https://elysonsweets.de';
             const loc = payload.locale || 'de';
             const targetOrderId = normalOrderId || onSiparisOrderId;
+
+            // Stripe desteklenen locale listesi (https://stripe.com/docs/api/checkout/sessions/create#checkout_session_create-locale)
+            const STRIPE_SUPPORTED_LOCALES = ['auto', 'bg', 'cs', 'da', 'de', 'el', 'en', 'en-GB', 'es', 'es-419', 'et', 'fi', 'fil', 'fr', 'fr-CA', 'hr', 'hu', 'id', 'it', 'ja', 'ko', 'lt', 'lv', 'ms', 'mt', 'nb', 'nl', 'pl', 'pt', 'pt-BR', 'ro', 'ru', 'sk', 'sl', 'sv', 'th', 'vi', 'zh', 'zh-HK', 'zh-TW'];
+            const stripeLocale = loc === 'de' ? 'de' : loc === 'en' ? 'en' : 'auto';
 
             const sessionPayload = {
                 mode: 'payment',
@@ -390,8 +398,10 @@ export async function topluSiparisOlusturAction(payload: {
                 },
                 success_url: `${origin}/${loc}/portal/siparisler?payment_status=success&session_id={CHECKOUT_SESSION_ID}&order_id=${targetOrderId}`,
                 cancel_url: `${origin}/${loc}/portal/siparisler/yeni?payment_status=cancelled`,
-                locale: loc === 'de' ? 'de' : loc === 'tr' ? 'tr' : 'en',
-                payment_method_types: ['card', 'sepa_debit'],
+                locale: stripeLocale,
+                // payment_method_types artık Stripe Checkout'ta kullanılmıyor.
+                // 'automatic_payment_methods' ile kart ve SEPA otomatik desteklenir.
+                automatic_payment_methods: { enabled: true },
             };
             
             const session = await stripe.checkout.sessions.create(sessionPayload as any);
@@ -406,6 +416,7 @@ export async function topluSiparisOlusturAction(payload: {
             console.error('Stripe Checkout Error in topluSiparisOlusturAction:', err);
             return { error: 'Fehler bei der Initialisierung von Stripe Checkout. ' + err.message };
         }
+
     }
 
     return {

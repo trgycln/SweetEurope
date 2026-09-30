@@ -69,10 +69,18 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
     useEffect(() => {
         if (isMobileMenuOpen) {
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('mobile-menu-open');
+            window.dispatchEvent(new CustomEvent('mobile-menu-toggle', { detail: { isOpen: true } }));
         } else {
             document.body.style.overflow = 'unset';
+            document.body.classList.remove('mobile-menu-open');
+            window.dispatchEvent(new CustomEvent('mobile-menu-toggle', { detail: { isOpen: false } }));
         }
-        return () => { document.body.style.overflow = 'unset'; };
+        return () => { 
+            document.body.style.overflow = 'unset';
+            document.body.classList.remove('mobile-menu-open');
+            window.dispatchEvent(new CustomEvent('mobile-menu-toggle', { detail: { isOpen: false } }));
+        };
     }, [isMobileMenuOpen]);
 
     const pathWithoutLocale = getPathWithoutLocale(pathname);
@@ -242,7 +250,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.3 }}
-                                className="fixed inset-0 bg-black/60 z-50 lg:hidden" 
+                                className="fixed inset-0 bg-black/60 z-[60] lg:hidden" 
                                 onClick={() => setIsMobileMenuOpen(false)} 
                             />
                             <motion.div 
@@ -250,7 +258,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                                 animate={{ x: 0 }}
                                 exit={{ x: '100%' }}
                                 transition={{ type: 'tween', duration: 0.3 }}
-                                className="fixed right-0 top-0 bottom-0 z-50 w-4/5 max-w-xs h-full bg-primary p-6 space-y-8 lg:hidden shadow-2xl flex flex-col"
+                                className="fixed right-0 top-0 bottom-0 z-[60] w-4/5 max-w-xs h-full bg-primary p-6 space-y-8 lg:hidden shadow-2xl flex flex-col"
                             >
                                 <div className="flex justify-between items-center pb-4 border-b border-white/10">
                                     <span className="text-2xl font-serif font-bold text-white">Menü</span>
