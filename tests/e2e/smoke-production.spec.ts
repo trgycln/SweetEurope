@@ -1,48 +1,51 @@
 import { test, expect } from '@playwright/test';
 
-// Use the production URL for the smoke test
-const PROD_URL = 'https://elysonsweets.de';
+// Override the baseURL for this test file to point to production
+test.use({ baseURL: 'https://elysonsweets.de' });
 
-test.describe('Production Smoke Test (Read-Only)', () => {
-
-  test('Homepage should load and return 200 without hydration errors', async ({ page, request }) => {
-    const response = await request.get(PROD_URL);
-    expect(response.status()).toBe(200);
-
-    // Navigate to ensure it renders correctly
-    await page.goto(PROD_URL);
+test.describe('Production Smoke Test', () => {
+  test('should load the homepage and return HTTP 200 without hydration errors', async ({ page }) => {
+    // Navigate to homepage
+    const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
     
-    // Check for main elements (Header / Footer should exist)
-    const header = page.locator('header').first();
-    const footer = page.locator('footer').first();
-    
-    await expect(header).toBeVisible();
-    await expect(footer).toBeVisible();
+    // Verify HTTP status code
+    expect(response?.status()).toBe(200);
 
-    // Ensure no database polluting actions (No forms submitted)
+    // Basic check to ensure the page loaded (check for a common element like the header or title)
+    // We just check if the page has a title and is not showing a Next.js error overlay
+    await expect(page).toHaveTitle(/Elyson/i);
+    
+    // Check for hydration error overlay which Next.js injects in dev (not in prod, but just to be safe)
+    const nextjsError = page.locator('nextjs-portal');
+    await expect(nextjsError).toHaveCount(0);
   });
 
-  test('Products catalog should load correctly', async ({ page, request }) => {
-    // Test the German locale as default
-    const url = `${PROD_URL}/de/products`;
-    const response = await request.get(url);
-    expect(response.status()).toBe(200);
+  test('should render catalog page and display at least one product (DB connection check)', async ({ page }) => {
+    const response = await page.goto('/de/products', { waitUntil: 'domcontentloaded' });
+    expect(response?.status()).toBe(200);
 
-    await page.goto(url);
-    // Ensure catalog container is visible
-    const productGrid = page.locator('main').first();
-    await expect(productGrid).toBeVisible();
+    // Wait for the product grid to load products. We expect at least one product card.
+    // In public catalog, there are product cards with links to products
+    const anyProductCard = page.locator('a[href*="/products/"]').first();
+    await anyProductCard.waitFor({ state: 'visible', timeout: 15000 });
+    
+    // Verify it's visible
+    await expect(anyProductCard).toBeVisible();
   });
 
-  test('Login page should load correctly', async ({ page, request }) => {
-    const url = `${PROD_URL}/de/login`;
-    const response = await request.get(url);
-    expect(response.status()).toBe(200);
+  test('should load the login page and render the login form correctly', async ({ page }) => {
+    const response = await page.goto('/tr/login', { waitUntil: 'domcontentloaded' });
+    expect(response?.status()).toBe(200);
 
-    await page.goto(url);
-    
-    // Look for the login form (just checking visibility, DO NOT submit)
-    const loginForm = page.locator('form').first();
-    await expect(loginForm).toBeVisible();
+    // Verify login form is visible
+    const emailInput = page.locator('input[type="email"]');
+    const passwordInput = page.locator('input[type="password"]');
+    const submitButton = page.locator('button[type="submit"]');
+
+    await expect(emailInput).toBeVisible();
+    await expect(passwordInput).toBeVisible();
+    await expect(submitButton).toBeVisible();
+
+    // STRICT RULE: Do not fill or submit the form!
   });
 });

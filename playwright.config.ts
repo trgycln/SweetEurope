@@ -5,10 +5,12 @@ import path from 'path';
 // Read from default ".env.test" file.
 dotenv.config({ path: path.resolve(__dirname, '.env.test') });
 
+const isSmokeTest = process.argv.join(' ').includes('smoke-production.spec.ts') || process.env.SMOKE_TEST === 'true';
+
 export default defineConfig({
   testDir: './tests/e2e',
-  globalSetup: require.resolve('./tests/e2e/setup.ts'),
-  globalTeardown: require.resolve('./tests/e2e/teardown.ts'),
+  globalSetup: isSmokeTest ? undefined : require.resolve('./tests/e2e/setup.ts'),
+  globalTeardown: isSmokeTest ? undefined : require.resolve('./tests/e2e/teardown.ts'),
   fullyParallel: false,
   workers: 1,
   timeout: 300000,
@@ -25,7 +27,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
+  webServer: isSmokeTest ? undefined : {
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,

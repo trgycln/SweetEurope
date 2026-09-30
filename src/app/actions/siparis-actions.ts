@@ -6,7 +6,8 @@
 import { createSupabaseServerClient } from "../../lib/supabase/server";
 import { Enums, Tables, Database } from "../../lib/supabase/database.types"; // Database hinzugefügt
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers"; // <-- WICHTIG: Importiert
+import { cookies, headers } from "next/headers"; // <-- WICHTIG: Importiert
+import { stripe, assertStripeEnvironmentSafety } from '@/lib/stripe';
 import { SupabaseClient } from "@supabase/supabase-js"; // Typ für Client importieren
 import { sendNotification } from '../../lib/notificationUtils';
 import { redirect } from 'next/navigation'; // Import für Redirect
@@ -26,6 +27,8 @@ type OrderItemPayload = {
     urun_id: string;
     adet: number;
     o_anki_satis_fiyati: number;
+    ad?: string;
+    kdv_orani?: number;
 };
 
 // === HAUPTFUNKTION: BESTELLUNG ERSTELLEN ===
@@ -40,6 +43,9 @@ export async function siparisOlusturAction(payload: {
     kargoKdvTutari?: number,
     kargoTutariBrut?: number,
     kargoYontemi?: string,
+    paymentMethod?: 'stripe' | 'rechnung' | 'vorkasse',
+    locale?: string,
+    orderNotes?: string,
 }): Promise<ActionResult> {
 
     const isPreOrder = payload.siparisTuru === 'on_siparis';
@@ -254,12 +260,16 @@ export async function topluSiparisOlusturAction(payload: {
     kargoKdvTutari?: number,
     kargoTutariBrut?: number,
     kargoYontemi?: string,
+    paymentMethod?: "stripe" | "rechnung" | "vorkasse",
+    locale?: string,
+    orderNotes?: string,
 }): Promise<{
     success?: boolean;
     error?: string;
     normalOrderId?: string | null;
     onSiparisOrderId?: string | null;
     message?: string;
+    stripeUrl?: string;
 }> {
     let normalOrderId: string | null = null;
     let onSiparisOrderId: string | null = null;
@@ -312,6 +322,90 @@ export async function topluSiparisOlusturAction(payload: {
         mesaj = "1 Normal Sevkiyat Siparişi ve 1 Ön Sipariş Talebi olmak üzere 2 ayrı sipariş başarıyla oluşturuldu.";
     } else if (onSiparisOrderId) {
         mesaj = "Ön sipariş talebiniz başarıyla kaydedildi.";
+    }
+
+    
+    if (payload.paymentMethod === 'stripe') {
+        const allItems = [...(payload.normalItems || []), ...(payload.onSiparisItems || [])];
+        const stripeItems = allItems.map(item => ({
+            urun_id: item.urun_id,
+            ad: item.ad || 'Produkt',
+            adet: item.adet,
+            birimFiyatNet: item.o_anki_satis_fiyati,
+            kdvOrani: item.kdv_orani || 7,
+        }));
+        
+        try {
+            // Need to get user email and id
+            const supabase = await createSupabaseServerClient(await cookies());
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            const line_items = stripeItems.map((item) => {
+                const kdvMultiplier = 1 + ((item.kdvOrani || 7) / 100);
+                const grossUnitPriceCent = Math.max(1, Math.round(item.birimFiyatNet * kdvMultiplier * 100));
+                return {
+                    price_data: {
+                        currency: 'eur',
+                        product_data: {
+                            name: item.ad || 'Produkt',
+                            metadata: { urun_id: String(item.urun_id || '') },
+                        },
+                        unit_amount: grossUnitPriceCent,
+                    },
+                    quantity: Math.max(1, Number(item.adet) || 1),
+                };
+            });
+            
+            if (payload.kargoTutariBrut && payload.kargoTutariBrut > 0) {
+                line_items.push({
+                    price_data: {
+                        currency: 'eur',
+                        product_data: {
+                            name: payload.kargoYontemi || 'Lieferung & Versand',
+                            metadata: { urun_id: 'shipping' },
+                        },
+                        unit_amount: Math.max(1, Math.round(payload.kargoTutariBrut * 100)),
+                    },
+                    quantity: 1,
+                });
+            }
+            
+            const reqHeaders = await headers();
+            const origin = reqHeaders.get('origin') || 'http://localhost:3000';
+            const loc = payload.locale || 'de';
+            const targetOrderId = normalOrderId || onSiparisOrderId;
+
+            const sessionPayload = {
+                mode: 'payment',
+                line_items,
+                customer_email: user?.email || undefined,
+                client_reference_id: String(payload.firmaId),
+                metadata: {
+                    firma_id: String(payload.firmaId),
+                    order_id: String(targetOrderId),
+                    normal_order_id: String(normalOrderId || ''),
+                    on_siparis_order_id: String(onSiparisOrderId || ''),
+                    user_id: user?.id || '',
+                    order_notes: payload.orderNotes || '',
+                },
+                success_url: `${origin}/${loc}/portal/siparisler?payment_status=success&session_id={CHECKOUT_SESSION_ID}&order_id=${targetOrderId}`,
+                cancel_url: `${origin}/${loc}/portal/siparisler/yeni?payment_status=cancelled`,
+                locale: loc === 'de' ? 'de' : loc === 'tr' ? 'tr' : 'en',
+                payment_method_types: ['card', 'sepa_debit'],
+            };
+            
+            const session = await stripe.checkout.sessions.create(sessionPayload as any);
+            return {
+                success: true,
+                normalOrderId,
+                onSiparisOrderId,
+                message: mesaj,
+                stripeUrl: session.url
+            };
+        } catch (err: any) {
+            console.error('Stripe Checkout Error in topluSiparisOlusturAction:', err);
+            return { error: 'Fehler bei der Initialisierung von Stripe Checkout. ' + err.message };
+        }
     }
 
     return {

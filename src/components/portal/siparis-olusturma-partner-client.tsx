@@ -138,34 +138,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
         }
 
         startTransition(async () => {
-            if (paymentMethod === 'stripe') {
-                const itemsToSubmit = warenkorb.map(item => {
-                    const sepet = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
-                    return {
-                        urun_id: item.produkt.id,
-                        ad: getLocalizedName(item.produkt.ad, locale) || (item.produkt as any).urun_kodu || (item.produkt as any).kod || 'Produkt',
-                        adet: sepet.toplamAdet,
-                        birimFiyatNet: sepet.adetFiyat,
-                        kdvOrani: (item.produkt as any).kdv_orani ?? 7,
-                    };
-                });
-
-                const stripeRes = await createStripeCheckoutSessionAction({
-                    firmaId: firma?.id || '',
-                    items: itemsToSubmit,
-                    deliveryPlz: partnerPlz,
-                    locale,
-                });
-
-                if (stripeRes.error) {
-                    console.error('Stripe error received:', stripeRes.error);
-                    toast.error(stripeRes.error);
-                } else if (stripeRes.url) {
-                    console.log('Redirecting to Stripe:', stripeRes.url);
-                    window.location.href = stripeRes.url;
-                }
-                return;
-            }
+            // Removed client-side Stripe checkout logic, now handled in topluSiparisOlusturAction
 
             // Split into Normal and Pre-Orders
             const normalPayload: any[] = [];
@@ -178,6 +151,8 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                     urun_id: item.produkt.id,
                     adet: sepet.toplamAdet,
                     o_anki_satis_fiyati: sepet.adetFiyat,
+                    ad: getLocalizedName(item.produkt.ad, locale) || (item.produkt as any).urun_kodu || (item.produkt as any).kod || 'Produkt',
+                    kdv_orani: (item.produkt as any).kdv_orani ?? 7,
                 };
                 if (isOutOfStock) {
                     onSiparisPayload.push(payload);
@@ -200,11 +175,18 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                 kargoKdvTutari: shippingInfo.shippingVatAmount,
                 kargoTutariBrut: shippingInfo.shippingCostGross,
                 kargoYontemi: shippingMethodName,
+                paymentMethod,
+                locale
             });
 
             if (result?.error) {
                 toast.error(result.error);
             } else if (result?.success) {
+                if ((result as any).stripeUrl) {
+                    clearWarenkorb();
+                    window.location.href = (result as any).stripeUrl;
+                    return;
+                }
                 toast.success(result.message || (locale === 'de' ? "Ihre Bestellung wurde erfolgreich erstellt!" : "Siparişiniz başarıyla oluşturuldu!"));
                 clearWarenkorb();
                 const targetId = result.normalOrderId || result.onSiparisOrderId;
@@ -527,6 +509,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
                             <div className="flex flex-col justify-end gap-3 mt-4">
                                 <button 
+                                    id="complete-checkout-btn"
                                     onClick={handleSiparisOnayla} 
                                     disabled={isPending || toplamKoli < 1} 
                                     className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg shadow-md font-bold disabled:opacity-60 disabled:cursor-not-allowed transition-all text-sm ${

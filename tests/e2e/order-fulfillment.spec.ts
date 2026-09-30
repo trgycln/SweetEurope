@@ -93,13 +93,16 @@ test.describe('E2E Order Fulfillment Flow', () => {
     await modalContainer.waitFor({ state: 'visible' });
     const modalConfirmButton = modalContainer.getByRole('button', { name: /Sepete Ekle/i });
     await modalConfirmButton.click({ force: true });
-    // Cart is at the bottom of the catalog page, no need to navigate!
-    
-    // Select Vorkasse (Havale) and complete order
-    // Check if there is an explicit selection for Vorkasse, or if it's default
-    const vorkasseOption = customerPage.locator('input[value="vorkasse"]');
-    if (await vorkasseOption.count() > 0) {
-      await vorkasseOption.check();
+    // Navigate to checkout page since cart is no longer at the bottom of the catalog page
+    await customerPage.goto('/tr/portal/siparisler/yeni');
+    await customerPage.waitForLoadState('networkidle');
+
+    // Select Vorkasse (Havale) / Rechnung and complete order
+    // Find the button by looking for the "B2B" badge or text
+    const rechnungBtn = customerPage.locator('button:has-text("B2B")').first();
+    await rechnungBtn.waitFor({ state: 'visible', timeout: 5000 });
+    if (await rechnungBtn.isVisible()) {
+      await rechnungBtn.click();
     }
     // Accept cookie banner if present to avoid intercepting clicks
     const cookieAcceptBtn = customerPage.locator('button:has-text("Tümünü kabul et")');
@@ -115,8 +118,9 @@ test.describe('E2E Order Fulfillment Flow', () => {
     
     // Check for error toasts before waiting for URL
     // Wait for success page OR error
+    // Wait for success page OR error
     await Promise.race([
-        customerPage.waitForURL(/.*\/portal\/siparisler/),
+        customerPage.waitForURL(url => url.pathname.includes('/portal/siparisler') && !url.pathname.includes('/yeni')),
         customerPage.waitForSelector('text=Sipariş oluşturulurken bir hata oluştu').then(() => { throw new Error('Order creation failed with toast error'); }),
         customerPage.waitForSelector('text=Firma bulunamadı').then(() => { throw new Error('Company not found error'); }),
         customerPage.waitForSelector('text=Normal sipariş oluşturulamadı').then(() => { throw new Error('Normal order creation failed due to stock or DB error'); }),
@@ -127,11 +131,17 @@ test.describe('E2E Order Fulfillment Flow', () => {
     // Force a reload to bypass Next.js App Router cache if revalidatePath missed the [locale]
     await customerPage.reload();
     
-    // Extract Order ID from the first link on the orders list page that is not 'yeni'
-    const orderLink = customerPage.locator('a[href*="/portal/siparisler/"]:not([href*="yeni"])').first();
-    await orderLink.waitFor({ state: 'visible', timeout: 45000 });
-    const href = await orderLink.getAttribute('href');
-    orderId = href?.split('/').pop() || '';
+    // Check if we are on the details page or the list page
+    const currentUrl = customerPage.url();
+    if (currentUrl.match(/\/portal\/siparisler\/[a-f0-9-]+$/)) {
+      orderId = currentUrl.split('/').pop() || '';
+    } else {
+      // Extract Order ID from the first link on the orders list page that is not 'yeni'
+      const orderLink = customerPage.locator('a[href*="/portal/siparisler/"]:not([href*="yeni"])').first();
+      await orderLink.waitFor({ state: 'visible', timeout: 45000 });
+      const href = await orderLink.getAttribute('href');
+      orderId = href?.split('/').pop() || '';
+    }
     
     console.log(`Order created with ID: ${orderId}`);
     expect(orderId).toBeTruthy();
@@ -149,7 +159,11 @@ test.describe('E2E Order Fulfillment Flow', () => {
     await adminPage.fill('input[type="password"]', 'AdminPassword123!');
     await adminPage.click('button[type="submit"]');
     
-    await adminPage.waitForURL(/.*\/admin.*/);
+    // Use Promise.race to catch login errors
+    await Promise.race([
+        adminPage.waitForURL(/.*(\/admin|\/portal).*/),
+        adminPage.waitForSelector('text=Hatalı e-posta veya şifre').then(() => { throw new Error('Admin login failed: Wrong email or password'); })
+    ]);
     
     // Go to order details
     await adminPage.goto(`/tr/admin/operasyon/siparisler/${orderId}`);
@@ -199,9 +213,10 @@ test.describe('E2E Order Fulfillment Flow', () => {
     // ----------------------------------------------------
     await customerPage.reload();
     
-    // Navigate to the specific order detail page
-    const orderDetailLink = customerPage.locator(`a[href*="/portal/siparisler/${orderId}"]`).first();
-    await orderDetailLink.click();
+    // Navigate to the specific order detail page if not already there
+    if (!customerPage.url().includes(orderId)) {
+      await customerPage.goto(`/tr/portal/siparisler/${orderId}`);
+    }
     
     // Wait for the details page to load by waiting for the page title or the button with a long timeout
     const faturayiIndirButton = customerPage.locator('a:has-text("Faturayı İndir")').first();

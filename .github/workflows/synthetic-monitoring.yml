@@ -20,14 +20,16 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Production Smoke Test
       run: npx playwright test tests/e2e/smoke-production.spec.ts
+      env:
+        SMOKE_TEST: 'true'
     - name: Alert on Failure
       if: failure()
       run: |
         echo "::error title=Smoke Test Failed::Production smoke test failed! The site might be down or degraded."
-        # Slack/Discord webhook curl command could go here
+        curl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 *CRITICAL ALERT:* Production Smoke Test Failed! The site might be down or degraded. Please check GitHub Actions logs immediately."}' ${{ secrets.SLACK_WEBHOOK_URL }}
     - uses: actions/upload-artifact@v4
       if: always()
       with:
         name: smoke-test-report
         path: playwright-report/
-        retention-days: 7
+        retention-days: 30
