@@ -19,7 +19,7 @@ type SearchPageProps = {
 
 // Typen für die Suchergebnisse
 type ProductResult = Pick<Tables<'urunler'>, 'id' | 'ad' | 'slug' | 'ana_resim_url' | 'aciklamalar' | 'kategori_id'>;
-type BlogResult = Pick<Tables<'blog_yazilari'>, 'id' | 'baslik' | 'slug' | 'one_cikan_gorsel_url' | 'meta_aciklama'>;
+type BlogResult = Pick<Tables<'blog_yazilari'>, 'id' | 'title' | 'slug' | 'image_url' | 'excerpt'>;
 
 
 export default async function SearchPage({ params, searchParams }: SearchPageProps) {
@@ -54,13 +54,11 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                 .or(`ad->>de.ilike.${searchTerm},ad->>en.ilike.${searchTerm},ad->>tr.ilike.${searchTerm},ad->>ar.ilike.${searchTerm},aciklamalar->>de.ilike.${searchTerm},aciklamalar->>tr.ilike.${searchTerm},aciklamalar->>en.ilike.${searchTerm},aciklamalar->>ar.ilike.${searchTerm}`)
                 .limit(20),
             
-            // KORREKTUR: Blog/Rezepte durchsuchen (Titel UND Meta-Beschreibung)
+            // Blog/Rezepte durchsuchen (Titel UND Excerpt)
             supabase
                 .from('blog_yazilari')
-                .select('id, baslik, slug, one_cikan_gorsel_url, meta_aciklama')
-                .eq('durum', 'Yayınlandı') // Nur veröffentlichte Posts
-                // Suche im Titel ODER in der Meta-Beschreibung
-                .or(`baslik.ilike.${searchTerm},meta_aciklama.ilike.${searchTerm}`)
+                .select('id, title, slug, image_url, excerpt')
+                .eq('is_published', true)
                 .limit(10),
             supabase
                 .from('kategoriler')
@@ -175,26 +173,34 @@ export default async function SearchPage({ params, searchParams }: SearchPagePro
                                     {blogResults.map(post => (
                                         <li key={post.id} className="py-4">
                                             {/* TODO: Pfad zu Blog-Posts anpassen, falls abweichend */}
-                                            <Link href={`/${locale}/blog/${post.slug}`} className="group flex items-center gap-4">
-                                                 <div className="relative w-16 h-16 rounded-md overflow-hidden bg-white border flex-shrink-0">
-                                                    <Image 
-                                                        src={post.one_cikan_gorsel_url || '/placeholder.png'} 
-                                                        alt={post.baslik}
-                                                        fill
-                                                        sizes="64px"
-                                                        className="object-cover"
-                                                        unoptimized
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-md font-semibold text-accent group-hover:underline">
-                                                        {post.baslik}
-                                                    </h3>
-                                                    <p className="text-sm text-text-main/80 line-clamp-2">
-                                                        {post.meta_aciklama}
-                                                    </p>
-                                                </div>
-                                            </Link>
+                                            {(() => {
+                                                const title = (post.title as any)?.[locale] || (post.title as any)?.de || (post.title as any)?.tr || '';
+                                                const excerpt = (post.excerpt as any)?.[locale] || (post.excerpt as any)?.de || (post.excerpt as any)?.tr || '';
+                                                return (
+                                                    <Link href={`/${locale}/blog/${post.slug}`} className="group flex items-center gap-4">
+                                                         <div className="relative w-16 h-16 rounded-md overflow-hidden bg-white border flex-shrink-0">
+                                                            <Image 
+                                                                src={post.image_url || '/placeholder.png'} 
+                                                                alt={title}
+                                                                fill
+                                                                sizes="64px"
+                                                                className="object-cover"
+                                                                unoptimized
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-md font-semibold text-accent group-hover:underline">
+                                                                {title}
+                                                            </h3>
+                                                            {excerpt && (
+                                                                <p className="text-sm text-text-main/80 line-clamp-2">
+                                                                    {excerpt}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </Link>
+                                                );
+                                            })()}
                                         </li>
                                     ))}
                                 </ul>

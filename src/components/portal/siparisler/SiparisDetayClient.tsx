@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import {
     FiArrowLeft, FiUser, FiTruck, FiRefreshCw, FiXCircle,
     FiPackage, FiImage, FiAlertTriangle,
-    FiClock, FiCheck, FiCalendar, FiMapPin, FiLoader
+    FiClock, FiCheck, FiCalendar, FiMapPin, FiLoader,
+    FiFileText, FiDownload, FiExternalLink
 } from 'react-icons/fi';
+import { Truck, ExternalLink, FileText, Download, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { siparisDurumGuncelleAction } from '@/app/actions/siparis-actions';
 import Link from 'next/link';
@@ -24,6 +26,16 @@ export type SiparisDetay = {
     kdv_orani: number;
     siparis_durumu: string;
     teslimat_adresi: string | null;
+    fatura_durumu?: string | null;
+    lexware_pdf_url?: string | null;
+    lexware_storno_pdf_url?: string | null;
+    lexware_invoice_id?: string | null;
+    lexware_invoice_no?: string | null;
+    lexware_storno_id?: string | null;
+    lexware_storno_no?: string | null;
+    kargo_firmasi?: string | null;
+    kargo_takip_no?: string | null;
+    kargo_takip_url?: string | null;
     firmalar: { unvan: string; adres: string | null } | null;
     siparis_detay: {
         id: string;
@@ -41,7 +53,7 @@ export type SiparisDetay = {
 
 interface Props {
     siparis: SiparisDetay;
-    dictionary: Dictionary;
+    dictionary?: Dictionary;
     locale: Locale;
     userRole?: string;
     bayiSiparisi?: boolean; // Alt bayinin müşteri siparişi mi?
@@ -131,6 +143,20 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
 
     const fmt = (v: number) => formatCurrency(v, locale);
 
+    // Fatura ve Kargo URL Hesaplamaları
+    const invoicePdfUrl = siparis.lexware_pdf_url || (siparis.lexware_invoice_id ? `/api/invoices/${siparis.id}/pdf` : null);
+    const hasInvoice = (siparis.fatura_durumu === 'kesildi' || Boolean(siparis.lexware_invoice_id)) && Boolean(invoicePdfUrl);
+
+    const isOrderCancelled = ['İptal Edildi', 'cancelled', 'iptal_edildi'].includes(mevcutDurum) ||
+                             siparis.fatura_durumu === 'iptal_edildi' ||
+                             Boolean(siparis.lexware_storno_id);
+    const stornoPdfUrl = siparis.lexware_storno_pdf_url || (siparis.lexware_storno_id ? `/api/invoices/${siparis.id}/storno-pdf` : null);
+    const hasStorno = isOrderCancelled && Boolean(stornoPdfUrl);
+
+    const isShippedOrDelivered = ['Yola Çıktı', 'shipped', 'Teslim Edildi', 'delivered'].includes(mevcutDurum) ||
+                                Boolean(siparis.kargo_takip_no) ||
+                                Boolean(siparis.kargo_takip_url);
+
     return (
         <div className="space-y-6 pb-10">
             {/* Geri + Başlık */}
@@ -174,6 +200,47 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
                             <FiTruck size={14} />
                             <span>Lieferschein</span>
                         </Link>
+
+                        {/* Faturayı İndir (PDF) */}
+                        {hasInvoice && (
+                            <a
+                                href={invoicePdfUrl!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-100 transition-colors shadow-sm"
+                                title={locale === 'de' ? 'Rechnung (PDF) herunterladen' : 'Resmi Faturayı İndir (PDF)'}
+                            >
+                                <FileText size={15} className="text-emerald-600" />
+                                <span>{locale === 'de' ? `Rechnung (${siparis.lexware_invoice_no || 'PDF'})` : `Faturayı İndir (${siparis.lexware_invoice_no || 'PDF'})`}</span>
+                                <Download size={13} className="text-emerald-500 opacity-80" />
+                            </a>
+                        )}
+
+                        {/* Fatura Kesildi ama URL Hazır Değilse */}
+                        {siparis.fatura_durumu === 'kesildi' && !invoicePdfUrl && (
+                            <span
+                                className="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-100 border border-gray-200 text-gray-400 text-sm font-semibold rounded-lg cursor-not-allowed"
+                                title={locale === 'de' ? 'Rechnung wird vorbereitet...' : 'Fatura hazırlanıyor...'}
+                            >
+                                <FileText size={15} />
+                                <span>{locale === 'de' ? 'Rechnung wird erstellt' : 'Fatura Hazırlanıyor'}</span>
+                            </span>
+                        )}
+
+                        {/* İptal Faturasını İndir (Storno) */}
+                        {hasStorno && (
+                            <a
+                                href={stornoPdfUrl!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold rounded-lg hover:bg-rose-100 transition-colors shadow-sm"
+                                title={locale === 'de' ? 'Rechnungskorrektur (Storno PDF) herunterladen' : 'İptal Belgesi (Storno PDF) İndir'}
+                            >
+                                <FileText size={15} className="text-rose-600" />
+                                <span>{locale === 'de' ? `Storno (${siparis.lexware_storno_no || 'PDF'})` : `İptal Belgesi (${siparis.lexware_storno_no || 'PDF'})`}</span>
+                                <Download size={13} className="text-rose-500 opacity-80" />
+                            </a>
+                        )}
 
                         <button
                             onClick={handleReorder}
@@ -254,6 +321,94 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
                                 </div>
                             );
                         })}
+                    </div>
+                </div>
+            )}
+
+            {/* ── KARGO & SEVKİYAT BİLGİLERİ KARTI ── */}
+            {isShippedOrDelivered && (
+                <div className="bg-white rounded-xl border border-indigo-100 shadow-sm overflow-hidden">
+                    <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-5 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5">
+                            <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center flex-shrink-0 text-white">
+                                <Truck size={22} className="text-indigo-300" />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h2 className="text-base font-bold tracking-tight text-white">
+                                        {locale === 'de' ? 'Versand & Sendungsverfolgung' : 'Kargo ve Sevkiyat Takibi'}
+                                    </h2>
+                                    {mevcutDurum === 'Teslim Edildi' || mevcutDurum === 'delivered' ? (
+                                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
+                                            <CheckCircle2 size={12} />
+                                            {locale === 'de' ? 'Zugestellt' : 'Teslim Edildi'}
+                                        </span>
+                                    ) : (
+                                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/25 text-indigo-200 border border-indigo-400/30 flex items-center gap-1">
+                                            <Truck size={12} />
+                                            {locale === 'de' ? 'Unterwegs' : 'Yolda'}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-xs text-slate-300 mt-0.5">
+                                    {locale === 'de'
+                                        ? 'Ihre Sendung befindet sich auf dem Weg zu Ihrer Lieferadresse.'
+                                        : 'Siparişiniz kargo firması tarafından teslim edilmek üzere yola çıkmıştır.'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Kargomu Takip Et Butonu (Sadece kargo_takip_url varsa render edilir) */}
+                        {siparis.kargo_takip_url ? (
+                            <a
+                                href={siparis.kargo_takip_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-slate-900 hover:bg-slate-100 text-xs font-bold rounded-xl transition-all shadow-sm hover:shadow active:scale-95 flex-shrink-0 w-full sm:w-auto"
+                            >
+                                <Truck size={15} className="text-indigo-600" />
+                                <span>{locale === 'de' ? 'Sendung verfolgen' : 'Kargomu Takip Et'}</span>
+                                <ExternalLink size={13} className="text-slate-400" />
+                            </a>
+                        ) : null}
+                    </div>
+
+                    <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-slate-50/50">
+                        <div>
+                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+                                {locale === 'de' ? 'Versanddienstleister' : 'Kargo Firması'}
+                            </span>
+                            <p className="text-sm font-bold text-gray-800 mt-1 flex items-center gap-1.5">
+                                <Truck size={15} className="text-indigo-600" />
+                                <span>{siparis.kargo_firmasi || (locale === 'de' ? 'Standardversand' : 'Standart Sevkiyat')}</span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+                                {locale === 'de' ? 'Sendungsnummer' : 'Takip Numarası'}
+                            </span>
+                            {siparis.kargo_takip_no ? (
+                                <div className="mt-1 flex items-center gap-2">
+                                    <span className="font-mono text-xs font-bold text-gray-900 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-xs">
+                                        {siparis.kargo_takip_no}
+                                    </span>
+                                </div>
+                            ) : (
+                                <p className="text-xs text-gray-400 italic mt-1">
+                                    {locale === 'de' ? 'Wird in Kürze hinterlegt' : 'Kısa süre içinde eklenecek'}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+                                {locale === 'de' ? 'Lieferadresse' : 'Teslimat Noktası'}
+                            </span>
+                            <p className="text-xs text-gray-700 font-medium mt-1 truncate">
+                                {siparis.teslimat_adresi || siparis.firmalar?.adres || '—'}
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}
@@ -340,6 +495,84 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
 
                 {/* Sağ: Bilgiler */}
                 <div className="space-y-4">
+                    {/* Fatura ve Belgeler Kartı */}
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-3.5">
+                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide flex items-center gap-2 pb-2 border-b border-gray-100">
+                            <FileText size={13} className="text-accent" />
+                            {locale === 'de' ? 'Rechnung & Dokumente' : 'Fatura ve Belgeler'}
+                        </h3>
+
+                        <div className="space-y-2 text-xs">
+                            <div className="flex items-center justify-between">
+                                <span className="text-gray-400">{locale === 'de' ? 'Rechnungsstatus' : 'Fatura Durumu'}:</span>
+                                {hasInvoice ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <CheckCircle2 size={11} /> {locale === 'de' ? 'Erstellt' : 'Kesildi'}
+                                    </span>
+                                ) : hasStorno ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                        <FiAlertTriangle size={11} /> {locale === 'de' ? 'Storniert' : 'İptal Edildi'}
+                                    </span>
+                                ) : (
+                                    <span className="text-gray-500 font-medium">
+                                        {locale === 'de' ? 'In Vorbereitung' : 'Hazırlanıyor'}
+                                    </span>
+                                )}
+                            </div>
+
+                            {siparis.lexware_invoice_no && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-400">{locale === 'de' ? 'Rechnungs-Nr.' : 'Fatura No'}:</span>
+                                    <span className="font-mono font-bold text-gray-800">{siparis.lexware_invoice_no}</span>
+                                </div>
+                            )}
+
+                            {siparis.lexware_storno_no && (
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-400">{locale === 'de' ? 'Storno-Nr.' : 'İptal No'}:</span>
+                                    <span className="font-mono font-bold text-rose-700">{siparis.lexware_storno_no}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="pt-2 border-t border-gray-100 flex flex-col gap-2">
+                            {hasInvoice && (
+                                <a
+                                    href={invoicePdfUrl!}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
+                                >
+                                    <FileText size={14} />
+                                    <span>{locale === 'de' ? 'Rechnung herunterladen (PDF)' : 'Faturayı İndir (PDF)'}</span>
+                                    <Download size={13} className="opacity-80" />
+                                </a>
+                            )}
+
+                            {hasStorno && (
+                                <a
+                                    href={stornoPdfUrl!}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
+                                >
+                                    <FileText size={14} />
+                                    <span>{locale === 'de' ? 'Rechnungskorrektur (Storno)' : 'İptal Faturasını İndir (Storno)'}</span>
+                                    <Download size={13} className="opacity-80" />
+                                </a>
+                            )}
+
+                            <Link
+                                href={`/${locale}/print/lieferschein/${siparis.id}`}
+                                target="_blank"
+                                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors shadow-xs"
+                            >
+                                <FiTruck size={14} />
+                                <span>{locale === 'de' ? 'Lieferschein drucken' : 'İrsaliye Yazdır (Lieferschein)'}</span>
+                            </Link>
+                        </div>
+                    </div>
+
                     {/* Müşteri bilgisi */}
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-2">

@@ -8,7 +8,8 @@ import {
     FiAlertCircle, FiClock, FiCheck, FiTruck, FiX,
     FiArrowRight, FiLoader, FiRepeat, FiCopy,
     FiCalendar, FiMapPin, FiTrendingUp, FiShoppingBag,
-    FiCheckCircle, FiExternalLink, FiInfo, FiLayers
+    FiCheckCircle, FiExternalLink, FiInfo, FiLayers,
+    FiDownload, FiFileText
 } from 'react-icons/fi';
 import { BsPinAngle, BsPinFill } from 'react-icons/bs';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,6 +32,16 @@ type SiparisItem = {
     siparis_durumu: string;
     teslimat_adresi?: string | null;
     notlar?: string | null;
+    kargo_firmasi?: string | null;
+    kargo_takip_no?: string | null;
+    kargo_takip_url?: string | null;
+    lexware_pdf_url?: string | null;
+    lexware_storno_pdf_url?: string | null;
+    fatura_durumu?: string | null;
+    lexware_invoice_id?: string | null;
+    lexware_invoice_no?: string | null;
+    lexware_storno_id?: string | null;
+    lexware_storno_no?: string | null;
     firmalar?: {
         id?: string;
         unvan: string;
@@ -1217,6 +1228,63 @@ export function SiparislerClient({
                                                                                         </div>
                                                                                         <div className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
                                                                                             {siparis.teslimat_adresi}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+
+                                                                                {/* Kargo & Fatura Belgeleri */}
+                                                                                {(siparis.kargo_firmasi || siparis.kargo_takip_no || siparis.lexware_pdf_url || siparis.lexware_invoice_id) && (
+                                                                                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2.5">
+                                                                                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                                                                            {locale === 'de' ? 'Versand & Dokumente' : 'Kargo & Belgeler'}
+                                                                                        </div>
+                                                                                        {(siparis.kargo_firmasi || siparis.kargo_takip_no) && (
+                                                                                            <div className="text-xs space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                                                                                <div className="flex items-center justify-between">
+                                                                                                    <span className="text-slate-500">{siparis.kargo_firmasi || (locale === 'de' ? 'Versand' : 'Kargo')}</span>
+                                                                                                    {siparis.kargo_takip_no && (
+                                                                                                        <span className="font-mono font-bold text-slate-800">{siparis.kargo_takip_no}</span>
+                                                                                                    )}
+                                                                                                </div>
+                                                                                                {siparis.kargo_takip_url && (
+                                                                                                    <a
+                                                                                                        href={siparis.kargo_takip_url}
+                                                                                                        target="_blank"
+                                                                                                        rel="noopener noreferrer"
+                                                                                                        className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 mt-1"
+                                                                                                    >
+                                                                                                        <FiTruck size={12} />
+                                                                                                        <span>{locale === 'de' ? 'Sendung verfolgen' : 'Kargoyu Takip Et'}</span>
+                                                                                                        <FiExternalLink size={10} />
+                                                                                                    </a>
+                                                                                                )}
+                                                                                            </div>
+                                                                                        )}
+                                                                                        <div className="flex items-center gap-2 pt-1 flex-wrap">
+                                                                                            {(siparis.lexware_pdf_url || siparis.lexware_invoice_id) && (
+                                                                                                <a
+                                                                                                    href={siparis.lexware_pdf_url || `/api/invoices/${siparis.id}/pdf`}
+                                                                                                    target="_blank"
+                                                                                                    rel="noopener noreferrer"
+                                                                                                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-200 transition-colors"
+                                                                                                >
+                                                                                                    <FiFileText size={12} />
+                                                                                                    <span>{locale === 'de' ? 'Rechnung (PDF)' : 'Fatura (PDF)'}</span>
+                                                                                                    <FiDownload size={11} />
+                                                                                                </a>
+                                                                                            )}
+                                                                                            {(siparis.lexware_storno_pdf_url || siparis.lexware_storno_id) && (
+                                                                                                <a
+                                                                                                    href={siparis.lexware_storno_pdf_url || `/api/invoices/${siparis.id}/storno-pdf`}
+                                                                                                    target="_blank"
+                                                                                                    rel="noopener noreferrer"
+                                                                                                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-lg border border-rose-200 transition-colors"
+                                                                                                >
+                                                                                                    <FiFileText size={12} />
+                                                                                                    <span>{locale === 'de' ? 'Storno (PDF)' : 'İptal Belgesi (PDF)'}</span>
+                                                                                                    <FiDownload size={11} />
+                                                                                                </a>
+                                                                                            )}
                                                                                         </div>
                                                                                     </div>
                                                                                 )}

@@ -3,7 +3,7 @@ import { runBoardMeeting } from '@/lib/ai/board/engine';
 import { AgentRole } from '@/lib/ai/board/agents';
 import { revalidatePath } from 'next/cache';
 import StartMeetingForm from './StartMeetingForm';
-import { FiCalendar, FiClock, FiCheckCircle } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiCheckCircle, FiUsers } from 'react-icons/fi';
 
 export const dynamic = 'force-dynamic';
 
