@@ -410,7 +410,7 @@ export async function topluSiparisOlusturAction(payload: {
                 normalOrderId,
                 onSiparisOrderId,
                 message: mesaj,
-                stripeUrl: session.url
+                stripeUrl: session.url || undefined
             };
         } catch (err: any) {
             console.error('Stripe Checkout Error in topluSiparisOlusturAction:', err);

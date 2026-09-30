@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
+const rawSecretKey = process.env.STRIPE_SECRET_KEY || '';
+const cleanSecretKey = rawSecretKey.replace(/^["']|["']$/g, '').trim();
+const stripeSecretKey = cleanSecretKey || 'sk_test_placeholder';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const vercelEnv = process.env.VERCEL_ENV; // 'production' | 'preview' | 'development' | undefined
@@ -35,6 +37,9 @@ export function assertStripeEnvironmentSafety(): { safe: boolean; error?: string
 
 export const stripe = new Stripe(stripeSecretKey, {
   apiVersion: '2024-06-20' as any,
+  httpClient: Stripe.createFetchHttpClient(),
+  timeout: 20000,
+  maxNetworkRetries: 2,
   appInfo: {
     name: 'ElysonSweets B2B',
     version: '1.0.0',
