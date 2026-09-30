@@ -214,6 +214,7 @@ export async function siparisOlusturAction(payload: {
                         teslimatAdresi: payload.teslimatAdresi,
                         locale: loc,
                         portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
+                        paymentMethod: payload.paymentMethod,
                     });
                 }
             } catch (emailErr) {
@@ -312,6 +313,7 @@ export async function siparisOlusturAction(payload: {
                     teslimatAdresi: payload.teslimatAdresi,
                     locale: loc,
                     portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
+                    paymentMethod: payload.paymentMethod,
                 });
             }
         } catch (emailErr) {
