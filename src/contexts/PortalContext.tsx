@@ -40,13 +40,17 @@ interface PortalContextType {
     getGesamtMengeImWarenkorb: () => number;
     // ++ NEUE FUNKTION ++
     setInitialWarenkorb: (items: SepetUrunu[]) => void;
+    // ++ Mobil Cart Drawer ++
+    isCartDrawerOpen: boolean;
+    setIsCartDrawerOpen: (isOpen: boolean) => void;
 }
 
 const PortalContext = createContext<PortalContextType | null>(null);
 
 // --- Provider Implementierung ---
-export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb'> }) {
+export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb' | 'isCartDrawerOpen' | 'setIsCartDrawerOpen'> }) {
     const [warenkorb, setWarenkorb] = useState<SepetUrunu[]>([]);
+    const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
 
     // Initialisiere Warenkorb aus localStorage beim Client-Mount
@@ -200,6 +204,8 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
         clearWarenkorb,
         getGesamtMengeImWarenkorb,
         setInitialWarenkorb, // Neue Funktion hinzufügen
+        isCartDrawerOpen,
+        setIsCartDrawerOpen,
     };
 
     return (
