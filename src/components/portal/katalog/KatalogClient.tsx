@@ -191,16 +191,20 @@ export function KatalogClient({
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
   const handleCheckout = async () => {
+    console.log('[KatalogClient] handleCheckout started');
     if (warenkorb.length === 0) {
+      console.log('[KatalogClient] Warenkorb is empty, returning');
       toast.error(locale === 'de' ? 'Ihr Warenkorb ist leer.' : 'Sepetiniz boş.');
       return;
     }
     if (!firma?.id) {
+      console.log('[KatalogClient] Firma not found, returning');
       toast.error(locale === 'de' ? 'Firma nicht gefunden.' : 'Firma bulunamadı.');
       return;
     }
 
     try {
+      console.log('[KatalogClient] Submitting order...');
       setIsSubmittingOrder(true);
 
       const normalItems = warenkorb.map(item => {
@@ -224,19 +228,24 @@ export function KatalogClient({
         kargoYontemi: cartShippingInfo.shippingMethodName,
       };
 
+      console.log('[KatalogClient] Calling topluSiparisOlusturAction with payload:', payload);
       const res = await topluSiparisOlusturAction(payload);
+      console.log('[KatalogClient] Action returned:', res);
 
       if (res.error) {
+        console.log('[KatalogClient] Error from action:', res.error);
         toast.error(res.error);
       } else {
+        console.log('[KatalogClient] Order successful, clearing cart and redirecting...');
         clearWarenkorb();
         toast.success(locale === 'de' ? 'Ihre Bestellung wurde erfolgreich aufgegeben.' : 'Siparişiniz başarıyla alındı');
         router.push(`/${locale}/portal/siparisler`);
       }
     } catch (error: any) {
-      console.error('Checkout error:', error);
+      console.error('[KatalogClient] Checkout error caught:', error);
       toast.error(locale === 'de' ? 'Beim Checkout ist ein Fehler aufgetreten.' : 'Sipariş oluşturulurken bir hata oluştu.');
     } finally {
+      console.log('[KatalogClient] Setting isSubmittingOrder to false');
       setIsSubmittingOrder(false);
     }
   };

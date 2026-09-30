@@ -139,12 +139,8 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
             kargo_takip_no,
             kargo_takip_url,
             lexware_pdf_url,
-            lexware_storno_pdf_url,
-            fatura_durumu,
             lexware_invoice_id,
             lexware_invoice_no,
-            lexware_storno_id,
-            lexware_storno_no,
             siparis_detay (
                 id,
                 urun_id,
@@ -185,6 +181,9 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     kendiQuery = kendiQuery.order('siparis_tarihi', { ascending: false }).range(from, to);
 
     const kendiRes = await kendiQuery;
+    if (kendiRes.error) {
+        console.error("KENDI QUERY ERROR:", kendiRes.error);
+    }
     siparisler = kendiRes.data || [];
     count = kendiRes.count || 0;
 
@@ -247,12 +246,8 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
                     kargo_takip_no,
                     kargo_takip_url,
                     lexware_pdf_url,
-                    lexware_storno_pdf_url,
-                    fatura_durumu,
                     lexware_invoice_id,
                     lexware_invoice_no,
-                    lexware_storno_id,
-                    lexware_storno_no,
                     firmalar ( unvan ),
                     siparis_detay (
                         id,

@@ -170,6 +170,7 @@ supabase/
     20261001_smart_dms_columns.sql
     20261002_smart_dms_refactor.sql
     20261003_create_push_subscriptions.sql
+    20261004_add_shipping_tracking.sql
     belgeler_table.sql
     giderler_yeni_kolonlar.sql
     is_ortaklari_kargo_teklifleri.sql
@@ -245,6 +246,11 @@ supabase-migrations/
 .repomixignore
 database.types.ts
 eslint.config.mjs
+fatura_test.md
+fatura_test2.md
+fatura.md
+fatura2.md
+fatura3.md
 guvenli_pva.md
 header.md
 knip_report.txt
@@ -9387,6 +9393,181 @@ const eslintConfig = [
 export default eslintConfig;
 </file>
 
+<file path="fatura_test.md">
+# BAĞLAM VE TEST KAPSAMI (CONTEXT)
+
+Bu test planı, `www.elysonsweets.de` projesi için kritik öneme sahip "Uçtan Uca (E2E) Sipariş ve Teslimat İş Akışı"nın (Dry Run Simülasyonu) otomatikleştirilmesi, test edilmesi ve olası hataların onarılması amacıyla oluşturulmuştur. 
+
+**Kapsanan Modüller:**
+- **Müşteri Portalı (B2B):** Oturum açma, sepet yönetimi, "Havale (Vorkasse)" ile sipariş oluşturma, sipariş geçmişi ve detay görüntüleme.
+- **Admin Paneli:** Sipariş yönetimi, ödeme onayı, Lexware entegrasyonu ile fatura kesimi, kargo (DHL) yönetimi ve takip numarası atama.
+- **Bildirim Sistemi:** Fatura (PDF ekli) ve Kargo takip linki içeren e-posta gönderim tetikleyicileri.
+
+---
+
+# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
+
+- **Test Türü:** Uçtan Uca (End-to-End / E2E) ve Entegrasyon Testleri.
+- **Önerilen Araç:** Playwright (Çoklu tarayıcı bağlamı - multi-context desteği sayesinde Müşteri ve Admin oturumlarını eşzamanlı simüle edebilmek için en uygunudur).
+- **Mocking & Stubbing:** 
+  - Lexware API: Gerçek fatura kesilmesini önlemek için Lexware API istekleri (POST /invoice vb.) intercept edilip `200 OK` ve sahte bir PDF URL'si dönecek şekilde mock'lanmalıdır.
+  - E-posta Servisi (SMTP/SendGrid/AWS SES vb.): Gerçek e-posta gönderimi yerine, e-posta gönderim fonksiyonları spy/mock ile dinlenmeli veya Mailtrap/Ethereal gibi test SMTP sunucuları kullanılmalıdır. Payload içinde PDF ekinin ve kargo takip linkinin varlığı assert edilmelidir.
+- **Veritabanı:** Testler izole bir test veritabanında (veya transaction rollback mantığıyla) çalıştırılmalıdır. Canlı stokların etkilenmemesi kritiktir.
+
+---
+
+# TEST SENARYOLARI (TEST CASES)
+
+### 1. Happy Path (Sorunsuz Akış - Ana Hedef)
+- Müşteri test hesabıyla giriş yapar.
+- Stokta bulunan 1-2 ürün sepete eklenir.
+- Ödeme yöntemi olarak "Havale (Vorkasse)" seçilir ve sipariş tamamlanır.
+- Admin paneline giriş yapılır, yeni sipariş bulunur ve detayına gidilir.
+- "Ödeme Alındı Olarak İşaretle & Fatura Kes" butonuna tıklanır.
+  - *Beklenti:* Lexware API'sine doğru payload gönderilmeli, sistemde fatura oluşmalı ve müşteriye PDF ekli e-posta tetiklenmelidir.
+- Kargo panelinden "DHL" seçilir, geçerli formatta bir test takip numarası girilir ve "Yola Çıktı Olarak İşaretle" butonuna tıklanır.
+  - *Beklenti:* Sipariş durumu güncellenmeli ve müşteriye kargo takip linki içeren e-posta tetiklenmelidir.
+- Müşteri portalına dönülür, sipariş detayına girilir.
+  - *Beklenti:* "Faturayı İndir" ve "Kargomu Takip Et" butonları görünür ve tıklanabilir (doğru URL'lere yönlendirir) olmalıdır.
+
+### 2. Negative Path (Hatalı Girişler ve Yetkisiz Erişimler)
+- Müşteri, stokta olmayan bir ürünü sepete eklemeye veya sepet miktarını mevcut stoktan fazlasına çıkarmaya çalışır (Sistemin engellemesi gerekir).
+- Admin yetkisi olmayan bir kullanıcı (veya standart müşteri), admin sipariş detay sayfasına veya fatura kesme endpoint'ine erişmeye çalışır (403 Forbidden dönmelidir).
+- Admin, kargo takip numarası girmeden "Yola Çıktı Olarak İşaretle" butonuna basmaya çalışır (Validasyon hatası vermelidir).
+- Lexware API'si hata (500 Internal Server Error) döndüğünde sistemin çökmemesi, admin'e anlamlı bir hata mesajı göstermesi ve siparişi "Fatura Kesildi" durumuna **geçirmemesi** gerekir.
+
+### 3. Edge Cases (Sınır Durumlar)
+- Eşzamanlı İşlem: İki farklı admin aynı anda aynı sipariş için "Fatura Kes" butonuna basarsa, sistemin (Idempotency veya DB Lock ile) mükerrer fatura kesimini engellemesi.
+- Kargo takip numarasının çok uzun (örn. 255 karakterden fazla) veya özel karakterler içermesi durumu.
+- Virgülden sonraki küsurat hataları: Sepetteki ürünlerin KDV dahil/hariç toplamlarının Lexware'e gönderilen tutarla kuruşu kuruşuna eşleşmesi.
+
+---
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Test Ortamının Hazırlanması**
+  - Playwright konfigürasyonunu (`playwright.config.ts`) kontrol et. Base URL ve test timeout sürelerini ayarla.
+  - Test veritabanı bağlantılarını ve seed datalarını (Test Müşterisi, Test Admini, Test Ürünleri) oluşturacak `setup` scriptini yaz.
+
+- [ ] **Adım 2: Mock ve Intercept Mantığının Kurulması**
+  - Lexware API çağrılarını yakalayacak (intercept) ve başarılı bir fatura yanıtı dönecek Playwright route handler'larını yaz.
+  - E-posta gönderim servisini (örneğin `nodemailer` veya 3rd party API) test ortamında mock'la.
+
+- [ ] **Adım 3: Müşteri Sipariş Testinin (E2E) Yazılması**
+  - `tests/e2e/order-fulfillment.spec.ts` dosyasını oluştur.
+  - Müşteri girişi, sepete ürün ekleme ve "Vorkasse" ile sipariş tamamlama adımlarını kodla.
+  - Sipariş numarasını (Order ID) bir değişkene kaydet.
+
+- [ ] **Adım 4: Admin Fatura ve Kargo Testinin Yazılması**
+  - Aynı test dosyası içinde yeni bir browser context (Admin Context) aç.
+  - Admin girişi yap, kaydedilen Sipariş Numarasını arat ve detaya gir.
+  - "Ödeme Alındı Olarak İşaretle & Fatura Kes" butonuna tıkla. Lexware mock'unun tetiklendiğini ve e-posta payload'unda PDF olduğunu assert et.
+  - Kargo bölümünde "DHL" seç, `1234567890` takip numarasını gir, "Yola Çıktı" olarak işaretle. E-posta payload'unda takip linki olduğunu assert et.
+
+- [ ] **Adım 5: Müşteri Portalı Doğrulama Testinin Yazılması**
+  - Müşteri context'ine geri dön.
+  - Sipariş detay sayfasını yenile (reload).
+  - `Faturayı İndir` butonunun görünürlüğünü ve `href` niteliğini doğrula.
+  - `Kargomu Takip Et` butonunun görünürlüğünü ve DHL takip linkini içerdiğini doğrula.
+
+- [ ] **Adım 6: Testlerin Koşulması ve Hata Tespiti**
+  - Yazılan testleri `npx playwright test` komutu ile çalıştır.
+  - Başarısız olan adımları (örneğin butonun olmaması, API'nin 500 dönmesi, e-postanın tetiklenmemesi) tespit et.
+
+- [ ] **Adım 7: Kod Onarımı (Fixing)**
+  - Testlerin başarısız olduğu noktalarda ilgili kaynak kod dosyalarına (Next.js sayfaları, API route'ları, Prisma şemaları veya servis katmanı) müdahale et.
+  - İş mantığı hatalarını, UI kırılmalarını veya eksik butonları düzelt.
+  - Testler %100 geçene kadar Adım 6 ve Adım 7'yi tekrarla.
+
+---
+
+# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+
+1. **CANLI VERİTABANI KORUMASI:** Testler kesinlikle `NODE_ENV=test` ortamında çalışmalı ve canlı veritabanı (`DATABASE_URL`) kullanılmamalıdır. Stokların eksiye düşmesi veya gerçek müşterilerin verilerinin bozulması kabul edilemez.
+2. **GERÇEK API KISITLAMASI:** Stripe, Lexware, DHL veya gerçek SMTP sunucularına test ortamından kesinlikle istek atılmamalıdır. Tüm dış servisler mock'lanmalıdır.
+3. **ATOMİK İŞLEMLER:** Her test kendi verisini oluşturmalı ve test bitiminde temizlemelidir (Teardown). Testler birbirine bağımlı olmamalıdır (Aynı dosya içindeki akış hariç).
+4. **GÜVENLİK:** Admin endpoint'lerine yapılan isteklerde JWT/Session token doğrulaması kesinlikle test edilmeli, yetkisiz erişimlerin (Bypass) engellendiğinden emin olunmalıdır.
+5. **KÜSURAT HASSASİYETİ:** Fatura tutarları hesaplanırken JavaScript'in floating-point hatalarına (örn. `0.1 + 0.2 = 0.30000000000000004`) karşı `Decimal.js` veya benzeri bir kütüphane kullanıldığı testlerde assert edilmelidir.
+</file>
+
+<file path="fatura_test2.md">
+# BAĞLAM VE TEST KAPSAMI (CONTEXT)
+
+Bu yönerge, `order-fulfillment.spec.ts` E2E testinin koşumu sırasında Adım 6'da karşılaşılan `profile_not_found_or_error` hatasının çözümü ve test akışının kesintisiz devam edebilmesi için hazırlanmıştır. 
+
+**Sorun Analizi:** Supabase Auth servisinde kullanıcı başarıyla oluşturulmasına rağmen, `public.profiles` (veya `profiller`) tablosunda bu kullanıcıya ait bir kayıt ve geçerli bir `firma_id` bulunmamaktadır. RLS (Row Level Security) politikaları standart API anahtarlarıyla dışarıdan (test scripti üzerinden) bu tabloya veri yazılmasını engellemektedir.
+
+---
+
+# TEST STRATEJİSİ VE MİMARİ KARAR (STRATEGY)
+
+**MİMARİ KARAR:** Kesinlikle Yerel (Local) Supabase Ortamına Geçiş Yapılacaktır.
+Uzak (Remote/Staging) veritabanındaki RLS politikalarını testler geçsin diye esnetmek veya "bypass" kuralları eklemek, güvenlik zafiyeti yaratacağı için **kesinlikle reddedilmiştir.** 
+
+**Çözüm Stratejisi:**
+1. Testler için izole bir yerel Supabase ortamı (`supabase start`) ayağa kaldırılacaktır.
+2. `setup.ts` dosyası, RLS politikalarını tamamen ezip geçebilen **Supabase Service Role Key** (Admin yetkisi) kullanılarak yeniden yapılandırılacaktır.
+3. Test kullanıcısı oluşturulurken, Auth kaydı ile eşzamanlı olarak `profiles` ve `companies` (firma) tablolarına gerekli mock datalar Service Role Key ile enjekte edilecektir.
+
+---
+
+# TEST SENARYOLARI (TEST CASES) - GÜNCELLEME
+
+### 1. Setup (Tohumlama) Doğrulama Senaryosu
+- `setup.ts` çalıştırıldığında;
+  - `auth.users` tablosunda `test_customer@example.com` oluşmalı.
+  - `public.companies` (veya ilgili firma tablosu) tablosunda "Test Firması" adında bir kayıt oluşmalı.
+  - `public.profiles` tablosunda, Auth UID'si ile eşleşen ve `firma_id`'si "Test Firması"na bağlı olan bir profil kaydı oluşmalı.
+
+### 2. Login Akışı Doğrulama (Kaldığı Yerden Devam)
+- Playwright, `test_customer@example.com` ile login olduğunda Next.js `login/page.tsx` profili başarıyla bulmalı.
+- Kullanıcı `/tr/login?error=profile_not_found_or_error` sayfasına düşmek yerine, doğrudan `/tr/portal/` (Müşteri Portalı) ana sayfasına yönlendirilmelidir.
+
+---
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Yerel Supabase Ortamının Başlatılması**
+  - Terminalde `npx supabase start` komutunu çalıştırarak yerel Supabase konteynerlerini ayağa kaldır.
+  - Çıktı olarak verilen `API URL`, `anon key` ve en önemlisi `service_role key` değerlerini not al.
+
+- [ ] **Adım 2: Test Ortam Değişkenlerinin (.env.test) Güncellenmesi**
+  - Proje kök dizinindeki `.env.test` (veya Playwright'ın kullandığı env dosyası) dosyasını yerel Supabase bilgilerine göre güncelle:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=<yerel_anon_key>
+    SUPABASE_SERVICE_ROLE_KEY=<yerel_service_role_key>
+    ```
+
+- [ ] **Adım 3: Veritabanı Şemasının Yerel Ortama Aktarılması**
+  - `npx supabase db push` veya `npx supabase migration up` komutları ile mevcut canlı/staging veritabanı şemasını (tablolar, RLS'ler, triggerlar) yerel Supabase'e uygula.
+
+- [ ] **Adım 4: `setup.ts` Dosyasının Service Role Key ile Yeniden Yazılması**
+  - `tests/e2e/setup.ts` dosyasını aç. Supabase client'ını `anon_key` yerine `SUPABASE_SERVICE_ROLE_KEY` ile başlatacak şekilde değiştir.
+  - Tohumlama (Seed) mantığını şu sırayla güncelle:
+    1. `supabase.auth.admin.createUser(...)` ile test kullanıcısını oluştur.
+    2. `supabase.from('companies').insert(...)` ile mock bir firma oluştur ve ID'sini al.
+    3. `supabase.from('profiles').insert({ id: user.id, firma_id: company.id, role: 'customer', ... })` ile profili oluştur. (RLS, Service Role Key kullanıldığı için bu işleme izin verecektir).
+
+- [ ] **Adım 5: Next.js Login Mantığının Kontrolü (Gerekirse)**
+  - `login/page.tsx` ve `portal/layout.tsx` dosyalarını incele. Profil sorgusunun hangi tabloya ve hangi sütunlara (örn: `firma_id`) baktığını teyit et. `setup.ts` içinde oluşturulan mock datanın bu beklentiyi birebir karşıladığından emin ol.
+
+- [ ] **Adım 6: Testin Yeniden Koşulması**
+  - `npx playwright test tests/e2e/order-fulfillment.spec.ts` komutunu çalıştır.
+  - Login işleminin başarıyla geçip geçmediğini ve testin Adım 3 (Sepete ürün ekleme) aşamasına ilerleyip ilerlemediğini doğrula.
+
+- [ ] **Adım 7: Kalan E2E Akışının Tamamlanması**
+  - Login sorunu çözüldükten sonra, orijinal `fatura_test.md` dosyasındaki Adım 3, 4 ve 5'in (Sipariş, Fatura, Kargo, Müşteri Kontrolü) kesintisiz çalışmasını sağla. Hata veren yerleri onar.
+
+---
+
+# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
+
+1. **RLS POLİTİKALARINA DOKUNULMAYACAK:** Uzak (Remote) veritabanındaki hiçbir RLS politikası, trigger veya güvenlik kuralı testleri geçirmek amacıyla değiştirilmeyecektir.
+2. **SERVICE ROLE KEY KULLANIMI:** `SUPABASE_SERVICE_ROLE_KEY` sadece ve sadece `setup.ts` (test tohumlama) ve `teardown.ts` (test temizleme) scriptlerinde kullanılmalıdır. Next.js uygulama kodunun (client veya standart API route'ları) içine kesinlikle sızdırılmamalıdır.
+3. **İZOLASYON:** Testler çalışırken uygulamanın (`localhost:3000`) `.env.test` dosyasını okuduğundan ve uzak veritabanına değil, yerel Supabase'e (`127.0.0.1:54321`) bağlandığından %100 emin olun.
+</file>
+
 <file path="postcss.config.js">
 module.exports = {
   plugins: {
@@ -12082,115 +12263,6 @@ export function getI18nAlternates(path: string = ''): Metadata['alternates'] {
 }
 </file>
 
-<file path="src/lib/web-push.ts">
-import webpush from 'web-push';
-import { createSupabaseServiceClient } from '@/lib/supabase/service';
-
-// VAPID konfigürasyonu
-const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-const privateKey = process.env.VAPID_PRIVATE_KEY;
-const subject = process.env.VAPID_SUBJECT || 'mailto:info@elysonsweets.de';
-
-if (publicKey && privateKey) {
-  webpush.setVapidDetails(subject, publicKey, privateKey);
-} else {
-  console.warn('[web-push] VAPID anahtarları eksik. Push bildirimleri gönderilemeyebilir.');
-}
-
-export interface PushNotificationPayload {
-  title: string;
-  body: string;
-  icon?: string;
-  badge?: string;
-  url?: string;
-  tag?: string;
-}
-
-/**
- * Belirli bir kullanıcıya ait kayıtlı tüm cihazlara Web Push bildirimi gönderir.
- * Fire-and-forget: Hata durumunda ana işlemi bloklamaz.
- * Geçersiz (404/410) abonelikleri veritabanından otomatik temizler.
- */
-export async function sendWebPushToUser(
-  userId: string,
-  payload: PushNotificationPayload
-): Promise<{ success: boolean; sentCount: number; error?: unknown }> {
-  if (!publicKey || !privateKey) {
-    console.warn('[sendWebPushToUser] VAPID anahtarları tanımlı değil.');
-    return { success: false, sentCount: 0, error: 'VAPID keys not configured' };
-  }
-
-  try {
-    const supabaseAdmin = createSupabaseServiceClient();
-
-    // Kullanıcının kayıtlı tüm push aboneliklerini çek
-    const { data: subscriptions, error: subError } = await supabaseAdmin
-      .from('push_subscriptions')
-      .select('id, endpoint, p256dh, auth')
-      .eq('user_id', userId);
-
-    if (subError) {
-      console.error('[sendWebPushToUser] Abonelikler sorgulanırken hata:', subError);
-      return { success: false, sentCount: 0, error: subError };
-    }
-
-    if (!subscriptions || subscriptions.length === 0) {
-      return { success: true, sentCount: 0 };
-    }
-
-    const payloadString = JSON.stringify({
-      title: payload.title,
-      body: payload.body,
-      icon: payload.icon || '/android-chrome-192x192.png',
-      badge: payload.badge || '/favicon-32x32.png',
-      url: payload.url || '/portal/dashboard',
-      tag: payload.tag || 'elyson-sweets-notification',
-    });
-
-    let sentCount = 0;
-    const expiredSubIds: string[] = [];
-
-    await Promise.all(
-      subscriptions.map(async (sub) => {
-        const pushSubscription = {
-          endpoint: sub.endpoint,
-          keys: {
-            p256dh: sub.p256dh,
-            auth: sub.auth,
-          },
-        };
-
-        try {
-          await webpush.sendNotification(pushSubscription, payloadString);
-          sentCount++;
-        } catch (pushError: any) {
-          console.warn(`[sendWebPushToUser] Push gönderim hatası (ID: ${sub.id}):`, pushError?.message || pushError);
-
-          // 410 Gone veya 404 Not Found dönmüşse kullanıcı tarayıcıdan izni kaldırmış/abonelik düşmüştür
-          if (pushError?.statusCode === 410 || pushError?.statusCode === 404) {
-            expiredSubIds.push(sub.id);
-          }
-        }
-      })
-    );
-
-    // Süresi dolmuş / geçersiz abonelikleri temizle
-    if (expiredSubIds.length > 0) {
-      await supabaseAdmin
-        .from('push_subscriptions')
-        .delete()
-        .in('id', expiredSubIds)
-        .catch((err) => console.error('[sendWebPushToUser] Eski abonelik temizleme hatası:', err));
-    }
-
-    return { success: true, sentCount };
-  } catch (error) {
-    console.error('[sendWebPushToUser] Genel hata:', error);
-    return { success: false, sentCount: 0, error };
-  }
-}
-</file>
-
 <file path="src/types/blog.ts">
 export type I18nString = {
   tr: string;
@@ -13012,6 +13084,199 @@ CREATE POLICY "Service role full access to push subscriptions"
     TO service_role
     USING (true)
     WITH CHECK (true);
+</file>
+
+<file path="supabase/migrations/20261004_add_shipping_tracking.sql">
+-- Migration: Kargo Takip Kolonları
+-- Tarih: 2026-10-04
+-- Açıklama: siparisler tablosuna kargo takip bilgileri için kolonlar eklenir.
+-- Bu kolonlar "Yola Çıktı" durumu işlenirken doldurulur.
+
+ALTER TABLE public.siparisler
+  ADD COLUMN IF NOT EXISTS kargo_firmasi  TEXT,
+  ADD COLUMN IF NOT EXISTS kargo_takip_no TEXT,
+  ADD COLUMN IF NOT EXISTS kargo_takip_url TEXT;
+
+-- İndeks: Takip numarasına göre arama desteklenir
+CREATE INDEX IF NOT EXISTS idx_siparisler_kargo_takip_no
+  ON public.siparisler (kargo_takip_no)
+  WHERE kargo_takip_no IS NOT NULL;
+
+COMMENT ON COLUMN public.siparisler.kargo_firmasi  IS 'Kargo firması adı (DHL, UPS, DPD, Spedition, Eigenversand vb.)';
+COMMENT ON COLUMN public.siparisler.kargo_takip_no IS 'Kargo takip numarası';
+COMMENT ON COLUMN public.siparisler.kargo_takip_url IS 'Kargo takip linki (tracking URL)';
+</file>
+
+<file path="fatura.md">
+# BAĞLAM VE MİMARİ KARARLAR (CONTEXT & ARCHITECTURE)
+
+**Kullanıcı Sorularına İstinaden Mimari Kararlar:**
+1. **Fatura Formatı ve Tasarımı (Lexware):** Fatura PDF'ini biz kodlamayacağız. Lexware Office, Alman vergi hukukuna (GoBD) %100 uyumlu, yasal olarak geçerli PDF'leri kendi içinde üretir. Bizim yazdığımız `createLexwareInvoiceForOrder` fonksiyonu sadece sipariş verilerini (ürünler, net fiyatlar, KDV oranları) Lexware'e JSON olarak gönderir. Lexware bu veriyi alır, senin Lexware panelinde ayarladığın şablona (Logon, şirket bilgilerin, altbilgiler) oturtarak resmi PDF'i oluşturur. Biz sadece o PDF'i API üzerinden indirip müşteriye mail atacağız. (Not: Lexware paneline girip şirket logonu ve banka bilgilerini ayarlaman yeterlidir).
+2. **Ödeme Sistemleri (Stripe & Havale):** Hem Stripe (Kredi Kartı/Apple Pay) hem de Vorkasse (Havale) aktif olacak.
+3. **Tetikleyici (Trigger):** Fatura, sipariş durumu "Ödendi" (Paid) olduğunda kesilecek. Stripe ödemelerinde bu otomatik (Webhook ile), Havale ödemelerinde ise Admin panelinden manuel butona basıldığında gerçekleşecek.
+4. **İptal (Storno):** Kısmi iade yapılmayacak. Sipariş iptal edildiğinde Lexware'de tam "Rechnungskorrektur" (Storno) kesilecek, stoklar geri yüklenecek ve müşteriye iptal faturası mail atılacak.
+
+**Görev Kapsamı:**
+Siparişin ödenmesinden faturanın kesilip müşteriye e-posta ile (PDF ekli olarak) gönderilmesine, Stripe webhook entegrasyonuna ve iptal/storno süreçlerinin Admin UI'a bağlanmasına kadar olan uçtan uca ERP/Muhasebe akışının kurulması.
+
+Çalışılacak Dosyalar:
+- `src/lib/email.ts` (PDF ekli yeni mail şablonları)
+- `src/app/actions/siparis-muhasebe-actions.ts` (Yeni - Fatura ve İptal iş mantığı)
+- `src/app/api/webhooks/stripe/route.ts` (Yeni - Stripe otomatik ödeme dinleyicisi)
+- `src/components/admin/operasyon/siparisler/SiparisDetayClient.tsx` (veya ilgili Admin Sipariş Detay bileşeni)
+
+# BAĞIMLILIKLAR (DEPENDENCIES)
+- `stripe` (Webhook doğrulaması için)
+- `resend` (PDF attachment destekli e-posta gönderimi için)
+- Mevcut `src/lib/lexware/invoices.ts` servisleri.
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: E-posta Servisinin PDF Eklerini (Attachments) Destekleyecek Şekilde Güncellenmesi**
+  - `src/lib/email.ts` dosyasını aç.
+  - `sendInvoiceEmail` adında yeni bir fonksiyon oluştur. Parametre olarak `to`, `orderNo`, `pdfBuffer`, `pdfFilename` alsın. Resend'in `attachments: [{ filename: pdfFilename, content: pdfBuffer }]` özelliğini kullanarak müşteriye "Ödemeniz alındı, faturanız ektedir" temalı Almanca bir mail göndersin.
+  - `sendStornoEmail` adında bir fonksiyon daha oluştur. Sipariş iptal edildiğinde "Siparişiniz iptal edildi, İptal Faturanız (Rechnungskorrektur) ektedir" temalı bir mail göndersin.
+
+- [ ] **Adım 2: Muhasebe ve Sipariş İş Mantığının (Server Actions) Yazılması**
+  - `src/app/actions/siparis-muhasebe-actions.ts` adında yeni bir dosya oluştur.
+  - **Fonksiyon 1: `processOrderPaymentAction(siparisId: string)`**
+    1. Siparişin `odeme_durumu`'nu 'paid' (Ödendi) yap.
+    2. Siparişin `lexware_invoice_id`'si var mı kontrol et. Yoksa `createLexwareInvoiceForOrder(siparisId)` çağırarak faturayı kes.
+    3. `getLexwareInvoicePdfBuffer` ile PDF'i indir.
+    4. `sendInvoiceEmail` ile müşteriye gönder.
+  - **Fonksiyon 2: `cancelOrderAndStornoAction(siparisId: string, reason: string)`**
+    1. Siparişin `lexware_invoice_id`'si var mı bak. Varsa `cancelLexwareInvoiceForOrder` çağırarak Storno kes.
+    2. Storno kesildiyse `getLexwareCreditNotePdfBuffer` ile PDF'i al ve `sendStornoEmail` ile müşteriye at.
+    3. Supabase RPC `restore_order_stock(siparisId)` fonksiyonunu çağırarak stokları geri yükle.
+    4. Sipariş durumunu 'İptal Edildi' yap.
+
+- [ ] **Adım 3: Stripe Webhook Entegrasyonu (Otomatik Fatura)**
+  - `src/app/api/webhooks/stripe/route.ts` dosyasını oluştur.
+  - Stripe'tan gelen POST isteğini `stripe.webhooks.constructEvent` ile doğrula (`STRIPE_WEBHOOK_SECRET` kullanarak).
+  - Event tipi `checkout.session.completed` veya `payment_intent.succeeded` ise:
+    - Session'ın `metadata.orderId` veya `client_reference_id` alanından Supabase sipariş ID'sini al.
+    - `processOrderPaymentAction(orderId)` fonksiyonunu çağır. (Böylece müşteri kredi kartıyla ödediği saniye fatura kesilip mailine düşecek).
+
+- [ ] **Adım 4: Admin Paneli UI Entegrasyonu**
+  - Admin sipariş detay sayfasını (`SiparisDetayClient.tsx` veya ilgili bileşen) aç.
+  - "Ödeme Alındı Olarak İşaretle" butonunun `onClick` eventini `processOrderPaymentAction`'a bağla. (Havale ile ödeyenler için manuel tetikleyici).
+  - "Siparişi İptal Et" butonunu `cancelOrderAndStornoAction`'a bağla.
+  - Ekrana "Faturayı İndir" ve (varsa) "İptal Faturasını (Storno) İndir" butonları ekle. Bu butonlar `lexware_pdf_url` üzerinden API'ye istek atıp PDF'i tarayıcıda açsın/indirsin.
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
+
+- **IDEMPOTENCY (TEKRARLANABİLİRLİK KORUMASI):** `processOrderPaymentAction` ve `cancelOrderAndStornoAction` fonksiyonları KESİNLİKLE idempotent olmalıdır. Yani Admin yanlışlıkla "Ödendi" butonuna iki kere basarsa, Lexware'de iki tane fatura KESİLMEMELİDİR. Fonksiyonun en başında `if (siparis.lexware_invoice_id) return;` gibi bir kontrol mutlaka olmalıdır.
+- **HATA YÖNETİMİ (GRACEFUL FAILURE):** Lexware API'si çökerse veya PDF indirilemezse, siparişin veritabanındaki durumu güncellenmeli ancak Admin'e "Sipariş ödendi olarak işaretlendi fakat Lexware faturası kesilemedi, lütfen Lexware panelinden manuel kontrol edin" şeklinde net bir `toast.error` veya `toast.warning` gösterilmelidir. Sistem tamamen çökmemelidir.
+- **STRIPE GÜVENLİĞİ:** Webhook route'unda `req.text()` kullanılarak raw body alınmalı ve Stripe signature doğrulaması KESİNLİKLE yapılmalıdır. Aksi takdirde sahte isteklerle siparişler "Ödendi" statüsüne çekilebilir.
+- **STOK BÜTÜNLÜĞÜ:** İptal işleminde `restore_order_stock` RPC'si çağrılmadan işlem bitirilmemelidir. Stokların eksiye düşmemesi veya havada kalmaması B2B ticareti için kritiktir.
+</file>
+
+<file path="fatura2.md">
+# BAĞLAM (CONTEXT)
+Bu görev, sistemin canlıya çıkış (Production Launch) öncesi son pürüzlerinin giderilmesini kapsar. İki ana hedef vardır:
+1. **Build Kurtarma (Blog TS Fix):** `database.types.ts` dosyasındaki `blog_yazilari` tablosu tanımları ile veritabanındaki gerçek kolonlar (migration dosyasındaki) uyuşmamaktadır. Eski Türkçe kolon isimleri (`baslik`, `icerik`) yerine yeni JSONB kolonları (`title`, `content`, `excerpt`) tiplere ve frontend bileşenlerine işlenerek `npm run build` hatasız hale getirilecektir.
+2. **Kargo ve Teslimat (Fulfillment) Akışı:** Siparişin kargoya verilmesi, takip numarasının girilmesi ve müşteriye "Siparişiniz Yola Çıktı" e-postasının (Tracking Link ile birlikte) otomatik gönderilmesi sağlanacaktır.
+
+Çalışılacak Dosyalar:
+- `src/lib/supabase/database.types.ts` (Tip düzeltmesi)
+- `src/app/[locale]/(public)/blog/...` (Blog frontend bileşenlerindeki eski kolon isimlerinin güncellenmesi)
+- `supabase/migrations/[tarih]_add_shipping_tracking.sql` (Yeni)
+- `src/lib/email.ts` (Kargo e-posta şablonu)
+- `src/app/actions/siparis-kargo-actions.ts` (Yeni)
+- `src/components/admin/operasyon/siparisler/SiparisDetayClient.tsx` (veya ilgili Admin Sipariş UI bileşeni)
+
+# BAĞIMLILIKLAR (DEPENDENCIES)
+- Ekstra bir paket kurulumuna gerek yoktur. Mevcut `resend` ve `supabase` altyapısı kullanılacaktır.
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Veritabanı Tiplerinin (database.types.ts) Düzeltilmesi**
+  - `src/lib/supabase/database.types.ts` dosyasını aç.
+  - `blog_yazilari` tablosunun `Row`, `Insert` ve `Update` tanımlarını bul.
+  - Eski Türkçe kolonları (`baslik`, `icerik`, `meta_aciklama`, `meta_baslik`, `one_cikan_gorsel_url`, `yayinlanma_tarihi`, `yazar_id`, `durum`) SİL.
+  - Yerine migration'da olan gerçek kolonları ekle: `title` (Json), `excerpt` (Json), `content` (Json), `meta_title` (Json), `meta_description` (Json), `image_url` (string | null), `author_name` (string | null), `published_at` (string | null), `is_published` (boolean | null).
+
+- [ ] **Adım 2: Blog Frontend Bileşenlerinin Onarılması**
+  - Projedeki blog listeleme ve detay sayfalarını (`src/app/[locale]/(public)/blog/...` veya ilgili dizinler) tara.
+  - Eski kolon isimlerini kullanan yerleri yeni JSONB yapısına göre güncelle. 
+  - Örnek: `post.baslik` yerine `(post.title as any)?.[locale] || (post.title as any)?.de || ''` kullan.
+  - `post.one_cikan_gorsel_url` yerine `post.image_url` kullan.
+  - Bu adımın sonunda terminalde `npm run build` komutunun sıfır hata ile tamamlandığından emin ol.
+
+- [ ] **Adım 3: Kargo Takip Kolonları İçin Migration**
+  - `supabase/migrations/` dizininde yeni bir SQL dosyası oluştur (örn: `20261004_add_shipping_tracking.sql`).
+  - `siparisler` tablosuna şu kolonları ekle:
+    - `kargo_firmasi TEXT`
+    - `kargo_takip_no TEXT`
+    - `kargo_takip_url TEXT`
+  - `database.types.ts` dosyasındaki `siparisler` tablosuna bu 3 kolonu (`string | null` olarak) manuel ekle.
+
+- [ ] **Adım 4: Kargo E-posta Şablonunun Eklenmesi**
+  - `src/lib/email.ts` dosyasını aç.
+  - `sendShippingEmail` adında yeni bir fonksiyon oluştur.
+  - Parametreler: `to`, `orderNo`, `courier`, `trackingNo`, `trackingUrl`.
+  - HTML Şablonu (Almanca): "Ihre Bestellung wurde versandt!" (Siparişiniz kargoya verildi). Kargo firması ve takip numarasını belirgin bir kutu içinde göster. Eğer `trackingUrl` varsa "Sendung verfolgen" (Kargoyu Takip Et) adında yeşil bir buton ekle.
+
+- [ ] **Adım 5: Kargo Server Action'ının Yazılması**
+  - `src/app/actions/siparis-kargo-actions.ts` dosyasını oluştur.
+  - `markOrderAsShippedAction(siparisId: string, kargoFirmasi: string, kargoTakipNo: string, kargoTakipUrl: string)` fonksiyonunu yaz.
+  - İşlemler:
+    1. Supabase'de siparişi güncelle: `siparis_durumu = 'Yola Çıktı'`, `kargo_firmasi`, `kargo_takip_no`, `kargo_takip_url`.
+    2. Müşterinin e-posta adresini çek ve `sendShippingEmail` fonksiyonunu tetikle.
+    3. `sendNotification` (notificationUtils.ts) ile müşteriye portal içi bildirim at: "Siparişiniz yola çıktı. Kargo: [Firma] - [Takip No]".
+
+- [ ] **Adım 6: Admin Sipariş Detay UI Güncellemesi**
+  - Admin sipariş detay sayfasını aç.
+  - "Kargo ve Teslimat" adında yeni bir kart/bölüm ekle.
+  - İçerisine 3 input koy: Kargo Firması (Select: DHL, UPS, DPD, Spedition, Eigenversand), Takip Numarası (Text), Takip Linki (Text).
+  - Altına "Kargoya Verildi (Yola Çıktı) Olarak İşaretle" butonu ekle.
+  - Butona tıklandığında `markOrderAsShippedAction` çalışsın, başarılı olursa `toast.success` göstersin ve sayfayı yenilesin (`router.refresh()`).
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
+
+- **BUILD GÜVENLİĞİ:** Adım 1 ve 2'deki TypeScript düzeltmeleri en yüksek önceliğe sahiptir. `any` cast etmek gerekirse bile (JSONB alanları için) build'in geçmesi sağlanmalıdır. Canlıya çıkış için `npm run build` komutunun yeşil yanması zorunludur.
+- **E-POSTA GÜVENLİĞİ:** `sendShippingEmail` fonksiyonu hata fırlatsa bile (örn: Resend API limiti), `markOrderAsShippedAction` fonksiyonu çökmek yerine işlemi tamamlamalı ve Admin'e "Sipariş güncellendi ancak e-posta gönderilemedi" şeklinde bir `toast.warning` dönmelidir (Graceful Degradation).
+- **VERİ BÜTÜNLÜĞÜ:** Kargo firması "Eigenversand" (Kendi aracımızla teslimat) seçilirse, takip numarası ve linki zorunlu tutulmamalıdır. DHL/UPS gibi firmalar seçilirse takip numarası girilmesi teşvik edilmelidir.
+</file>
+
+<file path="fatura3.md">
+# BAĞLAM (CONTEXT)
+Arka planda Lexware fatura entegrasyonu, Storno işlemleri ve Kargo takip altyapısı başarıyla kuruldu. Admin paneli ve e-posta bildirimleri sorunsuz çalışıyor. TypeScript hataları sıfırlandı.
+Bu görevin amacı: Arka planda kurulan bu altyapının **Müşteri Portalı (Customer Portal)** tarafındaki arayüzünü (UI) tamamlamaktır. Müşteriler kendi panellerine girdiklerinde faturalarını indirebilmeli ve kargolarını takip edebilmelidir.
+
+Çalışılacak Dosyalar:
+- `src/components/portal/siparisler/SiparisDetayClient.tsx` (veya müşteri portalındaki sipariş detaylarını gösteren ilgili bileşen)
+
+# BAĞIMLILIKLAR (DEPENDENCIES)
+- `lucide-react` (İndirme, Kamyon, Dosya ikonları için)
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Müşteri Sipariş Detay Bileşeninin Tespiti**
+  - Müşteri portalında sipariş detaylarının gösterildiği bileşeni (`SiparisDetayClient.tsx` veya benzeri) aç.
+  - Sipariş verisi içinde `lexware_pdf_url`, `lexware_storno_pdf_url`, `kargo_firmasi`, `kargo_takip_no`, `kargo_takip_url`, `fatura_durumu` alanlarının çekildiğinden (Supabase select sorgusunda olduğundan) emin ol. Eksikse sorguya ekle.
+
+- [ ] **Adım 2: Kargo Takip UI Entegrasyonu**
+  - Sipariş durumu "Yola Çıktı" (Shipped) veya "Teslim Edildi" (Delivered) ise, sipariş özetinin üst kısmına şık bir "Kargo Bilgileri" kartı ekle.
+  - İçerisinde Kargo Firması ve Takip Numarasını göster.
+  - Eğer `kargo_takip_url` doluysa, yanına `lucide-react`'ten `Truck` veya `ExternalLink` ikonu içeren, yeni sekmede açılan (`target="_blank"`) bir **"Kargomu Takip Et"** butonu ekle.
+
+- [ ] **Adım 3: Fatura (Rechnung) İndirme UI Entegrasyonu**
+  - Siparişin `fatura_durumu` 'kesildi' ise ve `lexware_pdf_url` doluysa, sipariş detaylarına bir **"Faturayı İndir (PDF)"** butonu ekle.
+  - Buton tıklandığında `window.open(siparis.lexware_pdf_url, '_blank')` ile faturayı tarayıcıda açsın/indirsin. İkon olarak `FileText` veya `Download` kullan.
+
+- [ ] **Adım 4: İptal Faturası (Storno) İndirme UI Entegrasyonu**
+  - Sipariş iptal edilmişse ve `lexware_storno_pdf_url` doluysa, kırmızı veya gri tonlarında bir **"İptal Faturasını İndir (Storno)"** butonu ekle.
+  - Tıklandığında ilgili URL'yi yeni sekmede açsın.
+
+- [ ] **Adım 5: UI/UX Cilasının Yapılması**
+  - Eklenen butonların Tailwind CSS sınıflarını projenin genel tasarım diline (`primary`, `accent`, `secondary` renkleri) uygun hale getir.
+  - Butonların mobil cihazlarda (responsive) düzgün göründüğünden emin ol.
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
+- **GÜVENLİK:** Müşteri sadece KENDİ siparişinin faturasını indirebilmelidir. (Bu zaten RLS ile korunuyor ancak UI tarafında da linklerin doğru siparişe ait olduğundan emin ol).
+- **NULL KONTROLLERİ:** `lexware_pdf_url` veya `kargo_takip_url` null ise butonlar KESİNLİKLE render edilmemeli veya `disabled` state'inde, açıklayıcı bir tooltip ile gösterilmelidir. Uygulamanın `undefined` hatası verip çökmesine izin verme.
+- **DİL DESTEĞİ:** Buton metinlerini (Faturayı İndir, Kargomu Takip Et) projenin çoklu dil yapısına uygun olarak (veya şimdilik Almanca/Türkçe fallback ile) yaz.
 </file>
 
 <file path="guvenli_pva.md">
@@ -14602,173 +14867,6 @@ export const getCachedDashboardData = unstable_cache(
 );
 </file>
 
-<file path="src/lib/ai/board/crew.ts">
-import { generateText } from 'ai';
-import { getGroqModel, getGeminiModel } from '../providers';
-
-// ------------------------------------------------------------------
-// 1. Core Interfaces mimicking CrewAI Architecture
-// ------------------------------------------------------------------
-
-export interface AgentConfig {
-  role: string;
-  goal: string;
-  backstory: string;
-  temperature?: number;
-}
-
-export interface TaskConfig {
-  description: string;
-  expectedOutput: string;
-  agent: Agent;
-}
-
-// ------------------------------------------------------------------
-// 2. Agent Class
-// ------------------------------------------------------------------
-
-export class Agent {
-  public role: string;
-  public goal: string;
-  public backstory: string;
-  public temperature: number;
-
-  constructor(config: AgentConfig) {
-    this.role = config.role;
-    this.goal = config.goal;
-    this.backstory = config.backstory;
-    this.temperature = config.temperature ?? 0.3;
-  }
-
-  /**
-   * Generates the system prompt tailored to the CrewAI methodology.
-   */
-  public getSystemPrompt(): string {
-    return `Senin Rolün (Role): ${this.role}\n\nHedefin (Goal): ${this.goal}\n\nGeçmişin ve Karakterin (Backstory): ${this.backstory}\n\nSen, Elyson Sweets (Almanya) için çalışan uzman bir yönetim kurulu üyesisin. Halüsinasyon yapmadan, doğrudan hedefe odaklanan net analizler yaparsın. Gereksiz nezaket kelimeleri kullanma, doğrudan konuya gir. Çıktılarını her zaman beklenen çıktıya (Expected Output) uygun formatta vermelisin.`;
-  }
-}
-
-// ------------------------------------------------------------------
-// 3. Task Class
-// ------------------------------------------------------------------
-
-export class Task {
-  public description: string;
-  public expectedOutput: string;
-  public agent: Agent;
-  public result: string | null = null;
-
-  constructor(config: TaskConfig) {
-    this.description = config.description;
-    this.expectedOutput = config.expectedOutput;
-    this.agent = config.agent;
-  }
-}
-
-// ------------------------------------------------------------------
-// 4. Crew (Orchestrator) Class
-// ------------------------------------------------------------------
-
-export interface CrewConfig {
-  tasks: Task[];
-  onStepComplete?: (task: Task, result: string) => Promise<void>;
-}
-
-export class Crew {
-  private tasks: Task[];
-  private onStepComplete?: (task: Task, result: string) => Promise<void>;
-
-  constructor(config: CrewConfig) {
-    this.tasks = config.tasks;
-    this.onStepComplete = config.onStepComplete;
-  }
-
-  private async sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Executes the task via the Agent using Vercel AI SDK with Rate Limit protection.
-   */
-  private async executeTask(task: Task, context: string, attempt = 1): Promise<string> {
-    const prompt = `GÖREV (TASK):\n${task.description}\n\nBEKLENEN ÇIKTI (EXPECTED OUTPUT):\n${task.expectedOutput}\n\nŞU ANA KADARKİ TOPLANTI BAĞLAMI:\n${context || 'Bu ilk görevdir. Toplantıyı başlatan ve çerçeveyi çizen sizsiniz.'}`;
-    
-    // Everyone uses Groq since the Gemini API key provided is not compatible with standard models.
-    const activeModel = getGroqModel('openai/gpt-oss-120b');
-    const fallbackModel = getGroqModel('qwen/qwen3.8-27b');
-
-    // Throttle for Groq limits (TPM) -> wait 12 seconds between calls to stretch out the TPM bucket over a minute.
-    await this.sleep(12000);
-
-    try {
-      const { text } = await generateText({
-        model: activeModel,
-        system: task.agent.getSystemPrompt(),
-        prompt: prompt,
-        temperature: task.agent.temperature,
-        maxTokens: 800,
-      });
-      return text.trim();
-    } catch (error: any) {
-      const errorMessage = error?.message || String(error);
-      console.warn(`[Crew] Error executing task for ${task.agent.role} (Attempt ${attempt}):`, errorMessage);
-
-      if (attempt <= 2) {
-        await this.sleep(15000); // Exponential backoff waiting for TPM reset
-        try {
-          const { text } = await generateText({
-            model: fallbackModel,
-            system: task.agent.getSystemPrompt(),
-            prompt: prompt,
-            temperature: task.agent.temperature,
-            maxTokens: 800,
-          });
-          return `[Yedek Sistem Yanıtı] ${text.trim()}`;
-        } catch (retryError) {
-          console.error(`[Crew] Fallback failed for ${task.agent.role}.`);
-        }
-      }
-
-      return `[${task.agent.role} şu anda bu görevi sistem yoğunluğu sebebiyle tamamlayamadı. Diğer ekiplerin devam etmesi uygundur.]`;
-    }
-  }
-
-  /**
-   * Kicks off the Crew operation sequentially.
-   */
-  public async kickoff(): Promise<{ finalResult: string, history: Task[] }> {
-    let contextForDirectors = ''; // Truncated context to save TPM limit
-    let contextForCEO = '';       // Full context for the CEO to make the final decision
-    
-    for (const task of this.tasks) {
-      const isCEO = task.agent.role === 'ceo';
-      const currentContext = isCEO ? contextForCEO : contextForDirectors;
-
-      const result = await this.executeTask(task, currentContext);
-      task.result = result;
-      
-      // Update contexts
-      // Directors only see a heavily summarized version to prevent massive token usage (300 chars)
-      const shortResultForDirectors = result.length > 300 ? result.substring(0, 300) + '... (Özetlendi)' : result;
-      contextForDirectors += `\n\n--- [Bölüm: ${task.agent.role}] ---\nGÖREV ÇIKTISI:\n${shortResultForDirectors}\n`;
-      
-      // CEO gets a longer version but STILL truncated (1000 chars) to prevent Groq TPM bucket overflow on a single request
-      const shortResultForCEO = result.length > 1000 ? result.substring(0, 1000) + '... (Detaylar sistemde kayıtlıdır, bu kısımdan sonrasını özet kabul et.)' : result;
-      contextForCEO += `\n\n--- [Bölüm: ${task.agent.role}] ---\nGÖREV ÇIKTISI:\n${shortResultForCEO}\n`;
-
-      if (this.onStepComplete) {
-        await this.onStepComplete(task, result);
-      }
-    }
-
-    return {
-      finalResult: this.tasks[this.tasks.length - 1].result || '',
-      history: this.tasks
-    };
-  }
-}
-</file>
-
 <file path="src/lib/ai/prompts/blog-prompt.ts">
 export function buildBlogGenerationPrompt(topic: string, currentMonth: string): string {
   return `Sen Avrupa'nın en saygın Master Barista'sı, Miksoloji Uzmanı ve B2B HoReCa Danışmanısın.
@@ -15860,6 +15958,118 @@ export function computeTedarikDurumu(stok: number | null | undefined, tukenmeTar
 }
 </file>
 
+<file path="src/lib/web-push.ts">
+import webpush from 'web-push';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
+
+// VAPID konfigürasyonu
+const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const privateKey = process.env.VAPID_PRIVATE_KEY;
+const subject = process.env.VAPID_SUBJECT || 'mailto:info@elysonsweets.de';
+
+if (publicKey && privateKey) {
+  webpush.setVapidDetails(subject, publicKey, privateKey);
+} else {
+  console.warn('[web-push] VAPID anahtarları eksik. Push bildirimleri gönderilemeyebilir.');
+}
+
+export interface PushNotificationPayload {
+  title: string;
+  body: string;
+  icon?: string;
+  badge?: string;
+  url?: string;
+  tag?: string;
+}
+
+/**
+ * Belirli bir kullanıcıya ait kayıtlı tüm cihazlara Web Push bildirimi gönderir.
+ * Fire-and-forget: Hata durumunda ana işlemi bloklamaz.
+ * Geçersiz (404/410) abonelikleri veritabanından otomatik temizler.
+ */
+export async function sendWebPushToUser(
+  userId: string,
+  payload: PushNotificationPayload
+): Promise<{ success: boolean; sentCount: number; error?: unknown }> {
+  if (!publicKey || !privateKey) {
+    console.warn('[sendWebPushToUser] VAPID anahtarları tanımlı değil.');
+    return { success: false, sentCount: 0, error: 'VAPID keys not configured' };
+  }
+
+  try {
+    const supabaseAdmin = createSupabaseServiceClient();
+
+    // Kullanıcının kayıtlı tüm push aboneliklerini çek
+    const { data: subscriptions, error: subError } = await supabaseAdmin
+      .from('push_subscriptions')
+      .select('id, endpoint, p256dh, auth')
+      .eq('user_id', userId);
+
+    if (subError) {
+      console.error('[sendWebPushToUser] Abonelikler sorgulanırken hata:', subError);
+      return { success: false, sentCount: 0, error: subError };
+    }
+
+    if (!subscriptions || subscriptions.length === 0) {
+      return { success: true, sentCount: 0 };
+    }
+
+    const payloadString = JSON.stringify({
+      title: payload.title,
+      body: payload.body,
+      icon: payload.icon || '/android-chrome-192x192.png',
+      badge: payload.badge || '/favicon-32x32.png',
+      url: payload.url || '/portal/dashboard',
+      tag: payload.tag || 'elyson-sweets-notification',
+    });
+
+    let sentCount = 0;
+    const expiredSubIds: string[] = [];
+
+    await Promise.all(
+      subscriptions.map(async (sub) => {
+        const pushSubscription = {
+          endpoint: sub.endpoint,
+          keys: {
+            p256dh: sub.p256dh,
+            auth: sub.auth,
+          },
+        };
+
+        try {
+          await webpush.sendNotification(pushSubscription, payloadString);
+          sentCount++;
+        } catch (pushError: any) {
+          console.warn(`[sendWebPushToUser] Push gönderim hatası (ID: ${sub.id}):`, pushError?.message || pushError);
+
+          // 410 Gone veya 404 Not Found dönmüşse kullanıcı tarayıcıdan izni kaldırmış/abonelik düşmüştür
+          if (pushError?.statusCode === 410 || pushError?.statusCode === 404) {
+            expiredSubIds.push(sub.id);
+          }
+        }
+      })
+    );
+
+    // Süresi dolmuş / geçersiz abonelikleri temizle
+    if (expiredSubIds.length > 0) {
+      try {
+        await supabaseAdmin
+          .from('push_subscriptions')
+          .delete()
+          .in('id', expiredSubIds);
+      } catch (err) {
+        console.error('[sendWebPushToUser] Eski abonelik temizleme hatası:', err);
+      }
+    }
+
+    return { success: true, sentCount };
+  } catch (error) {
+    console.error('[sendWebPushToUser] Genel hata:', error);
+    return { success: false, sentCount: 0, error };
+  }
+}
+</file>
+
 <file path="src/middleware.ts">
 // src/middleware.ts (Mit Logging)
 
@@ -16328,125 +16538,168 @@ Projede yüklü olan 26 beceri (Skills) şu B2B fazlarında zorunlu rehber olara
 > ⚠️ **KATI KURAL:** Gelecekteki herhangi bir geliştirmede veya kod revizyonunda, salt görsel güzelleştirme uğruna yukarıdaki 4 sütundan (B2B Mantığı, Stok Güvenliği, i18n Bütünlüğü, CWV/Performans) taviz verilmesi KESİNLİKLE YASAKTIR.
 </file>
 
-<file path="src/lib/actions/recipe-actions.ts">
-'use server';
+<file path="src/lib/ai/board/crew.ts">
+import { generateText } from 'ai';
+import { getGroqModel, getGeminiModel } from '../providers';
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+// ------------------------------------------------------------------
+// 1. Core Interfaces mimicking CrewAI Architecture
+// ------------------------------------------------------------------
 
-type MultiLangText = { tr: string; en: string; de: string; ar: string; };
-type MultiLangArray = { tr: string[]; en: string[]; de: string[]; ar: string[]; };
-
-type RecipeInput = {
-  title: MultiLangText;
-  description: MultiLangText;
-  ingredients: MultiLangArray;
-  instructions: MultiLangArray;
-  prep_time_minutes: number;
-  category: string;
-};
-
-export async function saveRecipeAndRedirect(
-  recipeData: RecipeInput, 
-  locale: string, 
-  productId: string | null
-) {
-  const cookieStore = await cookies();
-  const supabase = await createSupabaseServerClient(cookieStore);
-
-  // Türkçe karakterleri çevirmek için yardımcı harita
-  const trMap: Record<string, string> = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
-  
-  // Create a base slug from the Turkish or German title
-  const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
-  const slugifiedTitle = baseTitle.replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m]);
-  const baseSlug = slugifiedTitle
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '');
-  const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
-
-  const { data, error } = await supabase
-    .from('recipes')
-    .insert({
-      slug: uniqueSlug,
-      locale: locale,
-      title: recipeData.title,
-      description: recipeData.description,
-      ingredients: recipeData.ingredients,
-      instructions: recipeData.instructions,
-      prep_time_minutes: recipeData.prep_time_minutes || 5,
-      category: recipeData.category || 'cocktail',
-      product_id: productId,
-    })
-    .select('slug')
-    .single();
-
-  if (error) {
-    console.error('Supabase Insert Error:', JSON.stringify(error, null, 2));
-    throw new Error(`Reçete kaydedilemedi: ${error.message} (code: ${error.code})`);
-  }
-
-  // Kullanıcıyı yeni oluşturulan SEO sayfasına yönlendir
-  redirect(`/${locale}/recipes/${data.slug}`);
+export interface AgentConfig {
+  role: string;
+  goal: string;
+  backstory: string;
+  temperature?: number;
 }
 
-export async function incrementRecipeLike(recipeId: string) {
-  const cookieStore = await cookies();
-  const supabase = await createSupabaseServerClient(cookieStore);
-  // Supabase RPC (Remote Procedure Call) kullanmak en güvenlisidir ama 
-  // basitlik için mevcut sayıyı alıp 1 artırıyoruz.
-  const { data: recipe } = await supabase.from('recipes').select('likes_count').eq('id', recipeId).single();
-  
-  if (recipe) {
-    await supabase.from('recipes').update({ likes_count: recipe.likes_count + 1 }).eq('id', recipeId);
+export interface TaskConfig {
+  description: string;
+  expectedOutput: string;
+  agent: Agent;
+}
+
+// ------------------------------------------------------------------
+// 2. Agent Class
+// ------------------------------------------------------------------
+
+export class Agent {
+  public role: string;
+  public goal: string;
+  public backstory: string;
+  public temperature: number;
+
+  constructor(config: AgentConfig) {
+    this.role = config.role;
+    this.goal = config.goal;
+    this.backstory = config.backstory;
+    this.temperature = config.temperature ?? 0.3;
+  }
+
+  /**
+   * Generates the system prompt tailored to the CrewAI methodology.
+   */
+  public getSystemPrompt(): string {
+    return `Senin Rolün (Role): ${this.role}\n\nHedefin (Goal): ${this.goal}\n\nGeçmişin ve Karakterin (Backstory): ${this.backstory}\n\nSen, Elyson Sweets (Almanya) için çalışan uzman bir yönetim kurulu üyesisin. Halüsinasyon yapmadan, doğrudan hedefe odaklanan net analizler yaparsın. Gereksiz nezaket kelimeleri kullanma, doğrudan konuya gir. Çıktılarını her zaman beklenen çıktıya (Expected Output) uygun formatta vermelisin.`;
   }
 }
 
-export async function saveRecipesBulk(
-  recipesData: RecipeInput[], 
-  locale: string, 
-  productId: string | null
-) {
-  const cookieStore = await cookies();
-  const supabase = await createSupabaseServerClient(cookieStore);
+// ------------------------------------------------------------------
+// 3. Task Class
+// ------------------------------------------------------------------
 
-  // Türkçe karakterleri çevirmek için yardımcı harita
-  const trMap: Record<string, string> = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+export class Task {
+  public description: string;
+  public expectedOutput: string;
+  public agent: Agent;
+  public result: string | null = null;
 
-  const recipesToInsert = recipesData.map(recipeData => {
-    const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
-    const slugifiedTitle = baseTitle.replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m]);
-    const baseSlug = slugifiedTitle
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
-    const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
+  constructor(config: TaskConfig) {
+    this.description = config.description;
+    this.expectedOutput = config.expectedOutput;
+    this.agent = config.agent;
+  }
+}
+
+// ------------------------------------------------------------------
+// 4. Crew (Orchestrator) Class
+// ------------------------------------------------------------------
+
+export interface CrewConfig {
+  tasks: Task[];
+  onStepComplete?: (task: Task, result: string) => Promise<void>;
+}
+
+export class Crew {
+  private tasks: Task[];
+  private onStepComplete?: (task: Task, result: string) => Promise<void>;
+
+  constructor(config: CrewConfig) {
+    this.tasks = config.tasks;
+    this.onStepComplete = config.onStepComplete;
+  }
+
+  private async sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Executes the task via the Agent using Vercel AI SDK with Rate Limit protection.
+   */
+  private async executeTask(task: Task, context: string, attempt = 1): Promise<string> {
+    const prompt = `GÖREV (TASK):\n${task.description}\n\nBEKLENEN ÇIKTI (EXPECTED OUTPUT):\n${task.expectedOutput}\n\nŞU ANA KADARKİ TOPLANTI BAĞLAMI:\n${context || 'Bu ilk görevdir. Toplantıyı başlatan ve çerçeveyi çizen sizsiniz.'}`;
+    
+    // Everyone uses Groq since the Gemini API key provided is not compatible with standard models.
+    const activeModel = getGroqModel('openai/gpt-oss-120b');
+    const fallbackModel = getGroqModel('qwen/qwen3.8-27b');
+
+    // Throttle for Groq limits (TPM) -> wait 12 seconds between calls to stretch out the TPM bucket over a minute.
+    await this.sleep(12000);
+
+    try {
+      const { text } = await generateText({
+        model: activeModel,
+        system: task.agent.getSystemPrompt(),
+        prompt: prompt,
+        temperature: task.agent.temperature,
+      });
+      return text.trim();
+    } catch (error: any) {
+      const errorMessage = error?.message || String(error);
+      console.warn(`[Crew] Error executing task for ${task.agent.role} (Attempt ${attempt}):`, errorMessage);
+
+      if (attempt <= 2) {
+        await this.sleep(15000); // Exponential backoff waiting for TPM reset
+        try {
+          const { text } = await generateText({
+            model: fallbackModel,
+            system: task.agent.getSystemPrompt(),
+            prompt: prompt,
+            temperature: task.agent.temperature,
+          });
+          return `[Yedek Sistem Yanıtı] ${text.trim()}`;
+        } catch (retryError) {
+          console.error(`[Crew] Fallback failed for ${task.agent.role}.`);
+        }
+      }
+
+      return `[${task.agent.role} şu anda bu görevi sistem yoğunluğu sebebiyle tamamlayamadı. Diğer ekiplerin devam etmesi uygundur.]`;
+    }
+  }
+
+  /**
+   * Kicks off the Crew operation sequentially.
+   */
+  public async kickoff(): Promise<{ finalResult: string, history: Task[] }> {
+    let contextForDirectors = ''; // Truncated context to save TPM limit
+    let contextForCEO = '';       // Full context for the CEO to make the final decision
+    
+    for (const task of this.tasks) {
+      const isCEO = task.agent.role === 'ceo';
+      const currentContext = isCEO ? contextForCEO : contextForDirectors;
+
+      const result = await this.executeTask(task, currentContext);
+      task.result = result;
+      
+      // Update contexts
+      // Directors only see a heavily summarized version to prevent massive token usage (300 chars)
+      const shortResultForDirectors = result.length > 300 ? result.substring(0, 300) + '... (Özetlendi)' : result;
+      contextForDirectors += `\n\n--- [Bölüm: ${task.agent.role}] ---\nGÖREV ÇIKTISI:\n${shortResultForDirectors}\n`;
+      
+      // CEO gets a longer version but STILL truncated (1000 chars) to prevent Groq TPM bucket overflow on a single request
+      const shortResultForCEO = result.length > 1000 ? result.substring(0, 1000) + '... (Detaylar sistemde kayıtlıdır, bu kısımdan sonrasını özet kabul et.)' : result;
+      contextForCEO += `\n\n--- [Bölüm: ${task.agent.role}] ---\nGÖREV ÇIKTISI:\n${shortResultForCEO}\n`;
+
+      if (this.onStepComplete) {
+        await this.onStepComplete(task, result);
+      }
+    }
 
     return {
-      slug: uniqueSlug,
-      locale: locale,
-      title: recipeData.title,
-      description: recipeData.description,
-      ingredients: recipeData.ingredients,
-      instructions: recipeData.instructions,
-      prep_time_minutes: recipeData.prep_time_minutes || 5,
-      category: recipeData.category || 'cocktail',
-      product_id: productId,
+      finalResult: this.tasks[this.tasks.length - 1].result || '',
+      history: this.tasks
     };
-  });
-
-  const { error } = await supabase
-    .from('recipes')
-    .insert(recipesToInsert);
-
-  if (error) {
-    console.error('Supabase Bulk Insert Error:', JSON.stringify(error, null, 2));
-    throw new Error(`Reçeteler kaydedilemedi: ${error.message} (code: ${error.code})`);
   }
-
-  return true;
 }
 </file>
 
@@ -17453,6 +17706,128 @@ export default defineConfig({
 })
 </file>
 
+<file path="src/lib/actions/recipe-actions.ts">
+'use server';
+
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+type MultiLangText = { tr: string; en: string; de: string; ar: string; };
+type MultiLangArray = { tr: string[]; en: string[]; de: string[]; ar: string[]; };
+
+type RecipeInput = {
+  title: MultiLangText;
+  description: MultiLangText;
+  ingredients: MultiLangArray;
+  instructions: MultiLangArray;
+  prep_time_minutes: number;
+  category: string;
+};
+
+export async function saveRecipeAndRedirect(
+  recipeData: RecipeInput, 
+  locale: string, 
+  productId: string | null
+) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+
+  // Türkçe karakterleri çevirmek için yardımcı harita
+  const trMap: Record<string, string> = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+  
+  // Create a base slug from the Turkish or German title
+  const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
+  const slugifiedTitle = baseTitle.replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m]);
+  const baseSlug = slugifiedTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+  const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
+
+  const { data, error } = await supabase
+    .from('recipes')
+    .insert({
+      slug: uniqueSlug,
+      locale: locale,
+      title: recipeData.title,
+      description: recipeData.description,
+      ingredients: recipeData.ingredients,
+      instructions: recipeData.instructions,
+      prep_time_minutes: recipeData.prep_time_minutes || 5,
+      category: recipeData.category || 'cocktail',
+      product_id: productId,
+    } as any)
+    .select('slug')
+    .single();
+
+  if (error) {
+    console.error('Supabase Insert Error:', JSON.stringify(error, null, 2));
+    throw new Error(`Reçete kaydedilemedi: ${error.message} (code: ${error.code})`);
+  }
+
+  // Kullanıcıyı yeni oluşturulan SEO sayfasına yönlendir
+  redirect(`/${locale}/recipes/${data.slug}`);
+}
+
+export async function incrementRecipeLike(recipeId: string) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+  // Supabase RPC (Remote Procedure Call) kullanmak en güvenlisidir ama 
+  // basitlik için mevcut sayıyı alıp 1 artırıyoruz.
+  const { data: recipe } = await supabase.from('recipes').select('likes_count').eq('id', recipeId).single();
+  
+  if (recipe) {
+    await supabase.from('recipes').update({ likes_count: (recipe.likes_count || 0) + 1 }).eq('id', recipeId);
+  }
+}
+
+export async function saveRecipesBulk(
+  recipesData: RecipeInput[], 
+  locale: string, 
+  productId: string | null
+) {
+  const cookieStore = await cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
+
+  // Türkçe karakterleri çevirmek için yardımcı harita
+  const trMap: Record<string, string> = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+
+  const recipesToInsert = recipesData.map(recipeData => {
+    const baseTitle = recipeData.title.tr || recipeData.title.de || 'recipe';
+    const slugifiedTitle = baseTitle.replace(/[çğıöşüÇĞİÖŞÜ]/g, m => trMap[m]);
+    const baseSlug = slugifiedTitle
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+    const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 7)}`;
+
+    return {
+      slug: uniqueSlug,
+      locale: locale,
+      title: recipeData.title,
+      description: recipeData.description,
+      ingredients: recipeData.ingredients,
+      instructions: recipeData.instructions,
+      prep_time_minutes: recipeData.prep_time_minutes || 5,
+      category: recipeData.category || 'cocktail',
+      product_id: productId,
+    };
+  });
+
+  const { error } = await supabase
+    .from('recipes')
+    .insert(recipesToInsert as any);
+
+  if (error) {
+    console.error('Supabase Bulk Insert Error:', JSON.stringify(error, null, 2));
+    throw new Error(`Reçeteler kaydedilemedi: ${error.message} (code: ${error.code})`);
+  }
+
+  return true;
+}
+</file>
+
 <file path=".gitignore">
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
@@ -18030,6 +18405,198 @@ export function useOptionalPortal() {
 }
 </file>
 
+<file path="next.config.ts">
+// next.config.ts
+import withSerwistInit from '@serwist/next';
+
+const withSerwist = withSerwistInit({
+  // Service Worker kaynak dosyası (TypeScript)
+  swSrc: 'src/app/sw.ts',
+  // Derlenmiş SW çıktısı (public klasörüne)
+  swDest: 'public/sw.js',
+  // GELİŞTİRME ortamında SW'yi devre dışı bırak (debug kolaylığı)
+  disable: process.env.NODE_ENV === 'development',
+});
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  serverExternalPackages: ['@supabase/ssr', '@supabase/supabase-js'],
+  
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '15mb',
+    },
+    optimizePackageImports: ['lucide-react', 'react-icons', 'date-fns'],
+  },
+
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000, // 1 yıl cache (Tarayıcı önbellekleme)
+    remotePatterns: [
+      // Supabase Storage Hostnames
+      {
+        protocol: 'https',
+        hostname: 'szuhjzgyhhlrydyllrcd.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'atydffkpyvxcmzxyibhj.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'elysonsweets.de',
+      },
+    ],
+  },
+};
+
+module.exports = withSerwist(nextConfig);
+</file>
+
+<file path="src/lib/ai/prompts/system-prompt.ts">
+/**
+ * ELYSON SWEETS B2B AI SALES CONSULTANT — SYSTEM PROMPT
+ * 
+ * Brand: Elyson Sweets Deutschland (Köln, NRW)
+ * Industry: B2B & HoReCa Food & Beverage Wholesale
+ * Scope: Premium Barista Syrups, Dessert Sauces, Fruit Purees & Toppings
+ */
+
+export function buildSystemPrompt(locale: string = 'de', channel: string = 'web', currentProductSlug?: string): string {
+  return `Du bist der "Senior B2B Sales & HoReCa Consultant" von Elyson Sweets Deutschland (Köln, NRW).
+Elyson Sweets ist ein führender deutscher B2B-Großhändler für Premium-Sirupe (FO Barista & Cocktail), Dessert- und Fruchtsaucen, gefrorene Fruchtpürees und Waffel-Toppings für Cafés, Bars, Restaurants, Hotels und Großverbraucher.
+
+### DEINE ROLLE & TONALITÄT (WICHTIG):
+1. **Premium & Beratend (KEIN aufdringlicher, billiger Verkäufer):**
+   - Du bist kein aggressiver Marktschreier ("Kaufe jetzt, Angebot endet bald!").
+   - Du bist ein geschätzter, souveräner Gastro-Berater. Du hilfst Gastronomen, Baristas und Einkäufern dabei, ihre Menüqualität zu steigern, Zubereitungszeit zu sparen und ihre Marge zu maximieren ("Marge steigern, Zeit sparen").
+   - Im Deutschen sprichst du Kunden stets mit dem professionellen und respektvollen **"Sie" (Siezen)** an. Im Türkischen nutzt du eine höfliche, geschäftsmäßige B2B-Ansprache ("Siz").
+
+2. **B2B PREIS- & STEUERREGELN (BGB § 14, UStG):**
+   - Alle genannten Produktpreise verstehen sich als **NETTO-Preise zzgl. der gesetzlichen deutschen Lebensmittel-MwSt von 7%**.
+   - Weise Preise transparent aus (z. B. "12,50 € netto zzgl. 7% MwSt. pro Koli").
+   - Mindestbestellmenge (MOQ) pro Sorte: Standardmäßig 1 voller Karton (Koli / VPE).
+
+3. **STAFFELPREISE & ELEGANTES UP-SELLING (Koli- & Palettenvorteil):**
+   - **WICHTIGE VERKAUFSREGEL 1:** Wenn ein Kunde nur nach der Verfügbarkeit fragt (z.B. "Haben Sie Produkt X?"), nenne NIEMALS sofort den Preis! Bestätige zuerst die Verfügbarkeit, betone kurz die Qualität und frage DANN, welches Volumen (wie viele Kartons) der Kunde für seinen Betrieb benötigt. Erst wenn der Kunde explizit nach dem Preis fragt oder du ihm ein Angebot machst, nennst du Preise.
+   - **WICHTIGE VERKAUFSREGEL 2 (PREISDARSTELLUNG):** Alle Gastronomen kalkulieren auf Flaschen-/Stückbasis. Wenn du Preise nennst, nenne IMMER den **Stückpreis (Adet Fiyatı)**, so wie er auf der Webseite im Produkt-Karton steht, und NIEMALS den Gesamtpreis für den ganzen Karton.
+   - **Präsentations-Beispiel (Stückpreise):**
+     * "Der Standard-Stückpreis (1-4 Kartons) liegt bei X € netto pro Flasche."
+     * "Ab 5 Kartons greift unsere Volumen-Staffel: Der Stückpreis sinkt dann auf Y € netto pro Flasche."
+     * "Für Palettenabnahmen bieten wir einen Projektpreis von Z € netto pro Flasche."
+   - Nutze die aus der Datenbank abgerufenen Felder \`unitPriceNet\`, \`unitTierPriceNet\` und \`unitPalletPriceNet\` für diese Darstellung.
+
+4. **STRENGE REGEL FÜR MUSTERPAKETE (PROBEN / NUMUNE KİTİ):**
+   - ⚠️ **Kostenlose B2B-Musterpakete / Verkostungsboxen gibt es AUSSCHLIESSLICH für Betriebe in KÖLN und BONN!**
+   - Die Übergabe erfolgt **persönlich durch unser Außendienst-Team (KEIN Paketversand für Proben)**.
+   - Wenn ein Kunde aus einer anderen Stadt (z.B. Berlin, Frankfurt, München, Düsseldorf usw.) nach Proben fragt, antworte stets freundlich:
+     "Unsere kostenlosen Verkostungs-Musterpakete übergeben wir derzeit persönlich vor Ort an Betriebe im Raum Köln und Bonn. Für interessierte Betriebe außerhalb dieser Region bieten wir die Möglichkeit, einzelne Produkte unkompliziert ab 1 Karton (Mindestabnahme) direkt über unseren Shop zu bestellen, um Qualität und Geschmack im Betrieb zu testen."
+
+5. **PRODUKT- & REZEPT-EXPERTISE (VEGAN, LAKTOSEFREI, AROMEN):**
+   - Du hast Zugriff auf echte Datenbankfelder für jedes Produkt: \`attributes\` (z.B. vegan, glutenfrei, laktosefrei), \`ingredients\` (Zutaten/Inhaltsstoffe), \`allergens\` (Allergene), \`description\` (Aromen & Beschreibung) und \`category\` (Kategorie).
+   - **WICHTIGE REGEL FÜR EIGENSCHAFTEN:** Beantworte Fragen zu Eigenschaften (z.B. "Ist das vegan?", "Ist das laktosefrei?") AUSSCHLIESSLICH basierend auf den Feldern \`attributes\`, \`ingredients\` und \`allergens\`. Wenn das Feld \`attributes.vegan\` auf \`true\` steht, bestätige, dass es vegan ist. Wenn keine Daten vorliegen, erfinde nichts, sondern sage, dass dir die Daten nicht vorliegen.
+   - **WICHTIGE REGEL FÜR AROMEN:** Nutze die Felder \`description\` und \`name\`, um Kunden über die verfügbaren Aromen zu informieren. Biete aktiv passende Alternativen an.
+   - Du kennst die passenden Anwendungen: Sirupe für Cocktails, Mocktails, Latte Macchiato; Saucen für Waffeln, Cheesecakes, Eisbecher; Pürees für Sommer-Limonaden und Frozen Drinks.
+   - Gib bei Bedarf kurze, präzise Rezeptideen (z. B. Dosierung: 20-30 ml Sirup auf 250 ml Milch/Soda).
+
+6. **KANALBEWUSSTSEIN:**
+   - **Webseite (${channel === 'web' ? 'Aktuell aktiv' : ''}):** Antworte prägnant, strukturiert (Bulletpoints) und biete bei konkretem Kaufinteresse den direkten Link oder die Weiterleitung zum WhatsApp-Team an.
+   ${currentProductSlug ? `- Aktuell befindet sich der Besucher auf der Produktseite: "${currentProductSlug}". Beziehe deine erste Antwort bei Bezug direkt auf dieses Produkt!` : ''}
+   - **WhatsApp / Instagram:** Halte Antworten gut lesbar auf dem Smartphone, nutze klare Zeilenumbrüche und übersichtliche Emojis (📦, ☕, 🚚, 💡).
+
+7. **SPRACHE & LOKALISIERUNG:**
+   - Aktuelle Nutzersprache der Webseite: "${locale}".
+   ${locale === 'tr' ? '- WICHTIG: Der Kunde nutzt die türkische Version (/tr). Antworte standardmäßig direkt auf TÜRKISCH (Türkçe), sofern der Kunde nicht explizit eine andere Sprache verwendet.' : ''}
+   ${locale === 'en' ? '- WICHTIG: The customer is on the English version (/en). Reply in ENGLISH by default.' : ''}
+   ${locale === 'ar' ? '- WICHTIG: The customer is on the Arabic version (/ar). Reply in ARABIC by default.' : ''}
+   - Antworte ansonsten immer in der Sprache, in der der Kunde schreibt (primär Deutsch, Türkisch, Englisch oder Arabisch). Fallback ist Deutsch.
+
+8. **ANTI-HALLUZINATION & FAKTEN-TREUE (SEHR WICHTIG):**
+   - ERFINDE NIEMALS Informationen über Herkunftsländer, Produktionsstätten, Zertifikate, Eigenschaften (vegan, zuckerfrei), Aromen, Firmengeschichte oder Marken, die nicht explizit in der Produktdatenbank oder hier angegeben sind. Deine EINZIGE Quelle für Produktdetails sind die API-Rückgabewerte.
+   - Antworte NICHT langatmig mit ausgedachten Texten. Halte deine Antworten kurz, präzise und direkt.
+   - Wenn ein Kunde nach einer Information fragt, die du nicht weißt, erfinde nichts! Antworte ehrlich: "Dazu liegen mir aktuell keine detaillierten Informationen vor. Bitte wenden Sie sich direkt an unser Team."
+   - **STRIKTE REGEL ZU ALTERNATIVEN & KATEGORIEN:** Nutze das Feld \`category\`, um logische Alternativen anzubieten. Wenn ein Kunde z.B. nach einem bestimmten Sirup sucht, der nicht gefunden wird, schlage andere Produkte aus derselben Kategorie (z.B. "Aromatisierte Cocktailsirupe") vor, die ähnliche Aromen aufweisen.
+   - Biete NIEMALS Produkte einer völlig anderen Kategorie (z. B. "Sirup") als Alternative an, wenn der Kunde explizit nach "Püree" oder "Sauce" fragt. Das wirkt unprofessionell.
+   - Wenn das angefragte Produkt in der Datenbank fehlt, sage einfach, dass dieses Produkt derzeit nicht im System gelistet ist, und nenne Produkte derselben Kategorie als Alternative. Verzichte auf unpassende Empfehlungen.
+
+### UNTERNEHMENSINFORMATIONEN & KONTAKT:
+   - Firma: Elyson Sweets
+   - Adresse: Wiesenstraße 21, 51147 Köln, Deutschland
+   - Telefon / WhatsApp: +49 2203 9899714
+   - E-Mail: info@elysonsweets.de
+   - Web: www.elysonsweets.de
+   - Über uns: Wir sind ein B2B-Großhandel mit Sitz in Köln, spezialisiert auf den Bedarf von Cafés, Eisdielen, Bäckereien und der Gastronomie. Wir bieten Premium-Zutaten an, insbesondere Sirupe, Saucen, Fruchtpürees und Waffel-Toppings.
+
+### 9. OFFIZIELLER B2B-BESTELLABLAUF (BESTELLUNGEN AUFNEHMEN):
+   Wenn ein Kunde explizit eine Bestellung aufgeben möchte (z.B. "Ich nehme 5 Kartons davon"):
+   1. **Daten abfragen:** Bitte ihn höflich um die nötigen Firmendaten, falls noch nicht vorhanden. Nutze dazu eine übersichtliche Markdown-Checkliste:
+      - Firmenname
+      - Lieferadresse
+      - E-Mail-Adresse
+      - USt-IdNr / Steuernummer (optional)
+   2. **Tool aufrufen:** Sobald du diese Daten hast, rufe das Tool \`createDraftOrder\` auf, um die Bestellung offiziell im System als Entwurf zu speichern.
+   3. **WICHTIG: BESTELLÜBERSICHT (CART SUMMARY):** Bevor du dich verabschiedest, MUSST du die Werte aus der Tool-Antwort (\`totalNet\`, \`totalGross\`, \`shippingGross\`, \`shippingName\`) nutzen, um dem Kunden eine klare Markdown-Tabelle mit seiner Bestellübersicht zu zeigen:
+      | Beschreibung | Betrag |
+      |---|---|
+      | **Netto-Warenwert** | {totalNet} € |
+      | **MwSt (7%)** | {totalNet * 0.07} € |
+      | **Lieferung/Versand ({shippingName})** | {shippingGross} € |
+      | **Gesamtbetrag (Brutto)** | **{totalGross} €** |
+   4. **Bestellbestätigung & Bankdaten:** Nach der Tabelle, antworte dem Kunden mit folgender professioneller Bestätigung:
+      - "Ihre Bestellung wurde erfolgreich in unserem System erfasst."
+      - "Unser Team wird Ihnen in Kürze eine **offizielle Proforma-Rechnung** an Ihre E-Mail-Adresse zusenden."
+      - "Bitte überweisen Sie den Gesamtbetrag auf folgendes Konto:"
+      - **Bankverbindung Elyson Sweets:**
+        - Kontoinhaber: Elyson Sweets GmbH
+        - Bank: Qonto
+        - IBAN: DE44 1001 0123 3494 5712 22
+        - BIC/SWIFT: QNTODEB2XXX
+        - Verwendungszweck: Auftrags-Referenz (siehe E-Mail) / Firmenname
+      - "Sobald Ihre Zahlung bei uns eingeht, bereiten wir Ihre Ware für den Versand vor. Die Lieferung erfolgt in der Regel **innerhalb von 2–3 Werktagen** nach Zahlungseingang."
+   5. **B2B-Portal-Registrierung (Upsell):** Lade den Kunden am Ende der Bestellbestätigung höflich ein, sich für unser B2B-Händlerportal auf der Webseite zu registrieren. Erwähne die Vorteile: "Mit einem kostenlosen B2B-Konto können Sie Ihre Rechnungen einsehen und individuelle Staffelpreise prüfen."
+
+Nutze die bereitgestellten Tools, um stets reale Daten (Kartoninhalte, EAN, Bestände, aktuelle Staffelpreise) aus der Datenbank abzurufen und niemals Phantasiepreise oder Phantasieeigenschaften zu erfinden!`;
+}
+</file>
+
 <file path="src/lib/ai/tools/catalog-tools.ts">
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { sendAdminEmail, sendCustomerEmail } from '@/lib/email';
@@ -18044,8 +18611,7 @@ export async function searchProducts(query: string, limit: number = 5) {
     const supabase = createSupabaseServiceClient();
     const cleanQuery = query.trim().toLowerCase();
 
-    const { data: products, error } = await supabase
-      .from('urunler')
+    const { data: products, error } = await (supabase.from('urunler') as any)
       .select('id, slug, ad, aciklamalar, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_palet, koli_ici_adet, palet_ici_adet, stok_miktari, ana_resim_url, stok_kodu, ean_gtin, teknik_ozellikler, inhaltsstoffe, allergene, kategoriler(id, ad, slug)')
       .eq('aktif', true);
 
@@ -18055,7 +18621,7 @@ export async function searchProducts(query: string, limit: number = 5) {
 
     // Filter in JS across multi-lang ad and aciklamalar (multi-word search)
     const queryTerms = cleanQuery.split(/\s+/).filter(Boolean);
-    const matches = products.filter((p) => {
+    const matches = products.filter((p: any) => {
       const adStr = JSON.stringify(p.ad || '').toLowerCase();
       const descStr = JSON.stringify(p.aciklamalar || '').toLowerCase();
       const slugStr = (p.slug || '').toLowerCase();
@@ -18070,7 +18636,7 @@ export async function searchProducts(query: string, limit: number = 5) {
     return {
       success: true,
       count: matches.length,
-      products: matches.map((p) => {
+      products: matches.map((p: any) => {
         const titleDe = (p.ad as Record<string, string>)?.de || (p.ad as Record<string, string>)?.tr || '';
         const descDe = (p.aciklamalar as Record<string, string>)?.de || (p.aciklamalar as Record<string, string>)?.tr || '';
         const categoryDe = ((p.kategoriler as any)?.ad as Record<string, string>)?.de || ((p.kategoriler as any)?.ad as Record<string, string>)?.tr || '';
@@ -18108,7 +18674,7 @@ export async function getProductDetails(slugOrId: string) {
     const supabase = createSupabaseServiceClient();
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
 
-    let query = supabase.from('urunler').select('*, kategoriler(id, ad, slug)');
+    let query = (supabase.from('urunler') as any).select('*, kategoriler(id, ad, slug)');
     if (isUuid) {
       query = query.eq('id', slugOrId);
     } else {
@@ -18135,17 +18701,17 @@ export async function getProductDetails(slugOrId: string) {
         slug: data.slug,
         name: titleDe,
         description: descDe,
-        unitPriceNet: data.satis_fiyati_musteri || 0,
-        unitTierPriceNet: data.satis_fiyati_toptanci || 0,
-        unitPalletPriceNet: data.satis_fiyati_palet || 0,
-        unitsPerCase: data.koli_ici_adet || 6,
-        weightPerCase: (data.birim_agirlik_kg || 1.3) * (data.koli_ici_adet || 6),
-        palletCases: data.palet_ici_adet ? Math.round(data.palet_ici_adet / (data.koli_ici_adet || 6)) : 40,
-        stockStatus: (data.stok_miktari ?? 0) > 0 ? 'in_stock' : 'preorder',
+        unitPriceNet: (data as any).satis_fiyati_musteri || 0,
+        unitTierPriceNet: (data as any).satis_fiyati_toptanci || 0,
+        unitPalletPriceNet: (data as any).satis_fiyati_palet || 0,
+        unitsPerCase: (data as any).koli_ici_adet || 6,
+        weightPerCase: ((data as any).birim_agirlik_kg || 1.3) * ((data as any).koli_ici_adet || 6),
+        palletCases: (data as any).palet_ici_adet ? Math.round((data as any).palet_ici_adet / ((data as any).koli_ici_adet || 6)) : 40,
+        stockStatus: ((data as any).stok_miktari ?? 0) > 0 ? 'in_stock' : 'preorder',
         category: categoryDe,
-        attributes: data.teknik_ozellikler,
+        attributes: (data as any).teknik_ozellikler,
         ingredients: ingredientsDe,
-        allergens: data.allergene,
+        allergens: (data as any).allergene,
       },
     };
   } catch (err: unknown) {
@@ -18620,7 +19186,7 @@ export async function generateObjectWithFallback(
       try {
         console.log(`[AI Providers] Attempt ${attempt}: Trying model ${item.name}...`);
         return await generateObject({
-          ...options,
+          ...(options as any),
           model: item.model,
         });
       } catch (err: any) {
@@ -18634,198 +19200,6 @@ export async function generateObjectWithFallback(
   }
 
   throw new Error(`All models failed. Errors: ${allErrors.join(' | ')}`);
-}
-</file>
-
-<file path="next.config.ts">
-// next.config.ts
-import withSerwistInit from '@serwist/next';
-
-const withSerwist = withSerwistInit({
-  // Service Worker kaynak dosyası (TypeScript)
-  swSrc: 'src/app/sw.ts',
-  // Derlenmiş SW çıktısı (public klasörüne)
-  swDest: 'public/sw.js',
-  // GELİŞTİRME ortamında SW'yi devre dışı bırak (debug kolaylığı)
-  disable: process.env.NODE_ENV === 'development',
-});
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  serverExternalPackages: ['@supabase/ssr', '@supabase/supabase-js'],
-  
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '15mb',
-    },
-    optimizePackageImports: ['lucide-react', 'react-icons', 'date-fns'],
-  },
-
-  images: {
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 31536000, // 1 yıl cache (Tarayıcı önbellekleme)
-    remotePatterns: [
-      // Supabase Storage Hostnames
-      {
-        protocol: 'https',
-        hostname: 'szuhjzgyhhlrydyllrcd.supabase.co',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.supabase.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'atydffkpyvxcmzxyibhj.supabase.co',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.pexels.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'drive.google.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'elysonsweets.de',
-      },
-    ],
-  },
-};
-
-module.exports = withSerwist(nextConfig);
-</file>
-
-<file path="src/lib/ai/prompts/system-prompt.ts">
-/**
- * ELYSON SWEETS B2B AI SALES CONSULTANT — SYSTEM PROMPT
- * 
- * Brand: Elyson Sweets Deutschland (Köln, NRW)
- * Industry: B2B & HoReCa Food & Beverage Wholesale
- * Scope: Premium Barista Syrups, Dessert Sauces, Fruit Purees & Toppings
- */
-
-export function buildSystemPrompt(locale: string = 'de', channel: string = 'web', currentProductSlug?: string): string {
-  return `Du bist der "Senior B2B Sales & HoReCa Consultant" von Elyson Sweets Deutschland (Köln, NRW).
-Elyson Sweets ist ein führender deutscher B2B-Großhändler für Premium-Sirupe (FO Barista & Cocktail), Dessert- und Fruchtsaucen, gefrorene Fruchtpürees und Waffel-Toppings für Cafés, Bars, Restaurants, Hotels und Großverbraucher.
-
-### DEINE ROLLE & TONALITÄT (WICHTIG):
-1. **Premium & Beratend (KEIN aufdringlicher, billiger Verkäufer):**
-   - Du bist kein aggressiver Marktschreier ("Kaufe jetzt, Angebot endet bald!").
-   - Du bist ein geschätzter, souveräner Gastro-Berater. Du hilfst Gastronomen, Baristas und Einkäufern dabei, ihre Menüqualität zu steigern, Zubereitungszeit zu sparen und ihre Marge zu maximieren ("Marge steigern, Zeit sparen").
-   - Im Deutschen sprichst du Kunden stets mit dem professionellen und respektvollen **"Sie" (Siezen)** an. Im Türkischen nutzt du eine höfliche, geschäftsmäßige B2B-Ansprache ("Siz").
-
-2. **B2B PREIS- & STEUERREGELN (BGB § 14, UStG):**
-   - Alle genannten Produktpreise verstehen sich als **NETTO-Preise zzgl. der gesetzlichen deutschen Lebensmittel-MwSt von 7%**.
-   - Weise Preise transparent aus (z. B. "12,50 € netto zzgl. 7% MwSt. pro Koli").
-   - Mindestbestellmenge (MOQ) pro Sorte: Standardmäßig 1 voller Karton (Koli / VPE).
-
-3. **STAFFELPREISE & ELEGANTES UP-SELLING (Koli- & Palettenvorteil):**
-   - **WICHTIGE VERKAUFSREGEL 1:** Wenn ein Kunde nur nach der Verfügbarkeit fragt (z.B. "Haben Sie Produkt X?"), nenne NIEMALS sofort den Preis! Bestätige zuerst die Verfügbarkeit, betone kurz die Qualität und frage DANN, welches Volumen (wie viele Kartons) der Kunde für seinen Betrieb benötigt. Erst wenn der Kunde explizit nach dem Preis fragt oder du ihm ein Angebot machst, nennst du Preise.
-   - **WICHTIGE VERKAUFSREGEL 2 (PREISDARSTELLUNG):** Alle Gastronomen kalkulieren auf Flaschen-/Stückbasis. Wenn du Preise nennst, nenne IMMER den **Stückpreis (Adet Fiyatı)**, so wie er auf der Webseite im Produkt-Karton steht, und NIEMALS den Gesamtpreis für den ganzen Karton.
-   - **Präsentations-Beispiel (Stückpreise):**
-     * "Der Standard-Stückpreis (1-4 Kartons) liegt bei X € netto pro Flasche."
-     * "Ab 5 Kartons greift unsere Volumen-Staffel: Der Stückpreis sinkt dann auf Y € netto pro Flasche."
-     * "Für Palettenabnahmen bieten wir einen Projektpreis von Z € netto pro Flasche."
-   - Nutze die aus der Datenbank abgerufenen Felder \`unitPriceNet\`, \`unitTierPriceNet\` und \`unitPalletPriceNet\` für diese Darstellung.
-
-4. **STRENGE REGEL FÜR MUSTERPAKETE (PROBEN / NUMUNE KİTİ):**
-   - ⚠️ **Kostenlose B2B-Musterpakete / Verkostungsboxen gibt es AUSSCHLIESSLICH für Betriebe in KÖLN und BONN!**
-   - Die Übergabe erfolgt **persönlich durch unser Außendienst-Team (KEIN Paketversand für Proben)**.
-   - Wenn ein Kunde aus einer anderen Stadt (z.B. Berlin, Frankfurt, München, Düsseldorf usw.) nach Proben fragt, antworte stets freundlich:
-     "Unsere kostenlosen Verkostungs-Musterpakete übergeben wir derzeit persönlich vor Ort an Betriebe im Raum Köln und Bonn. Für interessierte Betriebe außerhalb dieser Region bieten wir die Möglichkeit, einzelne Produkte unkompliziert ab 1 Karton (Mindestabnahme) direkt über unseren Shop zu bestellen, um Qualität und Geschmack im Betrieb zu testen."
-
-5. **PRODUKT- & REZEPT-EXPERTISE (VEGAN, LAKTOSEFREI, AROMEN):**
-   - Du hast Zugriff auf echte Datenbankfelder für jedes Produkt: \`attributes\` (z.B. vegan, glutenfrei, laktosefrei), \`ingredients\` (Zutaten/Inhaltsstoffe), \`allergens\` (Allergene), \`description\` (Aromen & Beschreibung) und \`category\` (Kategorie).
-   - **WICHTIGE REGEL FÜR EIGENSCHAFTEN:** Beantworte Fragen zu Eigenschaften (z.B. "Ist das vegan?", "Ist das laktosefrei?") AUSSCHLIESSLICH basierend auf den Feldern \`attributes\`, \`ingredients\` und \`allergens\`. Wenn das Feld \`attributes.vegan\` auf \`true\` steht, bestätige, dass es vegan ist. Wenn keine Daten vorliegen, erfinde nichts, sondern sage, dass dir die Daten nicht vorliegen.
-   - **WICHTIGE REGEL FÜR AROMEN:** Nutze die Felder \`description\` und \`name\`, um Kunden über die verfügbaren Aromen zu informieren. Biete aktiv passende Alternativen an.
-   - Du kennst die passenden Anwendungen: Sirupe für Cocktails, Mocktails, Latte Macchiato; Saucen für Waffeln, Cheesecakes, Eisbecher; Pürees für Sommer-Limonaden und Frozen Drinks.
-   - Gib bei Bedarf kurze, präzise Rezeptideen (z. B. Dosierung: 20-30 ml Sirup auf 250 ml Milch/Soda).
-
-6. **KANALBEWUSSTSEIN:**
-   - **Webseite (${channel === 'web' ? 'Aktuell aktiv' : ''}):** Antworte prägnant, strukturiert (Bulletpoints) und biete bei konkretem Kaufinteresse den direkten Link oder die Weiterleitung zum WhatsApp-Team an.
-   ${currentProductSlug ? `- Aktuell befindet sich der Besucher auf der Produktseite: "${currentProductSlug}". Beziehe deine erste Antwort bei Bezug direkt auf dieses Produkt!` : ''}
-   - **WhatsApp / Instagram:** Halte Antworten gut lesbar auf dem Smartphone, nutze klare Zeilenumbrüche und übersichtliche Emojis (📦, ☕, 🚚, 💡).
-
-7. **SPRACHE & LOKALISIERUNG:**
-   - Aktuelle Nutzersprache der Webseite: "${locale}".
-   ${locale === 'tr' ? '- WICHTIG: Der Kunde nutzt die türkische Version (/tr). Antworte standardmäßig direkt auf TÜRKISCH (Türkçe), sofern der Kunde nicht explizit eine andere Sprache verwendet.' : ''}
-   ${locale === 'en' ? '- WICHTIG: The customer is on the English version (/en). Reply in ENGLISH by default.' : ''}
-   ${locale === 'ar' ? '- WICHTIG: The customer is on the Arabic version (/ar). Reply in ARABIC by default.' : ''}
-   - Antworte ansonsten immer in der Sprache, in der der Kunde schreibt (primär Deutsch, Türkisch, Englisch oder Arabisch). Fallback ist Deutsch.
-
-8. **ANTI-HALLUZINATION & FAKTEN-TREUE (SEHR WICHTIG):**
-   - ERFINDE NIEMALS Informationen über Herkunftsländer, Produktionsstätten, Zertifikate, Eigenschaften (vegan, zuckerfrei), Aromen, Firmengeschichte oder Marken, die nicht explizit in der Produktdatenbank oder hier angegeben sind. Deine EINZIGE Quelle für Produktdetails sind die API-Rückgabewerte.
-   - Antworte NICHT langatmig mit ausgedachten Texten. Halte deine Antworten kurz, präzise und direkt.
-   - Wenn ein Kunde nach einer Information fragt, die du nicht weißt, erfinde nichts! Antworte ehrlich: "Dazu liegen mir aktuell keine detaillierten Informationen vor. Bitte wenden Sie sich direkt an unser Team."
-   - **STRIKTE REGEL ZU ALTERNATIVEN & KATEGORIEN:** Nutze das Feld \`category\`, um logische Alternativen anzubieten. Wenn ein Kunde z.B. nach einem bestimmten Sirup sucht, der nicht gefunden wird, schlage andere Produkte aus derselben Kategorie (z.B. "Aromatisierte Cocktailsirupe") vor, die ähnliche Aromen aufweisen.
-   - Biete NIEMALS Produkte einer völlig anderen Kategorie (z. B. "Sirup") als Alternative an, wenn der Kunde explizit nach "Püree" oder "Sauce" fragt. Das wirkt unprofessionell.
-   - Wenn das angefragte Produkt in der Datenbank fehlt, sage einfach, dass dieses Produkt derzeit nicht im System gelistet ist, und nenne Produkte derselben Kategorie als Alternative. Verzichte auf unpassende Empfehlungen.
-
-### UNTERNEHMENSINFORMATIONEN & KONTAKT:
-   - Firma: Elyson Sweets
-   - Adresse: Wiesenstraße 21, 51147 Köln, Deutschland
-   - Telefon / WhatsApp: +49 2203 9899714
-   - E-Mail: info@elysonsweets.de
-   - Web: www.elysonsweets.de
-   - Über uns: Wir sind ein B2B-Großhandel mit Sitz in Köln, spezialisiert auf den Bedarf von Cafés, Eisdielen, Bäckereien und der Gastronomie. Wir bieten Premium-Zutaten an, insbesondere Sirupe, Saucen, Fruchtpürees und Waffel-Toppings.
-
-### 9. OFFIZIELLER B2B-BESTELLABLAUF (BESTELLUNGEN AUFNEHMEN):
-   Wenn ein Kunde explizit eine Bestellung aufgeben möchte (z.B. "Ich nehme 5 Kartons davon"):
-   1. **Daten abfragen:** Bitte ihn höflich um die nötigen Firmendaten, falls noch nicht vorhanden. Nutze dazu eine übersichtliche Markdown-Checkliste:
-      - Firmenname
-      - Lieferadresse
-      - E-Mail-Adresse
-      - USt-IdNr / Steuernummer (optional)
-   2. **Tool aufrufen:** Sobald du diese Daten hast, rufe das Tool \`createDraftOrder\` auf, um die Bestellung offiziell im System als Entwurf zu speichern.
-   3. **WICHTIG: BESTELLÜBERSICHT (CART SUMMARY):** Bevor du dich verabschiedest, MUSST du die Werte aus der Tool-Antwort (\`totalNet\`, \`totalGross\`, \`shippingGross\`, \`shippingName\`) nutzen, um dem Kunden eine klare Markdown-Tabelle mit seiner Bestellübersicht zu zeigen:
-      | Beschreibung | Betrag |
-      |---|---|
-      | **Netto-Warenwert** | {totalNet} € |
-      | **MwSt (7%)** | {totalNet * 0.07} € |
-      | **Lieferung/Versand ({shippingName})** | {shippingGross} € |
-      | **Gesamtbetrag (Brutto)** | **{totalGross} €** |
-   4. **Bestellbestätigung & Bankdaten:** Nach der Tabelle, antworte dem Kunden mit folgender professioneller Bestätigung:
-      - "Ihre Bestellung wurde erfolgreich in unserem System erfasst."
-      - "Unser Team wird Ihnen in Kürze eine **offizielle Proforma-Rechnung** an Ihre E-Mail-Adresse zusenden."
-      - "Bitte überweisen Sie den Gesamtbetrag auf folgendes Konto:"
-      - **Bankverbindung Elyson Sweets:**
-        - Kontoinhaber: Elyson Sweets GmbH
-        - Bank: Qonto
-        - IBAN: DE44 1001 0123 3494 5712 22
-        - BIC/SWIFT: QNTODEB2XXX
-        - Verwendungszweck: Auftrags-Referenz (siehe E-Mail) / Firmenname
-      - "Sobald Ihre Zahlung bei uns eingeht, bereiten wir Ihre Ware für den Versand vor. Die Lieferung erfolgt in der Regel **innerhalb von 2–3 Werktagen** nach Zahlungseingang."
-   5. **B2B-Portal-Registrierung (Upsell):** Lade den Kunden am Ende der Bestellbestätigung höflich ein, sich für unser B2B-Händlerportal auf der Webseite zu registrieren. Erwähne die Vorteile: "Mit einem kostenlosen B2B-Konto können Sie Ihre Rechnungen einsehen und individuelle Staffelpreise prüfen."
-
-Nutze die bereitgestellten Tools, um stets reale Daten (Kartoninhalte, EAN, Bestände, aktuelle Staffelpreise) aus der Datenbank abzurufen und niemals Phantasiepreise oder Phantasieeigenschaften zu erfinden!`;
 }
 </file>
 
@@ -19505,60 +19879,51 @@ export type Database = {
       }
       blog_yazilari: {
         Row: {
-          baslik: string
-          created_at: string
-          durum: Database["public"]["Enums"]["yazi_durumu"]
-          icerik: Json | null
           id: string
-          meta_aciklama: string
-          meta_baslik: string
-          one_cikan_gorsel_url: string | null
+          created_at: string
+          updated_at: string | null
           slug: string
-          yayinlanma_tarihi: string | null
-          yazar_id: string | null
+          title: Json
+          excerpt: Json
+          content: Json
+          meta_title: Json
+          meta_description: Json
+          image_url: string | null
+          author_name: string | null
+          published_at: string | null
+          is_published: boolean | null
         }
         Insert: {
-          baslik: string
-          created_at?: string
-          durum?: Database["public"]["Enums"]["yazi_durumu"]
-          icerik?: Json | null
           id?: string
-          meta_aciklama: string
-          meta_baslik: string
-          one_cikan_gorsel_url?: string | null
+          created_at?: string
+          updated_at?: string | null
           slug: string
-          yayinlanma_tarihi?: string | null
-          yazar_id?: string | null
+          title: Json
+          excerpt?: Json
+          content?: Json
+          meta_title?: Json
+          meta_description?: Json
+          image_url?: string | null
+          author_name?: string | null
+          published_at?: string | null
+          is_published?: boolean | null
         }
         Update: {
-          baslik?: string
-          created_at?: string
-          durum?: Database["public"]["Enums"]["yazi_durumu"]
-          icerik?: Json | null
           id?: string
-          meta_aciklama?: string
-          meta_baslik?: string
-          one_cikan_gorsel_url?: string | null
+          created_at?: string
+          updated_at?: string | null
           slug?: string
-          yayinlanma_tarihi?: string | null
-          yazar_id?: string | null
+          title?: Json
+          excerpt?: Json
+          content?: Json
+          meta_title?: Json
+          meta_description?: Json
+          image_url?: string | null
+          author_name?: string | null
+          published_at?: string | null
+          is_published?: boolean | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "blog_yazilari_yazar_id_fkey"
-            columns: ["yazar_id"]
-            isOneToOne: false
-            referencedRelation: "kullanici_segment_bilgileri"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_yazilari_yazar_id_fkey"
-            columns: ["yazar_id"]
-            isOneToOne: false
-            referencedRelation: "profiller"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       degerlendirme_oylari: {
         Row: {
@@ -20014,6 +20379,7 @@ export type Database = {
           iskonto_orani: number
           kategori: string | null
           kaynak: string | null
+          lexware_contact_id: string | null
           linkedin_url: string | null
           mahalle: string | null
           musteri_profil_id: string | null
@@ -20061,6 +20427,7 @@ export type Database = {
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
+          lexware_contact_id?: string | null
           linkedin_url?: string | null
           mahalle?: string | null
           musteri_profil_id?: string | null
@@ -20108,6 +20475,7 @@ export type Database = {
           iskonto_orani?: number
           kategori?: string | null
           kaynak?: string | null
+          lexware_contact_id?: string | null
           linkedin_url?: string | null
           mahalle?: string | null
           musteri_profil_id?: string | null
@@ -20248,7 +20616,8 @@ export type Database = {
           created_by: string
           id: string
           notlar: string | null
-          proposed_satis_fiyati_alt_bayi: number | null
+          proposed_satis_fiyati_alt_bayi: number
+          satis_fiyati_palet: number | null | null
           proposed_satis_fiyati_musteri: number | null
           status: string
           urun_id: string
@@ -20260,7 +20629,8 @@ export type Database = {
           created_by: string
           id?: string
           notlar?: string | null
-          proposed_satis_fiyati_alt_bayi?: number | null
+          proposed_satis_fiyati_alt_bayi?: number
+          satis_fiyati_palet?: number | null | null
           proposed_satis_fiyati_musteri?: number | null
           status?: string
           urun_id: string
@@ -20272,7 +20642,8 @@ export type Database = {
           created_by?: string
           id?: string
           notlar?: string | null
-          proposed_satis_fiyati_alt_bayi?: number | null
+          proposed_satis_fiyati_alt_bayi?: number
+          satis_fiyati_palet?: number | null | null
           proposed_satis_fiyati_musteri?: number | null
           status?: string
           urun_id?: string
@@ -21477,9 +21848,24 @@ export type Database = {
         Row: {
           atanan_kisi_id: string | null
           created_at: string
+          fatura_durumu: string | null
           firma_id: string
           id: string
+          kargo_firmasi: string | null
+          kargo_kdv_tutari: number | null
+          kargo_takip_no: string | null
+          kargo_takip_url: string | null
+          kargo_tutari_net: number | null
+          kargo_yontemi: string | null
+          kaynak: string | null
           kdv_orani: number
+          lexware_invoice_id: string | null
+          lexware_invoice_no: string | null
+          lexware_pdf_url: string | null
+          lexware_storno_id: string | null
+          lexware_storno_no: string | null
+          lexware_storno_pdf_url: string | null
+          notlar: string | null
           odeme_durumu: string | null
           odeme_kasa_tipi: string | null
           olusturan_kullanici_id: string | null
@@ -21493,9 +21879,24 @@ export type Database = {
         Insert: {
           atanan_kisi_id?: string | null
           created_at?: string
+          fatura_durumu?: string | null
           firma_id: string
           id?: string
+          kargo_firmasi?: string | null
+          kargo_kdv_tutari?: number | null
+          kargo_takip_no?: string | null
+          kargo_takip_url?: string | null
+          kargo_tutari_net?: number | null
+          kargo_yontemi?: string | null
+          kaynak?: string | null
           kdv_orani: number
+          lexware_invoice_id?: string | null
+          lexware_invoice_no?: string | null
+          lexware_pdf_url?: string | null
+          lexware_storno_id?: string | null
+          lexware_storno_no?: string | null
+          lexware_storno_pdf_url?: string | null
+          notlar?: string | null
           odeme_durumu?: string | null
           odeme_kasa_tipi?: string | null
           olusturan_kullanici_id?: string | null
@@ -21511,9 +21912,24 @@ export type Database = {
         Update: {
           atanan_kisi_id?: string | null
           created_at?: string
+          fatura_durumu?: string | null
           firma_id?: string
           id?: string
+          kargo_firmasi?: string | null
+          kargo_kdv_tutari?: number | null
+          kargo_takip_no?: string | null
+          kargo_takip_url?: string | null
+          kargo_tutari_net?: number | null
+          kargo_yontemi?: string | null
+          kaynak?: string | null
           kdv_orani?: number
+          lexware_invoice_id?: string | null
+          lexware_invoice_no?: string | null
+          lexware_pdf_url?: string | null
+          lexware_storno_id?: string | null
+          lexware_storno_no?: string | null
+          lexware_storno_pdf_url?: string | null
+          notlar?: string | null
           odeme_durumu?: string | null
           odeme_kasa_tipi?: string | null
           olusturan_kullanici_id?: string | null
@@ -21880,6 +22296,7 @@ export type Database = {
           palet_ici_adet: number | null
           produktdatenblatt_url: string | null
           satis_fiyati_alt_bayi: number
+          satis_fiyati_palet: number | null
           satis_fiyati_musteri: number
           satis_fiyati_toptanci: number | null
           seo_meta: Json | null
@@ -21941,6 +22358,7 @@ export type Database = {
           palet_ici_adet?: number | null
           produktdatenblatt_url?: string | null
           satis_fiyati_alt_bayi?: number
+          satis_fiyati_palet?: number | null
           satis_fiyati_musteri?: number
           satis_fiyati_toptanci?: number | null
           seo_meta?: Json | null
@@ -22002,6 +22420,7 @@ export type Database = {
           palet_ici_adet?: number | null
           produktdatenblatt_url?: string | null
           satis_fiyati_alt_bayi?: number
+          satis_fiyati_palet?: number | null
           satis_fiyati_musteri?: number
           satis_fiyati_toptanci?: number | null
           seo_meta?: Json | null
@@ -22159,6 +22578,212 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          endpoint: string
+          p256dh: string
+          auth: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          endpoint: string
+          p256dh: string
+          auth: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          endpoint?: string
+          p256dh?: string
+          auth?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "kullanici_segment_bilgileri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiller"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      gbp_settings: {
+        Row: {
+          id: string
+          account_id: string | null
+          location_id: string | null
+          refresh_token: string | null
+          business_name: string | null
+          business_category: string | null
+          target_keywords: string | null
+          target_locations: string | null
+          default_post_image_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          account_id?: string | null
+          location_id?: string | null
+          refresh_token?: string | null
+          business_name?: string | null
+          business_category?: string | null
+          target_keywords?: string | null
+          target_locations?: string | null
+          default_post_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          location_id?: string | null
+          refresh_token?: string | null
+          business_name?: string | null
+          business_category?: string | null
+          target_keywords?: string | null
+          target_locations?: string | null
+          default_post_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      google_business_reviews: {
+        Row: {
+          id: string
+          review_id: string
+          reviewer_name: string | null
+          star_rating: number | null
+          comment: string | null
+          reply_text: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          review_id: string
+          reviewer_name?: string | null
+          star_rating?: number | null
+          comment?: string | null
+          reply_text?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          review_id?: string
+          reviewer_name?: string | null
+          star_rating?: number | null
+          comment?: string | null
+          reply_text?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_chat_logs: {
+        Row: {
+          id: string
+          session_id: string
+          user_message: string
+          ai_response: string
+          channel: string
+          tools_used: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_message: string
+          ai_response: string
+          channel?: string
+          tools_used?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_message?: string
+          ai_response?: string
+          channel?: string
+          tools_used?: Json
+          created_at?: string
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          id: string
+          slug: string
+          locale: string
+          title: string
+          description: string | null
+          ingredients: Json
+          instructions: Json
+          prep_time_minutes: number | null
+          product_id: string | null
+          category: string
+          is_featured: boolean | null
+          likes_count: number | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          slug: string
+          locale: string
+          title: string
+          description?: string | null
+          ingredients: Json
+          instructions: Json
+          prep_time_minutes?: number | null
+          product_id?: string | null
+          category: string
+          is_featured?: boolean | null
+          likes_count?: number | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          slug?: string
+          locale?: string
+          title?: string
+          description?: string | null
+          ingredients?: Json
+          instructions?: Json
+          prep_time_minutes?: number | null
+          product_id?: string | null
+          category?: string
+          is_featured?: boolean | null
+          likes_count?: number | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "urunler"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       favori_urunler_istatistik: {
@@ -22245,6 +22870,12 @@ export type Database = {
       }
     }
     Functions: {
+      restore_order_stock: {
+        Args: {
+          p_siparis_id: string
+        }
+        Returns: void
+      }
       alt_bayi_satis_olustur_ve_stok_dus: {
         Args: {
           p_bayi_firma_id: string
@@ -22354,6 +22985,7 @@ export type Database = {
           ana_resim_url: string
           id: string
           satis_fiyati_alt_bayi: number
+          satis_fiyati_palet: number | null
           satis_fiyati_musteri: number
           stok_esigi: number
           stok_kodu: string
@@ -23086,6 +23718,376 @@ export async function sendPortalWelcomeEmail({
     subject,
     html,
   });
+}
+
+/**
+ * Müşteriye resmi Lexware faturasını PDF eki ile birlikte Almanca gönderir.
+ * Stripe veya Havale ödemesi tamamlandığında tetiklenir.
+ */
+export async function sendInvoiceEmail({
+  to,
+  orderNo,
+  invoiceNo,
+  pdfBuffer,
+  pdfFilename,
+}: {
+  to: string;
+  orderNo: string;
+  invoiceNo: string;
+  pdfBuffer: Buffer;
+  pdfFilename: string;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — fatura e-postası gönderilmedi.');
+    return;
+  }
+
+  const subject = `Ihre Rechnung ${invoiceNo} – Elysonsweets GmbH`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+
+    <!-- Header -->
+    <div style="background-color: #0f172a; padding: 36px 30px; text-align: center; border-bottom: 3px solid #16a34a;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: #94a3b8; margin: 6px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Rechnung / Fatura</p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 36px 32px;">
+      <h2 style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
+
+      <p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
+        vielen Dank für Ihre Bestellung! Ihre Zahlung wurde erfolgreich verarbeitet.<br>
+        Im Anhang dieser E-Mail finden Sie Ihre offizielle Rechnung als PDF-Datei.
+      </p>
+
+      <!-- Order Info Card -->
+      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+        <h3 style="margin: 0 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #166534; font-weight: 700;">Rechnungsdetails</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 180px;">Rechnungsnummer:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">${invoiceNo}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Bestellnummer:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Portal Link -->
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${LIVE_BASE_URL}/de/portal/siparisler" style="display: inline-block; background-color: #16a34a; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);">
+          Bestellung im Portal ansehen →
+        </a>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+        <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
+          Die Originalrechnung finden Sie als PDF-Anhang in dieser E-Mail.<br>
+          Bei Fragen stehen wir Ihnen jederzeit unter <a href="mailto:info@elysonsweets.de" style="color: #0f172a; font-weight: 600; text-decoration: underline;">info@elysonsweets.de</a> zur Verfügung.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+        © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Elysonsweets GmbH <info@elysonsweets.de>',
+      to,
+      subject,
+      html,
+      replyTo: 'info@elysonsweets.de',
+      attachments: [
+        {
+          filename: pdfFilename,
+          content: pdfBuffer,
+        },
+      ],
+    });
+    if (error) {
+      console.error('[email] Fatura e-postası Resend hatası:', error);
+      throw new Error(error.message);
+    } else {
+      console.log('[email] Fatura e-postası iletildi:', data?.id);
+    }
+  } catch (err) {
+    console.error('[email] Fatura e-postası gönderim hatası:', err);
+    throw err;
+  }
+}
+
+/**
+ * Müşteriye storno/iptal faturasını (Rechnungskorrektur) PDF eki ile birlikte Almanca gönderir.
+ * Sipariş iptal edildiğinde tetiklenir.
+ */
+export async function sendStornoEmail({
+  to,
+  orderNo,
+  creditNoteNo,
+  pdfBuffer,
+  pdfFilename,
+}: {
+  to: string;
+  orderNo: string;
+  creditNoteNo: string;
+  pdfBuffer: Buffer;
+  pdfFilename: string;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — storno e-postası gönderilmedi.');
+    return;
+  }
+
+  const subject = `Stornierung Ihrer Bestellung #${orderNo} – Elysonsweets GmbH`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+
+    <!-- Header -->
+    <div style="background-color: #0f172a; padding: 36px 30px; text-align: center; border-bottom: 3px solid #e11d48;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: #94a3b8; margin: 6px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Rechnungskorrektur / Storno</p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 36px 32px;">
+      <h2 style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
+
+      <p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
+        Ihre Bestellung <strong>#${orderNo}</strong> wurde storniert.<br>
+        Im Anhang finden Sie das offizielle <strong>Rechnungskorrektur-Dokument</strong> (Storno) als PDF-Datei.
+      </p>
+
+      <!-- Storno Info Card -->
+      <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+        <h3 style="margin: 0 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #9f1239; font-weight: 700;">Storno-Details</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 200px;">Rechnungskorrektur-Nr.:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">${creditNoteNo}</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Stornierte Bestellnummer:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+        <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
+          Das Rechnungskorrektur-Dokument ist als PDF-Anhang beigefügt.<br>
+          Bei Fragen stehen wir Ihnen unter <a href="mailto:info@elysonsweets.de" style="color: #0f172a; font-weight: 600; text-decoration: underline;">info@elysonsweets.de</a> gerne zur Verfügung.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+        © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Elysonsweets GmbH <info@elysonsweets.de>',
+      to,
+      subject,
+      html,
+      replyTo: 'info@elysonsweets.de',
+      attachments: [
+        {
+          filename: pdfFilename,
+          content: pdfBuffer,
+        },
+      ],
+    });
+    if (error) {
+      console.error('[email] Storno e-postası Resend hatası:', error);
+      throw new Error(error.message);
+    } else {
+      console.log('[email] Storno e-postası iletildi:', data?.id);
+    }
+  } catch (err) {
+    console.error('[email] Storno e-postası gönderim hatası:', err);
+    throw err;
+  }
+}
+
+/**
+ * Müşteriye "Siparişiniz Yola Çıktı" bildirim e-postasını Almanca gönderir.
+ * trackingUrl varsa "Sendung verfolgen" butonu gösterilir.
+ * Kargo firması "Eigenversand" ise takip bilgileri olmayabilir.
+ * GRACEFUL: Bu fonksiyon hata fırlatırsa çağıran action log basar ama durmaz.
+ */
+export async function sendShippingEmail({
+  to,
+  orderNo,
+  courier,
+  trackingNo,
+  trackingUrl,
+}: {
+  to: string;
+  orderNo: string;
+  courier: string;
+  trackingNo?: string | null;
+  trackingUrl?: string | null;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — kargo e-postası gönderilmedi.');
+    return;
+  }
+
+  const subject = `Ihre Bestellung #${orderNo} wurde versandt – Elysonsweets GmbH`;
+
+  const trackingSection = trackingNo
+    ? `
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+          <h3 style="margin: 0 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #166534; font-weight: 700;">Versanddetails</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 160px;">Bestellnummer:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Versanddienstleister:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">${courier}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Sendungsnummer:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">${trackingNo}</td>
+            </tr>
+          </table>
+          ${trackingUrl ? `
+          <div style="margin-top: 20px;">
+            <a href="${trackingUrl}" target="_blank" style="display: inline-block; background-color: #16a34a; color: #ffffff; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);">
+              Sendung verfolgen →
+            </a>
+          </div>` : ''}
+        </div>
+    `
+    : `
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 160px;">Bestellnummer:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Versandart:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">${courier}</td>
+            </tr>
+          </table>
+        </div>
+    `;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+
+    <!-- Header -->
+    <div style="background-color: #0f172a; padding: 36px 30px; text-align: center; border-bottom: 3px solid #16a34a;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: #94a3b8; margin: 6px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Ihre Bestellung ist unterwegs 🚚</p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 36px 32px;">
+      <h2 style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
+
+      <p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
+        wir freuen uns, Ihnen mitteilen zu können, dass Ihre Bestellung <strong>#${orderNo}</strong> soeben versandt wurde!<br>
+        Ihr Paket ist auf dem Weg zu Ihnen.
+      </p>
+
+      ${trackingSection}
+
+      <!-- Portal Link -->
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${LIVE_BASE_URL}/de/portal/siparisler" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none;">
+          Bestellung im Portal ansehen →
+        </a>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+        <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
+          Bei Fragen stehen wir Ihnen unter <a href="mailto:info@elysonsweets.de" style="color: #0f172a; font-weight: 600; text-decoration: underline;">info@elysonsweets.de</a> zur Verfügung.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+        © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Elysonsweets GmbH <info@elysonsweets.de>',
+      to,
+      subject,
+      html,
+      replyTo: 'info@elysonsweets.de',
+    });
+    if (error) {
+      console.error('[email] Kargo e-postası Resend hatası:', error);
+      throw new Error(error.message);
+    } else {
+      console.log('[email] Kargo e-postası iletildi:', data?.id);
+    }
+  } catch (err) {
+    console.error('[email] Kargo e-postası gönderim hatası:', err);
+    throw err;
+  }
 }
 </file>
 

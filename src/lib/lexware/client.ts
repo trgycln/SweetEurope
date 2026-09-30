@@ -29,6 +29,23 @@ export async function lexwareFetch<T = any>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
+  // KRITIK GÜVENLIK KURALI: Bu mock kodu ASLA production ortaminda calismamalidir.
+  // Canlıda sahte fatura üretmek ciddi bir finansal risktir.
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isMockEnabled = !isProduction && (
+    process.env.NODE_ENV === 'test' || 
+    process.env.NODE_ENV === 'development' ||
+    process.env.PLAYWRIGHT_TEST === 'true' || 
+    process.env.MOCK_LEXWARE === 'true'
+  );
+                 
+  if (isMockEnabled) {
+    if (endpoint.includes('/document')) return { documentFileId: 'mock-file-id' } as any;
+    if (endpoint.includes('/files')) return new Blob(['mock pdf content'], { type: 'application/pdf' }) as any;
+    if (endpoint.includes('credit-notes')) return { id: 'mock-storno-id', voucherNumber: 'GS-MOCK-123', pdfUrl: 'mock.pdf' } as any;
+    return { id: 'mock-invoice-id', voucherNumber: 'RE-MOCK-123', pdfUrl: 'mock.pdf' } as any;
+  }
+
   const apiKey = getLexwareApiKey();
   const url = endpoint.startsWith('http') ? endpoint : `${LEXWARE_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
