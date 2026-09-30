@@ -56,7 +56,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
             </h1>
           </div>
           <div className="max-w-md lg:pb-4 relative z-10">
-            <p className="text-stone-500 font-serif italic text-lg md:text-xl leading-relaxed">
+            <p className="text-stone-700 font-serif italic text-lg md:text-xl leading-relaxed">
               {t.pageSubtitle}
             </p>
           </div>
@@ -94,7 +94,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-900 bg-amber-900/5 px-3 py-1.5 border border-amber-900/10">
                         Featured
                       </span>
-                      <time className="text-[10px] font-bold tracking-[0.2em] uppercase text-stone-500">
+                      <time className="text-[10px] font-bold tracking-[0.2em] uppercase text-stone-600">
                         {new Date(featuredPost.published_at).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
                       </time>
                     </div>
@@ -106,7 +106,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
                     </Link>
                     
                     <div 
-                      className="text-base md:text-lg text-stone-600 mb-8 leading-relaxed font-serif prose prose-stone prose-p:my-0 prose-a:text-amber-800 hover:prose-a:underline line-clamp-4"
+                      className="text-base md:text-lg text-stone-700 font-normal mb-8 leading-relaxed font-serif prose prose-stone prose-p:my-0 prose-p:text-stone-700 prose-a:text-amber-800 hover:prose-a:underline line-clamp-4"
                       dangerouslySetInnerHTML={{ __html: featuredPost.excerpt[locale as keyof typeof featuredPost.excerpt] || featuredPost.excerpt['de'] }}
                     />
                     
@@ -131,7 +131,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
                    <h2 className="text-3xl md:text-5xl font-serif font-black text-stone-900 tracking-tighter uppercase">
                      {t.editorsPicks}
                    </h2>
-                   <span className="text-xs md:text-sm italic font-serif text-stone-500">
+                   <span className="text-xs md:text-sm italic font-serif text-stone-600 font-medium">
                      {t.latestUpdates}
                    </span>
                 </div>
@@ -154,7 +154,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
                           </Link>
                         )}
                         <div className="flex-grow flex flex-col">
-                          <time className="text-[10px] font-bold tracking-[0.2em] uppercase text-stone-400 mb-4 block border-b border-stone-200 pb-4">
+                          <time className="text-[10px] font-bold tracking-[0.2em] uppercase text-stone-600 mb-4 block border-b border-stone-200 pb-3">
                             {new Date(post.published_at).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })}
                           </time>
                           <Link href={`/${locale}/blog/${post.slug}`}>
@@ -163,7 +163,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
                             </h3>
                           </Link>
                           <div 
-                            className="text-sm md:text-base text-stone-600 line-clamp-3 mb-8 flex-grow font-serif prose-sm prose-stone prose-p:my-0"
+                            className="text-sm md:text-base text-stone-700 font-normal line-clamp-3 mb-8 flex-grow font-serif prose-sm prose-stone prose-p:my-0 prose-p:text-stone-700"
                             dangerouslySetInnerHTML={{ __html: post.excerpt[loc] || post.excerpt['de'] }}
                           />
                           <div className="mt-auto">
@@ -203,7 +203,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
                              )}
                           </div>
                           <div className="flex-1 pt-1">
-                             <time className="text-[10px] font-bold tracking-[0.2em] uppercase text-amber-900/80 mb-2 block">
+                             <time className="text-[10px] font-bold tracking-[0.2em] uppercase text-amber-400 mb-2 block">
                               {new Date(post.published_at).toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })}
                             </time>
                             <Link href={`/${locale}/blog/${post.slug}`} className="block">
@@ -223,7 +223,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
           </div>
         ) : (
           <div className="text-center py-32 border-t border-stone-200">
-            <p className="text-2xl text-stone-400 font-serif italic">The journal is currently empty.</p>
+            <p className="text-2xl text-stone-600 font-serif italic">The journal is currently empty.</p>
           </div>
         )}
       </div>

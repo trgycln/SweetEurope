@@ -31,7 +31,7 @@ export default function BlogPostContent({ content, locale }: BlogPostContentProp
     return (
       <>
         <div
-          className="prose prose-lg md:prose-xl dark:prose-invert max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-primary dark:prose-headings:text-white prose-p:text-text-main dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-accent hover:prose-a:text-yellow-600 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-text-main dark:prose-li:text-gray-300"
+          className="prose prose-base sm:prose-lg md:prose-xl max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900 prose-p:text-stone-800 prose-p:leading-relaxed prose-a:text-amber-800 hover:prose-a:text-amber-900 prose-strong:text-stone-900 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-stone-800"
           dangerouslySetInnerHTML={{ __html: content }}
         />
         <div className="my-16 max-w-3xl mx-auto">
@@ -50,7 +50,7 @@ export default function BlogPostContent({ content, locale }: BlogPostContentProp
   return (
     <>
       <div
-        className="prose prose-lg md:prose-xl dark:prose-invert max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-primary dark:prose-headings:text-white prose-p:text-text-main dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-accent hover:prose-a:text-yellow-600 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-text-main dark:prose-li:text-gray-300"
+        className="prose prose-base sm:prose-lg md:prose-xl max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900 prose-p:text-stone-800 prose-p:leading-relaxed prose-a:text-amber-800 hover:prose-a:text-amber-900 prose-strong:text-stone-900 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-stone-800"
         dangerouslySetInnerHTML={{ __html: firstHalf }}
       />
 
@@ -59,7 +59,7 @@ export default function BlogPostContent({ content, locale }: BlogPostContentProp
       </div>
 
       <div
-        className="prose prose-lg md:prose-xl dark:prose-invert max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-primary dark:prose-headings:text-white prose-p:text-text-main dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-a:text-accent hover:prose-a:text-yellow-600 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-text-main dark:prose-li:text-gray-300"
+        className="prose prose-base sm:prose-lg md:prose-xl max-w-prose mx-auto prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900 prose-p:text-stone-800 prose-p:leading-relaxed prose-a:text-amber-800 hover:prose-a:text-amber-900 prose-strong:text-stone-900 prose-img:rounded-3xl prose-img:shadow-xl prose-li:text-stone-800"
         dangerouslySetInnerHTML={{ __html: secondHalf }}
       />
     </>

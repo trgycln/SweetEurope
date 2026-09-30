@@ -8,7 +8,6 @@ import { PortalHeader } from '@/components/portal/PortalHeader';
 import { PortalSidebar } from '@/components/portal/PortalSidebar';
 import { PushNotificationManager } from '@/components/portal/PushNotificationManager';
 import { Dictionary } from '@/dictionaries'; // DİKKAT: Bu import'u ekliyoruz
-import { CartDrawer } from '@/components/portal/siparisler/CartDrawer';
 
 // DİKKAT: Prop'lara 'dictionary' eklendi
 export function PortalContainer({ children, dictionary }: { children: React.ReactNode; dictionary: Dictionary }) {
@@ -43,7 +42,6 @@ export function PortalContainer({ children, dictionary }: { children: React.Reac
                     <PushNotificationManager />
                     {children}
                 </main>
-                <CartDrawer />
             </div>
         </div>
     );

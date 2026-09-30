@@ -79,20 +79,24 @@ test.describe('B2B Customer Portal E2E Flow', () => {
     await page.reload();
     await page.waitForLoadState('networkidle'); // Wait for hydration and localstorage read
 
-    // 3. Click cart icon (Test clickability for z-index/pointer-events issues)
+    // 3. Click cart icon to test smooth scrolling to the cart checkout section
     const cartBtn = page.locator('header button[title*="Warenkorb"], header button[title*="Sepet"], header button[title*="السلة"]').first();
     await expect(cartBtn).toBeVisible();
     await expect(cartBtn).toBeEnabled();
     await cartBtn.click({ force: true });
 
-    // Verify detailed cart drawer calculations exist (MwSt / KDV and Versandkosten / Kargo)
-    // Using .last() because the drawer is rendered at the end of the DOM and mobile product cards have hidden MwSt texts.
-    await expect(page.locator('text=/(MwSt\\.|KDV)/i').last()).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('text=/(Versandkosten|Kargo)/i').last()).toBeVisible();
+    // Verify page scrolled to and displays the cart checkout section
+    const cartSection = page.locator('#cart-checkout-section');
+    await expect(cartSection).toBeVisible({ timeout: 10000 });
 
-    // 4. Complete checkout
-    const checkoutButton = page.locator('button', { hasText: /(Siparişi Tamamla|Zur Kasse)/i });
+    // Verify detailed calculations exist in the cart section (MwSt / KDV and Versandkosten / Kargo)
+    await expect(cartSection.locator('text=/(MwSt\\.|KDV)/i').first()).toBeVisible({ timeout: 5000 });
+    await expect(cartSection.locator('text=/(Versandkosten|Kargo)/i').first()).toBeVisible();
+
+    // 4. Complete checkout inside #cart-checkout-section
+    const checkoutButton = cartSection.locator('button', { hasText: /(Siparişi Tamamla|Zur Kasse)/i });
     await expect(checkoutButton).toBeVisible();
+    await expect(checkoutButton).toBeEnabled();
     await checkoutButton.click();
 
     // Wait for success toast

@@ -156,8 +156,27 @@ const FluidPlane = () => {
 };
 
 const ForegroundFluidOverlay: React.FC = () => {
+  const [isEnabled, setIsEnabled] = React.useState(false);
+
+  useEffect(() => {
+    // Only enable on desktop screens with a fine pointer (mouse)
+    const checkEligibility = () => {
+      const isMobile = window.innerWidth < 768;
+      const isTouchOnly = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+      setIsEnabled(!isMobile && !isTouchOnly);
+    };
+
+    checkEligibility();
+    window.addEventListener('resize', checkEligibility);
+    return () => window.removeEventListener('resize', checkEligibility);
+  }, []);
+
+  if (!isEnabled) {
+    return null;
+  }
+
   return (
-    <div className="fixed inset-0 w-full h-[100dvh] z-[9999] overflow-hidden mix-blend-screen opacity-90 print:hidden" style={{ pointerEvents: 'none' }}>
+    <div className="fixed inset-0 w-full h-[100dvh] z-[9999] overflow-hidden mix-blend-screen opacity-90 print:hidden hidden md:block" style={{ pointerEvents: 'none' }}>
       <Canvas
         style={{ pointerEvents: 'none' }}
         camera={{ position: [0, 0, 1] }}

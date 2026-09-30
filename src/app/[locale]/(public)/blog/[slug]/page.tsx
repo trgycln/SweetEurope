@@ -126,13 +126,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
               {new Date(post.published_at).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-primary dark:text-white mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-stone-900 mb-6 leading-tight">
             {title}
           </h1>
-          <div className="flex items-center justify-center gap-3 text-text-main dark:text-gray-400 font-medium">
-            <span className="h-px w-8 bg-gray-300 dark:bg-gray-700"></span>
+          <div className="flex items-center justify-center gap-3 text-stone-600 font-medium text-sm md:text-base">
+            <span className="h-px w-8 bg-stone-300"></span>
             <span>{t.by} {post.author_name}</span>
-            <span className="h-px w-8 bg-gray-300 dark:bg-gray-700"></span>
+            <span className="h-px w-8 bg-stone-300"></span>
           </div>
         </header>
 

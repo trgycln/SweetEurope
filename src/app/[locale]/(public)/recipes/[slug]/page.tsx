@@ -357,7 +357,7 @@ export default async function RecipePage({ params }: Props) {
                 <Clock className="w-5 h-5 print:w-3.5 print:h-3.5 text-amber-700" />
               </div>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400 print:text-[8px] print:text-stone-500">{t.prepTime}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-600 print:text-[8px] print:text-stone-500">{t.prepTime}</p>
                 <p className="text-sm md:text-base font-bold text-stone-900 print:text-[11px] print:text-black">{recipe.prep_time_minutes || 5} {t.minutes}</p>
               </div>
             </div>
@@ -367,7 +367,7 @@ export default async function RecipePage({ params }: Props) {
                 <Coffee className="w-5 h-5 print:w-3.5 print:h-3.5 text-amber-700" />
               </div>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400 print:text-[8px] print:text-stone-500">{t.category}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-600 print:text-[8px] print:text-stone-500">{t.category}</p>
                 <p className="text-sm md:text-base font-bold text-stone-900 print:text-[11px] print:text-black">{getCategoryLabel(recipe.category)}</p>
               </div>
             </div>
@@ -377,7 +377,7 @@ export default async function RecipePage({ params }: Props) {
                 <FiStar className="w-5 h-5 print:w-3.5 print:h-3.5 text-amber-700" />
               </div>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400 print:text-[8px] print:text-stone-500">{t.difficulty}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-600 print:text-[8px] print:text-stone-500">{t.difficulty}</p>
                 <p className="text-sm md:text-base font-bold text-stone-900 print:text-[11px] print:text-black">{t.easy}</p>
               </div>
             </div>
@@ -387,7 +387,7 @@ export default async function RecipePage({ params }: Props) {
                 <FiAward className="w-5 h-5 print:w-3.5 print:h-3.5 text-amber-700" />
               </div>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400 print:text-[8px] print:text-stone-500">{t.portion}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-600 print:text-[8px] print:text-stone-500">{t.portion}</p>
                 <p className="text-sm md:text-base font-bold text-stone-900 print:text-[11px] print:text-black">{t.standardServing}</p>
               </div>
             </div>
@@ -568,19 +568,19 @@ export default async function RecipePage({ params }: Props) {
               <div className="grid grid-cols-3 gap-4 border-t border-stone-700 pt-5">
                 <div>
                   <div className="text-amber-400 font-black text-xl md:text-2xl">-30%</div>
-                  <div className="text-stone-400 text-[10px] uppercase tracking-wider mt-0.5">
+                  <div className="text-stone-300 font-medium text-[10px] uppercase tracking-wider mt-0.5">
                     {locale === 'de' ? 'Süße' : locale === 'tr' ? 'Tatlılık' : locale === 'ar' ? 'الحلاوة' : 'Sweetness'}
                   </div>
                 </div>
                 <div>
                   <div className="text-amber-400 font-black text-xl md:text-2xl">+10%</div>
-                  <div className="text-stone-400 text-[10px] uppercase tracking-wider mt-0.5">
+                  <div className="text-stone-300 font-medium text-[10px] uppercase tracking-wider mt-0.5">
                     {locale === 'de' ? 'Trockenmasse (Brix)' : locale === 'tr' ? 'Kuru Madde (Brix)' : locale === 'ar' ? 'المادة الجافة (Brix)' : 'Dry Matter (Brix)'}
                   </div>
                 </div>
                 <div>
                   <div className="text-amber-400 font-black text-xl md:text-2xl">Max</div>
-                  <div className="text-stone-400 text-[10px] uppercase tracking-wider mt-0.5">
+                  <div className="text-stone-300 font-medium text-[10px] uppercase tracking-wider mt-0.5">
                     {locale === 'de' ? 'Viskosität' : locale === 'tr' ? 'Viskozite' : locale === 'ar' ? 'اللزوجة' : 'Viscosity'}
                   </div>
                 </div>

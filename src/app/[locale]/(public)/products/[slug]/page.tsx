@@ -293,7 +293,7 @@ export default async function PublicUrunDetayPage({ params }: { params: Promise<
                                 ? `${urunAdi} ile İmza İçecekler Yaratın` 
                                 : `Kreieren Sie Signature Drinks mit ${urunAdi}`}
                         </h3>
-                        <p className="text-stone-400 text-sm md:text-base leading-relaxed">
+                        <p className="text-stone-300 text-sm md:text-base leading-relaxed">
                             {locale === 'tr'
                                 ? 'Reçete Sihirbazımızı kullanarak bu ürüne özel, kafenizin menüsüne ekleyebileceğiniz profesyonel reçeteler oluşturun ve PDF menü olarak indirin.'
                                 : 'Nutzen Sie unseren Rezept-Assistenten, um professionelle Signature-Rezepte für dieses Produkt zu erstellen und als PDF für Ihr Café-Menü herunterzuladen.'}

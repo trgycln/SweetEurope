@@ -31,7 +31,7 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
     const locale = params.locale as string;
 
     // Warenkorb-Daten aus dem Context holen
-    const { getGesamtMengeImWarenkorb, setIsCartOpen } = usePortal();
+    const { getGesamtMengeImWarenkorb } = usePortal();
     const gesamtMenge = getGesamtMengeImWarenkorb();
 
     // Logout-Logik
@@ -72,7 +72,14 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
                 
                 {/* Warenkorb-Shortcut */}
                 <button
-                    onClick={() => setIsCartOpen(true)}
+                    onClick={() => {
+                        const cartEl = document.getElementById('cart-checkout-section');
+                        if (cartEl) {
+                            cartEl.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            router.push(`/${locale}/portal/katalog#cart-checkout-section`);
+                        }
+                    }}
                     className="relative z-50 p-2 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors cursor-pointer"
                     title={locale === 'ar' ? 'طلب جديد / السلة' : locale === 'tr' ? 'Yeni Sipariş / Sepet' : 'Neue Bestellung / Warenkorb'}
                 >
