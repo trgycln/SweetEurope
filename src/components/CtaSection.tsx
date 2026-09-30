@@ -29,10 +29,10 @@ const CtaSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary,
             {dictionary.cta?.btnPrimary || 'Geschäftskonto eröffnen & Preisliste erhalten'}
           </Link>
           <Link
-            href={`/${locale}/contact`}
+            href={`/${locale}/contact?subject=tasting`}
             className="bg-white/10 text-white font-semibold py-3 px-7 rounded-md text-base border border-white/30 hover:bg-white/20 transition-colors inline-block"
           >
-            {dictionary.cta?.btnSecondary || 'Kostenloses Probierpaket anfragen'}
+            {dictionary.cta?.btnSecondary || 'Verkostung vor Ort anfragen (Köln & Bonn)'}
           </Link>
         </div>
       </div>

@@ -157,13 +157,13 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
             {dictionary.hero.btnProducts || 'Sortiment entdecken'}
           </Link>
           <Link
-            href={`/${locale}/contact`}
+            href={`/${locale}/contact?subject=tasting`}
             className="w-full sm:w-auto text-center bg-white/15 backdrop-blur-sm text-white font-semibold py-3.5 px-7 rounded-xl border-2 border-white/40 transition-all duration-300 hover:bg-white/25 hover:scale-105 shadow-xl text-base"
           >
-            {dictionary.hero.btnTrial || 'Probierpaket anfragen'}
+            {dictionary.hero.btnTrial || 'Verkostung vor Ort (Köln & Bonn)'}
           </Link>
           <Link
-            href={`/${locale}/contact`}
+            href={`/${locale}/contact?subject=pricelist`}
             className="w-full sm:w-auto text-center bg-transparent text-white/80 font-medium py-3.5 px-6 rounded-xl border border-white/20 transition-all duration-300 hover:border-accent/80 hover:text-white hover:bg-white/5 text-sm"
           >
             {dictionary.hero.btnPricelist || 'B2B-Preisliste (PDF)'}

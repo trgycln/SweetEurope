@@ -79,11 +79,35 @@ export default async function KontaktPage({ params }: { params: Promise<{ locale
                   </div>
                 </div>
               </div>
+
+              {/* Lokaler Verkostungsservice Info */}
+              <div className="mt-8 p-5 bg-accent/10 border border-accent/30 rounded-xl">
+                <h4 className="font-bold font-sans text-primary flex items-center gap-2 text-base">
+                  <span>☕</span>{' '}
+                  {locale === 'tr'
+                    ? 'Köln & Bonn Yerinde Ücretsiz Tadım'
+                    : locale === 'en'
+                    ? 'Cologne & Bonn On-Site Tasting'
+                    : locale === 'ar'
+                    ? 'تذوق مجاني في الموقع (كولونيا وبون)'
+                    : 'Verkostung vor Ort (Köln & Bonn)'}
+                </h4>
+                <p className="text-sm text-text-main/80 mt-2 leading-relaxed font-sans">
+                  {locale === 'tr'
+                    ? 'Köln, Bonn ve çevre bölgelerdeki kafe, bar ve restoranlara şuruplarımızı ve soslarımızı bizzat getirip baristanızla birlikte denetiyoruz.'
+                    : locale === 'en'
+                    ? 'We personally visit cafes, bars, and restaurants in Cologne, Bonn, and surrounding areas to test syrups & sauces with your baristas.'
+                    : locale === 'ar'
+                    ? 'نقوم بزيارة المقاهي والبارات في كولونيا وبون شخصياً لتجربة منتجاتنا بالتعاون مع الباريستا في موقعكم.'
+                    : 'Wir besuchen Gastronomiebetriebe im Raum Köln, Bonn & Umgebung persönlich und testen unsere Sirupe & Saucen direkt gemeinsam vor Ort.'}
+                </p>
+              </div>
             </div>
 
             {/* Right Column: Contact Form */}
             <Suspense fallback={<div className="bg-white p-8 rounded-lg shadow-lg flex items-center justify-center min-h-[400px]">Lädt...</div>}>
               <ContactFormClient
+                locale={locale}
                 labels={{
                   formTitle:   content.formTitle,
                   formName:    content.formName,

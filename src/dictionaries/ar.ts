@@ -971,7 +971,7 @@ export const dictionary: Partial<Dictionary> = {
     subtitle: 'كن جزءًا من شبكة شركائنا الحصرية واحصل على منتجات فاخرة ستسعد عملاءك.',
     button: 'كن شريكاً الآن',
     btnPrimary: 'افتح حساب أعمال واحصل على قائمة الأسعار',
-    btnSecondary: 'اطلب حزمة عينات مجانية',
+    btnSecondary: 'طلب تذوق في الموقع (كولونيا وبون)',
   },
   socials: {
     instagram: 'تابعنا على انستجرام',
@@ -994,7 +994,7 @@ export const dictionary: Partial<Dictionary> = {
     badgePalette: 'خصم منصة نقالة متاح',
     badgeShipping: 'شحن سريع ألمانيا / أوروبا',
     btnProducts: 'اكتشف التشكيلة',
-    btnTrial: 'طلب حزمة عينات',
+    btnTrial: 'طلب تذوق في الموقع (كولونيا وبون)',
     btnPricelist: 'قائمة أسعار B2B (PDF)',
     categories: {
       cocktailSyrups: 'سيروب الكوكتيل',
@@ -1026,7 +1026,7 @@ export const dictionary: Partial<Dictionary> = {
     catCoffeeLabel: 'السيروب والباريستا',
     businessTitle: 'العملاء التجاريون',
     linkPartner: 'كن شريكًا',
-    linkTrial: 'طلب حزمة تجريبية',
+    linkTrial: 'طلب تذوق في الموقع (كولونيا وبون)',
     linkPricelist: 'طلب قائمة الأسعار',
     linkContact: 'إرسال استفسار',
     linkFaq: 'الأسئلة الشائعة',

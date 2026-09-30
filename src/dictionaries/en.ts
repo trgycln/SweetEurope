@@ -974,7 +974,7 @@ export const dictionary: Partial<Dictionary> = {
     subtitle: 'Become part of our exclusive partner network and gain access to premium products that will delight your customers.',
     button: 'Become a Partner Now',
     btnPrimary: 'Open Business Account & Get Pricelist',
-    btnSecondary: 'Request Free Sample Package',
+    btnSecondary: 'Book Tasting (Cologne & Bonn)',
   },
   socials: {
     instagram: 'Follow us on Instagram',
@@ -997,7 +997,7 @@ export const dictionary: Partial<Dictionary> = {
     badgePalette: 'Pallet discount available',
     badgeShipping: 'Fast Shipping DE / EU',
     btnProducts: 'Discover Assortment',
-    btnTrial: 'Request Trial Package',
+    btnTrial: 'Book Tasting (Cologne & Bonn)',
     btnPricelist: 'B2B Pricelist (PDF)',
     categories: {
       cocktailSyrups: 'Cocktail Syrups',
@@ -1029,7 +1029,7 @@ export const dictionary: Partial<Dictionary> = {
     catCoffeeLabel: 'Syrups & Barista',
     businessTitle: 'Business Customers',
     linkPartner: 'Become a Partner',
-    linkTrial: 'Request Trial Package',
+    linkTrial: 'Book Tasting (Cologne & Bonn)',
     linkPricelist: 'Request Price List',
     linkContact: 'Send Inquiry',
     linkFaq: 'FAQ',

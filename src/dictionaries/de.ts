@@ -992,7 +992,7 @@ statusOptions: {
     subtitle: 'Werden Sie Teil unseres exklusiven Partnernetzwerks und erhalten Sie Zugang zu Premium-Produkten, die Ihre Kunden begeistern werden.',
     button: 'Jetzt Partner Werden',
     btnPrimary: 'Geschäftskonto eröffnen & Preisliste erhalten',
-    btnSecondary: 'Kostenloses Probierpaket anfragen',
+    btnSecondary: 'Verkostung vor Ort anfragen (Köln & Bonn)',
   },
   socials: {
     instagram: 'Folgen Sie uns auf Instagram',
@@ -1015,7 +1015,7 @@ statusOptions: {
     badgePalette: 'Palettenrabatt verfügbar',
     badgeShipping: 'Schneller Versand DE / EU',
     btnProducts: 'Sortiment entdecken',
-    btnTrial: 'Probierpaket anfragen',
+    btnTrial: 'Verkostung vor Ort (Köln & Bonn)',
     btnPricelist: 'B2B-Preisliste (PDF)',
     categories: {
       cocktailSyrups: 'Cocktail-Sirupe',
@@ -1047,7 +1047,7 @@ statusOptions: {
     catCoffeeLabel: 'Sirupe & Barista',
     businessTitle: 'Geschäftskunden',
     linkPartner: 'Partner werden',
-    linkTrial: 'Probierpaket anfragen',
+    linkTrial: 'Verkostung vor Ort (Köln & Bonn)',
     linkPricelist: 'Preisliste anfordern',
     linkContact: 'Anfrage senden',
     linkFaq: 'FAQ',

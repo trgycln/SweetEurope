@@ -1023,7 +1023,7 @@ export const dictionary: Partial<Dictionary> = {
     subtitle: 'Özel partner ağımızın bir parçası olun ve müşterilerinizi memnun edecek premium ürünlere erişim kazanın.',
     button: 'Hemen Partner Olun',
     btnPrimary: 'Ticari Hesap Açın ve Fiyat Listesini Alın',
-    btnSecondary: 'Ücretsiz Deneme Paketi İste',
+    btnSecondary: 'Yerinde Tadım Randevusu (Köln & Bonn)',
   },
   socials: {
     instagram: 'Bizi Instagram\'da takip edin',
@@ -1046,7 +1046,7 @@ export const dictionary: Partial<Dictionary> = {
     badgePalette: 'Palet indirimi mevcut',
     badgeShipping: 'Hızlı Kargo DE / AB',
     btnProducts: 'Ürünleri Keşfet',
-    btnTrial: 'Deneme Paketi İste',
+    btnTrial: 'Yerinde Tadım Randevusu (Köln & Bonn)',
     btnPricelist: 'B2B Fiyat Listesi (PDF)',
     categories: {
       cocktailSyrups: 'Kokteyl Şurupları',
@@ -1078,7 +1078,7 @@ export const dictionary: Partial<Dictionary> = {
     catCoffeeLabel: 'Şuruplar & Barista',
     businessTitle: 'İş Ortakları',
     linkPartner: 'Partner Olun',
-    linkTrial: 'Deneme Paketi Talep Et',
+    linkTrial: 'Tadım Randevusu Al (Köln & Bonn)',
     linkPricelist: 'Fiyat Listesi İste',
     linkContact: 'Talep Gönderin',
     linkFaq: 'SSS',
