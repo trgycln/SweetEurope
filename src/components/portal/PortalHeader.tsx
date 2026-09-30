@@ -71,15 +71,8 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
                 <Bildirimler />
                 
                 {/* Warenkorb-Shortcut */}
-                <button
-                    onClick={() => {
-                        const cartEl = document.getElementById('cart-checkout-section');
-                        if (cartEl) {
-                            cartEl.scrollIntoView({ behavior: 'smooth' });
-                        } else {
-                            router.push(`/${locale}/portal/katalog#cart-checkout-section`);
-                        }
-                    }}
+                <Link
+                    href={`/${locale}/portal/siparisler/yeni`}
                     className="relative z-50 p-2 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors cursor-pointer"
                     title={locale === 'ar' ? 'طلب جديد / السلة' : locale === 'tr' ? 'Yeni Sipariş / Sepet' : 'Neue Bestellung / Warenkorb'}
                 >
@@ -89,7 +82,7 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
                             {gesamtMenge}
                         </span>
                     )}
-                </button>
+                </Link>
 
                 <div className="h-6 w-px bg-slate-200 hidden sm:block mx-1" />
                 
