@@ -10,6 +10,7 @@ import { cookies, headers } from "next/headers"; // <-- WICHTIG: Importiert
 import { stripe, assertStripeEnvironmentSafety } from '@/lib/stripe';
 import { SupabaseClient } from "@supabase/supabase-js"; // Typ für Client importieren
 import { sendNotification } from '../../lib/notificationUtils';
+import { sendOrderConfirmationEmail } from '../../lib/email';
 import { redirect } from 'next/navigation'; // Import für Redirect
 
 // Typ für Rückgabewerte
@@ -179,6 +180,45 @@ export async function siparisOlusturAction(payload: {
                     supabaseClient: supabase
                 });
             } catch (e) {}
+
+            // ++ Müşteriye otomatik ön sipariş onay e-postası gönder ++
+            try {
+                const { data: profil } = await supabase
+                    .from('profiller')
+                    .select('ad_soyad')
+                    .eq('id', user.id)
+                    .single();
+                const { data: firma2 } = await supabase
+                    .from('firmalar')
+                    .select('unvan')
+                    .eq('id', payload.firmaId)
+                    .single();
+                if (user.email) {
+                    const emailItems = trustedItems.map((item, i) => ({
+                        ad: (payload.items[i] as any)?.ad || 'Ürün',
+                        miktar: item.miktar,
+                        birimFiyat: item.birim_fiyat,
+                        toplamFiyat: item.toplam_fiyat,
+                    }));
+                    const loc = payload.locale || 'de';
+                    await sendOrderConfirmationEmail({
+                        to: user.email,
+                        recipientName: profil?.ad_soyad || null,
+                        firmName: firma2?.unvan || null,
+                        orderId: newOrderId,
+                        orderType: 'on_siparis',
+                        items: emailItems,
+                        toplamNet: trustedToplamNet,
+                        kargoTutariBrut: undefined,
+                        toplamBrut: trustedToplamBrut,
+                        teslimatAdresi: payload.teslimatAdresi,
+                        locale: loc,
+                        portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
+                    });
+                }
+            } catch (emailErr) {
+                console.error('[siparis-actions] Ön sipariş onay e-postası gönderilemedi:', emailErr);
+            }
         }
 
         revalidatePath('/admin/urun-yonetimi/urunler');
@@ -238,6 +278,45 @@ export async function siparisOlusturAction(payload: {
                 supabaseClient: supabase
             });
         } catch (e) {}
+
+        // ++ Müşteriye otomatik sipariş onay e-postası gönder ++
+        try {
+            const { data: profil } = await supabase
+                .from('profiller')
+                .select('ad_soyad')
+                .eq('id', user.id)
+                .single();
+            const { data: firma2 } = await supabase
+                .from('firmalar')
+                .select('unvan')
+                .eq('id', payload.firmaId)
+                .single();
+            if (user.email) {
+                const emailItems = trustedItems.map((item, i) => ({
+                    ad: (payload.items[i] as any)?.ad || 'Produkt',
+                    miktar: item.miktar,
+                    birimFiyat: item.birim_fiyat,
+                    toplamFiyat: item.toplam_fiyat,
+                }));
+                const loc = payload.locale || 'de';
+                await sendOrderConfirmationEmail({
+                    to: user.email,
+                    recipientName: profil?.ad_soyad || null,
+                    firmName: firma2?.unvan || null,
+                    orderId: newOrderId,
+                    orderType: 'normal',
+                    items: emailItems,
+                    toplamNet: trustedToplamNet,
+                    kargoTutariBrut: shipping.shippingCostGross,
+                    toplamBrut: trustedToplamBrut,
+                    teslimatAdresi: payload.teslimatAdresi,
+                    locale: loc,
+                    portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
+                });
+            }
+        } catch (emailErr) {
+            console.error('[siparis-actions] Sipariş onay e-postası gönderilemedi:', emailErr);
+        }
     }
 
     revalidatePath('/admin/urun-yonetimi/urunler');

@@ -294,6 +294,199 @@ export async function sendPortalWelcomeEmail({
   });
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SİPARİŞ ONAY E-POSTASI
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface OrderConfirmationEmailParams {
+  to: string;
+  recipientName?: string | null;
+  firmName?: string | null;
+  orderId: string;
+  orderType: 'normal' | 'on_siparis';
+  items: Array<{
+    ad: string;
+    miktar: number;
+    birimFiyat: number;
+    toplamFiyat: number;
+  }>;
+  toplamNet: number;
+  kargoTutariBrut?: number;
+  toplamBrut: number;
+  teslimatAdresi?: string | null;
+  locale?: string;
+  portalOrderUrl: string;
+}
+
+export async function sendOrderConfirmationEmail({
+  to,
+  recipientName,
+  firmName,
+  orderId,
+  orderType,
+  items,
+  toplamNet,
+  kargoTutariBrut,
+  toplamBrut,
+  teslimatAdresi,
+  locale = 'de',
+  portalOrderUrl,
+}: OrderConfirmationEmailParams): Promise<void> {
+  const isTr = locale === 'tr';
+  const isPreOrder = orderType === 'on_siparis';
+  const cleanPortalUrl = sanitizeDomainUrl(portalOrderUrl, `${LIVE_BASE_URL}/${locale}/portal/siparisler`);
+
+  const subject = isTr
+    ? isPreOrder
+      ? `Ön Sipariş Talebiniz Alındı – #${orderId.substring(0, 8).toUpperCase()}`
+      : `Siparişiniz Alındı – #${orderId.substring(0, 8).toUpperCase()}`
+    : isPreOrder
+      ? `Ihre Vorbestellung wurde aufgenommen – #${orderId.substring(0, 8).toUpperCase()}`
+      : `Ihre Bestellung ist eingegangen – #${orderId.substring(0, 8).toUpperCase()}`;
+
+  const greet = isTr
+    ? `Merhaba ${recipientName || firmName || 'Değerli Müşterimiz'},`
+    : recipientName
+      ? `Sehr geehrte(r) ${recipientName},`
+      : firmName
+        ? `Sehr geehrtes Team von ${firmName},`
+        : 'Sehr geehrte Damen und Herren,';
+
+  const headerColor = isPreOrder ? '#d97706' : '#16a34a';
+  const headerLabel = isTr
+    ? isPreOrder ? 'ÖN SİPARİŞ TALEBİ' : 'SİPARİŞ ONAYI'
+    : isPreOrder ? 'VORBESTELLUNG' : 'BESTELLBESTÄTIGUNG';
+
+  const intro = isTr
+    ? isPreOrder
+      ? 'Ön sipariş talebiniz başarıyla kayıt altına alınmıştır. Stok durumu netleştiğinde sizinle iletişime geçeceğiz.'
+      : 'Siparişiniz başarıyla alınmıştır. En kısa sürede hazırlanıp sevk edilecektir.'
+    : isPreOrder
+      ? 'Ihre Vorbestellung wurde erfolgreich aufgenommen. Sobald die Ware verfügbar ist, werden wir Sie kontaktieren.'
+      : 'Ihre Bestellung ist bei uns eingegangen und wird schnellstmöglich bearbeitet und versandt.';
+
+  const itemRowsHtml = items.map(item => `
+    <tr>
+      <td style="padding: 10px 8px; font-size: 13px; color: #1e293b; border-bottom: 1px solid #f1f5f9;">${item.ad}</td>
+      <td style="padding: 10px 8px; font-size: 13px; color: #64748b; text-align: center; border-bottom: 1px solid #f1f5f9;">${item.miktar}</td>
+      <td style="padding: 10px 8px; font-size: 13px; color: #64748b; text-align: right; border-bottom: 1px solid #f1f5f9;">€${item.birimFiyat.toFixed(2).replace('.', ',')}</td>
+      <td style="padding: 10px 8px; font-size: 13px; font-weight: 700; color: #0f172a; text-align: right; border-bottom: 1px solid #f1f5f9;">€${item.toplamFiyat.toFixed(2).replace('.', ',')}</td>
+    </tr>
+  `).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="${isTr ? 'tr' : 'de'}">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.07); border: 1px solid #e2e8f0;">
+
+    <!-- Header -->
+    <div style="background-color: #0f172a; padding: 32px 30px; text-align: center; border-bottom: 3px solid ${headerColor};">
+      <h1 style="color: #ffffff; margin: 0 0 6px; font-size: 24px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: ${headerColor}; margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">${headerLabel}</p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 36px 32px;">
+      <h2 style="margin: 0 0 12px; color: #0f172a; font-size: 18px; font-weight: 700;">${greet}</h2>
+      <p style="font-size: 14px; line-height: 1.7; color: #475569; margin: 0 0 28px;">${intro}</p>
+
+      <!-- Order ID Badge -->
+      <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; display: flex; align-items: center;">
+        <div>
+          <p style="margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #16a34a; font-weight: 700;">${isTr ? 'Sipariş No' : 'Bestellnummer'}</p>
+          <p style="margin: 4px 0 0; font-size: 18px; font-weight: 800; color: #0f172a; font-family: monospace;">#${orderId.substring(0, 8).toUpperCase()}</p>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="background-color: #f8fafc;">
+            <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; text-align: left; font-weight: 700;">${isTr ? 'Ürün' : 'Artikel'}</th>
+            <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; text-align: center; font-weight: 700;">${isTr ? 'Adet' : 'Menge'}</th>
+            <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; text-align: right; font-weight: 700;">${isTr ? 'Birim Fiyat' : 'Einzelpreis'}</th>
+            <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; text-align: right; font-weight: 700;">${isTr ? 'Toplam' : 'Gesamt'}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemRowsHtml}
+        </tbody>
+      </table>
+
+      <!-- Totals -->
+      <div style="border-top: 2px solid #e2e8f0; padding-top: 16px; margin-bottom: 28px;">
+        <table style="width: 100%; font-size: 13px;">
+          <tr>
+            <td style="padding: 4px 8px; color: #64748b;">${isTr ? 'Ara Toplam (Net)' : 'Zwischensumme (Netto)'}</td>
+            <td style="padding: 4px 8px; text-align: right; color: #1e293b; font-weight: 600;">€${toplamNet.toFixed(2).replace('.', ',')}</td>
+          </tr>
+          ${kargoTutariBrut && kargoTutariBrut > 0 ? `
+          <tr>
+            <td style="padding: 4px 8px; color: #64748b;">${isTr ? 'Kargo (KDV dahil)' : 'Versand (inkl. MwSt.)'}</td>
+            <td style="padding: 4px 8px; text-align: right; color: #1e293b; font-weight: 600;">€${kargoTutariBrut.toFixed(2).replace('.', ',')}</td>
+          </tr>
+          ` : ''}
+          <tr>
+            <td style="padding: 8px 8px 4px; color: #0f172a; font-size: 15px; font-weight: 800;">${isTr ? 'Genel Toplam (Brüt)' : 'Gesamtbetrag (Brutto)'}</td>
+            <td style="padding: 8px 8px 4px; text-align: right; color: #16a34a; font-size: 16px; font-weight: 800;">€${toplamBrut.toFixed(2).replace('.', ',')}</td>
+          </tr>
+        </table>
+      </div>
+
+      ${teslimatAdresi ? `
+      <!-- Delivery Address -->
+      <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 20px; margin-bottom: 28px;">
+        <p style="margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 700;">${isTr ? 'Teslimat Adresi' : 'Lieferadresse'}</p>
+        <p style="margin: 0; font-size: 13px; color: #1e293b; white-space: pre-line;">${teslimatAdresi}</p>
+      </div>
+      ` : ''}
+
+      ${isPreOrder ? `
+      <!-- Pre-order Info -->
+      <div style="background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 16px 20px; margin-bottom: 28px;">
+        <p style="margin: 0; font-size: 13px; color: #92400e; line-height: 1.6;">
+          ⏳ ${isTr
+            ? 'Bu bir ön sipariş talebidir. Ürünler stoğa ulaştığında sizinle iletişime geçilerek sevkiyat planlanacaktır. Ödeme bu aşamada talep edilmemektedir.'
+            : 'Dies ist eine Vorbestellung. Wir werden Sie kontaktieren, sobald die Ware eingetroffen ist, um den Versand zu planen. Eine Zahlung wird in diesem Schritt noch nicht fällig.'
+          }
+        </p>
+      </div>
+      ` : ''}
+
+      <!-- CTA Button -->
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${cleanPortalUrl}" style="display: inline-block; background-color: ${headerColor}; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none;">
+          ${isTr ? 'Sipariş Detayını Görüntüle →' : 'Bestelldetails anzeigen →'}
+        </a>
+      </div>
+
+      <p style="font-size: 13px; color: #94a3b8; text-align: center; margin: 0;">
+        ${isTr
+          ? 'Sorularınız için <a href="mailto:info@elysonsweets.de" style="color: #16a34a; text-decoration: none;">info@elysonsweets.de</a> adresine yazabilirsiniz.'
+          : 'Bei Fragen wenden Sie sich bitte an <a href="mailto:info@elysonsweets.de" style="color: #16a34a; text-decoration: none;">info@elysonsweets.de</a>.'
+        }
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 22px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 12px; color: #94a3b8; margin: 0 0 4px; font-weight: 600;">Elysonsweets GmbH</p>
+      <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+        © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+
+  await sendCustomerEmail({ to, subject, html });
+}
+
 /**
  * Müşteriye resmi Lexware faturasını PDF eki ile birlikte Almanca gönderir.
  * Stripe veya Havale ödemesi tamamlandığında tetiklenir.
