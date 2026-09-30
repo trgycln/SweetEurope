@@ -69,7 +69,7 @@ export async function siparisOlusturAction(payload: {
     const urunIds = payload.items.map(item => item.urun_id);
     const { data: urunler, error: stokError } = await supabase
         .from('urunler')
-        .select('id, stok_miktari, ad, koli_ici_adet, palet_ici_adet, palet_ici_koli_adet, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi, satis_fiyati_palet, birim_agirlik_kg')
+        .select('id, stok_miktari, ad, koli_ici_adet, palet_ici_adet, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi, satis_fiyati_palet, birim_agirlik_kg')
         .in('id', urunIds);
 
     if (stokError || !urunler) {

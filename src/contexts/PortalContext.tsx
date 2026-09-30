@@ -30,8 +30,6 @@ interface PortalContextType {
 
     // Warenkorb-Status
     warenkorb: SepetUrunu[];
-    isCartOpen: boolean;
-    setIsCartOpen: (val: boolean) => void;
 
     // Warenkorb-Funktionen
     addToWarenkorb: (produkt: ProduktImWarenkorb, menge?: number, birim?: 'koli' | 'adet' | 'palet') => void;
@@ -47,9 +45,8 @@ interface PortalContextType {
 const PortalContext = createContext<PortalContextType | null>(null);
 
 // --- Provider Implementierung ---
-export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb' | 'isCartOpen' | 'setIsCartOpen'> }) {
+export function PortalProvider({ children, value }: { children: ReactNode; value: Omit<PortalContextType, 'warenkorb' | 'addToWarenkorb' | 'removeFromWarenkorb' | 'updateWarenkorbMenge' | 'updateWarenkorbBirim' | 'clearWarenkorb' | 'getGesamtMengeImWarenkorb' | 'setInitialWarenkorb'> }) {
     const [warenkorb, setWarenkorb] = useState<SepetUrunu[]>([]);
-    const [isCartOpen, setIsCartOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
 
     // Initialisiere Warenkorb aus localStorage beim Client-Mount
@@ -196,8 +193,6 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
     const contextValue: PortalContextType = {
         ...value,
         warenkorb,
-        isCartOpen,
-        setIsCartOpen,
         addToWarenkorb,
         removeFromWarenkorb,
         updateWarenkorbMenge,

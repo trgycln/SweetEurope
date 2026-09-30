@@ -51,7 +51,8 @@ export function PushNotificationManager() {
       setIsLoading(true);
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidPublicKey) {
-        throw new Error('[PushNotificationManager] NEXT_PUBLIC_VAPID_PUBLIC_KEY tanımlı değil.');
+        console.warn('[PushNotificationManager] NEXT_PUBLIC_VAPID_PUBLIC_KEY tanımlı değil, abonelik işlemi atlandı.');
+        return false;
       }
 
       const registration = await navigator.serviceWorker.ready;
@@ -123,7 +124,7 @@ export function PushNotificationManager() {
         if (success) {
           toast.success('Anlık bildirimler başarıyla etkinleştirildi.');
         } else {
-          toast.error('Bildirim aboneliği oluşturulamadı.');
+          console.warn('Bildirim aboneliği oluşturulamadı (VAPID eksik veya sunucu hatası).');
         }
       } else if (result === 'denied') {
         setShowPromptBanner(false);
