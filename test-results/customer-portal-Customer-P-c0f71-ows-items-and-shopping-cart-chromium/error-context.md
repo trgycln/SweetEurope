@@ -1,0 +1,279 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: customer-portal.spec.ts >> Customer Portal & Payment Flows >> 2. Product catalog shows items and shopping cart
+- Location: tests\e2e\customer-portal.spec.ts:43:7
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole('heading', { name: /Warenkorb|Sepet/i }).first()
+Expected: visible
+Timeout: 10000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 10000ms
+  - waiting for getByRole('heading', { name: /Warenkorb|Sepet/i }).first()
+
+```
+
+```yaml
+- region "Notifications alt+T"
+- link "ElysonSweets":
+  - /url: /admin/dashboard
+- navigation:
+  - button "Ana Menü":
+    - text: Ana Menü
+    - img
+  - link "Kontrol Paneli":
+    - /url: /admin/dashboard
+    - img
+    - text: Kontrol Paneli
+  - link "Profil Atamaları":
+    - /url: /admin/idari/personel
+    - img
+    - text: Profil Atamaları
+  - button "CRM & Müşteri Yönetimi":
+    - text: CRM & Müşteri Yönetimi
+    - img
+  - link "Müşteriler":
+    - /url: /admin/crm/firmalar
+    - img
+    - text: Müşteriler
+  - link "Alt Bayiler":
+    - /url: /admin/crm/alt-bayiler
+    - img
+    - text: Alt Bayiler
+  - link "Gelen Mesajlar":
+    - /url: /admin/crm/mesajlar
+    - img
+    - text: Gelen Mesajlar
+  - button "Operasyon":
+    - text: Operasyon
+    - img
+  - link "Siparişler":
+    - /url: /admin/operasyon/siparisler
+    - img
+    - text: Siparişler
+  - link "Numune Talepleri":
+    - /url: /admin/operasyon/numune-talepleri
+    - img
+    - text: Numune Talepleri
+  - link "Görevler":
+    - /url: /admin/gorevler
+    - img
+    - text: Görevler
+  - link "Referanslar & İrtibatlar":
+    - /url: /admin/operasyon/referanslar
+    - img
+    - text: Referanslar & İrtibatlar
+  - button "Belge Yönetimi":
+    - text: Belge Yönetimi
+    - img
+  - link "Belge Yönetimi":
+    - /url: /admin/belgeleri-yonet
+    - img
+    - text: Belge Yönetimi
+  - button "Ürün Yönetimi":
+    - text: Ürün Yönetimi
+    - img
+  - link "Ürünler":
+    - /url: /admin/urun-yonetimi/urunler
+    - img
+    - text: Ürünler
+  - link "Ürün Talepleri":
+    - /url: /admin/urun-yonetimi/urun-talepleri
+    - img
+    - text: Ürün Talepleri
+  - link "Kategoriler":
+    - /url: /admin/urun-yonetimi/kategoriler
+    - img
+    - text: Kategoriler
+  - link "Tedarikçi Sipariş Planı":
+    - /url: /admin/urun-yonetimi/tedarikci-siparis-plani
+    - img
+    - text: Tedarikçi Sipariş Planı
+  - link "Değerlendirmeler":
+    - /url: /admin/urun-yonetimi/degerlendirmeler
+    - img
+    - text: Değerlendirmeler
+  - button "Fiyatlandırma":
+    - text: Fiyatlandırma
+    - img
+  - link "Fiyatlandırma Hub":
+    - /url: /admin/urun-yonetimi/fiyatlandirma-hub
+    - img
+    - text: Fiyatlandırma Hub
+  - link "Kârlılık & Varyans Raporu":
+    - /url: /admin/urun-yonetimi/karlilik-raporu
+    - img
+    - text: Kârlılık & Varyans Raporu
+  - button "Pazarlama":
+    - text: Pazarlama
+    - img
+  - link "Duyurular":
+    - /url: /admin/pazarlama/duyurular
+    - img
+    - text: Duyurular
+  - link "Google İşletme":
+    - /url: /admin/pazarlama/google-isletme
+    - img
+    - text: Google İşletme
+  - link "Blog Yazıları":
+    - /url: /admin/pazarlama/blog
+    - img
+    - text: Blog Yazıları
+  - link "Reçete Yönetimi":
+    - /url: /admin/pazarlama/receteler
+    - img
+    - text: Reçete Yönetimi
+  - button "Mali İşler":
+    - text: Mali İşler
+    - img
+  - link "Giderler":
+    - /url: /admin/idari/finans/giderler
+    - img
+    - text: Giderler
+  - link "Ortak Hesapları":
+    - /url: /admin/idari/finans/ortaklar
+    - img
+    - text: Ortak Hesapları
+  - link "Raporlama":
+    - /url: /admin/idari/finans/raporlama
+    - img
+    - text: Raporlama
+  - link "Kasa İşlemleri":
+    - /url: /admin/idari/finans/kasa
+    - img
+    - text: Kasa İşlemleri
+  - button "Yapay Zeka":
+    - text: Yapay Zeka
+    - img
+  - link "Yönetim Kurulu":
+    - /url: /admin/boardroom
+    - img
+    - text: Yönetim Kurulu
+  - link "Tüm Loglar":
+    - /url: /admin/ai-logs
+    - img
+    - text: Tüm Loglar
+  - button "Ayarlar":
+    - text: Ayarlar
+    - img
+  - link "Profil":
+    - /url: /admin/profil
+    - img
+    - text: Profil
+  - link "Şirket Kasası":
+    - /url: /admin/ayarlar/sirket-kasasi
+    - img
+    - text: Şirket Kasası
+- banner:
+  - link "ElysonSweets Admin":
+    - /url: /tr/admin/dashboard
+  - button "Benachrichtigungen":
+    - img
+    - text: 9+
+  - img
+  - text: celen00683@gmail.com
+  - button "Çıkış Yap":
+    - img
+    - text: Çıkış Yap
+- main:
+  - heading "CEO Cockpit" [level=1]
+  - paragraph: Bu Ay (MTD) · 30 Eylül 2026
+  - button "Bu Ay"
+  - button "Geçen Ay"
+  - button "Bu Yıl (YTD)"
+  - link "0 € Net Ciro":
+    - /url: "#"
+    - paragraph: 0 €
+    - paragraph: Net Ciro
+  - link "0 € Brüt Kâr":
+    - /url: "#"
+    - paragraph: 0 €
+    - paragraph: Brüt Kâr
+  - link "20.893 € Toplam Gider":
+    - /url: "#"
+    - paragraph: 20.893 €
+    - paragraph: Toplam Gider
+  - link "-20.893 € Net Kâr":
+    - /url: "#"
+    - paragraph: "-20.893 €"
+    - paragraph: Net Kâr
+  - link "0 Teslim Edilen Bu Ay (MTD) · gerçekleşen":
+    - /url: /tr/admin/operasyon/siparisler?durum=Teslim Edildi
+    - paragraph: "0"
+    - paragraph: Teslim Edilen
+    - paragraph: Bu Ay (MTD) · gerçekleşen
+  - link "33 Aktif Sipariş 3 bekl. · 22 hazır · 8 yolda":
+    - /url: /tr/admin/operasyon/siparisler
+    - paragraph: "33"
+    - paragraph: Aktif Sipariş
+    - paragraph: 3 bekl. · 22 hazır · 8 yolda
+  - link "3 sipariş onay bekliyor":
+    - /url: /tr/admin/operasyon/siparisler?durum=Beklemede
+    - img
+    - text: 3 sipariş onay bekliyor
+  - paragraph: Nakit & Sermaye
+  - paragraph: Kasada Kalan (Banka + Nakit)
+  - paragraph: 30.557,24 €
+  - paragraph: Otomatik hesaplanır
+  - paragraph: Bu Ay (MTD) Gider
+  - paragraph: 20.893 €
+  - paragraph: SMM dahil değil
+  - paragraph: Depodaki Stok Değeri
+  - paragraph: 48.672 €
+  - paragraph: 95 ürün (toplam) · alış fiyatı
+  - paragraph: Hızlı İşlemler
+  - link "Yeni Firma":
+    - /url: /tr/admin/crm/firmalar/yeni
+    - img
+    - text: Yeni Firma
+  - link "Yeni Ürün":
+    - /url: /tr/admin/urun-yonetimi/urunler/yeni
+    - img
+    - text: Yeni Ürün
+  - link "Yeni Sipariş":
+    - /url: /tr/admin/operasyon/siparisler/yeni
+    - img
+    - text: Yeni Sipariş
+  - link "Yeni Gider":
+    - /url: /tr/admin/idari/finans/giderler
+    - img
+    - text: Yeni Gider
+  - link "Kasa İşlemi":
+    - /url: /tr/admin/idari/finans/kasa
+    - img
+    - text: Kasa İşlemi
+  - paragraph: Yönetim Modülleri
+  - button "Finansal Detay":
+    - img
+    - text: Finansal Detay
+  - button "10 Görev & Sipariş":
+    - text: "10"
+    - img
+    - text: Görev & Sipariş
+  - button "Stok & Hunisi":
+    - img
+    - text: Stok & Hunisi
+  - button "Müşteriler":
+    - img
+    - text: Müşteriler
+  - button "Fiyat Sağlığı":
+    - img
+    - text: Fiyat Sağlığı
+  - button "76 Fiyat Alarmları":
+    - text: "76"
+    - img
+    - text: Fiyat Alarmları
+- alert
+```

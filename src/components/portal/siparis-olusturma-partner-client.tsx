@@ -215,7 +215,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
             </div>
 
             {/* --- Warenkorb-Anzeige (JSX) --- */}
-            <div className="lg:col-span-1 lg:sticky lg:top-20 self-start">
+            <div id="mobile-cart-section" className="lg:col-span-1 lg:sticky lg:top-20 self-start">
                 <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-lg space-y-3.5 border border-gray-200 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-none">
                     <div className="flex items-center justify-between">
                         <h2 className="font-serif text-lg lg:text-xl font-bold text-primary flex items-center gap-2">
@@ -544,6 +544,25 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                     )}
                 </div>
             </div>
+
+            {/* --- Mobile Floating Cart Bar --- */}
+            {warenkorb.length > 0 && (
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] lg:hidden z-50 flex items-center justify-between pb-6">
+                    <div>
+                        <p className="text-sm font-bold text-gray-900">{warenkorb.length} {locale === 'de' ? 'Artikel im Warenkorb' : 'Ürün Sepette'}</p>
+                        <p className="text-xs text-accent font-semibold">{locale === 'de' ? 'Gesamt' : 'Toplam'}: €{genelToplam.toFixed(2).replace('.', ',')}</p>
+                    </div>
+                    <button 
+                        onClick={() => {
+                            document.getElementById('mobile-cart-section')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="bg-accent text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-md hover:bg-opacity-90 flex items-center gap-2"
+                    >
+                        <FiShoppingCart />
+                        {locale === 'de' ? 'Zum Warenkorb' : 'Sepete Git'}
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
