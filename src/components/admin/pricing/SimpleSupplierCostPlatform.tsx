@@ -538,7 +538,7 @@ export default function SimpleSupplierCostPlatform({
         satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
         satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),
         satis_fiyati_palet:     r2(resolvedTierPrice(row, 'palet')),
-        standart_inis_maliyeti_net: row.calculation.landedCost,
+        standart_inis_maliyeti_net: row.calculation.preOperational,
       }, locale);
       if (res?.error) toast.error(res.error);
       else toast.success(`${pName(row.product)} kaydedildi.`);
@@ -580,7 +580,7 @@ export default function SimpleSupplierCostPlatform({
       satis_fiyati_musteri:   r2(resolvedTierPrice(row, 'koliBazli')),
       satis_fiyati_toptanci:  r2(resolvedTierPrice(row, 'cokKoli')),
       satis_fiyati_palet:     r2(resolvedTierPrice(row, 'palet')),
-      standart_inis_maliyeti_net: row.calculation.landedCost,
+      standart_inis_maliyeti_net: row.calculation.preOperational,
     }));
 
     setConfirmModal({ open: false, rows: [] });

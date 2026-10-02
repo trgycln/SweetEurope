@@ -115,6 +115,7 @@ export async function siparisOlusturAction(payload: {
 
         return {
             urun_id: item.urun_id,
+            urun_ad: typeof urun.ad === 'object' && urun.ad ? ((urun.ad as any).de || (urun.ad as any).tr || 'Produkt') : String(urun.ad || 'Produkt'),
             miktar: item.adet,
             birim_fiyat: sepetSatiri.adetFiyat,
             toplam_fiyat: sepetSatiri.toplamFiyat
@@ -195,7 +196,7 @@ export async function siparisOlusturAction(payload: {
                     .single();
                 if (user.email) {
                     const emailItems = trustedItems.map((item, i) => ({
-                        ad: (payload.items[i] as any)?.ad || 'Ürün',
+                        ad: (item as any).urun_ad,
                         miktar: item.miktar,
                         birimFiyat: item.birim_fiyat,
                         toplamFiyat: item.toplam_fiyat,
@@ -294,7 +295,7 @@ export async function siparisOlusturAction(payload: {
                 .single();
             if (user.email) {
                 const emailItems = trustedItems.map((item, i) => ({
-                    ad: (payload.items[i] as any)?.ad || 'Produkt',
+                    ad: (item as any).urun_ad,
                     miktar: item.miktar,
                     birimFiyat: item.birim_fiyat,
                     toplamFiyat: item.toplam_fiyat,

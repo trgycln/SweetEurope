@@ -3096,6 +3096,7 @@ export type Database = {
           seo_meta: Json | null
           slug: string | null
           son_gercek_inis_maliyeti_net: number | null
+          son_indirimli_alis_fiyati: number | null
           son_maliyet_sapma_yuzde: number | null
           standart_inis_maliyeti_net: number | null
           stok_esigi: number
@@ -3158,6 +3159,7 @@ export type Database = {
           seo_meta?: Json | null
           slug?: string | null
           son_gercek_inis_maliyeti_net?: number | null
+          son_indirimli_alis_fiyati?: number | null
           son_maliyet_sapma_yuzde?: number | null
           standart_inis_maliyeti_net?: number | null
           stok_esigi?: number
@@ -3220,6 +3222,7 @@ export type Database = {
           seo_meta?: Json | null
           slug?: string | null
           son_gercek_inis_maliyeti_net?: number | null
+          son_indirimli_alis_fiyati?: number | null
           son_maliyet_sapma_yuzde?: number | null
           standart_inis_maliyeti_net?: number | null
           stok_esigi?: number

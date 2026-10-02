@@ -18,6 +18,7 @@ import EditableUrunRowClient from "./EditableUrunRowClient";
 import UrunExcelImportPanel from './UrunExcelImportPanel';
 import UrunExcelExportPanel from './UrunExcelExportPanel';
 import StokHesaplaButton from './StokHesaplaButton';
+import { KatalogDownloadButton } from '@/components/admin/urun-yonetimi/urunler/KatalogDownloadButton';
 import { getGlobalCachedUser, getCachedProfile, getCachedCategories, getCachedSuppliers, getCachedPricingSettings } from '@/lib/admin/cache-utils';
 import { calculateHubPrices } from '@/lib/pricing/hub-pricing-engine';
 import { getAllCategoryDescendantIds } from '@/lib/category-tree';
@@ -338,7 +339,8 @@ export default async function UrunlerListPage({
                 />
 
                 {isAdmin && (
-                    <div className="ml-auto flex items-center gap-2">
+                    <div className="ml-auto flex flex-wrap items-center gap-2">
+                        <KatalogDownloadButton />
                         <StokHesaplaButton />
                         <Link href={`/${locale}/admin/urun-yonetimi/toplu-gorsel-yukleme`}>
                             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-md text-sm font-semibold shadow-sm hover:bg-slate-50 whitespace-nowrap">

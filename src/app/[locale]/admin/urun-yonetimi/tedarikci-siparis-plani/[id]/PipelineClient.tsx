@@ -32,6 +32,10 @@ const schema = z.object({
   indirim1: z.number().min(0).max(100).default(0),
   indirim2: z.number().min(0).max(100).default(0),
   varisTarihi: z.string().optional(),
+  faturaNo: z.string().optional(),
+  cmrNo: z.string().optional(),
+  gumrukBeyannameNo: z.string().optional(),
+  lieferscheinNo: z.string().optional(),
   navlunSogukEur: z.number().min(0).default(0),
   navlunKuruEur: z.number().min(0).default(0),
   gumrukVergiToplamEur: z.number().min(0).default(0),
@@ -40,6 +44,9 @@ const schema = z.object({
     z.object({
       urunId: z.string().min(1, 'Ürün seçiniz'),
       koliSayisi: z.number().min(1, 'En az 1 koli giriniz'),
+      lotNo: z.string().optional(),
+      sktTarihi: z.string().optional(),
+      hasarliAdet: z.number().min(0).default(0).optional(),
       indirim1Iptal: z.boolean().optional(),
       indirim2Iptal: z.boolean().optional(),
       // NOT: miktarAdet ve toplamAgirlikKg kullanıcıdan alınmaz, otomatik hesaplanır
@@ -103,6 +110,10 @@ export default function PipelineClient({
     indirim1:     toSafeNumber(initialBatch?.indirim_1_yuzde, 0),
     indirim2:     toSafeNumber(initialBatch?.indirim_2_yuzde, 0),
     varisTarihi:  initialBatch?.varis_tarihi ? String(initialBatch.varis_tarihi).slice(0, 10) : '',
+    faturaNo:     initialBatch?.fatura_no ?? '',
+    cmrNo:        initialBatch?.cmr_no ?? '',
+    gumrukBeyannameNo: initialBatch?.gumruk_beyanname_no ?? '',
+    lieferscheinNo: initialBatch?.lieferschein_no ?? '',
     navlunSogukEur:        toSafeNumber(initialBatch?.navlun_soguk_eur, 0),
     navlunKuruEur:         toSafeNumber(initialBatch?.navlun_kuru_eur, 0),
     gumrukVergiToplamEur:  toSafeNumber(initialBatch?.gumruk_vergi_toplam_eur, 0),
@@ -110,6 +121,9 @@ export default function PipelineClient({
     items: initialItems?.length > 0
       ? initialItems.map((item: any) => ({
           urunId:     item.urun_id,
+          lotNo:      item.lot_no ?? '',
+          sktTarihi:  item.skt_tarihi ? String(item.skt_tarihi).slice(0, 10) : '',
+          hasarliAdet: toSafeNumber(item.hasarli_adet, 0),
           // koli_sayisi DB'den geliyorsa kullan, yoksa miktar_adet / koli_ici_adet ile hesapla
           koliSayisi: toSafeNumber(item.koli_sayisi, 1) > 0
             ? toSafeNumber(item.koli_sayisi, 1)
@@ -148,7 +162,7 @@ export default function PipelineClient({
 
   // ── Form ─────────────────────────────────────────────────────────────────
   const { register, control, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues,
   });
 
@@ -248,8 +262,12 @@ export default function PipelineClient({
     return { totalKuruKg, totalCiplak, totalLucid, totalMiktar, totalPalet };
   }, [validCalculatedItems]);
 
+  const totalHasar = useMemo(() => {
+    return (watchItems || []).reduce((acc: number, cur: any) => acc + toSafeNumber(cur?.hasarliAdet, 0), 0);
+  }, [watchItems]);
+
   // ── Form Gönder (Kaydet) ─────────────────────────────────────────────────
-  const handleSaveDraft = async (data: FormValues) => {
+  const executeSave = async (data: FormValues, skipRedirect = false) => {
     setIsSubmitting(true);
     try {
       const totalKg = totals.totalKuruKg;
@@ -286,6 +304,10 @@ export default function PipelineClient({
           gercekInisMaliyetiNet,
           standartInisMaliyetiNet: toSafeNumber(item.product.standart_inis_maliyeti_net, 0),
           maliyetSapmaYuzde: 0,
+          lotNo: (item as any).lotNo ? String((item as any).lotNo).trim() : null,
+          sktTarihi: (item as any).sktTarihi || null,
+          hasarliAdet: toSafeNumber((item as any).hasarliAdet, 0),
+          kabulEdilenAdet: Math.max(0, item.miktarAdet - toSafeNumber((item as any).hasarliAdet, 0)),
         };
       });
 
@@ -302,27 +324,47 @@ export default function PipelineClient({
         gumrukVergiToplamEur:  data.gumrukVergiToplamEur,
         tracesNumuneArdiyeEur: data.tracesNumuneArdiyeEur,
         varisTarihi: data.varisTarihi,
+        faturaNo: data.faturaNo,
+        cmrNo: data.cmrNo,
+        gumrukBeyannameNo: data.gumrukBeyannameNo,
+        lieferscheinNo: data.lieferscheinNo,
         items: itemsPayload,
       }, locale);
 
       if (res.error) throw new Error(res.error);
-      toast.success('Sipariş başarıyla kaydedildi.');
-      if (isNew) {
-        router.push(`/${locale}/admin/urun-yonetimi/tedarikci-siparis-plani/${res.partiId}`);
-      } else {
-        router.refresh();
+      
+      if (!skipRedirect) {
+        toast.success('Sipariş başarıyla kaydedildi.');
+        if (isNew) {
+          router.push(`/${locale}/admin/urun-yonetimi/tedarikci-siparis-plani/${res.partiId}`);
+        } else {
+          router.refresh();
+        }
       }
+      return true;
     } catch (e: any) {
       toast.error(e.message || 'Hata oluştu');
+      return false;
     } finally {
-      setIsSubmitting(false);
+      if (!skipRedirect) {
+        setIsSubmitting(false);
+      }
     }
   };
+
+  const handleSaveDraft = (data: FormValues) => executeSave(data, false);
 
   // ── Mal Kabulü Tamamla ───────────────────────────────────────────────────
   const handleComplete = async () => {
     setIsSubmitting(true);
     try {
+      const data = watch();
+      const saveSuccess = await executeSave(data, true);
+      if (!saveSuccess) {
+        setIsSubmitting(false);
+        return;
+      }
+
       const res = await completeBatchAction(id, locale);
       if (res.error) throw new Error(res.error);
       toast.success('Mal kabulü tamamlandı! Stoklar başarıyla güncellendi.');
@@ -703,32 +745,95 @@ export default function PipelineClient({
               SEKME 2: YOLDA
           ═══════════════════════════════════════════════════════════════ */}
           {activeTab === 'transit' && (
-            <div className="animate-in fade-in slide-in-from-bottom-3 duration-400 flex flex-col items-center justify-center py-16">
-              <div className="w-28 h-28 bg-blue-100 rounded-full flex items-center justify-center mb-6 text-blue-600 shadow-inner">
-                <Truck size={52} className="animate-bounce" />
+            <div className="animate-in fade-in slide-in-from-bottom-3 duration-400 flex flex-col items-center justify-center py-10 max-w-4xl mx-auto w-full">
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mb-4 text-blue-600 shadow-inner">
+                <Truck size={40} className="animate-pulse" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">Ürünler Yolda</h3>
-              <p className="text-gray-500 max-w-md text-center mb-8">
-                Bu sipariş onaylandı ve tedarikçiden yola çıktı. Tahmini varış tarihini güncelleyebilirsiniz.
+              <h3 className="text-2xl font-bold text-gray-800 mb-1">Sevkiyat & Resmi Evrak Takibi</h3>
+              <p className="text-gray-500 text-sm max-w-lg text-center mb-8">
+                Tır sevkiyata çıktığında uluslararası taşıma, fatura ve gümrük beyanname numaralarını buradan kaydedebilirsiniz.
               </p>
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full max-w-md">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Tahmini Varış Tarihi</label>
-                <input
-                  type="date"
-                  {...register('varisTarihi')}
-                  disabled={isCompleted}
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
-                />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full bg-slate-50/80 p-6 rounded-2xl border border-gray-200">
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                    📅 Tahmini Varış Tarihi
+                  </label>
+                  <input
+                    type="date"
+                    {...register('varisTarihi')}
+                    disabled={isCompleted}
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm font-medium"
+                  />
+                  <p className="text-[11px] text-gray-400 mt-1">Malların depoya ulaşması beklenen gün</p>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                    🧾 Tedarikçi Fatura No (Invoice)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Örn: INV-2026-0891"
+                    {...register('faturaNo')}
+                    disabled={isCompleted}
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm font-medium"
+                  />
+                  <p className="text-[11px] text-gray-400 mt-1">Üreticinin/Tedarikçinin kestiği ticari fatura no</p>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                    🚛 CMR / Taşıma İrsaliye No
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Örn: CMR-TR-DE-8821"
+                    {...register('cmrNo')}
+                    disabled={isCompleted}
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm font-medium"
+                  />
+                  <p className="text-[11px] text-gray-400 mt-1">Uluslararası karayolu taşıma senedi numarası</p>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                    🏛️ Gümrük Beyanname / ATLAS No
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Örn: ATLAS-DE-2026-..."
+                    {...register('gumrukBeyannameNo')}
+                    disabled={isCompleted}
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm font-medium"
+                  />
+                  <p className="text-[11px] text-gray-400 mt-1">Almanya gümrük giriş/ithalat beyanname referansı</p>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm md:col-span-2">
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                    📦 Lieferschein (Depo Teslim İrsaliye No)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Örn: LS-2026-4401"
+                    {...register('lieferscheinNo')}
+                    disabled={isCompleted}
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm font-medium"
+                  />
+                  <p className="text-[11px] text-gray-400 mt-1">Mal kabulü sırasında depoya bırakılan irsaliye numarası</p>
+                </div>
               </div>
+
               {!isCompleted && (
-                <div className="mt-6 flex gap-3">
-                  <button type="submit" className="px-6 py-3 bg-white border border-gray-200 rounded-xl font-medium shadow-sm hover:bg-gray-50 transition-colors">
-                    Tarihi Kaydet
+                <div className="mt-8 flex gap-4">
+                  <button type="submit" disabled={isSubmitting} className="px-7 py-3 bg-white border border-gray-300 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition-colors text-gray-800">
+                    {isSubmitting ? 'Kaydediliyor...' : 'Evrak ve Tarihi Kaydet'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('costing')}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2"
+                    className="px-7 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center gap-2"
                   >
                     Maliyetlendirmeye Geç <ArrowRight size={16} />
                   </button>
@@ -786,7 +891,7 @@ export default function PipelineClient({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {calculatedItems.map((item, idx) => {
+                      {validCalculatedItems.map((item, idx) => {
                         const totalKg     = totals.totalKuruKg;
                         const weightRatio = totalKg > 0 ? item.toplamAgirlikKg / totalKg : 0;
                         const navlunPay   = kaufmannRunden((toSafeNumber(formValues.navlunKuruEur) + toSafeNumber(formValues.navlunSogukEur)) * weightRatio);
@@ -832,11 +937,57 @@ export default function PipelineClient({
                                       </span>
                                     )}
                                   </div>
+
+                                  {/* Lot, SKT ve Hasarlı Fire Kontrolleri */}
+                                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                                    <div className="flex items-center gap-1 bg-slate-50 hover:bg-slate-100 transition-colors px-1.5 py-0.5 rounded border border-gray-200" title="Parti / Lot Numarası">
+                                      <span className="text-[9px] text-slate-500 font-bold">Lot:</span>
+                                      <input
+                                        type="text"
+                                        placeholder="Lot No"
+                                        {...register(`items.${idx}.lotNo` as any)}
+                                        disabled={isCompleted}
+                                        className="text-[10px] w-20 bg-transparent outline-none focus:text-indigo-600 placeholder:text-gray-300 font-medium"
+                                      />
+                                    </div>
+                                    <div className="flex items-center gap-1 bg-slate-50 hover:bg-slate-100 transition-colors px-1.5 py-0.5 rounded border border-gray-200" title="Son Kullanma Tarihi (MHD)">
+                                      <span className="text-[9px] text-slate-500 font-bold">SKT:</span>
+                                      <input
+                                        type="date"
+                                        {...register(`items.${idx}.sktTarihi` as any)}
+                                        disabled={isCompleted}
+                                        className="text-[10px] bg-transparent outline-none focus:text-indigo-600 text-slate-700"
+                                      />
+                                    </div>
+                                    <div className="flex items-center gap-1 bg-amber-50/70 hover:bg-amber-100/70 transition-colors px-1.5 py-0.5 rounded border border-amber-200" title="Varsayılan: 0 (Tam Teslimat). Varsa hasarlı adet giriniz.">
+                                      <span className="text-[9px] text-amber-800 font-bold">Hasar:</span>
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        placeholder="0"
+                                        {...register(`items.${idx}.hasarliAdet` as any, { valueAsNumber: true })}
+                                        disabled={isCompleted}
+                                        className="text-[10px] w-12 bg-transparent outline-none focus:text-amber-900 text-amber-900 font-bold"
+                                      />
+                                      <span className="text-[9px] text-amber-700">ad</span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </td>
                             <td className="px-3 py-1.5 text-right border-r border-gray-100 text-slate-700">
                               <span className="font-semibold">{item.koliSayisi}</span> <span className="text-[9px] text-slate-400">koli</span> <span className="text-slate-400 px-1">×</span> {Math.max(1, toSafeNumber(item.product.koli_ici_adet, 1))} <span className="text-slate-400 px-1">=</span> <span className="font-bold bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">{item.miktarAdet}</span>
+                              {(() => {
+                                const h = toSafeNumber(watchItems[idx]?.hasarliAdet, 0);
+                                if (h > 0) {
+                                  return (
+                                    <div className="text-[10px] text-red-600 font-bold mt-1 bg-red-50 py-0.5 px-1 rounded border border-red-200 text-center">
+                                      ⚠️ {h} hasarlı • Stoğa: {Math.max(0, item.miktarAdet - h)}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()}
                             </td>
                             <td className="px-3 py-1.5 text-right border-r border-gray-100 text-emerald-700 font-medium">
                               {item.paletSayisi > 0 ? item.paletSayisi.toFixed(2) : '—'} <span className="text-[9px] text-emerald-600/70">plt</span>
@@ -859,7 +1010,7 @@ export default function PipelineClient({
                           </tr>
                         );
                       })}
-                      {calculatedItems.length === 0 && (
+                      {validCalculatedItems.length === 0 && (
                         <tr>
                           <td colSpan={8} className="px-5 py-10 text-center text-gray-400">
                             Sipariş sekmesinde ürün ekleyin.
@@ -931,38 +1082,80 @@ export default function PipelineClient({
       {/* ── Onay Modal ───────────────────────────────────────────────────── */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5 text-red-600">
-              <AlertTriangle size={32} />
+          <div className="bg-white rounded-3xl p-7 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-inner">
+              <CheckCircle size={32} />
             </div>
-            <h3 className="text-2xl font-extrabold text-center text-gray-900 mb-2">
+            <h3 className="text-xl font-extrabold text-center text-gray-900 mb-1">
               Mal Kabulünü Onaylayın
             </h3>
-            <p className="text-center text-gray-600 mb-2">
-              Bu işlem <strong className="text-red-600">geri alınamaz.</strong>
+            <p className="text-center text-gray-500 text-xs mb-5">
+              Bu işlemle birlikte fiziksel mallar sistemdeki canlı stoğunuza aktarılacaktır.
             </p>
-            <ul className="text-sm text-gray-500 space-y-1 mb-8 list-disc list-inside">
-              <li>Ürün stokları artırılacak (veritabanı seviyesinde, atomik)</li>
-              <li>Gerçek iniş maliyetleri kaydedilecek</li>
-              <li>Stok hareket logları oluşturulacak</li>
-            </ul>
-            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6">
-              💡 Eksik veya hasarlı ürünler varsa, önce <strong>Sipariş sekmesine</strong> dönüp koli miktarını güncelleyin.
-            </p>
-            <div className="flex gap-4">
+
+            {/* Giriş Özeti Kartı */}
+            <div className="bg-slate-50 border border-gray-200 rounded-2xl p-4 mb-4 text-xs space-y-2.5">
+              <div className="flex justify-between items-center pb-2 border-b border-gray-200 font-semibold text-slate-700">
+                <span>📦 Toplam Kalem:</span>
+                <span className="font-bold text-slate-900">{validCalculatedItems.length} Ürün</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Beklenen Adet:</span>
+                <span className="font-bold text-slate-800">{totals.totalMiktar} adet</span>
+              </div>
+              {totalHasar > 0 ? (
+                <div className="flex justify-between items-center text-red-600 font-bold bg-red-50 p-1.5 rounded">
+                  <span>⚠️ Ayrılan Hasarlı / Fire:</span>
+                  <span>- {totalHasar} adet</span>
+                </div>
+              ) : (
+                <div className="flex justify-between items-center text-emerald-700 font-medium">
+                  <span>Hasar Durumu:</span>
+                  <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[11px]">✓ Eksiksiz / Tam Teslimat</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200 text-emerald-800 font-extrabold text-sm">
+                <span>Stoğa Eklenecek Net Adet:</span>
+                <span className="bg-emerald-600 text-white px-2 py-0.5 rounded-lg text-sm">{Math.max(0, totals.totalMiktar - totalHasar)} adet</span>
+              </div>
+            </div>
+
+            {/* Evrak Bilgisi (Varsa) */}
+            {(formValues.faturaNo || formValues.cmrNo || formValues.lieferscheinNo) && (
+              <div className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3 mb-4 text-[11px] text-indigo-900">
+                <span className="font-bold block mb-1">📄 Kayıtlı Evraklar:</span>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-slate-600">
+                  {formValues.faturaNo && <div>Fatura: <strong className="text-slate-800">{formValues.faturaNo}</strong></div>}
+                  {formValues.cmrNo && <div>CMR: <strong className="text-slate-800">{formValues.cmrNo}</strong></div>}
+                  {formValues.lieferscheinNo && <div>İrsaliye: <strong className="text-slate-800">{formValues.lieferscheinNo}</strong></div>}
+                </div>
+              </div>
+            )}
+
+            {/* Fiyat Güvencesi Notu */}
+            <div className="text-[11px] text-emerald-800 bg-emerald-50/80 border border-emerald-200 rounded-xl px-3.5 py-2.5 mb-5 flex items-start gap-2">
+              <span className="text-base leading-none">🛡️</span>
+              <p>
+                <strong>Fiyat Güvencesi:</strong> Fiyatlandırma Hub'daki satış fiyatlarınız kesinlikle değişmeyecektir. Sadece ürün gerçek iniş maliyetleri ve kârlılık sapma analizi (CEO Kokpit için) güncellenecektir.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setShowConfirmModal(false)}
                 disabled={isSubmitting}
-                className="flex-1 px-6 py-4 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50"
+                className="flex-1 px-5 py-3.5 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm"
               >
-                İptal
+                Vazgeç
               </button>
               <button
+                type="button"
                 onClick={handleComplete}
                 disabled={isSubmitting}
-                className="flex-1 px-6 py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg active:scale-95 disabled:opacity-50 flex justify-center items-center gap-2"
+                className="flex-1 px-5 py-3.5 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg active:scale-95 disabled:opacity-50 flex justify-center items-center gap-2 text-sm"
               >
-                {isSubmitting ? 'İşleniyor...' : '✓ Evet, Onayla'}
+                {isSubmitting ? 'İşleniyor...' : '✓ Stoğa Alımı Onayla'}
               </button>
             </div>
           </div>
@@ -974,12 +1167,7 @@ export default function PipelineClient({
         <SmartUploadModal
           isOpen={showDmsModal}
           onClose={() => setShowDmsModal(false)}
-          defaultValues={{
-            iliskiTipi: 'tir',
-            iliskiId: id,
-            kategori: 'gelen_evrak',
-            altKategori: 'fatura',
-          }}
+          defaultKategori="gelen_evrak_dosyasi"
           onSuccess={() => toast.success('Belge başarıyla yüklendi.')}
         />
       )}

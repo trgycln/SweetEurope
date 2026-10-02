@@ -20,6 +20,10 @@ export type ImportBatchItemInput = {
   gercekInisMaliyetiNet: number;
   standartInisMaliyetiNet: number;
   maliyetSapmaYuzde: number;
+  lotNo?: string | null;
+  sktTarihi?: string | null;
+  hasarliAdet?: number;
+  kabulEdilenAdet?: number | null;
 };
 
 export type ProductMasterData = {
@@ -148,6 +152,12 @@ export function buildBatchItemInsertRows(
       gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
       standart_inis_maliyeti_net: round4(item.standartInisMaliyetiNet),
       maliyet_sapma_yuzde: computeVariancePct(item.standartInisMaliyetiNet, item.gercekInisMaliyetiNet),
+      lot_no: item.lotNo?.trim() || null,
+      skt_tarihi: item.sktTarihi || null,
+      hasarli_adet: toSafeNumber(item.hasarliAdet, 0),
+      kabul_edilen_adet: item.kabulEdilenAdet != null
+        ? toSafeNumber(item.kabulEdilenAdet, 0)
+        : Math.max(0, item.miktarAdet - toSafeNumber(item.hasarliAdet, 0)),
     };
   });
 }
@@ -158,15 +168,12 @@ export function buildProductSnapshotUpdate(
   thresholdPct = 5
 ) {
   const currentStock = toSafeNumber(product?.stok_miktari, 0);
-  const standardCost =
-    toSafeNumber(product?.standart_inis_maliyeti_net, 0) > 0
-      ? toSafeNumber(product?.standart_inis_maliyeti_net, 0)
-      : round4(item.standartInisMaliyetiNet);
+  // ALWAYS use the item's dynamically calculated standard cost for variance!
+  const standardCost = round4(item.standartInisMaliyetiNet);
   const variancePct = computeVariancePct(standardCost, item.gercekInisMaliyetiNet);
 
   return {
     stok_miktari: currentStock + item.miktarAdet,
-    standart_inis_maliyeti_net: standardCost,
     son_gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
     son_maliyet_sapma_yuzde: variancePct,
     karlilik_alarm_aktif: shouldTriggerVarianceAlert(variancePct, thresholdPct),

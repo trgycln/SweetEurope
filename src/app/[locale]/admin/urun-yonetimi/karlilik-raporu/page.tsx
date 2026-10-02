@@ -443,7 +443,16 @@ export default async function KarlilikRaporuPage({
                         </td>
                         <td className="px-3 py-3 align-top text-slate-700">{supplierNameById[product.tedarikci_id || ''] || 'Belirtilmedi'}</td>
                         <td className="px-3 py-3 align-top text-slate-700">{Number(product.stok_miktari || 0).toLocaleString('tr-TR')}</td>
-                        <td className="px-3 py-3 align-top text-slate-700">{money(product.standart_inis_maliyeti_net)}</td>
+                        <td className="px-3 py-3 align-top text-slate-700">
+                          {(() => {
+                            const gercek = Number(product.son_gercek_inis_maliyeti_net ?? 0);
+                            let displayStandart = product.standart_inis_maliyeti_net;
+                            if (variance !== 0 && gercek !== 0) {
+                              displayStandart = gercek / (1 + variance / 100);
+                            }
+                            return money(displayStandart);
+                          })()}
+                        </td>
                         <td className="px-3 py-3 align-top text-slate-700">{money(product.son_gercek_inis_maliyeti_net)}</td>
                         <td className="px-3 py-3 align-top">
                           <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${getVarianceTone(variance)}`}>

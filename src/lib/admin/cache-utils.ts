@@ -127,9 +127,9 @@ export const getCachedDashboardData = unstable_cache(
             alarmUrunlerRes, settingsRes, yeniMusteriRes, 
             sipAdetRes, alarmCountRes, batchHistRes
         ] = await Promise.all([
-            supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).single(),
-            supabase.rpc('get_pl_report', { start_date: prevMonthStart, end_date: prevMonthEnd }).single(),
-            supabase.from('urunler').select('distributor_alis_fiyati, stok_miktari, stok_esigi').eq('aktif', true),
+            supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).maybeSingle(),
+            supabase.rpc('get_pl_report', { start_date: prevMonthStart, end_date: prevMonthEnd }).maybeSingle(),
+            supabase.from('urunler').select('distributor_alis_fiyati, son_gercek_inis_maliyeti_net, son_indirimli_alis_fiyati, stok_miktari, stok_esigi').eq('aktif', true),
             supabase.from('urunler').select('id', { count: 'exact', head: true }),
             supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_STATUS),
             supabase.from('siparisler').select('siparis_durumu').gte('created_at', thirtyDaysAgo),

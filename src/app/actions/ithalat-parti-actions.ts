@@ -20,6 +20,10 @@ export type SaveImportBatchPayload = {
   tracesNumuneArdiyeEur?: number;
   ekNotlar?: string | null;
   varisTarihi?: string | null;
+  faturaNo?: string | null;
+  cmrNo?: string | null;
+  gumrukBeyannameNo?: string | null;
+  lieferscheinNo?: string | null;
   indirim1?: number;
   indirim2?: number;
   items: Array<{
@@ -37,6 +41,10 @@ export type SaveImportBatchPayload = {
     gercekInisMaliyetiNet: number;
     standartInisMaliyetiNet: number;
     maliyetSapmaYuzde: number;
+    lotNo?: string | null;
+    sktTarihi?: string | null;
+    hasarliAdet?: number;
+    kabulEdilenAdet?: number | null;
   }>;
 };
 
@@ -109,6 +117,10 @@ export async function saveImportBatchAction(payload: SaveImportBatchPayload, loc
       traces_numune_ardiye_eur: round4(payload.tracesNumuneArdiyeEur),
       ek_notlar: payload.ekNotlar || null,
       varis_tarihi: payload.varisTarihi || null,
+      fatura_no: payload.faturaNo ? String(payload.faturaNo).trim() : null,
+      cmr_no: payload.cmrNo ? String(payload.cmrNo).trim() : null,
+      gumruk_beyanname_no: payload.gumrukBeyannameNo ? String(payload.gumrukBeyannameNo).trim() : null,
+      lieferschein_no: payload.lieferscheinNo ? String(payload.lieferscheinNo).trim() : null,
       durum: 'Taslak',
     };
 
@@ -150,13 +162,24 @@ export async function saveImportBatchAction(payload: SaveImportBatchPayload, loc
     const urunIds = payload.items.map(i => i.urunId).filter(Boolean);
     const { data: masterDataRows } = await db
       .from('urunler')
-      .select('id, distributor_alis_fiyati, koli_ici_adet, birim_agirlik_kg, standart_inis_maliyeti_net')
+      .select('id, distributor_alis_fiyati, koli_ici_adet, birim_agirlik_kg, standart_inis_maliyeti_net, urun_gami')
       .in('id', urunIds);
 
     const masterDataById: Record<string, any> = {};
     for (const row of (masterDataRows || [])) {
       masterDataById[row.id] = row;
     }
+
+    const { data: settingsData } = await db.from('system_settings').select('setting_key, setting_value').ilike('setting_key', '%pricing%');
+    const settings = (settingsData || []).reduce((acc: any, curr: any) => {
+      acc[curr.setting_key] = curr.setting_value;
+      return acc;
+    }, {});
+    
+    const shippingFrozen = Number(settings['pricing_shipping_frozen_per_box']) || 2;
+    const customsFrozen = (Number(settings['pricing_customs_frozen_percent']) || 15) / 100;
+    const shippingNonCold = Number(settings['pricing_shipping_non_cold_per_box']) || 0.45;
+    const customsNonCold = (Number(settings['pricing_customs_non_cold_percent']) || 9) / 100;
 
     // Her kalemi Master Data ile yeniden hesapla
     const { calculateMiktarAdet: calcMiktar, calculateToplamAgirlikKg: calcAgirlik } =
@@ -170,13 +193,24 @@ export async function saveImportBatchAction(payload: SaveImportBatchPayload, loc
       const gercekMiktar = calcMiktar(koliSayisi, master.koli_ici_adet);
       const gercekAgirlik = calcAgirlik(gercekMiktar, master.birim_agirlik_kg);
       const gercekBazFiyat = toSafeNumber(master.distributor_alis_fiyati, 0);
+      
+      const isFrozen = String(master.urun_gami || '').toLowerCase().includes('frozen') || String(master.urun_gami || '').toLowerCase().includes('cold');
+      const shippingValue = isFrozen ? shippingFrozen : shippingNonCold;
+      const customsPct = isFrozen ? customsFrozen : customsNonCold;
+      
+      const indirimliFiyat = toSafeNumber(item.indirimliAlisFiyati, gercekBazFiyat);
+      const dynamicStandardCost = (indirimliFiyat + shippingValue) * (1 + customsPct);
 
       return {
         ...item,
         miktarAdet: gercekMiktar,              // Sunucuda hesaplanan
         toplamAgirlikKg: gercekAgirlik,         // Sunucuda hesaplanan
         birimAlisFiyatiOrijinal: gercekBazFiyat, // Master Data'dan (değişmez)
-        standartInisMaliyetiNet: toSafeNumber(master.standart_inis_maliyeti_net, item.standartInisMaliyetiNet),
+        standartInisMaliyetiNet: dynamicStandardCost, // İndirimli fiyat üzerinden dinamik hesaplanan standart
+        lotNo: (item as any).lotNo || null,
+        sktTarihi: (item as any).sktTarihi || null,
+        hasarliAdet: toSafeNumber((item as any).hasarliAdet, 0),
+        kabulEdilenAdet: (item as any).kabulEdilenAdet != null ? toSafeNumber((item as any).kabulEdilenAdet, 0) : Math.max(0, gercekMiktar - toSafeNumber((item as any).hasarliAdet, 0)),
       };
     });
 

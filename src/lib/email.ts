@@ -512,86 +512,58 @@ export async function sendOrderConfirmationEmail({
 
 /**
  * Müşteriye resmi Lexware faturasını PDF eki ile birlikte Almanca gönderir.
- * Stripe veya Havale ödemesi tamamlandığında tetiklenir.
- */
-export async function sendInvoiceEmail({
-  to,
-  orderNo,
-  invoiceNo,
-  pdfBuffer,
-  pdfFilename,
-}: {
-  to: string;
-  orderNo: string;
-  invoiceNo: string;
-  pdfBuffer: Buffer;
-  pdfFilename: string;
-}): Promise<void> {
-  const resend = getResend();
-  if (!resend) {
-    console.warn('[email] RESEND_API_KEY tanımlı değil — fatura e-postası gönderilmedi.');
-    return;
-  }
-
-  const subject = `Ihre Rechnung ${invoiceNo} – Elysonsweets GmbH`;
-
-  const html = `
-<!DOCTYPE html>
+ * Stripe veya Havale ödemesi tamamlandığında   const html = `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
   <title>${subject}</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.07); border: 1px solid #e2e8f0;">
 
     <!-- Header -->
-    <div style="background-color: #0f172a; padding: 36px 30px; text-align: center; border-bottom: 3px solid #16a34a;">
-      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
-      <p style="color: #94a3b8; margin: 6px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Rechnung / Fatura</p>
+    <div style="background-color: #0f172a; padding: 32px 30px; text-align: center; border-bottom: 3px solid #3b82f6;">
+      <h1 style="color: #ffffff; margin: 0 0 6px; font-size: 24px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: #3b82f6; margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">RECHNUNG</p>
     </div>
 
     <!-- Content -->
     <div style="padding: 36px 32px;">
-      <h2 style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
-
-      <p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
-        vielen Dank für Ihre Bestellung! Ihre Zahlung wurde erfolgreich verarbeitet.<br>
+      <h2 style="margin: 0 0 12px; color: #0f172a; font-size: 18px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
+      
+      <p style="font-size: 14px; line-height: 1.7; color: #475569; margin: 0 0 28px;">
+        vielen Dank für Ihre Bestellung! Ihre Zahlung wurde erfolgreich verarbeitet.
         Im Anhang dieser E-Mail finden Sie Ihre offizielle Rechnung als PDF-Datei.
       </p>
 
-      <!-- Order Info Card -->
-      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
-        <h3 style="margin: 0 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #166534; font-weight: 700;">Rechnungsdetails</h3>
-        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-          <tr>
-            <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 180px;">Rechnungsnummer:</td>
-            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">${invoiceNo}</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Bestellnummer:</td>
-            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
-          </tr>
-        </table>
+      <!-- Invoice Info Badge -->
+      <div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1px solid #bfdbfe; border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; display: flex; align-items: center;">
+        <div style="flex: 1;">
+          <p style="margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #2563eb; font-weight: 700;">Rechnungsnummer</p>
+          <p style="margin: 4px 0 0; font-size: 18px; font-weight: 800; color: #0f172a; font-family: monospace;">${invoiceNo}</p>
+        </div>
+        <div style="flex: 1; text-align: right; border-left: 1px dashed #93c5fd; padding-left: 16px;">
+          <p style="margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-weight: 700;">Bestellnummer</p>
+          <p style="margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #475569; font-family: monospace;">#${orderNo}</p>
+        </div>
       </div>
 
-      <!-- Portal Link -->
+      <!-- CTA Button -->
       <div style="text-align: center; margin: 32px 0;">
-        <a href="${LIVE_BASE_URL}/de/portal/siparisler" style="display: inline-block; background-color: #16a34a; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);">
+        <a href="${LIVE_BASE_URL}/de/portal/siparisler" style="display: inline-block; background-color: #3b82f6; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none;">
           Bestellung im Portal ansehen →
         </a>
       </div>
 
-      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
-        <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
-          Die Originalrechnung finden Sie als PDF-Anhang in dieser E-Mail.<br>
-          Bei Fragen stehen wir Ihnen jederzeit unter <a href="mailto:info@elysonsweets.de" style="color: #0f172a; font-weight: 600; text-decoration: underline;">info@elysonsweets.de</a> zur Verfügung.
-        </p>
-      </div>
+      <p style="font-size: 13px; color: #94a3b8; text-align: center; margin: 0;">
+        Die Originalrechnung finden Sie als PDF-Anhang in dieser E-Mail.<br>
+        Bei Fragen wenden Sie sich bitte an <a href="mailto:info@elysonsweets.de" style="color: #3b82f6; text-decoration: none;">info@elysonsweets.de</a>.
+      </p>
     </div>
 
     <!-- Footer -->
-    <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+    <div style="background-color: #f1f5f9; padding: 22px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 12px; color: #94a3b8; margin: 0 0 4px; font-weight: 600;">Elysonsweets GmbH</p>
       <p style="font-size: 11px; color: #94a3b8; margin: 0;">
         © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
       </p>
@@ -599,8 +571,7 @@ export async function sendInvoiceEmail({
 
   </div>
 </body>
-</html>
-`;
+</html>`;
 
   try {
     const { data, error } = await resend.emails.send({

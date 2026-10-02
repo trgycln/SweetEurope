@@ -98,7 +98,7 @@ type ReportData = {
 
 async function TeamMemberDashboard({ userId, locale, dictionary, cookieStore }: { userId: string; locale: string; dictionary: any; cookieStore: any }) {
     const supabase = await createSupabaseServerClient(cookieStore);
-    const { data } = await supabase.rpc('get_dashboard_summary_for_member', { p_member_id: userId }).single();
+    const { data } = await supabase.rpc('get_dashboard_summary_for_member', { p_member_id: userId }).maybeSingle();
     const safeData = (typeof data === 'object' && data && !Array.isArray(data)) ? data : {};
     const openTasks = Number((safeData as any).openTasksCount ?? 0);
     const newOrders = Number((safeData as any).newOrdersCount ?? 0);
@@ -162,7 +162,9 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
         ? Math.round(((mtd?.totalRevenue ?? 0) - prevMtd.totalRevenue) / prevMtd.totalRevenue * 100)
         : null;
 
-    const stokDegeri      = (stokRes.data || []).reduce((s: number, u: any) => s + (Number(u.distributor_alis_fiyati || 0) * Number(u.stok_miktari || 0)), 0);
+    const listeDegeri = (stokRes.data || []).reduce((s: number, u: any) => s + (Number(u.distributor_alis_fiyati || 0) * Number(u.stok_miktari || 0)), 0);
+    const faturaDegeri = (stokRes.data || []).reduce((s: number, u: any) => s + (Number(u.son_indirimli_alis_fiyati || u.distributor_alis_fiyati || 0) * Number(u.stok_miktari || 0)), 0);
+    const stokDegeri = (stokRes.data || []).reduce((s: number, u: any) => s + (Number(u.son_gercek_inis_maliyeti_net || u.distributor_alis_fiyati || 0) * Number(u.stok_miktari || 0)), 0);
     const urunToplamCount = urunToplamRes.count ?? 0;
 
     // Kritik stok: stok > 0 VE stok_esigi altında.
@@ -634,9 +636,22 @@ async function ManagerDashboard({ locale, period, dictionary, cookieStore, userI
                         <p className="text-[11px] text-slate-400 mt-0.5">SMM dahil değil</p>
                     </div>
                     <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Depodaki Stok Değeri</p>
+                        <div className="flex items-center gap-2 mb-1">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Gerçek Stok Değeri</p>
+                            <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">İniş Maliyeti</span>
+                        </div>
                         <p className="text-2xl font-bold text-slate-800"><AnimatedNumber value={stokDegeri ?? 0} format="currency" /></p>
-                        <p className="text-[11px] text-slate-400 mt-0.5"><AnimatedNumber value={urunToplamCount} /> ürün (toplam) · alış fiyatı</p>
+                        
+                        <div className="mt-2 space-y-1">
+                            <div className="flex items-center justify-between text-[11px]">
+                                <span className="text-slate-500 font-medium">Fatura Mal Bedeli:</span>
+                                <span className="text-slate-700 font-bold"><AnimatedNumber value={faturaDegeri ?? 0} format="currency" /></span>
+                            </div>
+                            <div className="flex items-center justify-between text-[10px]">
+                                <span className="text-slate-400">İskontosuz Liste:</span>
+                                <span className="text-slate-400"><AnimatedNumber value={listeDegeri ?? 0} format="currency" /></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
