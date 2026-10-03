@@ -223,7 +223,7 @@ export async function siparisOlusturAction(payload: {
                         toplamFiyat: item.toplam_fiyat,
                     }));
                     const loc = payload.locale || 'de';
-                    if (!payload.isTest) {
+                    // if (!payload.isTest) {
                         await sendOrderConfirmationEmail({
                         to: user.email,
                         recipientName: profil?.ad_soyad || null,
@@ -239,7 +239,7 @@ export async function siparisOlusturAction(payload: {
                         portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
                         paymentMethod: payload.paymentMethod,
                         });
-                    }
+                    // }
                 }
             } catch (emailErr) {
                 console.error('[siparis-actions] Ön sipariş onay e-postası gönderilemedi:', emailErr);
@@ -330,23 +330,23 @@ export async function siparisOlusturAction(payload: {
                     toplamFiyat: item.toplam_fiyat,
                 }));
                 const loc = payload.locale || 'de';
-                if (!payload.isTest) {
+                // if (!payload.isTest) {
                     await sendOrderConfirmationEmail({
-                    to: user.email,
-                    recipientName: profil?.ad_soyad || null,
-                    firmName: firma2?.unvan || null,
-                    orderId: newOrderId,
-                    orderType: 'normal',
-                    items: emailItems,
-                    toplamNet: trustedToplamNet,
-                    kargoTutariBrut: shipping.shippingCostGross,
-                    toplamBrut: trustedToplamBrut,
-                    teslimatAdresi: payload.teslimatAdresi,
-                    locale: loc,
-                    portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
-                    paymentMethod: payload.paymentMethod,
+                        to: user.email,
+                        recipientName: profil?.ad_soyad || null,
+                        firmName: firma2?.unvan || null,
+                        orderId: newOrderId,
+                        orderType: 'normal',
+                        items: emailItems,
+                        toplamNet: trustedToplamNet,
+                        kargoTutariBrut: shipping.shippingCostGross,
+                        toplamBrut: trustedToplamBrut,
+                        teslimatAdresi: payload.teslimatAdresi,
+                        locale: loc,
+                        portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
+                        paymentMethod: payload.paymentMethod,
                     });
-                }
+                // }
             }
         } catch (emailErr) {
             console.error('[siparis-actions] Sipariş onay e-postası gönderilemedi:', emailErr);
