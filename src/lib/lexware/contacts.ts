@@ -50,7 +50,7 @@ export interface LexwareContact {
  * Bir firma için Lexware Contact ID'sini döndürür.
  * Eğer daha önce oluşturulmamışsa, Lexware'de yeni müşteri kartı açar ve Supabase'e kaydeder.
  */
-export async function getOrCreateLexwareContact(firmaId: string): Promise<string> {
+export async function getOrCreateLexwareContact(firmaId: string, isTest: boolean = false): Promise<string> {
   const supabase = createSupabaseServiceClient();
 
   const { data: firma, error } = await supabase

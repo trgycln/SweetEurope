@@ -80,12 +80,11 @@ export async function createLexwareInvoiceForOrder(
   }
 
   if (siparis.is_test === true) {
-    console.log('[TEST MODE] Lexware faturası atlandı');
-    return { invoiceId: 'test-inv-id', invoiceNo: 'TEST-001', pdfUrl: '#' };
+    console.log('[TEST MODE] Lexware faturası TEST API ile kesiliyor');
   }
 
   // 1. Lexware müşteri kartını doğrula veya oluştur
-  const contactId = await getOrCreateLexwareContact(firma.id);
+  const contactId = await getOrCreateLexwareContact(firma.id, siparis.is_test === true);
 
   // 2. Ürün kalemlerini hazırla (%7 KDV)
   const lineItems: LexwareLineItem[] = (siparis.siparis_detay || []).map((item: any) => {
@@ -217,9 +216,9 @@ export async function createLexwareInvoiceForOrder(
 /**
  * Lexware üzerinden faturanın resmi PDF dosya içeriğini binary olarak indirir.
  */
-export async function getLexwareInvoicePdfBuffer(invoiceId: string): Promise<{ buffer: Buffer; filename: string }> {
+export async function getLexwareInvoicePdfBuffer(invoiceId: string, isTest: boolean = false): Promise<{ buffer: Buffer; filename: string }> {
   // 1. Doküman bilgisini al
-  const docInfo = await lexwareFetch<any>(`/v1/invoices/${invoiceId}/document`);
+  const docInfo = await lexwareFetch<any>(`/v1/invoices/${invoiceId}/document`, { isTest });
   const fileId = docInfo?.documentFileId;
 
   if (!fileId) {
@@ -228,6 +227,7 @@ export async function getLexwareInvoicePdfBuffer(invoiceId: string): Promise<{ b
 
   // 2. Dosyayı indir
   const blob = await lexwareFetch<Blob>(`/v1/files/${fileId}`, {
+    isTest,
     headers: {
       Accept: 'application/pdf',
     },
@@ -247,6 +247,7 @@ export async function getLexwareInvoicePdfBuffer(invoiceId: string): Promise<{ b
  */
 export async function cancelLexwareInvoiceForOrder(
   siparisId: string,
+  isTest: boolean = false,
   reason: string = 'Kundenstornierung / Auftragsstornierung'
 ): Promise<{ creditNoteId: string; creditNoteNo: string; stornoPdfUrl: string }> {
   const supabase = createSupabaseServiceClient();

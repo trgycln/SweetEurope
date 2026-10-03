@@ -7,7 +7,7 @@ import { createSupabaseServerClient } from "../../lib/supabase/server";
 import { Enums, Tables, Database } from "../../lib/supabase/database.types"; // Database hinzugefügt
 import { revalidatePath } from "next/cache";
 import { cookies, headers } from "next/headers"; // <-- WICHTIG: Importiert
-import { stripe, assertStripeEnvironmentSafety } from '@/lib/stripe';
+import { stripe, stripeTest, assertStripeEnvironmentSafety } from '@/lib/stripe';
 import { SupabaseClient } from "@supabase/supabase-js"; // Typ für Client importieren
 import { sendNotification } from '../../lib/notificationUtils';
 import { sendOrderConfirmationEmail } from '../../lib/email';
@@ -445,16 +445,8 @@ export async function topluSiparisOlusturAction(payload: {
 
     
     if (payload.paymentMethod === 'stripe') {
-        if (payload.isTest) {
-            console.log('[TEST MODE] Stripe isteği atlandı');
-            return {
-                success: true,
-                message: mesaj,
-                normalOrderId,
-                onSiparisOrderId,
-                stripeUrl: '/portal/siparisler'
-            };
-        }
+        const activeStripe = payload.isTest ? stripeTest : stripe;
+        
         const allItems = [...(payload.normalItems || []), ...(payload.onSiparisItems || [])];
         const stripeItems = allItems.map(item => ({
             urun_id: item.urun_id,
@@ -533,7 +525,7 @@ export async function topluSiparisOlusturAction(payload: {
                 automatic_payment_methods: { enabled: true },
             };
             
-            const session = await stripe.checkout.sessions.create(sessionPayload as any);
+            const session = await activeStripe.checkout.sessions.create(sessionPayload as any);
             return {
                 success: true,
                 normalOrderId,

@@ -69,7 +69,7 @@ export async function processOrderPaymentAction(siparisId: string): Promise<{
     const { data: siparis, error: siparisError } = await supabaseAdmin
       .from('siparisler')
       .select(`
-        id, odeme_durumu, lexware_invoice_id, lexware_invoice_no,
+        id, odeme_durumu, lexware_invoice_id, lexware_invoice_no, is_test,
         firmalar ( id, email, unvan )
       `)
       .eq('id', siparisId)
@@ -117,7 +117,7 @@ export async function processOrderPaymentAction(siparisId: string): Promise<{
     let pdfFilename = `Rechnung-${invoiceResult.invoiceNo}.pdf`;
 
     try {
-      const pdfResult = await getLexwareInvoicePdfBuffer(invoiceResult.invoiceId);
+      const pdfResult = await getLexwareInvoicePdfBuffer(invoiceResult.invoiceId, (siparis as any).is_test === true);
       pdfBuffer = pdfResult.buffer;
       pdfFilename = pdfResult.filename;
     } catch (pdfErr: any) {

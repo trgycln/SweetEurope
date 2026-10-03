@@ -17,7 +17,15 @@ export class LexwareApiError extends Error {
   }
 }
 
-export function getLexwareApiKey(): string {
+export function getLexwareApiKey(isTest: boolean = false): string {
+  if (isTest) {
+    const testKey = process.env.LEXWARE_TEST_API_KEY?.trim();
+    if (!testKey) {
+      throw new Error('Test siparişleri için LEXWARE_TEST_API_KEY ortam değişkeni tanımlı değil! Lexware Sandbox API anahtarınızı .env dosyasına ekleyin.');
+    }
+    return testKey;
+  }
+
   const key = process.env.LEXWARE_API_KEY?.trim();
   if (!key) {
     throw new Error('LEXWARE_API_KEY ortam değişkeni tanımlı değil.');
@@ -27,7 +35,7 @@ export function getLexwareApiKey(): string {
 
 export async function lexwareFetch<T = any>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit & { isTest?: boolean } = {}
 ): Promise<T> {
   // KRITIK GÜVENLIK KURALI: Bu mock kodu ASLA production ortaminda calismamalidir.
   // Canlıda sahte fatura üretmek ciddi bir finansal risktir.
@@ -39,7 +47,7 @@ export async function lexwareFetch<T = any>(
     process.env.MOCK_LEXWARE === 'true'
   );
                  
-  if (isMockEnabled) {
+  if (isMockEnabled && !options.isTest) {
     if (endpoint.includes('/document')) return { documentFileId: 'mock-file-id' } as any;
     if (endpoint.includes('/files')) {
       const mockPdf = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n5 0 obj\n<< /Length 44 >>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(MOCK INVOICE) Tj\nET\nendstream\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF`;
@@ -49,7 +57,7 @@ export async function lexwareFetch<T = any>(
     return { id: 'mock-invoice-id', voucherNumber: 'RE-MOCK-123', pdfUrl: 'mock.pdf' } as any;
   }
 
-  const apiKey = getLexwareApiKey();
+  const apiKey = getLexwareApiKey(options.isTest);
   const url = endpoint.startsWith('http') ? endpoint : `${LEXWARE_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
   const headers = new Headers(options.headers);

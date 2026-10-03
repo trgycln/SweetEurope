@@ -35,6 +35,17 @@ export function assertStripeEnvironmentSafety(): { safe: boolean; error?: string
   return { safe: true };
 }
 
+export const stripeTest = new Stripe(process.env.STRIPE_TEST_SECRET_KEY || 'sk_test_placeholder', {
+  apiVersion: '2024-06-20' as any,
+  httpClient: Stripe.createFetchHttpClient(),
+  timeout: 20000,
+  maxNetworkRetries: 2,
+  appInfo: {
+    name: 'ElysonSweets B2B (Test)',
+    version: '1.0.0',
+  },
+});
+
 export const stripe = new Stripe(stripeSecretKey, {
   apiVersion: '2024-06-20' as any,
   httpClient: Stripe.createFetchHttpClient(),
