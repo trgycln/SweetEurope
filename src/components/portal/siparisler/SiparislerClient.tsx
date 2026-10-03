@@ -26,6 +26,7 @@ type SiparisItem = {
     id: string;
     firma_id?: string;
     siparis_tarihi: string;
+    is_test?: boolean | null;
     toplam_tutar_net: number | null;
     toplam_tutar_brut: number | null;
     kdv_orani?: number | null;
@@ -1007,6 +1008,11 @@ export function SiparislerClient({
                                                                 <span className="font-mono text-sm font-extrabold text-slate-900 tracking-tight">
                                                                     #{siparis.id.substring(0, 8).toUpperCase()}
                                                                 </span>
+                                                                {siparis.is_test && (
+                                                                    <span className="ml-1 inline-flex items-center rounded-md bg-yellow-50 px-1.5 py-0.5 text-[10px] font-bold text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+                                                                        TEST
+                                                                    </span>
+                                                                )}
                                                                 <button
                                                                     onClick={(e) => handleCopyId(siparis.id, e)}
                                                                     className="text-slate-400 hover:text-slate-700 transition-colors"
@@ -1336,6 +1342,11 @@ export function SiparislerClient({
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-mono text-sm font-extrabold text-slate-900">#{siparis.id.substring(0, 8).toUpperCase()}</span>
+                                                    {siparis.is_test && (
+                                                        <span className="inline-flex items-center rounded-md bg-yellow-50 px-1.5 py-0.5 text-[10px] font-bold text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+                                                            TEST
+                                                        </span>
+                                                    )}
                                                     {isPinned && <BsPinFill size={12} className="text-amber-600 rotate-45" />}
                                                 </div>
                                                 <StatusChip status={mevcutDurum} locale={locale} />

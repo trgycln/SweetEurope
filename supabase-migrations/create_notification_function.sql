@@ -261,6 +261,11 @@ DECLARE
     v_user_record RECORD;
     v_mesaj TEXT;
 BEGIN
+    -- Test siparişi ise bildirim gönderme
+    IF NEW.is_test = true THEN
+        RETURN NEW;
+    END IF;
+
     -- Firma adını al
     SELECT unvan INTO v_firma_unvan
     FROM public.firmalar
@@ -314,6 +319,11 @@ DECLARE
     v_mesaj TEXT;
     v_translated_status TEXT;
 BEGIN
+    -- Test siparişi ise bildirim gönderme
+    IF NEW.is_test = true THEN
+        RETURN NEW;
+    END IF;
+
     -- Sadece durum değişikliğinde
     IF NEW.siparis_durumu IS DISTINCT FROM OLD.siparis_durumu THEN
         v_siparis_no := substring(NEW.id::text from 1 for 8);

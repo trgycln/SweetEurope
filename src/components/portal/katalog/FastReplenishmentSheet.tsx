@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -46,6 +46,35 @@ export function FastReplenishmentSheet({
   const [selections, setSelections] = useState<
     Record<string, { menge: number; birim: Birim }>
   >({});
+  
+  const [hiddenProducts, setHiddenProducts] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const saved = localStorage.getItem("rutin_gizlenen_urunler");
+      if (saved) {
+        setHiddenProducts(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const handleHideProduct = (produktId: string) => {
+    const updated = [...hiddenProducts, produktId];
+    setHiddenProducts(updated);
+    try {
+      localStorage.setItem("rutin_gizlenen_urunler", JSON.stringify(updated));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const visibleProdukte = useMemo(() => {
+    return produkte.filter(p => !hiddenProducts.includes(p.id));
+  }, [produkte, hiddenProducts]);
 
   const handleQuantityChange = (
     produktId: string,
@@ -96,7 +125,7 @@ export function FastReplenishmentSheet({
 
   const handleSetAllToOne = () => {
     const next: Record<string, { menge: number; birim: Birim }> = {};
-    produkte.forEach((p) => {
+    visibleProdukte.forEach((p) => {
       next[p.id] = { menge: 1, birim: "koli" };
     });
     setSelections(next);
@@ -117,7 +146,7 @@ export function FastReplenishmentSheet({
     let totalUnitsCount = 0;
     let totalSum = 0;
 
-    produkte.forEach((p) => {
+    visibleProdukte.forEach((p) => {
       const sel = selections[p.id];
       if (sel && sel.menge > 0) {
         const totalAdet = getToplamAdetKatalog(p, sel.birim, sel.menge);
@@ -139,7 +168,7 @@ export function FastReplenishmentSheet({
       totalUnits: totalUnitsCount,
       totalPrice: totalSum,
     };
-  }, [produkte, selections]);
+  }, [visibleProdukte, selections]);
 
   const handleSubmit = () => {
     if (selectedItems.length === 0) return;
@@ -153,7 +182,11 @@ export function FastReplenishmentSheet({
     setSelections({});
   };
 
-  if (produkte.length === 0) {
+  if (!mounted) {
+    return null; // Prevent hydration mismatch
+  }
+
+  if (visibleProdukte.length === 0) {
     return (
       <div className="bg-white border border-stone-200 rounded-2xl p-12 text-center text-stone-500">
         <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -219,7 +252,7 @@ export function FastReplenishmentSheet({
 
       {/* Replenishment List Table / Cards */}
       <div className="bg-white border border-stone-200/90 rounded-2xl shadow-sm overflow-hidden divide-y divide-stone-100">
-        {produkte.map((produkt) => {
+        {visibleProdukte.map((produkt) => {
           const name = getLocalizedName(produkt.ad, locale);
           const sel = selections[produkt.id] || { menge: 0, birim: "koli" };
           const koliAdet = Number(produkt.koli_ici_adet ?? 1);
@@ -246,10 +279,19 @@ export function FastReplenishmentSheet({
           return (
             <div
               key={produkt.id}
-              className={`p-3.5 sm:p-4 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-4 ${
+              className={`relative p-3.5 sm:p-4 transition-colors flex flex-col lg:flex-row lg:items-center justify-between gap-4 group/item ${
                 sel.menge > 0 ? "bg-amber-50/30" : "hover:bg-stone-50/50"
               }`}
             >
+              {/* Delete from routine button */}
+              <button
+                onClick={() => handleHideProduct(produkt.id)}
+                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-stone-100 text-stone-400 opacity-0 group-hover/item:opacity-100 hover:bg-red-100 hover:text-red-600 transition-all z-10"
+                title={locale === "de" ? "Aus der Routine-Liste entfernen" : "Rutin listesinden çıkar"}
+              >
+                <FiX size={14} />
+              </button>
+
               {/* Left: Image + Info */}
               <div className="flex items-start gap-3.5 flex-1 min-w-0">
                 <Link

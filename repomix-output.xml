@@ -158,6 +158,7 @@ supabase/
     20261002_smart_dms_refactor.sql
     20261003_create_push_subscriptions.sql
     20261004_add_shipping_tracking.sql
+    20261005_mal_kabul_enhancements.sql
     belgeler_table.sql
     giderler_yeni_kolonlar.sql
     is_ortaklari_kargo_teklifleri.sql
@@ -238,30 +239,8 @@ tasks/
 check_rpc.js
 database.types.ts
 eslint.config.mjs
-fatura_test.md
-fatura_test2.md
-fatura_test3.md
-fatura_test4.md
-fatura_test5.md
-fatura_test6.md
-fatura_test7.md
-fatura_test8.md
-fatura_test9.md
-fatura.md
-fatura2.md
-fatura3.md
 fix_bug.js
-guvenli_pva.md
-header.md
 knip_report.txt
-musteri_portal.md
-musteri_portal2.md
-musteri_portal3.md
-musteri_portal4.md
-musteri_portal5.md
-musteri_portal6.md
-musteri_portal7.md
-musteri_portal8.md
 next.config.ts
 package.json
 playwright.config.ts
@@ -282,169 +261,6 @@ vitest.setup.ts
 
 <files>
 This section contains the contents of the repository's files.
-
-<file path="src/lib/admin/cache-utils.ts">
-import { cache } from 'react';
-import { unstable_cache } from 'next/cache';
-import { createSupabaseServiceClient } from '@/lib/supabase/service';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '@/lib/supabase/database.types';
-
-// 1. Request Memoization (Per-request Cache)
-// Bu fonksiyonlar tek bir HTTP requesti içerisinde 1'den fazla kez çağrılırsa (örn: layout.tsx ve page.tsx),
-// Supabase'e sadece 1 kez sorgu atılır, diğerleri RAM'den döner.
-
-export const getGlobalCachedUser = cache(async () => {
-    const cookieStore = await cookies();
-    const supabase = await createSupabaseServerClient(cookieStore);
-    return await supabase.auth.getUser(); // Retains native { data: { user }, error } structure
-});
-
-export const getCachedUser = cache(async (supabase: SupabaseClient<Database>) => {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    return { user, error };
-});
-
-export const getCachedProfile = cache(async (supabase: SupabaseClient<Database>, userId: string) => {
-    const { data: profile, error } = await supabase
-        .from('profiller')
-        .select('*')
-        .eq('id', userId)
-        .single();
-    return { profile, error };
-});
-
-export const getCachedUnreadNotificationsCount = cache(async (supabase: SupabaseClient<Database>, userId: string) => {
-    const { count, error } = await supabase
-        .from('bildirimler')
-        .select('*', { count: 'exact', head: true })
-        .eq('alici_id', userId)
-        .eq('okundu_mu', false);
-    return { count, error };
-});
-
-// 2. Global Data Caching (Cross-request Cache)
-// Bu veriler tüm adminler için aynıdır ve sık değişmez. 
-// unstable_cache ile Redis/Dosya sistemine önbelleklenir.
-
-export const getCachedCategories = unstable_cache(
-    async () => {
-        const supabase = createSupabaseServiceClient();
-        const { data } = await supabase
-            .from('kategoriler')
-            .select('id, ad, ust_kategori_id');
-        return data || [];
-    },
-    ['admin-categories'],
-    { revalidate: 3600 } // 1 saat
-);
-
-export const getCachedSuppliers = unstable_cache(
-    async () => {
-        const supabase = createSupabaseServiceClient();
-        const { data } = await supabase
-            .from('tedarikciler')
-            .select('id, unvan')
-            .order('unvan', { ascending: true })
-            .limit(1000);
-        return data || [];
-    },
-    ['admin-suppliers'],
-    { revalidate: 3600 } // 1 saat
-);
-
-export const getCachedPricingSettings = unstable_cache(
-    async () => {
-        const supabase = createSupabaseServiceClient();
-        const { data } = await supabase
-            .from('system_settings')
-            .select('setting_key, setting_value')
-            .eq('category', 'pricing');
-            
-        const pricingSettings: Record<string, number> = {};
-        (data || []).forEach((s: any) => {
-            const v = parseFloat(s.setting_value);
-            if (Number.isFinite(v)) pricingSettings[s.setting_key] = v;
-        });
-        return pricingSettings;
-    },
-    ['admin-pricing-settings'],
-    { revalidate: 3600 } // 1 saat
-);
-
-// 3. Dashboard Caching
-export const getCachedDashboardData = unstable_cache(
-    async (period: string) => {
-        const supabase = createSupabaseServiceClient();
-        const OFFENE_STATUS = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
-        
-        function toLocalDateString(d: Date) {
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }
-        
-        const now = new Date();
-        const y = now.getFullYear(); 
-        const mo = now.getMonth();
-        
-        let periodStart, periodEnd;
-        if (period === 'gecen-ay') {
-            periodStart = toLocalDateString(new Date(y, mo - 1, 1));
-            periodEnd = toLocalDateString(new Date(y, mo, 0)); // last day of prev month
-        } else if (period === 'bu-yil') {
-            periodStart = toLocalDateString(new Date(y, 0, 1));
-            periodEnd = now.toISOString();
-        } else {
-            periodStart = toLocalDateString(new Date(y, mo, 1));
-            periodEnd = now.toISOString();
-        }
-
-        const prevMonthStart = toLocalDateString(new Date(y, mo - 1, 1));
-        const prevMonthEnd = toLocalDateString(new Date(y, mo, 0));
-
-        const todayISO = now.toISOString();
-        const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
-        
-        const [
-            plRes, plPrevRes, stokRes, urunToplamRes, 
-            aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
-            adayRes, temasRes, musteriRes, yeniTemasRes, 
-            alarmUrunlerRes, settingsRes, yeniMusteriRes, 
-            sipAdetRes, alarmCountRes, batchHistRes
-        ] = await Promise.all([
-            supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).single(),
-            supabase.rpc('get_pl_report', { start_date: prevMonthStart, end_date: prevMonthEnd }).single(),
-            supabase.from('urunler').select('distributor_alis_fiyati, stok_miktari, stok_esigi').eq('aktif', true),
-            supabase.from('urunler').select('id', { count: 'exact', head: true }),
-            supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_STATUS),
-            supabase.from('siparisler').select('siparis_durumu').gte('created_at', thirtyDaysAgo),
-            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(3),
-            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum').gte('varis_tarihi', todayISO).order('varis_tarihi', { ascending: true }).limit(1),
-            supabase.from('firmalar').select('id', { count: 'exact' }).eq('status', 'ADAY'),
-            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']),
-            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Müşteri', 'Alt Bayi'] as any[]),
-            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']).gte('created_at', thirtyDaysAgo),
-            supabase.from('urunler').select('id, ad, stok_kodu, son_maliyet_sapma_yuzde, son_gercek_inis_maliyeti_net').eq('karlilik_alarm_aktif', true).order('son_maliyet_sapma_yuzde', { ascending: false }).limit(4),
-            supabase.from('system_settings').select('setting_key, setting_value').in('setting_key', ['kasa_bakiyesi', 'hedef_ciro', 'hedef_musteri', 'hedef_temas', 'hedef_siparis']),
-            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Alt Bayi'] as any[]).gte('created_at', `${periodStart}T00:00:00`),
-            supabase.from('siparisler').select('siparis_durumu').gte('siparis_tarihi', periodStart).lte('siparis_tarihi', periodEnd),
-            supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
-            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
-        ]);
-
-        return {
-            plRes, plPrevRes, stokRes, urunToplamRes, 
-            aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
-            adayRes, temasRes, musteriRes, yeniTemasRes, 
-            alarmUrunlerRes, settingsRes, yeniMusteriRes, 
-            sipAdetRes, alarmCountRes, batchHistRes
-        };
-    },
-    ['admin-dashboard-data'],
-    { revalidate: 60 } // 60 saniye
-);
-</file>
 
 <file path="src/lib/crm/branchInheritanceUtils.ts">
 // Helper function to merge branch company data with parent company inherited data
@@ -3483,62 +3299,6 @@ export type Locale = 'de' | 'en' | 'tr' | 'ar';
 
 export const locales: Locale[] = ['de', 'en', 'tr', 'ar'];
 export const defaultLocale: Locale = 'de';
-</file>
-
-<file path="supabase/migrations/20251119_create_sample_requests.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20251130_add_reddedildi_status.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260105_add_catering_firma_kategori.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260505_fo_kategoriler.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260506_fo_urunler_kolonlari.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260512_bestseller_featured_pricing_tier.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260515_besin_degerleri.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260517_bayi_hedefleri.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260531_add_firma_strateji.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260731_iletisim_mesajlari.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260807_finans_kasa_islemleri.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260812_02_sirket_resmi_bilgiler.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260816_otomatik_tedarik_turu.sql">
--- Empty to skip
-</file>
-
-<file path="supabase/migrations/20260817_urun_gami_to_array.sql">
--- Empty to skip
 </file>
 
 <file path="supabase/migrations/belgeler_table.sql">
@@ -9409,6 +9169,169 @@ jobs:
         retention-days: 30
 </file>
 
+<file path="src/lib/admin/cache-utils.ts">
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '@/lib/supabase/database.types';
+
+// 1. Request Memoization (Per-request Cache)
+// Bu fonksiyonlar tek bir HTTP requesti içerisinde 1'den fazla kez çağrılırsa (örn: layout.tsx ve page.tsx),
+// Supabase'e sadece 1 kez sorgu atılır, diğerleri RAM'den döner.
+
+export const getGlobalCachedUser = cache(async () => {
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    return await supabase.auth.getUser(); // Retains native { data: { user }, error } structure
+});
+
+export const getCachedUser = cache(async (supabase: SupabaseClient<Database>) => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    return { user, error };
+});
+
+export const getCachedProfile = cache(async (supabase: SupabaseClient<Database>, userId: string) => {
+    const { data: profile, error } = await supabase
+        .from('profiller')
+        .select('*')
+        .eq('id', userId)
+        .single();
+    return { profile, error };
+});
+
+export const getCachedUnreadNotificationsCount = cache(async (supabase: SupabaseClient<Database>, userId: string) => {
+    const { count, error } = await supabase
+        .from('bildirimler')
+        .select('*', { count: 'exact', head: true })
+        .eq('alici_id', userId)
+        .eq('okundu_mu', false);
+    return { count, error };
+});
+
+// 2. Global Data Caching (Cross-request Cache)
+// Bu veriler tüm adminler için aynıdır ve sık değişmez. 
+// unstable_cache ile Redis/Dosya sistemine önbelleklenir.
+
+export const getCachedCategories = unstable_cache(
+    async () => {
+        const supabase = createSupabaseServiceClient();
+        const { data } = await supabase
+            .from('kategoriler')
+            .select('id, ad, ust_kategori_id');
+        return data || [];
+    },
+    ['admin-categories'],
+    { revalidate: 3600 } // 1 saat
+);
+
+export const getCachedSuppliers = unstable_cache(
+    async () => {
+        const supabase = createSupabaseServiceClient();
+        const { data } = await supabase
+            .from('tedarikciler')
+            .select('id, unvan')
+            .order('unvan', { ascending: true })
+            .limit(1000);
+        return data || [];
+    },
+    ['admin-suppliers'],
+    { revalidate: 3600 } // 1 saat
+);
+
+export const getCachedPricingSettings = unstable_cache(
+    async () => {
+        const supabase = createSupabaseServiceClient();
+        const { data } = await supabase
+            .from('system_settings')
+            .select('setting_key, setting_value')
+            .eq('category', 'pricing');
+            
+        const pricingSettings: Record<string, number> = {};
+        (data || []).forEach((s: any) => {
+            const v = parseFloat(s.setting_value);
+            if (Number.isFinite(v)) pricingSettings[s.setting_key] = v;
+        });
+        return pricingSettings;
+    },
+    ['admin-pricing-settings'],
+    { revalidate: 3600 } // 1 saat
+);
+
+// 3. Dashboard Caching
+export const getCachedDashboardData = unstable_cache(
+    async (period: string) => {
+        const supabase = createSupabaseServiceClient();
+        const OFFENE_STATUS = ['Beklemede', 'Hazırlanıyor', 'Yola Çıktı', 'processing'];
+        
+        function toLocalDateString(d: Date) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        
+        const now = new Date();
+        const y = now.getFullYear(); 
+        const mo = now.getMonth();
+        
+        let periodStart, periodEnd;
+        if (period === 'gecen-ay') {
+            periodStart = toLocalDateString(new Date(y, mo - 1, 1));
+            periodEnd = toLocalDateString(new Date(y, mo, 0)); // last day of prev month
+        } else if (period === 'bu-yil') {
+            periodStart = toLocalDateString(new Date(y, 0, 1));
+            periodEnd = now.toISOString();
+        } else {
+            periodStart = toLocalDateString(new Date(y, mo, 1));
+            periodEnd = now.toISOString();
+        }
+
+        const prevMonthStart = toLocalDateString(new Date(y, mo - 1, 1));
+        const prevMonthEnd = toLocalDateString(new Date(y, mo, 0));
+
+        const todayISO = now.toISOString();
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+        
+        const [
+            plRes, plPrevRes, stokRes, urunToplamRes, 
+            aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
+            adayRes, temasRes, musteriRes, yeniTemasRes, 
+            alarmUrunlerRes, settingsRes, yeniMusteriRes, 
+            sipAdetRes, alarmCountRes, batchHistRes
+        ] = await Promise.all([
+            supabase.rpc('get_pl_report', { start_date: periodStart, end_date: periodEnd }).maybeSingle(),
+            supabase.rpc('get_pl_report', { start_date: prevMonthStart, end_date: prevMonthEnd }).maybeSingle(),
+            supabase.from('urunler').select('distributor_alis_fiyati, son_gercek_inis_maliyeti_net, son_indirimli_alis_fiyati, stok_miktari, stok_esigi').eq('aktif', true),
+            supabase.from('urunler').select('id', { count: 'exact', head: true }),
+            supabase.from('siparisler').select('id', { count: 'exact' }).in('siparis_durumu', OFFENE_STATUS),
+            supabase.from('siparisler').select('siparis_durumu').gte('created_at', thirtyDaysAgo),
+            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(3),
+            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum').gte('varis_tarihi', todayISO).order('varis_tarihi', { ascending: true }).limit(1),
+            supabase.from('firmalar').select('id', { count: 'exact' }).eq('status', 'ADAY'),
+            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']),
+            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Müşteri', 'Alt Bayi'] as any[]),
+            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['TEMAS EDİLDİ', 'NUMUNE VERİLDİ']).gte('created_at', thirtyDaysAgo),
+            supabase.from('urunler').select('id, ad, stok_kodu, son_maliyet_sapma_yuzde, son_gercek_inis_maliyeti_net').eq('karlilik_alarm_aktif', true).order('son_maliyet_sapma_yuzde', { ascending: false }).limit(4),
+            supabase.from('system_settings').select('setting_key, setting_value').in('setting_key', ['kasa_bakiyesi', 'hedef_ciro', 'hedef_musteri', 'hedef_temas', 'hedef_siparis']),
+            supabase.from('firmalar').select('id', { count: 'exact' }).in('status', ['MÜŞTERİ', 'Alt Bayi'] as any[]).gte('created_at', `${periodStart}T00:00:00`),
+            supabase.from('siparisler').select('siparis_durumu').gte('siparis_tarihi', periodStart).lte('siparis_tarihi', periodEnd),
+            supabase.from('urunler').select('id', { count: 'exact' }).eq('karlilik_alarm_aktif', true),
+            supabase.from('ithalat_partileri').select('id, referans_kodu, varis_tarihi, durum, created_at').order('created_at', { ascending: false }).limit(5),
+        ]);
+
+        return {
+            plRes, plPrevRes, stokRes, urunToplamRes, 
+            aktifSiparisRes, siparisDagRes, sonTirRes, yaklasenTirRes,
+            adayRes, temasRes, musteriRes, yeniTemasRes, 
+            alarmUrunlerRes, settingsRes, yeniMusteriRes, 
+            sipAdetRes, alarmCountRes, batchHistRes
+        };
+    },
+    ['admin-dashboard-data'],
+    { revalidate: 60 } // 60 saniye
+);
+</file>
+
 <file path="src/lib/admin/panel-access.ts">
 export const ADMIN_PANEL_OPTIONS = [
   { key: 'dashboard', label: 'Dashboard', description: 'Genel yönetim ekranı ve özet metrikler' },
@@ -10567,195 +10490,6 @@ export function getAllCategoryDescendantIds(
 }
 </file>
 
-<file path="src/lib/import-batch-utils.ts">
-// ============================================================
-// Supply Chain Pipeline — Maliyet Hesaplama Motoru
-// Master Data Driven: Ağırlık ve adet bilgileri urunler
-// tablosundaki kayıtlardan otomatik hesaplanır, kullanıcıdan
-// istenmez.
-// ============================================================
-
-export type ImportBatchItemInput = {
-  urunId: string;
-  koliSayisi: number;           // Kullanıcı girer (KESİNLİKLE SADECE BU)
-  miktarAdet: number;           // Otomatik: koliSayisi × koli_ici_adet
-  toplamAgirlikKg: number;      // Otomatik: miktarAdet × birim_agirlik_kg
-  birimAlisFiyatiOrijinal: number;  // Master data: distributor_alis_fiyati (DOKUNULMAZ)
-  indirimliAlisFiyati: number;  // Hesaplanan: basePrice × (1-d1) × (1-d2)
-  ciplakMaliyetEur: number;     // = indirimliAlisFiyati (birim bazında)
-  dagitilanNavlunEur: number;
-  dagitilanGumrukEur: number;
-  dagitilanOzelGiderEur: number; // TRACES + LUCID payı birleşik
-  operasyonVeRiskYukuEur: number;
-  gercekInisMaliyetiNet: number;
-  standartInisMaliyetiNet: number;
-  maliyetSapmaYuzde: number;
-};
-
-export type ProductMasterData = {
-  id: string;
-  distributor_alis_fiyati: number;
-  koli_ici_adet: number | null;
-  birim_agirlik_kg: number | null;
-  standart_inis_maliyeti_net?: number | null;
-};
-
-export type ProductBatchSnapshot = {
-  id: string;
-  stok_miktari?: number | null;
-  standart_inis_maliyeti_net?: number | null;
-};
-
-export function toSafeNumber(value: unknown, fallback = 0) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-export function round4(value: unknown) {
-  return Number(toSafeNumber(value, 0).toFixed(4));
-}
-
-export function normalizeBatchQuantity(value: unknown) {
-  return Math.max(1, Math.floor(toSafeNumber(value, 1)));
-}
-
-/**
- * Ticari yuvarlama (Kaufmännisches Runden)
- * JavaScript floating point hatalarını önlemek için.
- * Kurala göre: her adımda Math.round((val + Number.EPSILON) * 100) / 100
- */
-export function kaufmannRunden(value: number) {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-/**
- * Çift kademeli indirim hesabı — Master Data fiyatına uygulanır,
- * distributor_alis_fiyati KESİNLİKLE DEĞİŞTİRİLMEZ.
- * indirimliFiyat = basePrice * (1 - indirim1/100) * (1 - indirim2/100)
- */
-export function calculateDiscountedPrice(
-  basePrice: number,
-  indirim1: number,
-  indirim2: number
-): number {
-  const p = toSafeNumber(basePrice, 0);
-  const d1 = toSafeNumber(indirim1, 0);
-  const d2 = toSafeNumber(indirim2, 0);
-  const afterD1 = kaufmannRunden(p * (1 - d1 / 100));
-  const afterD2 = kaufmannRunden(afterD1 * (1 - d2 / 100));
-  return afterD2;
-}
-
-/**
- * LUCID (Ambalaj Sicili) maliyeti — otomatik hesaplanır.
- * Kullanıcıdan ağırlık bilgisi istenmez; urunler.birim_agirlik_kg'dan gelir.
- */
-export function calculateLucidCost(weightKg: number, lucidPerKgRate: number): number {
-  return kaufmannRunden(toSafeNumber(weightKg, 0) * toSafeNumber(lucidPerKgRate, 0));
-}
-
-/**
- * Master Data'dan toplam adet hesabı.
- * Kullanıcı koli sayısı girer; sistem koli_ici_adet ile çarpar.
- * MANUEL AĞIRLIK / ADET GİRİŞİ KESİNLİKLE YASAK.
- */
-export function calculateMiktarAdet(
-  koliSayisi: number,
-  koliIciAdet: number | null
-): number {
-  const koli = normalizeBatchQuantity(koliSayisi);
-  const ppc = Math.max(1, toSafeNumber(koliIciAdet, 1));
-  return koli * ppc;
-}
-
-/**
- * Master Data'dan toplam ağırlık hesabı.
- */
-export function calculateToplamAgirlikKg(
-  miktarAdet: number,
-  birimAgirlikKg: number | null
-): number {
-  return kaufmannRunden(toSafeNumber(miktarAdet) * toSafeNumber(birimAgirlikKg, 0));
-}
-
-export function computeVariancePct(standardCost: unknown, actualCost: unknown) {
-  const standard = toSafeNumber(standardCost, 0);
-  const actual = toSafeNumber(actualCost, 0);
-  if (standard <= 0) return 0;
-  return Number((((actual - standard) / standard) * 100).toFixed(2));
-}
-
-export function shouldTriggerVarianceAlert(variancePct: unknown, thresholdPct = 5) {
-  return Math.abs(toSafeNumber(variancePct, 0)) >= Math.max(0, toSafeNumber(thresholdPct, 5));
-}
-
-/**
- * DB insert satırları oluşturur.
- * toplam_agirlik_kg dışarıdan ALINMAZ — koliSayisi ve master data ile hesaplanır.
- * LUCID payı dagitilan_ozel_gider_eur içine otomatik eklenir.
- */
-export function buildBatchItemInsertRows(
-  partiId: string,
-  items: ImportBatchItemInput[],
-  lucidPerKgRateEur = 0.02
-) {
-  return items.map((item) => {
-    const lucidMaliyeti = calculateLucidCost(item.toplamAgirlikKg, lucidPerKgRateEur);
-    return {
-      // parti_id yerine ithalat_partisi_id (tablo schema'sına göre)
-      ithalat_partisi_id: partiId,
-      urun_id: item.urunId,
-      miktar_adet: item.miktarAdet,
-      koli_sayisi: normalizeBatchQuantity(item.koliSayisi),
-      toplam_agirlik_kg: round4(item.toplamAgirlikKg),          // hesaplanan, kullanıcıdan alınmaz
-      birim_alis_fiyati_orijinal: round4(item.birimAlisFiyatiOrijinal), // master data, değişmez
-      indirimli_alis_fiyati: round4(item.indirimliAlisFiyati),
-      ciplak_maliyet_eur: round4(item.indirimliAlisFiyati * item.miktarAdet), // toplam çıplak
-      dagitilan_navlun_eur: round4(item.dagitilanNavlunEur),
-      dagitilan_gumruk_eur: round4(item.dagitilanGumrukEur),
-      dagitilan_ozel_gider_eur: round4(item.dagitilanOzelGiderEur + lucidMaliyeti),
-      operasyon_ve_risk_yuku_eur: round4(item.operasyonVeRiskYukuEur),
-      gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
-      standart_inis_maliyeti_net: round4(item.standartInisMaliyetiNet),
-      maliyet_sapma_yuzde: computeVariancePct(item.standartInisMaliyetiNet, item.gercekInisMaliyetiNet),
-    };
-  });
-}
-
-export function buildProductSnapshotUpdate(
-  product: ProductBatchSnapshot | undefined,
-  item: ImportBatchItemInput,
-  thresholdPct = 5
-) {
-  const currentStock = toSafeNumber(product?.stok_miktari, 0);
-  const standardCost =
-    toSafeNumber(product?.standart_inis_maliyeti_net, 0) > 0
-      ? toSafeNumber(product?.standart_inis_maliyeti_net, 0)
-      : round4(item.standartInisMaliyetiNet);
-  const variancePct = computeVariancePct(standardCost, item.gercekInisMaliyetiNet);
-
-  return {
-    stok_miktari: currentStock + item.miktarAdet,
-    standart_inis_maliyeti_net: standardCost,
-    son_gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
-    son_maliyet_sapma_yuzde: variancePct,
-    karlilik_alarm_aktif: shouldTriggerVarianceAlert(variancePct, thresholdPct),
-  };
-}
-
-export function summarizeIncomingStock(items: ImportBatchItemInput[]) {
-  return items.reduce(
-    (summary, item) => {
-      summary.totalLines += 1;
-      summary.totalQuantity += item.miktarAdet;
-      summary.totalWeightKg += round4(item.toplamAgirlikKg);
-      return summary;
-    },
-    { totalLines: 0, totalQuantity: 0, totalWeightKg: 0 }
-  );
-}
-</file>
-
 <file path="src/lib/metaPixelEvents.ts">
 'use client';
 
@@ -11343,120 +11077,60 @@ export type BlogYazisiInsert = Omit<BlogYazisi, 'id' | 'created_at' | 'updated_a
 export type BlogYazisiUpdate = Partial<BlogYazisiInsert>;
 </file>
 
-<file path="supabase/migrations/20260827_enable_rls_missing_tables.sql">
+<file path="supabase/migrations/20251119_create_sample_requests.sql">
 -- Empty to skip
 </file>
 
-<file path="supabase/migrations/20260908_belge_klasorleri.sql">
+<file path="supabase/migrations/20251130_add_reddedildi_status.sql">
 -- Empty to skip
 </file>
 
-<file path="supabase/migrations/20260919_atomic_stock_operations.sql">
+<file path="supabase/migrations/20260105_add_catering_firma_kategori.sql">
 -- Empty to skip
 </file>
 
-<file path="supabase/migrations/20260920_02_create_gbp_settings_and_reviews.sql">
+<file path="supabase/migrations/20260505_fo_kategoriler.sql">
 -- Empty to skip
 </file>
 
-<file path="supabase/migrations/20260921_02_create_recipes_table.sql">
+<file path="supabase/migrations/20260506_fo_urunler_kolonlari.sql">
 -- Empty to skip
 </file>
 
-<file path="supabase/migrations/20260928_supply_chain_pipeline.sql">
--- Adım 1: Veritabanı Şema ve Ayar Güncellemeleri
+<file path="supabase/migrations/20260512_bestseller_featured_pricing_tier.sql">
+-- Empty to skip
+</file>
 
--- ithalat_partileri tablosuna yeni kolonlar
-ALTER TABLE public.ithalat_partileri
-ADD COLUMN IF NOT EXISTS indirim_1_yuzde numeric DEFAULT 0,
-ADD COLUMN IF NOT EXISTS indirim_2_yuzde numeric DEFAULT 0;
+<file path="supabase/migrations/20260515_besin_degerleri.sql">
+-- Empty to skip
+</file>
 
--- ithalat_parti_kalemleri tablosuna yeni kolonlar
-ALTER TABLE public.ithalat_parti_kalemleri
-ADD COLUMN IF NOT EXISTS indirimli_alis_fiyati numeric DEFAULT 0;
+<file path="supabase/migrations/20260517_bayi_hedefleri.sql">
+-- Empty to skip
+</file>
 
--- koli_sayisi: Kullanıcının girdiği tek input (Master Data Driven)
--- miktarAdet = koli_sayisi × koli_ici_adet (otomatik hesaplanır)
-ALTER TABLE public.ithalat_parti_kalemleri
-ADD COLUMN IF NOT EXISTS koli_sayisi integer DEFAULT 1;
+<file path="supabase/migrations/20260531_add_firma_strateji.sql">
+-- Empty to skip
+</file>
 
--- system_settings tablosuna LUCID ayarı
-INSERT INTO public.system_settings (setting_key, setting_value, setting_type, description, category)
-VALUES ('pricing_lucid_per_kg_eur', '0.02', 'number', 'LUCID Ambalaj Sicili KG başı tahmini maliyet (€)', 'pricing')
-ON CONFLICT (setting_key) DO NOTHING;
+<file path="supabase/migrations/20260731_iletisim_mesajlari.sql">
+-- Empty to skip
+</file>
 
--- Adım 2: Atomik Mal Kabul Fonksiyonu (Supabase RPC)
-CREATE OR REPLACE FUNCTION public.complete_import_batch(p_batch_id UUID, p_user_id UUID)
-RETURNS void AS $$
-DECLARE
-    v_status text;
-    v_item RECORD;
-    v_mevcut_fiyat numeric;
-BEGIN
-    -- 1. Partinin durumunu kontrol et
-    SELECT durum INTO v_status FROM public.ithalat_partileri WHERE id = p_batch_id FOR UPDATE;
-    
-    IF v_status = 'Tamamlandı' THEN
-        RAISE EXCEPTION 'Bu ithalat partisi zaten tamamlanmış.';
-    END IF;
+<file path="supabase/migrations/20260807_finans_kasa_islemleri.sql">
+-- Empty to skip
+</file>
 
-    -- 2. Partinin durumunu 'Tamamlandı' yap
-    UPDATE public.ithalat_partileri
-    SET durum = 'Tamamlandı',
-        updated_at = NOW()
-    WHERE id = p_batch_id;
+<file path="supabase/migrations/20260812_02_sirket_resmi_bilgiler.sql">
+-- Empty to skip
+</file>
 
-    -- 3. Kalemleri dön ve işlemleri yap
-    FOR v_item IN (SELECT * FROM public.ithalat_parti_kalemleri WHERE ithalat_partisi_id = p_batch_id) LOOP
-        -- Stok miktarını ve son iniş maliyetini güncelle
-        UPDATE public.urunler
-        SET stok_miktari = COALESCE(stok_miktari, 0) + v_item.miktar_adet,
-            son_gercek_inis_maliyeti_net = v_item.gercek_inis_maliyeti_net,
-            updated_at = NOW()
-        WHERE id = v_item.urun_id;
+<file path="supabase/migrations/20260816_otomatik_tedarik_turu.sql">
+-- Empty to skip
+</file>
 
-        -- Stok hareket logu
-        INSERT INTO public.urun_stok_hareket_loglari (
-            urun_id, 
-            hareket_tipi, 
-            miktar, 
-            kaynak, 
-            kaynak_id, 
-            kullanici_id,
-            aciklama
-        ) VALUES (
-            v_item.urun_id,
-            'stok_artisi',
-            v_item.miktar_adet,
-            'ithalat_partisi',
-            p_batch_id::text,
-            p_user_id,
-            'İthalat partisi mal kabulü'
-        );
-
-        -- Tedarikçi fiyat logu
-        SELECT distributor_alis_fiyati INTO v_mevcut_fiyat FROM public.urunler WHERE id = v_item.urun_id;
-        
-        INSERT INTO public.tedarikci_fiyat_loglari (
-            urun_id,
-            tir_id,
-            standart_fiyat,
-            gercek_fiyat,
-            fark_yuzde,
-            indirim_aciklamasi,
-            miktar
-        ) VALUES (
-            v_item.urun_id,
-            p_batch_id,
-            COALESCE(v_mevcut_fiyat, 0),
-            COALESCE(v_item.gercek_inis_maliyeti_net, 0),
-            CASE WHEN COALESCE(v_mevcut_fiyat, 0) > 0 THEN ((COALESCE(v_item.gercek_inis_maliyeti_net, 0) - COALESCE(v_mevcut_fiyat, 0)) / COALESCE(v_mevcut_fiyat, 0) * 100) ELSE 0 END,
-            'Mal kabul sonrası gerçekleşen maliyet vs standart fiyat',
-            v_item.miktar_adet
-        );
-    END LOOP;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+<file path="supabase/migrations/20260817_urun_gami_to_array.sql">
+-- Empty to skip
 </file>
 
 <file path="supabase/migrations/20260929_belge_klasorleri_drive_folder.sql">
@@ -11602,6 +11276,124 @@ COMMENT ON COLUMN public.siparisler.kargo_takip_no IS 'Kargo takip numarası';
 COMMENT ON COLUMN public.siparisler.kargo_takip_url IS 'Kargo takip linki (tracking URL)';
 </file>
 
+<file path="supabase/migrations/20261005_mal_kabul_enhancements.sql">
+-- 20261005_mal_kabul_enhancements.sql
+-- Mal Kabul ve İthalat Takip İyileştirmeleri (Lot, SKT, Hasar Fire ve Resmi Evraklar)
+
+-- 1. ithalat_partileri tablosuna resmi evrak takip alanları ekle
+ALTER TABLE public.ithalat_partileri
+ADD COLUMN IF NOT EXISTS fatura_no text,
+ADD COLUMN IF NOT EXISTS cmr_no text,
+ADD COLUMN IF NOT EXISTS gumruk_beyanname_no text,
+ADD COLUMN IF NOT EXISTS lieferschein_no text;
+
+-- 2. ithalat_parti_kalemleri tablosuna Lot, SKT ve Hasar takip alanları ekle
+ALTER TABLE public.ithalat_parti_kalemleri
+ADD COLUMN IF NOT EXISTS lot_no text,
+ADD COLUMN IF NOT EXISTS skt_tarihi date,
+ADD COLUMN IF NOT EXISTS hasarli_adet integer DEFAULT 0,
+ADD COLUMN IF NOT EXISTS kabul_edilen_adet integer;
+
+-- 3. complete_import_batch fonksiyonunu güncelle
+CREATE OR REPLACE FUNCTION public.complete_import_batch(p_batch_id UUID, p_user_id UUID)
+RETURNS void AS $$
+DECLARE
+    v_status text;
+    v_item RECORD;
+    v_onceki_stok numeric;
+    v_standart_maliyet numeric;
+    v_kabul_edilen integer;
+    v_hasarli integer;
+    v_sapma numeric;
+BEGIN
+    -- 1. Partiyi kilitle ve durum kontrolü yap
+    SELECT durum INTO v_status 
+    FROM public.ithalat_partileri 
+    WHERE id = p_batch_id 
+    FOR UPDATE;
+
+    IF v_status = 'Tamamlandı' THEN
+        RAISE EXCEPTION 'Bu ithalat partisi zaten tamamlanmış.';
+    END IF;
+
+    -- 2. Parti durumunu güncelle
+    UPDATE public.ithalat_partileri
+    SET durum = 'Tamamlandı'
+    WHERE id = p_batch_id;
+
+    -- 3. Kalemleri döngüyle işle
+    FOR v_item IN (SELECT * FROM public.ithalat_parti_kalemleri WHERE parti_id = p_batch_id) LOOP
+        
+        -- Önceki stok ve standart maliyet
+        SELECT COALESCE(stok_miktari, 0), COALESCE(standart_inis_maliyeti_net, 0)
+        INTO v_onceki_stok, v_standart_maliyet
+        FROM public.urunler 
+        WHERE id = v_item.urun_id;
+
+        -- Hasarlı ve kabul edilen net adet hesabı (Varsayılan: firesiz tam miktar)
+        v_hasarli := COALESCE(v_item.hasarli_adet, 0);
+        v_kabul_edilen := COALESCE(v_item.kabul_edilen_adet, GREATEST(0, v_item.miktar_adet - v_hasarli));
+
+        -- Maliyet sapma yüzdesi hesabı (Sadece analiz/kokpit için)
+        IF v_standart_maliyet > 0 AND v_item.gercek_inis_maliyeti_net IS NOT NULL THEN
+            v_sapma := ROUND(((v_item.gercek_inis_maliyeti_net - v_standart_maliyet) / v_standart_maliyet) * 100, 2);
+        ELSE
+            v_sapma := COALESCE(v_item.maliyet_sapma_yuzde, 0);
+        END IF;
+
+        -- Ürün kartını güncelle: Stok + Gerçek İniş Maliyeti + Sapma Alarmı (FİYATLAR DEĞİŞTİRİLMEZ)
+        UPDATE public.urunler
+        SET 
+            stok_miktari = v_onceki_stok + v_kabul_edilen,
+            son_gercek_inis_maliyeti_net = v_item.gercek_inis_maliyeti_net,
+            son_maliyet_sapma_yuzde = v_sapma,
+            karlilik_alarm_aktif = (ABS(v_sapma) >= 5)
+        WHERE id = v_item.urun_id;
+
+        -- Stok hareket logunu Lot, SKT ve Hasar bilgileriyle oluştur
+        INSERT INTO public.urun_stok_hareket_loglari (
+            urun_id,
+            hareket_tipi,
+            miktar,
+            kaynak,
+            referans_kayit_id,
+            yapan_user_id,
+            onceki_stok,
+            sonraki_stok,
+            aciklama,
+            extra
+        ) VALUES (
+            v_item.urun_id,
+            'stok_artisi',
+            v_kabul_edilen,
+            'ithalat_partisi',
+            p_batch_id::text,
+            p_user_id,
+            v_onceki_stok,
+            v_onceki_stok + v_kabul_edilen,
+            CASE 
+                WHEN v_hasarli > 0 THEN 
+                    format('İthalat partisi mal kabulü (%s adet sağlam, %s adet hasarlı)', v_kabul_edilen, v_hasarli)
+                ELSE 
+                    'İthalat partisi mal kabulü (Tam teslimat)'
+            END,
+            jsonb_build_object(
+                'parti_id', p_batch_id,
+                'lot_no', v_item.lot_no,
+                'skt_tarihi', v_item.skt_tarihi,
+                'beklenen_adet', v_item.miktar_adet,
+                'kabul_edilen_adet', v_kabul_edilen,
+                'hasarli_adet', v_hasarli,
+                'gercek_inis_maliyeti_net', v_item.gercek_inis_maliyeti_net,
+                'maliyet_sapma_yuzde', v_sapma
+            )
+        );
+
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+</file>
+
 <file path="tasks/plan.md">
 # Implementation Plan: Customer Portal E2E Testing
 
@@ -11678,841 +11470,6 @@ async function check() {
 check();
 </file>
 
-<file path="fatura_test.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Bu test planı, `www.elysonsweets.de` projesi için kritik öneme sahip "Uçtan Uca (E2E) Sipariş ve Teslimat İş Akışı"nın (Dry Run Simülasyonu) otomatikleştirilmesi, test edilmesi ve olası hataların onarılması amacıyla oluşturulmuştur. 
-
-**Kapsanan Modüller:**
-- **Müşteri Portalı (B2B):** Oturum açma, sepet yönetimi, "Havale (Vorkasse)" ile sipariş oluşturma, sipariş geçmişi ve detay görüntüleme.
-- **Admin Paneli:** Sipariş yönetimi, ödeme onayı, Lexware entegrasyonu ile fatura kesimi, kargo (DHL) yönetimi ve takip numarası atama.
-- **Bildirim Sistemi:** Fatura (PDF ekli) ve Kargo takip linki içeren e-posta gönderim tetikleyicileri.
-
----
-
-# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
-
-- **Test Türü:** Uçtan Uca (End-to-End / E2E) ve Entegrasyon Testleri.
-- **Önerilen Araç:** Playwright (Çoklu tarayıcı bağlamı - multi-context desteği sayesinde Müşteri ve Admin oturumlarını eşzamanlı simüle edebilmek için en uygunudur).
-- **Mocking & Stubbing:** 
-  - Lexware API: Gerçek fatura kesilmesini önlemek için Lexware API istekleri (POST /invoice vb.) intercept edilip `200 OK` ve sahte bir PDF URL'si dönecek şekilde mock'lanmalıdır.
-  - E-posta Servisi (SMTP/SendGrid/AWS SES vb.): Gerçek e-posta gönderimi yerine, e-posta gönderim fonksiyonları spy/mock ile dinlenmeli veya Mailtrap/Ethereal gibi test SMTP sunucuları kullanılmalıdır. Payload içinde PDF ekinin ve kargo takip linkinin varlığı assert edilmelidir.
-- **Veritabanı:** Testler izole bir test veritabanında (veya transaction rollback mantığıyla) çalıştırılmalıdır. Canlı stokların etkilenmemesi kritiktir.
-
----
-
-# TEST SENARYOLARI (TEST CASES)
-
-### 1. Happy Path (Sorunsuz Akış - Ana Hedef)
-- Müşteri test hesabıyla giriş yapar.
-- Stokta bulunan 1-2 ürün sepete eklenir.
-- Ödeme yöntemi olarak "Havale (Vorkasse)" seçilir ve sipariş tamamlanır.
-- Admin paneline giriş yapılır, yeni sipariş bulunur ve detayına gidilir.
-- "Ödeme Alındı Olarak İşaretle & Fatura Kes" butonuna tıklanır.
-  - *Beklenti:* Lexware API'sine doğru payload gönderilmeli, sistemde fatura oluşmalı ve müşteriye PDF ekli e-posta tetiklenmelidir.
-- Kargo panelinden "DHL" seçilir, geçerli formatta bir test takip numarası girilir ve "Yola Çıktı Olarak İşaretle" butonuna tıklanır.
-  - *Beklenti:* Sipariş durumu güncellenmeli ve müşteriye kargo takip linki içeren e-posta tetiklenmelidir.
-- Müşteri portalına dönülür, sipariş detayına girilir.
-  - *Beklenti:* "Faturayı İndir" ve "Kargomu Takip Et" butonları görünür ve tıklanabilir (doğru URL'lere yönlendirir) olmalıdır.
-
-### 2. Negative Path (Hatalı Girişler ve Yetkisiz Erişimler)
-- Müşteri, stokta olmayan bir ürünü sepete eklemeye veya sepet miktarını mevcut stoktan fazlasına çıkarmaya çalışır (Sistemin engellemesi gerekir).
-- Admin yetkisi olmayan bir kullanıcı (veya standart müşteri), admin sipariş detay sayfasına veya fatura kesme endpoint'ine erişmeye çalışır (403 Forbidden dönmelidir).
-- Admin, kargo takip numarası girmeden "Yola Çıktı Olarak İşaretle" butonuna basmaya çalışır (Validasyon hatası vermelidir).
-- Lexware API'si hata (500 Internal Server Error) döndüğünde sistemin çökmemesi, admin'e anlamlı bir hata mesajı göstermesi ve siparişi "Fatura Kesildi" durumuna **geçirmemesi** gerekir.
-
-### 3. Edge Cases (Sınır Durumlar)
-- Eşzamanlı İşlem: İki farklı admin aynı anda aynı sipariş için "Fatura Kes" butonuna basarsa, sistemin (Idempotency veya DB Lock ile) mükerrer fatura kesimini engellemesi.
-- Kargo takip numarasının çok uzun (örn. 255 karakterden fazla) veya özel karakterler içermesi durumu.
-- Virgülden sonraki küsurat hataları: Sepetteki ürünlerin KDV dahil/hariç toplamlarının Lexware'e gönderilen tutarla kuruşu kuruşuna eşleşmesi.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Test Ortamının Hazırlanması**
-  - Playwright konfigürasyonunu (`playwright.config.ts`) kontrol et. Base URL ve test timeout sürelerini ayarla.
-  - Test veritabanı bağlantılarını ve seed datalarını (Test Müşterisi, Test Admini, Test Ürünleri) oluşturacak `setup` scriptini yaz.
-
-- [ ] **Adım 2: Mock ve Intercept Mantığının Kurulması**
-  - Lexware API çağrılarını yakalayacak (intercept) ve başarılı bir fatura yanıtı dönecek Playwright route handler'larını yaz.
-  - E-posta gönderim servisini (örneğin `nodemailer` veya 3rd party API) test ortamında mock'la.
-
-- [ ] **Adım 3: Müşteri Sipariş Testinin (E2E) Yazılması**
-  - `tests/e2e/order-fulfillment.spec.ts` dosyasını oluştur.
-  - Müşteri girişi, sepete ürün ekleme ve "Vorkasse" ile sipariş tamamlama adımlarını kodla.
-  - Sipariş numarasını (Order ID) bir değişkene kaydet.
-
-- [ ] **Adım 4: Admin Fatura ve Kargo Testinin Yazılması**
-  - Aynı test dosyası içinde yeni bir browser context (Admin Context) aç.
-  - Admin girişi yap, kaydedilen Sipariş Numarasını arat ve detaya gir.
-  - "Ödeme Alındı Olarak İşaretle & Fatura Kes" butonuna tıkla. Lexware mock'unun tetiklendiğini ve e-posta payload'unda PDF olduğunu assert et.
-  - Kargo bölümünde "DHL" seç, `1234567890` takip numarasını gir, "Yola Çıktı" olarak işaretle. E-posta payload'unda takip linki olduğunu assert et.
-
-- [ ] **Adım 5: Müşteri Portalı Doğrulama Testinin Yazılması**
-  - Müşteri context'ine geri dön.
-  - Sipariş detay sayfasını yenile (reload).
-  - `Faturayı İndir` butonunun görünürlüğünü ve `href` niteliğini doğrula.
-  - `Kargomu Takip Et` butonunun görünürlüğünü ve DHL takip linkini içerdiğini doğrula.
-
-- [ ] **Adım 6: Testlerin Koşulması ve Hata Tespiti**
-  - Yazılan testleri `npx playwright test` komutu ile çalıştır.
-  - Başarısız olan adımları (örneğin butonun olmaması, API'nin 500 dönmesi, e-postanın tetiklenmemesi) tespit et.
-
-- [ ] **Adım 7: Kod Onarımı (Fixing)**
-  - Testlerin başarısız olduğu noktalarda ilgili kaynak kod dosyalarına (Next.js sayfaları, API route'ları, Prisma şemaları veya servis katmanı) müdahale et.
-  - İş mantığı hatalarını, UI kırılmalarını veya eksik butonları düzelt.
-  - Testler %100 geçene kadar Adım 6 ve Adım 7'yi tekrarla.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **CANLI VERİTABANI KORUMASI:** Testler kesinlikle `NODE_ENV=test` ortamında çalışmalı ve canlı veritabanı (`DATABASE_URL`) kullanılmamalıdır. Stokların eksiye düşmesi veya gerçek müşterilerin verilerinin bozulması kabul edilemez.
-2. **GERÇEK API KISITLAMASI:** Stripe, Lexware, DHL veya gerçek SMTP sunucularına test ortamından kesinlikle istek atılmamalıdır. Tüm dış servisler mock'lanmalıdır.
-3. **ATOMİK İŞLEMLER:** Her test kendi verisini oluşturmalı ve test bitiminde temizlemelidir (Teardown). Testler birbirine bağımlı olmamalıdır (Aynı dosya içindeki akış hariç).
-4. **GÜVENLİK:** Admin endpoint'lerine yapılan isteklerde JWT/Session token doğrulaması kesinlikle test edilmeli, yetkisiz erişimlerin (Bypass) engellendiğinden emin olunmalıdır.
-5. **KÜSURAT HASSASİYETİ:** Fatura tutarları hesaplanırken JavaScript'in floating-point hatalarına (örn. `0.1 + 0.2 = 0.30000000000000004`) karşı `Decimal.js` veya benzeri bir kütüphane kullanıldığı testlerde assert edilmelidir.
-</file>
-
-<file path="fatura_test2.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Bu yönerge, `order-fulfillment.spec.ts` E2E testinin koşumu sırasında Adım 6'da karşılaşılan `profile_not_found_or_error` hatasının çözümü ve test akışının kesintisiz devam edebilmesi için hazırlanmıştır. 
-
-**Sorun Analizi:** Supabase Auth servisinde kullanıcı başarıyla oluşturulmasına rağmen, `public.profiles` (veya `profiller`) tablosunda bu kullanıcıya ait bir kayıt ve geçerli bir `firma_id` bulunmamaktadır. RLS (Row Level Security) politikaları standart API anahtarlarıyla dışarıdan (test scripti üzerinden) bu tabloya veri yazılmasını engellemektedir.
-
----
-
-# TEST STRATEJİSİ VE MİMARİ KARAR (STRATEGY)
-
-**MİMARİ KARAR:** Kesinlikle Yerel (Local) Supabase Ortamına Geçiş Yapılacaktır.
-Uzak (Remote/Staging) veritabanındaki RLS politikalarını testler geçsin diye esnetmek veya "bypass" kuralları eklemek, güvenlik zafiyeti yaratacağı için **kesinlikle reddedilmiştir.** 
-
-**Çözüm Stratejisi:**
-1. Testler için izole bir yerel Supabase ortamı (`supabase start`) ayağa kaldırılacaktır.
-2. `setup.ts` dosyası, RLS politikalarını tamamen ezip geçebilen **Supabase Service Role Key** (Admin yetkisi) kullanılarak yeniden yapılandırılacaktır.
-3. Test kullanıcısı oluşturulurken, Auth kaydı ile eşzamanlı olarak `profiles` ve `companies` (firma) tablolarına gerekli mock datalar Service Role Key ile enjekte edilecektir.
-
----
-
-# TEST SENARYOLARI (TEST CASES) - GÜNCELLEME
-
-### 1. Setup (Tohumlama) Doğrulama Senaryosu
-- `setup.ts` çalıştırıldığında;
-  - `auth.users` tablosunda `test_customer@example.com` oluşmalı.
-  - `public.companies` (veya ilgili firma tablosu) tablosunda "Test Firması" adında bir kayıt oluşmalı.
-  - `public.profiles` tablosunda, Auth UID'si ile eşleşen ve `firma_id`'si "Test Firması"na bağlı olan bir profil kaydı oluşmalı.
-
-### 2. Login Akışı Doğrulama (Kaldığı Yerden Devam)
-- Playwright, `test_customer@example.com` ile login olduğunda Next.js `login/page.tsx` profili başarıyla bulmalı.
-- Kullanıcı `/tr/login?error=profile_not_found_or_error` sayfasına düşmek yerine, doğrudan `/tr/portal/` (Müşteri Portalı) ana sayfasına yönlendirilmelidir.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Yerel Supabase Ortamının Başlatılması**
-  - Terminalde `npx supabase start` komutunu çalıştırarak yerel Supabase konteynerlerini ayağa kaldır.
-  - Çıktı olarak verilen `API URL`, `anon key` ve en önemlisi `service_role key` değerlerini not al.
-
-- [ ] **Adım 2: Test Ortam Değişkenlerinin (.env.test) Güncellenmesi**
-  - Proje kök dizinindeki `.env.test` (veya Playwright'ın kullandığı env dosyası) dosyasını yerel Supabase bilgilerine göre güncelle:
-    ```env
-    NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=<yerel_anon_key>
-    SUPABASE_SERVICE_ROLE_KEY=<yerel_service_role_key>
-    ```
-
-- [ ] **Adım 3: Veritabanı Şemasının Yerel Ortama Aktarılması**
-  - `npx supabase db push` veya `npx supabase migration up` komutları ile mevcut canlı/staging veritabanı şemasını (tablolar, RLS'ler, triggerlar) yerel Supabase'e uygula.
-
-- [ ] **Adım 4: `setup.ts` Dosyasının Service Role Key ile Yeniden Yazılması**
-  - `tests/e2e/setup.ts` dosyasını aç. Supabase client'ını `anon_key` yerine `SUPABASE_SERVICE_ROLE_KEY` ile başlatacak şekilde değiştir.
-  - Tohumlama (Seed) mantığını şu sırayla güncelle:
-    1. `supabase.auth.admin.createUser(...)` ile test kullanıcısını oluştur.
-    2. `supabase.from('companies').insert(...)` ile mock bir firma oluştur ve ID'sini al.
-    3. `supabase.from('profiles').insert({ id: user.id, firma_id: company.id, role: 'customer', ... })` ile profili oluştur. (RLS, Service Role Key kullanıldığı için bu işleme izin verecektir).
-
-- [ ] **Adım 5: Next.js Login Mantığının Kontrolü (Gerekirse)**
-  - `login/page.tsx` ve `portal/layout.tsx` dosyalarını incele. Profil sorgusunun hangi tabloya ve hangi sütunlara (örn: `firma_id`) baktığını teyit et. `setup.ts` içinde oluşturulan mock datanın bu beklentiyi birebir karşıladığından emin ol.
-
-- [ ] **Adım 6: Testin Yeniden Koşulması**
-  - `npx playwright test tests/e2e/order-fulfillment.spec.ts` komutunu çalıştır.
-  - Login işleminin başarıyla geçip geçmediğini ve testin Adım 3 (Sepete ürün ekleme) aşamasına ilerleyip ilerlemediğini doğrula.
-
-- [ ] **Adım 7: Kalan E2E Akışının Tamamlanması**
-  - Login sorunu çözüldükten sonra, orijinal `fatura_test.md` dosyasındaki Adım 3, 4 ve 5'in (Sipariş, Fatura, Kargo, Müşteri Kontrolü) kesintisiz çalışmasını sağla. Hata veren yerleri onar.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **RLS POLİTİKALARINA DOKUNULMAYACAK:** Uzak (Remote) veritabanındaki hiçbir RLS politikası, trigger veya güvenlik kuralı testleri geçirmek amacıyla değiştirilmeyecektir.
-2. **SERVICE ROLE KEY KULLANIMI:** `SUPABASE_SERVICE_ROLE_KEY` sadece ve sadece `setup.ts` (test tohumlama) ve `teardown.ts` (test temizleme) scriptlerinde kullanılmalıdır. Next.js uygulama kodunun (client veya standart API route'ları) içine kesinlikle sızdırılmamalıdır.
-3. **İZOLASYON:** Testler çalışırken uygulamanın (`localhost:3000`) `.env.test` dosyasını okuduğundan ve uzak veritabanına değil, yerel Supabase'e (`127.0.0.1:54321`) bağlandığından %100 emin olun.
-</file>
-
-<file path="fatura_test3.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Bu test planı, `www.elysonsweets.de` projesi için "Uçtan Uca (E2E) Sipariş ve Teslimat İş Akışı"nın (Dry Run Simülasyonu) kaynak kod haritasına (repomix-output.xml) uygun olarak sıfırdan otomatikleştirilmesi, test edilmesi ve onarılması amacıyla oluşturulmuştur.
-
-**Kapsanan Modüller:**
-- **Müşteri Portalı (B2B):** Oturum açma, sepet yönetimi (LocalStorage tabanlı `elyson_b2b_cart`), "Havale (Vorkasse)" ile sipariş oluşturma, sipariş detayında fatura ve kargo takibi görüntüleme.
-- **Admin Paneli:** Sipariş yönetimi, ödeme onayı, Lexware entegrasyonu ile fatura kesimi (`lexware_invoice_id`, `fatura_durumu`), kargo yönetimi (`kargo_firmasi`, `kargo_takip_no`).
-- **Bildirim Sistemi:** Resend üzerinden Fatura (PDF ekli) ve Kargo takip linki içeren e-posta gönderim tetikleyicileri.
-
----
-
-# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
-
-- **Test Türü:** Uçtan Uca (End-to-End / E2E) Test.
-- **Araç:** Playwright (Multi-context desteği ile Müşteri ve Admin oturumları eşzamanlı simüle edilecektir).
-- **Veritabanı Stratejisi (Docker/Local DB İptali):** Önceki hataları aşmak için testler **Uzak (Remote/Staging) Supabase** üzerinde koşulacaktır. RLS (Row Level Security) engellerine takılmamak için test kullanıcısı ve firması `SUPABASE_SERVICE_ROLE_KEY` kullanılarak `setup.ts` içinde oluşturulacak ve test bitiminde `teardown.ts` ile temizlenecektir. Mevcut RLS politikalarına KESİNLİKLE dokunulmayacaktır.
-- **Mocking & Stubbing (Dış Servis İzolasyonu):** 
-  - **Lexware API:** `https://api.lexware.io/*` istekleri Playwright `context.route()` ile intercept edilecek. Fatura oluşturma ve PDF indirme isteklerine sahte (mock) başarılı yanıtlar dönülecek.
-  - **Resend API:** `https://api.resend.com/*` istekleri intercept edilerek e-postaların gerçekten gitmesi engellenecek, ancak payload içinde PDF ekinin ve kargo linkinin varlığı doğrulanacak (assert).
-
----
-
-# TEST SENARYOLARI (TEST CASES)
-
-### 1. Happy Path (Sorunsuz Akış - Ana Hedef)
-- **Müşteri Akışı:** Test müşterisi portala giriş yapar. Katalogdan 1 ürün sepete eklenir. Çekmece/Sepet alanından "Havale (Vorkasse)" seçilerek sipariş tamamlanır. Sipariş ID'si kaydedilir.
-- **Admin Akışı:** Admin hesabıyla panele girilir. İlgili sipariş bulunur. "Ödeme Alındı Olarak İşaretle & Fatura Kes" butonuna basılır.
-  - *Beklenti:* Lexware API mock'u tetiklenmeli, siparişin `fatura_durumu` 'kesildi' olmalı ve Resend API mock'una PDF ekli e-posta payload'u düşmelidir.
-- **Kargo Akışı:** Admin panelinde kargo bölümünden "DHL" seçilir, "123456789" takip numarası girilir ve "Yola Çıktı" olarak işaretlenir.
-  - *Beklenti:* Sipariş durumu güncellenmeli ve Resend API mock'una kargo takip linki içeren e-posta payload'u düşmelidir.
-- **Müşteri Doğrulama:** Müşteri portalına dönülür, sipariş detayına girilir.
-  - *Beklenti:* "Faturayı İndir" ve "Kargomu Takip Et" butonları UI'da görünür ve tıklanabilir olmalıdır.
-
-### 2. Negative Path (Hatalı Girişler ve Yetkisiz Erişimler)
-- Müşteri, stokta olmayan bir ürünü sepete eklemeye çalışır (Sistemin engellemesi gerekir).
-- Admin, kargo takip numarası girmeden "Yola Çıktı" butonuna basmaya çalışır (Validasyon hatası vermelidir).
-- Lexware API'si hata (500) döndüğünde sistemin çökmemesi, admin'e anlamlı bir hata mesajı göstermesi ve siparişi "Fatura Kesildi" durumuna geçirmemesi gerekir.
-
-### 3. Edge Cases (Sınır Durumlar)
-- Sepetteki ürünlerin KDV dahil/hariç toplamlarının Lexware'e gönderilen tutarla kuruşu kuruşuna eşleşmesi (JavaScript floating-point kontrolleri).
-- Kargo firması "Eigenversand" (Kendi Teslimatımız) seçildiğinde takip linki zorunluluğunun kalkması.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Test Ortamının ve Çevre Değişkenlerinin Hazırlanması**
-  - `.env.test` dosyasını oluştur ve uzak Supabase URL, Anon Key ve `SUPABASE_SERVICE_ROLE_KEY` değerlerini ekle.
-  - `playwright.config.ts` dosyasını `globalSetup` ve `globalTeardown` kullanacak şekilde yapılandır.
-
-- [ ] **Adım 2: Setup ve Teardown Scriptlerinin Yazılması**
-  - `tests/e2e/setup.ts` oluştur: `SUPABASE_SERVICE_ROLE_KEY` kullanarak `firmalar`, `profiller` ve `auth.users` tablolarına `test_e2e_dryrun@elysonsweets.de` kullanıcısını ve "E2E Test Firması"nı ekle.
-  - `tests/e2e/teardown.ts` oluştur: Test bitiminde bu kullanıcıyı, firmayı ve oluşturulan test siparişlerini veritabanından kalıcı olarak sil.
-
-- [ ] **Adım 3: E2E Test Dosyasının İskeletinin Kurulması**
-  - `tests/e2e/order-fulfillment.spec.ts` dosyasını oluştur.
-  - `test.beforeEach` içinde Lexware (`https://api.lexware.io/*`) ve Resend (`https://api.resend.com/*`) API'leri için `page.route` ile interceptor'ları (mock) yaz.
-
-- [ ] **Adım 4: Müşteri Sipariş Akışının Kodlanması**
-  - Müşteri context'inde login ol.
-  - `/tr/portal/katalog` sayfasına git, ilk ürünü sepete ekle.
-  - Sepet alanına git, siparişi tamamla.
-  - Başarı mesajını doğrula ve oluşan Sipariş Numarasını (Order ID) bir değişkene kaydet.
-
-- [ ] **Adım 5: Admin Fatura ve Kargo Akışının Kodlanması**
-  - Yeni bir browser context'inde Admin olarak login ol.
-  - `/tr/admin/operasyon/siparisler` sayfasına git, kaydedilen Sipariş Numarasını bul ve detayına gir.
-  - "Ödeme Alındı & Fatura Kes" butonuna tıkla. Lexware ve Resend mock'larının doğru payload ile tetiklendiğini assert et.
-  - Kargo bölümünde "DHL" seç, takip numarası gir, "Yola Çıktı" butonuna tıkla. Resend mock'unun kargo maili için tetiklendiğini assert et.
-
-- [ ] **Adım 6: Müşteri Portalı Doğrulama Akışının Kodlanması**
-  - Müşteri context'ine geri dön.
-  - Sipariş detay sayfasını yenile (`page.reload()`).
-  - `Faturayı İndir` butonunun görünürlüğünü doğrula.
-  - `Kargomu Takip Et` butonunun görünürlüğünü doğrula.
-
-- [ ] **Adım 7: Testlerin Koşulması ve Kod Onarımı (Fixing)**
-  - `npx playwright test tests/e2e/order-fulfillment.spec.ts` komutunu çalıştır.
-  - Testin başarısız olduğu adımları (eksik butonlar, API route hataları, UI kırılmaları) tespit et.
-  - İlgili Next.js kaynak kodlarına (`SiparisDetayClient.tsx`, `siparis-muhasebe-actions.ts` vb.) müdahale ederek hataları düzelt. Testler %100 geçene kadar bu adımı tekrarla.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **CANLI VERİTABANI YASAĞI:** Testler kesinlikle `www.elysonsweets.de` canlı (production) veritabanında KOŞULMAMALIDIR. Staging/Dev veritabanı kullanılmalıdır.
-2. **GERÇEK API KISITLAMASI:** Lexware ve Resend API'lerine test ortamından kesinlikle gerçek istek atılmamalıdır. Tüm dış servisler Playwright üzerinden mock'lanmalıdır.
-3. **RLS POLİTİKALARINA DOKUNULMAYACAK:** Uzak veritabanındaki hiçbir RLS politikası testleri geçirmek amacıyla değiştirilmeyecektir. Tohumlama işlemleri sadece `SUPABASE_SERVICE_ROLE_KEY` ile yapılacaktır.
-4. **ZORUNLU TEMİZLİK:** `teardown.ts` dosyası, test çökse bile çalışacak şekilde yapılandırılmalı ve veritabanında "E2E Test Firması" gibi çöpler bırakılmamalıdır.
-</file>
-
-<file path="fatura_test4.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Happy Path (Sorunsuz Akış) E2E testlerinin başarıyla tamamlanması ve sistemin ana omurgasının (Sipariş -> Fatura -> Kargo -> Müşteri Portalı) çalıştığının kanıtlanması üzerine, bu test planı sistemin **Dayanıklılık (Resilience), Güvenlik (Security) ve Sınır Durumları (Edge Cases)** testlerini otomatize etmek için hazırlanmıştır.
-
-**Kapsanan Modüller:**
-- **Stok Yönetimi:** Yetersiz stok durumunda sepetin davranışı.
-- **Yetkilendirme (RBAC):** Müşteri rolündeki bir kullanıcının Admin paneline erişim denemeleri.
-- **Finansal Hesaplamalar:** JavaScript floating-point (küsurat) hatalarına karşı sepet ve fatura tutarlarının kuruş hassasiyetinde doğrulanması.
-- **Mock Güvenliği:** `client.ts` içine eklenen Lexware mock mantığının canlı ortama (Production) sızmasının engellenmesi.
-
----
-
-# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
-
-- **Test Türü:** Uçtan Uca (E2E) Negatif ve Sınır Durum Testleri.
-- **Araç:** Playwright.
-- **Dosya Yapısı:** Happy Path testini şişirmemek adına, bu testler `tests/e2e/order-negative-cases.spec.ts` adında yeni bir dosyada yazılacaktır.
-- **Güvenlik Stratejisi:** `client.ts` dosyasında yapılan Lexware mock işleminin KESİNLİKLE `process.env.NODE_ENV === 'production'` durumunda devre dışı kaldığı statik kod analizi ile doğrulanacaktır.
-
----
-
-# TEST SENARYOLARI (TEST CASES)
-
-### 1. Negative Path: Stok Sınırı İhlali (Out of Stock Prevention)
-- Müşteri portala giriş yapar.
-- Katalogdan stoğu az olan bir ürün (örn: stok_miktari = 2) bulunur.
-- Kullanıcı sepete bu üründen 5 adet eklemeye çalışır.
-- *Beklenti:* Sistem (PortalContext) bu işleme izin vermemeli, "Stok yetersiz" uyarısı (toast) göstermeli ve sepetteki miktarı otomatik olarak maksimum stok miktarına (2) eşitlemelidir.
-
-### 2. Negative Path: Yetkisiz Erişim (Unauthorized Access / RBAC)
-- Müşteri (`test_e2e_dryrun@elysonsweets.de`) portala giriş yapar.
-- Tarayıcı adres çubuğuna manuel olarak `/tr/admin/operasyon/siparisler` veya `/tr/admin/dashboard` yazılır ve gidilir.
-- *Beklenti:* Middleware veya sayfa koruması devreye girmeli, kullanıcıyı 403 Forbidden sayfasına, `/tr/login` sayfasına veya kendi yetki alanı olan `/tr/portal/dashboard` sayfasına geri yönlendirmelidir. Admin UI kesinlikle render edilmemelidir.
-
-### 3. Edge Case: Küsurat Hassasiyeti (Floating-Point Precision)
-- Müşteri, birim fiyatı küsuratlı olan (örn: 12.99 €) bir üründen 3 adet sepete ekler.
-- *Beklenti:* Ara toplam (38.97 €), KDV (%7) ve Kargo ücreti eklendikten sonra çıkan Genel Toplam (Brüt) değerinde `38.970000000000006` gibi JavaScript yuvarlama hataları OLMAMALIDIR. Ekranda ve veritabanına giden payload'da tam olarak 2 ondalık basamak (örn: `XX.XX €`) görünmelidir.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Mock Güvenlik Kontrolü (Code Review)**
-  - `src/lib/lexware/client.ts` (veya mock'u eklediğin dosya) dosyasını aç.
-  - Lexware API mock mantığının `if (process.env.NODE_ENV !== 'production')` veya benzeri kesin bir çevre değişkeni kontrolü içinde olduğundan emin ol. Canlıda sahte fatura üretilmesi şirket için kritik bir finansal risktir.
-
-- [ ] **Adım 2: Negatif Test Dosyasının Oluşturulması**
-  - `tests/e2e/order-negative-cases.spec.ts` dosyasını oluştur.
-  - `setup.ts` ile oluşturulan test kullanıcısını kullanarak login olma `beforeEach` bloğunu yaz.
-
-- [ ] **Adım 3: Stok Sınırı Testinin Yazılması**
-  - Test içinde, veritabanında stoğu 2 olan bir test ürünü bul (veya test başında stoğu 2 olarak güncelle).
-  - UI üzerinden bu üründen 5 adet eklemeyi dene.
-  - Ekranda `toast.warning` çıktığını ve sepet ikonunda/çekmecesinde miktarın "2" olarak kaldığını `expect` ile doğrula.
-
-- [ ] **Adım 4: Yetkisiz Erişim Testinin Yazılması**
-  - Müşteri oturumu açıkken `page.goto('/tr/admin/operasyon/siparisler')` komutunu çalıştır.
-  - Sayfanın URL'sinin `/admin` İÇERMEDİĞİNİ (`expect(page.url()).not.toContain('/admin')`) doğrula.
-
-- [ ] **Adım 5: Küsurat Testinin Yazılması**
-  - Sepete küsuratlı ürünler ekle.
-  - Sepet çekmecesindeki "Genel Toplam" metnini al.
-  - Metnin Regex ile `^\d+\.\d{2} €$` (veya `^\d+,\d{2} €$`) formatına tam uyduğunu, virgülden sonra 3 veya daha fazla rakam olmadığını doğrula.
-
-- [ ] **Adım 6: Testlerin Koşulması ve Onarım**
-  - `npx playwright test tests/e2e/order-negative-cases.spec.ts` komutunu çalıştır.
-  - Eğer müşteri admin paneline girebiliyorsa `middleware.ts` dosyasını düzelt.
-  - Eğer küsurat hatası varsa `pricingUtils.ts` içindeki hesaplamalara `Math.round(val * 100) / 100` veya `toFixed(2)` mantığını uygula.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **MOCK SIZINTISI (CRITICAL):** Test ortamı için yazılan hiçbir "Bypass" veya "Mock" kodu, Production build'inde aktif olmamalıdır. Bu durum tespit edilirse derhal `process.env` kontrolleri ile izole edilmelidir.
-2. **BAĞIMSIZ TESTLER:** `order-negative-cases.spec.ts` dosyası, `order-fulfillment.spec.ts` dosyasından tamamen bağımsız çalışabilmelidir. Testler birbirinin state'ini (sepet durumu vb.) etkilememelidir.
-3. **MIDDLEWARE GÜVENLİĞİ:** RBAC (Role Based Access Control) testinde sadece UI gizlemesi değil, doğrudan URL üzerinden yapılan erişimlerin (Direct Navigation) engellendiği test edilmelidir.
-</file>
-
-<file path="fatura_test5.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Bu yönerge, Müşteri Portalı sepet/ödeme alanında (sayfa altındaki `cart-checkout-section`) eksik olan **Ödeme Yöntemi Seçimi (Stripe Kredi Kartı / Havale-Vorkasse)** UI bileşenlerinin ve Stripe Checkout yönlendirme mantığının sisteme geri kazandırılması amacıyla hazırlanmıştır.
-
-**Kapsanan Modüller:**
-- **Sepet UI (`KatalogClient.tsx` veya ilgili sepet bileşeni):** "Siparişi Tamamla" butonundan önce kullanıcıya ödeme yöntemi seçtiren Radio Button / Select yapısı.
-- **Sipariş Server Action:** Seçilen ödeme yöntemine göre siparişi veritabanına kaydetme ve Stripe seçildiyse `stripe.checkout.sessions.create` ile ödeme linki üretip client'a dönme.
-- **E2E Testleri:** `order-fulfillment.spec.ts` testinin, siparişi tamamlamadan önce "Havale (Vorkasse)" seçeneğini seçecek şekilde güncellenmesi.
-
----
-
-# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
-
-- **UI/UX:** Sepet toplamının hemen üstüne "Zahlungsmethode" (Ödeme Yöntemi) alanı eklenecektir. İki seçenek olacak: "Vorkasse (Überweisung)" ve "Kreditkarte / Apple Pay (Stripe)".
-- **İş Mantığı (Business Logic):** 
-  - Kullanıcı "Vorkasse" seçerse: Mevcut akış çalışır, sipariş `Beklemede` olarak kaydedilir, e-posta atılır ve `/portal/siparisler` sayfasına yönlendirilir.
-  - Kullanıcı "Stripe" seçerse: Sipariş `Ödeme Bekliyor` (veya Taslak) olarak kaydedilir. Server Action bir Stripe Checkout URL'si döner. Client `window.location.href = stripeUrl` ile kullanıcıyı güvenli ödeme sayfasına yönlendirir.
-- **Test Stratejisi:** E2E testlerinde gerçek kredi kartı işlemi yapmamak için, test senaryosu "Vorkasse" seçeneğini işaretleyerek ilerleyecek şekilde güncellenecektir.
-
----
-
-# TEST SENARYOLARI (TEST CASES)
-
-### 1. Happy Path: Havale (Vorkasse) ile Sipariş
-- Kullanıcı sepete ürün ekler.
-- Ödeme yöntemi olarak "Vorkasse (Überweisung)" seçer.
-- "Siparişi Tamamla" butonuna basar.
-- *Beklenti:* Sipariş başarıyla oluşturulur, sepet temizlenir ve `/portal/siparisler` sayfasına yönlendirilir.
-
-### 2. Happy Path: Stripe ile Sipariş Başlatma
-- Kullanıcı sepete ürün ekler.
-- Ödeme yöntemi olarak "Kreditkarte / Apple Pay" seçer.
-- "Siparişi Tamamla" butonuna basar.
-- *Beklenti:* Sipariş veritabanına kaydedilir ve kullanıcı `https://checkout.stripe.com/...` adresine yönlendirilir.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Sepet UI'ına Ödeme Seçeneklerinin Eklenmesi**
-  - `src/app/[locale]/portal/katalog/KatalogClient.tsx` (veya sepetin bulunduğu sayfa altı bileşeni) dosyasını aç.
-  - `paymentMethod` adında bir state oluştur (varsayılan: `'vorkasse'`).
-  - Genel Toplam (Brüt) satırının altına, kullanıcının "Vorkasse" veya "Stripe" seçebileceği şık bir Radio Group veya Select menüsü ekle.
-
-- [ ] **Adım 2: Stripe Checkout Server Action'ının Yazılması/Güncellenmesi**
-  - Siparişi oluşturan Server Action'ı (örn: `createPortalOrderAction`) bul veya yeni bir tane yaz.
-  - Parametre olarak `paymentMethod` alsın.
-  - Sipariş veritabanına kaydedildikten sonra;
-    - Eğer `paymentMethod === 'stripe'` ise: `src/lib/stripe.ts` kullanarak bir `stripe.checkout.sessions.create` çağrısı yap. `line_items` içine sepet toplamını ekle. `success_url` olarak `/portal/siparisler?payment=success`, `cancel_url` olarak `/portal/katalog?payment=cancelled` ayarla. Oluşan `session.url` değerini client'a dön.
-    - Eğer `paymentMethod === 'vorkasse'` ise: Sadece `{ success: true, orderId: ... }` dön.
-
-- [ ] **Adım 3: Client-Side Yönlendirme Mantığının Kurulması**
-  - "Siparişi Tamamla" butonunun `onClick` fonksiyonunu güncelle.
-  - Server Action'dan dönen yanıtta `stripeUrl` varsa: `clearWarenkorb()` yap ve `window.location.href = response.stripeUrl` ile kullanıcıyı Stripe'a gönder.
-  - Yoksa (Vorkasse ise): Mevcut `/portal/siparisler` yönlendirmesini yap.
-
-- [ ] **Adım 4: E2E Testlerinin Güncellenmesi**
-  - `tests/e2e/order-fulfillment.spec.ts` dosyasını aç.
-  - Siparişi tamamlama adımından hemen önce, eklenen Ödeme Yöntemi alanından "Vorkasse" (veya ilgili label) seçeneğine tıklandığını (`page.locator(...).click()`) garanti altına al.
-  - Testi çalıştırarak (`npx playwright test tests/e2e/order-fulfillment.spec.ts`) Vorkasse akışının bozulmadığını doğrula.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **SİPARİŞ KAYBI ÖNLEMESİ:** Stripe seçildiğinde, kullanıcı Stripe sayfasına yönlendirilmeden ÖNCE sipariş mutlaka veritabanına kaydedilmelidir. Kullanıcı ödemeden vazgeçip geri dönerse sipariş "Ödeme Bekliyor" veya "İptal" statüsünde sistemde kalmalıdır; sepet verisi kaybolmamalıdır.
-2. **STRIPE GÜVENLİĞİ:** `stripe.checkout.sessions.create` işlemi KESİNLİKLE Server Action veya API Route içinde (sunucu tarafında) yapılmalıdır. Client tarafında Stripe Secret Key kullanılmamalıdır.
-3. **TEST İZOLASYONU:** E2E testlerinde Stripe akışını test etmeye çalışma, bu dış servise bağımlılık yaratır ve testleri kırılgan (flaky) yapar. Testler her zaman "Vorkasse" üzerinden ilerlemelidir.
-</file>
-
-<file path="fatura_test6.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Tüm yerel E2E (Uçtan Uca) ve Negatif test senaryoları (Sipariş, Fatura, Kargo, Stok, RBAC, Küsurat, Ödeme Yöntemleri) başarıyla tamamlanmıştır. Sistem yerel ve staging ortamlarında "Production-Ready" (Canlıya Çıkmaya Hazır) durumdadır. 
-
-Bu yönerge, kurulan bu kusursuz test altyapısının **Sürekli Entegrasyon (CI/CD)** boru hattına (pipeline) bağlanması ve canlı ortam (Production) için salt okunur bir **Smoke Test (Duman Testi)** oluşturulması amacıyla hazırlanmıştır.
-
-**Kapsanan Modüller:**
-- **GitHub Actions:** `playwright.yml` dosyasının testleri Vercel deployment öncesi/sonrası otomatik koşacak şekilde doğrulanması.
-- **Production Smoke Test:** Canlı veritabanını veya Stripe'ı kirletmeden, sitenin ayakta olduğunu, login sayfasının açıldığını ve kataloğun render edildiğini doğrulayan hafif bir sentetik izleme (Synthetic Monitoring) testi.
-
----
-
-# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
-
-- **Test Türü:** CI/CD Pipeline Doğrulaması ve Production Smoke Test.
-- **Araç:** GitHub Actions & Playwright.
-- **Güvenlik Stratejisi (Read-Only):** Smoke test KESİNLİKLE veritabanına yazma işlemi (Insert/Update), sipariş oluşturma veya sepet onayı YAPMAYACAKTIR. Sadece kritik sayfaların HTTP 200 döndüğünü ve UI elementlerinin görünür olduğunu doğrulayacaktır.
-
----
-
-# TEST SENARYOLARI (TEST CASES)
-
-### 1. Production Smoke Test (Canlı Ortam Sağlık Kontrolü)
-- Sitenin ana sayfasına (`https://elysonsweets.de`) gidilir.
-- Sayfanın HTTP 200 döndüğü ve çökmediği (Next.js hydration error olmadığı) doğrulanır.
-- Katalog sayfasına (`/de/products` veya `/tr/portal/katalog`) gidilir, en az 1 ürün kartının ekranda render edildiği doğrulanır (Veritabanı bağlantısının koptuğunu anlamak için).
-- Login sayfasına (`/de/login`) gidilir, formun render edildiği doğrulanır (Giriş YAPILMAZ).
-
-### 2. CI/CD Pipeline Kontrolü
-- `.github/workflows/playwright.yml` dosyasının, yazılan `order-fulfillment.spec.ts` ve `order-negative-cases.spec.ts` dosyalarını çalıştıracak şekilde doğru yapılandırıldığının teyit edilmesi.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Production Smoke Test Dosyasının Oluşturulması**
-  - `tests/e2e/smoke-production.spec.ts` adında yeni bir dosya oluştur.
-  - İçerisine sadece `page.goto()` ve `expect(page.locator(...)).toBeVisible()` içeren, hiçbir butona tıklayıp form doldurmayan salt okunur (read-only) testler yaz.
-  - *Önemli:* Bu testin `baseURL` ayarını doğrudan `https://elysonsweets.de` olarak ayarla (veya test içinde tam URL kullan).
-
-- [ ] **Adım 2: GitHub Actions Workflow Kontrolü (E2E)**
-  - `.github/workflows/playwright.yml` dosyasını aç.
-  - `env` değişkenleri altında `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` gibi testlerin ihtiyaç duyduğu değişkenlerin GitHub Secrets'tan (`${{ secrets.XXX }}`) çekildiğinden emin ol. Eksikse ekle.
-  - Test komutunun `npm run test:e2e` veya `npx playwright test` olduğundan emin ol.
-
-- [ ] **Adım 3: Synthetic Monitoring Workflow Kontrolü (Smoke Test)**
-  - `.github/workflows/synthetic-monitoring.yml` dosyasını aç.
-  - Bu workflow'un sadece `tests/e2e/smoke-production.spec.ts` dosyasını çalıştırdığından emin ol (E2E sipariş testlerini canlıda çalıştırmaması için komutu `npx playwright test tests/e2e/smoke-production.spec.ts` olarak güncelle).
-  - Cron job ayarının (örn: `0 * * * *` - her saat başı) doğru olduğunu teyit et.
-
-- [ ] **Adım 4: Yerel Smoke Test Doğrulaması**
-  - Terminalde `npx playwright test tests/e2e/smoke-production.spec.ts` komutunu çalıştırarak testin canlı siteyi bozmadan sadece okuma yaparak başarıyla geçtiğini doğrula.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **CANLI ORTAM KORUMASI (CRITICAL):** `smoke-production.spec.ts` dosyası içine KESİNLİKLE `fill`, `click` (özellikle submit butonlarına) veya API mock işlemleri ekleme. Bu test gerçek müşterilerin kullandığı canlı siteye atılacaktır.
-2. **GİZLİLİK:** GitHub Actions dosyalarında hiçbir API anahtarını veya şifreyi düz metin (plain text) olarak bırakma. Her zaman `${{ secrets.SECRET_NAME }}` formatını kullan.
-3. **İZOLASYON:** Smoke test, diğer E2E testlerinden tamamen bağımsız çalışmalı ve `setup.ts` / `teardown.ts` gibi veritabanı tohumlama scriptlerini KULLANMAMALIDIR.
-</file>
-
-<file path="fatura_test7.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Bu belge, `www.elysonsweets.de` projesi için başlatılan Uçtan Uca (E2E) Test, Kalite Güvence (QA) ve Sürekli Entegrasyon (CI/CD) süreçlerinin **başarıyla tamamlandığını** onaylayan resmi "QA Sign-off ve Bakım" yönergesidir. 
-
-Kapsanan ve güvence altına alınan modüller: B2B Sipariş Akışı, Lexware Fatura Entegrasyonu, Kargo Takip Sistemi, Stok Yarış Durumları (Race Conditions), RBAC (Yetkilendirme), Küsurat Hassasiyeti ve Production Smoke Test. Sistem an itibarıyla %100 Production-Ready (Canlıya Çıkmaya Hazır) durumdadır.
-
----
-
-# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
-
-- **Mevcut Durum:** Tüm testler (Happy Path, Negative Path, Edge Cases, Smoke) Playwright ile otomatize edilmiş ve GitHub Actions'a bağlanmıştır.
-- **Yeni Strateji (Sürekli İzleme ve Bakım):** Geliştirme fazından "İzleme (Monitoring)" fazına geçiş. GitHub Actions üzerinden gelen hata bildirimlerinin (Alerts) anlık takibi ve Playwright HTML raporlarının analizi.
-- **Araçlar:** GitHub Actions, Playwright HTML Reporter, Slack/Discord Webhooks (Hata bildirimleri için).
-
----
-
-# TEST SENARYOLARI (TEST CASES) - SÜREKLİ İZLEME
-
-### 1. Flaky (Kararsız) Test Yönetimi
-- Zamanla ağ gecikmeleri veya 3. parti API (Stripe, Lexware) yavaşlıkları nedeniyle testler ara sıra başarısız olabilir (Flaky).
-- *Beklenti:* Playwright'ın `retries: 1` (veya 2) ayarı sayesinde geçici ağ hataları tolere edilmeli, ancak üst üste hata veren testler derhal onarılmalıdır.
-
-### 2. Yeni Özellik (Feature) Geliştirme Senaryosu
-- Sisteme yeni bir modül (örn. İade Süreci veya Yeni Ödeme Yöntemi) eklendiğinde.
-- *Beklenti:* Mevcut E2E testleri kırılmamalı (Regression Testing). Yeni modül için `tests/e2e/` altına yeni bir `.spec.ts` dosyası eklenmeli ve mevcut akışlar korunmalıdır.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Hata Bildirimlerinin (Alerting) Kurulması**
-  - `.github/workflows/synthetic-monitoring.yml` dosyasını aç.
-  - `Alert on Failure` adımındaki yorum satırını (`# Slack/Discord webhook curl command could go here`) bul.
-  - Şirketin kullandığı iletişim kanalına (Slack/Discord/Teams) ait bir Webhook URL'sini GitHub Secrets'a (`SLACK_WEBHOOK_URL`) ekle ve curl komutunu aktifleştir. Böylece canlı site çökerse anında ekibin telefonuna bildirim gelsin.
-
-- [ ] **Adım 2: Playwright Raporlarının Saklanması (Artifacts)**
-  - GitHub Actions her çalıştığında oluşan `playwright-report/` klasörünün 30 gün boyunca saklandığından emin ol (Mevcut `upload-artifact` adımı bunu yapıyor, teyit et).
-  - Hata durumunda (Test Fail) GitHub Actions paneline girip bu HTML raporunu indirerek hatanın ekran görüntüsüne (screenshot) ve video kaydına bakılabileceğini ekibe dokümante et.
-
-- [ ] **Adım 3: Bağımlılıkların (Dependencies) Güncel Tutulması**
-  - Ayda bir kez `npm outdated` komutu ile `@playwright/test` paketinin güncelliğini kontrol et.
-  - Tarayıcı motorlarının (Chromium, WebKit) güncel kalması için `npx playwright install` komutunun CI/CD ortamında her zaman çalıştığından emin ol.
-
-- [ ] **Adım 4: Proje Teslimi ve Kapanış**
-  - Tüm test dosyalarının (`order-fulfillment.spec.ts`, `order-negative-cases.spec.ts`, `smoke-production.spec.ts`, `setup.ts`, `teardown.ts`) Git repository'sine commit edilip pushlandığından emin ol.
-  - QA sürecini resmi olarak kapat ve canlıya çıkış (Production Launch) için yeşil ışık yak.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **FLAKY TESTLERE SIFIR TOLERANS:** Bir test bazen geçip bazen kalıyorsa (flaky), o test KESİNLİKLE yorum satırına alınmamalıdır (`test.skip`). Sorunun kök nedeni (genelde eksik `await` veya yanlış `waitForSelector`) bulunup çözülmelidir.
-2. **TEST KULLANICISI İZOLASYONU:** Canlı veritabanında test koşulması kesinlikle yasaktır. Smoke test haricindeki tüm testler, `setup.ts` ile oluşturulan izole test kullanıcıları üzerinden yürütülmeye devam etmelidir.
-3. **GİZLİLİK:** Test raporları (Playwright HTML Report) ekran görüntüleri ve videolar içerdiğinden, bu raporların public (herkese açık) bir sunucuda barındırılmaması, sadece GitHub Actions Artifacts üzerinden yetkili ekibe sunulması zorunludur.
-</file>
-
-<file path="fatura_test8.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Bu belge, `www.elysonsweets.de` projesi için yürütülen Uçtan Uca (E2E) Test, Kalite Güvence (QA) ve Sürekli Entegrasyon (CI/CD) süreçlerinin resmi kapanış (Sign-off) ve devir (Handover) tutanağıdır. Sistem %100 Production-Ready olarak onaylanmış ve operasyon ekibine devredilmiştir.
-
-**Kapsanan Modüller:**
-- Tüm B2B Sipariş, Fatura (Lexware), Kargo ve Ödeme (Stripe/Vorkasse) akışları.
-- Güvenlik (RBAC), Stok Bütünlüğü ve Küsurat (Floating-Point) kontrolleri.
-- CI/CD Pipeline ve Canlı Ortam Sentetik İzleme (Synthetic Monitoring).
-
----
-
-# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
-
-- **Mevcut Durum:** Tüm testler (Happy Path, Negative Path, Edge Cases, Smoke) başarıyla tamamlanmış, CI/CD pipeline'ına entegre edilmiş ve canlı ortam izleme aktif edilmiştir.
-- **Operasyonel Strateji:** Reaktif izleme (Reactive Monitoring). GitHub Actions ve Slack Webhook üzerinden gelecek olası hata bildirimlerine göre aksiyon alınacaktır.
-- **Araçlar:** Vercel (Deployment), GitHub Actions (CI/CD), Playwright (Testing), Slack/Teams (Alerting).
-
----
-
-# TEST SENARYOLARI (TEST CASES) - ÖZET
-
-### 1. E2E Sipariş ve ERP Akışı (Başarılı)
-- Vorkasse ve Stripe ödeme yöntemleri ile sipariş oluşturma.
-- Lexware fatura kesimi ve iptali (Storno).
-- Kargo takip linki oluşturma ve PDF ekli e-posta bildirimleri.
-
-### 2. Negatif ve Sınır Durumlar (Başarılı)
-- Stok aşımı engelleme (Race condition koruması).
-- RBAC (Müşterilerin yetkisiz admin erişiminin engellenmesi).
-- Küsurat hassasiyeti (JavaScript yuvarlama hatalarının önlenmesi).
-
-### 3. Canlı Ortam (Production) İzleme (Başarılı)
-- Smoke test ile ana sayfa, katalog ve login erişilebilirliğinin veritabanını kirletmeden (Read-Only) doğrulanması.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS) - OPERASYON EKİBİ İÇİN
-
-- [ ] **Adım 1: Canlıya Çıkış (Go-Live)**
-  - Vercel üzerinden `main` branch'inin son commit'ini (`chore: Finalize E2E tests...`) Production ortamına deploy et.
-  - Sitenin canlı URL'si üzerinden son bir manuel göz kontrolü yap.
-
-- [ ] **Adım 2: İzleme (Monitoring)**
-  - Slack/Teams kanalına düşecek olası "CRITICAL ALERT" bildirimlerini takip et.
-  - Bildirim gelmesi durumunda GitHub Actions sekmesinden `playwright-report` artifact'ini indirerek hatanın videosunu ve ekran görüntüsünü incele.
-
-- [ ] **Adım 3: Yeni Geliştirmeler (Future Features)**
-  - Sisteme yeni bir özellik eklendiğinde, mevcut E2E testlerinin (`order-fulfillment.spec.ts` vb.) yeşil kaldığından emin ol. 
-  - Yeni özellikler için TDD/BDD prensiplerine uygun yeni `.spec.ts` dosyaları oluştur.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **SİSTEM DONDURMA (CODE FREEZE):** Canlıya çıkış (Launch) aşamasında, acil bir hotfix gerekmedikçe ana iş akışını (Sipariş, Fatura, Ödeme) etkileyecek hiçbir kod değişikliği yapılmamalıdır.
-2. **TEST KORUMASI:** Yazılan E2E ve Smoke testleri, projenin sigortasıdır. "Testler yavaş çalışıyor" veya "Sürekli hata veriyor" bahanesiyle testler KESİNLİKLE silinmemeli veya atlanmamalıdır (`test.skip`). Hata veren test, sistemdeki gerçek bir hatanın habercisidir.
-3. **TEBRİKLER:** Dünya standartlarında, hatasız, güvenli ve tam otomatize bir e-ticaret ve ERP altyapısı başarıyla inşa edildi. Operasyonlarınızda başarılar dilerim!
-</file>
-
-<file path="fatura_test9.md">
-# BAĞLAM VE TEST KAPSAMI (CONTEXT)
-
-Tüm QA, E2E test ve CI/CD süreçleri başarıyla tamamlanmış ve sistem %100 Production-Ready olarak canlıya alınmıştır. Bu aşamadan sonra projenin sürdürülebilirliği, performansı ve güvenliği için "Teknik Borç (Technical Debt) Temizliği ve Optimizasyon" fazına geçilmelidir.
-
-Daha önce sağlanan `knip_report.txt` analizine göre projede kullanılmayan 433 dosya, 7 ana bağımlılık (dependency) ve 106 kullanılmayan dışa aktarım (export) bulunmaktadır. Bu yönerge, canlı sistemi riske atmadan bu ölü kodların (dead code) temizlenmesi ve projenin hafifletilmesi amacıyla hazırlanmıştır.
-
-**Kapsanan Modüller:**
-- **Bağımlılık Yönetimi (Dependencies):** Kullanılmayan NPM paketlerinin kaldırılması.
-- **Dosya Sistemi:** `_archive`, `scripts` ve kullanılmayan eski test/UI dosyalarının temizlenmesi.
-- **Regresyon Testi:** Temizlik sonrası sistemin bozulmadığının E2E testleri ve Build işlemi ile kanıtlanması.
-
----
-
-# TEST STRATEJİSİ VE ARAÇLAR (STRATEGY)
-
-- **Test Türü:** Regresyon (Regression) ve Build Testi.
-- **Araç:** Knip (Statik Analiz), Next.js Build, Playwright.
-- **Strateji:** Temizlik işlemleri atomik (parça parça) yapılacak. Her silme işleminden sonra `npm run build` alınarak Next.js'in dinamik importlar veya gizli bağımlılıklar nedeniyle çöküp çökmediği kontrol edilecek. En son aşamada Playwright E2E testleri koşularak iş mantığının korunduğu doğrulanacak.
-
----
-
-# TEST SENARYOLARI (TEST CASES)
-
-### 1. Bağımlılık (Dependency) Temizliği Doğrulaması
-- Kullanılmayan paketler (`@google/genai`, `@react-three/drei`, `@stripe/stripe-js` [Eğer server-side stripe kullanılıyorsa client paketi gereksiz olabilir, dikkatli olunmalı], `chart.js`, `jspdf-autotable`, `pdf-parse`, `react-chartjs-2`) kaldırılır.
-- *Beklenti:* `npm run build` hatasız tamamlanmalı ve paket boyutu (bundle size) küçülmelidir.
-
-### 2. Ölü Kod ve Dosya (Dead Code) Temizliği Doğrulaması
-- `knip_report.txt` içinde listelenen `_archive/` klasörü ve kullanılmayan `scripts/` dosyaları silinir.
-- *Beklenti:* Proje dizini temizlenmeli, derleme süresi kısalmalı ve E2E testleri (`npx playwright test`) eksiksiz geçmelidir.
-
----
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Kullanılmayan Bağımlılıkların Kaldırılması**
-  - Terminalde şu komutu çalıştır: `npm uninstall @google/genai @react-three/drei chart.js jspdf-autotable pdf-parse react-chartjs-2`
-  - *(Not: `@stripe/stripe-js` paketi client tarafında Apple Pay/Google Pay için kullanılıyorsa kaldırma, Knip bazen dinamik importları kaçırabilir. Emin değilsen bırak).*
-  - DevDependencies temizliği: `npm uninstall -D @types/uuid eslint-config-next ts-node`
-
-- [ ] **Adım 2: Arşiv ve Çöp Dosyaların Silinmesi**
-  - Proje kök dizinindeki `_archive/` klasörünü tamamen sil.
-  - `knip_report.txt` dosyasında listelenen ve artık kullanılmayan eski scriptleri (`scripts/` altındaki tek kullanımlık migration/update scriptleri) sil veya ayrı bir yedek repository'sine taşı.
-
-- [ ] **Adım 3: Build ve Tip Kontrolü (Type Check)**
-  - Terminalde `npm run build` komutunu çalıştır.
-  - Eğer silinen bir dosya veya paket başka bir yerde kullanılıyorsa TypeScript hata verecektir. Hata veren yerleri tespit et ve o importları da temizle.
-
-- [ ] **Adım 4: Regresyon Testlerinin Koşulması**
-  - Build başarıyla tamamlandıktan sonra, yerel sunucuyu başlat (`npm run start`).
-  - Yeni bir terminalde `npx playwright test` komutunu çalıştırarak tüm E2E testlerinin (Sipariş, RBAC, Stok, Küsurat) hala yeşil (Passed) olduğunu doğrula.
-
-- [ ] **Adım 5: Temizliğin Commit Edilmesi**
-  - Tüm testler geçtikten sonra yapılan temizliği Git'e kaydet: `git add .` ve `git commit -m "chore: Remove unused dependencies and dead code based on knip report"`.
-  - Değişiklikleri `main` branch'ine pushla.
-
----
-
-# KATI KURALLAR VE GÜVENLİK KISITLAMALARI
-
-1. **DİNAMİK İMPORT RİSKİ:** Knip gibi statik analiz araçları, `next/dynamic` veya string interpolation ile çağrılan dosyaları "kullanılmıyor" sanabilir. Bir dosyayı silmeden önce projede global bir arama (Search in Files) yaparak gerçekten kullanılmadığından emin ol.
-2. **ADIM ADIM İLERLEME:** Tüm dosyaları ve paketleri aynı anda silme. Önce paketleri sil ve build al. Sonra `_archive` klasörünü sil ve build al. Hata çıkarsa geri almayı (revert) kolaylaştırmak için atomik çalış.
-3. **CANLI ORTAM KORUMASI:** Bu temizlik işlemleri KESİNLİKLE doğrudan canlı ortamda (Production) yapılmamalıdır. Yerelde test edilip, GitHub Actions üzerinden CI/CD pipeline'ından geçtikten sonra Vercel'e deploy edilmelidir.
-</file>
-
-<file path="fatura.md">
-# BAĞLAM VE MİMARİ KARARLAR (CONTEXT & ARCHITECTURE)
-
-**Kullanıcı Sorularına İstinaden Mimari Kararlar:**
-1. **Fatura Formatı ve Tasarımı (Lexware):** Fatura PDF'ini biz kodlamayacağız. Lexware Office, Alman vergi hukukuna (GoBD) %100 uyumlu, yasal olarak geçerli PDF'leri kendi içinde üretir. Bizim yazdığımız `createLexwareInvoiceForOrder` fonksiyonu sadece sipariş verilerini (ürünler, net fiyatlar, KDV oranları) Lexware'e JSON olarak gönderir. Lexware bu veriyi alır, senin Lexware panelinde ayarladığın şablona (Logon, şirket bilgilerin, altbilgiler) oturtarak resmi PDF'i oluşturur. Biz sadece o PDF'i API üzerinden indirip müşteriye mail atacağız. (Not: Lexware paneline girip şirket logonu ve banka bilgilerini ayarlaman yeterlidir).
-2. **Ödeme Sistemleri (Stripe & Havale):** Hem Stripe (Kredi Kartı/Apple Pay) hem de Vorkasse (Havale) aktif olacak.
-3. **Tetikleyici (Trigger):** Fatura, sipariş durumu "Ödendi" (Paid) olduğunda kesilecek. Stripe ödemelerinde bu otomatik (Webhook ile), Havale ödemelerinde ise Admin panelinden manuel butona basıldığında gerçekleşecek.
-4. **İptal (Storno):** Kısmi iade yapılmayacak. Sipariş iptal edildiğinde Lexware'de tam "Rechnungskorrektur" (Storno) kesilecek, stoklar geri yüklenecek ve müşteriye iptal faturası mail atılacak.
-
-**Görev Kapsamı:**
-Siparişin ödenmesinden faturanın kesilip müşteriye e-posta ile (PDF ekli olarak) gönderilmesine, Stripe webhook entegrasyonuna ve iptal/storno süreçlerinin Admin UI'a bağlanmasına kadar olan uçtan uca ERP/Muhasebe akışının kurulması.
-
-Çalışılacak Dosyalar:
-- `src/lib/email.ts` (PDF ekli yeni mail şablonları)
-- `src/app/actions/siparis-muhasebe-actions.ts` (Yeni - Fatura ve İptal iş mantığı)
-- `src/app/api/webhooks/stripe/route.ts` (Yeni - Stripe otomatik ödeme dinleyicisi)
-- `src/components/admin/operasyon/siparisler/SiparisDetayClient.tsx` (veya ilgili Admin Sipariş Detay bileşeni)
-
-# BAĞIMLILIKLAR (DEPENDENCIES)
-- `stripe` (Webhook doğrulaması için)
-- `resend` (PDF attachment destekli e-posta gönderimi için)
-- Mevcut `src/lib/lexware/invoices.ts` servisleri.
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: E-posta Servisinin PDF Eklerini (Attachments) Destekleyecek Şekilde Güncellenmesi**
-  - `src/lib/email.ts` dosyasını aç.
-  - `sendInvoiceEmail` adında yeni bir fonksiyon oluştur. Parametre olarak `to`, `orderNo`, `pdfBuffer`, `pdfFilename` alsın. Resend'in `attachments: [{ filename: pdfFilename, content: pdfBuffer }]` özelliğini kullanarak müşteriye "Ödemeniz alındı, faturanız ektedir" temalı Almanca bir mail göndersin.
-  - `sendStornoEmail` adında bir fonksiyon daha oluştur. Sipariş iptal edildiğinde "Siparişiniz iptal edildi, İptal Faturanız (Rechnungskorrektur) ektedir" temalı bir mail göndersin.
-
-- [ ] **Adım 2: Muhasebe ve Sipariş İş Mantığının (Server Actions) Yazılması**
-  - `src/app/actions/siparis-muhasebe-actions.ts` adında yeni bir dosya oluştur.
-  - **Fonksiyon 1: `processOrderPaymentAction(siparisId: string)`**
-    1. Siparişin `odeme_durumu`'nu 'paid' (Ödendi) yap.
-    2. Siparişin `lexware_invoice_id`'si var mı kontrol et. Yoksa `createLexwareInvoiceForOrder(siparisId)` çağırarak faturayı kes.
-    3. `getLexwareInvoicePdfBuffer` ile PDF'i indir.
-    4. `sendInvoiceEmail` ile müşteriye gönder.
-  - **Fonksiyon 2: `cancelOrderAndStornoAction(siparisId: string, reason: string)`**
-    1. Siparişin `lexware_invoice_id`'si var mı bak. Varsa `cancelLexwareInvoiceForOrder` çağırarak Storno kes.
-    2. Storno kesildiyse `getLexwareCreditNotePdfBuffer` ile PDF'i al ve `sendStornoEmail` ile müşteriye at.
-    3. Supabase RPC `restore_order_stock(siparisId)` fonksiyonunu çağırarak stokları geri yükle.
-    4. Sipariş durumunu 'İptal Edildi' yap.
-
-- [ ] **Adım 3: Stripe Webhook Entegrasyonu (Otomatik Fatura)**
-  - `src/app/api/webhooks/stripe/route.ts` dosyasını oluştur.
-  - Stripe'tan gelen POST isteğini `stripe.webhooks.constructEvent` ile doğrula (`STRIPE_WEBHOOK_SECRET` kullanarak).
-  - Event tipi `checkout.session.completed` veya `payment_intent.succeeded` ise:
-    - Session'ın `metadata.orderId` veya `client_reference_id` alanından Supabase sipariş ID'sini al.
-    - `processOrderPaymentAction(orderId)` fonksiyonunu çağır. (Böylece müşteri kredi kartıyla ödediği saniye fatura kesilip mailine düşecek).
-
-- [ ] **Adım 4: Admin Paneli UI Entegrasyonu**
-  - Admin sipariş detay sayfasını (`SiparisDetayClient.tsx` veya ilgili bileşen) aç.
-  - "Ödeme Alındı Olarak İşaretle" butonunun `onClick` eventini `processOrderPaymentAction`'a bağla. (Havale ile ödeyenler için manuel tetikleyici).
-  - "Siparişi İptal Et" butonunu `cancelOrderAndStornoAction`'a bağla.
-  - Ekrana "Faturayı İndir" ve (varsa) "İptal Faturasını (Storno) İndir" butonları ekle. Bu butonlar `lexware_pdf_url` üzerinden API'ye istek atıp PDF'i tarayıcıda açsın/indirsin.
-
-# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
-
-- **IDEMPOTENCY (TEKRARLANABİLİRLİK KORUMASI):** `processOrderPaymentAction` ve `cancelOrderAndStornoAction` fonksiyonları KESİNLİKLE idempotent olmalıdır. Yani Admin yanlışlıkla "Ödendi" butonuna iki kere basarsa, Lexware'de iki tane fatura KESİLMEMELİDİR. Fonksiyonun en başında `if (siparis.lexware_invoice_id) return;` gibi bir kontrol mutlaka olmalıdır.
-- **HATA YÖNETİMİ (GRACEFUL FAILURE):** Lexware API'si çökerse veya PDF indirilemezse, siparişin veritabanındaki durumu güncellenmeli ancak Admin'e "Sipariş ödendi olarak işaretlendi fakat Lexware faturası kesilemedi, lütfen Lexware panelinden manuel kontrol edin" şeklinde net bir `toast.error` veya `toast.warning` gösterilmelidir. Sistem tamamen çökmemelidir.
-- **STRIPE GÜVENLİĞİ:** Webhook route'unda `req.text()` kullanılarak raw body alınmalı ve Stripe signature doğrulaması KESİNLİKLE yapılmalıdır. Aksi takdirde sahte isteklerle siparişler "Ödendi" statüsüne çekilebilir.
-- **STOK BÜTÜNLÜĞÜ:** İptal işleminde `restore_order_stock` RPC'si çağrılmadan işlem bitirilmemelidir. Stokların eksiye düşmemesi veya havada kalmaması B2B ticareti için kritiktir.
-</file>
-
-<file path="fatura2.md">
-# BAĞLAM (CONTEXT)
-Bu görev, sistemin canlıya çıkış (Production Launch) öncesi son pürüzlerinin giderilmesini kapsar. İki ana hedef vardır:
-1. **Build Kurtarma (Blog TS Fix):** `database.types.ts` dosyasındaki `blog_yazilari` tablosu tanımları ile veritabanındaki gerçek kolonlar (migration dosyasındaki) uyuşmamaktadır. Eski Türkçe kolon isimleri (`baslik`, `icerik`) yerine yeni JSONB kolonları (`title`, `content`, `excerpt`) tiplere ve frontend bileşenlerine işlenerek `npm run build` hatasız hale getirilecektir.
-2. **Kargo ve Teslimat (Fulfillment) Akışı:** Siparişin kargoya verilmesi, takip numarasının girilmesi ve müşteriye "Siparişiniz Yola Çıktı" e-postasının (Tracking Link ile birlikte) otomatik gönderilmesi sağlanacaktır.
-
-Çalışılacak Dosyalar:
-- `src/lib/supabase/database.types.ts` (Tip düzeltmesi)
-- `src/app/[locale]/(public)/blog/...` (Blog frontend bileşenlerindeki eski kolon isimlerinin güncellenmesi)
-- `supabase/migrations/[tarih]_add_shipping_tracking.sql` (Yeni)
-- `src/lib/email.ts` (Kargo e-posta şablonu)
-- `src/app/actions/siparis-kargo-actions.ts` (Yeni)
-- `src/components/admin/operasyon/siparisler/SiparisDetayClient.tsx` (veya ilgili Admin Sipariş UI bileşeni)
-
-# BAĞIMLILIKLAR (DEPENDENCIES)
-- Ekstra bir paket kurulumuna gerek yoktur. Mevcut `resend` ve `supabase` altyapısı kullanılacaktır.
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Veritabanı Tiplerinin (database.types.ts) Düzeltilmesi**
-  - `src/lib/supabase/database.types.ts` dosyasını aç.
-  - `blog_yazilari` tablosunun `Row`, `Insert` ve `Update` tanımlarını bul.
-  - Eski Türkçe kolonları (`baslik`, `icerik`, `meta_aciklama`, `meta_baslik`, `one_cikan_gorsel_url`, `yayinlanma_tarihi`, `yazar_id`, `durum`) SİL.
-  - Yerine migration'da olan gerçek kolonları ekle: `title` (Json), `excerpt` (Json), `content` (Json), `meta_title` (Json), `meta_description` (Json), `image_url` (string | null), `author_name` (string | null), `published_at` (string | null), `is_published` (boolean | null).
-
-- [ ] **Adım 2: Blog Frontend Bileşenlerinin Onarılması**
-  - Projedeki blog listeleme ve detay sayfalarını (`src/app/[locale]/(public)/blog/...` veya ilgili dizinler) tara.
-  - Eski kolon isimlerini kullanan yerleri yeni JSONB yapısına göre güncelle. 
-  - Örnek: `post.baslik` yerine `(post.title as any)?.[locale] || (post.title as any)?.de || ''` kullan.
-  - `post.one_cikan_gorsel_url` yerine `post.image_url` kullan.
-  - Bu adımın sonunda terminalde `npm run build` komutunun sıfır hata ile tamamlandığından emin ol.
-
-- [ ] **Adım 3: Kargo Takip Kolonları İçin Migration**
-  - `supabase/migrations/` dizininde yeni bir SQL dosyası oluştur (örn: `20261004_add_shipping_tracking.sql`).
-  - `siparisler` tablosuna şu kolonları ekle:
-    - `kargo_firmasi TEXT`
-    - `kargo_takip_no TEXT`
-    - `kargo_takip_url TEXT`
-  - `database.types.ts` dosyasındaki `siparisler` tablosuna bu 3 kolonu (`string | null` olarak) manuel ekle.
-
-- [ ] **Adım 4: Kargo E-posta Şablonunun Eklenmesi**
-  - `src/lib/email.ts` dosyasını aç.
-  - `sendShippingEmail` adında yeni bir fonksiyon oluştur.
-  - Parametreler: `to`, `orderNo`, `courier`, `trackingNo`, `trackingUrl`.
-  - HTML Şablonu (Almanca): "Ihre Bestellung wurde versandt!" (Siparişiniz kargoya verildi). Kargo firması ve takip numarasını belirgin bir kutu içinde göster. Eğer `trackingUrl` varsa "Sendung verfolgen" (Kargoyu Takip Et) adında yeşil bir buton ekle.
-
-- [ ] **Adım 5: Kargo Server Action'ının Yazılması**
-  - `src/app/actions/siparis-kargo-actions.ts` dosyasını oluştur.
-  - `markOrderAsShippedAction(siparisId: string, kargoFirmasi: string, kargoTakipNo: string, kargoTakipUrl: string)` fonksiyonunu yaz.
-  - İşlemler:
-    1. Supabase'de siparişi güncelle: `siparis_durumu = 'Yola Çıktı'`, `kargo_firmasi`, `kargo_takip_no`, `kargo_takip_url`.
-    2. Müşterinin e-posta adresini çek ve `sendShippingEmail` fonksiyonunu tetikle.
-    3. `sendNotification` (notificationUtils.ts) ile müşteriye portal içi bildirim at: "Siparişiniz yola çıktı. Kargo: [Firma] - [Takip No]".
-
-- [ ] **Adım 6: Admin Sipariş Detay UI Güncellemesi**
-  - Admin sipariş detay sayfasını aç.
-  - "Kargo ve Teslimat" adında yeni bir kart/bölüm ekle.
-  - İçerisine 3 input koy: Kargo Firması (Select: DHL, UPS, DPD, Spedition, Eigenversand), Takip Numarası (Text), Takip Linki (Text).
-  - Altına "Kargoya Verildi (Yola Çıktı) Olarak İşaretle" butonu ekle.
-  - Butona tıklandığında `markOrderAsShippedAction` çalışsın, başarılı olursa `toast.success` göstersin ve sayfayı yenilesin (`router.refresh()`).
-
-# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
-
-- **BUILD GÜVENLİĞİ:** Adım 1 ve 2'deki TypeScript düzeltmeleri en yüksek önceliğe sahiptir. `any` cast etmek gerekirse bile (JSONB alanları için) build'in geçmesi sağlanmalıdır. Canlıya çıkış için `npm run build` komutunun yeşil yanması zorunludur.
-- **E-POSTA GÜVENLİĞİ:** `sendShippingEmail` fonksiyonu hata fırlatsa bile (örn: Resend API limiti), `markOrderAsShippedAction` fonksiyonu çökmek yerine işlemi tamamlamalı ve Admin'e "Sipariş güncellendi ancak e-posta gönderilemedi" şeklinde bir `toast.warning` dönmelidir (Graceful Degradation).
-- **VERİ BÜTÜNLÜĞÜ:** Kargo firması "Eigenversand" (Kendi aracımızla teslimat) seçilirse, takip numarası ve linki zorunlu tutulmamalıdır. DHL/UPS gibi firmalar seçilirse takip numarası girilmesi teşvik edilmelidir.
-</file>
-
-<file path="fatura3.md">
-# BAĞLAM (CONTEXT)
-Arka planda Lexware fatura entegrasyonu, Storno işlemleri ve Kargo takip altyapısı başarıyla kuruldu. Admin paneli ve e-posta bildirimleri sorunsuz çalışıyor. TypeScript hataları sıfırlandı.
-Bu görevin amacı: Arka planda kurulan bu altyapının **Müşteri Portalı (Customer Portal)** tarafındaki arayüzünü (UI) tamamlamaktır. Müşteriler kendi panellerine girdiklerinde faturalarını indirebilmeli ve kargolarını takip edebilmelidir.
-
-Çalışılacak Dosyalar:
-- `src/components/portal/siparisler/SiparisDetayClient.tsx` (veya müşteri portalındaki sipariş detaylarını gösteren ilgili bileşen)
-
-# BAĞIMLILIKLAR (DEPENDENCIES)
-- `lucide-react` (İndirme, Kamyon, Dosya ikonları için)
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Müşteri Sipariş Detay Bileşeninin Tespiti**
-  - Müşteri portalında sipariş detaylarının gösterildiği bileşeni (`SiparisDetayClient.tsx` veya benzeri) aç.
-  - Sipariş verisi içinde `lexware_pdf_url`, `lexware_storno_pdf_url`, `kargo_firmasi`, `kargo_takip_no`, `kargo_takip_url`, `fatura_durumu` alanlarının çekildiğinden (Supabase select sorgusunda olduğundan) emin ol. Eksikse sorguya ekle.
-
-- [ ] **Adım 2: Kargo Takip UI Entegrasyonu**
-  - Sipariş durumu "Yola Çıktı" (Shipped) veya "Teslim Edildi" (Delivered) ise, sipariş özetinin üst kısmına şık bir "Kargo Bilgileri" kartı ekle.
-  - İçerisinde Kargo Firması ve Takip Numarasını göster.
-  - Eğer `kargo_takip_url` doluysa, yanına `lucide-react`'ten `Truck` veya `ExternalLink` ikonu içeren, yeni sekmede açılan (`target="_blank"`) bir **"Kargomu Takip Et"** butonu ekle.
-
-- [ ] **Adım 3: Fatura (Rechnung) İndirme UI Entegrasyonu**
-  - Siparişin `fatura_durumu` 'kesildi' ise ve `lexware_pdf_url` doluysa, sipariş detaylarına bir **"Faturayı İndir (PDF)"** butonu ekle.
-  - Buton tıklandığında `window.open(siparis.lexware_pdf_url, '_blank')` ile faturayı tarayıcıda açsın/indirsin. İkon olarak `FileText` veya `Download` kullan.
-
-- [ ] **Adım 4: İptal Faturası (Storno) İndirme UI Entegrasyonu**
-  - Sipariş iptal edilmişse ve `lexware_storno_pdf_url` doluysa, kırmızı veya gri tonlarında bir **"İptal Faturasını İndir (Storno)"** butonu ekle.
-  - Tıklandığında ilgili URL'yi yeni sekmede açsın.
-
-- [ ] **Adım 5: UI/UX Cilasının Yapılması**
-  - Eklenen butonların Tailwind CSS sınıflarını projenin genel tasarım diline (`primary`, `accent`, `secondary` renkleri) uygun hale getir.
-  - Butonların mobil cihazlarda (responsive) düzgün göründüğünden emin ol.
-
-# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
-- **GÜVENLİK:** Müşteri sadece KENDİ siparişinin faturasını indirebilmelidir. (Bu zaten RLS ile korunuyor ancak UI tarafında da linklerin doğru siparişe ait olduğundan emin ol).
-- **NULL KONTROLLERİ:** `lexware_pdf_url` veya `kargo_takip_url` null ise butonlar KESİNLİKLE render edilmemeli veya `disabled` state'inde, açıklayıcı bir tooltip ile gösterilmelidir. Uygulamanın `undefined` hatası verip çökmesine izin verme.
-- **DİL DESTEĞİ:** Buton metinlerini (Faturayı İndir, Kargomu Takip Et) projenin çoklu dil yapısına uygun olarak (veya şimdilik Almanca/Türkçe fallback ile) yaz.
-</file>
-
 <file path="fix_bug.js">
 const { createClient } = require('@supabase/supabase-js');
 const supabaseUrl = 'https://szuhjzgyhhlrydyllrcd.supabase.co';
@@ -12558,145 +11515,6 @@ async function fixBug() {
 }
 
 fixBug();
-</file>
-
-<file path="guvenli_pva.md">
-# BAĞLAM (CONTEXT)
-Kullanıcı talebi: Sitenin PWA (Progressive Web App) mobil uygulamaya dönüştürülmesi. Ancak "bozulma veya hata riski varsa yapılmaması" şartı koşulmuştur.
-
-**Baş Mimarın Risk Analizi ve Kararı:**
-Elyson Sweets sıradan bir blog değil; canlı stok takibi, karmaşık B2B fiyatlandırma kuralları, Supabase Auth oturum yönetimi ve ERP entegrasyonları içeren dinamik bir sistemdir. 
-Geleneksel "Offline-First" (Çevrimdışı öncelikli) tam bir PWA kurulumu, Service Worker'ların API yanıtlarını ve veritabanı sorgularını agresif şekilde önbelleklemesine (caching) neden olur. Bu durum;
-1. Müşterilerin eski (stale) stok verilerini görmesine,
-2. Sepet ve fiyatlandırma hesaplamalarında senkronizasyon hatalarına,
-3. Supabase Auth token'larının Service Worker ile çakışarak oturum düşmelerine yol açma **riski taşır.**
-
-**Uygulanacak Güvenli Mimari (Safe PWA / Installable Web App):**
-Sistemi riske atmamak adına agresif önbellekleme yapan bir PWA **YAPILMAYACAKTIR**. Bunun yerine, sadece mobil cihazlara yüklenebilmeyi (Add to Home Screen) sağlayan, iOS ve Android'de native uygulama gibi görünen ancak veri akışında her zaman ağı (Network-First/Network-Only) kullanan **"Güvenli PWA (Lite PWA)"** mimarisi kurulacaktır. Bu sayede sıfır bozulma riski ile mobil uygulama deneyimi elde edilecektir.
-
-Çalışılacak Dosyalar:
-- `package.json`
-- `next.config.ts`
-- `src/app/manifest.ts` (Yeni)
-- `src/app/sw.ts` (Yeni - Service Worker)
-- `src/app/layout.tsx`
-
-# BAĞIMLILIKLAR (DEPENDENCIES)
-- `@serwist/next` ve `serwist` (Next.js 14/15 App Router için en güncel, güvenli ve aktif bakımı yapılan PWA kütüphanesidir. Eski ve hatalı `next-pwa` KESİNLİKLE KULLANILMAYACAKTIR).
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Serwist Paketlerinin Kurulumu**
-  - Terminalde şu komutu çalıştırarak güvenli PWA bağımlılıklarını projeye ekle:
-    `npm install @serwist/next serwist`
-
-- [ ] **Adım 2: Next.js Konfigürasyonunun (next.config.ts) Güncellenmesi**
-  - `next.config.ts` dosyasını aç.
-  - `@serwist/next` kütüphanesinden `withSerwistInit` fonksiyonunu import et.
-  - Serwist konfigürasyonunu oluştur: `swSrc: 'src/app/sw.ts'`, `swDest: 'public/sw.js'`, `disable: process.env.NODE_ENV === 'development'` (Geliştirme ortamında SW çalışmasın ki debug zorlaşmasın).
-  - Mevcut `nextConfig` objesini `withSerwist(nextConfig)` ile sarmalayarak export et.
-
-- [ ] **Adım 3: Güvenli Service Worker (sw.ts) Oluşturulması**
-  - `src/app/sw.ts` dosyasını oluştur.
-  - `serwist` paketinden gerekli modülleri import et.
-  - **Kritik Güvenlik Ayarı:** Sadece statik dosyaları (resimler, fontlar, CSS/JS chunk'ları) önbelleğe al. 
-  - `/api/.*` ve `.*\.supabase\.co/.*` rotaları için KESİNLİKLE `NetworkOnly` stratejisini uygula. Bu, ERP ve Auth verilerinin asla önbellekte bayatlamamasını (stale data) garanti eder.
-
-- [ ] **Adım 4: App Manifest (manifest.ts) Oluşturulması**
-  - Next.js App Router standartlarına uygun olarak `src/app/manifest.ts` dosyasını oluştur.
-  - İçerisinde şu bilgileri dönen bir fonksiyon yaz:
-    - `name`: "Elyson Sweets B2B"
-    - `short_name`: "Elyson Sweets"
-    - `description`: "B2B Großhandel für Premium-Sirupe und Dessert-Zutaten"
-    - `start_url`: "/"
-    - `display`: "standalone" (Tarayıcı çubuklarını gizler, native app hissi verir)
-    - `background_color`: "#FAF9F6" (Mevcut `secondary` rengi)
-    - `theme_color`: "#2B2B2B" (Mevcut `primary` rengi)
-    - `icons`: `public` klasöründe var olduğu varsayılan (veya eklenecek) `icon-192x192.png` ve `icon-512x512.png` tanımlamaları.
-
-- [ ] **Adım 5: Layout.tsx Meta Etiketlerinin Güncellenmesi**
-  - `src/app/layout.tsx` dosyasını aç.
-  - Next.js `Metadata` ve `Viewport` objelerini güncelle.
-  - `Viewport` objesine `themeColor: '#2B2B2B'` ekle.
-  - `Metadata` objesine iOS desteği için `appleWebApp: { capable: true, statusBarStyle: 'default', title: 'Elyson Sweets' }` ekle.
-
-# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
-
-- **KESİNLİKLE YAPMA:** `next-pwa` paketini kullanma. Bu paket terk edilmiştir ve Next.js App Router ile uyumsuzdur. Sadece `@serwist/next` kullanılacaktır.
-- **KESİNLİKLE YAPMA:** Service Worker içinde `CacheFirst` veya `StaleWhileRevalidate` stratejilerini API (`/api/*`) veya Supabase (`*.supabase.co`) istekleri için KULLANMA. Bu durum B2B siparişlerinde yanlış fiyat veya stok gösterimine yol açar. Bu rotalar her zaman `NetworkOnly` olmalıdır.
-- **GÜVENLİK:** PWA sadece `production` build'inde aktif olmalıdır. `next.config.ts` içinde `disable: process.env.NODE_ENV === 'development'` kuralı kesinlikle yer almalıdır.
-- **BÜTÜNLÜK:** Manifest dosyasındaki renkler, `tailwind.config.ts` içindeki marka renkleriyle (`primary: #2B2B2B`, `secondary: #FAF9F6`) birebir eşleşmelidir.
-</file>
-
-<file path="header.md">
-# BAĞLAM (CONTEXT)
-Bu görev, `elysonsweets.de` projesinin ana navigasyon (Header) bileşeninin yeniden tasarlanması ve kodlanmasını kapsar. 
-
-**SEO Uzmanının Önerisinin Analizi ve Yeni Mimari Karar:**
-SEO uzmanı muhtemelen anahtar kelime yoğunluğunu artırmak için ("B2B Großhandel", "B2B Rechner") menüyü şişirmiş. Ancak B2B e-ticaret UX standartlarına göre bu tasarım **bilişsel yükü (cognitive overload) artırır** ve boş sayfalara yönlendirme yapmak dönüşüm oranını düşürür. 
-*   "Startseite" linki gereksizdir (Logo bu işi yapar).
-*   "B2B Großhandel" ayrı bir sayfa olmamalıdır; çünkü **sitenin tamamı zaten bir B2B toptan satış platformudur**. Bu anahtar kelime anasayfanın (Home) H1/Meta etiketlerinde çözülmelidir.
-*   "B2B Rechner" çok spesifik bir araçtır, ana menüde kalabalık yapmak yerine "Ürünler" veya "Sepet" akışı içinde sunulmalıdır.
-
-**Yeni ve Temiz Navigasyon Mimarisi:**
-1. Logo (Anasayfaya gider)
-2. Produkte (Katalog)
-3. Rezepte & AI (Reçeteler ve Barista AI birleşimi)
-4. Blog [NEU]
-5. Über uns
-6. Kontakt
-7. Sağ Aksiyonlar: Arama İkonu | Dil Seçici | Kundenportal (CTA Butonu)
-
-Çalışılacak Dosyalar:
-- `src/components/layout/Header.tsx` (veya mevcut Header bileşeninin yolu)
-- `src/components/layout/MobileMenu.tsx` (Gerekirse alt bileşen)
-- `src/lib/i18n/navigation.ts` (Menü linklerinin çoklu dil veri yapısı - oluşturulacak/güncellenecek)
-
-# BAĞIMLILIKLAR (DEPENDENCIES)
-- `next/link` ve `next/navigation` (Yönlendirmeler ve aktif link tespiti için)
-- `lucide-react` (Arama, Hamburger menü, Dil ikonları için)
-- `framer-motion` (Mobil menü ve dropdown animasyonları için)
-- `tailwind.config.ts` içindeki mevcut renk paleti (`primary`, `secondary`, `accent`)
-
-# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
-
-- [ ] **Adım 1: Çoklu Dil Navigasyon Veri Yapısının Oluşturulması**
-  - `src/lib/i18n/navigation.ts` (veya benzeri bir dosya) oluştur/güncelle.
-  - Menü öğelerini statik olarak tanımla. "B2B Großhandel" ve "Startseite" öğelerini kaldır.
-  - Örnek yapı: `[{ key: 'products', href: '/produkte', label: { de: 'Produkte', tr: 'Ürünler', en: 'Products', ar: 'منتجات' } }, ...]`
-
-- [ ] **Adım 2: Header İskeletinin ve Scroll Efektinin Kurulması**
-  - `Header.tsx` bileşenini `use client` olarak ayarla.
-  - Sayfa scroll edildiğinde arka planın hafif şeffaf (backdrop-blur) ve gölgeli olmasını sağlayan bir state (`isScrolled`) ekle.
-  - Tailwind sınıfları: `fixed top-0 w-full z-50 transition-all duration-300`. Arka plan rengi olarak `bg-primary` (Antrasit) kullan.
-
-- [ ] **Adım 3: Masaüstü Navigasyonun (Desktop Nav) Kodlanması**
-  - Logoyu en sola yerleştir.
-  - Orta kısma `map` fonksiyonu ile navigasyon linklerini diz.
-  - Linklerin varsayılan rengini `text-secondary` (Krem) yap.
-  - Hover durumunda ve aktif sayfada rengi `text-accent` (Altın) olarak değiştir.
-  - "Blog" linkinin yanına Tailwind ile küçük, dikkat çekici bir `[NEU]` (veya `[YENİ]`) badge'i ekle (Örn: `bg-accent text-primary text-[10px] px-1.5 py-0.5 rounded-sm`).
-
-- [ ] **Adım 4: Sağ Aksiyon Alanının (Action Area) Kodlanması**
-  - Arama İkonu (`Search` from `lucide-react`): Tıklanınca arama modalını açacak şekilde ayarla (şimdilik sadece UI).
-  - Dil Seçici Dropdown: Mevcut dili gösteren ve hover/click ile diğer dilleri açan kompakt bir menü.
-  - **Kundenportal / Partnerportal CTA Butonu:** Sitenin en belirgin butonu olmalı. 
-    - Sınıflar: `bg-accent text-primary font-bold px-5 py-2 rounded-md hover:bg-opacity-90 transition-colors`.
-    - Link: `/[locale]/login` veya `/[locale]/portal/dashboard` (Kullanıcı giriş yapmışsa).
-
-- [ ] **Adım 5: Mobil Menü (Hamburger) Entegrasyonu**
-  - Ekran boyutu `md` veya `lg` altına düştüğünde masaüstü menüyü gizle (`hidden lg:flex`).
-  - Hamburger ikonunu (`Menu` from `lucide-react`) göster.
-  - Tıklandığında ekranın sağından veya üstünden açılan, `framer-motion` ile animasyonlu bir mobil menü (Drawer) kodla.
-  - Mobil menü içinde tüm linkleri, dil seçiciyi ve Portal butonunu dikey düzende yerleştir.
-
-# KATI KURALLAR VE ANTİ-PATTERN'LER (STRICT RULES & ANTI-PATTERNS)
-
-- **KESİNLİKLE YAPMA:** "B2B Großhandel" isimli boş veya anlamsız bir sayfaya link verme. Sitenin tamamı B2B'dir. SEO uzmanının önerdiği bu link UX açısından bir anti-pattern'dir.
-- **KESİNLİKLE YAPMA:** "Startseite" (Anasayfa) linkini metin olarak menüye koyma. Modern web standartlarında Logo bu işlevi görür.
-- **RENK KULLANIMI:** Sadece `tailwind.config.ts` dosyasında tanımlı olan `primary` (#2B2B2B), `secondary` (#FAF9F6) ve `accent` (#C69F6B) renklerini kullan. Hardcoded hex kodları yazma.
-- **PERFORMANS:** Header bileşeni her sayfada render edileceği için içine ağır veri çekme (fetch) işlemleri koyma. Kullanıcı oturum durumu (Portal butonu için) global state'ten veya middleware'den gelen proplarla yönetilmelidir.
-- **ERİŞİLEBİLİRLİK (a11y):** Tüm linklere `aria-label` ekle. Mobil menü açıldığında arka planın scroll olmasını engelle (`document.body.style.overflow = 'hidden'`).
 </file>
 
 <file path="knip_report.txt">
@@ -13295,276 +12113,6 @@ ProductDescriptionRenderer|default     src/components/common/ProductDescriptionR
 ProductSpecsAccordion|default          src/components/common/ProductSpecsAccordion.tsx     
 ProductDietaryBadges|DietaryBadgeList  src/components/DietaryStickers.tsx                  
 info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
-</file>
-
-<file path="musteri_portal.md">
-- BAĞLAM VE TEST KAPSAMI (CONTEXT):
-Hedef: `elysonsweets.de` B2B Müşteri Portalı (`/portal/*` rotaları).
-Kapsam: Müşterinin sisteme giriş yapmasından, katalogda gezinmesine, ürünleri sepete eklemesine, sepeti görüntülemesine (özellikle mobilde tıklanamama sorunu), siparişi tamamlamasına, ödeme/fatura adımlarına ve Web Push (Anlık Bildirim) abonelik sürecine kadar olan tüm uçtan uca (E2E) akış.
-Mevcut Hatalar: 
-1. Sepet ikonuna tıklanamaması / sepetin açılamaması (Özellikle mobil görünümde z-index, eksik `href` veya overlay çakışması şüphesi).
-2. Web Push bildirimlerine izin verilmesine rağmen "Abonelik sağlanamadı" hatası (VAPID key eksikliği, Service Worker kayıt hatası veya `/api/push/subscribe` endpoint'indeki RLS/Auth sorunları şüphesi).
-
-- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
-1. Statik Analiz ve UI Onarımı: Playwright testleri yazılmadan önce, `NavbarElegant.tsx`, `Header.tsx` veya `MobileMenu.tsx` içindeki sepet butonu DOM yapısı incelenip onarılacaktır. Aynı şekilde Push API endpoint'i kontrol edilecektir.
-2. E2E (Uçtan Uca) Testler: `Playwright` kullanılarak hem Masaüstü (Chromium) hem de Mobil (Mobile Safari/Chrome) cihaz emülasyonları ile gerçek kullanıcı senaryoları simüle edilecektir.
-3. Birim Testleri (Unit Tests): `Vitest` kullanılarak `PortalContext.tsx` içindeki sepet mantığı ve `pricingUtils.ts` içindeki B2B fiyat hesaplamaları test edilecektir.
-4. Ortam: Testler lokalde çalıştırılacak ancak Vercel/Production ortamını simüle edecek şekilde (Next.js build & start) koşulacaktır.
-
-- TEST SENARYOLARI (TEST CASES):
-  * Happy Path (Sorunsuz akış):
-    - Müşteri başarılı şekilde login olur ve `/portal/dashboard` sayfasına yönlendirilir.
-    - Katalogdan bir ürünü (örn: FO Şurup) sepete ekler.
-    - Sepet ikonuna (mobilde ve masaüstünde) tıklar, sepet sayfası/çekmecesi (drawer) sorunsuz açılır.
-    - Sipariş onayı verilir, veritabanında `siparisler` ve `siparis_detay` tablolarına doğru fiyatlar (Net, KDV, Kargo) ile kayıt atılır.
-    - Sipariş sonrası "Siparişlerim" sayfasında yeni sipariş "Beklemede" veya "Taslak" statüsünde görünür.
-    - Kullanıcı bildirim izni verir, Supabase `push_subscriptions` tablosuna kayıt başarılı şekilde atılır.
-  * Negative Path (Hatalı girişler, yetkisiz erişimler):
-    - Sepet boşken ödeme (checkout) sayfasına gidilmeye çalışılması (engellenmeli).
-    - Müşteri rolündeki kullanıcının `/admin` rotalarına erişmeye çalışması (middleware ile engellenmeli).
-    - Push bildirim izni reddedildiğinde uygulamanın çökmemesi ve sessizce (graceful degradation) çalışmaya devam etmesi.
-  * Edge Cases (Sınır durumlar):
-    - Sepete `stok_miktari` değerinden fazla ürün eklenmeye çalışılması (PortalContext içindeki uyarı tetiklenmeli).
-    - Mobil cihazda (375px genişlik) sepet ikonunun üzerine başka bir görünmez div'in (z-index sorunu) binip binmediğinin tespiti.
-    - Koli ve Palet bazlı alımlarda fiyat kademelerinin (Tier Pricing) kuruşu kuruşuna doğru hesaplanması (virgül/nokta yuvarlama hataları).
-
-- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
-  - [ ] Adım 1: Sepet UI/UX Hata Tespiti ve Onarımı. `src/components/NavbarElegant.tsx`, `Header.tsx` ve mobil menü bileşenlerini aç. Sepet ikonunun bir `<Link href="/[locale]/portal/sepet">` veya `onClick` eventine sahip bir `<button>` olduğundan emin ol. Mobil görünümde `z-index` veya `pointer-events-none` gibi tıklamayı engelleyen CSS hatalarını düzelt.
-  - [ ] Adım 2: Push Bildirim Hatası Onarımı. `src/app/api/push/subscribe/route.ts` dosyasını ve `PushNotificationManager.tsx` bileşenini incele. Supabase Auth token'ının API'ye doğru iletildiğinden ve `push_subscriptions` tablosundaki RLS politikalarının (kullanıcının kendi ID'si ile kayıt atabilmesi) çalıştığından emin ol. VAPID key kontrollerini try-catch blokları ile güvenli hale getir.
-  - [ ] Adım 3: Playwright E2E Test Dosyasının Oluşturulması. `tests/e2e/portal/customer-journey.spec.ts` dosyasını oluştur. İçerisine şu testleri yaz:
-        1. Mobil cihaz emülasyonu ile login olma.
-        2. Katalogdan sepete ürün ekleme.
-        3. Sepet ikonuna tıklama (Tıklanabilirliği `toBeVisible` ve `toBeEnabled` ile zorla test et).
-        4. Checkout işlemini tamamlama.
-  - [ ] Adım 4: Playwright Push Notification Testi. Aynı dosyaya, tarayıcı izinlerini (permissions: ['notifications']) mock'layarak Push abonelik akışının API'den 200 OK dönüp dönmediğini test eden bir blok ekle.
-  - [ ] Adım 5: Vitest Birim Testlerinin Yazılması. `src/contexts/__tests__/PortalContext.test.tsx` dosyasını oluştur. `addToWarenkorb` fonksiyonunun stok sınırlarını aşıp aşmadığını ve fiyatları doğru hesapladığını test et.
-  - [ ] Adım 6: Testlerin Koşulması. Terminalde `npm run build` ve ardından `npm run start` ile production simülasyonunu başlat. Başka bir terminalde `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştır.
-  - [ ] Adım 7: Hata Çözümü. Playwright testleri sepetin açılamadığını veya siparişin tamamlanamadığını raporlarsa, ilgili sayfalardaki (örn: `SiparisDetayClient.tsx` veya sepet sayfası) mantıksal hataları düzelt ve testler yeşil (pass) olana kadar döngüyü tekrarla.
-
-- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
-  - MEVCUT VERİTABANINI BOZMA: Playwright testlerinde gerçek Stripe API'sine istek atma. Stripe test anahtarlarını kullan veya ödeme adımını mock'la.
-  - TEST KULLANICISI KULLAN: Testler için Supabase'de `test_musteri@elysonsweets.de` gibi izole bir kullanıcı oluştur. Gerçek müşteri verileri üzerinde test yapma.
-  - MOBİL ÖNCELİKLİ TEST: Müşterinin yaşadığı sorun mobilde olduğu için, Playwright testlerinde `viewport: { width: 375, height: 812 }` (iPhone X/12) ayarını kesinlikle kullan.
-  - FİYAT HESAPLAMALARI: B2B sisteminde KDV (%7) ve Net fiyat ayrımları kritiktir. Testlerde sepet toplamının `(Net * 1.07) + Kargo` formülüne kuruşu kuruşuna uyduğunu `expect` ile doğrula.
-</file>
-
-<file path="musteri_portal2.md">
-- BAĞLAM VE TEST KAPSAMI (CONTEXT):
-Hedef: `elysonsweets.de` B2B Müşteri Portalı Sepet (Cart) UI/UX Revizyonu ve E2E Test Süreci.
-Mevcut Durum ve Hata Tespiti: Kullanıcı manuel testinde kritik bir UX hatası tespit etmiştir. Sepet ikonu işlevsizdir ve sepet içeriği katalog sayfasının (`KatalogClient.tsx`) en altında statik olarak render edilmektedir. Bu durum, kullanıcının sepeti fark etmesini imkansız kılmaktadır.
-Kapsam: Sepet UI'ının sayfa altından kaldırılarak, modern e-ticaret standartlarına uygun bir "Sağdan Açılan Çekmece (Right Drawer / Slide-over)" veya "Modal" yapısına dönüştürülmesi. Header'daki sepet ikonunun bu çekmeceyi tetiklemesi. Ardından mevcut `yarn dev` sunucusu üzerinden E2E testlerinin koşulması.
-
-- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
-1. UI/UX Refactoring: Sepet bileşeni sayfa akışından (document flow) koparılıp, `fixed` pozisyonlu bir Drawer bileşenine taşınacaktır.
-2. State Management: `PortalContext.tsx` içerisine sepetin açık/kapalı durumunu tutacak `isCartOpen` ve `setIsCartOpen` state'leri eklenecektir.
-3. E2E Test Execution: Hızlı iterasyon için testler öncelikle aktif olan `yarn dev` sunucusu üzerinde koşulacaktır.
-4. Test Data Preparation: Playwright testlerinin takılmaması için Supabase üzerinde test kullanıcısının (`test_musteri@elysonsweets.de`) varlığı bir script ile garanti altına alınacaktır.
-
-- TEST SENARYOLARI (TEST CASES):
-  * Happy Path (Sorunsuz akış):
-    - Kullanıcı katalogda "Sepete Ekle" butonuna basar.
-    - Header'daki sepet ikonuna tıklar.
-    - Ekranın sağından (mobilde tüm ekranı kaplayacak şekilde) Sepet Çekmecesi (Cart Drawer) açılır.
-    - Çekmece içindeki ürünler, miktarlar ve toplam fiyat doğru görünür.
-    - "Siparişi Tamamla" butonuna basıldığında sipariş başarıyla oluşturulur ve çekmece kapanır.
-  * Negative Path (Hatalı girişler, yetkisiz erişimler):
-    - Çekmece dışına (backdrop) tıklandığında veya "X" butonuna basıldığında çekmece kapanmalıdır.
-    - Sepet boşken çekmece açıldığında "Sepetiniz boş" uyarısı çıkmalı ve sipariş butonu inaktif (disabled) olmalıdır.
-  * Edge Cases (Sınır durumlar):
-    - Mobil cihazda (375px) çekmece açıldığında arka planın (body) kaydırılması (scroll) engellenmelidir (`overflow: hidden`).
-
-- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
-  - [ ] Adım 1: State Yönetiminin Eklenmesi. `src/contexts/PortalContext.tsx` dosyasını aç. `PortalContextType` arayüzüne `isCartOpen: boolean` ve `setIsCartOpen: (val: boolean) => void` ekle. Provider içinde bu state'i tanımla ve context value olarak dışarı aktar.
-  - [ ] Adım 2: Sepet Çekmecesi (Cart Drawer) Bileşeninin Oluşturulması. `src/components/portal/siparisler/CartDrawer.tsx` (veya uygun bir dizin) adında yeni bir bileşen oluştur. Bu bileşen `usePortal` hook'unu kullanarak `isCartOpen` state'ini dinlemeli. Açık olduğunda ekranın sağından kayarak giren (Tailwind: `fixed inset-y-0 right-0 z-[100] w-full md:w-96 bg-white shadow-xl transform transition-transform duration-300`), arka planı karartan (backdrop) bir UI inşa et.
-  - [ ] Adım 3: Katalog Sayfasının Temizlenmesi. `src/app/[locale]/portal/katalog/KatalogClient.tsx` (veya sepetin en altta render edildiği ilgili dosya) dosyasını aç. Sayfanın en altındaki statik sepet render kodlarını KESİNLİKLE SİL. Sepet içeriğini ve sipariş tamamlama butonunu yeni oluşturduğun `CartDrawer.tsx` içine taşı.
-  - [ ] Adım 4: Header İkonunun Bağlanması. `src/components/portal/PortalHeader.tsx` (veya ilgili header bileşeni) dosyasını aç. Sepet ikonunun `onClick` eventine `setIsCartOpen(true)` fonksiyonunu bağla.
-  - [ ] Adım 5: Drawer'ın Layout'a Eklenmesi. `CartDrawer` bileşenini `PortalContainer.tsx` veya portalın ana `layout.tsx` dosyasına ekle ki her sayfada erişilebilir olsun.
-  - [ ] Adım 6: Test Kullanıcısının Oluşturulması. `scripts/setup-test-user.mjs` adında kısa bir script yazarak Supabase Admin API ile `test_musteri@elysonsweets.de` (şifre: `password123`) kullanıcısını oluştur ve `firmalar` tablosunda 'Müşteri' statüsünde bir firmaya bağla. Bu scripti çalıştır.
-  - [ ] Adım 7: E2E Testlerinin Dev Ortamında Koşulması. Terminalde `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştırarak (mevcut `yarn dev` sunucusunu hedef alarak) yeni Drawer yapısının ve sipariş akışının mobilde ve masaüstünde kusursuz çalıştığını doğrula.
-  - [ ] Adım 8: Hata Çözümü. Testler başarısız olursa, özellikle mobil görünümdeki tıklanabilirlik (pointer-events, z-index) ve scroll kilitlenmesi sorunlarını çözerek testleri tekrar koş.
-
-- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
-  - UX STANDARDI: Sepet kesinlikle sayfanın altında statik olarak kalmamalıdır. Modern B2B e-ticaret standartlarına uygun olarak her zaman erişilebilir bir Drawer (Çekmece) veya Modal olmalıdır.
-  - MOBİL UYUM: Drawer mobilde (`w-full`) tam ekran, masaüstünde (`md:w-96` veya `md:w-[400px]`) sağda bir panel olmalıdır.
-  - TEST ORTAMI: Testleri hızlandırmak için şu an `yarn dev` kullan. Ancak tüm testler yeşil yandıktan sonra, canlıya almadan önce mutlaka production build (`npm run build`) ile son bir kontrol yapılacaktır.
-  - KOD SİLME: `KatalogClient.tsx` içindeki eski sepet kodlarını yorum satırına alma, tamamen sil. Temiz kod prensibine uy.
-</file>
-
-<file path="musteri_portal3.md">
-- BAĞLAM VE TEST KAPSAMI (CONTEXT):
-Hedef: Müşteri giriş (Login) ekranına "Şifreyi Göster/Gizle" (Eye Icon) özelliğinin eklenmesi ve E2E testlerindeki performans/zaman aşımı (timeout) sorunlarının çözülerek test sürecinin production (canlı) build üzerinde tamamlanması.
-Mevcut Durum: 
-1. Müşteriler şifre girerken yazdıklarını göremiyor, bu da UX açısından hatalı girişlere sebep oluyor.
-2. IDE, `yarn dev` ve `npm run build` komutlarını aynı anda çalıştırdığı için CPU/RAM darboğazı yaşanmış ve Playwright testleri timeout'a düşmüş.
-Kapsam: Login formundaki şifre input'una `lucide-react` ikonları (`Eye`, `EyeOff`) ile toggle özelliği eklenecek. Ardından sistem kaynaklarını tüketmemek adına işlemler sıraya konacak: Önce build tamamlanacak, sonra `npm run start` ile production sunucusu ayağa kaldırılacak ve E2E testleri bu stabil sunucu üzerinde koşulacak.
-
-- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
-1. UI/UX Geliştirmesi: Login form bileşeninde (örn. `LoginForm.tsx` veya `app/[locale]/(public)/login/page.tsx`) `useState` kullanılarak şifre görünürlüğü kontrol edilecek.
-2. Performans ve Test Stratejisi: E2E testleri geliştirme (dev) sunucusunun hantallığından kurtarılıp, optimize edilmiş production build üzerinde çalıştırılacak. Eşzamanlı ağır işlemler (build + test) KESİNLİKLE yapılmayacak.
-3. Test Kapsamı Genişletmesi: Playwright testine, şifre göz ikonuna tıklanıp input tipinin `password`'den `text`'e dönüştüğünü doğrulayan küçük bir assertion eklenecek.
-
-- TEST SENARYOLARI (TEST CASES):
-  * Happy Path (Sorunsuz akış):
-    - Kullanıcı login sayfasına gelir, şifresini yazar.
-    - Şifre alanının sağındaki "Göz" ikonuna tıklar.
-    - Input `type="password"` niteliği `type="text"` olarak değişir ve şifre görünür olur. İkon `EyeOff` (üstü çizili göz) olarak değişir.
-    - Tekrar tıklandığında şifre gizlenir.
-    - Login işlemi başarıyla gerçekleşir, katalogdan ürün sepete eklenir, Drawer (Çekmece) açılır ve sipariş tamamlanır.
-  * Negative Path (Hatalı girişler, yetkisiz erişimler):
-    - Göz ikonuna tıklanması formu KESİNLİKLE submit etmemelidir (Buton `type="button"` olmalıdır).
-  * Edge Cases (Sınır durumlar):
-    - Şifre göster/gizle butonu klavye ile erişilebilir (Tab ile odaklanılabilir) olmalıdır.
-
-- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
-  - [ ] Adım 1: Login Bileşeninin Tespiti ve Güncellenmesi. Projedeki müşteri giriş formunu bul (muhtemelen `src/app/[locale]/(public)/login/page.tsx` veya `src/components/auth/...`). 
-  - [ ] Adım 2: Şifre Göster/Gizle Mantığının Eklenmesi. İlgili bileşene `const [showPassword, setShowPassword] = useState(false)` ekle. Şifre input'unu kapsayan bir `relative` div oluştur. Input'un `type` özelliğini `showPassword ? 'text' : 'password'` yap. Input'un sağına `absolute right-3 top-1/2 -translate-y-1/2` class'ları ile bir `<button type="button" onClick={() => setShowPassword(!showPassword)}>` ekle. İçerisinde duruma göre `Eye` veya `EyeOff` ikonlarını (lucide-react) göster.
-  - [ ] Adım 3: Playwright Testinin Güncellenmesi. `tests/e2e/portal/customer-journey.spec.ts` dosyasını aç. Login adımına şu kontrolü ekle: Şifreyi yazdıktan sonra göz ikonuna tıkla, input'un görünür metin içerdiğini doğrula, tekrar tıkla.
-  - [ ] Adım 4: Build İşleminin Beklenmesi ve Hata Kontrolü. Arka planda devam eden `npm run build` işleminin bitmesini bekle. Eğer TypeScript veya ESLint hatası verirse, ÖNCE BU HATALARI ÇÖZ ve tekrar build al.
-  - [ ] Adım 5: Production Sunucusunun Başlatılması. Build başarıyla bittikten sonra, terminalde `npm run start` komutunu çalıştırarak projeyi canlı ortam simülasyonunda (genelde port 3000) ayağa kaldır.
-  - [ ] Adım 6: E2E Testlerinin Koşulması. Sunucu hazır olduğunda, YENİ BİR TERMİNAL sekmesinde `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştır. (Timeout hatalarını önlemek için build ve test aynı anda çalışmamış olacak).
-  - [ ] Adım 7: Sonuç Raporlaması. Testler başarıyla geçerse, sepet çekmecesinin ve şifre göster/gizle butonunun production ortamında kusursuz çalıştığını onayla.
-
-- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
-  - ERİŞİLEBİLİRLİK: Şifre göster/gizle butonuna mutlaka `aria-label="Şifreyi göster/gizle"` ekle.
-  - FORM GÜVENLİĞİ: Göz ikonunu saran buton KESİNLİKLE `type="button"` olmalıdır. Aksi takdirde varsayılan olarak `type="submit"` davranışı sergiler ve formu yanlışlıkla gönderir.
-  - KAYNAK YÖNETİMİ: `build` işlemi ile `playwright test` işlemini KESİNLİKLE aynı anda çalıştırma. Vercel/Next.js build işlemi çok fazla RAM/CPU tüketir ve testlerin timeout'a düşmesine sebep olur. Sıralı işlem yap.
-</file>
-
-<file path="musteri_portal4.md">
-- BAĞLAM VE TEST KAPSAMI (CONTEXT):
-Hedef: B2B Müşteri Portalı'nda tespit edilen 4 kritik mantık ve UX hatasının giderilmesi.
-Mevcut Hatalar:
-1. Dil Varsayılanı: Yeni müşteriler için varsayılan dilin kesin olarak Almanca (DE) olmaması.
-2. Sepet Kalıcılığı (Persistence): Sayfa yenilendiğinde (F5) sepetteki ürünlerin kaybolması (State'in sıfırlanması).
-3. Rutin Siparişler Mantığı: Hiç siparişi olmayan yeni müşterilere "Sık Aldığınız Ürünler" listesinin (muhtemelen dummy data veya hatalı sorgu ile) gösterilmesi.
-4. Sepet Çekmecesi (Cart Drawer) Eksiklikleri: Yeni yapılan yandan açılır sepetin, eski sepetin sahip olduğu B2B hesaplamalarını (Koli/Adet/Palet fiyat kademeleri, KDV, Kargo hesaplaması ve Checkout butonu) içermemesi. Sadece basit bir liste olarak yapılmış olması.
-Kapsam: `PortalContext.tsx` içine `localStorage` entegrasyonu, `CartDrawer.tsx` içine eski kapsamlı sepet mantığının taşınması, "Sık Aldığınız Ürünler" bileşenine veri kontrolü eklenmesi ve profil oluşturma/middleware aşamasında 'de' dilinin zorunlu kılınması.
-
-- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
-1. State Persistence: `PortalContext.tsx` içinde sepet verisi `localStorage`'a yazılacak ve sayfa yüklendiğinde (hydration uyarılarına dikkat edilerek `useEffect` içinde) geri okunacak.
-2. Component Refactoring: Eski `KatalogClient.tsx` altındaki detaylı sepet (KDV, Kargo, Toplam Brüt/Net, Siparişi Tamamla butonu) kodları birebir `CartDrawer.tsx` içine entegre edilecek.
-3. Conditional Rendering: "Sık Aldığınız Ürünler" (Frequent Products) sorgusu, kullanıcının geçmiş sipariş sayısını kontrol edecek. Sipariş yoksa bu bölüm gizlenecek.
-4. E2E Test Güncellemesi: Playwright testine "Sayfayı yenile, sepetin hala dolu olduğunu doğrula" adımı eklenecek.
-
-- TEST SENARYOLARI (TEST CASES):
-  * Happy Path (Sorunsuz akış):
-    - Müşteri sepete 2 koli ürün ekler. Sayfayı yeniler (F5). Sepet ikonundaki sayı ve çekmece içindeki ürünler kaybolmaz.
-    - Sepet çekmecesi açıldığında; ürünün koli fiyatı, KDV (%7), Kargo ücreti ve Genel Toplam (Brüt) kuruşu kuruşuna doğru hesaplanmış olarak görünür. "Siparişi Tamamla" butonu aktiftir.
-    - Yeni kayıt olmuş bir müşteri portala girdiğinde "Sık Aldığınız Ürünler" bölümünü görmez.
-    - Sisteme ilk kez giren kullanıcının arayüzü otomatik olarak Almanca (de) başlar.
-  * Negative Path (Hatalı girişler, yetkisiz erişimler):
-    - Sepetteki ürün miktarı 0'a düşürüldüğünde ürün sepetten silinir ve `localStorage` güncellenir.
-  * Edge Cases (Sınır durumlar):
-    - Next.js Hydration Mismatch: Sunucu (SSR) tarafında `localStorage` olmadığı için, sepetin ilk render'da boş gelip client-side'da dolması sırasında UI titremesi (flicker) veya React hydration hatası olmaması için `isMounted` state'i kullanılmalıdır.
-
-- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
-  - [ ] Adım 1: Sepet Kalıcılığı (LocalStorage). `src/contexts/PortalContext.tsx` dosyasını aç. `isMounted` adında bir state ekle (`false` ile başlasın, `useEffect` içinde `true` olsun). `warenkorb` state'ini başlatırken veya bir `useEffect` içinde `localStorage.getItem('elyson_b2b_cart')` üzerinden veriyi oku. `warenkorb` her değiştiğinde `localStorage.setItem` ile kaydet. Hydration hatasını önlemek için `isMounted` false ise sepet ikonunda 0 göster.
-  - [ ] Adım 2: Kapsamlı Sepet Mantığının Drawer'a Taşınması. `src/components/portal/siparisler/CartDrawer.tsx` dosyasını aç. Eski sepetin sahip olduğu `hesaplaSepetSatiri` (pricingUtils.ts) ve `calculateShipping` (shippingUtils.ts) fonksiyonlarını import et. Çekmece içinde sadece ürün adını değil; Koli/Adet seçimi, Birim Fiyat, Ara Toplam (Net), KDV (%7), Kargo Ücreti ve Genel Toplam (Brüt) değerlerini gösteren tablo/liste yapısını kur. Alt kısma orijinal "Siparişi Tamamla / Ödeme Adımına Geç" butonunu ve fonksiyonunu ekle.
-  - [ ] Adım 3: Rutin Siparişler Mantığının Düzeltilmesi. `src/app/[locale]/portal/katalog/KatalogClient.tsx` veya `RecentOrders.tsx` (Sık Aldığınız Ürünler nerede render ediliyorsa) dosyasını aç. Bu listeyi besleyen veriyi kontrol et. Eğer kullanıcının geçmiş siparişi yoksa (veya dönen liste boşsa), bu bölümü `return null` ile tamamen gizle. Dummy data kullanımını kaldır.
-  - [ ] Adım 4: Varsayılan Dilin Almanca (DE) Yapılması. `src/middleware.ts` ve profil oluşturma mantığını (örn. `src/app/actions/partner-actions.ts` veya Supabase trigger'ı) kontrol et. Yeni bir profil oluşturulduğunda `tercih_edilen_dil` alanının kesinlikle `'de'` olarak kaydedildiğinden emin ol.
-  - [ ] Adım 5: Playwright Testinin Güncellenmesi. `tests/e2e/portal/customer-journey.spec.ts` dosyasını aç. Sepete ürün ekledikten sonra `await page.reload()` komutu ile sayfayı yenile. Yenilemeden sonra sepet ikonuna tıklayıp ürünün hala orada olduğunu ve KDV/Kargo hesaplamalarının göründüğünü `expect` ile doğrula.
-  - [ ] Adım 6: Testlerin Koşulması. Terminalde `npm run build` al. Başarılı olursa `npm run start` ile sunucuyu başlat ve `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştırarak tüm hataların giderildiğini doğrula.
-
-- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
-  - HYDRATION UYARISI: Next.js'de `localStorage` kullanırken `Text content did not match. Server: "0" Client: "1"` hatası almamak için sepet sayısını ve içeriğini sadece bileşen mount olduktan (`useEffect` çalıştıktan) sonra render et.
-  - B2B FİYATLANDIRMA: `CartDrawer.tsx` içindeki hesaplamalar KESİNLİKLE `pricingUtils.ts` ve `shippingUtils.ts` üzerinden yapılmalıdır. Manuel çarpma/bölme işlemi yapma.
-  - DİL ZORUNLULUĞU: Sistemin ana dili Almancadır. Fallback veya tanımsız durumlarda her zaman `de` kullanılmalıdır.
-</file>
-
-<file path="musteri_portal5.md">
-- BAĞLAM VE TEST KAPSAMI (CONTEXT):
-Hedef: B2B Müşteri Portalı'nda "Siparişi Tamamla" (Checkout) akışının uçtan uca tamamlanması ve "Bildirim aboneliği sağlanamadı" (Web Push Subscription) hatasının giderilmesi.
-Mevcut Hatalar:
-1. Push Bildirim Hatası: Kullanıcı bildirim izni verdiğinde sistem çökmekte veya "Abonelik sağlanamadı" hatası fırlatmaktadır. Bunun sebebi büyük ihtimalle `.env.local` dosyasında `NEXT_PUBLIC_VAPID_PUBLIC_KEY` eksikliği, Service Worker'ın hazır olmaması veya `/api/push/subscribe` endpoint'indeki bir 500/Auth hatasıdır.
-2. Checkout Akışı Eksikliği: Sepet çekmecesi (Cart Drawer) yapıldı ancak "Siparişi Tamamla" butonuna basıldığında siparişin veritabanına yazılması, sepetin temizlenmesi (`clearWarenkorb`), çekmecenin kapanması ve kullanıcının "Siparişlerim" sayfasına yönlendirilmesi adımlarının tam olarak test edilip onaylanması gerekiyor.
-
-- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
-1. Hata Yakalama (Graceful Degradation): Push bildirim aboneliği kritik bir işlev değildir. Eğer VAPID key eksikse veya tarayıcı desteklemiyorsa, sistem hata fırlatıp kullanıcı deneyimini bozmamalı, sessizce (console.warn ile) geçmelidir.
-2. Uçtan Uca (E2E) Sipariş Testi: Playwright ile sepetteki ürünün siparişe dönüştürülmesi, LocalStorage'ın sıfırlanması ve `/portal/siparisler` sayfasında yeni siparişin listelenmesi test edilecektir.
-3. API ve Client Refactoring: Push API route'u ve Client bileşeni (PushNotificationManager) try-catch blokları ile zırhlanacaktır.
-
-- TEST SENARYOLARI (TEST CASES):
-  * Happy Path (Sorunsuz akış):
-    - Kullanıcı "Siparişi Tamamla" butonuna basar.
-    - Sistem (Server Action veya API) siparişi `siparisler` ve `siparis_detay` tablolarına kaydeder.
-    - Başarı mesajı (toast) gösterilir.
-    - `clearWarenkorb()` çalışır, sepet ikonu "0" olur.
-    - Çekmece kapanır ve kullanıcı `/portal/siparisler` sayfasına yönlendirilir (`router.push`).
-    - Siparişlerim sayfasında en üstte yeni sipariş görünür.
-  * Negative Path (Hatalı girişler, yetkisiz erişimler):
-    - Push bildirim izni verilse bile `.env` dosyasında VAPID key yoksa, ekranda kırmızı hata (toast.error) ÇIKMAMALI, işlem sessizce iptal edilmelidir.
-    - Sepet boşken "Siparişi Tamamla" butonu tıklanamaz (disabled) olmalıdır.
-
-- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
-  - [ ] Adım 1: Push Bildirim Hatasının Giderilmesi (Client). `src/components/portal/PushNotificationManager.tsx` (veya aboneliği tetikleyen bileşen) dosyasını aç. `pushManager.subscribe` çağrısını ve API'ye yapılan `fetch` isteğini incele. Eğer `process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY` yoksa, fonksiyonu `return` ile sessizce sonlandır (Kullanıcıya hata gösterme). Try-catch bloğundaki `toast.error` mesajını kaldır veya sadece geliştirme ortamında `console.warn` olarak bırak.
-  - [ ] Adım 2: Push Bildirim Hatasının Giderilmesi (Server). `src/app/api/push/subscribe/route.ts` dosyasını kontrol et. Supabase Auth üzerinden `user.id`'yi güvenli şekilde aldığından ve `push_subscriptions` tablosuna doğru formatta insert yaptığından emin ol. Hata durumunda 500 dönse bile uygulamanın çökmemesini sağla.
-  - [ ] Adım 3: Checkout (Sipariş Tamamlama) Mantığının Entegrasyonu. `src/components/portal/siparisler/CartDrawer.tsx` dosyasını aç. "Siparişi Tamamla" butonunun `onClick` eventine bir fonksiyon bağla. Bu fonksiyon:
-        1. Sepetteki ürünleri alıp ilgili Server Action'a (örn: `createPortalOrderAction`) göndersin.
-        2. Başarılı olursa: `clearWarenkorb()` çağrısı yapsın.
-        3. `setIsCartOpen(false)` ile çekmeceyi kapatsın.
-        4. `toast.success('Siparişiniz başarıyla alındı')` göstersin.
-        5. `router.push('/[locale]/portal/siparisler')` ile yönlendirme yapsın.
-  - [ ] Adım 4: Playwright Testinin Genişletilmesi. `tests/e2e/portal/customer-journey.spec.ts` dosyasını aç. Testin sonuna şu adımları ekle:
-        - Çekmece içindeki "Siparişi Tamamla" butonuna tıkla.
-        - Başarı mesajının (toast) çıkmasını bekle.
-        - URL'in `/portal/siparisler` olarak değiştiğini doğrula (`await page.waitForURL('**/portal/siparisler')`).
-        - Header'daki sepet ikonunun "0" olduğunu doğrula.
-        - Siparişlerim tablosunda yeni bir satırın oluştuğunu doğrula.
-  - [ ] Adım 5: Testlerin Koşulması. Terminalde `npm run build` al. Başarılı olursa `npm run start` ile sunucuyu başlat ve `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştırarak tüm sipariş akışının ve push bildirim sessizleştirilmesinin kusursuz çalıştığını kanıtla.
-
-- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
-  - GRACEFUL DEGRADATION: Push bildirimleri "Nice-to-have" (olsa iyi olur) bir özelliktir. Çalışmaması durumunda ana iş akışını (sipariş verme, gezinme) KESİNLİKLE bloklamamalı veya kullanıcıyı rahatsız edici hata mesajları göstermemelidir.
-  - VERİ BÜTÜNLÜĞÜ: Sipariş oluşturulurken KDV (%7), Kargo ve Net/Brüt toplamlar Server Action tarafında da (güvenlik için) tekrar hesaplanmalı veya client'tan gelen veriler Supabase'e doğru formatta yazılmalıdır.
-  - YÖNLENDİRME: Sipariş verildikten sonra kullanıcının boş bir sepet ekranında kalması UX hatasıdır. Mutlaka sipariş takip sayfasına (`/portal/siparisler`) yönlendirilmelidir.
-</file>
-
-<file path="musteri_portal6.md">
-
-</file>
-
-<file path="musteri_portal7.md">
-- BAĞLAM VE TEST KAPSAMI (CONTEXT):
-Hedef: B2B Müşteri Portalı'nda yanlış anlaşılan "Yandan Açılan Sepet (Drawer)" mimarisinin tamamen iptal edilip, orijinal tasarıma (sayfanın en altındaki kapsamlı ödeme/sepet alanına) geri dönülmesi ve sepet ikonunun bu alana kaydırma (scroll) işlevi görmesi.
-Mevcut Durum: IDE, sepeti yandan açılan bir çekmece (Drawer) yaptı ve eski kodu sildi. Ancak müşteri, sayfanın en altındaki orijinal, ödeme kanallarını da içeren kapsamlı sepet aracını kullanmak istiyor. Çekmece (Drawer) UX açısından kafa karışıklığı yarattı.
-Kapsam: 
-1. `CartDrawer.tsx` bileşeninin ve `isCartOpen` state'inin tamamen silinmesi.
-2. `KatalogClient.tsx` (veya orijinal sepetin bulunduğu sayfa) dosyasının en altındaki orijinal sepet/ödeme alanının Git geçmişinden (veya yeniden yazılarak) geri getirilmesi.
-3. Header'daki sepet ikonuna tıklandığında sayfanın en altındaki bu sepet alanına yumuşak bir kaydırma (smooth scroll) yapılması.
-4. LocalStorage kalıcılığı ve Push bildirim sessizleştirme (Graceful Degradation) özelliklerinin KORUNMASI.
-5. E2E testlerinin bu yeni "Scroll to bottom" akışına göre güncellenmesi.
-
-- TEST STRATEJİSİ VE ARAÇLAR (STRATEGY):
-1. Kod Geri Alma (Revert & Refactor): Drawer mimarisi tamamen kaldırılacak. Orijinal sepet UI'ı sayfa altına geri eklenecek ve bir `id` (örn: `cart-checkout-section`) verilecek.
-2. DOM Manipülasyonu: Header'daki sepet butonu `document.getElementById('cart-checkout-section')?.scrollIntoView({ behavior: 'smooth' })` mantığıyla çalışacak.
-3. E2E Test Güncellemesi: Playwright testi, sepet ikonuna tıkladıktan sonra sayfanın altına inildiğini ve orijinal sipariş tamamlama butonuna basıldığını doğrulayacak.
-
-- TEST SENARYOLARI (TEST CASES):
-  * Happy Path (Sorunsuz akış):
-    - Kullanıcı katalogdan ürünleri sepete ekler.
-    - Header'daki sepet ikonuna tıklar.
-    - Sayfa otomatik olarak en alta, ödeme ve sepet detaylarının olduğu bölüme kayar (smooth scroll).
-    - Kullanıcı bu alanda KDV, Kargo ve ödeme seçeneklerini görür, "Siparişi Tamamla" butonuna basar.
-    - Sipariş başarıyla oluşturulur, sepet (LocalStorage dahil) temizlenir ve `/portal/siparisler` sayfasına yönlendirilir.
-  * Negative Path (Hatalı girişler, yetkisiz erişimler):
-    - Sepet boşken sayfa altındaki sipariş tamamlama butonu inaktif (disabled) olmalıdır.
-  * Edge Cases (Sınır durumlar):
-    - Mobil cihazda (375px) sepet ikonuna tıklandığında scroll işleminin doğru hesaplanması ve hedefin tam ekranda görünür olması.
-
-- ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS):
-  - [ ] Adım 1: Drawer Mimarisinin Silinmesi. `src/components/portal/siparisler/CartDrawer.tsx` dosyasını tamamen SİL. `src/contexts/PortalContext.tsx` içindeki `isCartOpen` ve `setIsCartOpen` state'lerini ve tiplerini SİL (Ancak `localStorage` kalıcılığını sağlayan `isMounted` ve `useEffect` kodlarını KESİNLİKLE KORU). `PortalContainer.tsx` içindeki `CartDrawer` importunu ve bileşenini kaldır.
-  - [ ] Adım 2: Orijinal Sepet Alanının Geri Getirilmesi. `src/app/[locale]/portal/katalog/KatalogClient.tsx` dosyasını aç. Sayfanın en altına, daha önce sildiğin kapsamlı sepet ve ödeme alanını (KDV, Kargo, Brüt hesaplamaları ve Siparişi Tamamla butonu dahil) geri ekle. Bu alanı kapsayan en dış `div` elemanına `id="cart-checkout-section"` özelliğini ekle.
-  - [ ] Adım 3: Header İkonunun Scroll İşlevine Çevrilmesi. `src/components/portal/PortalHeader.tsx` (veya ilgili header bileşeni) dosyasını aç. Sepet ikonunu saran butonun `onClick` eventini şu şekilde değiştir: `document.getElementById('cart-checkout-section')?.scrollIntoView({ behavior: 'smooth' })`.
-  - [ ] Adım 4: Playwright Testinin Güncellenmesi. `tests/e2e/portal/customer-journey.spec.ts` dosyasını aç. Drawer açılmasını bekleyen kodları sil. Yerine: Sepet ikonuna tıkla, sayfanın altına kaymasını bekle, `id="cart-checkout-section"` içindeki "Siparişi Tamamla" butonuna tıkla ve siparişin başarıyla oluşup yönlendirildiğini doğrula.
-  - [ ] Adım 5: Testlerin Koşulması. Terminalde `npm run build` al. Başarılı olursa `npm run start` ile sunucuyu başlat ve `npx playwright test tests/e2e/portal/customer-journey.spec.ts --project=chromium` komutunu çalıştırarak yeni "Scroll" akışının kusursuz çalıştığını kanıtla.
-
-- KATI KURALLAR VE GÜVENLİK KISITLAMALARI:
-  - YENİ SEPET YAPMA: Müşterinin talebi çok nettir. Ayrı bir sepet (Drawer, Modal veya ayrı sayfa) İSTENMİYOR. Sadece sayfanın altındaki mevcut alan kullanılacak.
-  - KOD KORUMASI: Önceki adımlarda başarıyla çözülen "Push Bildirimlerinin Sessizleştirilmesi (Graceful Degradation)" ve "LocalStorage Sepet Kalıcılığı" kodlarına KESİNLİKLE DOKUNMA, onlar olduğu gibi kalmalı.
-  - UX STANDARDI: Scroll işlemi aniden (jump) olmamalı, `behavior: 'smooth'` kullanılarak kullanıcının sayfanın altına indiğini hissetmesi sağlanmalıdır.
-</file>
-
-<file path="musteri_portal8.md">
-
 </file>
 
 <file path="PWA_bildirimler.md">
@@ -14458,100 +13006,6 @@ export async function getDriveFolderIdForKategori(
 }
 </file>
 
-<file path="src/lib/lexware/client.ts">
-/**
- * Lexware Office API Client
- * Base URL: https://api.lexware.io (Mayıs 2025 sonrası resmi gateway)
- * Rate Limit: 2 istek / saniye
- */
-
-const LEXWARE_BASE_URL = 'https://api.lexware.io';
-
-export class LexwareApiError extends Error {
-  constructor(
-    public status: number,
-    public statusText: string,
-    public details: any
-  ) {
-    super(`Lexware API Error [${status} ${statusText}]: ${typeof details === 'string' ? details : JSON.stringify(details)}`);
-    this.name = 'LexwareApiError';
-  }
-}
-
-export function getLexwareApiKey(): string {
-  const key = process.env.LEXWARE_API_KEY?.trim();
-  if (!key) {
-    throw new Error('LEXWARE_API_KEY ortam değişkeni tanımlı değil.');
-  }
-  return key;
-}
-
-export async function lexwareFetch<T = any>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  // KRITIK GÜVENLIK KURALI: Bu mock kodu ASLA production ortaminda calismamalidir.
-  // Canlıda sahte fatura üretmek ciddi bir finansal risktir.
-  const isProduction = process.env.NODE_ENV === 'production';
-  const isMockEnabled = !isProduction && (
-    process.env.NODE_ENV === 'test' || 
-    process.env.NODE_ENV === 'development' ||
-    process.env.PLAYWRIGHT_TEST === 'true' || 
-    process.env.MOCK_LEXWARE === 'true'
-  );
-                 
-  if (isMockEnabled) {
-    if (endpoint.includes('/document')) return { documentFileId: 'mock-file-id' } as any;
-    if (endpoint.includes('/files')) {
-      const mockPdf = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n5 0 obj\n<< /Length 44 >>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(MOCK INVOICE) Tj\nET\nendstream\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF`;
-      return new Blob([mockPdf], { type: 'application/pdf' }) as any;
-    }
-    if (endpoint.includes('credit-notes')) return { id: 'mock-storno-id', voucherNumber: 'GS-MOCK-123', pdfUrl: 'mock.pdf' } as any;
-    return { id: 'mock-invoice-id', voucherNumber: 'RE-MOCK-123', pdfUrl: 'mock.pdf' } as any;
-  }
-
-  const apiKey = getLexwareApiKey();
-  const url = endpoint.startsWith('http') ? endpoint : `${LEXWARE_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-
-  const headers = new Headers(options.headers);
-  headers.set('Authorization', `Bearer ${apiKey}`);
-  if (!headers.has('Accept')) {
-    headers.set('Accept', 'application/json');
-  }
-  if (options.body && typeof options.body === 'string' && !headers.has('Content-Type')) {
-    headers.set('Content-Type', 'application/json');
-  }
-
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    let details: any;
-    try {
-      details = await response.json();
-    } catch {
-      details = await response.text();
-    }
-    throw new LexwareApiError(response.status, response.statusText, details);
-  }
-
-  // 204 No Content
-  if (response.status === 204) {
-    return {} as T;
-  }
-
-  const contentType = response.headers.get('content-type') || '';
-  if (contentType.includes('application/json')) {
-    return (await response.json()) as T;
-  }
-
-  // Binary (örn: PDF dosyası)
-  return (await response.blob()) as unknown as T;
-}
-</file>
-
 <file path="src/lib/blog-images.ts">
 export const WINTER_IMAGES = [
   "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2000&auto=format&fit=crop", 
@@ -14614,6 +13068,202 @@ export function getSeasonalBlogImage(month: number): string {
   
   const randomIndex = Math.floor(Math.random() * selectedPool.length);
   return selectedPool[randomIndex];
+}
+</file>
+
+<file path="src/lib/import-batch-utils.ts">
+// ============================================================
+// Supply Chain Pipeline — Maliyet Hesaplama Motoru
+// Master Data Driven: Ağırlık ve adet bilgileri urunler
+// tablosundaki kayıtlardan otomatik hesaplanır, kullanıcıdan
+// istenmez.
+// ============================================================
+
+export type ImportBatchItemInput = {
+  urunId: string;
+  koliSayisi: number;           // Kullanıcı girer (KESİNLİKLE SADECE BU)
+  miktarAdet: number;           // Otomatik: koliSayisi × koli_ici_adet
+  toplamAgirlikKg: number;      // Otomatik: miktarAdet × birim_agirlik_kg
+  birimAlisFiyatiOrijinal: number;  // Master data: distributor_alis_fiyati (DOKUNULMAZ)
+  indirimliAlisFiyati: number;  // Hesaplanan: basePrice × (1-d1) × (1-d2)
+  ciplakMaliyetEur: number;     // = indirimliAlisFiyati (birim bazında)
+  dagitilanNavlunEur: number;
+  dagitilanGumrukEur: number;
+  dagitilanOzelGiderEur: number; // TRACES + LUCID payı birleşik
+  operasyonVeRiskYukuEur: number;
+  gercekInisMaliyetiNet: number;
+  standartInisMaliyetiNet: number;
+  maliyetSapmaYuzde: number;
+  lotNo?: string | null;
+  sktTarihi?: string | null;
+  hasarliAdet?: number;
+  kabulEdilenAdet?: number | null;
+};
+
+export type ProductMasterData = {
+  id: string;
+  distributor_alis_fiyati: number;
+  koli_ici_adet: number | null;
+  birim_agirlik_kg: number | null;
+  standart_inis_maliyeti_net?: number | null;
+};
+
+export type ProductBatchSnapshot = {
+  id: string;
+  stok_miktari?: number | null;
+  standart_inis_maliyeti_net?: number | null;
+};
+
+export function toSafeNumber(value: unknown, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+export function round4(value: unknown) {
+  return Number(toSafeNumber(value, 0).toFixed(4));
+}
+
+export function normalizeBatchQuantity(value: unknown) {
+  return Math.max(1, Math.floor(toSafeNumber(value, 1)));
+}
+
+/**
+ * Ticari yuvarlama (Kaufmännisches Runden)
+ * JavaScript floating point hatalarını önlemek için.
+ * Kurala göre: her adımda Math.round((val + Number.EPSILON) * 100) / 100
+ */
+export function kaufmannRunden(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+/**
+ * Çift kademeli indirim hesabı — Master Data fiyatına uygulanır,
+ * distributor_alis_fiyati KESİNLİKLE DEĞİŞTİRİLMEZ.
+ * indirimliFiyat = basePrice * (1 - indirim1/100) * (1 - indirim2/100)
+ */
+export function calculateDiscountedPrice(
+  basePrice: number,
+  indirim1: number,
+  indirim2: number
+): number {
+  const p = toSafeNumber(basePrice, 0);
+  const d1 = toSafeNumber(indirim1, 0);
+  const d2 = toSafeNumber(indirim2, 0);
+  const afterD1 = kaufmannRunden(p * (1 - d1 / 100));
+  const afterD2 = kaufmannRunden(afterD1 * (1 - d2 / 100));
+  return afterD2;
+}
+
+/**
+ * LUCID (Ambalaj Sicili) maliyeti — otomatik hesaplanır.
+ * Kullanıcıdan ağırlık bilgisi istenmez; urunler.birim_agirlik_kg'dan gelir.
+ */
+export function calculateLucidCost(weightKg: number, lucidPerKgRate: number): number {
+  return kaufmannRunden(toSafeNumber(weightKg, 0) * toSafeNumber(lucidPerKgRate, 0));
+}
+
+/**
+ * Master Data'dan toplam adet hesabı.
+ * Kullanıcı koli sayısı girer; sistem koli_ici_adet ile çarpar.
+ * MANUEL AĞIRLIK / ADET GİRİŞİ KESİNLİKLE YASAK.
+ */
+export function calculateMiktarAdet(
+  koliSayisi: number,
+  koliIciAdet: number | null
+): number {
+  const koli = normalizeBatchQuantity(koliSayisi);
+  const ppc = Math.max(1, toSafeNumber(koliIciAdet, 1));
+  return koli * ppc;
+}
+
+/**
+ * Master Data'dan toplam ağırlık hesabı.
+ */
+export function calculateToplamAgirlikKg(
+  miktarAdet: number,
+  birimAgirlikKg: number | null
+): number {
+  return kaufmannRunden(toSafeNumber(miktarAdet) * toSafeNumber(birimAgirlikKg, 0));
+}
+
+export function computeVariancePct(standardCost: unknown, actualCost: unknown) {
+  const standard = toSafeNumber(standardCost, 0);
+  const actual = toSafeNumber(actualCost, 0);
+  if (standard <= 0) return 0;
+  return Number((((actual - standard) / standard) * 100).toFixed(2));
+}
+
+export function shouldTriggerVarianceAlert(variancePct: unknown, thresholdPct = 5) {
+  return Math.abs(toSafeNumber(variancePct, 0)) >= Math.max(0, toSafeNumber(thresholdPct, 5));
+}
+
+/**
+ * DB insert satırları oluşturur.
+ * toplam_agirlik_kg dışarıdan ALINMAZ — koliSayisi ve master data ile hesaplanır.
+ * LUCID payı dagitilan_ozel_gider_eur içine otomatik eklenir.
+ */
+export function buildBatchItemInsertRows(
+  partiId: string,
+  items: ImportBatchItemInput[],
+  lucidPerKgRateEur = 0.02
+) {
+  return items.map((item) => {
+    const lucidMaliyeti = calculateLucidCost(item.toplamAgirlikKg, lucidPerKgRateEur);
+    return {
+      // parti_id yerine ithalat_partisi_id (tablo schema'sına göre)
+      ithalat_partisi_id: partiId,
+      urun_id: item.urunId,
+      miktar_adet: item.miktarAdet,
+      koli_sayisi: normalizeBatchQuantity(item.koliSayisi),
+      toplam_agirlik_kg: round4(item.toplamAgirlikKg),          // hesaplanan, kullanıcıdan alınmaz
+      birim_alis_fiyati_orijinal: round4(item.birimAlisFiyatiOrijinal), // master data, değişmez
+      indirimli_alis_fiyati: round4(item.indirimliAlisFiyati),
+      ciplak_maliyet_eur: round4(item.indirimliAlisFiyati * item.miktarAdet), // toplam çıplak
+      dagitilan_navlun_eur: round4(item.dagitilanNavlunEur),
+      dagitilan_gumruk_eur: round4(item.dagitilanGumrukEur),
+      dagitilan_ozel_gider_eur: round4(item.dagitilanOzelGiderEur + lucidMaliyeti),
+      operasyon_ve_risk_yuku_eur: round4(item.operasyonVeRiskYukuEur),
+      gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
+      standart_inis_maliyeti_net: round4(item.standartInisMaliyetiNet),
+      maliyet_sapma_yuzde: computeVariancePct(item.standartInisMaliyetiNet, item.gercekInisMaliyetiNet),
+      lot_no: item.lotNo?.trim() || null,
+      skt_tarihi: item.sktTarihi || null,
+      hasarli_adet: toSafeNumber(item.hasarliAdet, 0),
+      kabul_edilen_adet: item.kabulEdilenAdet != null
+        ? toSafeNumber(item.kabulEdilenAdet, 0)
+        : Math.max(0, item.miktarAdet - toSafeNumber(item.hasarliAdet, 0)),
+    };
+  });
+}
+
+export function buildProductSnapshotUpdate(
+  product: ProductBatchSnapshot | undefined,
+  item: ImportBatchItemInput,
+  thresholdPct = 5
+) {
+  const currentStock = toSafeNumber(product?.stok_miktari, 0);
+  // ALWAYS use the item's dynamically calculated standard cost for variance!
+  const standardCost = round4(item.standartInisMaliyetiNet);
+  const variancePct = computeVariancePct(standardCost, item.gercekInisMaliyetiNet);
+
+  return {
+    stok_miktari: currentStock + item.miktarAdet,
+    son_gercek_inis_maliyeti_net: round4(item.gercekInisMaliyetiNet),
+    son_maliyet_sapma_yuzde: variancePct,
+    karlilik_alarm_aktif: shouldTriggerVarianceAlert(variancePct, thresholdPct),
+  };
+}
+
+export function summarizeIncomingStock(items: ImportBatchItemInput[]) {
+  return items.reduce(
+    (summary, item) => {
+      summary.totalLines += 1;
+      summary.totalQuantity += item.miktarAdet;
+      summary.totalWeightKg += round4(item.toplamAgirlikKg);
+      return summary;
+    },
+    { totalLines: 0, totalQuantity: 0, totalWeightKg: 0 }
+  );
 }
 </file>
 
@@ -15185,6 +13835,112 @@ export const config = {
 };
 </file>
 
+<file path="supabase/migrations/20260827_enable_rls_missing_tables.sql">
+-- Empty to skip
+</file>
+
+<file path="supabase/migrations/20260908_belge_klasorleri.sql">
+-- Empty to skip
+</file>
+
+<file path="supabase/migrations/20260919_atomic_stock_operations.sql">
+-- Empty to skip
+</file>
+
+<file path="supabase/migrations/20260920_02_create_gbp_settings_and_reviews.sql">
+-- Empty to skip
+</file>
+
+<file path="supabase/migrations/20260921_02_create_recipes_table.sql">
+-- Empty to skip
+</file>
+
+<file path="supabase/migrations/20260928_supply_chain_pipeline.sql">
+-- ============================================================
+-- Supply Chain Pipeline Migration
+-- Tüm tablo/sütun isimleri Supabase DB şemasıyla doğrulanmıştır.
+-- ============================================================
+
+-- Adım 1: Veritabanı Şema ve Ayar Güncellemeleri
+
+ALTER TABLE public.ithalat_partileri
+ADD COLUMN IF NOT EXISTS indirim_1_yuzde numeric DEFAULT 0,
+ADD COLUMN IF NOT EXISTS indirim_2_yuzde numeric DEFAULT 0;
+
+ALTER TABLE public.ithalat_parti_kalemleri
+ADD COLUMN IF NOT EXISTS indirimli_alis_fiyati numeric DEFAULT 0;
+
+ALTER TABLE public.ithalat_parti_kalemleri
+ADD COLUMN IF NOT EXISTS koli_sayisi integer DEFAULT 1;
+
+INSERT INTO public.system_settings (setting_key, setting_value, setting_type, description, category)
+VALUES ('pricing_lucid_per_kg_eur', '0.02', 'number', 'LUCID Ambalaj Sicili KG basi tahmini maliyet', 'pricing')
+ON CONFLICT (setting_key) DO NOTHING;
+
+-- ============================================================
+-- Adım 2: Atomik Mal Kabul Fonksiyonu (Supabase RPC)
+--
+-- Kullanılan tablolar/sütunlar (DB şemasıyla doğrulandı):
+--   ithalat_partileri        : id, durum
+--   ithalat_parti_kalemleri  : parti_id, urun_id, miktar_adet, gercek_inis_maliyeti_net
+--   urunler                  : id, stok_miktari, son_gercek_inis_maliyeti_net
+--   urun_stok_hareket_loglari: urun_id, hareket_tipi, miktar, kaynak,
+--                              referans_kayit_id, yapan_user_id,
+--                              onceki_stok, sonraki_stok, aciklama
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.complete_import_batch(p_batch_id UUID, p_user_id UUID)
+RETURNS void AS $$
+DECLARE
+    v_status text;
+    v_item RECORD;
+    v_onceki_stok numeric;
+BEGIN
+    SELECT durum INTO v_status FROM public.ithalat_partileri WHERE id = p_batch_id FOR UPDATE;
+
+    IF v_status = 'Tamamlandi' THEN
+        RAISE EXCEPTION 'Bu ithalat partisi zaten tamamlanmis.';
+    END IF;
+
+    UPDATE public.ithalat_partileri
+    SET durum = 'Tamamlandi'
+    WHERE id = p_batch_id;
+
+    FOR v_item IN (SELECT * FROM public.ithalat_parti_kalemleri WHERE parti_id = p_batch_id) LOOP
+
+        SELECT COALESCE(stok_miktari, 0) INTO v_onceki_stok
+        FROM public.urunler WHERE id = v_item.urun_id;
+
+        UPDATE public.urunler
+        SET stok_miktari = v_onceki_stok + v_item.miktar_adet,
+            son_gercek_inis_maliyeti_net = v_item.gercek_inis_maliyeti_net
+        WHERE id = v_item.urun_id;
+
+        INSERT INTO public.urun_stok_hareket_loglari (
+            urun_id,
+            hareket_tipi,
+            miktar,
+            kaynak,
+            referans_kayit_id,
+            yapan_user_id,
+            onceki_stok,
+            sonraki_stok,
+            aciklama
+        ) VALUES (
+            v_item.urun_id,
+            'stok_artisi',
+            v_item.miktar_adet,
+            'ithalat_partisi',
+            p_batch_id::text,
+            p_user_id,
+            v_onceki_stok,
+            v_onceki_stok + v_item.miktar_adet,
+            'Ithalat partisi mal kabulu'
+        );
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+</file>
+
 <file path=".repomixignore">
 _backup/
 _archive/
@@ -15665,6 +14421,100 @@ export const recipeWizardT = {
     successPdf: 'تم تحميل PDF!',
   },
 } as const;
+</file>
+
+<file path="src/lib/lexware/client.ts">
+/**
+ * Lexware Office API Client
+ * Base URL: https://api.lexware.io (Mayıs 2025 sonrası resmi gateway)
+ * Rate Limit: 2 istek / saniye
+ */
+
+const LEXWARE_BASE_URL = 'https://api.lexware.io';
+
+export class LexwareApiError extends Error {
+  constructor(
+    public status: number,
+    public statusText: string,
+    public details: any
+  ) {
+    super(`Lexware API Error [${status} ${statusText}]: ${typeof details === 'string' ? details : JSON.stringify(details)}`);
+    this.name = 'LexwareApiError';
+  }
+}
+
+export function getLexwareApiKey(): string {
+  const key = process.env.LEXWARE_API_KEY?.trim();
+  if (!key) {
+    throw new Error('LEXWARE_API_KEY ortam değişkeni tanımlı değil.');
+  }
+  return key;
+}
+
+export async function lexwareFetch<T = any>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  // KRITIK GÜVENLIK KURALI: Bu mock kodu ASLA production ortaminda calismamalidir.
+  // Canlıda sahte fatura üretmek ciddi bir finansal risktir.
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isMockEnabled = !isProduction && (
+    process.env.NODE_ENV === 'test' || 
+    process.env.NODE_ENV === 'development' ||
+    process.env.PLAYWRIGHT_TEST === 'true' || 
+    process.env.MOCK_LEXWARE === 'true'
+  );
+                 
+  if (isMockEnabled) {
+    if (endpoint.includes('/document')) return { documentFileId: 'mock-file-id' } as any;
+    if (endpoint.includes('/files')) {
+      const mockPdf = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n5 0 obj\n<< /Length 44 >>\nstream\nBT\n/F1 24 Tf\n100 700 Td\n(MOCK INVOICE) Tj\nET\nendstream\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF`;
+      return new Blob([mockPdf], { type: 'application/pdf' }) as any;
+    }
+    if (endpoint.includes('credit-notes')) return { id: 'mock-storno-id', voucherNumber: 'GS-MOCK-123', pdfUrl: 'mock.pdf' } as any;
+    return { id: 'mock-invoice-id', voucherNumber: 'RE-MOCK-123', pdfUrl: 'mock.pdf' } as any;
+  }
+
+  const apiKey = getLexwareApiKey();
+  const url = endpoint.startsWith('http') ? endpoint : `${LEXWARE_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+
+  const headers = new Headers(options.headers);
+  headers.set('Authorization', `Bearer ${apiKey}`);
+  if (!headers.has('Accept')) {
+    headers.set('Accept', 'application/json');
+  }
+  if (options.body && typeof options.body === 'string' && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    let details: any;
+    try {
+      details = await response.json();
+    } catch {
+      details = await response.text();
+    }
+    throw new LexwareApiError(response.status, response.statusText, details);
+  }
+
+  // 204 No Content
+  if (response.status === 204) {
+    return {} as T;
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return (await response.json()) as T;
+  }
+
+  // Binary (örn: PDF dosyası)
+  return (await response.blob()) as unknown as T;
+}
 </file>
 
 <file path="src/lib/lexware/invoices.ts">
@@ -21229,6 +20079,7 @@ export type Database = {
           seo_meta: Json | null
           slug: string | null
           son_gercek_inis_maliyeti_net: number | null
+          son_indirimli_alis_fiyati: number | null
           son_maliyet_sapma_yuzde: number | null
           standart_inis_maliyeti_net: number | null
           stok_esigi: number
@@ -21291,6 +20142,7 @@ export type Database = {
           seo_meta?: Json | null
           slug?: string | null
           son_gercek_inis_maliyeti_net?: number | null
+          son_indirimli_alis_fiyati?: number | null
           son_maliyet_sapma_yuzde?: number | null
           standart_inis_maliyeti_net?: number | null
           stok_esigi?: number
@@ -21353,6 +20205,7 @@ export type Database = {
           seo_meta?: Json | null
           slug?: string | null
           son_gercek_inis_maliyeti_net?: number | null
+          son_indirimli_alis_fiyati?: number | null
           son_maliyet_sapma_yuzde?: number | null
           standart_inis_maliyeti_net?: number | null
           stok_esigi?: number

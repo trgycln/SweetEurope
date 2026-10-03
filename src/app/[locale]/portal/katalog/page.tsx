@@ -291,11 +291,7 @@ export default async function KatalogPage({
         return favB - favA;
     });
 
-    const finalStammCandidates = stammCandidates.length > 0
-        ? stammCandidates.slice(0, 30)
-        : produkte
-            .filter(p => (p as any).onerilen === true || (p as any).is_bestseller === true || (p as any).is_featured === true)
-            .slice(0, 12);
+    const finalStammCandidates = stammCandidates.slice(0, 30);
 
     const stammProdukte: ProduktMitPreis[] = await Promise.all(
         finalStammCandidates.map(async (produkt) => {

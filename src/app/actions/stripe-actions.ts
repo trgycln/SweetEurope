@@ -19,9 +19,14 @@ export async function createStripeCheckoutSessionAction(params: {
   items: CartItemInput[];
   deliveryPlz?: string;
   locale: Locale;
-  orderNotes?: string;
+  isTest?: boolean;
 }) {
   try {
+    if (params.isTest) {
+      console.log('[TEST MODE] Stripe session isteği atlandı');
+      return { url: '/portal/siparisler' };
+    }
+
     // 0. Stripe Güvenlik Bariyeri (Safety Guard):
     // Test veya geliştirme ortamında kazara canlı anahtarla gerçek kart çekimini önler
     const safetyCheck = assertStripeEnvironmentSafety();

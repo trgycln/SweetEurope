@@ -85,3 +85,41 @@ Projede yüklü olan 26 beceri (Skills) şu B2B fazlarında zorunlu rehber olara
 ---
 
 > ⚠️ **KATI KURAL:** Gelecekteki herhangi bir geliştirmede veya kod revizyonunda, salt görsel güzelleştirme uğruna yukarıdaki 4 sütundan (B2B Mantığı, Stok Güvenliği, i18n Bütünlüğü, CWV/Performans) taviz verilmesi KESİNLİKLE YASAKTIR.
+
+
+## 6. CANLI VERİ KORUMASI VE GÜVENLİ TEST (PRODUCTION DATA PROTECTION & SAFE TESTING)
+*İlgili Beceriler: `security-and-hardening`, `database-administration`, `doubt-driven-development`*
+
+1. **YIKICI İŞLEMLERE SIFIR TOLERANS (ZERO DELETION POLICY):**
+   - AI Asistanı (IDE), veritabanı üzerinde KESİNLİKLE `DELETE`, `TRUNCATE`, `DROP` komutları çalıştıramaz.
+   - Test verilerini temizleme talebi gelse dahi, veriler fiziksel olarak silinmez. Sadece `status = 'İptal Edildi'` veya `is_deleted = true` (Soft Delete) şeklinde güncellenir.
+   - İlişkisel tablolarda (örn: `siparisler` ve `giderler`) Cascade Delete riskine karşı manuel silme scriptleri yazmak YASAKTIR.
+2. **TEST SİPARİŞİ İZOLASYONU (TEST ORDER ISOLATION):**
+   - Canlı sistemde yapılan testler için `siparisler` tablosunda `is_test` (boolean) bayrağı kullanılacaktır.
+   - `is_test = true` olan bir sipariş KESİNLİKLE:
+     a) `urunler` veya `alt_bayi_stoklari` tablosundan gerçek stok DÜŞÜREMEZ.
+     b) `giderler`, `alt_bayi_giderleri` veya `finans_kasa_islemleri` tablolarına finansal kayıt ATAMAZ.
+     c) Lexware API'sine gidip gerçek bir fatura (Invoice) OLUŞTURAMAZ (Sadece Mock/Test endpoint çalışır).
+3. **API ORTAM GÜVENLİĞİ (API ENVIRONMENT STRICTNESS):**
+   - Stripe ve Lexware entegrasyonlarında `NODE_ENV === 'production'` kontrolü esastır.
+   - Eğer bir sipariş `is_test = true` ise, sistem production'da olsa bile Stripe ödemesi "Test Mode" parametreleriyle veya bypass edilerek çalıştırılmalıdır.
+
+   ## 7. MCP ARAÇLARI VE OTOMASYON İŞ AKIŞI (MCP TOOLS & AUTOMATION WORKFLOW)
+*İlgili Beceriler: `tool-usage`, `database-administration`, `git-workflow-and-versioning`*
+
+Sisteme entegre edilmiş MCP (Model Context Protocol) araçları bulunmaktadır: **Supabase, Stripe, Vercel, Resend, GitHub.**
+Bu araçların kullanımıyla ilgili şu kurallar KESİNDİR:
+
+1. **KOPYALA-YAPIŞTIR HAMALLIĞI YASAKTIR:**
+   - Kullanıcıya "Bu SQL kodunu kopyala ve Supabase SQL Editor'e yapıştır" demek YASAKTIR.
+   - Kullanıcıya "Stripe dashboard'a git ve şu ayarı yap" demek YASAKTIR.
+   - Elindeki MCP araçlarını kullanarak işlemleri doğrudan sen yapmalısın.
+2. **SUPABASE VERİTABANI İŞ AKIŞI (GÜVENLİK PROTOKOLÜ):**
+   - **Okuma (READ):** Şema kontrolü, tablo yapısı inceleme veya test verisi arama işlemleri için Supabase MCP'yi kullanıcıya sormadan anında kullan.
+   - **Yazma/Değiştirme (WRITE/DDL):** Veritabanında bir tablo oluşturulacaksa veya güncellenecekse:
+     1. Önce ilgili `.sql` migration dosyasını projeye (örn: `supabase/migrations/`) kaydet.
+     2. Kullanıcıya şu soruyu sor: *"Migration dosyasını oluşturdum. Supabase MCP kullanarak veritabanına doğrudan uygulayayım mı?"*
+     3. Kullanıcı onay verirse MCP üzerinden SQL'i çalıştır. Onaysız DDL/DML çalıştırmak YASAKTIR.
+3. **DİĞER MCP ARAÇLARI:**
+   - **GitHub:** Commit ve Push işlemleri için kullanıcıdan onay alarak MCP'yi kullan.
+   - **Resend & Stripe:** Logları incelemek, test ödemesi kontrol etmek veya webhook durumlarını sorgulamak için MCP araçlarını proaktif olarak kullan.

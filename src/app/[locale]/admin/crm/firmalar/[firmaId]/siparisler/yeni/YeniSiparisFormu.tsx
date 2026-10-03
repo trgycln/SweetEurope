@@ -79,6 +79,7 @@ interface YeniSiparisFormuProps {
     isPortal?: boolean;
     redirectPath?: string;
     kaynak?: any;
+    userRole?: string;
 }
 
 type SepetUrunu = {
@@ -110,9 +111,11 @@ export default function YeniSiparisFormu({
     isPortal = false,
     redirectPath,
     kaynak,
+    userRole,
 }: YeniSiparisFormuProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const [isTestOrder, setIsTestOrder] = useState(false);
 
     // Sepet ve form durumları
     const [sepet, setSepet] = useState<SepetUrunu[]>([]);
@@ -360,7 +363,8 @@ export default function YeniSiparisFormu({
                 teslimatAdresi: teslimatAdresi,
                 normalItems: normalPayload,
                 onSiparisItems: onSiparisPayload,
-                kaynak: kaynak || (isPortal ? 'Müşteri Portalı' : 'Admin Paneli')
+                kaynak: kaynak || (isPortal ? 'Müşteri Portalı' : 'Admin Paneli'),
+                isTest: isTestOrder
             });
 
             if (result?.success) {
@@ -1094,6 +1098,22 @@ export default function YeniSiparisFormu({
                                     className="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-accent outline-none transition-all placeholder:text-gray-400"
                                 />
                             </div>
+
+                            {/* Test Siparişi Checkbox (Sadece Yönetici) */}
+                            {userRole === 'Yönetici' && (
+                                <div className="flex items-center gap-2 mb-2 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <input
+                                        type="checkbox"
+                                        id="isTestOrder"
+                                        checked={isTestOrder}
+                                        onChange={(e) => setIsTestOrder(e.target.checked)}
+                                        className="w-4 h-4 text-yellow-600 bg-white border-gray-300 rounded focus:ring-yellow-500 cursor-pointer"
+                                    />
+                                    <label htmlFor="isTestOrder" className="text-xs font-medium text-yellow-800 cursor-pointer">
+                                        Bu bir test siparişidir (Stok düşmez, fatura kesilmez)
+                                    </label>
+                                </div>
+                            )}
 
                             {/* Siparişi Tamamla Butonu */}
                             <button

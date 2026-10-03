@@ -32,6 +32,13 @@ export default async function YeniSiparisPage({ params, searchParams }: YeniSipa
         return redirect(`/${locale}/login?next=${encodeURIComponent(redirectUrl)}`);
     }
 
+    const { data: profile } = await supabase
+        .from('profiller')
+        .select('rol')
+        .eq('id', user.id)
+        .single();
+    const userRole = profile?.rol || 'Müşteri';
+
     let firma: { id: string; unvan: string; adres: string | null; email?: string | null; telefon?: string | null; sehir?: string | null } | null = null;
     let firmenListe: Pick<Tables<'firmalar'>, 'id' | 'unvan'>[] | null = null;
 
@@ -183,6 +190,7 @@ export default async function YeniSiparisPage({ params, searchParams }: YeniSipa
                 sonSiparisUrunIdleri={sonSiparisUrunIdleri}
                 pastOrders={pastOrders}
                 locale={locale}
+                userRole={userRole}
             />
         </div>
     );

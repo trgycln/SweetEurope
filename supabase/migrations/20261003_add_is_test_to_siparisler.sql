@@ -1,0 +1,1 @@
+ALTER TABLE public.siparisler ADD COLUMN IF NOT EXISTS is_test BOOLEAN DEFAULT false;

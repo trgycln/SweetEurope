@@ -104,7 +104,7 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
         // B) Sipariş ID, Tarih ve Teslimat Adresinden eşleşenleri bul
         const { data: firmaOrders } = await supabase
             .from('siparisler')
-            .select('id, siparis_tarihi, teslimat_adresi');
+            .select('id, siparis_tarihi, is_test, teslimat_adresi');
 
         const directOrderIds = (firmaOrders || []).filter(o => {
             const idMatch = o.id.toLowerCase().includes(cleanQuery);
@@ -129,7 +129,7 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
         .from('siparisler')
         .select(`
             id,
-            siparis_tarihi,
+            siparis_tarihi, is_test,
             toplam_tutar_net,
             toplam_tutar_brut,
             kdv_orani,
@@ -190,7 +190,7 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
     // ── İstatistikler (Hızlı Özet Verisi) ─────────────────────
     const { data: allKendiOrders } = await supabase
         .from('siparisler')
-        .select('id, siparis_durumu, toplam_tutar_net, siparis_tarihi')
+        .select('id, siparis_durumu, toplam_tutar_net, siparis_tarihi, is_test')
         .eq('firma_id', firmaId);
 
     const currentMonth = now.getMonth();
@@ -236,7 +236,7 @@ export default async function PartnerSiparisListPage({ params, searchParams }: P
                 .from('siparisler')
                 .select(`
                     id,
-                    siparis_tarihi,
+                    siparis_tarihi, is_test,
                     toplam_tutar_net,
                     toplam_tutar_brut,
                     kdv_orani,

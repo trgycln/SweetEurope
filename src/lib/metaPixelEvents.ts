@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Meta Pixel (Facebook Pixel) Merkezi Event Yönetimi
@@ -80,7 +80,10 @@ export function trackPurchase(params: {
   currency?: string;
   content_ids?: string[];
   num_items?: number;
+  is_test?: boolean;
 }) {
+  if (params.is_test) return;
+
   fbq('track', 'Purchase', {
     currency: 'EUR',
     ...params,

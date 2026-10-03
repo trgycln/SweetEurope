@@ -53,7 +53,7 @@ export async function markOrderAsShippedAction(
     const { data: siparis, error: siparisError } = await supabaseAdmin
       .from('siparisler')
       .select(`
-        id, siparis_durumu,
+        id, siparis_durumu, is_test,
         firmalar ( id, email, unvan )
       `)
       .eq('id', siparisId)
@@ -83,7 +83,7 @@ export async function markOrderAsShippedAction(
     let warningMsg: string | undefined;
 
     // 2. Müşteriye e-posta gönder — GRACEFUL FAILURE
-    if (firma?.email) {
+    if (firma?.email && !(siparis as any).is_test) {
       try {
         await sendShippingEmail({
           to: firma.email,

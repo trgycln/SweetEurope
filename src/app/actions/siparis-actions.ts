@@ -47,9 +47,11 @@ export async function siparisOlusturAction(payload: {
     paymentMethod?: 'stripe' | 'rechnung' | 'vorkasse',
     locale?: string,
     orderNotes?: string,
+    isTest?: boolean,
 }): Promise<ActionResult> {
 
     const isPreOrder = payload.siparisTuru === 'on_siparis';
+    let isTestOrder = payload.isTest === true;
 
     const cookieStore = await cookies();
     const supabase = await createSupabaseServerClient(cookieStore);
@@ -64,6 +66,19 @@ export async function siparisOlusturAction(payload: {
     }
 
     // --- ZERO TRUST SECURITY: Backend Re-calculation ---
+    // 0. Test Firması Kontrolü
+    const { data: currentFirma } = await supabase
+        .from('firmalar')
+        .select('is_test_account')
+        .eq('id', payload.firmaId)
+        .single();
+
+    if (currentFirma?.is_test_account === true) {
+        isTestOrder = true;
+        // payload.isTest'i de ezelim ki asagidaki email fonksiyonlarına doğru gitsin
+        payload.isTest = true;
+    }
+
     // 1. Kullanıcı Rolünü Çek
     const { data: profile } = await supabase
         .from('profiller')
@@ -85,7 +100,7 @@ export async function siparisOlusturAction(payload: {
     }
 
     // Stok kontrolü (Normal sipariş için)
-    if (!isPreOrder) {
+    if (!isPreOrder && !isTestOrder) {
         for (const item of payload.items) {
             const urun = urunler.find(u => u.id === item.urun_id);
             if (!urun) return { error: `Siparişteki bir ürün bulunamadı.` };
@@ -129,14 +144,14 @@ export async function siparisOlusturAction(payload: {
     const shipping = calculateShipping(trustedToplamNet, plz, totalWeightKg);
     const trustedToplamBrut = Number(Math.round(Number((trustedToplamNet + (trustedToplamNet * 0.07) + shipping.shippingCostGross) + 'e2')) + 'e-2');
 
-    // 1. ÖN SİPARİŞ DURUMU
-    if (isPreOrder) {
+    // 1. ÖN SİPARİŞ DURUMU (VEYA TEST SİPARİŞİ)
+    if (isPreOrder || isTestOrder) {
         const { data: orderData, error: orderError } = await (supabase as any)
             .from('siparisler')
             .insert({
                 firma_id: payload.firmaId,
                 teslimat_adresi: payload.teslimatAdresi,
-                siparis_durumu: 'Ön Sipariş',
+                siparis_durumu: isTestOrder ? 'Yeni' : 'Ön Sipariş',
                 siparis_kaynagi: payload.kaynak,
                 olusturan_kullanici_id: user.id,
                 siparis_tarihi: new Date().toISOString(),
@@ -147,6 +162,7 @@ export async function siparisOlusturAction(payload: {
                 kargo_kdv_tutari:  shipping.shippingVatAmount,
                 kargo_tutari_brut: shipping.shippingCostGross,
                 kargo_yontemi:     shipping.shippingMethodName,
+                is_test:           isTestOrder,
             })
             .select('id')
             .single();
@@ -202,7 +218,8 @@ export async function siparisOlusturAction(payload: {
                         toplamFiyat: item.toplam_fiyat,
                     }));
                     const loc = payload.locale || 'de';
-                    await sendOrderConfirmationEmail({
+                    if (!payload.isTest) {
+                        await sendOrderConfirmationEmail({
                         to: user.email,
                         recipientName: profil?.ad_soyad || null,
                         firmName: firma2?.unvan || null,
@@ -216,7 +233,8 @@ export async function siparisOlusturAction(payload: {
                         locale: loc,
                         portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
                         paymentMethod: payload.paymentMethod,
-                    });
+                        });
+                    }
                 }
             } catch (emailErr) {
                 console.error('[siparis-actions] Ön sipariş onay e-postası gönderilemedi:', emailErr);
@@ -228,7 +246,7 @@ export async function siparisOlusturAction(payload: {
         revalidatePath('/admin/operasyon/siparisler');
         revalidatePath('/portal/siparisler');
 
-        return { success: true, orderId: newOrderId, message: "Ön sipariş başarıyla oluşturuldu." };
+        return { success: true, orderId: newOrderId, message: isTestOrder ? "Test siparişi başarıyla oluşturuldu (Stok düşülmedi)." : "Ön sipariş başarıyla oluşturuldu." };
     }
 
     // 2. NORMAL SİPARİŞ DURUMU (STOK KONTROLLÜ)
@@ -301,7 +319,8 @@ export async function siparisOlusturAction(payload: {
                     toplamFiyat: item.toplam_fiyat,
                 }));
                 const loc = payload.locale || 'de';
-                await sendOrderConfirmationEmail({
+                if (!payload.isTest) {
+                    await sendOrderConfirmationEmail({
                     to: user.email,
                     recipientName: profil?.ad_soyad || null,
                     firmName: firma2?.unvan || null,
@@ -315,7 +334,8 @@ export async function siparisOlusturAction(payload: {
                     locale: loc,
                     portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
                     paymentMethod: payload.paymentMethod,
-                });
+                    });
+                }
             }
         } catch (emailErr) {
             console.error('[siparis-actions] Sipariş onay e-postası gönderilemedi:', emailErr);
@@ -345,6 +365,7 @@ export async function topluSiparisOlusturAction(payload: {
     paymentMethod?: "stripe" | "rechnung" | "vorkasse",
     locale?: string,
     orderNotes?: string,
+    isTest?: boolean,
 }): Promise<{
     success?: boolean;
     error?: string;
@@ -355,6 +376,20 @@ export async function topluSiparisOlusturAction(payload: {
 }> {
     let normalOrderId: string | null = null;
     let onSiparisOrderId: string | null = null;
+
+    // --- ZERO TRUST SECURITY: Test Firması Kontrolü ---
+    const cookieStore = await cookies();
+    const supabase = await createSupabaseServerClient(cookieStore);
+    
+    const { data: currentFirma } = await supabase
+        .from('firmalar')
+        .select('is_test_account')
+        .eq('id', payload.firmaId)
+        .single();
+
+    if (currentFirma?.is_test_account === true) {
+        payload.isTest = true;
+    }
 
     // 1. Normal Sipariş oluştur (varsa)
     if (payload.normalItems && payload.normalItems.length > 0) {
@@ -368,6 +403,7 @@ export async function topluSiparisOlusturAction(payload: {
             kargoKdvTutari:  payload.kargoKdvTutari,
             kargoTutariBrut: payload.kargoTutariBrut,
             kargoYontemi:    payload.kargoYontemi,
+            isTest:          payload.isTest,
         });
 
         if (normalRes.error) {
@@ -388,6 +424,7 @@ export async function topluSiparisOlusturAction(payload: {
             kargoKdvTutari:  payload.kargoKdvTutari,
             kargoTutariBrut: payload.kargoTutariBrut,
             kargoYontemi:    payload.kargoYontemi,
+            isTest:          payload.isTest,
         });
 
         if (onSiparisRes.error) {
@@ -408,6 +445,16 @@ export async function topluSiparisOlusturAction(payload: {
 
     
     if (payload.paymentMethod === 'stripe') {
+        if (payload.isTest) {
+            console.log('[TEST MODE] Stripe isteği atlandı');
+            return {
+                success: true,
+                message: mesaj,
+                normalOrderId,
+                onSiparisOrderId,
+                stripeUrl: '/portal/siparisler'
+            };
+        }
         const allItems = [...(payload.normalItems || []), ...(payload.onSiparisItems || [])];
         const stripeItems = allItems.map(item => ({
             urun_id: item.urun_id,

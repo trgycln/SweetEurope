@@ -73,7 +73,7 @@ export default async function AlleSiparislerPage({
         .select(`
             id,
             firma_id,
-            siparis_tarihi,
+            siparis_tarihi, is_test,
             toplam_tutar_net,
             toplam_tutar_brut,
             kdv_orani,
@@ -150,7 +150,7 @@ export default async function AlleSiparislerPage({
     const { data: rawSiparisler, error: siparisError, count: totalCount } = await query;
 
     if (siparisError) {
-        console.error('Siparişler sorgu hatası:', siparisError);
+        console.error('Siparişler sorgu hatası:', JSON.stringify(siparisError));
     }
 
     let allFetched = (rawSiparisler as any[]) || [];

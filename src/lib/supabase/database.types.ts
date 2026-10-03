@@ -2644,6 +2644,7 @@ export type Database = {
           created_at: string
           fatura_durumu: string | null
           firma_id: string
+          is_test: boolean | null
           id: string
           kargo_firmasi: string | null
           kargo_kdv_tutari: number | null
@@ -2675,6 +2676,7 @@ export type Database = {
           created_at?: string
           fatura_durumu?: string | null
           firma_id: string
+          is_test?: boolean | null
           id?: string
           kargo_firmasi?: string | null
           kargo_kdv_tutari?: number | null
@@ -2708,6 +2710,7 @@ export type Database = {
           created_at?: string
           fatura_durumu?: string | null
           firma_id?: string
+          is_test?: boolean | null
           id?: string
           kargo_firmasi?: string | null
           kargo_kdv_tutari?: number | null

@@ -45,6 +45,10 @@ DECLARE
   v_siparis_tutar     NUMERIC;
   v_musteri_unvan     TEXT;
 BEGIN
+  IF NEW.is_test = true THEN
+    RETURN NEW;
+  END IF;
+
   -- Sadece 'Teslim Edildi' / 'delivered' geçişinde çalış
   IF NOT (
     TG_OP = 'UPDATE'

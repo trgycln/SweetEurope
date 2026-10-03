@@ -79,6 +79,11 @@ export async function createLexwareInvoiceForOrder(
     throw new Error(`Siparişe bağlı firma kaydı bulunamadı [Sipariş ID: ${siparisId}]`);
   }
 
+  if (siparis.is_test === true) {
+    console.log('[TEST MODE] Lexware faturası atlandı');
+    return { invoiceId: 'test-inv-id', invoiceNo: 'TEST-001', pdfUrl: '#' };
+  }
+
   // 1. Lexware müşteri kartını doğrula veya oluştur
   const contactId = await getOrCreateLexwareContact(firma.id);
 
