@@ -54,7 +54,7 @@ export async function markOrderPaidFromStripe(orderId: string): Promise<{
       .single();
 
     const order = s as any;
-    if (!order || order.is_test === true) return { success: true };
+    if (!order) return { success: true };
 
     const to = order.firmalar?.email;
     if (!to) return { success: true, warning: 'Firma e-postası yok — onay e-postası gönderilmedi.' };

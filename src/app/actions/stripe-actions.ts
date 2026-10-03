@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { cookies, headers } from 'next/headers';
 import { calculateShipping } from '@/lib/shippingUtils';
 import { Locale } from '@/i18n-config';
+import { markOrderPaidFromStripe } from '@/lib/order-payment';
 
 interface CartItemInput {
   urun_id: string;
@@ -203,16 +204,20 @@ export async function confirmStripePaymentAction(sessionId: string, orderId?: st
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status === 'paid') {
-      const targetOrderId = orderId || (session.metadata?.order_id as string | undefined);
+      // Güvenlik: Stripe session metadata önceliklidir
+      const targetOrderId = (session.metadata?.order_id as string | undefined) || orderId;
       if (targetOrderId) {
+        // Idempotent: 'paid' işaretler + onay e-postasını gönderir (webhook ile çift e-posta olmaz)
+        const result = await markOrderPaidFromStripe(targetOrderId);
+        if (!result.success) {
+          console.error('confirmStripePaymentAction markOrderPaid error:', result.error);
+          return { error: result.error };
+        }
         const cookieStore = await cookies();
         const supabase = await createSupabaseServerClient(cookieStore);
         await supabase
           .from('siparisler')
-          .update({
-            odeme_durumu: 'paid',
-            siparis_durumu: 'Beklemede'
-          })
+          .update({ siparis_durumu: 'Beklemede' })
           .eq('id', targetOrderId);
       }
       return { success: true };
