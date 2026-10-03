@@ -84,7 +84,7 @@ export default async function PartnerSiparisDetayPage({ params }: PageProps) {
             firmalar ( id, unvan, adres, sehir, ilce, posta_kodu, telefon, email, ust_bayi_firma_id, parent_firma_id ),
             siparis_detay (
                 id, urun_id, miktar, birim_fiyat, toplam_fiyat,
-                urunler ( id, ad, stok_kodu, ana_resim_url )
+                urunler ( id, ad, stok_kodu, ana_resim_url, koli_ici_adet )
             )
         `)
         .eq('id', siparisId)
@@ -393,7 +393,21 @@ export default async function PartnerSiparisDetayPage({ params }: PageProps) {
                                                     {item.urunler.stok_kodu}
                                                 </span>
                                             )}
-                                            <span>{item.miktar} {locale === 'de' ? 'Karton' : 'Koli'} × {fmt(item.birim_fiyat)}</span>
+                                            <span>
+                                                {(() => {
+                                                    const m = Number(item.miktar) || 0;
+                                                    const koliIci = Number(item.urunler?.koli_ici_adet) || 1;
+                                                    if (koliIci > 1 && m % koliIci === 0) {
+                                                        const koli = m / koliIci;
+                                                        return locale === 'de' 
+                                                            ? `${koli} Karton (${m} Stk.) × ${fmt(item.birim_fiyat)}` 
+                                                            : `${koli} Koli (${m} Adet) × ${fmt(item.birim_fiyat)}`;
+                                                    }
+                                                    return locale === 'de' 
+                                                        ? `${m} Stk. × ${fmt(item.birim_fiyat)}` 
+                                                        : `${m} Adet × ${fmt(item.birim_fiyat)}`;
+                                                })()}
+                                            </span>
                                         </div>
                                     </div>
                                     <div className="text-right flex-shrink-0">
@@ -419,7 +433,7 @@ export default async function PartnerSiparisDetayPage({ params }: PageProps) {
                                 <div className="p-4 bg-slate-50/80 border-t border-slate-200 space-y-2 text-xs">
                                     <div className="flex items-center justify-between">
                                         <div className="text-slate-600">
-                                            {locale === 'de' ? 'Gesamt' : 'Toplam'} <strong>{urunSatirlari.reduce((sum: number, i: any) => sum + (Number(i.miktar) || 0), 0)}</strong> {locale === 'de' ? 'Karton' : 'koli ürün'}
+                                            {locale === 'de' ? 'Gesamt' : 'Toplam'} <strong>{urunSatirlari.reduce((sum: number, i: any) => sum + (Number(i.miktar) || 0), 0)}</strong> {locale === 'de' ? 'Stück' : 'adet ürün'}
                                         </div>
                                         <div className="flex flex-wrap items-center gap-4 text-right">
                                             <div>

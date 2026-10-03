@@ -95,14 +95,19 @@ export function hesaplaBirimFiyat(
     if (role === 'Alt Bayi') {
         return Number(urun.satis_fiyati_alt_bayi ?? urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
     }
-    // 2) Normal müşteri palet seçtiğinde: satis_fiyati_palet alır (alt bayiden pahalı, toptandan ucuz)
-    if (birim === 'palet') {
+
+    const paletIciKoli = getPaletIciKoliAdet(urun);
+
+    // 2) Palet miktarına ulaşıldıysa: satis_fiyati_palet
+    if (paletIciKoli > 0 && koliMiktar >= paletIciKoli) {
         return Number(urun.satis_fiyati_palet ?? urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
     }
+    
     // 3) 5+ koli → toptan fiyat
-    if (birim === 'koli' && koliMiktar >= 5) {
+    if (koliMiktar >= 5) {
         return Number(urun.satis_fiyati_toptanci ?? urun.satis_fiyati_musteri ?? 0);
     }
+    
     // 4) Standart 1-4 koli fiyatı
     return Number(urun.satis_fiyati_musteri ?? urun.partnerPreis ?? 0);
 }
@@ -122,9 +127,10 @@ export function hesaplaKoliMiktar(urun: UrunFiyatBilgi, birim: Birim, miktar: nu
 
 export type FiyatKademe = 'musteri' | 'toptanci' | 'palet';
 
-export function getAktifKademe(birim: Birim, koliMiktar: number): FiyatKademe {
-    if (birim === 'palet') return 'palet';
-    if (birim === 'koli' && koliMiktar >= 5) return 'toptanci';
+export function getAktifKademe(urun: UrunFiyatBilgi, koliMiktar: number): FiyatKademe {
+    const paletIciKoli = getPaletIciKoliAdet(urun);
+    if (paletIciKoli > 0 && koliMiktar >= paletIciKoli) return 'palet';
+    if (koliMiktar >= 5) return 'toptanci';
     return 'musteri';
 }
 
@@ -153,7 +159,7 @@ export function hesaplaSepetSatiri(
     const adetFiyatUnrounded = hesaplaBirimFiyat(urun, birim, koliMiktar, userRole);
     const adetFiyat = Number(Math.round(Number(adetFiyatUnrounded + 'e2')) + 'e-2');
     const toplamFiyat = Number(Math.round(Number((toplamAdet * adetFiyat) + 'e2')) + 'e-2');
-    const kademe = getAktifKademe(birim, koliMiktar);
+    const kademe = getAktifKademe(urun, koliMiktar);
 
     return {
         toplamAdet,
