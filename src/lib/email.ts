@@ -352,7 +352,9 @@ export async function sendOrderConfirmationEmail({
 
   const intro = isPreOrder
     ? 'Ihre Vorbestellung wurde erfolgreich aufgenommen. Sobald die Ware verfügbar ist, werden wir Sie kontaktieren.'
-    : 'Ihre Bestellung ist bei uns eingegangen und wird schnellstmöglich bearbeitet und versandt.';
+    : paymentMethod === 'stripe'
+      ? 'Vielen Dank! Ihre Zahlung ist bei uns eingegangen und Ihre Bestellung wird schnellstmöglich bearbeitet und versandt. Die Rechnung erhalten Sie separat per E-Mail im Zusammenhang mit dem Versand.'
+      : 'Ihre Bestellung ist bei uns eingegangen und wird schnellstmöglich bearbeitet und versandt.';
 
   const itemRowsHtml = items.map(item => `
     <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 12px; background-color: #ffffff;">
@@ -512,7 +514,30 @@ export async function sendOrderConfirmationEmail({
 
 /**
  * Müşteriye resmi Lexware faturasını PDF eki ile birlikte Almanca gönderir.
- * Stripe veya Havale ödemesi tamamlandığında   const html = `<!DOCTYPE html>
+ * Admin panelinden manuel tetiklenir (ürün kontrolü ve sevkiyat sonrası).
+ */
+export async function sendInvoiceEmail({
+  to,
+  orderNo,
+  invoiceNo,
+  pdfBuffer,
+  pdfFilename,
+}: {
+  to: string;
+  orderNo: string;
+  invoiceNo: string;
+  pdfBuffer: Buffer;
+  pdfFilename: string;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — fatura e-postası gönderilmedi.');
+    return;
+  }
+
+  const subject = `Ihre Rechnung ${invoiceNo} zu Bestellung #${orderNo} – Elysonsweets GmbH`;
+
+  const html = `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
@@ -532,7 +557,7 @@ export async function sendOrderConfirmationEmail({
       <h2 style="margin: 0 0 12px; color: #0f172a; font-size: 18px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
       
       <p style="font-size: 14px; line-height: 1.7; color: #475569; margin: 0 0 28px;">
-        vielen Dank für Ihre Bestellung! Ihre Zahlung wurde erfolgreich verarbeitet.
+        vielen Dank für Ihre Bestellung!
         Im Anhang dieser E-Mail finden Sie Ihre offizielle Rechnung als PDF-Datei.
       </p>
 

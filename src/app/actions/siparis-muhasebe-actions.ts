@@ -48,9 +48,10 @@ async function requireAdminRole() {
 }
 
 // -------------------------------------------------------------------
-// processOrderPaymentAction
+// createAndSendInvoiceAction — Admin kontrolünden sonra manuel tetiklenir:
+// Lexware faturası keser + PDF'i müşteriye e-posta ile gönderir (ödeme durumunu DEĞİŞTİRMEZ).
 // -------------------------------------------------------------------
-export async function processOrderPaymentAction(siparisId: string): Promise<{
+export async function createAndSendInvoiceAction(siparisId: string): Promise<{
   success: boolean;
   invoiceNo?: string;
   pdfUrl?: string;
@@ -89,12 +90,7 @@ export async function processOrderPaymentAction(siparisId: string): Promise<{
       };
     }
 
-    // 1. Ödeme durumunu 'paid' olarak işaretle
-    await supabaseAdmin
-      .from('siparisler')
-      .update({ odeme_durumu: 'paid' } as any)
-      .eq('id', siparisId);
-
+    // 1. Lexware faturası kes (ödeme durumu ayrı yönetilir)
     // 2. Lexware faturası kes
     let invoiceResult: { invoiceId: string; invoiceNo: string; pdfUrl: string } | null = null;
     let lexwareWarning: string | undefined;
@@ -104,7 +100,7 @@ export async function processOrderPaymentAction(siparisId: string): Promise<{
     } catch (lexErr: any) {
       // GRACEFUL FAILURE: Lexware hatası sistemi çökertmesin
       console.error('[muhasebe] Lexware fatura kesme hatası:', lexErr);
-      lexwareWarning = `Ödeme "Paid" olarak işaretlendi ancak Lexware faturası kesilemedi. Lütfen Lexware panelinden manuel kontrol edin. Hata: ${lexErr?.message}`;
+      lexwareWarning = `Lexware faturası kesilemedi. Lütfen Lexware panelinden kontrol edin. Hata: ${lexErr?.message}`;
 
       return {
         success: true,
@@ -159,6 +155,113 @@ export async function processOrderPaymentAction(siparisId: string): Promise<{
       success: false,
       error: error?.message || 'Ödeme işlenirken beklenmeyen bir hata oluştu.',
     };
+  }
+}
+
+// -------------------------------------------------------------------
+// -------------------------------------------------------------------
+// processOrderPaymentAction — Havale/Vorkasse: sadece "Ödendi" işaretler (fatura KESMEZ)
+// -------------------------------------------------------------------
+export async function processOrderPaymentAction(siparisId: string): Promise<{
+  success: boolean;
+  warning?: string;
+  error?: string;
+}> {
+  try {
+    const { user, error: authError } = await requireAdminRole();
+    if (authError || !user) return { success: false, error: authError! };
+
+    const supabaseAdmin = createSupabaseServiceClient();
+    const { error } = await supabaseAdmin
+      .from('siparisler')
+      .update({ odeme_durumu: 'paid' } as any)
+      .eq('id', siparisId);
+    if (error) return { success: false, error: error.message };
+
+    revalidatePath('/[locale]/admin/operasyon/siparisler/[siparisId]', 'page');
+    revalidatePath('/[locale]/portal/siparisler/[siparisId]', 'page');
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Ödeme işaretlenirken hata oluştu.' };
+  }
+}
+
+// -------------------------------------------------------------------
+// getInvoicePreviewAction — Fatura kesilmeden önce kalemleri gösterir (Lexware'e dokunmaz)
+// -------------------------------------------------------------------
+export interface InvoicePreview {
+  firma: { unvan: string; adres: string; plz: string; sehir: string; email: string };
+  items: Array<{ name: string; artNo?: string; qty: number; unitNet: number; totalNet: number }>;
+  kargo?: { name: string; net: number };
+  net: number;
+  vat: number;
+  gross: number;
+  vatRate: number;
+}
+
+export async function getInvoicePreviewAction(siparisId: string): Promise<{
+  success: boolean;
+  preview?: InvoicePreview;
+  error?: string;
+}> {
+  try {
+    const { user, error: authError } = await requireAdminRole();
+    if (authError || !user) return { success: false, error: authError! };
+
+    const supabaseAdmin = createSupabaseServiceClient();
+    const { data: s, error } = await supabaseAdmin
+      .from('siparisler')
+      .select(`
+        id, kargo_tutari_net, kargo_yontemi,
+        firmalar ( unvan, adres, posta_kodu, sehir, email ),
+        siparis_detay ( miktar, birim_fiyat, urunler ( ad, stok_kodu ) )
+      `)
+      .eq('id', siparisId)
+      .single();
+    if (error || !s) return { success: false, error: `Sipariş bulunamadı: ${error?.message}` };
+
+    const order = s as any;
+    const VAT = 7; // createLexwareInvoiceForOrder ile aynı oran
+    const items = (order.siparis_detay || []).map((d: any) => {
+      const raw = d.urunler?.ad;
+      const name = typeof raw === 'object' && raw !== null
+        ? raw.de || raw.tr || Object.values(raw)[0]
+        : String(raw || 'Produkt');
+      const qty = Number(d.miktar) || 1;
+      const unitNet = Number(d.birim_fiyat) || 0;
+      return {
+        name: String(name),
+        artNo: d.urunler?.stok_kodu || undefined,
+        qty,
+        unitNet,
+        totalNet: Math.round(qty * unitNet * 100) / 100,
+      };
+    });
+
+    const kargoNet = Number(order.kargo_tutari_net) || 0;
+    const net = Math.round((items.reduce((a: number, i: any) => a + i.totalNet, 0) + kargoNet) * 100) / 100;
+    const vat = Math.round(net * VAT) / 100;
+
+    return {
+      success: true,
+      preview: {
+        firma: {
+          unvan: order.firmalar?.unvan || '',
+          adres: order.firmalar?.adres || '',
+          plz: order.firmalar?.posta_kodu || '',
+          sehir: order.firmalar?.sehir || '',
+          email: order.firmalar?.email || '',
+        },
+        items,
+        ...(kargoNet > 0 ? { kargo: { name: `Versandkosten (${order.kargo_yontemi || 'Lieferung'})`, net: kargoNet } } : {}),
+        net,
+        vat,
+        gross: Math.round((net + vat) * 100) / 100,
+        vatRate: VAT,
+      },
+    };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Önizleme oluşturulamadı.' };
   }
 }
 

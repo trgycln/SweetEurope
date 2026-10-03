@@ -1083,15 +1083,17 @@ export function SiparislerClient({
                                                     {/* Actions */}
                                                     <td className="px-4 py-3 text-right">
                                                         <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                                                            {/* Lieferschein Print */}
-                                                            <Link
-                                                                href={`/${locale}/print/lieferschein/${siparis.id}`}
-                                                                target="_blank"
-                                                                title={locale === 'de' ? 'Lieferschein' : 'İrsaliye'}
-                                                                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
-                                                            >
-                                                                <FiExternalLink size={14} />
-                                                            </Link>
+                                                            {/* Lieferschein Print (sadece admin / alt bayi) */}
+                                                            {(isAdmin || isAltBayi) && (
+                                                                <Link
+                                                                    href={`/${locale}/print/lieferschein/${siparis.id}`}
+                                                                    target="_blank"
+                                                                    title={locale === 'de' ? 'Lieferschein' : 'İrsaliye'}
+                                                                    className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
+                                                                >
+                                                                    <FiExternalLink size={14} />
+                                                                </Link>
+                                                            )}
 
                                                             {/* Quick Status Updates (Admin) */}
                                                             {(isAdmin || (isAltBayi && activeTab === 'musteri')) && (

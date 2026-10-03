@@ -190,17 +190,6 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
 
                     {/* Aksiyonlar */}
                     <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-                        {/* Lieferschein / İrsaliye Yazdır Butonu */}
-                        <Link
-                            href={`/${locale}/print/lieferschein/${siparis.id}`}
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 hover:text-accent transition-colors shadow-sm"
-                            title={locale === 'de' ? 'Lieferschein drucken' : 'İrsaliye / Teslimat Fişi Yazdır'}
-                        >
-                            <FiTruck size={14} />
-                            <span>Lieferschein</span>
-                        </Link>
-
                         {/* Faturayı İndir (PDF) */}
                         {hasInvoice && (
                             <a
@@ -561,15 +550,6 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
                                     <Download size={13} className="opacity-80" />
                                 </a>
                             )}
-
-                            <Link
-                                href={`/${locale}/print/lieferschein/${siparis.id}`}
-                                target="_blank"
-                                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors shadow-xs"
-                            >
-                                <FiTruck size={14} />
-                                <span>{locale === 'de' ? 'Lieferschein drucken' : 'İrsaliye Yazdır (Lieferschein)'}</span>
-                            </Link>
                         </div>
                     </div>
 

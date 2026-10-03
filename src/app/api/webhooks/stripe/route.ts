@@ -5,14 +5,16 @@
  * Sahte istekler imza doğrulamasında 400 döndürür — hiçbir sipariş haksız yere "Paid" olmaz.
  *
  * Desteklenen event'lar:
- * - checkout.session.completed → processOrderPaymentAction çalıştırır (fatura + e-posta)
+ * - checkout.session.completed → siparişi 'paid' yapar + faturasız onay e-postası gönderir
  * - payment_intent.succeeded   → Ek güvence katmanı olarak aynı akışı tetikler
+ *
+ * NOT: Lexware faturası burada KESİLMEZ — admin panelinden manuel tetiklenir.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import Stripe from 'stripe';
-import { processOrderPaymentAction } from '@/app/actions/siparis-muhasebe-actions';
+import { markOrderPaidFromStripe } from '@/lib/order-payment';
 
 // Next.js'in body'yi otomatik parse etmemesi için force-dynamic zorunlu
 export const dynamic = 'force-dynamic';
@@ -60,19 +62,19 @@ export async function POST(req: NextRequest) {
 
       console.log(`[stripe-webhook] ✅ Ödeme başarılı → Sipariş: ${orderId} | Session: ${session.id}`);
 
-      // processOrderPaymentAction: Fatura kes + müşteriye e-posta gönder
-      const result = await processOrderPaymentAction(orderId);
+      // Ödemeyi işaretle + faturasız onay e-postası (idempotent)
+      const result = await markOrderPaidFromStripe(orderId);
 
       if (!result.success) {
         // Kritik hata → Stripe'a 500 döndür ki tekrar denesin
-        console.error('[stripe-webhook] processOrderPaymentAction başarısız:', result.error);
+        console.error('[stripe-webhook] markOrderPaidFromStripe başarısız:', result.error);
         return NextResponse.json({ error: result.error }, { status: 500 });
       }
 
       if (result.warning) {
         console.warn(`[stripe-webhook] ⚠️ Kısmi başarı — Sipariş: ${orderId} | Uyarı: ${result.warning}`);
       } else {
-        console.log(`[stripe-webhook] ✅ Fatura kesildi: ${result.invoiceNo} | Sipariş: ${orderId}`);
+        console.log(`[stripe-webhook] ✅ Ödeme işlendi (fatura admin panelinden kesilecek) | Sipariş: ${orderId}`);
       }
     }
 
@@ -88,8 +90,8 @@ export async function POST(req: NextRequest) {
 
       console.log(`[stripe-webhook] payment_intent.succeeded → Sipariş: ${orderId} | PI: ${paymentIntent.id}`);
 
-      // IDEMPOTENCY: processOrderPaymentAction kendi içinde tekrar fatura kesmez
-      const result = await processOrderPaymentAction(orderId);
+      // IDEMPOTENCY: zaten 'paid' ise tekrar işlem/e-posta yapılmaz
+      const result = await markOrderPaidFromStripe(orderId);
       if (result.warning) {
         console.warn(`[stripe-webhook] ⚠️ Uyarı (payment_intent): ${result.warning}`);
       }

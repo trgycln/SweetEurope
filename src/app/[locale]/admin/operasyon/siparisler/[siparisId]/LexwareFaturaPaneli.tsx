@@ -16,9 +16,15 @@
  * GRACEFUL FAILURE: Lexware/e-posta hatası bilgilendirici uyarı gösterir, çökmez.
  */
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { faturaOlusturAction } from '@/app/actions/lexware-actions';
-import { processOrderPaymentAction, cancelOrderAndStornoAction } from '@/app/actions/siparis-muhasebe-actions';
+import {
+  processOrderPaymentAction,
+  cancelOrderAndStornoAction,
+  createAndSendInvoiceAction,
+  getInvoicePreviewAction,
+  type InvoicePreview,
+} from '@/app/actions/siparis-muhasebe-actions';
 import { toast } from 'sonner';
 import {
   FiFileText, FiDownload, FiAlertCircle, FiCheckCircle,
@@ -61,37 +67,66 @@ export default function LexwareFaturaPaneli({
   const hasStorno = Boolean(localStornoNo || stornoId);
   const isPaid = localOdemeDurumu === 'paid';
 
+  const [preview, setPreview] = useState<InvoicePreview | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+
+  // Fatura henüz kesilmediyse kalemleri önizle (Lexware'e dokunmaz)
+  useEffect(() => {
+    if (hasInvoice || hasStorno) return;
+    let cancelled = false;
+    getInvoicePreviewAction(siparisId).then((r) => {
+      if (cancelled) return;
+      if (r.success && r.preview) setPreview(r.preview);
+      else setPreviewError(r.error || 'Önizleme yüklenemedi.');
+    });
+    return () => { cancelled = true; };
+  }, [siparisId, hasInvoice, hasStorno]);
+
+  const eur = (n: number) => n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+
   // -------------------------------------------------------------------
-  // "Ödeme Alındı Olarak İşaretle" — Havale müşterileri için manuel akış
-  // Fatura keser + müşteriye PDF'li e-posta gönderir
+  // "Ödeme Alındı Olarak İşaretle" — Havale müşterileri için (fatura KESMEZ)
   // -------------------------------------------------------------------
   const handleOdemeAlindi = () => {
     if (!window.confirm(
-      'Siparişi "Ödendi" olarak işaretleyecek ve Lexware\'de resmi fatura kesilecektir.\n' +
-      'Müşteriye fatura PDF\'i e-posta ile gönderilecektir.\n\n' +
-      'Devam etmek istiyor musunuz?'
+      'Sipariş "Ödendi" olarak işaretlenecektir. Fatura kesilmeyecektir.\n\nDevam etmek istiyor musunuz?'
     )) return;
 
     startTransition(async () => {
       const res = await processOrderPaymentAction(siparisId);
-
       if (res.success) {
         setLocalOdemeDurumu('paid');
+        toast.success('Sipariş "Ödendi" olarak işaretlendi.');
+      } else {
+        toast.error(res.error || 'Ödeme işlenirken bir hata oluştu.');
+      }
+    });
+  };
+
+  // -------------------------------------------------------------------
+  // "Faturayı Kes & Müşteriye Gönder" — kontrol sonrası manuel tetik
+  // -------------------------------------------------------------------
+  const handleFaturaGonder = () => {
+    if (!window.confirm(
+      'Lexware\'de RESMİ fatura kesilecek (geri alınamaz, yalnızca Storno ile iptal edilir) ' +
+      've PDF müşteriye e-posta ile gönderilecektir.\n\n' +
+      'Önizlemedeki kalemleri kontrol ettiniz mi?'
+    )) return;
+
+    startTransition(async () => {
+      const res = await createAndSendInvoiceAction(siparisId);
+      if (res.success) {
         if (res.invoiceNo) {
           setLocalInvoiceNo(res.invoiceNo);
           setLocalPdfUrl(res.pdfUrl || `/api/invoices/${siparisId}/pdf`);
         }
-
         if (res.warning) {
-          // Kısmi başarı — işlem tamamlandı ama bir sorun var
           toast.warning(res.warning, { duration: 8000 });
-        } else if (res.invoiceNo) {
-          toast.success(`Ödeme alındı, fatura kesildi (${res.invoiceNo}) ve müşteriye e-posta gönderildi!`);
         } else {
-          toast.success('Sipariş "Ödendi" olarak işaretlendi.');
+          toast.success(`Fatura kesildi (${res.invoiceNo}) ve müşteriye e-posta gönderildi!`);
         }
       } else {
-        toast.error(res.error || 'Ödeme işlenirken bir hata oluştu.');
+        toast.error(res.error || 'Fatura oluşturulamadı.');
       }
     });
   };
@@ -201,7 +236,7 @@ export default function LexwareFaturaPaneli({
           {isPaid && (
             <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-100">
               <FiCheckCircle size={12} />
-              <span>Ödeme alındı — müşteriye fatura e-postası gönderildi</span>
+              <span>Ödeme alındı</span>
             </div>
           )}
 
@@ -266,7 +301,7 @@ export default function LexwareFaturaPaneli({
                 Havale (Vorkasse) ile Ödeme Yapıldı mı?
               </p>
               <p className="text-[11px] text-blue-600 leading-relaxed">
-                Havale ile gelen ödemeyi onaylamak için bu butona basın. Sistem otomatik olarak faturayı kesecek ve müşteriye PDF'li e-posta gönderecektir.
+                Havale ile gelen ödemeyi onaylamak için bu butona basın. Yalnızca ödeme durumu "Ödendi" olur; fatura aşağıdan, kontrolünüzden sonra kesilir.
               </p>
               <button
                 type="button"
@@ -280,18 +315,72 @@ export default function LexwareFaturaPaneli({
                   </>
                 ) : (
                   <>
-                    <FiCreditCard size={14} /> Ödeme Alındı Olarak İşaretle & Fatura Kes
+                    <FiCreditCard size={14} /> Ödeme Alındı Olarak İşaretle
                   </>
                 )}
               </button>
             </div>
           )}
 
-          {/* Sadece fatura kesmek isteyenler için ayrı buton */}
+          {/* Fatura önizleme kartı */}
+          {previewError && (
+            <p className="text-xs text-rose-600">{previewError}</p>
+          )}
+          {preview && (
+            <div className="border border-gray-200 rounded-xl overflow-hidden text-xs">
+              <div className="bg-gray-50 px-3.5 py-2 font-bold text-gray-700 border-b border-gray-200">
+                Fatura Önizleme (henüz kesilmedi)
+              </div>
+              <div className="px-3.5 py-2.5 text-gray-600 border-b border-gray-100 leading-relaxed">
+                <div className="font-semibold text-gray-800">{preview.firma.unvan}</div>
+                <div>{preview.firma.adres}</div>
+                <div>{preview.firma.plz} {preview.firma.sehir}</div>
+                <div className="text-gray-400">{preview.firma.email || 'E-posta yok — mail gönderilemez!'}</div>
+              </div>
+              <table className="w-full">
+                <thead className="text-gray-400 text-[10px] uppercase">
+                  <tr>
+                    <th className="text-left px-3.5 py-1.5">Ürün</th>
+                    <th className="text-right px-2">Adet</th>
+                    <th className="text-right px-2">Birim (Net)</th>
+                    <th className="text-right px-3.5">Toplam (Net)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {preview.items.map((it, i) => (
+                    <tr key={i} className="border-t border-gray-100">
+                      <td className="px-3.5 py-1.5 text-gray-800">
+                        {it.name}
+                        {it.artNo && <span className="block text-[10px] text-gray-400">Art.-Nr.: {it.artNo}</span>}
+                      </td>
+                      <td className="text-right px-2">{it.qty}</td>
+                      <td className="text-right px-2">{eur(it.unitNet)}</td>
+                      <td className="text-right px-3.5 font-medium">{eur(it.totalNet)}</td>
+                    </tr>
+                  ))}
+                  {preview.kargo && (
+                    <tr className="border-t border-gray-100">
+                      <td className="px-3.5 py-1.5 text-gray-800">{preview.kargo.name}</td>
+                      <td className="text-right px-2">1</td>
+                      <td className="text-right px-2">{eur(preview.kargo.net)}</td>
+                      <td className="text-right px-3.5 font-medium">{eur(preview.kargo.net)}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              <div className="bg-gray-50 px-3.5 py-2.5 space-y-0.5 border-t border-gray-200">
+                <div className="flex justify-between"><span>Netto</span><span>{eur(preview.net)}</span></div>
+                <div className="flex justify-between"><span>MwSt. {preview.vatRate}%</span><span>{eur(preview.vat)}</span></div>
+                <div className="flex justify-between font-bold text-gray-900 text-sm"><span>Brutto</span><span>{eur(preview.gross)}</span></div>
+              </div>
+            </div>
+          )}
+
+          {/* Kontrol sonrası: resmi fatura kes + müşteriye gönder */}
           <button
             type="button"
-            onClick={handleFaturaOlustur}
-            disabled={isPending}
+            onClick={handleFaturaGonder}
+            disabled={isPending || !preview}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors disabled:opacity-50"
           >
             {isPending ? (
@@ -300,9 +389,19 @@ export default function LexwareFaturaPaneli({
               </>
             ) : (
               <>
-                <FiFileText size={14} /> Sadece Lexware Faturası Oluştur & Kes
+                <FiFileText size={14} /> Faturayı Lexware'de Kes &amp; Müşteriye Gönder
               </>
             )}
+          </button>
+
+          {/* Sadece Lexware'de oluştur (e-posta göndermez) */}
+          <button
+            type="button"
+            onClick={handleFaturaOlustur}
+            disabled={isPending}
+            className="block text-[11px] text-gray-400 hover:text-gray-600 underline disabled:opacity-50"
+          >
+            Sadece Lexware'de oluştur (müşteriye e-posta gönderme)
           </button>
 
           {/* İptal Et butonu (fatura olmasa da siparişi iptal etmek mümkün) */}
