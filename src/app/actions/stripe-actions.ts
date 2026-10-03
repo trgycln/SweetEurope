@@ -122,10 +122,14 @@ export async function createStripeCheckoutSessionAction(params: {
     }
 
     // 5. Build Stripe Line Items
+    // Stripe Checkout (payment mode) en fazla 2 ondalık destekler → birim fiyat yerine
+    // satır toplamı (tam sent) gönderilir; DB'deki brüt toplamla birebir aynıdır.
     const line_items: any[] = params.items.map((item) => {
+      const qty = Math.max(1, Number(item.adet) || 1);
       const kdvMultiplier = 1 + ((item.kdvOrani ?? 7) / 100);
-      const unitGrossCentDecimal = (item.birimFiyatNet * kdvMultiplier * 100).toFixed(4);
-      const productName = (item.ad && item.ad.trim().length > 0) ? item.ad.trim() : 'Produkt';
+      const lineGrossCents = Math.max(1, Math.round(item.birimFiyatNet * item.adet * kdvMultiplier * 100));
+      const baseName = (item.ad && item.ad.trim().length > 0) ? item.ad.trim() : 'Produkt';
+      const productName = qty > 1 ? `${baseName} (${qty} x)` : baseName;
 
       return {
         price_data: {
@@ -136,9 +140,9 @@ export async function createStripeCheckoutSessionAction(params: {
               urun_id: String(item.urun_id || ''),
             },
           },
-          unit_amount_decimal: unitGrossCentDecimal,
+          unit_amount: lineGrossCents,
         },
-        quantity: Math.max(1, Number(item.adet) || 1),
+        quantity: 1,
       };
     });
 

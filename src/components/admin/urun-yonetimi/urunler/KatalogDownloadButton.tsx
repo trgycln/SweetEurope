@@ -3,8 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Loader2, ChevronDown } from 'lucide-react';
 import { getKatalogData } from '@/app/actions/katalog-actions';
-import { pdf } from '@react-pdf/renderer';
-import KatalogPdfDocument from './KatalogPdfDocument';
 
 export const KatalogDownloadButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +26,9 @@ export const KatalogDownloadButton = () => {
       setIsOpen(false);
       
       const data = await getKatalogData(locale);
+      
+      const { pdf } = await import('@react-pdf/renderer');
+      const { default: KatalogPdfDocument } = await import('./KatalogPdfDocument');
       
       const blob = await pdf(<KatalogPdfDocument data={data} locale={locale} />).toBlob();
       const url = URL.createObjectURL(blob);

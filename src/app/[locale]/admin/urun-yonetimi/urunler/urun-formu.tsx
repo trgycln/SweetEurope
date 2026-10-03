@@ -628,7 +628,7 @@ export function UrunFormu({
                     </div>
 
                     <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
-                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">Toptancı</span>
+                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">5+ Koli Fiyatı</span>
                         <div className="flex items-baseline gap-1 mt-0.5">
                             <span className="text-sm font-bold font-mono text-blue-700">€{Number(toptanFiyat).toFixed(2)}</span>
                             {toptanMargin && (
@@ -640,7 +640,7 @@ export function UrunFormu({
                     </div>
 
                     <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-2xs">
-                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">Müşteri (B2C)</span>
+                        <span className="text-slate-500 block text-[9px] font-semibold uppercase tracking-tight">1 Koli Fiyatı</span>
                         <div className="flex items-baseline gap-1 mt-0.5">
                             <span className="text-sm font-bold font-mono text-emerald-700">€{Number(musteriFiyat).toFixed(2)}</span>
                             {musteriMargin && (
@@ -1133,8 +1133,8 @@ export function UrunFormu({
                                 {/* Toptancı Fiyatı */}
                                 <tr>
                                     <td className="px-3 py-2.5 font-bold text-blue-900">
-                                        Toptancı Satış Fiyatı (Wholesale)
-                                        <span className="block text-[10px] text-slate-500 font-normal">Büyük toptan alıcılar</span>
+                                        5+ Koli Fiyatı
+                                        <span className="block text-[10px] text-slate-500 font-normal">5 ve üzeri koli / Adet bazında alımlar</span>
                                     </td>
                                     <td className="px-3 py-2">
                                         <div className="relative">
@@ -1169,7 +1169,7 @@ export function UrunFormu({
                                 {/* Alt Bayi Fiyatı */}
                                 <tr>
                                     <td className="px-3 py-2.5 font-bold text-slate-800">
-                                        Alt Bayi Satış Fiyatı (Reseller)
+                                        Alt Bayi Fiyatı
                                         <span className="block text-[10px] text-slate-500 font-normal">B2B Alt bayiler / Partnerler</span>
                                     </td>
                                     <td className="px-3 py-2">
@@ -1203,8 +1203,8 @@ export function UrunFormu({
                                 {/* Müşteri Satış (B2C / Katalog) */}
                                 <tr>
                                     <td className="px-3 py-2.5 font-bold text-emerald-900">
-                                        Müşteri Satış Fiyatı (B2C / Liste)
-                                        <span className="block text-[10px] text-slate-500 font-normal">Web sitesi / Son kullanıcı fiyatı</span>
+                                        1 Koli Fiyatı (1-4 Koli)
+                                        <span className="block text-[10px] text-slate-500 font-normal">1-4 Koli / Adet bazında standart fiyat</span>
                                     </td>
                                     <td className="px-3 py-2">
                                         <div className="relative">
