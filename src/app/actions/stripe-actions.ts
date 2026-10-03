@@ -21,6 +21,7 @@ export async function createStripeCheckoutSessionAction(params: {
   deliveryPlz?: string;
   locale: Locale;
   isTest?: boolean;
+  orderNotes?: string;
 }) {
   try {
     if (params.isTest) {

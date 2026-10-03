@@ -38,13 +38,10 @@ export function getPaletIciKoliAdet(urun: UrunFiyatBilgi): number {
     const paletIciKoli = Number(urun.palet_ici_koli_adet ?? 0);
     if (paletIciKoli > 0) return paletIciKoli;
 
-    // palet_ici_adet adet sayısıysa, koli sayısına çevir
+    // DB'de palet_ici_adet = 1 paletteki KOLİ sayısıdır (örn. 125 koli/palet).
+    // Toplam adet = palet_ici_adet × koli_ici_adet (bkz. KatalogProductCard).
     const paletIciAdet = Number(urun.palet_ici_adet ?? 0);
-    const koliAdet = getKoliIciAdet(urun);
-    if (paletIciAdet > 0 && koliAdet > 0) {
-        return Math.floor(paletIciAdet / koliAdet);
-    }
-    return 0;
+    return paletIciAdet > 0 ? paletIciAdet : 0;
 }
 
 /** 1 paletteki toplam adet sayısı */

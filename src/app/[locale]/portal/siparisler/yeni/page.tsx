@@ -85,7 +85,7 @@ export default async function PortalYeniSiparisPage({ params, searchParams }: Pa
         const [urunlerRes, kategorilerRes] = await Promise.all([
             supabase
                 .from('urunler')
-                .select('id, ad, satis_fiyati_musteri, satis_fiyati_alt_bayi, satis_fiyati_toptanci, stok_miktari, stok_kodu, ean_gtin, ana_resim_url, kategori_id, koli_ici_adet')
+                .select('id, ad, satis_fiyati_musteri, satis_fiyati_alt_bayi, satis_fiyati_toptanci, satis_fiyati_palet, stok_miktari, stok_kodu, ean_gtin, ana_resim_url, kategori_id, koli_ici_adet, palet_ici_adet')
                 .eq('aktif', true)
                 .order('ad->>tr', { ascending: true }),
             supabase

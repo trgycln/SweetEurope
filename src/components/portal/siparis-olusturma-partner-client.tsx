@@ -363,6 +363,16 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                                     : `${5 - item.menge} koli daha: toplu indirim`}
                                             </p>
                                         );
+                                        if (item.birim === 'adet' && koliIciAdet > 1 && sepet.koliMiktar < 5) {
+                                            const eksikAdet = 5 * koliIciAdet - toplamAdet;
+                                            return (
+                                                <p className="text-[10px] text-gray-400 mt-1">
+                                                    {locale === 'de'
+                                                        ? `Noch ${eksikAdet} Stk. bis zum Mengenrabatt (5 Kartons)`
+                                                        : `${eksikAdet} adet daha: 5 koli toplu indirimi`}
+                                                </p>
+                                            );
+                                        }
                                         return null;
                                     })()}
                                 </div>
