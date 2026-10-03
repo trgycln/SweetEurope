@@ -223,9 +223,9 @@ function formatFiyat(fiyat: number | null | undefined, locale: string) {
 
 function formatDate(tarih: string, locale: string) {
     if (!tarih) return '—';
-    return new Date(tarih).toLocaleDateString(
+    return new Date(tarih).toLocaleString(
         locale === 'tr' ? 'tr-TR' : 'de-DE',
-        { day: '2-digit', month: 'short', year: 'numeric' }
+        { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }
     );
 }
 
