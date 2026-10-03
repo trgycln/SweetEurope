@@ -520,9 +520,7 @@ export async function topluSiparisOlusturAction(payload: {
                 success_url: `${origin}/${loc}/portal/siparisler?payment_status=success&session_id={CHECKOUT_SESSION_ID}&order_id=${targetOrderId}`,
                 cancel_url: `${origin}/${loc}/portal/siparisler/yeni?payment_status=cancelled`,
                 locale: stripeLocale,
-                // payment_method_types artık Stripe Checkout'ta kullanılmıyor.
-                // 'automatic_payment_methods' ile kart ve SEPA otomatik desteklenir.
-                automatic_payment_methods: { enabled: true },
+                payment_method_types: ['card'],
             };
             
             const session = await activeStripe.checkout.sessions.create(sessionPayload as any);

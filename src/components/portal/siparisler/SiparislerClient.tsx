@@ -12,7 +12,7 @@ import {
     FiDownload, FiFileText
 } from 'react-icons/fi';
 import { BsPinAngle, BsPinFill } from 'react-icons/bs';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { siparisDurumGuncelleAction } from '@/app/actions/siparis-actions';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -415,7 +415,7 @@ export function SiparislerClient({
         Object.fromEntries(initialSiparisler.map(s => [s.id, s.siparis_durumu]))
     );
     const [reorderingId, setReorderingId] = useState<string | null>(null);
-    const [expandedId, setExpandedId] = useState<string | null>(null);
+    
     const [pinnedIds, setPinnedIds] = useState<Set<string>>(new Set());
 
     // LocalStorage'dan sabitlenen siparişleri yükle
@@ -496,13 +496,11 @@ export function SiparislerClient({
         });
     }, [initialSiparisler, pinnedIds]);
 
-    const toggleExpand = (id: string, e?: React.MouseEvent) => {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        // Tekli akordiyon: Açık olana tıklanırsa kapanır, başka birine tıklanırsa diğeri otomatik kapanıp yenisi açılır
-        setExpandedId(prev => (prev === id ? null : id));
+    const handleRowClick = (siparisId: string) => {
+        const url = isAdmin 
+            ? `/${locale}/admin/operasyon/siparisler/${siparisId}` 
+            : `/${locale}/portal/siparisler/${siparisId}`;
+        router.push(url);
     };
 
     const handleDurumUpdate = (siparisId: string, yeniDurum: string) => {
@@ -965,7 +963,7 @@ export function SiparislerClient({
                                 <tbody className="divide-y divide-slate-100">
                                     {sortedSiparisler.map((siparis) => {
                                         const isPinned = pinnedIds.has(siparis.id);
-                                        const isExpanded = expandedId === siparis.id;
+                                        
                                         const mevcutDurum = durumlar[siparis.id] || siparis.siparis_durumu;
                                         const isPreOrder = mevcutDurum === 'Ön Sipariş';
                                         const detaylar = siparis.siparis_detay || [];
@@ -979,18 +977,18 @@ export function SiparislerClient({
                                                     onClick={(e) => {
                                                         // Prevent expansion if clicking on a button or link
                                                         if ((e.target as HTMLElement).closest('button, a')) return;
-                                                        toggleExpand(siparis.id, e as any);
+                                                        handleRowClick(siparis.id);
                                                     }}
-                                                    className={`group transition-colors cursor-pointer ${isExpanded ? 'bg-indigo-50/50' : isPreOrder ? 'bg-amber-50/30' : isPinned ? 'bg-slate-50/80' : 'hover:bg-slate-50'}`}
+                                                    className={`group transition-colors cursor-pointer ${isPreOrder ? 'bg-amber-50/30' : isPinned ? 'bg-slate-50/80' : 'hover:bg-slate-50'}`}
                                                 >
                                                     {/* Pin/Expand */}
                                                     <td className="px-4 py-3">
                                                         <div className="flex items-center gap-1">
                                                             <button 
-                                                                onClick={(e) => toggleExpand(siparis.id, e)}
+                                                                onClick={() => handleRowClick(siparis.id)}
                                                                 className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
                                                             >
-                                                                {isExpanded ? <FiChevronDown size={16} /> : <FiChevronRight size={16} />}
+                                                                <FiChevronRight size={16} />
                                                             </button>
                                                             <button
                                                                 onClick={(e) => togglePin(siparis.id, e)}
@@ -1148,160 +1146,7 @@ export function SiparislerClient({
                                                 </tr>
 
                                                 {/* Expanded Details Row */}
-                                                <AnimatePresence>
-                                                    {isExpanded && (
-                                                        <tr className="bg-slate-50/50 border-b-2 border-indigo-200">
-                                                            <td colSpan={7} className="p-0">
-                                                                <motion.div
-                                                                    initial={{ height: 0, opacity: 0 }}
-                                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                                    exit={{ height: 0, opacity: 0 }}
-                                                                    transition={{ duration: 0.2 }}
-                                                                    className="overflow-hidden"
-                                                                >
-                                                                    <div className="p-6 bg-indigo-50/30">
-                                                                        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                                                                            <div className="xl:col-span-2 space-y-4">
-                                                                                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                                                                    {locale === 'de' ? 'Bestellte Artikel' : 'Sipariş Kalemleri'}
-                                                                                </div>
-                                                                                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                                                                                    <table className="w-full text-left text-sm">
-                                                                                        <thead className="bg-slate-50 border-b border-slate-100 text-[10px] text-slate-500">
-                                                                                            <tr>
-                                                                                                <th className="px-3 py-2 font-semibold">Ürün</th>
-                                                                                                <th className="px-3 py-2 font-semibold text-right">Miktar (Koli)</th>
-                                                                                                <th className="px-3 py-2 font-semibold text-right">Birim (Net)</th>
-                                                                                                <th className="px-3 py-2 font-semibold text-right">Toplam (Net)</th>
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody className="divide-y divide-slate-50">
-                                                                                            {detaylar.map((item, idx) => {
-                                                                                                const urun = item.urunler;
-                                                                                                const urunAdi = getUrunAdi(urun?.ad, locale);
-                                                                                                return (
-                                                                                                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                                                                                        <td className="px-3 py-2.5 flex items-center gap-3">
-                                                                                                            <div className="w-8 h-8 rounded-md bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                                                                                                {urun?.ana_resim_url ? (
-                                                                                                                    <img src={urun.ana_resim_url} alt={urunAdi} className="w-full h-full object-cover" />
-                                                                                                                ) : (
-                                                                                                                    <FiPackage className="text-slate-400" size={14} />
-                                                                                                                )}
-                                                                                                            </div>
-                                                                                                            <div>
-                                                                                                                <div className="font-bold text-slate-800 text-xs">{urunAdi}</div>
-                                                                                                                {urun?.stok_kodu && <div className="text-[10px] font-mono text-slate-500">{urun.stok_kodu}</div>}
-                                                                                                            </div>
-                                                                                                        </td>
-                                                                                                        <td className="px-3 py-2.5 text-right font-medium text-slate-700 text-xs">{item.miktar}</td>
-                                                                                                        <td className="px-3 py-2.5 text-right text-slate-600 text-xs">{formatFiyat(item.birim_fiyat, locale)}</td>
-                                                                                                        <td className="px-3 py-2.5 text-right font-extrabold text-slate-900 text-xs">{formatFiyat(item.toplam_fiyat, locale)}</td>
-                                                                                                    </tr>
-                                                                                                );
-                                                                                            })}
-                                                                                        </tbody>
-                                                                                    </table>
-                                                                                </div>
-                                                                            </div>
-                                                                            
-                                                                            <div className="space-y-4">
-                                                                                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                                                                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                                                                                        {locale === 'de' ? 'Zusammenfassung' : 'Sipariş Özeti'}
-                                                                                    </div>
-                                                                                    <div className="space-y-2 text-sm">
-                                                                                        <div className="flex justify-between text-slate-600">
-                                                                                            <span>Net Tutar:</span>
-                                                                                            <span className="font-bold">{formatFiyat(siparis.toplam_tutar_net, locale)}</span>
-                                                                                        </div>
-                                                                                        <div className="flex justify-between text-slate-500 text-xs">
-                                                                                            <span>KDV (%{siparis.kdv_orani || 7}):</span>
-                                                                                            <span>{formatFiyat((siparis.toplam_tutar_brut || 0) - (siparis.toplam_tutar_net || 0), locale)}</span>
-                                                                                        </div>
-                                                                                        <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between text-slate-900">
-                                                                                            <span className="font-bold">Brüt Tutar:</span>
-                                                                                            <span className="font-black text-base">{formatFiyat(siparis.toplam_tutar_brut, locale)}</span>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                
-                                                                                {siparis.teslimat_adresi && (
-                                                                                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                                                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                                                                            <FiMapPin />
-                                                                                            {locale === 'de' ? 'Lieferadresse' : 'Teslimat Adresi'}
-                                                                                        </div>
-                                                                                        <div className="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed">
-                                                                                            {siparis.teslimat_adresi}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                )}
-
-                                                                                {/* Kargo & Fatura Belgeleri */}
-                                                                                {(siparis.kargo_firmasi || siparis.kargo_takip_no || siparis.lexware_pdf_url || siparis.lexware_invoice_id) && (
-                                                                                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2.5">
-                                                                                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                                                                            {locale === 'de' ? 'Versand & Dokumente' : 'Kargo & Belgeler'}
-                                                                                        </div>
-                                                                                        {(siparis.kargo_firmasi || siparis.kargo_takip_no) && (
-                                                                                            <div className="text-xs space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                                                                                                <div className="flex items-center justify-between">
-                                                                                                    <span className="text-slate-500">{siparis.kargo_firmasi || (locale === 'de' ? 'Versand' : 'Kargo')}</span>
-                                                                                                    {siparis.kargo_takip_no && (
-                                                                                                        <span className="font-mono font-bold text-slate-800">{siparis.kargo_takip_no}</span>
-                                                                                                    )}
-                                                                                                </div>
-                                                                                                {siparis.kargo_takip_url && (
-                                                                                                    <a
-                                                                                                        href={siparis.kargo_takip_url}
-                                                                                                        target="_blank"
-                                                                                                        rel="noopener noreferrer"
-                                                                                                        className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 mt-1"
-                                                                                                    >
-                                                                                                        <FiTruck size={12} />
-                                                                                                        <span>{locale === 'de' ? 'Sendung verfolgen' : 'Kargoyu Takip Et'}</span>
-                                                                                                        <FiExternalLink size={10} />
-                                                                                                    </a>
-                                                                                                )}
-                                                                                            </div>
-                                                                                        )}
-                                                                                        <div className="flex items-center gap-2 pt-1 flex-wrap">
-                                                                                            {(siparis.lexware_pdf_url || siparis.lexware_invoice_id) && (
-                                                                                                <a
-                                                                                                    href={siparis.lexware_pdf_url || `/api/invoices/${siparis.id}/pdf`}
-                                                                                                    target="_blank"
-                                                                                                    rel="noopener noreferrer"
-                                                                                                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg border border-emerald-200 transition-colors"
-                                                                                                >
-                                                                                                    <FiFileText size={12} />
-                                                                                                    <span>{locale === 'de' ? 'Rechnung (PDF)' : 'Fatura (PDF)'}</span>
-                                                                                                    <FiDownload size={11} />
-                                                                                                </a>
-                                                                                            )}
-                                                                                            {(siparis.lexware_storno_pdf_url || siparis.lexware_storno_id) && (
-                                                                                                <a
-                                                                                                    href={siparis.lexware_storno_pdf_url || `/api/invoices/${siparis.id}/storno-pdf`}
-                                                                                                    target="_blank"
-                                                                                                    rel="noopener noreferrer"
-                                                                                                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-lg border border-rose-200 transition-colors"
-                                                                                                >
-                                                                                                    <FiFileText size={12} />
-                                                                                                    <span>{locale === 'de' ? 'Storno (PDF)' : 'İptal Belgesi (PDF)'}</span>
-                                                                                                    <FiDownload size={11} />
-                                                                                                </a>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </motion.div>
-                                                            </td>
-                                                        </tr>
-                                                    )}
-                                                </AnimatePresence>
+                                                
                                             </React.Fragment>
                                         );
                                     })}
@@ -1314,7 +1159,7 @@ export function SiparislerClient({
                             {sortedSiparisler.map((siparis) => {
                                 // Mevcut mobil kart kodu (eski kodun sadeleştirilmiş hali)
                                 const isPinned = pinnedIds.has(siparis.id);
-                                const isExpanded = expandedId === siparis.id;
+                                
                                 const mevcutDurum = durumlar[siparis.id] || siparis.siparis_durumu;
                                 const isPreOrder = mevcutDurum === 'Ön Sipariş';
                                 const detaylar = siparis.siparis_detay || [];
@@ -1329,16 +1174,14 @@ export function SiparislerClient({
                                         initial={{ opacity: 0, y: 6 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className={`rounded-xl border transition-all overflow-hidden relative ${
-                                            isExpanded 
-                                                ? 'bg-white border-slate-900 shadow-lg' 
-                                                : isPreOrder
+                                            isPreOrder
                                                 ? 'bg-amber-50/50 border-amber-300'
                                                 : isPinned 
                                                 ? 'border-amber-300 bg-white' 
                                                 : 'bg-white border-slate-200'
                                         }`}
                                     >
-                                        <div onClick={() => toggleExpand(siparis.id)} className="p-4 flex flex-col gap-3 cursor-pointer">
+                                        <div onClick={() => handleRowClick(siparis.id)} className="p-4 flex flex-col gap-3 cursor-pointer">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-mono text-sm font-extrabold text-slate-900">#{siparis.id.substring(0, 8).toUpperCase()}</span>
@@ -1364,23 +1207,7 @@ export function SiparislerClient({
                                                 <div className="font-black text-slate-900">{formatFiyat(siparis.toplam_tutar_net, locale)}</div>
                                             </div>
                                             
-                                            {isExpanded && (
-                                                <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
-                                                    <div className="text-xs text-slate-500 font-bold uppercase">Kalemler</div>
-                                                    {detaylar.map((item, idx) => (
-                                                        <div key={idx} className="flex justify-between text-xs">
-                                                            <span className="font-semibold text-slate-700 truncate w-40">{getUrunAdi(item.urunler?.ad, locale)}</span>
-                                                            <span className="text-slate-600">{item.miktar} × {formatFiyat(item.birim_fiyat, locale)}</span>
-                                                        </div>
-                                                    ))}
-                                                    <div className="flex justify-between items-center pt-3 mt-3 border-t border-slate-100">
-                                                        <Link href={`/${locale}/admin/operasyon/siparisler/${siparis.id}`} className="text-xs font-bold text-indigo-600 underline">Detaya Git</Link>
-                                                        {detaylar.length > 0 && activeTab !== 'musteri' && !isAdmin && (
-                                                            <button onClick={(e) => handleReorder(siparis, e)} className="text-xs px-2 py-1 bg-amber-100 text-amber-800 rounded font-bold">Tekrar Sipariş</button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
+                                            
                                         </div>
                                     </motion.div>
                                 );
