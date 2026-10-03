@@ -246,7 +246,13 @@ export async function siparisOlusturAction(payload: {
         revalidatePath('/admin/operasyon/siparisler');
         revalidatePath('/portal/siparisler');
 
-        return { success: true, orderId: newOrderId, message: isTestOrder ? "Test siparişi başarıyla oluşturuldu (Stok düşülmedi)." : "Ön sipariş başarıyla oluşturuldu." };
+        return { 
+            success: true, 
+            orderId: newOrderId, 
+            message: isTestOrder ? "Test siparişi başarıyla oluşturuldu (Stok düşülmedi)." : "Ön sipariş başarıyla oluşturuldu.",
+            calculatedItems: trustedItems,
+            calculatedShipping: shipping 
+        };
     }
 
     // 2. NORMAL SİPARİŞ DURUMU (STOK KONTROLLÜ)
@@ -347,7 +353,12 @@ export async function siparisOlusturAction(payload: {
     revalidatePath('/admin/operasyon/siparisler');
     revalidatePath('/portal/siparisler');
 
-    return { success: true, orderId: newOrderId };
+    return { 
+        success: true, 
+        orderId: newOrderId,
+        calculatedItems: trustedItems,
+        calculatedShipping: shipping
+    };
 }
 
 // === TOPLU SİPARİŞ OLUŞTURMA (NORMAL + ÖN SİPARİŞ AYRIŞTIRICI) ===
@@ -376,6 +387,9 @@ export async function topluSiparisOlusturAction(payload: {
 }> {
     let normalOrderId: string | null = null;
     let onSiparisOrderId: string | null = null;
+    
+    let normalResData: any = null;
+    let onSiparisResData: any = null;
 
     // --- ZERO TRUST SECURITY: Test Firması Kontrolü ---
     const cookieStore = await cookies();
@@ -393,7 +407,7 @@ export async function topluSiparisOlusturAction(payload: {
 
     // 1. Normal Sipariş oluştur (varsa)
     if (payload.normalItems && payload.normalItems.length > 0) {
-        const normalRes = await siparisOlusturAction({
+        normalResData = await siparisOlusturAction({
             firmaId: payload.firmaId,
             teslimatAdresi: payload.teslimatAdresi,
             items: payload.normalItems,
@@ -406,15 +420,15 @@ export async function topluSiparisOlusturAction(payload: {
             isTest:          payload.isTest,
         });
 
-        if (normalRes.error) {
-            return { error: `Normal sipariş oluşturulamadı: ${normalRes.error}` };
+        if (normalResData.error) {
+            return { error: `Normal sipariş oluşturulamadı: ${normalResData.error}` };
         }
-        normalOrderId = normalRes.orderId || null;
+        normalOrderId = normalResData.orderId || null;
     }
 
     // 2. Ön Sipariş oluştur (varsa)
     if (payload.onSiparisItems && payload.onSiparisItems.length > 0) {
-        const onSiparisRes = await siparisOlusturAction({
+        onSiparisResData = await siparisOlusturAction({
             firmaId: payload.firmaId,
             teslimatAdresi: payload.teslimatAdresi,
             items: payload.onSiparisItems,
@@ -427,13 +441,13 @@ export async function topluSiparisOlusturAction(payload: {
             isTest:          payload.isTest,
         });
 
-        if (onSiparisRes.error) {
+        if (onSiparisResData.error) {
             return {
-                error: `Ön sipariş oluşturulurken hata: ${onSiparisRes.error}${normalOrderId ? ' (Normal siparişiniz oluşturulmuştu).' : ''}`,
+                error: `Ön sipariş oluşturulurken hata: ${onSiparisResData.error}${normalOrderId ? ' (Normal siparişiniz oluşturulmuştu).' : ''}`,
                 normalOrderId
             };
         }
-        onSiparisOrderId = onSiparisRes.orderId || null;
+        onSiparisOrderId = onSiparisResData.orderId || null;
     }
 
     let mesaj = "Siparişiniz başarıyla oluşturuldu.";
@@ -447,14 +461,30 @@ export async function topluSiparisOlusturAction(payload: {
     if (payload.paymentMethod === 'stripe') {
         const activeStripe = payload.isTest ? stripeTest : stripe;
         
-        const allItems = [...(payload.normalItems || []), ...(payload.onSiparisItems || [])];
-        const stripeItems = allItems.map(item => ({
+        const calculatedItems = [
+            ...(normalResData?.calculatedItems || []),
+            ...(onSiparisResData?.calculatedItems || [])
+        ];
+        
+        const stripeItems = calculatedItems.map(item => ({
             urun_id: item.urun_id,
-            ad: item.ad || 'Produkt',
-            adet: item.adet,
-            birimFiyatNet: item.o_anki_satis_fiyati,
-            kdvOrani: item.kdv_orani || 7,
+            ad: item.urun_ad || 'Produkt',
+            adet: item.miktar,
+            birimFiyatNet: item.birim_fiyat,
+            kdvOrani: 7, // Sistemde gıda KDV'si %7 olarak ayarlandı
         }));
+        
+        let totalCalculatedShippingGross = 0;
+        let shippingMethodName = 'Lieferung & Versand';
+        
+        if (normalResData?.calculatedShipping) {
+            totalCalculatedShippingGross += normalResData.calculatedShipping.shippingCostGross;
+            shippingMethodName = normalResData.calculatedShipping.shippingMethodName;
+        }
+        if (onSiparisResData?.calculatedShipping) {
+            totalCalculatedShippingGross += onSiparisResData.calculatedShipping.shippingCostGross;
+            shippingMethodName = onSiparisResData.calculatedShipping.shippingMethodName;
+        }
         
         try {
             // Need to get user email and id
@@ -477,15 +507,15 @@ export async function topluSiparisOlusturAction(payload: {
                 };
             });
             
-            if (payload.kargoTutariBrut && payload.kargoTutariBrut > 0) {
+            if (totalCalculatedShippingGross > 0) {
                 line_items.push({
                     price_data: {
                         currency: 'eur',
                         product_data: {
-                            name: payload.kargoYontemi || 'Lieferung & Versand',
+                            name: shippingMethodName || 'Lieferung & Versand',
                             metadata: { urun_id: 'shipping' },
                         },
-                        unit_amount: Math.max(1, Math.round(payload.kargoTutariBrut * 100)),
+                        unit_amount: Math.max(1, Math.round(totalCalculatedShippingGross * 100)),
                     },
                     quantity: 1,
                 });
