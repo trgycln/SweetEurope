@@ -229,10 +229,10 @@ export async function siparisOlusturAction(payload: {
                         recipientName: profil?.ad_soyad || null,
                         firmName: firma2?.unvan || null,
                         orderId: newOrderId,
-                        orderType: 'on_siparis',
+                        orderType: (isTestOrder && !isPreOrder) ? 'normal' : 'on_siparis',
                         items: emailItems,
                         toplamNet: trustedToplamNet,
-                        kargoTutariBrut: undefined,
+                        kargoTutariBrut: (isTestOrder && !isPreOrder) ? shipping.shippingCostGross : undefined,
                         toplamBrut: trustedToplamBrut,
                         teslimatAdresi: payload.teslimatAdresi,
                         locale: loc,
@@ -602,10 +602,19 @@ export async function onSiparisiNormalSipariseDonusturAction(
             id,
             firma_id,
             siparis_durumu,
+            toplam_tutar_net,
+            toplam_tutar_brut,
+            kargo_tutari_brut,
+            teslimat_adresi,
+            olusturan_kullanici_id,
+            firmalar (email, unvan),
             siparis_detay (
                 id,
                 urun_id,
-                miktar
+                miktar,
+                birim_fiyat,
+                toplam_fiyat,
+                urunler (ad)
             )
         `)
         .eq('id', siparisId)
@@ -699,6 +708,47 @@ export async function onSiparisiNormalSipariseDonusturAction(
         });
     } catch (e) {
         console.warn('Müşteri bildirimi gönderilemedi:', e);
+    }
+
+    // 6. Müşteriye IBAN/Ödeme Bilgilerini de içeren onay e-postasını gönder
+    try {
+        const to = (siparis.firmalar as any)?.email;
+        if (to) {
+            const { data: profil } = await adminClient
+                .from('profiller')
+                .select('ad_soyad')
+                .eq('id', siparis.olusturan_kullanici_id)
+                .single();
+                
+            const emailItems = detaylar.map((item: any) => {
+                const raw = item.urunler?.ad;
+                const ad = typeof raw === 'object' && raw !== null ? raw.de || raw.tr || Object.values(raw)[0] : String(raw || 'Produkt');
+                return {
+                    ad: String(ad),
+                    miktar: item.miktar,
+                    birimFiyat: item.birim_fiyat,
+                    toplamFiyat: item.toplam_fiyat,
+                };
+            });
+            
+            await sendOrderConfirmationEmail({
+                to,
+                recipientName: profil?.ad_soyad || null,
+                firmName: (siparis.firmalar as any)?.unvan || null,
+                orderId: siparisId,
+                orderType: 'normal',
+                items: emailItems,
+                toplamNet: siparis.toplam_tutar_net,
+                kargoTutariBrut: siparis.kargo_tutari_brut,
+                toplamBrut: siparis.toplam_tutar_brut,
+                teslimatAdresi: siparis.teslimat_adresi,
+                locale: 'de', // veya siparişten dil bilgisi geliyorsa o
+                portalOrderUrl: `https://elysonsweets.de/de/portal/siparisler/${siparisId}`,
+                paymentMethod: 'vorkasse',
+            });
+        }
+    } catch (e) {
+        console.warn('Müşteriye sipariş onay (vorkasse) e-postası gönderilemedi:', e);
     }
 
     revalidatePath(`/admin/operasyon/siparisler/${siparisId}`);
