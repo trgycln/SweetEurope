@@ -12,7 +12,7 @@
  *   1 koli   = koli_ici_adet adet
  */
 
-type Birim = 'adet' | 'koli' | 'palet';
+export type Birim = 'adet' | 'koli' | 'palet';
 
 interface UrunFiyatBilgi {
     koli_ici_adet?: number | null;

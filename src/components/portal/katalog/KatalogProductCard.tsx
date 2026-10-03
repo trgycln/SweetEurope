@@ -1,14 +1,32 @@
 import { computeTedarikDurumu } from '@/lib/utils';
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { FiHeart, FiX, FiImage, FiShoppingCart } from "react-icons/fi";
-import { LuPackage, LuBarcode } from "react-icons/lu";
+import { FiX, FiImage, FiShoppingCart } from "react-icons/fi";
 import { Locale } from "@/i18n-config";
 import { Dictionary } from "@/dictionaries";
 import { ProduktMitPreis } from "@/app/[locale]/portal/katalog/types";
-import { ProductDietaryBadges } from "@/components/DietaryStickers";
 import { UniversalProductCard } from "@/components/products/UniversalProductCard";
+import { 
+    hesaplaSepetSatiri, 
+    getPaletToplamAdet, 
+    getKoliIciAdet, 
+    getPaletIciKoliAdet, 
+    hesaplaBirimFiyat,
+    hesaplaToplamAdet,
+    hesaplaKoliMiktar,
+    Birim 
+} from "@/lib/pricingUtils";
+
+// Backward compatible wrappers for files still importing from here
+export function getBirimFiyatKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number, userRole?: string): number {
+    const koliMiktar = hesaplaKoliMiktar(produkt as any, birim, miktar);
+    return hesaplaBirimFiyat(produkt as any, birim, koliMiktar, userRole || (produkt as any).userRole);
+}
+
+export function getToplamAdetKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number): number {
+    return hesaplaToplamAdet(produkt as any, birim, miktar);
+}
+export { getPaletToplamAdet, type Birim };
 
 // Badge-Konfiguration (aus public catalog adaptiert)
 export const BADGE_DEFS = [
@@ -43,36 +61,6 @@ export const ZERTIFIKAT_CONFIG: Record<string, { label: string; bg: string }> = 
     'Halal': { label: 'Halal', bg: 'bg-teal-50 text-teal-800 border-teal-300' },
 };
 
-export type Birim = 'adet' | 'koli' | 'palet';
-
-export function getBirimFiyatKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number, userRole?: string): number {
-    if (userRole === 'Alt Bayi') {
-        return Number((produkt as any).satis_fiyati_alt_bayi ?? (produkt as any).satis_fiyati_palet ?? (produkt as any).satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri ?? 0);
-    }
-    if (birim === 'palet') {
-        return Number((produkt as any).satis_fiyati_palet ?? (produkt as any).satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri ?? 0);
-    }
-    if (birim === 'koli' && miktar >= 5) {
-        return Number((produkt as any).satis_fiyati_toptanci ?? produkt.satis_fiyati_musteri ?? 0);
-    }
-    return Number(produkt.satis_fiyati_musteri ?? produkt.partnerPreis ?? 0);
-}
-
-// palet_ici_adet = 1 paletteki KOLİ sayısı (örn. 125 koli/palet)
-// Toplam adet = palet_ici_adet × koli_ici_adet
-export function getPaletToplamAdet(produkt: ProduktMitPreis): number {
-    const koliAdet = Number((produkt as any).koli_ici_adet ?? 1);
-    const paletIciKoli = Number((produkt as any).palet_ici_koli_adet ?? (produkt as any).palet_ici_adet ?? 0);
-    return paletIciKoli * koliAdet;
-}
-
-export function getToplamAdetKatalog(produkt: ProduktMitPreis, birim: Birim, miktar: number): number {
-    const koliAdet = Number((produkt as any).koli_ici_adet ?? 1);
-    if (birim === 'palet') return getPaletToplamAdet(produkt) * miktar;
-    if (birim === 'koli') return koliAdet * miktar;
-    return miktar;
-}
-
 export const formatCurrency = (amount: number | null) => {
     if (amount === null || amount === undefined) return '—';
     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
@@ -101,33 +89,36 @@ export function SepeteEkleModal({
     const [birim, setBirim] = useState<Birim>('koli');
     const [miktar, setMiktar] = useState(1);
 
-    const koliAdet = Number((produkt as any).koli_ici_adet ?? 1);
-    // palet_ici_adet = 1 paletteki KOLİ sayısı; toplam adet = koli sayısı × koli başına adet
-    const paletIciKoli = Number((produkt as any).palet_ici_koli_adet ?? (produkt as any).palet_ici_adet ?? 0);
-    const paletToplamAdet = getPaletToplamAdet(produkt);
-    const toplamAdet = getToplamAdetKatalog(produkt, birim, miktar);
-    const adetFiyat = getBirimFiyatKatalog(produkt, birim, miktar);
-    const toplamFiyat = toplamAdet * adetFiyat;
+    const sepetSatiri = hesaplaSepetSatiri(produkt as any, birim, miktar, (produkt as any).userRole);
+    const { 
+        toplamAdet, 
+        adetFiyat, 
+        toplamFiyat, 
+        kademe, 
+        koliIciAdet, 
+        paletIciKoliAdet: paletIciKoli 
+    } = sepetSatiri;
+    
+    const paletToplamAdet = getPaletToplamAdet(produkt as any);
     const produktName = getLocalizedName(produkt.ad, locale as Locale);
 
     const birimOptions: { key: Birim; labelDe: string; labelTr: string; sub: string }[] = [
-        { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliAdet} ${locale === 'de' ? 'Stk.' : 'adet'}` },
+        { key: 'koli', labelDe: 'Karton', labelTr: 'Koli', sub: `${koliIciAdet} ${locale === 'de' ? 'Stk.' : 'adet'}` },
         { key: 'adet', labelDe: 'Stück', labelTr: 'Adet', sub: locale === 'de' ? 'Einzeln' : 'Tekli' },
         ...(paletIciKoli > 0 ? [{
             key: 'palet' as Birim,
             labelDe: 'Palette', labelTr: 'Palet',
-            // Göster: "125 koli" ve "750 adet" gibi
             sub: locale === 'de'
                 ? `${paletIciKoli} Ktn. / ${paletToplamAdet} Stk.`
                 : `${paletIciKoli} koli / ${paletToplamAdet} adet`
         }] : []),
     ];
 
-    const fiyatKademe = birim === 'palet'
+    const fiyatKademe = kademe === 'palet'
         ? { label: locale === 'de' ? 'Palettenpreis' : 'Palet fiyatı', color: 'text-purple-700' }
-        : birim === 'koli' && miktar >= 5
+        : kademe === 'toptanci'
             ? { label: locale === 'de' ? 'Mengenrabatt aktiv ✓' : '5+ koli indirimi ✓', color: 'text-green-600' }
-            : birim === 'koli' && miktar < 5
+            : sepetSatiri.koliMiktar < 5
                 ? { label: locale === 'de' ? `Ab 5 Kartons günstiger` : `5 koli alınca indirim`, color: 'text-amber-600' }
                 : null;
 
@@ -249,7 +240,7 @@ export function SepeteEkleModal({
                                 <p className="text-[10px] text-gray-400">
                                     {miktar} {locale === 'de' ? 'Palette' : 'palet'}
                                     {' × '}{paletIciKoli} {locale === 'de' ? 'Ktn.' : 'koli'}
-                                    {' × '}{koliAdet} {locale === 'de' ? 'Stk.' : 'adet'}
+                                    {' × '}{koliIciAdet} {locale === 'de' ? 'Stk.' : 'adet'}
                                     {' = '}{toplamAdet} {locale === 'de' ? 'Stück' : 'adet'}
                                 </p>
                             )}

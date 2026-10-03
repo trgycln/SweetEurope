@@ -497,18 +497,22 @@ export async function topluSiparisOlusturAction(payload: {
             const { data: { user } } = await supabase.auth.getUser();
             
             const line_items = stripeItems.map((item) => {
+                const qty = Math.max(1, Number(item.adet) || 1);
                 const kdvMultiplier = 1 + ((item.kdvOrani || 7) / 100);
-                const unitGrossCentDecimal = (item.birimFiyatNet * kdvMultiplier * 100).toFixed(4);
+                const lineGrossCents = Math.max(1, Math.round(item.birimFiyatNet * qty * kdvMultiplier * 100));
+                const baseName = (item.ad && item.ad.trim().length > 0) ? item.ad.trim() : 'Produkt';
+                const productName = qty > 1 ? `${baseName} (${qty} x)` : baseName;
+
                 return {
                     price_data: {
                         currency: 'eur',
                         product_data: {
-                            name: item.ad || 'Produkt',
+                            name: productName,
                             metadata: { urun_id: String(item.urun_id || '') },
                         },
-                        unit_amount_decimal: unitGrossCentDecimal,
+                        unit_amount: lineGrossCents,
                     },
-                    quantity: Math.max(1, Number(item.adet) || 1),
+                    quantity: 1,
                 };
             });
             
