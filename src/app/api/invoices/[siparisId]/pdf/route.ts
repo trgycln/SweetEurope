@@ -34,7 +34,7 @@ export async function GET(
     const supabaseAdmin = createSupabaseServiceClient();
     const { data: siparis, error: siparisError } = await supabaseAdmin
       .from('siparisler')
-      .select('id, firma_id, lexware_invoice_id, lexware_invoice_no')
+      .select('id, firma_id, lexware_invoice_id, lexware_invoice_no, is_test')
       .eq('id', siparisId)
       .single();
 
@@ -55,7 +55,7 @@ export async function GET(
     }
 
     // 4. Lexware'den PDF dosyasını çek
-    const { buffer, filename } = await getLexwareInvoicePdfBuffer(siparis.lexware_invoice_id);
+    const { buffer, filename } = await getLexwareInvoicePdfBuffer(siparis.lexware_invoice_id, (siparis as any).is_test === true);
     const invoiceNumber = siparis.lexware_invoice_no || filename;
 
     return new NextResponse(new Uint8Array(buffer), {

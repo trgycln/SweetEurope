@@ -154,9 +154,11 @@ export async function createLexwareInvoiceForOrder(
     remark: 'Zahlbar sofort nach Erhalt der Rechnung ohne Abzug. Vielen Dank für Ihr Vertrauen!',
   };
 
+  const isTestOrder = siparis.is_test === true;
   const invoiceResult = await lexwareFetch<any>(`/v1/invoices${finalizeParam}`, {
     method: 'POST',
     body: JSON.stringify(payload),
+    isTest: isTestOrder,
   });
 
   const invoiceId = invoiceResult.id;
@@ -165,7 +167,7 @@ export async function createLexwareInvoiceForOrder(
   let invoiceNo = invoiceResult.voucherNumber;
   if (!invoiceNo) {
     try {
-      const fetched = await lexwareFetch<any>(`/v1/invoices/${invoiceId}`);
+      const fetched = await lexwareFetch<any>(`/v1/invoices/${invoiceId}`, { isTest: isTestOrder });
       invoiceNo = fetched.voucherNumber || `RE-${siparis.id.slice(0, 6).toUpperCase()}`;
     } catch {
       invoiceNo = `RE-${siparis.id.slice(0, 6).toUpperCase()}`;
@@ -247,7 +249,6 @@ export async function getLexwareInvoicePdfBuffer(invoiceId: string, isTest: bool
  */
 export async function cancelLexwareInvoiceForOrder(
   siparisId: string,
-  isTest: boolean = false,
   reason: string = 'Kundenstornierung / Auftragsstornierung'
 ): Promise<{ creditNoteId: string; creditNoteNo: string; stornoPdfUrl: string }> {
   const supabase = createSupabaseServiceClient();
@@ -282,7 +283,8 @@ export async function cancelLexwareInvoiceForOrder(
   }
 
   // Orijinal faturayı Lexware'den çek
-  const originalInvoice = await lexwareFetch<any>(`/v1/invoices/${originalInvoiceId}`);
+  const isTest = siparis.is_test === true;
+  const originalInvoice = await lexwareFetch<any>(`/v1/invoices/${originalInvoiceId}`, { isTest });
   const nowIso = new Date().toISOString();
 
   // Credit Note (Rechnungskorrektur) payload'u
@@ -300,13 +302,14 @@ export async function cancelLexwareInvoiceForOrder(
   const creditNoteResult = await lexwareFetch<any>('/v1/credit-notes?finalize=true', {
     method: 'POST',
     body: JSON.stringify(creditNotePayload),
+    isTest,
   });
 
   const creditNoteId = creditNoteResult.id;
   let creditNoteNo = creditNoteResult.voucherNumber;
   if (!creditNoteNo) {
     try {
-      const fetched = await lexwareFetch<any>(`/v1/credit-notes/${creditNoteId}`);
+      const fetched = await lexwareFetch<any>(`/v1/credit-notes/${creditNoteId}`, { isTest });
       creditNoteNo = fetched.voucherNumber || `ST-${siparis.id.slice(0, 6).toUpperCase()}`;
     } catch {
       creditNoteNo = `ST-${siparis.id.slice(0, 6).toUpperCase()}`;
@@ -337,8 +340,8 @@ export async function cancelLexwareInvoiceForOrder(
 /**
  * Lexware üzerinden storno/kredi notunun resmi PDF dosya içeriğini binary olarak indirir.
  */
-export async function getLexwareCreditNotePdfBuffer(creditNoteId: string): Promise<{ buffer: Buffer; filename: string }> {
-  const docInfo = await lexwareFetch<any>(`/v1/credit-notes/${creditNoteId}/document`);
+export async function getLexwareCreditNotePdfBuffer(creditNoteId: string, isTest: boolean = false): Promise<{ buffer: Buffer; filename: string }> {
+  const docInfo = await lexwareFetch<any>(`/v1/credit-notes/${creditNoteId}/document`, { isTest });
   const fileId = docInfo?.documentFileId;
 
   if (!fileId) {
@@ -346,6 +349,7 @@ export async function getLexwareCreditNotePdfBuffer(creditNoteId: string): Promi
   }
 
   const blob = await lexwareFetch<Blob>(`/v1/files/${fileId}`, {
+    isTest,
     headers: {
       Accept: 'application/pdf',
     },

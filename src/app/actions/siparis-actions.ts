@@ -116,6 +116,7 @@ export async function siparisOlusturAction(payload: {
     const { calculateShipping } = await import('../../lib/shippingUtils');
 
     let trustedToplamNet = 0;
+    let trustedStripeToplamBrutCents = 0;
     let totalWeightKg = 0;
 
     const trustedItems = payload.items.map(item => {
@@ -127,6 +128,9 @@ export async function siparisOlusturAction(payload: {
         
         trustedToplamNet += sepetSatiri.toplamFiyat;
         totalWeightKg += (urun.birim_agirlik_kg || 0) * item.adet;
+
+        const kdvMultiplier = 1.07;
+        trustedStripeToplamBrutCents += Math.round(sepetSatiri.toplamFiyat * kdvMultiplier * 100);
 
         return {
             urun_id: item.urun_id,
@@ -142,7 +146,8 @@ export async function siparisOlusturAction(payload: {
     const plz = plzMatch ? plzMatch[0] : (payload.kargoYontemi?.includes('Köln') ? '50667' : '10115');
     
     const shipping = calculateShipping(trustedToplamNet, plz, totalWeightKg);
-    const trustedToplamBrut = Number(Math.round(Number((trustedToplamNet + (trustedToplamNet * 0.07) + shipping.shippingCostGross) + 'e2')) + 'e-2');
+    trustedStripeToplamBrutCents += Math.round(shipping.shippingCostGross * 100);
+    const trustedToplamBrut = trustedStripeToplamBrutCents / 100;
 
     // 1. ÖN SİPARİŞ DURUMU (VEYA TEST SİPARİŞİ)
     if (isPreOrder || isTestOrder) {
@@ -493,7 +498,7 @@ export async function topluSiparisOlusturAction(payload: {
             
             const line_items = stripeItems.map((item) => {
                 const kdvMultiplier = 1 + ((item.kdvOrani || 7) / 100);
-                const grossUnitPriceCent = Math.max(1, Math.round(item.birimFiyatNet * kdvMultiplier * 100));
+                const unitGrossCentDecimal = (item.birimFiyatNet * kdvMultiplier * 100).toFixed(4);
                 return {
                     price_data: {
                         currency: 'eur',
@@ -501,7 +506,7 @@ export async function topluSiparisOlusturAction(payload: {
                             name: item.ad || 'Produkt',
                             metadata: { urun_id: String(item.urun_id || '') },
                         },
-                        unit_amount: grossUnitPriceCent,
+                        unit_amount_decimal: unitGrossCentDecimal,
                     },
                     quantity: Math.max(1, Number(item.adet) || 1),
                 };

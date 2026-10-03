@@ -63,8 +63,8 @@ export async function getOrCreateLexwareContact(firmaId: string, isTest: boolean
     throw new Error(`Firma bulunamadı [ID: ${firmaId}]: ${error?.message}`);
   }
 
-  // Zaten eşleşmişse doğrudan döndür
-  if (firma.lexware_contact_id) {
+  // Zaten eşleşmişse doğrudan döndür (canlı ID, test hesabında geçerli değildir)
+  if (!isTest && firma.lexware_contact_id) {
     return firma.lexware_contact_id;
   }
 
@@ -100,17 +100,20 @@ export async function getOrCreateLexwareContact(firmaId: string, isTest: boolean
   const createdContact = await lexwareFetch<any>('/v1/contacts', {
     method: 'POST',
     body: JSON.stringify(payload),
+    isTest,
   });
 
   if (!createdContact?.id) {
     throw new Error('Lexware müşteri kartı oluşturuldu ancak ID dönmedi.');
   }
 
-  // Supabase'e kaydet
-  await supabase
-    .from('firmalar')
-    .update({ lexware_contact_id: createdContact.id })
-    .eq('id', firmaId);
+  // Supabase'e kaydet — test (sandbox) kişi ID'si canlı kayda yazılmaz
+  if (!isTest) {
+    await supabase
+      .from('firmalar')
+      .update({ lexware_contact_id: createdContact.id })
+      .eq('id', firmaId);
+  }
 
   return createdContact.id;
 }

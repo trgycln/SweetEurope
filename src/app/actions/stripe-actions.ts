@@ -65,12 +65,16 @@ export async function createStripeCheckoutSessionAction(params: {
     const subtotalNet = params.items.reduce((sum, item) => sum + (item.birimFiyatNet * item.adet), 0);
     const shipping = calculateShipping(subtotalNet, params.deliveryPlz);
 
+    let stripeGrossTotalCents = 0;
     const totalTax = params.items.reduce((sum, item) => {
+      const lineTotalNet = item.birimFiyatNet * item.adet;
       const kdvRate = (item.kdvOrani ?? 7) / 100;
-      return sum + (item.birimFiyatNet * item.adet * kdvRate);
+      stripeGrossTotalCents += Math.round(lineTotalNet * (1 + kdvRate) * 100);
+      return sum + (lineTotalNet * kdvRate);
     }, 0);
     const shippingGross = shipping.shippingCostGross; // ✅ shippingUtils %7 KDV ile hesaplar (Nebenleistung)
-    const grossTotal = Number((subtotalNet + totalTax + shippingGross).toFixed(2));
+    stripeGrossTotalCents += Math.round(shippingGross * 100);
+    const grossTotal = stripeGrossTotalCents / 100;
 
     // 4. Create pending order in database
     const { data: newOrder, error: orderInsertError } = await supabase
@@ -119,7 +123,7 @@ export async function createStripeCheckoutSessionAction(params: {
     // 5. Build Stripe Line Items
     const line_items: any[] = params.items.map((item) => {
       const kdvMultiplier = 1 + ((item.kdvOrani ?? 7) / 100);
-      const grossUnitPriceCent = Math.max(1, Math.round(item.birimFiyatNet * kdvMultiplier * 100));
+      const unitGrossCentDecimal = (item.birimFiyatNet * kdvMultiplier * 100).toFixed(4);
       const productName = (item.ad && item.ad.trim().length > 0) ? item.ad.trim() : 'Produkt';
 
       return {
@@ -131,7 +135,7 @@ export async function createStripeCheckoutSessionAction(params: {
               urun_id: String(item.urun_id || ''),
             },
           },
-          unit_amount: grossUnitPriceCent,
+          unit_amount_decimal: unitGrossCentDecimal,
         },
         quantity: Math.max(1, Number(item.adet) || 1),
       };

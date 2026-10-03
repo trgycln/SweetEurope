@@ -19,7 +19,7 @@ export class LexwareApiError extends Error {
 
 export function getLexwareApiKey(isTest: boolean = false): string {
   if (isTest) {
-    const testKey = process.env.LEXWARE_TEST_API_KEY?.trim();
+    const testKey = process.env.LEXWARE_TEST_API_KEY?.trim() || process.env.LEXWARE_API_KEY?.trim();
     if (!testKey) {
       throw new Error('Test siparişleri için LEXWARE_TEST_API_KEY ortam değişkeni tanımlı değil! Lexware Sandbox API anahtarınızı .env dosyasına ekleyin.');
     }

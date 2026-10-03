@@ -410,7 +410,10 @@ export default async function OperasyonSiparisDetayPage({ params, searchParams }
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Tarih</span>
                                 <span className="text-xs font-semibold text-gray-700">
-                                    {formatLocaleDate(siparis.siparis_tarihi, locale)}
+                                    {formatLocaleDate(siparis.siparis_tarihi, locale, {
+                                        day: '2-digit', month: '2-digit', year: 'numeric',
+                                        hour: '2-digit', minute: '2-digit'
+                                    })}
                                 </span>
                             </div>
                             <div className="flex justify-between">

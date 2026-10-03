@@ -290,7 +290,7 @@ export async function cancelOrderAndStornoAction(
     const { data: siparis, error: siparisError } = await supabaseAdmin
       .from('siparisler')
       .select(`
-        id, siparis_durumu, lexware_invoice_id, lexware_storno_id, lexware_storno_no,
+        id, siparis_durumu, is_test, lexware_invoice_id, lexware_storno_id, lexware_storno_no,
         firmalar ( id, email, unvan )
       `)
       .eq('id', siparisId)
@@ -327,7 +327,7 @@ export async function cancelOrderAndStornoAction(
         const stornoIdForPdf = (siparis as any).lexware_storno_id;
         if (stornoIdForPdf) {
           try {
-            const { buffer: pdfBuffer, filename: pdfFilename } = await getLexwareCreditNotePdfBuffer(stornoIdForPdf);
+            const { buffer: pdfBuffer, filename: pdfFilename } = await getLexwareCreditNotePdfBuffer(stornoIdForPdf, (siparis as any).is_test === true);
             const firma = (siparis as any).firmalar;
             if (firma?.email) {
               await sendStornoEmail({
@@ -346,7 +346,8 @@ export async function cancelOrderAndStornoAction(
       }
     }
 
-    // 3. STOK BÜTÜNLÜĞÜ: Stokları geri yükle (kritik — her zaman çalıştır)
+    // 3. STOK BÜTÜNLÜĞÜ: Stokları geri yükle (test siparişlerinde stok düşülmediği için atılır)
+    if ((siparis as any).is_test !== true) {
     try {
       await supabaseAdmin.rpc('restore_order_stock', { p_siparis_id: siparisId });
     } catch (stockErr: any) {
@@ -354,6 +355,7 @@ export async function cancelOrderAndStornoAction(
       // Stok hatası da uyarı olarak ilet ama akışı durdurma
       warningMsg = (warningMsg ? warningMsg + ' | ' : '') +
         `Stok geri yüklenemedi: ${stockErr?.message}. Lütfen stokları manuel kontrol edin.`;
+    }
     }
 
     // 4. Sipariş durumunu 'İptal Edildi' yap

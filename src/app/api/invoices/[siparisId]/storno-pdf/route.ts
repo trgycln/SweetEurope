@@ -34,7 +34,7 @@ export async function GET(
     const supabaseAdmin = createSupabaseServiceClient();
     const { data: siparis, error: siparisError } = await supabaseAdmin
       .from('siparisler')
-      .select('id, firma_id, lexware_storno_id, lexware_storno_no')
+      .select('id, firma_id, lexware_storno_id, lexware_storno_no, is_test')
       .eq('id', siparisId)
       .single();
 
@@ -54,7 +54,7 @@ export async function GET(
     }
 
     // 4. Lexware'den Storno PDF dosyasını çek
-    const { buffer, filename } = await getLexwareCreditNotePdfBuffer(siparis.lexware_storno_id);
+    const { buffer, filename } = await getLexwareCreditNotePdfBuffer(siparis.lexware_storno_id, (siparis as any).is_test === true);
     const stornoNumber = siparis.lexware_storno_no || filename;
 
     return new NextResponse(new Uint8Array(buffer), {
