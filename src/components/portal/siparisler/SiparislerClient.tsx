@@ -597,8 +597,8 @@ export function SiparislerClient({
                     ...detay.urunler,
                     partnerPreis: detay.birim_fiyat,
                 };
-                addToWarenkorb(produkt, detay.miktar, 'koli');
-                addedCount += detay.miktar;
+                const success = addToWarenkorb(produkt, detay.miktar, 'koli');
+                if (success) addedCount += detay.miktar;
             }
         });
 

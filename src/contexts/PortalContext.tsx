@@ -32,7 +32,7 @@ interface PortalContextType {
     warenkorb: SepetUrunu[];
 
     // Warenkorb-Funktionen
-    addToWarenkorb: (produkt: ProduktImWarenkorb, menge?: number, birim?: 'koli' | 'adet' | 'palet') => void;
+    addToWarenkorb: (produkt: ProduktImWarenkorb, menge?: number, birim?: 'koli' | 'adet' | 'palet') => boolean;
     removeFromWarenkorb: (produktId: string) => void;
     updateWarenkorbMenge: (produktId: string, neueMenge: number) => void;
     updateWarenkorbBirim: (produktId: string, birim: 'koli' | 'adet' | 'palet') => void;
@@ -96,28 +96,28 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
         }
     }, [value.unreadNotificationCount]);
 
-    // addToWarenkorb (Logik für bestehende Artikel bleibt additiv)
-     const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1, birim: 'koli' | 'adet' | 'palet' = 'koli') => {
+     const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1, birim: 'koli' | 'adet' | 'palet' = 'koli'): boolean => {
+         let isSuccess = true;
+         const isPreOrder = (produkt.stok_miktari ?? 0) <= 0;
+
+         // --- Sepet Karıştırma Engeli (Normal & Ön Sipariş) ---
+         if (warenkorb.length > 0) {
+             const hasNormalItems = warenkorb.some(item => (item.produkt.stok_miktari ?? 0) > 0);
+             const hasPreOrderItems = warenkorb.some(item => (item.produkt.stok_miktari ?? 0) <= 0);
+
+             if (isPreOrder && hasNormalItems) {
+                 toast.warning('Dikkat: Sepetinizde şu an "Stoklu" ürünler bulunuyor. Stokta olmayan (Ön Sipariş) ürünleri aynı sepete ekleyemezsiniz. Lütfen önce mevcut sepetinizdeki siparişi tamamlayın.', { duration: 7000 });
+                 return false;
+             }
+             if (!isPreOrder && hasPreOrderItems) {
+                 toast.warning('Dikkat: Sepetinizde şu an "Ön Sipariş" (stoksuz) ürünleri bulunuyor. Stokta olan ürünleri aynı sepete ekleyemezsiniz. Lütfen önce ön sipariş sepetinizi tamamlayın.', { duration: 7000 });
+                 return false;
+             }
+         }
+
          setWarenkorb(prevWarenkorb => {
              const existingItemIndex = prevWarenkorb.findIndex(item => item.produkt.id === produkt.id);
              let angeforderteMenge = Math.max(1, menge); // Menge, die hinzugefügt werden soll
-
-             const isPreOrder = (produkt.stok_miktari ?? 0) <= 0;
-
-             // --- Sepet Karıştırma Engeli (Normal & Ön Sipariş) ---
-             if (prevWarenkorb.length > 0) {
-                 const hasNormalItems = prevWarenkorb.some(item => (item.produkt.stok_miktari ?? 0) > 0);
-                 const hasPreOrderItems = prevWarenkorb.some(item => (item.produkt.stok_miktari ?? 0) <= 0);
-
-                 if (isPreOrder && hasNormalItems) {
-                     toast.error('Sepetinizde normal sipariş ürünleri var. Stokta olmayan ürünleri (Ön Sipariş) eklemek için lütfen önce mevcut sepetinizi tamamlayın veya temizleyin.');
-                     return prevWarenkorb;
-                 }
-                 if (!isPreOrder && hasPreOrderItems) {
-                     toast.error('Sepetinizde ön sipariş ürünleri var. Stoktaki ürünleri eklemek için lütfen önce mevcut sepetinizi (Ön Sipariş) tamamlayın veya temizleyin.');
-                     return prevWarenkorb;
-                 }
-             }
 
              // Stokprüfung für die angeforderte Menge (nur bei Artikeln auf Lager)
              if (!isPreOrder && angeforderteMenge > (produkt.stok_miktari ?? 0)) {
@@ -146,7 +146,8 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
                  return [...prevWarenkorb, { produkt, menge: angeforderteMenge, birim }];
              }
          });
-     }, []);
+         return isSuccess;
+     }, [warenkorb]);
 
     // Funktion zum Entfernen aus dem Warenkorb
     const removeFromWarenkorb = useCallback((produktId: string) => {

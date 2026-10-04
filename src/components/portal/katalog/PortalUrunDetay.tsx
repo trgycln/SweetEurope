@@ -141,21 +141,23 @@ export function PortalUrunDetay({ urun, partnerPreis, stokMiktari, locale, dicti
             partnerPreis: partnerPreis
         };
 
-        addToWarenkorb(produktFuerWarenkorb, menge);
+        const success = addToWarenkorb(produktFuerWarenkorb, menge);
         
         // Erfolg-Toast
-        if (isVorbestellung) {
-            toast.success(
-                locale === 'de'
-                    ? `${menge} x ${urunAdi} als Vorbestellung zum Warenkorb hinzugefügt!`
-                    : locale === 'en'
-                    ? `${menge} x ${urunAdi} added to cart as pre-order!`
-                    : locale === 'ar'
-                    ? `تمت إضافة ${menge} x ${urunAdi} كطلب مسبق إلى السلة!`
-                    : `${menge} x ${urunAdi} ön sipariş olarak sepete eklendi!`
-            );
-        } else {
-            toast.success(`${menge} x ${urunAdi} ${cartContent.addedToCart || 'zum Warenkorb hinzugefügt!'}`);
+        if (success) {
+            if (isVorbestellung) {
+                toast.success(
+                    locale === 'de'
+                        ? `${menge} x ${urunAdi} als Vorbestellung zum Warenkorb hinzugefügt!`
+                        : locale === 'en'
+                        ? `${menge} x ${urunAdi} added to cart as pre-order!`
+                        : locale === 'ar'
+                        ? `تمت إضافة ${menge} x ${urunAdi} كطلب مسبق إلى السلة!`
+                        : `${menge} x ${urunAdi} ön sipariş olarak sepete eklendi!`
+                );
+            } else {
+                toast.success(`${menge} x ${urunAdi} ${cartContent.addedToCart || 'zum Warenkorb hinzugefügt!'}`);
+            }
         }
     };
 

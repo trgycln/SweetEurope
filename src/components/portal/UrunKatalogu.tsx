@@ -242,21 +242,23 @@ export function UrunKatalogu({
     }, [warenkorb]);
 
     const handleAdd = useCallback((urun: Urun, miktar: number, birim: Birim) => {
-        addToWarenkorb(
+        const success = addToWarenkorb(
             urun,
             miktar,
             birim
         );
 
-        const birimLabel = t(locale,
-            birim === 'koli' ? 'Karton' : birim === 'palet' ? 'Palette' : 'Stück',
-            birim === 'koli' ? 'case' : birim === 'palet' ? 'pallet' : 'unit',
-            birim === 'koli' ? 'koli' : birim === 'palet' ? 'palet' : 'adet',
-            birim === 'koli' ? 'كرتون' : birim === 'palet' ? 'منصة' : 'وحدة'
-        );
+        if (success) {
+            const birimLabel = t(locale,
+                birim === 'koli' ? 'Karton' : birim === 'palet' ? 'Palette' : 'Stück',
+                birim === 'koli' ? 'case' : birim === 'palet' ? 'pallet' : 'unit',
+                birim === 'koli' ? 'koli' : birim === 'palet' ? 'palet' : 'adet',
+                birim === 'koli' ? 'كرتون' : birim === 'palet' ? 'منصة' : 'وحدة'
+            );
 
-        toast.success(`${miktar} ${birimLabel} → ${getLocalizedName(urun.ad, locale)}`);
-        setModalUrun(null);
+            toast.success(`${miktar} ${birimLabel} → ${getLocalizedName(urun.ad, locale)}`);
+            setModalUrun(null);
+        }
     }, [addToWarenkorb, locale]);
 
     return (

@@ -116,41 +116,45 @@ export default function FavorilerClient({ favoriler: initialFavoriler, locale, d
     // Hızlı Sepete Ekle (1 Koli)
     const handleQuickAdd = (produkt: ProduktMitPreis) => {
         const adetFiyat = getBirimFiyatKatalog(produkt, 'koli', 1, userRole);
-        addToWarenkorb({ ...produkt, partnerPreis: adetFiyat }, 1, 'koli');
-        const prodName = getLocalizedName(produkt.ad, locale);
-        toast.success(
-            locale === 'de'
-                ? `✓ 1 Karton ${prodName} in den Warenkorb gelegt!`
-                : locale === 'en'
-                ? `✓ 1 case of ${prodName} added to cart!`
-                : locale === 'ar'
-                ? `✓ تمت إضافة كرتون واحد من ${prodName} إلى السلة!`
-                : `✓ 1 Koli ${prodName} sepete eklendi!`
-        );
+        const success = addToWarenkorb({ ...produkt, partnerPreis: adetFiyat }, 1, 'koli');
+        if (success) {
+            const prodName = getLocalizedName(produkt.ad, locale);
+            toast.success(
+                locale === 'de'
+                    ? `✓ 1 Karton ${prodName} in den Warenkorb gelegt!`
+                    : locale === 'en'
+                    ? `✓ 1 case of ${prodName} added to cart!`
+                    : locale === 'ar'
+                    ? `✓ تمت إضافة كرتون واحد من ${prodName} إلى السلة!`
+                    : `✓ 1 Koli ${prodName} sepete eklendi!`
+            );
+        }
     };
 
     // Modal üzerinden sepete ekleme
     const handleModalAdd = (miktar: number, birim: Birim) => {
         if (!modalProdukt) return;
         const adetFiyat = getBirimFiyatKatalog(modalProdukt, birim, miktar, userRole);
-        addToWarenkorb({ ...modalProdukt, partnerPreis: adetFiyat }, miktar, birim);
-        const prodName = getLocalizedName(modalProdukt.ad, locale);
-        const birimLabel = birim === 'palet'
-            ? (locale === 'de' ? 'Palette(n)' : 'palet')
-            : birim === 'koli'
-            ? (locale === 'de' ? 'Karton(s)' : 'koli')
-            : (locale === 'de' ? 'Stück' : 'adet');
+        const success = addToWarenkorb({ ...modalProdukt, partnerPreis: adetFiyat }, miktar, birim);
+        if (success) {
+            const prodName = getLocalizedName(modalProdukt.ad, locale);
+            const birimLabel = birim === 'palet'
+                ? (locale === 'de' ? 'Palette(n)' : 'palet')
+                : birim === 'koli'
+                ? (locale === 'de' ? 'Karton(s)' : 'koli')
+                : (locale === 'de' ? 'Stück' : 'adet');
 
-        toast.success(
-            locale === 'de'
-                ? `✓ ${miktar} ${birimLabel} ${prodName} in den Warenkorb gelegt!`
-                : locale === 'en'
-                ? `✓ ${miktar} ${birimLabel} of ${prodName} added to cart!`
-                : locale === 'ar'
-                ? `✓ تمت إضافة ${miktar} ${birimLabel} من ${prodName} إلى السلة!`
-                : `✓ ${miktar} ${birimLabel} ${prodName} sepete eklendi!`
-        );
-        setModalProdukt(null);
+            toast.success(
+                locale === 'de'
+                    ? `✓ ${miktar} ${birimLabel} ${prodName} in den Warenkorb gelegt!`
+                    : locale === 'en'
+                    ? `✓ ${miktar} ${birimLabel} of ${prodName} added to cart!`
+                    : locale === 'ar'
+                    ? `✓ تمت إضافة ${miktar} ${birimLabel} من ${prodName} إلى السلة!`
+                    : `✓ ${miktar} ${birimLabel} ${prodName} sepete eklendi!`
+            );
+            setModalProdukt(null);
+        }
     };
 
     if (favoriListesi.length === 0) {

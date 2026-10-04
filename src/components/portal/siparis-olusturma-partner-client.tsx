@@ -13,7 +13,7 @@ import { Locale } from '@/i18n-config';
 // setInitialWarenkorb aus dem Context importieren
 import { usePortal, ProduktImWarenkorb, SepetUrunu } from '@/contexts/PortalContext'; // SepetUrunu importieren
 import { getLocalizedName, formatCurrency } from '@/lib/utils';
-import { UrunKatalogu } from './UrunKatalogu';
+import Link from 'next/link';
 import {
     hesaplaSepetSatiri, hesaplaToplamAdet, getKoliIciAdet,
     getPaletIciKoliAdet, getPaletToplamAdet, hasPaletOption,
@@ -392,14 +392,21 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                                 ? 'Fügen Sie Artikel aus dem Katalog hinzu.' 
                                 : 'Katalogdan ürün seçerek sepetinizi oluşturmaya başlayabilirsiniz.'}
                         </p>
-                        {isDrawer && (
-                            <button
-                                type="button"
+                        {isDrawer ? (
+                            <Link
+                                href={`/${locale}/portal/katalog`}
                                 onClick={() => setIsCartDrawerOpen(false)}
                                 className="mt-2 inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors shadow-sm"
                             >
                                 {locale === 'de' ? 'Katalog durchsuchen' : 'Kataloğa Göz At'}
-                            </button>
+                            </Link>
+                        ) : (
+                            <Link
+                                href={`/${locale}/portal/katalog`}
+                                className="mt-2 inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors shadow-sm"
+                            >
+                                {locale === 'de' ? 'Katalog durchsuchen' : 'Kataloğa Göz At'}
+                            </Link>
                         )}
                     </div>
                 )}
@@ -578,21 +585,40 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
     // --- JSX (Layout und Katalog unverändert) ---
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            <div className="lg:col-span-2">
-                <h1 className="font-serif text-3xl font-bold text-primary mb-2">{content.title || "Neue Bestellung erstellen"}</h1>
-                <p className="text-text-main mb-6">{content.subtitle || "Stellen Sie Ihren Warenkorb aus dem Katalog zusammen."}</p>
-                <UrunKatalogu
-                    initialUrunler={urunler}
-                    kategoriler={kategoriler}
-                    favoriIdSet={favoriIdSet}
-                    dictionary={dictionary}
-                    locale={locale}
-                />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
+            <div className="lg:col-span-7 xl:col-span-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h1 className="font-serif text-3xl font-bold text-primary mb-2">{content.title || (locale === 'de' ? "Warenkorb & Kasse" : "Sepetim & Ödeme")}</h1>
+                        <p className="text-text-main">{content.subtitle || (locale === 'de' ? "Überprüfen Sie Ihre Artikel und schließen Sie die Bestellung ab." : "Siparişinizi kontrol edip ödeme adımına geçebilirsiniz.")}</p>
+                    </div>
+                    <Link
+                        href={`/${locale}/portal/katalog`}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:border-accent hover:text-accent rounded-xl text-sm font-bold text-gray-600 transition-colors whitespace-nowrap shadow-sm"
+                    >
+                        <span>←</span>
+                        <span>{locale === 'de' ? 'Weiter einkaufen' : 'Ürün Eklemeye Devam Et'}</span>
+                    </Link>
+                </div>
+                
+                {/* Masaüstü Sol Kolon Sepet Detayları (İsteğe bağlı burayı zenginleştirebiliriz, şimdilik boş veya sepeti buraya da koyabiliriz. Ancak sağ kolonda zaten sepet var. Sol kolona fatura adresi vs. özet koyalım) */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">{locale === 'de' ? 'Rechnungs- & Lieferadresse' : 'Fatura & Teslimat Adresi'}</h3>
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <p className="font-bold text-gray-900">{firma?.unvan}</p>
+                        <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">{firma?.adres || (locale === 'de' ? 'Keine Adresse angegeben' : 'Adres belirtilmemiş')}</p>
+                        <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded">
+                            <FiTruck size={14} />
+                            {shippingInfo.isLocalDelivery 
+                                ? (locale === 'de' ? 'Lokale Lieferung (Köln/Bonn)' : 'Yerel Teslimat (Köln/Bonn)') 
+                                : (locale === 'de' ? 'Paketversand' : 'Paket Gönderimi')}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* --- Masaüstü Sabit Sepet (Sağ Kolon) --- */}
-            <div className="hidden lg:block lg:col-span-1 lg:sticky lg:top-20 self-start">
+            <div className="hidden lg:block lg:col-span-5 xl:col-span-4 lg:sticky lg:top-20 self-start">
                 <div className="bg-white p-4 lg:p-5 rounded-2xl shadow-lg space-y-3.5 border border-gray-200 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-none">
                     <div className="flex items-center justify-between pb-2 border-b border-gray-100">
                         <h2 className="font-serif text-lg lg:text-xl font-bold text-primary flex items-center gap-2">

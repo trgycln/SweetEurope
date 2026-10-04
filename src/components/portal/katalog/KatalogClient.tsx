@@ -326,29 +326,31 @@ export function KatalogClient({
     if (!modalProdukt) return;
     const adetFiyat = getBirimFiyatKatalog(modalProdukt, birim, miktar);
 
-    addToWarenkorb(
+    const success = addToWarenkorb(
       { ...modalProdukt, partnerPreis: adetFiyat },
       miktar,
       birim as any,
     );
 
-    const birimLabel =
-      locale === "de"
-        ? birim === "koli"
-          ? "Karton"
-          : birim === "palet"
-            ? "Palette"
-            : "Stück"
-        : birim === "koli"
-          ? "koli"
-          : birim === "palet"
-            ? "palet"
-            : "adet";
+    if (success) {
+        const birimLabel =
+          locale === "de"
+            ? birim === "koli"
+              ? "Karton"
+              : birim === "palet"
+                ? "Palette"
+                : "Stück"
+            : birim === "koli"
+              ? "koli"
+              : birim === "palet"
+                ? "palet"
+                : "adet";
 
-    toast.success(
-      `${miktar} ${birimLabel} → ${getLocalizedName(modalProdukt.ad, locale)}`,
-    );
-    setModalProdukt(null);
+        toast.success(
+          `${miktar} ${birimLabel} → ${getLocalizedName(modalProdukt.ad, locale)}`,
+        );
+        setModalProdukt(null);
+    }
   };
 
   const handleModalTalep = async (
@@ -397,12 +399,12 @@ export function KatalogClient({
         const produkt = item.urunler;
         if (produkt) {
           const partnerPreis = item.birim_fiyat || produkt.satis_fiyati_musteri;
-          addToWarenkorb(
+          const success = addToWarenkorb(
             { ...produkt, partnerPreis },
             Number(item.miktar) || 1,
             "koli",
           );
-          addedCount++;
+          if (success) addedCount++;
         }
       });
 
@@ -426,12 +428,12 @@ export function KatalogClient({
       let count = 0;
       items.forEach(({ produkt, menge, birim }) => {
         const adetFiyat = getBirimFiyatKatalog(produkt, birim, menge);
-        addToWarenkorb(
+        const success = addToWarenkorb(
           { ...produkt, partnerPreis: adetFiyat },
           menge,
           birim as any,
         );
-        count++;
+        if (success) count++;
       });
 
       if (count > 0) {
