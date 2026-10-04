@@ -12,6 +12,7 @@
 
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import { sendOrderConfirmationEmail } from '@/lib/email';
+import { createLexwareProformaForOrder, getLexwareProformaPdfBuffer } from '@/lib/lexware/order-confirmations';
 
 export async function markOrderPaidFromStripe(orderId: string): Promise<{
   success: boolean;
@@ -72,6 +73,21 @@ export async function markOrderPaidFromStripe(orderId: string): Promise<{
 
     const kargoBrut = (Number(order.kargo_tutari_net) || 0) + (Number(order.kargo_kdv_tutari) || 0);
 
+    // ++ Lexware Proforma Faturayı (Auftragsbestätigung) otomatik oluştur ve PDF'i al ++
+    let proformaPdfBuffer: Buffer | null = null;
+    let proformaPdfFilename: string | null = null;
+
+    try {
+      const proformaRes = await createLexwareProformaForOrder(orderId, { finalize: true });
+      if (proformaRes?.proformaId) {
+        const pdfRes = await getLexwareProformaPdfBuffer(proformaRes.proformaId, order.is_test === true);
+        proformaPdfBuffer = pdfRes.buffer;
+        proformaPdfFilename = pdfRes.filename || `Proforma-${proformaRes.proformaNo}.pdf`;
+      }
+    } catch (lexErr) {
+      console.error('[order-payment] Otomatik Lexware Proforma oluşturulamadı (Graceful failure):', lexErr);
+    }
+
     await sendOrderConfirmationEmail({
       to,
       firmName: order.firmalar?.unvan || null,
@@ -85,6 +101,8 @@ export async function markOrderPaidFromStripe(orderId: string): Promise<{
       locale: 'de',
       portalOrderUrl: `https://elysonsweets.de/de/portal/siparisler/${orderId}`,
       paymentMethod: 'stripe',
+      pdfBuffer: proformaPdfBuffer,
+      pdfFilename: proformaPdfFilename,
     });
   } catch (e: any) {
     console.error('[order-payment] Onay e-postası gönderilemedi:', e);
