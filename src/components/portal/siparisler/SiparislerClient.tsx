@@ -432,13 +432,36 @@ export function SiparislerClient({
     useEffect(() => {
         if (searchParams.get('payment_status') === 'success') {
             portal?.clearWarenkorb();
-            toast.success(
-                locale === 'de'
-                    ? 'Zahlung erfolgreich! Ihre Bestellung wurde entgegengenommen.'
-                    : locale === 'tr'
-                    ? 'Ödemeniz başarıyla tamamlandı! Siparişiniz alındı.'
-                    : 'Payment successful! Your order has been placed.'
-            );
+            const isSplit = searchParams.get('split') === 'true';
+            const isPreorderOnly = searchParams.get('preorder_only') === 'true';
+            
+            if (isSplit) {
+                 toast.success(
+                    locale === 'de'
+                        ? 'Zahlung erfolgreich! Ihre Bestellung wurde in eine normale Bestellung und eine Vorbestellung aufgeteilt. Vorbestellungen finden Sie im Tab "Vorbestellungen".'
+                        : locale === 'tr'
+                        ? 'Ödemeniz başarıyla tamamlandı! Siparişiniz normal sipariş ve ön sipariş (stokta olmayanlar) olarak ikiye ayrıldı. Ön siparişinizi "Ön Siparişler" sekmesinde görebilirsiniz.'
+                        : 'Payment successful! Your order was split into a normal order and a pre-order. You can find your pre-order in the "Pre-Orders" tab.',
+                    { duration: 8000 }
+                );
+            } else if (isPreorderOnly) {
+                 toast.success(
+                    locale === 'de'
+                        ? 'Zahlung erfolgreich! Ihre Vorbestellung wurde entgegengenommen. Sie finden diese im Tab "Vorbestellungen".'
+                        : locale === 'tr'
+                        ? 'Ödemeniz başarıyla tamamlandı! Ön siparişiniz alındı. "Ön Siparişler" sekmesinden takip edebilirsiniz.'
+                        : 'Payment successful! Your pre-order has been placed. You can track it in the "Pre-Orders" tab.',
+                    { duration: 8000 }
+                );
+            } else {
+                toast.success(
+                    locale === 'de'
+                        ? 'Zahlung erfolgreich! Ihre Bestellung wurde entgegengenommen.'
+                        : locale === 'tr'
+                        ? 'Ödemeniz başarıyla tamamlandı! Siparişiniz alındı.'
+                        : 'Payment successful! Your order has been placed.'
+                );
+            }
         } else if (searchParams.get('payment_status') === 'cancelled') {
             toast.info(
                 locale === 'de'

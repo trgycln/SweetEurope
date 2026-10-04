@@ -257,8 +257,12 @@ export default async function YeniFirmaEklePage({ params, searchParams }: YeniFi
   // Sadece Admin ise tüm profilleri çek (Dropdown için)
   let profilOptions: ProfilOption[] = [];
   if (userRole === 'Yönetici') {
-      const { data: profiller } = await supabase.from('profiller').select('id, tam_ad').order('tam_ad');
-      profilOptions = profiller || [];
+      const { data: profiller } = await supabase
+          .from('profiller')
+          .select('id, tam_ad, rol')
+          .in('rol', ['Yönetici', 'Personel', 'Ekip Üyesi'])
+          .order('tam_ad');
+      profilOptions = (profiller || []).filter(p => !!p.tam_ad && !p.tam_ad.startsWith('[Silindi]'));
   }
   
   // Ana firmaları çek (Şube kaydı için - sadece parent_firma_id IS NULL olan firmalar)

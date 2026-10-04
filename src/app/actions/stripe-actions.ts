@@ -209,21 +209,39 @@ export async function confirmStripePaymentAction(sessionId: string, orderId?: st
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status === 'paid') {
-      // Güvenlik: Stripe session metadata önceliklidir
-      const targetOrderId = (session.metadata?.order_id as string | undefined) || orderId;
-      if (targetOrderId) {
-        // Idempotent: 'paid' işaretler + onay e-postasını gönderir (webhook ile çift e-posta olmaz)
-        const result = await markOrderPaidFromStripe(targetOrderId);
-        if (!result.success) {
-          console.error('confirmStripePaymentAction markOrderPaid error:', result.error);
-          return { error: result.error };
-        }
+      const normalOrderId = session.metadata?.normal_order_id;
+      const onSiparisOrderId = session.metadata?.on_siparis_order_id;
+      const legacyOrderId = (session.metadata?.order_id as string | undefined) || orderId;
+
+      const orderIdsToMark: string[] = [];
+      if (normalOrderId) orderIdsToMark.push(normalOrderId);
+      if (onSiparisOrderId) orderIdsToMark.push(onSiparisOrderId);
+      
+      if (orderIdsToMark.length === 0 && legacyOrderId) {
+        orderIdsToMark.push(legacyOrderId);
+      }
+
+      if (orderIdsToMark.length > 0) {
         const cookieStore = await cookies();
         const supabase = await createSupabaseServerClient(cookieStore);
-        await supabase
-          .from('siparisler')
-          .update({ siparis_durumu: 'Beklemede' })
-          .eq('id', targetOrderId);
+
+        for (const targetOrderId of orderIdsToMark) {
+          // Idempotent: 'paid' işaretler + onay e-postasını gönderir (webhook ile çift e-posta olmaz)
+          const result = await markOrderPaidFromStripe(targetOrderId);
+          if (!result.success) {
+            console.error('confirmStripePaymentAction markOrderPaid error:', result.error);
+            return { error: result.error };
+          }
+
+          // Ön siparişler "Ön Sipariş" statüsünde kalmalı, sadece normal sipariş "Beklemede" statüsüne geçmeli
+          // Eğer legacyOrderId ise veya targetOrderId normal_order_id'ye eşitse (veya ikisi de değilse ama legacy ise) Beklemede yap.
+          if (targetOrderId === normalOrderId || targetOrderId === legacyOrderId) {
+            await supabase
+              .from('siparisler')
+              .update({ siparis_durumu: 'Beklemede' })
+              .eq('id', targetOrderId);
+          }
+        }
       }
       return { success: true };
     }

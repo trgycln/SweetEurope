@@ -556,7 +556,7 @@ export async function topluSiparisOlusturAction(payload: {
                     user_id: user?.id || '',
                     order_notes: payload.orderNotes || '',
                 },
-                success_url: `${origin}/${loc}/portal/siparisler?payment_status=success&session_id={CHECKOUT_SESSION_ID}&order_id=${targetOrderId}`,
+                success_url: `${origin}/${loc}/portal/siparisler?payment_status=success&session_id={CHECKOUT_SESSION_ID}&order_id=${targetOrderId}${normalOrderId && onSiparisOrderId ? '&split=true' : (!normalOrderId && onSiparisOrderId ? '&preorder_only=true' : '')}`,
                 cancel_url: `${origin}/${loc}/portal/siparisler/yeni?payment_status=cancelled`,
                 locale: stripeLocale,
                 payment_method_types: ['card'],

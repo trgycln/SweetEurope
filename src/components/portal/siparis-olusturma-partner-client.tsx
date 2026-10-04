@@ -229,12 +229,12 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
             {onSiparisItemsList.length > 0 && (
                 <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-0.5">
                     <p className="font-bold flex items-center gap-1">
-                        ⏳ {locale === 'de' ? 'Vorbestellung im Warenkorb' : 'Ön Sipariş Talebi'} ({onSiparisItemsList.length})
+                        ⏳ {locale === 'de' ? 'Vorbestellung' : 'Ön Sipariş Sepeti'} ({onSiparisItemsList.length})
                     </p>
                     <p className="text-[11px] text-amber-700 leading-snug">
                         {locale === 'de'
-                            ? 'Nicht lagernde Artikel werden als separate Vorbestellung erfasst und bei Wareneingang geliefert.'
-                            : 'Stokta olmayan ürünler ayrı bir ön sipariş olarak kaydedilir ve ürün depoya ulaştığında sevk edilir.'}
+                            ? 'Dieser Warenkorb enthält nur Vorbestellungen. Die Lieferung erfolgt, sobald die Artikel auf Lager sind.'
+                            : 'Bu sepet sadece ön sipariş ürünlerini içermektedir. Ürünler depoya ulaştığında sevk edilecektir.'}
                     </p>
                 </div>
             )}

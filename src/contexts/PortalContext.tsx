@@ -104,6 +104,21 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
 
              const isPreOrder = (produkt.stok_miktari ?? 0) <= 0;
 
+             // --- Sepet Karıştırma Engeli (Normal & Ön Sipariş) ---
+             if (prevWarenkorb.length > 0) {
+                 const hasNormalItems = prevWarenkorb.some(item => (item.produkt.stok_miktari ?? 0) > 0);
+                 const hasPreOrderItems = prevWarenkorb.some(item => (item.produkt.stok_miktari ?? 0) <= 0);
+
+                 if (isPreOrder && hasNormalItems) {
+                     toast.error('Sepetinizde normal sipariş ürünleri var. Stokta olmayan ürünleri (Ön Sipariş) eklemek için lütfen önce mevcut sepetinizi tamamlayın veya temizleyin.');
+                     return prevWarenkorb;
+                 }
+                 if (!isPreOrder && hasPreOrderItems) {
+                     toast.error('Sepetinizde ön sipariş ürünleri var. Stoktaki ürünleri eklemek için lütfen önce mevcut sepetinizi (Ön Sipariş) tamamlayın veya temizleyin.');
+                     return prevWarenkorb;
+                 }
+             }
+
              // Stokprüfung für die angeforderte Menge (nur bei Artikeln auf Lager)
              if (!isPreOrder && angeforderteMenge > (produkt.stok_miktari ?? 0)) {
                  toast.warning(`Stok yetersiz! İstenen miktar stoğu aşıyor (Maks: ${produkt.stok_miktari}). Miktar ${produkt.stok_miktari} olarak ayarlandı.`);

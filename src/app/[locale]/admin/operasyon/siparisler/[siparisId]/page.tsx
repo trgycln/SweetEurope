@@ -83,14 +83,14 @@ export default async function OperasyonSiparisDetayPage({ params, searchParams }
                 .select('id, tam_ad')
                 .in('rol', ['Personel', 'Ekip Üyesi', 'Yönetici'])
                 .order('tam_ad');
-            personelProfiles = (data || []) as any[];
+            personelProfiles = ((data || []) as any[]).filter(p => !p.tam_ad?.startsWith('[Silindi]'));
         } catch {
             const { data } = await supabase
                 .from('profiller')
                 .select('id, tam_ad')
                 .in('rol', ['Personel', 'Ekip Üyesi'])
                 .order('tam_ad');
-            personelProfiles = (data || []) as any[];
+            personelProfiles = ((data || []) as any[]).filter(p => !p.tam_ad?.startsWith('[Silindi]'));
         }
     }
 

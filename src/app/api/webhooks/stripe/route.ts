@@ -52,48 +52,74 @@ export async function POST(req: NextRequest) {
     // checkout.session.completed: Stripe Checkout ile ödeme tamamlandı
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      const orderId = session.metadata?.order_id || session.metadata?.orderId || session.client_reference_id;
+      
+      const normalOrderId = session.metadata?.normal_order_id;
+      const onSiparisOrderId = session.metadata?.on_siparis_order_id;
+      const legacyOrderId = session.metadata?.order_id || session.metadata?.orderId || session.client_reference_id;
 
-      if (!orderId) {
+      const orderIdsToMark: string[] = [];
+      if (normalOrderId) orderIdsToMark.push(normalOrderId);
+      if (onSiparisOrderId) orderIdsToMark.push(onSiparisOrderId);
+      
+      if (orderIdsToMark.length === 0 && legacyOrderId) {
+        orderIdsToMark.push(legacyOrderId);
+      }
+
+      if (orderIdsToMark.length === 0) {
         console.warn('[stripe-webhook] checkout.session.completed — sipariş ID bulunamadı (metadata.order_id veya client_reference_id)');
         // Bilinmeyen sipariş — Stripe'a 200 döndür (retry yapmaması için)
         return NextResponse.json({ received: true, warning: 'No orderId found' });
       }
 
-      console.log(`[stripe-webhook] ✅ Ödeme başarılı → Sipariş: ${orderId} | Session: ${session.id}`);
+      console.log(`[stripe-webhook] ✅ Ödeme başarılı → Siparişler: ${orderIdsToMark.join(', ')} | Session: ${session.id}`);
 
-      // Ödemeyi işaretle + faturasız onay e-postası (idempotent)
-      const result = await markOrderPaidFromStripe(orderId);
+      for (const orderId of orderIdsToMark) {
+        // Ödemeyi işaretle + faturasız onay e-postası (idempotent)
+        const result = await markOrderPaidFromStripe(orderId);
 
-      if (!result.success) {
-        // Kritik hata → Stripe'a 500 döndür ki tekrar denesin
-        console.error('[stripe-webhook] markOrderPaidFromStripe başarısız:', result.error);
-        return NextResponse.json({ error: result.error }, { status: 500 });
-      }
+        if (!result.success) {
+          // Kritik hata → Stripe'a 500 döndür ki tekrar denesin
+          console.error('[stripe-webhook] markOrderPaidFromStripe başarısız:', result.error);
+          return NextResponse.json({ error: result.error }, { status: 500 });
+        }
 
-      if (result.warning) {
-        console.warn(`[stripe-webhook] ⚠️ Kısmi başarı — Sipariş: ${orderId} | Uyarı: ${result.warning}`);
-      } else {
-        console.log(`[stripe-webhook] ✅ Ödeme işlendi (fatura admin panelinden kesilecek) | Sipariş: ${orderId}`);
+        if (result.warning) {
+          console.warn(`[stripe-webhook] ⚠️ Kısmi başarı — Sipariş: ${orderId} | Uyarı: ${result.warning}`);
+        } else {
+          console.log(`[stripe-webhook] ✅ Ödeme işlendi (fatura admin panelinden kesilecek) | Sipariş: ${orderId}`);
+        }
       }
     }
 
     // payment_intent.succeeded: Ek güvence — Checkout dışı ödemeleri yakalar
     else if (event.type === 'payment_intent.succeeded') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const orderId = paymentIntent.metadata?.order_id || paymentIntent.metadata?.orderId;
+      
+      const normalOrderId = paymentIntent.metadata?.normal_order_id;
+      const onSiparisOrderId = paymentIntent.metadata?.on_siparis_order_id;
+      const legacyOrderId = paymentIntent.metadata?.order_id || paymentIntent.metadata?.orderId;
 
-      if (!orderId) {
+      const orderIdsToMark: string[] = [];
+      if (normalOrderId) orderIdsToMark.push(normalOrderId);
+      if (onSiparisOrderId) orderIdsToMark.push(onSiparisOrderId);
+      
+      if (orderIdsToMark.length === 0 && legacyOrderId) {
+        orderIdsToMark.push(legacyOrderId);
+      }
+
+      if (orderIdsToMark.length === 0) {
         // Bizim sistemimize ait olmayan bir payment intent olabilir — sessizce geç
         return NextResponse.json({ received: true, warning: 'No orderId in payment_intent metadata' });
       }
 
-      console.log(`[stripe-webhook] payment_intent.succeeded → Sipariş: ${orderId} | PI: ${paymentIntent.id}`);
+      console.log(`[stripe-webhook] payment_intent.succeeded → Siparişler: ${orderIdsToMark.join(', ')} | PI: ${paymentIntent.id}`);
 
-      // IDEMPOTENCY: zaten 'paid' ise tekrar işlem/e-posta yapılmaz
-      const result = await markOrderPaidFromStripe(orderId);
-      if (result.warning) {
-        console.warn(`[stripe-webhook] ⚠️ Uyarı (payment_intent): ${result.warning}`);
+      for (const orderId of orderIdsToMark) {
+        // IDEMPOTENCY: zaten 'paid' ise tekrar işlem/e-posta yapılmaz
+        const result = await markOrderPaidFromStripe(orderId);
+        if (result.warning) {
+          console.warn(`[stripe-webhook] ⚠️ Uyarı (payment_intent): ${result.warning}`);
+        }
       }
     }
 
