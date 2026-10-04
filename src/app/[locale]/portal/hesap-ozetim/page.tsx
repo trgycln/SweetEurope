@@ -7,10 +7,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
     FiArrowLeft, FiTrendingUp, FiPackage, FiExternalLink,
-    FiShoppingCart, FiAward, FiRepeat, FiHeart,
+    FiShoppingCart, FiRepeat, FiHeart, FiFileText, FiCalendar
 } from 'react-icons/fi';
 import { HesapOzetTrend } from '@/components/portal/hesap-ozetim/HesapOzetTrend';
-import { getPortalLabels, formatCurrency, formatLocaleDate } from '@/lib/portalLabels';
+import { formatCurrency, formatLocaleDate } from '@/lib/portalLabels';
 
 import { getGlobalCachedUser } from '@/lib/admin/cache-utils';
 
@@ -18,21 +18,6 @@ export const dynamic = 'force-dynamic';
 
 interface PageProps {
     params: Promise<{ locale: Locale }>;
-}
-
-// Tier hesabı
-function calcTier(yearTotal: number, locale: string) {
-    const tiers = [
-        { min: 50000, label: { de: 'Platin', tr: 'Platin' }, color: 'from-violet-500 to-fuchsia-600', emoji: '💎' },
-        { min: 20000, label: { de: 'Gold', tr: 'Altın' }, color: 'from-amber-500 to-orange-500', emoji: '🥇' },
-        { min: 8000,  label: { de: 'Silber', tr: 'Gümüş' }, color: 'from-slate-400 to-slate-500', emoji: '🥈' },
-        { min: 2000,  label: { de: 'Bronze', tr: 'Bronz' }, color: 'from-orange-700 to-amber-800', emoji: '🥉' },
-        { min: 0,     label: { de: 'Neu', tr: 'Yeni' }, color: 'from-slate-300 to-slate-400', emoji: '🌱' },
-    ];
-    const thresholds = [2000, 8000, 20000, 50000];
-    const current = tiers.find(t => yearTotal >= t.min) || tiers[tiers.length - 1];
-    const nextThreshold = thresholds.find(t => t > yearTotal) ?? null;
-    return { ...current, nextThreshold };
 }
 
 export default async function HesapOzetimPage({ params }: PageProps) {
@@ -73,12 +58,12 @@ export default async function HesapOzetimPage({ params }: PageProps) {
         favoriSayisiRes,
     ] = await Promise.all([
         supabase.from('firmalar')
-            .select('unvan, created_at')
+            .select('unvan, created_at, vkn_tckn, vergi_dairesi')
             .eq('id', profile.firma_id)
             .single(),
 
         (supabase as any).from('firmalar_finansal')
-            .select('ozel_indirim_orani')
+            .select('ozel_indirim_orani, risk_limiti, guncel_bakiye')
             .eq('firma_id', profile.firma_id)
             .maybeSingle(),
 
@@ -106,7 +91,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
 
         // Son 5 sipariş
         supabase.from('siparisler')
-            .select('id, siparis_tarihi, siparis_durumu, toplam_tutar_net')
+            .select('id, siparis_tarihi, siparis_durumu, toplam_tutar_net, toplam_tutar_brut')
             .eq('firma_id', profile.firma_id)
             .order('siparis_tarihi', { ascending: false })
             .limit(5),
@@ -118,7 +103,9 @@ export default async function HesapOzetimPage({ params }: PageProps) {
     ]);
 
     const firma = firmaRes.data;
-    const indirimOrani = finansalRes.data?.ozel_indirim_orani ?? 0;
+    const finansal = finansalRes.data || {};
+    const indirimOrani = finansal.ozel_indirim_orani ?? 0;
+    
     const siparislerYil = (siparislerYilRes.data ?? []) as any[];
     const siparislerOncekYil = (siparislerOncekYilRes.data ?? []) as any[];
     const siparisler12Ay = (siparisler12AyRes.data ?? []) as any[];
@@ -136,12 +123,6 @@ export default async function HesapOzetimPage({ params }: PageProps) {
 
     // Tasarruf hesabı (kademeli fiyat farkı — basit yaklaşım)
     const tasarruf = indirimOrani > 0 ? yilTotal * (indirimOrani / (100 - indirimOrani)) : 0;
-
-    // Tier
-    const tier = calcTier(yilTotal, locale);
-    const tierProgress = tier.nextThreshold
-        ? Math.min(100, Math.round((yilTotal / tier.nextThreshold) * 100))
-        : 100;
 
     // Aylık trend
     const trendMap = new Map<string, number>();
@@ -162,285 +143,306 @@ export default async function HesapOzetimPage({ params }: PageProps) {
         ? Math.floor((Date.now() - new Date(firma.created_at).getTime()) / 86400000)
         : 0;
     const membershipText = membershipDays >= 365
-        ? `${Math.floor(membershipDays / 365)} ${locale === 'de' ? 'Jahr' : 'yıl'}`
+        ? `${Math.floor(membershipDays / 365)} ${locale === 'de' ? 'Jahre' : 'yıl'}`
         : `${Math.floor(membershipDays / 30)} ${locale === 'de' ? 'Monate' : 'ay'}`;
 
     const STATUS_LABEL: Record<string, { de: string; tr: string; color: string }> = {
-        'Beklemede':    { de: 'Ausstehend',     tr: 'Beklemede',    color: 'bg-amber-100 text-amber-700' },
-        'Hazırlanıyor': { de: 'In Bearbeitung', tr: 'Hazırlanıyor', color: 'bg-blue-100 text-blue-700' },
-        'Yola Çıktı':   { de: 'Unterwegs',      tr: 'Yola Çıktı',  color: 'bg-violet-100 text-violet-700' },
-        'Teslim Edildi':{ de: 'Geliefert',      tr: 'Teslim Edildi', color: 'bg-green-100 text-green-700' },
-        'İptal Edildi': { de: 'Storniert',      tr: 'İptal Edildi', color: 'bg-red-100 text-red-700' },
-        'iptal_talep_edildi': { de: 'Storno beantr.', tr: 'İptal Talep', color: 'bg-orange-100 text-orange-700' },
+        'Beklemede':    { de: 'Ausstehend',     tr: 'Beklemede',    color: 'bg-amber-50 text-amber-700 border-amber-200' },
+        'Hazırlanıyor': { de: 'In Bearbeitung', tr: 'Hazırlanıyor', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+        'Yola Çıktı':   { de: 'Unterwegs',      tr: 'Yola Çıktı',  color: 'bg-violet-50 text-violet-700 border-violet-200' },
+        'Teslim Edildi':{ de: 'Geliefert',      tr: 'Teslim Edildi', color: 'bg-green-50 text-green-700 border-green-200' },
+        'İptal Edildi': { de: 'Storniert',      tr: 'İptal Edildi', color: 'bg-red-50 text-red-700 border-red-200' },
+        'iptal_talep_edildi': { de: 'Storno beantr.', tr: 'İptal Talep', color: 'bg-orange-50 text-orange-700 border-orange-200' },
     };
 
     return (
-        <div className="space-y-5 pb-10">
+        <div className="space-y-6 pb-10 max-w-6xl mx-auto">
             {/* Header */}
-            <div className="flex items-center gap-3">
-                <Link href={`/${locale}/portal/dashboard`}
-                    className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors">
-                    <FiArrowLeft size={18} />
-                </Link>
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800">
-                        {locale === 'de' ? 'Mein Konto' : 'Hesabım'}
-                    </h1>
-                    <p className="text-sm text-slate-500 mt-0.5">
-                        {firma?.unvan} · {locale === 'de' ? 'Kunde seit' : 'Müşterimizsiniz'}: <strong>{membershipText}</strong>
-                    </p>
+            <div className="flex items-center justify-between border-b border-slate-200 pb-5">
+                <div className="flex items-center gap-4">
+                    <Link href={`/${locale}/portal/dashboard`}
+                        className="p-2.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors">
+                        <FiArrowLeft size={20} />
+                    </Link>
+                    <div>
+                        <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight">
+                            {locale === 'de' ? 'Kontoauszug & Saldo' : 'Cari Bakiye & Ekstre'}
+                        </h1>
+                        <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
+                            <span>{firma?.unvan}</span>
+                            <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                            <span>{locale === 'de' ? 'Kunde seit' : 'Kayıt'}: {membershipText}</span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            {/* Tier + Progress */}
-            <div className={`bg-gradient-to-r ${tier.color} rounded-xl p-5 text-white`}>
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                        <span className="text-4xl">{tier.emoji}</span>
-                        <div>
-                            <p className="text-xs font-bold uppercase tracking-widest opacity-80">
-                                {locale === 'de' ? tier.label.de : tier.label.tr}
+            {/* Financial Summary Card (Professional B2B Look) */}
+            <div className="bg-slate-900 rounded-2xl p-6 lg:p-8 text-white shadow-xl relative overflow-hidden">
+                {/* Decorative background elements */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                    {/* Yıllık Hacim */}
+                    <div className="space-y-2">
+                        <p className="text-sm font-medium text-slate-400 uppercase tracking-wider">
+                            {locale === 'de' ? 'Bestellvolumen (Netto, Lfd. Jahr)' : 'Sipariş Hacmi (Net, Bu Yıl)'}
+                        </p>
+                        <div className="flex items-baseline gap-3">
+                            <span className="text-4xl lg:text-5xl font-bold tracking-tight text-white">
+                                {fmt(yilTotal)}
+                            </span>
+                        </div>
+                        {yillikDelta !== null && (
+                            <p className="text-sm flex items-center gap-1.5 mt-2">
+                                <span className={`inline-flex px-1.5 py-0.5 rounded text-xs font-bold ${yillikDelta >= 0 ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                                    {yillikDelta >= 0 ? '+' : ''}{yillikDelta}%
+                                </span>
+                                <span className="text-slate-400">
+                                    {locale === 'de' ? 'ggü. Vorjahr' : 'önceki yıla göre'}
+                                </span>
                             </p>
-                            <p className="text-xl font-bold">{fmt(yilTotal)}</p>
-                            <p className="text-xs opacity-75 mt-0.5">
-                                {siparislerYil.length} {locale === 'de' ? 'Bestellungen dieses Jahr' : 'bu yıl sipariş'}
-                                {yillikDelta !== null && (
-                                    <span className={`ml-2 font-bold ${yillikDelta >= 0 ? 'text-green-200' : 'text-red-200'}`}>
-                                        {yillikDelta >= 0 ? '+' : ''}{yillikDelta}%
-                                    </span>
-                                )}
-                            </p>
+                        )}
+                    </div>
+                    
+                    {/* B2B Avantaj & İndirim */}
+                    <div className="space-y-2 md:border-l md:border-slate-700 md:pl-8">
+                        <p className="text-sm font-medium text-slate-400 uppercase tracking-wider">
+                            {locale === 'de' ? 'Aktive Konditionen' : 'Aktif Koşullar'}
+                        </p>
+                        <div className="space-y-3 mt-3">
+                            <div className="flex justify-between items-center border-b border-slate-700/50 pb-2">
+                                <span className="text-slate-300">{locale === 'de' ? 'Sonderrabatt' : 'Özel İndirim'}</span>
+                                <span className="font-semibold text-emerald-400 text-lg">%{indirimOrani}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-slate-300">{locale === 'de' ? 'Ersparnis' : 'Sağlanan Tasarruf'}</span>
+                                <span className="font-semibold text-white">{fmt(tasarruf)}</span>
+                            </div>
                         </div>
                     </div>
-                    {tier.nextThreshold && (
-                        <div className="text-right">
-                            <p className="text-xs opacity-75">
-                                {locale === 'de' ? 'Zur nächsten Stufe' : 'Sonraki seviyeye'}
-                            </p>
-                            <p className="text-sm font-bold">{fmt(tier.nextThreshold - yilTotal)}</p>
+
+                    {/* Firma Bilgileri */}
+                    <div className="space-y-2 md:border-l md:border-slate-700 md:pl-8">
+                        <p className="text-sm font-medium text-slate-400 uppercase tracking-wider">
+                            {locale === 'de' ? 'Rechnungsdetails' : 'Fatura Bilgileri'}
+                        </p>
+                        <div className="space-y-1.5 mt-3 text-sm text-slate-300">
+                            <p className="font-medium text-white">{firma?.unvan}</p>
+                            {firma?.vergi_dairesi && (
+                                <p>{locale === 'de' ? 'Finanzamt' : 'V.D.'}: {firma.vergi_dairesi}</p>
+                            )}
+                            {firma?.vkn_tckn && (
+                                <p>{locale === 'de' ? 'Steuernummer' : 'VKN'}: {firma.vkn_tckn}</p>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
-                {tier.nextThreshold && (
-                    <div className="mt-3">
-                        <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-                            <div className="h-full bg-white/70 rounded-full transition-all"
-                                style={{ width: `${tierProgress}%` }} />
-                        </div>
-                        <div className="flex justify-between text-[10px] opacity-60 mt-1">
-                            <span>€0</span>
-                            <span>{fmt(tier.nextThreshold)}</span>
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* KPI Kartlar */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="rounded-xl border border-blue-200/60 p-4 bg-gradient-to-br from-blue-50 to-white">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-blue-700">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                            <FiShoppingCart size={16} />
+                        </div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
                             {locale === 'de' ? 'Ø Warenkorb' : 'Ort. Sepet'}
                         </p>
-                        <FiShoppingCart size={14} className="text-blue-500" />
                     </div>
-                    <p className="text-xl font-bold text-blue-800">{fmt(ortSiparis)}</p>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                        {locale === 'de' ? 'pro Bestellung' : 'sipariş başına'}
+                    <p className="text-2xl font-bold text-slate-800">{fmt(ortSiparis)}</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                        {locale === 'de' ? 'Netto pro Bestellung' : 'sipariş başına net'}
                     </p>
                 </div>
 
-                <div className="rounded-xl border border-purple-200/60 p-4 bg-gradient-to-br from-purple-50 to-white">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-purple-700">
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <FiRepeat size={16} />
+                        </div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
                             {locale === 'de' ? 'Bestellungen' : 'Siparişler'}
                         </p>
-                        <FiRepeat size={14} className="text-purple-500" />
                     </div>
-                    <p className="text-xl font-bold text-purple-800">{siparislerYil.length}</p>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                        {locale === 'de' ? 'dieses Jahr' : 'bu yıl'}
+                    <p className="text-2xl font-bold text-slate-800">{siparislerYil.length}</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                        {locale === 'de' ? 'im laufenden Jahr' : 'bu yıl içinde'}
                     </p>
                 </div>
 
-                <div className="rounded-xl border border-pink-200/60 p-4 bg-gradient-to-br from-pink-50 to-white">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-pink-700">
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-pink-600">
+                            <FiHeart size={16} />
+                        </div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
                             {locale === 'de' ? 'Favoriten' : 'Favoriler'}
                         </p>
-                        <FiHeart size={14} className="text-pink-500" />
                     </div>
-                    <p className="text-xl font-bold text-pink-800">{favoriSayisi}</p>
+                    <p className="text-2xl font-bold text-slate-800">{favoriSayisi}</p>
                     <Link href={`/${locale}/portal/favoriler`}
-                        className="text-[11px] text-pink-600 hover:text-pink-800 mt-1 inline-block">
-                        {locale === 'de' ? 'Ansehen →' : 'Görüntüle →'}
+                        className="text-xs text-pink-600 hover:text-pink-800 mt-1 inline-block font-medium">
+                        {locale === 'de' ? 'Katalog ansehen →' : 'Kataloğa git →'}
                     </Link>
                 </div>
-
-                <div className="rounded-xl border border-emerald-200/60 p-4 bg-gradient-to-br from-emerald-50 to-white">
-                    <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">
-                            {locale === 'de' ? 'Ihr Vorteil' : 'Avantajınız'}
+                
+                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col justify-center items-start">
+                     <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+                            <FiFileText size={16} />
+                        </div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            {locale === 'de' ? 'Aktionen' : 'İşlemler'}
                         </p>
-                        <FiAward size={14} className="text-emerald-500" />
                     </div>
-                    {indirimOrani > 0 ? (
-                        <>
-                            <p className="text-xl font-bold text-emerald-800">%{indirimOrani}</p>
-                            <p className="text-[11px] text-slate-500 mt-1">
-                                {locale === 'de' ? 'Sonderrabatt' : 'özel indirim'}
-                            </p>
-                        </>
-                    ) : (
-                        <>
-                            <p className="text-xl font-bold text-emerald-800">{tier.emoji}</p>
-                            <p className="text-[11px] text-slate-500 mt-1">
-                                {locale === 'de' ? tier.label.de : tier.label.tr}
-                            </p>
-                        </>
+                    <Link href={`/${locale}/portal/siparisler/yeni`}
+                        className="w-full text-center py-2 bg-slate-800 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition-colors">
+                        {locale === 'de' ? 'Neue Bestellung' : 'Yeni Sipariş Oluştur'}
+                    </Link>
+                </div>
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Sol Taraf: Trend & En çok alınanlar */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Trend grafik */}
+                    <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                                <FiTrendingUp className="text-slate-400" />
+                                {locale === 'de' ? 'Bestelltrend (Letzte 12 Monate)' : 'Sipariş Trendi (Son 12 Ay)'}
+                            </h3>
+                        </div>
+                        {trendData.every(d => d.tutar === 0) ? (
+                            <div className="py-12 text-center bg-slate-50 rounded-lg border border-slate-100">
+                                <p className="text-sm text-slate-500">
+                                    {locale === 'de' ? 'Noch keine Bestelldaten für diesen Zeitraum vorhanden.' : 'Bu dönem için henüz sipariş verisi bulunmuyor.'}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="pt-2">
+                                <HesapOzetTrend data={trendData} />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* En çok alınan ürünler */}
+                    {enCokAlinan.length > 0 && (
+                        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+                            <div className="flex items-center justify-between mb-5">
+                                <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                                    <FiPackage className="text-slate-400" />
+                                    {locale === 'de' ? 'Meistbestellte Artikel' : 'En Çok Sipariş Edilenler'}
+                                </h3>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {enCokAlinan.map((u: any) => {
+                                    const ad = u.ad?.[locale] || u.ad?.de || u.ad?.tr || 'Ürün';
+                                    return (
+                                        <Link key={u.id || u.urun_id}
+                                            href={`/${locale}/portal/katalog/${u.id || u.urun_id}`}
+                                            className="flex flex-col border border-slate-100 rounded-xl overflow-hidden hover:border-slate-300 hover:shadow-md transition-all group bg-slate-50/50">
+                                            <div className="aspect-[4/3] bg-white relative border-b border-slate-100">
+                                                {u.ana_resim_url ? (
+                                                    <Image src={u.ana_resim_url} alt={ad} fill sizes="200px"
+                                                        className="object-contain p-4 group-hover:scale-105 transition-transform duration-500" />
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full">
+                                                        <FiPackage className="text-slate-200" size={32} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="p-3 flex-1 flex flex-col justify-between">
+                                                <p className="text-xs font-semibold text-slate-700 line-clamp-2 leading-snug">{ad}</p>
+                                                <p className="text-sm font-bold text-slate-900 mt-2">
+                                                    {fmt(Number(u.satis_fiyati_musteri ?? 0))}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     )}
                 </div>
-            </div>
 
-            {/* Tasarruf banner (indirim varsa) */}
-            {tasarruf > 0 && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <FiAward size={18} className="text-emerald-600" />
-                    </div>
-                    <div>
-                        <p className="text-sm font-bold text-emerald-900">
-                            {locale === 'de'
-                                ? `Sie haben dieses Jahr ${fmt(tasarruf)} gespart!`
-                                : `Bu yıl ${fmt(tasarruf)} tasarruf ettiniz!`}
-                        </p>
-                        <p className="text-xs text-emerald-700 mt-0.5">
-                            {locale === 'de'
-                                ? `Dank Ihres ${indirimOrani}% Sonderrabatts`
-                                : `%${indirimOrani} özel indiriminiz sayesinde`}
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            {/* En çok alınan ürünler */}
-            {enCokAlinan.length > 0 && (
-                <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                            <FiRepeat size={14} className="text-blue-500" />
-                            {locale === 'de' ? 'Häufig bestellt' : 'En Çok Aldıklarım'}
-                        </h3>
-                        <Link href={`/${locale}/portal/siparisler/yeni`}
-                            className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5">
-                            {locale === 'de' ? 'Neu bestellen' : 'Yeniden Sipariş'} <FiExternalLink size={9} />
-                        </Link>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                        {enCokAlinan.map((u: any) => {
-                            const ad = u.ad?.[locale] || u.ad?.de || u.ad?.tr || 'Ürün';
-                            return (
-                                <Link key={u.id || u.urun_id}
-                                    href={`/${locale}/portal/katalog/${u.id || u.urun_id}`}
-                                    className="block border border-slate-100 rounded-xl overflow-hidden hover:border-blue-300 hover:shadow-sm transition-all group">
-                                    <div className="aspect-square bg-slate-50 relative">
-                                        {u.ana_resim_url ? (
-                                            <Image src={u.ana_resim_url} alt={ad} fill sizes="150px"
-                                                className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                                        ) : (
-                                            <div className="flex items-center justify-center h-full">
-                                                <FiPackage className="text-slate-300" size={24} />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-2">
-                                        <p className="text-xs font-semibold text-slate-700 line-clamp-2 leading-tight">{ad}</p>
-                                        <p className="text-[10px] text-slate-400 mt-0.5">
-                                            {fmt(Number(u.satis_fiyati_musteri ?? 0))}
-                                        </p>
-                                    </div>
+                {/* Sağ Taraf: Son siparişler (Ekstre niyetine) */}
+                <div className="lg:col-span-1">
+                    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden h-full">
+                        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                            <h3 className="text-base font-bold text-slate-800 flex items-center gap-2">
+                                <FiCalendar className="text-slate-400" />
+                                {locale === 'de' ? 'Aktuelle Auszüge' : 'Güncel Ekstre'}
+                            </h3>
+                            <Link href={`/${locale}/portal/siparisler`}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-md">
+                                {locale === 'de' ? 'Alle' : 'Tümü'} <FiExternalLink size={10} />
+                            </Link>
+                        </div>
+                        
+                        {sonSiparisler.length === 0 ? (
+                            <div className="p-8 text-center flex flex-col items-center justify-center h-[calc(100%-60px)]">
+                                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                                    <FiFileText className="text-slate-300" size={20} />
+                                </div>
+                                <p className="text-sm text-slate-500 mb-4">
+                                    {locale === 'de' ? 'Keine Einträge vorhanden' : 'Kayıt bulunamadı'}
+                                </p>
+                                <Link href={`/${locale}/portal/katalog`}
+                                    className="inline-flex items-center gap-2 text-xs px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-semibold transition-colors">
+                                    {locale === 'de' ? 'Katalog öffnen' : 'Kataloga Git'}
                                 </Link>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Trend grafik */}
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <FiTrendingUp size={14} className="text-blue-500" />
-                        {locale === 'de' ? 'Bestelltrend (12 Monate)' : 'Sipariş Trendi (12 Ay)'}
-                    </h3>
-                </div>
-                {trendData.every(d => d.tutar === 0) ? (
-                    <div className="py-10 text-center">
-                        <p className="text-sm text-slate-400">
-                            {locale === 'de' ? 'Noch keine Bestellungen' : 'Henüz sipariş yok'}
-                        </p>
-                    </div>
-                ) : (
-                    <HesapOzetTrend data={trendData} />
-                )}
-            </div>
-
-            {/* Son siparişler */}
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                        <FiPackage size={14} className="text-blue-500" />
-                        {locale === 'de' ? 'Letzte Bestellungen' : 'Son Siparişler'}
-                    </h3>
-                    <Link href={`/${locale}/portal/siparisler`}
-                        className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-0.5">
-                        {locale === 'de' ? 'Alle' : 'Tümü'} <FiExternalLink size={9} />
-                    </Link>
-                </div>
-                {sonSiparisler.length === 0 ? (
-                    <div className="p-8 text-center">
-                        <p className="text-sm text-slate-400">
-                            {locale === 'de' ? 'Noch keine Bestellungen' : 'Henüz sipariş yok'}
-                        </p>
-                        <Link href={`/${locale}/portal/katalog`}
-                            className="mt-3 inline-flex items-center gap-1 text-xs px-3 py-1.5 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-semibold">
-                            {locale === 'de' ? 'Zum Katalog' : 'Kataloga Git'}
-                        </Link>
-                    </div>
-                ) : (
-                    <div className="divide-y divide-slate-50">
-                        {sonSiparisler.map((s: any) => {
-                            const statusCfg = STATUS_LABEL[s.siparis_durumu];
-                            return (
-                                <Link key={s.id}
-                                    href={`/${locale}/portal/siparisler/${s.id}`}
-                                    className="flex items-center gap-4 px-4 py-3 hover:bg-slate-50/50 transition-colors group">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="font-mono text-sm font-bold text-slate-800">
-                                                #{s.id.slice(0, 8).toUpperCase()}
-                                            </span>
-                                            {statusCfg && (
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusCfg.color}`}>
-                                                    {locale === 'de' ? statusCfg.de : statusCfg.tr}
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-slate-100">
+                                {sonSiparisler.map((s: any) => {
+                                    const statusCfg = STATUS_LABEL[s.siparis_durumu];
+                                    return (
+                                        <Link key={s.id}
+                                            href={`/${locale}/portal/siparisler/${s.id}`}
+                                            className="block px-5 py-4 hover:bg-slate-50 transition-colors group">
+                                            
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="font-mono text-xs font-bold text-slate-600 group-hover:text-blue-600 transition-colors">
+                                                    #{s.id.slice(0, 8).toUpperCase()}
                                                 </span>
-                                            )}
-                                        </div>
-                                        <p className="text-[11px] text-slate-400 mt-0.5">
-                                            {formatLocaleDate(s.siparis_tarihi, locale)}
-                                        </p>
-                                    </div>
-                                    <div className="text-right flex-shrink-0">
-                                        <p className="text-sm font-bold text-slate-800">{fmt(s.toplam_tutar_net)}</p>
-                                        <p className="text-[10px] text-slate-400">
-                                            {locale === 'de' ? 'Netto' : 'Net'}
-                                        </p>
-                                    </div>
-                                </Link>
-                            );
-                        })}
+                                                {statusCfg && (
+                                                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${statusCfg.color}`}>
+                                                        {locale === 'de' ? statusCfg.de : statusCfg.tr}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="flex justify-between items-end">
+                                                <div>
+                                                    <p className="text-[11px] text-slate-500 font-medium">
+                                                        {formatLocaleDate(s.siparis_tarihi, locale)}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-sm font-bold text-slate-900">{fmt(s.toplam_tutar_net)}</p>
+                                                    <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">
+                                                        {locale === 'de' ? 'Netto' : 'Net'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
+                                
+                                <div className="p-4 bg-slate-50/50">
+                                    <Link href={`/${locale}/portal/siparisler`} className="w-full flex items-center justify-center gap-2 text-sm text-slate-600 font-medium py-2 hover:text-slate-900 transition-colors">
+                                        {locale === 'de' ? 'Vollständigen Auszug anzeigen' : 'Tüm Ekstreyi Görüntüle'}
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );

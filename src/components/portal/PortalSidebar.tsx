@@ -10,10 +10,10 @@ import { getPortalLabels } from '@/lib/portalLabels';
 
 // Sidebar için müşteri rolüne özel profesyonel B2B etiketleri (4 dilde)
 const CUSTOMER_LABELS: Record<string, { home: string; catalog: string; favorites: string; orders: string; accountSummary: string; profile: string }> = {
-    de: { home: 'Übersicht', catalog: 'Katalog & Bestellen', favorites: 'Häufig Bestellt', orders: 'Bestellungen & Rechnungen', accountSummary: 'Kontoauszug & Saldo', profile: 'Kontoeinstellungen' },
-    en: { home: 'Overview', catalog: 'Catalog & Order', favorites: 'Frequently Ordered', orders: 'Orders & Invoices', accountSummary: 'Statement & Balance', profile: 'Account Settings' },
-    tr: { home: 'Genel Bakış', catalog: 'Ürün Kataloğu & Sipariş', favorites: 'Sık Sipariş Edilenler', orders: 'Sipariş Takibi & Faturalar', accountSummary: 'Cari Bakiye & Ekstre', profile: 'Hesap Ayarları' },
-    ar: { home: 'نظرة عامة', catalog: 'الكتالوج والطلب', favorites: 'الطلبات المتكررة', orders: 'الطلبات والفواتير', accountSummary: 'كشف الحساب والرصيد', profile: 'إعدادات الحساب' },
+    de: { home: 'Übersicht', catalog: 'Katalog & Bestellen', favorites: 'Meine Favoriten', orders: 'Bestellungen & Rechnungen', accountSummary: 'Kontoauszug & Saldo', profile: 'Kontoeinstellungen' },
+    en: { home: 'Overview', catalog: 'Catalog & Order', favorites: 'My Favorites', orders: 'Orders & Invoices', accountSummary: 'Statement & Balance', profile: 'Account Settings' },
+    tr: { home: 'Genel Bakış', catalog: 'Ürün Kataloğu & Sipariş', favorites: 'Favorilerim', orders: 'Sipariş Takibi & Faturalar', accountSummary: 'Cari Bakiye & Ekstre', profile: 'Hesap Ayarları' },
+    ar: { home: 'نظرة عامة', catalog: 'الكتالوج والطلب', favorites: 'مفضلتي', orders: 'الطلبات والفواتير', accountSummary: 'كشف الحساب والرصيد', profile: 'إعدادات الحساب' },
 };
 
 // Bayi rolüne özel profesyonel B2B etiketleri (4 dilde)

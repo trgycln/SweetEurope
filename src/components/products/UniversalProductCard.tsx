@@ -513,16 +513,16 @@ export function UniversalProductCard({
                             return (
                                 <div
                                     key={i}
-                                    className={`flex items-center justify-between gap-2 px-2.5 py-1 rounded-lg text-xs font-mono transition-all duration-200 ${
+                                    className={`flex items-center justify-between gap-1 sm:gap-2 px-1.5 sm:px-2.5 py-1 rounded-lg text-xs font-mono transition-all duration-200 ${
                                         isHighlighted
                                             ? 'bg-amber-50 border border-amber-300 text-amber-900 font-bold'
                                             : 'text-stone-600 bg-stone-50 border border-stone-100 hover:border-stone-200'
                                     }`}
                                 >
-                                    <span className={`truncate min-w-0 text-[11px] ${isHighlighted ? 'text-amber-950 font-semibold' : 'text-stone-600'}`}>
+                                    <span className={`truncate min-w-0 text-[9px] sm:text-[11px] ${isHighlighted ? 'text-amber-950 font-semibold' : 'text-stone-600'}`}>
                                         {row.label}
                                     </span>
-                                    <span className={`font-bold tracking-wide text-xs whitespace-nowrap flex-shrink-0 ${isHighlighted ? 'text-amber-900' : 'text-stone-900'}`}>
+                                    <span className={`font-bold tracking-wide text-[10px] sm:text-xs whitespace-nowrap flex-shrink-0 ${isHighlighted ? 'text-amber-900' : 'text-stone-900'}`}>
                                         {formatCurrency(row.price)}
                                     </span>
                                 </div>
@@ -532,23 +532,23 @@ export function UniversalProductCard({
                 )}
 
                 {/* Card Footer: Always pinned with mt-auto */}
-                <div className="mt-auto pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
+                <div className="mt-auto pt-3 border-t border-stone-100 flex items-end justify-between gap-1 sm:gap-2">
                     {!isLoggedIn ? (
                         /* Guest state: Price on Request + Details CTA */
                         <>
                             <div className="flex flex-col min-w-0">
-                                <span className="text-[10px] font-mono text-amber-800 font-semibold tracking-wider uppercase">
+                                <span className="text-[9px] sm:text-[10px] font-mono text-amber-800 font-semibold tracking-wider uppercase">
                                     {dictionary?.publicProductsPage?.priceLogin || 'PREIS AUF ANFRAGE'}
                                 </span>
-                                <span className="text-[11px] text-stone-400 truncate">
+                                <span className="text-[10px] sm:text-[11px] text-stone-400 truncate">
                                     {locale === 'tr' ? 'B2B Girişi Yapın' : 'Für Partnerpreise'}
                                 </span>
                             </div>
                             <Link
                                 href={detailHref}
-                                className="h-8.5 px-3.5 rounded-xl bg-stone-900 text-white hover:bg-amber-600 transition-all text-xs font-bold flex items-center justify-center gap-1 shadow-xs flex-shrink-0"
+                                className="h-8.5 px-2.5 sm:px-3.5 rounded-xl bg-stone-900 text-white hover:bg-amber-600 transition-all text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1 shadow-xs flex-shrink-0"
                             >
-                                {dictionary?.publicProductsPage?.details || 'Details'}
+                                <span className="hidden sm:inline">{dictionary?.publicProductsPage?.details || 'Details'}</span>
                                 <FiChevronRight size={13} />
                             </Link>
                         </>
@@ -556,19 +556,19 @@ export function UniversalProductCard({
                         /* Logged-in state: Primary price on left + Sleek Compact Action Button on right */
                         <>
                             <div className="flex flex-col min-w-0">
-                                <span className="text-[10px] text-stone-400 font-medium uppercase tracking-wider leading-none truncate">
+                                <span className="text-[9px] sm:text-[10px] text-stone-400 font-medium uppercase tracking-wider leading-none truncate mb-1">
                                     {primaryPriceLabel}
                                 </span>
-                                <div className="flex items-baseline gap-1 mt-0.5">
-                                    <span className="text-base sm:text-lg font-bold font-mono text-stone-900 tracking-tight leading-tight">
+                                <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
+                                    <span className="text-[13px] sm:text-lg font-bold font-mono text-stone-900 tracking-tight leading-none">
                                         {formatCurrency(primaryPrice)}
                                     </span>
-                                    <span className="text-[10px] font-medium text-stone-500">Netto</span>
-                                    <span className="text-[9px] font-mono text-stone-400">(zzgl. 7%)</span>
+                                    <span className="text-[9px] sm:text-[10px] font-medium text-stone-500 leading-none">Netto</span>
+                                    <span className="text-[8px] sm:text-[9px] font-mono text-stone-400 block w-full sm:inline sm:w-auto leading-none mt-0.5 sm:mt-0">(zzgl. 7%)</span>
                                 </div>
                             </div>
 
-                            {/* Compact Icon Action Button (replaces the huge repetitive text button) */}
+                            {/* Compact Icon Action Button */}
                             {onAction ? (
                                 <button
                                     onClick={(e) => {
@@ -582,7 +582,7 @@ export function UniversalProductCard({
                                             ? (locale === 'tr' ? 'Sepete Ekle' : 'In den Warenkorb')
                                             : (locale === 'tr' ? 'Listeye Ekle' : 'Zur Merkliste hinzufügen')))}
                                     aria-label={actionTooltip || 'Aktion'}
-                                    className={`h-9 w-9 rounded-xl flex items-center justify-center transition-all shadow-xs flex-shrink-0 group/btn active:scale-95 ${
+                                    className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center transition-all shadow-xs flex-shrink-0 group/btn active:scale-95 mb-0.5 ${
                                         inMerkliste
                                             ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/20'
                                             : 'bg-stone-900 text-white hover:bg-amber-600 hover:scale-105 shadow-stone-900/10'
