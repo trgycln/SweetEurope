@@ -99,6 +99,15 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
      const addToWarenkorb = useCallback((produkt: ProduktImWarenkorb, menge: number = 1, birim: 'koli' | 'adet' | 'palet' = 'koli'): boolean => {
          let isSuccess = true;
          const isPreOrder = (produkt.stok_miktari ?? 0) <= 0;
+         
+         // Try to get locale from pathname
+         let locale = 'tr';
+         if (typeof window !== 'undefined') {
+             const path = window.location.pathname;
+             if (path.startsWith('/de')) locale = 'de';
+             else if (path.startsWith('/en')) locale = 'en';
+             else if (path.startsWith('/ar')) locale = 'ar';
+         }
 
          // --- Sepet Karıştırma Engeli (Normal & Ön Sipariş) ---
          if (warenkorb.length > 0) {
@@ -106,11 +115,25 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
              const hasPreOrderItems = warenkorb.some(item => (item.produkt.stok_miktari ?? 0) <= 0);
 
              if (isPreOrder && hasNormalItems) {
-                 toast.warning('Dikkat: Sepetinizde şu an "Stoklu" ürünler bulunuyor. Stokta olmayan (Ön Sipariş) ürünleri aynı sepete ekleyemezsiniz. Lütfen önce mevcut sepetinizdeki siparişi tamamlayın.', { duration: 7000 });
+                 const msg = locale === 'de' 
+                    ? 'Achtung: Ihr Warenkorb enthält bereits Lagerartikel. Vorbestellungen können nicht mit Lagerartikeln gemischt werden. Bitte schließen Sie zuerst Ihre aktuelle Bestellung ab.'
+                    : locale === 'en'
+                    ? 'Attention: Your cart contains in-stock items. Pre-orders cannot be mixed with in-stock items. Please complete your current order first.'
+                    : locale === 'ar'
+                    ? 'تنبيه: تحتوي سلتك على منتجات متوفرة. لا يمكن خلط الطلبات المسبقة مع المنتجات المتوفرة. يرجى إكمال طلبك الحالي أولاً.'
+                    : 'Dikkat: Sepetinizde şu an "Stoklu" ürünler bulunuyor. Stokta olmayan (Ön Sipariş) ürünleri aynı sepete ekleyemezsiniz. Lütfen önce mevcut sepetinizdeki siparişi tamamlayın.';
+                 toast.warning(msg, { duration: 7000 });
                  return false;
              }
              if (!isPreOrder && hasPreOrderItems) {
-                 toast.warning('Dikkat: Sepetinizde şu an "Ön Sipariş" (stoksuz) ürünleri bulunuyor. Stokta olan ürünleri aynı sepete ekleyemezsiniz. Lütfen önce ön sipariş sepetinizi tamamlayın.', { duration: 7000 });
+                 const msg = locale === 'de'
+                    ? 'Achtung: Ihr Warenkorb enthält bereits Vorbestellungen. Lagerartikel können nicht mit Vorbestellungen gemischt werden. Bitte schließen Sie zuerst Ihre Vorbestellung ab.'
+                    : locale === 'en'
+                    ? 'Attention: Your cart contains pre-orders. In-stock items cannot be mixed with pre-orders. Please complete your pre-order first.'
+                    : locale === 'ar'
+                    ? 'تنبيه: تحتوي سلتك على طلبات مسبقة. لا يمكن خلط المنتجات المتوفرة مع الطلبات المسبقة. يرجى إكمال طلبك المسبق أولاً.'
+                    : 'Dikkat: Sepetinizde şu an "Ön Sipariş" (stoksuz) ürünleri bulunuyor. Stokta olan ürünleri aynı sepete ekleyemezsiniz. Lütfen önce ön sipariş sepetinizi tamamlayın.';
+                 toast.warning(msg, { duration: 7000 });
                  return false;
              }
          }
