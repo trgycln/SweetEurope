@@ -462,10 +462,14 @@ export function KatalogClient({
         const produkt = item.urunler;
         if (produkt) {
           const partnerPreis = item.birim_fiyat || produkt.satis_fiyati_musteri;
+          // siparis_detay.miktar adet (parça) olarak saklanır; koliye çevir
+          const adetMiktar = Number(item.miktar) || 1;
+          const koliIci = Number(produkt.koli_ici_adet) || 1;
+          const koliOlarak = koliIci > 1 && adetMiktar % koliIci === 0;
           const success = addToWarenkorb(
             { ...produkt, partnerPreis },
-            Number(item.miktar) || 1,
-            "koli",
+            koliOlarak ? adetMiktar / koliIci : adetMiktar,
+            koliOlarak ? "koli" : "adet",
           );
           if (success) addedCount++;
         }
