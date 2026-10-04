@@ -128,7 +128,16 @@ export function PushNotificationManager() {
         }
       } else if (result === 'denied') {
         setShowPromptBanner(false);
+        // Eğer reddedilirse veya tarayıcı otomatik reddediyorsa, kullanıcıyı rahatsız etmemek için 30 gün boyunca tekrar gösterme
+        const nextMonth = Date.now() + 30 * 24 * 60 * 60 * 1000;
+        localStorage.setItem('push_prompt_dismissed_until', String(nextMonth));
         toast.info('Bildirim izni reddedildi. Tarayıcı ayarlarından dilediğinizde açabilirsiniz.');
+      } else {
+        // result === 'default' (Kullanıcı tarayıcı popup'ını karar vermeden, örneğin 'X'e basarak kapattıysa)
+        setShowPromptBanner(false);
+        // Bu durumda 7 gün sorma
+        const nextWeek = Date.now() + 7 * 24 * 60 * 60 * 1000;
+        localStorage.setItem('push_prompt_dismissed_until', String(nextWeek));
       }
     } catch (err) {
       console.error('[PushNotificationManager] İzin isteme hatası:', err);
