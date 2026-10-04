@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useTransition, useMemo, useState } from 'react';
+import { useEffect, useTransition, useMemo, useState, memo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FiTrash2, FiSend, FiLoader, FiShoppingCart, FiX, FiCreditCard, FiFileText, FiTruck } from 'react-icons/fi';
 import { siparisOlusturAction, topluSiparisOlusturAction } from '@/app/actions/siparis-actions';
@@ -30,6 +30,23 @@ interface SiparisOlusturmaClientProps {
     dictionary: Dictionary;
     locale: Locale;
 }
+
+// Çekmece iskeleti anında açılır; ağır sepet içeriği ilk boyamadan sonra mount edilir.
+const DeferredCartBody = memo(function DeferredCartBody({ children }: { children: React.ReactNode }) {
+    const [ready, setReady] = useState(false);
+    useEffect(() => {
+        const id = requestAnimationFrame(() => setReady(true));
+        return () => cancelAnimationFrame(id);
+    }, []);
+    if (!ready) {
+        return (
+            <div className="flex flex-col items-center justify-center py-16 text-accent" role="status" aria-live="polite">
+                <FiLoader size={28} className="animate-spin" />
+            </div>
+        );
+    }
+    return <>{children}</>;
+});
 
 export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSet, dictionary, locale }: SiparisOlusturmaClientProps) {
     const router = useRouter();
@@ -724,7 +741,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
                         {/* Kaydırılabilir Sepet Gövdesi */}
                         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 pb-12">
-                            {renderCartBody(true)}
+                            <DeferredCartBody>{renderCartBody(true)}</DeferredCartBody>
                         </div>
                     </div>
                 </div>

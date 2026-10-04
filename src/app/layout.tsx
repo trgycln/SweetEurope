@@ -9,6 +9,7 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { Analytics } from "@vercel/analytics/next";
 import CookieBanner from "@/components/CookieBanner";
 import GlobalFluidProvider from "@/components/GlobalFluidProvider";
+import NextTopLoader from "nextjs-toploader";
 import { getI18nAlternates } from "@/lib/seo-utils";
 import "./globals.css";
 
@@ -135,6 +136,7 @@ export default async function RootLayout({
         />
       </head>
       <body suppressHydrationWarning>
+        <NextTopLoader color="#C69F6B" height={3} showSpinner={false} shadow="0 0 10px #C69F6B,0 0 5px #C69F6B" />
         <GlobalFluidProvider />
         {children}
         <Analytics />

@@ -1,7 +1,7 @@
 // src/components/portal/PortalHeader.tsx (Vollständig & Korrigiert)
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { BiLogOut } from "react-icons/bi";
 import { FiMenu, FiShoppingCart, FiLoader } from "react-icons/fi"; // FiShoppingCart & FiLoader hinzugefügt
 import { Bildirimler } from '../Bildirimler';
@@ -36,6 +36,7 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
     // Warenkorb-Daten aus dem Context holen
     const { getGesamtMengeImWarenkorb, setIsCartDrawerOpen } = usePortal();
     const gesamtMenge = getGesamtMengeImWarenkorb();
+    const [isCartPending, startCartTransition] = useTransition();
 
     // Logout-Logik
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -79,13 +80,13 @@ export function PortalHeader({ firmaUnvan, setSidebarOpen, dictionary }: PortalH
                     onClick={(e) => {
                         if (isOrderingPage) {
                             e.preventDefault();
-                            setIsCartDrawerOpen(true);
+                            startCartTransition(() => setIsCartDrawerOpen(true));
                         }
                     }}
                     className="relative z-50 p-2 rounded-lg text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors cursor-pointer active:scale-95"
                     title={locale === 'ar' ? 'طلب جديد / السلة' : locale === 'tr' ? 'Yeni Sipariş / Sepet' : 'Neue Bestellung / Warenkorb'}
                 >
-                    <FiShoppingCart size={21} />
+                    {isCartPending ? <FiLoader size={21} className="animate-spin text-accent" /> : <FiShoppingCart size={21} />}
                     {gesamtMenge > 0 && (
                         <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-accent text-white text-[10px] font-bold shadow-xs animate-pulse">
                             {gesamtMenge}
