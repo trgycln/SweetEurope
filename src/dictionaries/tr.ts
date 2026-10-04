@@ -165,8 +165,8 @@ export const dictionary: Partial<Dictionary> = {
       backToList: "Kataloğa Geri Dön",
     },
     newOrderPage: {
-      title: 'Yeni Sipariş Oluştur',
-      subtitle: 'Katalogdan sepetinizi oluşturun.',
+      title: 'Sepetim & Ödeme',
+      subtitle: 'Siparişinizi kontrol edip ödeme adımına geçebilirsiniz.',
       searchPlaceholder: 'Ürün adı veya koduna göre ara...',
       favoritesButton: 'Favorilerim',
       stockStatus: {

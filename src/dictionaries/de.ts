@@ -86,8 +86,8 @@ export const dictionary = {
         backToList: "Zurück zum Katalog",
     },
     newOrderPage: {
-      title: 'Neue Bestellung erstellen',
-      subtitle: 'Stellen Sie Ihren Warenkorb aus dem Katalog zusammen.',
+      title: 'Warenkorb & Kasse',
+      subtitle: 'Überprüfen Sie Ihre Artikel und schließen Sie die Bestellung ab.',
       searchPlaceholder: 'Nach Produktname oder -code suchen...',
       favoritesButton: 'Meine Favoriten',
       stockStatus: {

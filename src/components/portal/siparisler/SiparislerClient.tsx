@@ -221,13 +221,7 @@ function formatFiyat(fiyat: number | null | undefined, locale: string) {
     }).format(fiyat);
 }
 
-function formatDate(tarih: string, locale: string) {
-    if (!tarih) return '—';
-    return new Date(tarih).toLocaleString(
-        locale === 'tr' ? 'tr-TR' : 'de-DE',
-        { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }
-    );
-}
+import { formatDate } from '@/lib/utils';
 
 function formatRelativeTime(tarih: string, locale: string) {
     if (!tarih) return '';
@@ -1082,7 +1076,7 @@ export function SiparislerClient({
                                                     <td className="px-4 py-3">
                                                         <div className="flex flex-col text-[11px]">
                                                             <span className="font-bold text-slate-800">{toplamUrunCesidi} {locale === 'de' ? 'Artikel' : 'Çeşit'}</span>
-                                                            <span className="text-slate-500">{toplamKoliMiktari} {locale === 'de' ? 'Kisten' : 'Koli'}</span>
+                                                            <span className="text-slate-500">{toplamKoliMiktari} {locale === 'de' ? 'Stk.' : 'Adet'}</span>
                                                         </div>
                                                     </td>
 
@@ -1227,7 +1221,7 @@ export function SiparislerClient({
 
                                             <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                                                 <div className="text-xs text-slate-600">
-                                                    <span className="font-bold">{toplamUrunCesidi} Çeşit</span> · {toplamKoliMiktari} Koli
+                                                    <span className="font-bold">{toplamUrunCesidi} Çeşit</span> · {toplamKoliMiktari} Adet
                                                 </div>
                                                 <div className="font-black text-slate-900">{formatFiyat(siparis.toplam_tutar_net, locale)}</div>
                                             </div>

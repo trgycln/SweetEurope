@@ -82,6 +82,7 @@ export const formatDate = (dateString: string | null | undefined, locale: Locale
         return new Date(dateString).toLocaleString(localeFormat, {
             dateStyle: 'long',  // z.B. "20. Oktober 2025"
             timeStyle: 'short', // z.B. "10:30"
+            timeZone: 'Europe/Berlin',
         });
     } catch (error) {
         console.error("Ungültiges Datumsformat:", dateString, error);

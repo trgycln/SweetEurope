@@ -223,7 +223,7 @@ export function PortalProvider({ children, value }: { children: ReactNode; value
     // Hilfsfunktion für Gesamtanzahl der Artikel
      const getGesamtMengeImWarenkorb = useCallback(() => {
          if (!isMounted) return 0; // Vermeide Hydration-Mismatch (Client/Server)
-         return warenkorb.reduce((total, item) => total + item.menge, 0);
+         return warenkorb.length;
      }, [warenkorb, isMounted]);
 
      // ++ NEUE FUNKTION: Setzt den Warenkorb direkt ++
