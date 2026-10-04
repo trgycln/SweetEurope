@@ -121,9 +121,6 @@ export default async function HesapOzetimPage({ params }: PageProps) {
     const yillikDelta = oncekiYilTotal > 0 ? Math.round(((yilTotal - oncekiYilTotal) / oncekiYilTotal) * 100) : null;
     const ortSiparis = siparislerYil.length > 0 ? yilTotal / siparislerYil.length : 0;
 
-    // Tasarruf hesabı (kademeli fiyat farkı — basit yaklaşım)
-    const tasarruf = indirimOrani > 0 ? yilTotal * (indirimOrani / (100 - indirimOrani)) : 0;
-
     // Aylık trend
     const trendMap = new Map<string, number>();
     for (let i = 0; i < 12; i++) {
@@ -182,7 +179,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                 {/* Decorative background elements */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
                     {/* Yıllık Hacim */}
                     <div className="space-y-2">
                         <p className="text-sm font-medium text-slate-400 uppercase tracking-wider">
@@ -205,22 +202,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                         )}
                     </div>
                     
-                    {/* B2B Avantaj & İndirim */}
-                    <div className="space-y-2 md:border-l md:border-slate-700 md:pl-8">
-                        <p className="text-sm font-medium text-slate-400 uppercase tracking-wider">
-                            {locale === 'de' ? 'Aktive Konditionen' : 'Aktif Koşullar'}
-                        </p>
-                        <div className="space-y-3 mt-3">
-                            <div className="flex justify-between items-center border-b border-slate-700/50 pb-2">
-                                <span className="text-slate-300">{locale === 'de' ? 'Sonderrabatt' : 'Özel İndirim'}</span>
-                                <span className="font-semibold text-emerald-400 text-lg">%{indirimOrani}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-slate-300">{locale === 'de' ? 'Ersparnis' : 'Sağlanan Tasarruf'}</span>
-                                <span className="font-semibold text-white">{fmt(tasarruf)}</span>
-                            </div>
-                        </div>
-                    </div>
+
 
                     {/* Firma Bilgileri */}
                     <div className="space-y-2 md:border-l md:border-slate-700 md:pl-8">
@@ -241,7 +223,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
             </div>
 
             {/* KPI Kartlar */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
                     <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
@@ -287,21 +269,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                         {locale === 'de' ? 'Katalog ansehen →' : 'Kataloğa git →'}
                     </Link>
                 </div>
-                
-                <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col justify-center items-start">
-                     <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
-                            <FiFileText size={16} />
-                        </div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                            {locale === 'de' ? 'Aktionen' : 'İşlemler'}
-                        </p>
-                    </div>
-                    <Link href={`/${locale}/portal/siparisler/yeni`}
-                        className="w-full text-center py-2 bg-slate-800 text-white rounded-lg text-sm font-semibold hover:bg-slate-700 transition-colors">
-                        {locale === 'de' ? 'Neue Bestellung' : 'Yeni Sipariş Oluştur'}
-                    </Link>
-                </div>
+
             </div>
 
             {/* Main Content Grid */}
