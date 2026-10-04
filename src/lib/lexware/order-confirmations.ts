@@ -25,6 +25,10 @@ export interface LexwareOrderConfirmationPayload {
   taxConditions: {
     taxType: 'net';
   };
+  shippingConditions: {
+    shippingDate: string;
+    shippingType: 'delivery';
+  };
   title: string;
   introduction?: string;
   remark?: string;
@@ -123,6 +127,10 @@ export async function createLexwareProformaForOrder(
     },
     taxConditions: {
       taxType: 'net',
+    },
+    shippingConditions: {
+      shippingDate: nowIso,
+      shippingType: 'delivery',
     },
     title: 'Proforma-Rechnung',
     introduction: `Sehr geehrte Damen und Herren,\n\nvielen Dank für Ihre Bestellung (Bestell-Nr. ${siparis.id.slice(0, 8)}). Dies ist eine Proforma-Rechnung.`,

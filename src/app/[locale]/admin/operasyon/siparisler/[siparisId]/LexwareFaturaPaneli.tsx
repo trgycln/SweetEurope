@@ -212,7 +212,7 @@ export default function LexwareFaturaPaneli({
           </span>
         ) : hasInvoice ? (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <FiCheckCircle size={12} /> Fatura Kesildi
+            <FiCheckCircle size={12} /> Proforma Kesildi
           </span>
         ) : isPaid ? (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
@@ -220,7 +220,7 @@ export default function LexwareFaturaPaneli({
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-            <FiAlertCircle size={12} /> Fatura Bekliyor
+            <FiAlertCircle size={12} /> Proforma Bekliyor
           </span>
         )}
       </div>
@@ -233,6 +233,11 @@ export default function LexwareFaturaPaneli({
             <span className="font-mono font-bold text-gray-800">{localProformaNo}</span>
           </div>
 
+          <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50/80 px-3 py-2 rounded-lg border border-emerald-100">
+            <FiCheckCircle size={14} className="flex-shrink-0 text-emerald-600" />
+            <span>Bu proforma sipariş anında Lexware'de oluşturuldu ve müşteriye e-posta eki olarak gönderildi.</span>
+          </div>
+
           {isPaid && (
             <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-100">
               <FiCheckCircle size={12} />
@@ -241,14 +246,14 @@ export default function LexwareFaturaPaneli({
           )}
 
           <div className="flex flex-wrap gap-2 pt-2">
-            {/* Fatura PDF İndir */}
+            {/* Fatura PDF Görüntüle / İndir */}
             <a
               href={localPdfUrl || `/api/invoices/${siparisId}/proforma-pdf`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
             >
-              <FiDownload size={14} /> Proforma PDF İndir
+              <FiDownload size={14} /> Proforma Faturayı Görüntüle / İndir (PDF)
             </a>
 
             {/* Storno butonu — sadece storno kesilmemişse */}
@@ -388,7 +393,7 @@ export default function LexwareFaturaPaneli({
               </>
             ) : (
               <>
-                <FiFileText size={14} /> Proforma Faturayı Kes &amp; Müşteriye Gönder
+                <FiFileText size={14} /> Proforma Faturayı Manuel Kes &amp; Müşteriye Gönder
               </>
             )}
           </button>

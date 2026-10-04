@@ -11,6 +11,7 @@ import { stripe, stripeTest, assertStripeEnvironmentSafety } from '@/lib/stripe'
 import { SupabaseClient } from "@supabase/supabase-js"; // Typ für Client importieren
 import { sendNotification } from '../../lib/notificationUtils';
 import { sendOrderConfirmationEmail } from '../../lib/email';
+import { createLexwareProformaForOrder, getLexwareProformaPdfBuffer } from '@/lib/lexware/order-confirmations';
 import { redirect } from 'next/navigation'; // Import für Redirect
 
 // Typ für Rückgabewerte
@@ -21,6 +22,8 @@ type ActionResult = {
     data?: unknown; // Für andere Actions optional
     message?: string; // Für Erfolgs-/Fehlermeldungen
     url?: string; // Für Download-URLs
+    calculatedItems?: unknown;
+    calculatedShipping?: unknown;
 };
 
 // Typ für Artikel-Payload in der create-Funktion
@@ -310,6 +313,21 @@ export async function siparisOlusturAction(payload: {
             });
         } catch (e) {}
 
+        // ++ Lexware Proforma Faturayı (Auftragsbestätigung) otomatik oluştur ve PDF'i al ++
+        let proformaPdfBuffer: Buffer | null = null;
+        let proformaPdfFilename: string | null = null;
+
+        try {
+            const proformaRes = await createLexwareProformaForOrder(newOrderId, { finalize: true });
+            if (proformaRes?.proformaId) {
+                const pdfRes = await getLexwareProformaPdfBuffer(proformaRes.proformaId, isTestOrder);
+                proformaPdfBuffer = pdfRes.buffer;
+                proformaPdfFilename = pdfRes.filename || `Proforma-${proformaRes.proformaNo}.pdf`;
+            }
+        } catch (lexErr) {
+            console.error('[siparis-actions] Otomatik Lexware Proforma oluşturulamadı (Graceful failure):', lexErr);
+        }
+
         // ++ Müşteriye otomatik sipariş onay e-postası gönder ++
         try {
             const { data: profil } = await supabase
@@ -345,6 +363,8 @@ export async function siparisOlusturAction(payload: {
                         locale: loc,
                         portalOrderUrl: `https://elysonsweets.de/${loc}/portal/siparisler/${newOrderId}`,
                         paymentMethod: payload.paymentMethod,
+                        pdfBuffer: proformaPdfBuffer,
+                        pdfFilename: proformaPdfFilename,
                     });
                 // }
             }
@@ -422,6 +442,9 @@ export async function topluSiparisOlusturAction(payload: {
             kargoKdvTutari:  payload.kargoKdvTutari,
             kargoTutariBrut: payload.kargoTutariBrut,
             kargoYontemi:    payload.kargoYontemi,
+            paymentMethod:   payload.paymentMethod,
+            locale:          payload.locale,
+            orderNotes:      payload.orderNotes,
             isTest:          payload.isTest,
         });
 

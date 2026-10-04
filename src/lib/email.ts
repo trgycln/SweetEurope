@@ -62,10 +62,12 @@ export async function sendCustomerEmail({
   to,
   subject,
   html,
+  attachments,
 }: {
   to: string;
   subject: string;
   html: string;
+  attachments?: Array<{ filename: string; content: Buffer }>;
 }): Promise<void> {
   const resend = getResend();
   if (!resend) {
@@ -80,6 +82,7 @@ export async function sendCustomerEmail({
       subject,
       html,
       replyTo: 'info@elysonsweets.de',
+      ...(attachments && attachments.length > 0 ? { attachments } : {}),
     });
     if (error) {
       console.error('[email] Müşteri e-posta Resend hatası:', error);
@@ -317,6 +320,8 @@ export interface OrderConfirmationEmailParams {
   locale?: string;
   portalOrderUrl: string;
   paymentMethod?: string | null;
+  pdfBuffer?: Buffer | null;
+  pdfFilename?: string | null;
 }
 
 export async function sendOrderConfirmationEmail({
@@ -333,6 +338,8 @@ export async function sendOrderConfirmationEmail({
   locale = 'de',
   portalOrderUrl,
   paymentMethod,
+  pdfBuffer,
+  pdfFilename,
 }: OrderConfirmationEmailParams): Promise<void> {
   const isPreOrder = orderType === 'on_siparis';
   const cleanPortalUrl = sanitizeDomainUrl(portalOrderUrl, `${LIVE_BASE_URL}/${locale}/portal/siparisler`);
@@ -485,6 +492,23 @@ export async function sendOrderConfirmationEmail({
       </div>
       ` : ''}
 
+      ${pdfBuffer ? `
+      <!-- Proforma Attachment Info Badge -->
+      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 20px; margin-bottom: 28px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="width: 30px; vertical-align: middle; font-size: 20px;">📄</td>
+            <td style="vertical-align: middle;">
+              <strong style="color: #166534; font-size: 14px; display: block;">Proforma-Rechnung im Anhang</strong>
+              <span style="color: #15803d; font-size: 13px; line-height: 1.4; display: block; margin-top: 2px;">
+                Ihre offizielle Proforma-Rechnung (Auftragsbestätigung) finden Sie als PDF-Dokument im Anhang dieser E-Mail.
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      ` : ''}
+
       <!-- CTA Button -->
       <div style="text-align: center; margin: 32px 0;">
         <a href="${cleanPortalUrl}" style="display: inline-block; background-color: ${headerColor}; color: #ffffff; padding: 14px 32px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none;">
@@ -509,7 +533,14 @@ export async function sendOrderConfirmationEmail({
 </body>
 </html>`;
 
-  await sendCustomerEmail({ to, subject, html });
+  const attachments = pdfBuffer ? [
+    {
+      filename: pdfFilename || `Proforma-#${orderId.substring(0, 8).toUpperCase()}.pdf`,
+      content: pdfBuffer,
+    },
+  ] : undefined;
+
+  await sendCustomerEmail({ to, subject, html, attachments });
 }
 
 /**
