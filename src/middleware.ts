@@ -121,7 +121,7 @@ export async function middleware(req: NextRequest) {
                 ? '/admin/dashboard'
                 : '/portal/dashboard';
                 
-            let targetLocale = pathname.split('/')[1] || defaultLocale;
+            let targetLocale = defaultLocale; // Eğer kullanıcının özel bir dil seçimi yoksa varsayılan dili (de) zorla
             if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
                 targetLocale = profile.tercih_edilen_dil;
             }
@@ -232,6 +232,13 @@ export async function middleware(req: NextRequest) {
                 console.log(`-> Middleware: (Protected) Falsche Sprache (${currentUrlLocale}). Redirect zu ${newPath}`);
                 const redirectUrl = new URL(newPath, req.url);
                 redirectUrl.search = req.nextUrl.search; // Suchparameter beibehalten
+                return NextResponse.redirect(redirectUrl);
+            } else if (!profile?.tercih_edilen_dil && currentUrlLocale !== defaultLocale) {
+                // Wenn keine bevorzugte Sprache gesetzt ist, immer defaultLocale erzwingen
+                const newPath = `/${defaultLocale}${pathname.substring(currentUrlLocale.length + 1)}`;
+                console.log(`-> Middleware: (Protected) Keine bevorzugte Sprache gesetzt. Erzwinge Default (${defaultLocale}). Redirect zu ${newPath}`);
+                const redirectUrl = new URL(newPath, req.url);
+                redirectUrl.search = req.nextUrl.search;
                 return NextResponse.redirect(redirectUrl);
             }
         } catch (error) {
