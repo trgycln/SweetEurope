@@ -94,7 +94,7 @@ export async function siparisOlusturAction(payload: {
     const urunIds = payload.items.map(item => item.urun_id);
     const { data: urunler, error: stokError } = await supabase
         .from('urunler')
-        .select('id, stok_miktari, ad, koli_ici_adet, palet_ici_adet, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi, satis_fiyati_palet, birim_agirlik_kg')
+        .select('id, stok_miktari, ad, koli_ici_adet, palet_ici_adet, satis_fiyati_musteri, satis_fiyati_toptanci, satis_fiyati_alt_bayi, satis_fiyati_palet, birim_agirlik_kg, almanya_kdv_orani')
         .in('id', urunIds);
 
     if (stokError || !urunler) {
@@ -140,13 +140,21 @@ export async function siparisOlusturAction(payload: {
             urun_ad: typeof urun.ad === 'object' && urun.ad ? ((urun.ad as any).de || (urun.ad as any).tr || 'Produkt') : String(urun.ad || 'Produkt'),
             miktar: item.adet,
             birim_fiyat: sepetSatiri.adetFiyat,
-            toplam_fiyat: sepetSatiri.toplamFiyat
+            toplam_fiyat: sepetSatiri.toplamFiyat,
+            kdv_orani: urun.almanya_kdv_orani ?? 7
         };
     });
 
-    // Kargo hesaplama (PLZ'yi adresten bulmaya çalış veya kargo yönteminden tahmin et)
+    // 2.5 Firma posta kodu çekimi (Kargo hesaplama için)
+    const { data: firmaDataForPlz } = await supabase
+        .from('firmalar')
+        .select('posta_kodu')
+        .eq('id', payload.firmaId)
+        .single();
+
+    // Kargo hesaplama (Veritabanındaki posta kodunu öncelikli kullan)
     const plzMatch = payload.teslimatAdresi?.match(/\b\d{5}\b/);
-    const plz = plzMatch ? plzMatch[0] : (payload.kargoYontemi?.includes('Köln') ? '50667' : '10115');
+    const plz = firmaDataForPlz?.posta_kodu || (plzMatch ? plzMatch[0] : (payload.kargoYontemi?.includes('Köln') ? '50667' : '10115'));
     
     const shipping = calculateShipping(trustedToplamNet, plz, totalWeightKg);
     trustedStripeToplamBrutCents += Math.round(shipping.shippingCostGross * 100);
@@ -489,17 +497,27 @@ export async function topluSiparisOlusturAction(payload: {
     if (payload.paymentMethod === 'stripe') {
         const activeStripe = payload.isTest ? stripeTest : stripe;
         
+        // Sadece normal sipariş için Stripe ödemesi alınır, ön sipariş için ödeme alınmaz!
         const calculatedItems = [
             ...(normalResData?.calculatedItems || []),
-            ...(onSiparisResData?.calculatedItems || [])
         ];
         
+        if (calculatedItems.length === 0) {
+            // Eğer sadece ön sipariş varsa, Stripe oturumu oluşturmaya gerek yok
+            return {
+                success: true,
+                normalOrderId,
+                onSiparisOrderId,
+                message: mesaj
+            };
+        }
+
         const stripeItems = calculatedItems.map(item => ({
             urun_id: item.urun_id,
             ad: item.urun_ad || 'Produkt',
             adet: item.miktar,
             birimFiyatNet: item.birim_fiyat,
-            kdvOrani: 7, // Sistemde gıda KDV'si %7 olarak ayarlandı
+            kdvOrani: item.kdv_orani ?? 7, // Veritabanından gelen dinamik KDV oranı
         }));
         
         let totalCalculatedShippingGross = 0;
@@ -508,10 +526,6 @@ export async function topluSiparisOlusturAction(payload: {
         if (normalResData?.calculatedShipping) {
             totalCalculatedShippingGross += normalResData.calculatedShipping.shippingCostGross;
             shippingMethodName = normalResData.calculatedShipping.shippingMethodName;
-        }
-        if (onSiparisResData?.calculatedShipping) {
-            totalCalculatedShippingGross += onSiparisResData.calculatedShipping.shippingCostGross;
-            shippingMethodName = onSiparisResData.calculatedShipping.shippingMethodName;
         }
         
         try {
@@ -637,7 +651,7 @@ export async function onSiparisiNormalSipariseDonusturAction(
                 miktar,
                 birim_fiyat,
                 toplam_fiyat,
-                urunler (ad)
+                urunler (ad, almanya_kdv_orani)
             )
         `)
         .eq('id', siparisId)
@@ -733,7 +747,58 @@ export async function onSiparisiNormalSipariseDonusturAction(
         console.warn('Müşteri bildirimi gönderilemedi:', e);
     }
 
-    // 6. Müşteriye IBAN/Ödeme Bilgilerini de içeren onay e-postasını gönder
+    // 6. Stripe Payment Link Generate (Opsiyonel)
+    let stripePaymentUrl = null;
+    try {
+        const { stripe } = await import('@/lib/stripe');
+        const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        
+        const line_items: any[] = detaylar.map((item: any) => {
+            const raw = item.urunler?.ad;
+            const ad = typeof raw === 'object' && raw !== null ? raw.de || raw.tr || Object.values(raw)[0] : String(raw || 'Produkt');
+            const kdvOrani = item.urunler?.almanya_kdv_orani ?? 7;
+            const kdvMultiplier = 1 + (kdvOrani / 100);
+            const lineGrossCents = Math.max(1, Math.round(item.birim_fiyat * item.miktar * kdvMultiplier * 100));
+            return {
+                price_data: {
+                    currency: 'eur',
+                    product_data: { name: String(ad) },
+                    unit_amount: lineGrossCents,
+                },
+                quantity: 1,
+            };
+        });
+
+        if (siparis.kargo_tutari_brut > 0) {
+            line_items.push({
+                price_data: {
+                    currency: 'eur',
+                    product_data: { name: 'Lieferung & Versand' },
+                    unit_amount: Math.round(siparis.kargo_tutari_brut * 100),
+                },
+                quantity: 1,
+            });
+        }
+        
+        const sessionPayload: any = {
+            mode: 'payment',
+            payment_method_types: ['card', 'sepa_debit'],
+            line_items,
+            client_reference_id: String(siparis.firma_id),
+            metadata: {
+                order_id: siparisId,
+                firma_id: String(siparis.firma_id),
+            },
+            success_url: `${origin}/de/portal/siparisler?payment_status=success&session_id={CHECKOUT_SESSION_ID}&order_id=${siparisId}`,
+            cancel_url: `${origin}/de/portal/siparisler`,
+        };
+        const session = await stripe.checkout.sessions.create(sessionPayload);
+        stripePaymentUrl = session.url;
+    } catch (e) {
+        console.warn('Stripe checkout session for pre-order conversion failed:', e);
+    }
+
+    // 7. Müşteriye IBAN/Ödeme Bilgilerini ve Stripe Linkini de içeren onay e-postasını gönder
     try {
         const to = (siparis.firmalar as any)?.email;
         if (to) {
@@ -765,9 +830,10 @@ export async function onSiparisiNormalSipariseDonusturAction(
                 kargoTutariBrut: siparis.kargo_tutari_brut,
                 toplamBrut: siparis.toplam_tutar_brut,
                 teslimatAdresi: siparis.teslimat_adresi,
-                locale: 'de', // veya siparişten dil bilgisi geliyorsa o
+                locale: 'de',
                 portalOrderUrl: `https://elysonsweets.de/de/portal/siparisler/${siparisId}`,
                 paymentMethod: 'vorkasse',
+                stripePaymentUrl: stripePaymentUrl
             });
         }
     } catch (e) {

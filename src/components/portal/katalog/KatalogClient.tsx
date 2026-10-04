@@ -5,6 +5,8 @@ import {
   useTransition,
   useEffect,
   useMemo,
+  useCallback,
+  memo,
   Component,
   ErrorInfo,
   ReactNode,
@@ -105,6 +107,67 @@ export interface KatalogClientProps {
   categoryCounts?: Record<string, number>;
   userRole?: string;
 }
+
+interface KatalogProductItemProps {
+  produkt: ProduktMitPreis;
+  isFavorit: boolean;
+  viewMode: "list" | "grid";
+  locale: Locale;
+  dictionary: Dictionary | null | undefined;
+  onToggleFavorite: (produktId: string, isFavorit: boolean) => Promise<void>;
+  onQuickAdd: (produkt: ProduktMitPreis) => void;
+}
+
+// Module-level + memo: only re-renders when its own (primitive) props change,
+// not when the cart or other cards' state changes.
+const KatalogProductItem = memo(function KatalogProductItem({
+  produkt,
+  isFavorit,
+  viewMode,
+  locale,
+  dictionary,
+  onToggleFavorite,
+  onQuickAdd,
+}: KatalogProductItemProps) {
+  const [isToggling, startToggleTransition] = useTransition();
+
+  const handleToggleFavorite = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      startToggleTransition(async () => {
+        await onToggleFavorite(produkt.id, isFavorit);
+      });
+    },
+    [onToggleFavorite, produkt.id, isFavorit],
+  );
+
+  const handleQuickAdd = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onQuickAdd(produkt);
+    },
+    [onQuickAdd, produkt],
+  );
+
+  return (
+    <UniversalProductCard
+      urun={produkt}
+      locale={locale}
+      layout={viewMode}
+      detailHref={`/${locale}/portal/katalog/${produkt.id}`}
+      isLoggedIn={true}
+      isFavorit={isFavorit}
+      isFavoritePending={isToggling}
+      onToggleFavorite={handleToggleFavorite}
+      onAction={handleQuickAdd}
+      actionType="cart"
+      actionTooltip={locale === "de" ? "In den Warenkorb legen" : "Sepete Ekle"}
+      dictionary={dictionary}
+    />
+  );
+});
 
 export function KatalogClient({
   initialProdukte,
@@ -449,57 +512,41 @@ export function KatalogClient({
       }
     };
 
-    const ProduktKarteWithFavorite = ({
-      produkt,
-    }: {
-      produkt: ProduktMitPreis;
-    }) => {
-      const [isToggling, startToggleTransition] = useTransition();
-      const isFavorit = favoriten.has(produkt.id);
+    const handleToggleFavorite = useCallback(
+      async (produktId: string, isFavorit: boolean) => {
+        const result = await toggleFavoriteAction(produktId, isFavorit);
+        if (result.success) {
+          setFavoriten((prev) => {
+            const newSet = new Set(prev);
+            if (isFavorit) newSet.delete(produktId);
+            else newSet.add(produktId);
+            return newSet;
+          });
+        } else {
+          toast.error(
+            result.error || "Favoritenstatus konnte nicht geändert werden.",
+          );
+        }
+      },
+      [],
+    );
 
-      const handleToggleFavorite = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        startToggleTransition(async () => {
-          const result = await toggleFavoriteAction(produkt.id, isFavorit);
-          if (result.success) {
-            setFavoriten((prev) => {
-              const newSet = new Set(prev);
-              if (isFavorit) newSet.delete(produkt.id);
-              else newSet.add(produkt.id);
-              return newSet;
-            });
-          } else {
-            toast.error(
-              result.error || "Favoritenstatus konnte nicht geändert werden.",
-            );
-          }
-        });
-      };
+    const handleQuickAdd = useCallback((produkt: ProduktMitPreis) => {
+      setModalProdukt(produkt);
+    }, []);
 
-      const handleQuickAdd = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setModalProdukt(produkt);
-      };
-
-      return (
-        <UniversalProductCard
-          urun={produkt}
-          locale={locale}
-          layout={viewMode}
-          detailHref={`/${locale}/portal/katalog/${produkt.id}`}
-          isLoggedIn={true}
-          isFavorit={isFavorit}
-          isFavoritePending={isToggling}
-          onToggleFavorite={handleToggleFavorite}
-          onAction={handleQuickAdd}
-          actionType="cart"
-          actionTooltip={locale === "de" ? "In den Warenkorb legen" : "Sepete Ekle"}
-          dictionary={dictionary}
-        />
-      );
-    };
+    const renderProduktKarte = (produkt: ProduktMitPreis) => (
+      <KatalogProductItem
+        key={produkt.id}
+        produkt={produkt}
+        isFavorit={favoriten.has(produkt.id)}
+        viewMode={viewMode}
+        locale={locale}
+        dictionary={dictionary}
+        onToggleFavorite={handleToggleFavorite}
+        onQuickAdd={handleQuickAdd}
+      />
+    );
 
     return (
       <ErrorBoundary>
@@ -979,21 +1026,11 @@ export function KatalogClient({
                 <>
                   {viewMode === "grid" ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-stretch">
-                      {initialProdukte.map((produkt) => (
-                        <ProduktKarteWithFavorite
-                          key={produkt.id}
-                          produkt={produkt}
-                        />
-                      ))}
+                      {initialProdukte.map(renderProduktKarte)}
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {initialProdukte.map((produkt) => (
-                        <ProduktKarteWithFavorite
-                          key={produkt.id}
-                          produkt={produkt}
-                        />
-                      ))}
+                      {initialProdukte.map(renderProduktKarte)}
                     </div>
                   )}
 

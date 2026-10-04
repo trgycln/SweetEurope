@@ -50,7 +50,9 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
     // Sicherer Zugriff auf Dictionary-Texte
     const content = (dictionary as any)?.portal?.newOrderPage || {};
     const stockWarningText = (dictionary as any)?.portal?.dashboard?.quickOrder?.stockWarning || "Nicht genügend Lagerbestand! Max. {stock} verfügbar.";
-    const indirimOrani = firma?.firmalar_finansal?.[0]?.ozel_indirim_orani ?? 0; // Korrekter Typ-Name prüfen
+    // Güvenli indirim oranı (firmalar_finansal nesne veya dizi olarak dönebilir)
+    const finansal = Array.isArray(firma?.firmalar_finansal) ? firma?.firmalar_finansal[0] : firma?.firmalar_finansal;
+    const indirimOrani = finansal?.ozel_indirim_orani ?? 0;
 
     // openCart URL parametresi kontrolü (başka sayfadan veya başlık ikonundan gelince otomatik açılması için)
     useEffect(() => {
@@ -88,7 +90,12 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
                     if (urun && adet > 0) {
                         itemsProcessed = true;
-                        initialCartItems.push({ produkt: urun, menge: adet, birim: 'koli' });
+                        const koliIci = urun.koli_ici_adet || 1;
+                        const isKoli = (adet % koliIci === 0);
+                        const menge = isKoli ? Math.round(adet / koliIci) : adet;
+                        const birim = isKoli ? 'koli' : 'adet';
+                        
+                        initialCartItems.push({ produkt: urun, menge: menge, birim: birim });
                     }
                 }
             }
@@ -107,9 +114,8 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
     const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'rechnung'>('stripe');
 
-    // Extract PLZ from address or use fallback
-    const plzMatch = firma?.adres ? firma.adres.match(/\b\d{5}\b/) : null;
-    const partnerPlz = plzMatch ? plzMatch[0] : '';
+    // Posta kodunu öncelikle firmadan (veritabanından) al, yoksa adresten çıkart, yoksa boş
+    const partnerPlz = firma?.posta_kodu || (firma?.adres ? (firma.adres.match(/\b\d{5}\b/)?.[0] || '') : '');
 
     const normalItemsList = useMemo(() => warenkorb.filter(i => (i.produkt.stok_miktari ?? 0) > 0), [warenkorb]);
     const onSiparisItemsList = useMemo(() => warenkorb.filter(i => (i.produkt.stok_miktari ?? 0) <= 0), [warenkorb]);
@@ -123,7 +129,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
 
     const toplamKdv = useMemo(() =>
         warenkorb.reduce((acc, item) => {
-            const kdvOrani = (item.produkt as any).kdv_orani ?? 7;
+            const kdvOrani = (item.produkt as any).almanya_kdv_orani ?? 7;
             const { toplamFiyat } = hesaplaSepetSatiri(item.produkt, item.birim, item.menge);
             return acc + (toplamFiyat * kdvOrani / 100);
         }, 0)
@@ -173,7 +179,7 @@ export function SiparisOlusturmaPartnerClient({ urunler, kategoriler, favoriIdSe
                     adet: sepet.toplamAdet,
                     o_anki_satis_fiyati: sepet.adetFiyat,
                     ad: getLocalizedName(item.produkt.ad, locale) || (item.produkt as any).urun_kodu || (item.produkt as any).kod || 'Produkt',
-                    kdv_orani: (item.produkt as any).kdv_orani ?? 7,
+                    kdv_orani: (item.produkt as any).almanya_kdv_orani ?? 7,
                 };
                 if (isOutOfStock) {
                     onSiparisPayload.push(payload);

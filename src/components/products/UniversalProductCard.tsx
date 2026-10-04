@@ -69,7 +69,7 @@ export interface UniversalProductCardProps {
     isPortal?: boolean;
 }
 
-export function UniversalProductCard({
+function UniversalProductCardImpl({
     urun,
     locale,
     kategoriAdi: providedKategoriAdi,
@@ -122,7 +122,8 @@ export function UniversalProductCard({
     const tempMax = urun.lagertemperatur_max_celsius;
     const tempMin = urun.lagertemperatur_min_celsius;
 
-    // Pricing Rows
+    // Pricing Rows (memoized; formulas unchanged)
+    const { koliFiyat, toptanFiyat, paletFiyat, pricingRows, primaryPrice, primaryPriceLabel, hasAnyPrice } = React.useMemo(() => {
     const koliFiyat = Number(urun.satis_fiyati_musteri ?? 0);
     const toptanFiyat = Number(urun.satis_fiyati_toptanci ?? 0);
     
@@ -178,6 +179,8 @@ export function UniversalProductCard({
     }
 
     const hasAnyPrice = pricingRows.some(r => r.price != null && r.price > 0);
+    return { koliFiyat, toptanFiyat, paletFiyat, pricingRows, primaryPrice, primaryPriceLabel, hasAnyPrice };
+    }, [urun, userRole, partnerTier, locale, dictionary, koliIciAdet, paletIciKoliAdet]);
 
     // ─── List Layout Mode ────────────────────────────────────────────────────
     if (layout === 'list') {
@@ -612,3 +615,5 @@ export function UniversalProductCard({
         </div>
     );
 }
+
+export const UniversalProductCard = React.memo(UniversalProductCardImpl);

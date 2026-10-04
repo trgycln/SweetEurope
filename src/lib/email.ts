@@ -320,6 +320,7 @@ export interface OrderConfirmationEmailParams {
   locale?: string;
   portalOrderUrl: string;
   paymentMethod?: string | null;
+  stripePaymentUrl?: string | null;
   pdfBuffer?: Buffer | null;
   pdfFilename?: string | null;
 }
@@ -338,6 +339,7 @@ export async function sendOrderConfirmationEmail({
   locale = 'de',
   portalOrderUrl,
   paymentMethod,
+  stripePaymentUrl,
   pdfBuffer,
   pdfFilename,
 }: OrderConfirmationEmailParams): Promise<void> {
@@ -449,6 +451,18 @@ export async function sendOrderConfirmationEmail({
       <!-- Payment Info -->
       <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 16px 20px; margin-bottom: 28px;">
         <p style="margin: 0 0 8px; font-size: 14px; color: #1e3a8a; font-weight: 700;">Zahlungsinformationen</p>
+        
+        ${stripePaymentUrl ? `
+        <!-- STRIPE BUTTON -->
+        <div style="background-color: #ffffff; border: 1px solid #93c5fd; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 16px;">
+          <p style="margin: 0 0 12px; font-size: 14px; color: #1e40af; font-weight: 600;">Zahlen Sie bequem und sicher online:</p>
+          <a href="${stripePaymentUrl}" style="display: inline-block; background-color: #6366f1; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);">
+            💳 Jetzt mit Karte / SEPA bezahlen
+          </a>
+        </div>
+        <div style="text-align: center; margin: 16px 0; font-size: 13px; color: #64748b; font-weight: 600;">— ODER PER ÜBERWEISUNG —</div>
+        ` : ''}
+        
         <p style="margin: 0 0 12px; font-size: 13px; color: #1e40af; line-height: 1.6;">
           Bitte überweisen Sie den Rechnungsbetrag auf das folgende Bankkonto, damit wir Ihre Bestellung bearbeiten können. Bitte geben Sie als Verwendungszweck unbedingt die <strong>Bestellnummer</strong> an.
         </p>
