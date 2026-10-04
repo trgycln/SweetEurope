@@ -26,11 +26,11 @@ export type SiparisDetay = {
     kdv_orani: number;
     siparis_durumu: string;
     teslimat_adresi: string | null;
-    fatura_durumu?: string | null;
-    lexware_pdf_url?: string | null;
+    proforma_durumu?: string | null;
+    lexware_proforma_pdf_url?: string | null;
     lexware_storno_pdf_url?: string | null;
-    lexware_invoice_id?: string | null;
-    lexware_invoice_no?: string | null;
+    lexware_proforma_id?: string | null;
+    lexware_proforma_no?: string | null;
     lexware_storno_id?: string | null;
     lexware_storno_no?: string | null;
     kargo_firmasi?: string | null;
@@ -144,11 +144,11 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
     const fmt = (v: number) => formatCurrency(v, locale);
 
     // Fatura ve Kargo URL Hesaplamaları
-    const invoicePdfUrl = siparis.lexware_pdf_url || (siparis.lexware_invoice_id ? `/api/invoices/${siparis.id}/pdf` : null);
-    const hasInvoice = (siparis.fatura_durumu === 'kesildi' || Boolean(siparis.lexware_invoice_id)) && Boolean(invoicePdfUrl);
+    const invoicePdfUrl = siparis.lexware_proforma_pdf_url || (siparis.lexware_proforma_id ? `/api/invoices/${siparis.id}/proforma-pdf` : null);
+    const hasInvoice = (siparis.proforma_durumu === 'kesildi' || Boolean(siparis.lexware_proforma_id)) && Boolean(invoicePdfUrl);
 
     const isOrderCancelled = ['İptal Edildi', 'cancelled', 'iptal_edildi'].includes(mevcutDurum) ||
-                             siparis.fatura_durumu === 'iptal_edildi' ||
+                             siparis.proforma_durumu === 'iptal_edildi' ||
                              Boolean(siparis.lexware_storno_id);
     const stornoPdfUrl = siparis.lexware_storno_pdf_url || (siparis.lexware_storno_id ? `/api/invoices/${siparis.id}/storno-pdf` : null);
     const hasStorno = isOrderCancelled && Boolean(stornoPdfUrl);
@@ -197,22 +197,22 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-100 transition-colors shadow-sm"
-                                title={locale === 'de' ? 'Rechnung (PDF) herunterladen' : 'Resmi Faturayı İndir (PDF)'}
+                                title={locale === 'de' ? 'Proforma-Rechnung (PDF) herunterladen' : 'Proforma Faturayı İndir (PDF)'}
                             >
                                 <FileText size={15} className="text-emerald-600" />
-                                <span>{locale === 'de' ? `Rechnung (${siparis.lexware_invoice_no || 'PDF'})` : `Faturayı İndir (${siparis.lexware_invoice_no || 'PDF'})`}</span>
+                                <span>{locale === 'de' ? `Proforma (${siparis.lexware_proforma_no || 'PDF'})` : `Proforma İndir (${siparis.lexware_proforma_no || 'PDF'})`}</span>
                                 <Download size={13} className="text-emerald-500 opacity-80" />
                             </a>
                         )}
 
                         {/* Fatura Kesildi ama URL Hazır Değilse */}
-                        {siparis.fatura_durumu === 'kesildi' && !invoicePdfUrl && (
+                        {siparis.proforma_durumu === 'kesildi' && !invoicePdfUrl && (
                             <span
                                 className="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-100 border border-gray-200 text-gray-400 text-sm font-semibold rounded-lg cursor-not-allowed"
-                                title={locale === 'de' ? 'Rechnung wird vorbereitet...' : 'Fatura hazırlanıyor...'}
+                                title={locale === 'de' ? 'Proforma wird vorbereitet...' : 'Proforma hazırlanıyor...'}
                             >
                                 <FileText size={15} />
-                                <span>{locale === 'de' ? 'Rechnung wird erstellt' : 'Fatura Hazırlanıyor'}</span>
+                                <span>{locale === 'de' ? 'Proforma wird erstellt' : 'Proforma Hazırlanıyor'}</span>
                             </span>
                         )}
 
@@ -493,7 +493,7 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
 
                         <div className="space-y-2 text-xs">
                             <div className="flex items-center justify-between">
-                                <span className="text-gray-400">{locale === 'de' ? 'Rechnungsstatus' : 'Fatura Durumu'}:</span>
+                                <span className="text-gray-400">{locale === 'de' ? 'Proforma-Status' : 'Proforma Durumu'}:</span>
                                 {hasInvoice ? (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                         <CheckCircle2 size={11} /> {locale === 'de' ? 'Erstellt' : 'Kesildi'}
@@ -509,10 +509,10 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
                                 )}
                             </div>
 
-                            {siparis.lexware_invoice_no && (
+                            {siparis.lexware_proforma_no && (
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-400">{locale === 'de' ? 'Rechnungs-Nr.' : 'Fatura No'}:</span>
-                                    <span className="font-mono font-bold text-gray-800">{siparis.lexware_invoice_no}</span>
+                                    <span className="text-gray-400">{locale === 'de' ? 'Proforma-Nr.' : 'Proforma No'}:</span>
+                                    <span className="font-mono font-bold text-gray-800">{siparis.lexware_proforma_no}</span>
                                 </div>
                             )}
 
@@ -533,7 +533,7 @@ export function SiparisDetayClient({ siparis, locale, userRole, bayiSiparisi }: 
                                     className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
                                 >
                                     <FileText size={14} />
-                                    <span>{locale === 'de' ? 'Rechnung herunterladen (PDF)' : 'Faturayı İndir (PDF)'}</span>
+                                    <span>{locale === 'de' ? 'Proforma herunterladen (PDF)' : 'Proformayı İndir (PDF)'}</span>
                                     <Download size={13} className="opacity-80" />
                                 </a>
                             )}

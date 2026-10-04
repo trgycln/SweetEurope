@@ -33,37 +33,37 @@ import {
 
 interface Props {
   siparisId: string;
-  invoiceId?: string | null;
-  invoiceNo?: string | null;
+  proformaId?: string | null;
+  proformaNo?: string | null;
   pdfUrl?: string | null;
   stornoId?: string | null;
   stornoNo?: string | null;
   stornoPdfUrl?: string | null;
-  faturaDurumu?: string | null;
+  proformaDurumu?: string | null;
   siparisDurumu?: string | null;
   odemeDurumu?: string | null;
 }
 
 export default function LexwareFaturaPaneli({
   siparisId,
-  invoiceId,
-  invoiceNo,
+  proformaId,
+  proformaNo,
   pdfUrl,
   stornoId,
   stornoNo,
   stornoPdfUrl,
-  faturaDurumu,
+  proformaDurumu,
   siparisDurumu,
   odemeDurumu,
 }: Props) {
   const [isPending, startTransition] = useTransition();
-  const [localInvoiceNo, setLocalInvoiceNo] = useState(invoiceNo);
+  const [localProformaNo, setLocalProformaNo] = useState(proformaNo);
   const [localPdfUrl, setLocalPdfUrl] = useState(pdfUrl);
   const [localStornoNo, setLocalStornoNo] = useState(stornoNo);
   const [localStornoPdfUrl, setLocalStornoPdfUrl] = useState(stornoPdfUrl);
   const [localOdemeDurumu, setLocalOdemeDurumu] = useState(odemeDurumu);
 
-  const hasInvoice = Boolean(localInvoiceNo || invoiceId);
+  const hasInvoice = Boolean(localProformaNo || proformaId);
   const hasStorno = Boolean(localStornoNo || stornoId);
   const isPaid = localOdemeDurumu === 'paid';
 
@@ -108,7 +108,7 @@ export default function LexwareFaturaPaneli({
   // -------------------------------------------------------------------
   const handleFaturaGonder = () => {
     if (!window.confirm(
-      'Lexware\'de RESMİ fatura kesilecek (geri alınamaz, yalnızca Storno ile iptal edilir) ' +
+      'Lexware\'de PROFORMA fatura (Auftragsbestätigung) kesilecek ' +
       've PDF müşteriye e-posta ile gönderilecektir.\n\n' +
       'Önizlemedeki kalemleri kontrol ettiniz mi?'
     )) return;
@@ -117,16 +117,16 @@ export default function LexwareFaturaPaneli({
       const res = await createAndSendInvoiceAction(siparisId);
       if (res.success) {
         if (res.invoiceNo) {
-          setLocalInvoiceNo(res.invoiceNo);
-          setLocalPdfUrl(res.pdfUrl || `/api/invoices/${siparisId}/pdf`);
+          setLocalProformaNo(res.invoiceNo);
+          setLocalPdfUrl(res.pdfUrl || `/api/invoices/${siparisId}/proforma-pdf`);
         }
         if (res.warning) {
           toast.warning(res.warning, { duration: 8000 });
         } else {
-          toast.success(`Fatura kesildi (${res.invoiceNo}) ve müşteriye e-posta gönderildi!`);
+          toast.success(`Proforma fatura kesildi (${res.invoiceNo}) ve müşteriye e-posta gönderildi!`);
         }
       } else {
-        toast.error(res.error || 'Fatura oluşturulamadı.');
+        toast.error(res.error || 'Proforma oluşturulamadı.');
       }
     });
   };
@@ -136,18 +136,18 @@ export default function LexwareFaturaPaneli({
   // -------------------------------------------------------------------
   const handleFaturaOlustur = () => {
     if (!window.confirm(
-      'Bu sipariş için Lexware Office üzerinde resmi fatura oluşturulacak ve onaylanacaktır.\n' +
+      'Bu sipariş için Lexware Office üzerinde Proforma Fatura (Auftragsbestätigung) oluşturulacaktır.\n' +
       'Devam etmek istiyor musunuz?'
     )) return;
 
     startTransition(async () => {
       const res = await faturaOlusturAction(siparisId);
       if (res.success) {
-        setLocalInvoiceNo(res.invoiceNo || 'Kesildi');
-        setLocalPdfUrl(res.pdfUrl || `/api/invoices/${siparisId}/pdf`);
-        toast.success(`Lexware faturası başarıyla oluşturuldu (${res.invoiceNo})!`);
+        setLocalProformaNo(res.invoiceNo || 'Kesildi');
+        setLocalPdfUrl(res.pdfUrl || `/api/invoices/${siparisId}/proforma-pdf`);
+        toast.success(`Lexware proforma faturası başarıyla oluşturuldu (${res.invoiceNo})!`);
       } else {
-        toast.error(res.error || 'Fatura oluşturulamadı.');
+        toast.error(res.error || 'Proforma oluşturulamadı.');
       }
     });
   };
@@ -200,8 +200,8 @@ export default function LexwareFaturaPaneli({
             <FiFileText size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-800">Lexware Office E-Fatura</h3>
-            <p className="text-[11px] text-gray-400">Resmi Mali Muhasebe & PDF Arşivi</p>
+            <h3 className="text-sm font-bold text-gray-800">Lexware Proforma Fatura</h3>
+            <p className="text-[11px] text-gray-400">Ön Bilgilendirme Belgesi (Sipariş Onayı)</p>
           </div>
         </div>
 
@@ -229,8 +229,8 @@ export default function LexwareFaturaPaneli({
       {hasInvoice ? (
         <div className="space-y-3 bg-gray-50/70 p-4 rounded-xl border border-gray-100">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500 font-medium">Fatura Numarası:</span>
-            <span className="font-mono font-bold text-gray-800">{localInvoiceNo}</span>
+            <span className="text-gray-500 font-medium">Proforma Numarası:</span>
+            <span className="font-mono font-bold text-gray-800">{localProformaNo}</span>
           </div>
 
           {isPaid && (
@@ -243,12 +243,12 @@ export default function LexwareFaturaPaneli({
           <div className="flex flex-wrap gap-2 pt-2">
             {/* Fatura PDF İndir */}
             <a
-              href={localPdfUrl || `/api/invoices/${siparisId}/pdf`}
+              href={localPdfUrl || `/api/invoices/${siparisId}/proforma-pdf`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
             >
-              <FiDownload size={14} /> Fatura PDF Görüntüle / İndir
+              <FiDownload size={14} /> Proforma PDF İndir
             </a>
 
             {/* Storno butonu — sadece storno kesilmemişse */}
@@ -290,7 +290,7 @@ export default function LexwareFaturaPaneli({
       ) : (
         <div className="space-y-3">
           <p className="text-xs text-gray-500 leading-relaxed">
-            Bu sipariş için henüz resmi bir Lexware faturası oluşturulmamıştır.
+            Bu sipariş için henüz bir Proforma Fatura (Lexware Sipariş Onayı) oluşturulmamıştır.
           </p>
 
           {/* Havale / Vorkasse için: Ödeme Alındı butonu */}
@@ -329,7 +329,7 @@ export default function LexwareFaturaPaneli({
           {preview && (
             <div className="border border-gray-200 rounded-xl overflow-hidden text-xs">
               <div className="bg-gray-50 px-3.5 py-2 font-bold text-gray-700 border-b border-gray-200">
-                Fatura Önizleme (henüz kesilmedi)
+                Proforma Önizleme (henüz oluşturulmadı)
               </div>
               <div className="px-3.5 py-2.5 text-gray-600 border-b border-gray-100 leading-relaxed">
                 <div className="font-semibold text-gray-800">{preview.firma.unvan}</div>
@@ -376,7 +376,6 @@ export default function LexwareFaturaPaneli({
             </div>
           )}
 
-          {/* Kontrol sonrası: resmi fatura kes + müşteriye gönder */}
           <button
             type="button"
             onClick={handleFaturaGonder}
@@ -385,11 +384,11 @@ export default function LexwareFaturaPaneli({
           >
             {isPending ? (
               <>
-                <FiLoader className="animate-spin" size={14} /> Fatura Oluşturuluyor...
+                <FiLoader className="animate-spin" size={14} /> Proforma Oluşturuluyor...
               </>
             ) : (
               <>
-                <FiFileText size={14} /> Faturayı Lexware'de Kes &amp; Müşteriye Gönder
+                <FiFileText size={14} /> Proforma Faturayı Kes &amp; Müşteriye Gönder
               </>
             )}
           </button>

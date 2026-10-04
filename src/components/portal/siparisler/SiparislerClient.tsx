@@ -36,11 +36,11 @@ type SiparisItem = {
     kargo_firmasi?: string | null;
     kargo_takip_no?: string | null;
     kargo_takip_url?: string | null;
-    lexware_pdf_url?: string | null;
+    lexware_proforma_pdf_url?: string | null;
     lexware_storno_pdf_url?: string | null;
-    fatura_durumu?: string | null;
-    lexware_invoice_id?: string | null;
-    lexware_invoice_no?: string | null;
+    proforma_durumu?: string | null;
+    lexware_proforma_id?: string | null;
+    lexware_proforma_no?: string | null;
     lexware_storno_id?: string | null;
     lexware_storno_no?: string | null;
     firmalar?: {

@@ -3,10 +3,11 @@
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { createLexwareInvoiceForOrder, cancelLexwareInvoiceForOrder } from '@/lib/lexware/invoices';
+import { createLexwareProformaForOrder } from '@/lib/lexware/order-confirmations';
+import { cancelLexwareInvoiceForOrder } from '@/lib/lexware/invoices';
 
 /**
- * Admin tarafından sipariş için Lexware resmi faturası oluşturma eylemi
+ * Admin tarafından sipariş için Lexware Proforma faturası (Sipariş Onayı) oluşturma eylemi
  */
 export async function faturaOlusturAction(siparisId: string) {
   try {
@@ -28,22 +29,22 @@ export async function faturaOlusturAction(siparisId: string) {
       return { success: false, error: 'Bu işlem için yetkiniz bulunmamaktadır.' };
     }
 
-    const result = await createLexwareInvoiceForOrder(siparisId, { finalize: true });
+    const result = await createLexwareProformaForOrder(siparisId, { finalize: true });
 
     revalidatePath('/[locale]/admin/operasyon/siparisler/[siparisId]', 'page');
     revalidatePath('/[locale]/portal/siparisler/[siparisId]', 'page');
 
     return {
       success: true,
-      invoiceId: result.invoiceId,
-      invoiceNo: result.invoiceNo,
+      invoiceId: result.proformaId,
+      invoiceNo: result.proformaNo,
       pdfUrl: result.pdfUrl,
     };
   } catch (error: any) {
     console.error('faturaOlusturAction hatası:', error);
     return {
       success: false,
-      error: error?.message || 'Lexware faturası oluşturulurken beklenmeyen bir hata meydana geldi.',
+      error: error?.message || 'Lexware Proforma faturası oluşturulurken beklenmeyen bir hata meydana geldi.',
     };
   }
 }

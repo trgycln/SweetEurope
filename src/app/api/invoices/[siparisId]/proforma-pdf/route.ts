@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
-import { getLexwareInvoicePdfBuffer } from '@/lib/lexware/invoices';
+import { getLexwareProformaPdfBuffer } from '@/lib/lexware/order-confirmations';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +34,7 @@ export async function GET(
     const supabaseAdmin = createSupabaseServiceClient();
     const { data: siparis, error: siparisError } = await supabaseAdmin
       .from('siparisler')
-      .select('id, firma_id, lexware_invoice_id, lexware_invoice_no, is_test')
+      .select('id, firma_id, lexware_proforma_id, lexware_proforma_no, is_test')
       .eq('id', siparisId)
       .single();
 
@@ -50,25 +50,25 @@ export async function GET(
       }
     }
 
-    if (!siparis.lexware_invoice_id) {
-      return new NextResponse('Bu sipariş için henüz resmi bir Lexware faturası kesilmemiştir.', { status: 404 });
+    if (!siparis.lexware_proforma_id) {
+      return new NextResponse('Bu sipariş için henüz bir Proforma Fatura (Sipariş Onayı) kesilmemiştir.', { status: 404 });
     }
 
     // 4. Lexware'den PDF dosyasını çek
-    const { buffer, filename } = await getLexwareInvoicePdfBuffer(siparis.lexware_invoice_id, (siparis as any).is_test === true);
-    const invoiceNumber = siparis.lexware_invoice_no || filename;
+    const { buffer, filename } = await getLexwareProformaPdfBuffer(siparis.lexware_proforma_id, (siparis as any).is_test === true);
+    const invoiceNumber = siparis.lexware_proforma_no || filename;
 
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `inline; filename="Rechnung-${invoiceNumber}.pdf"`,
+        'Content-Disposition': `inline; filename="Proforma-${invoiceNumber}.pdf"`,
         'Cache-Control': 'private, max-age=3600',
       },
     });
   } catch (error: any) {
     console.error('Lexware PDF indirme hatası:', error);
-    return new NextResponse(`Fatura PDF alınırken hata oluştu: ${error?.message || error}`, {
+    return new NextResponse(`Proforma PDF alınırken hata oluştu: ${error?.message || error}`, {
       status: 500,
     });
   }

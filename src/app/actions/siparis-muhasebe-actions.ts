@@ -15,11 +15,13 @@ import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { createSupabaseServiceClient } from '@/lib/supabase/service';
 import {
-  createLexwareInvoiceForOrder,
-  getLexwareInvoicePdfBuffer,
   cancelLexwareInvoiceForOrder,
   getLexwareCreditNotePdfBuffer,
 } from '@/lib/lexware/invoices';
+import {
+  createLexwareProformaForOrder,
+  getLexwareProformaPdfBuffer,
+} from '@/lib/lexware/order-confirmations';
 import { sendInvoiceEmail, sendStornoEmail } from '@/lib/email';
 
 // -------------------------------------------------------------------
@@ -70,7 +72,7 @@ export async function createAndSendInvoiceAction(siparisId: string): Promise<{
     const { data: siparis, error: siparisError } = await supabaseAdmin
       .from('siparisler')
       .select(`
-        id, odeme_durumu, lexware_invoice_id, lexware_invoice_no, is_test,
+        id, odeme_durumu, lexware_proforma_id, lexware_proforma_no, is_test,
         firmalar ( id, email, unvan )
       `)
       .eq('id', siparisId)
@@ -80,27 +82,26 @@ export async function createAndSendInvoiceAction(siparisId: string): Promise<{
       return { success: false, error: `Sipariş bulunamadı: ${siparisError?.message}` };
     }
 
-    // IDEMPOTENCY: Zaten fatura kesilmişse tekrar kesme
-    if ((siparis as any).lexware_invoice_id) {
+    // IDEMPOTENCY: Zaten proforma kesilmişse tekrar kesme
+    if ((siparis as any).lexware_proforma_id) {
       return {
         success: true,
-        invoiceNo: (siparis as any).lexware_invoice_no,
-        pdfUrl: `/api/invoices/${siparisId}/pdf`,
-        warning: 'Fatura zaten daha önce kesilmişti — tekrar kesilmedi.',
+        invoiceNo: (siparis as any).lexware_proforma_no,
+        pdfUrl: `/api/invoices/${siparisId}/proforma-pdf`,
+        warning: 'Proforma Fatura zaten daha önce kesilmişti — tekrar kesilmedi.',
       };
     }
 
-    // 1. Lexware faturası kes (ödeme durumu ayrı yönetilir)
-    // 2. Lexware faturası kes
-    let invoiceResult: { invoiceId: string; invoiceNo: string; pdfUrl: string } | null = null;
+    // 1. Lexware Proforma faturası kes
+    let invoiceResult: { proformaId: string; proformaNo: string; pdfUrl: string } | null = null;
     let lexwareWarning: string | undefined;
 
     try {
-      invoiceResult = await createLexwareInvoiceForOrder(siparisId, { finalize: true });
+      invoiceResult = await createLexwareProformaForOrder(siparisId, { finalize: true });
     } catch (lexErr: any) {
       // GRACEFUL FAILURE: Lexware hatası sistemi çökertmesin
-      console.error('[muhasebe] Lexware fatura kesme hatası:', lexErr);
-      lexwareWarning = `Lexware faturası kesilemedi. Lütfen Lexware panelinden kontrol edin. Hata: ${lexErr?.message}`;
+      console.error('[muhasebe] Lexware proforma kesme hatası:', lexErr);
+      lexwareWarning = `Lexware proforma faturası kesilemedi. Lütfen Lexware panelinden kontrol edin. Hata: ${lexErr?.message}`;
 
       return {
         success: true,
@@ -110,16 +111,16 @@ export async function createAndSendInvoiceAction(siparisId: string): Promise<{
 
     // 3. Fatura PDF'ini Lexware'den indir
     let pdfBuffer: Buffer | null = null;
-    let pdfFilename = `Rechnung-${invoiceResult.invoiceNo}.pdf`;
+    let pdfFilename = `Proforma-${invoiceResult.proformaNo}.pdf`;
 
     try {
-      const pdfResult = await getLexwareInvoicePdfBuffer(invoiceResult.invoiceId, (siparis as any).is_test === true);
+      const pdfResult = await getLexwareProformaPdfBuffer(invoiceResult.proformaId, (siparis as any).is_test === true);
       pdfBuffer = pdfResult.buffer;
       pdfFilename = pdfResult.filename;
     } catch (pdfErr: any) {
       console.error('[muhasebe] Lexware PDF indirme hatası:', pdfErr);
       // PDF indirilemese de işlem devam etsin, e-posta gönderilmeyecek
-      lexwareWarning = `Fatura kesildi (${invoiceResult.invoiceNo}) ancak PDF indirilemedi — e-posta gönderilemedi. Hata: ${pdfErr?.message}`;
+      lexwareWarning = `Proforma kesildi (${invoiceResult.proformaNo}) ancak PDF indirilemedi — e-posta gönderilemedi. Hata: ${pdfErr?.message}`;
     }
 
     // 4. Müşteriye faturayı e-posta ile gönder
@@ -129,14 +130,14 @@ export async function createAndSendInvoiceAction(siparisId: string): Promise<{
         await sendInvoiceEmail({
           to: firma.email,
           orderNo: siparisId.slice(0, 8).toUpperCase(),
-          invoiceNo: invoiceResult.invoiceNo,
+          invoiceNo: invoiceResult.proformaNo,
           pdfBuffer,
           pdfFilename,
         });
       } catch (emailErr: any) {
         console.error('[muhasebe] Fatura e-posta gönderim hatası:', emailErr);
         // E-posta hatası işlemi durdurmaz
-        lexwareWarning = `Fatura kesildi (${invoiceResult.invoiceNo}) ancak e-posta gönderilemedi. Hata: ${emailErr?.message}`;
+        lexwareWarning = `Proforma kesildi (${invoiceResult.proformaNo}) ancak e-posta gönderilemedi. Hata: ${emailErr?.message}`;
       }
     }
 
@@ -145,7 +146,7 @@ export async function createAndSendInvoiceAction(siparisId: string): Promise<{
 
     return {
       success: true,
-      invoiceNo: invoiceResult.invoiceNo,
+      invoiceNo: invoiceResult.proformaNo,
       pdfUrl: invoiceResult.pdfUrl,
       ...(lexwareWarning ? { warning: lexwareWarning } : {}),
     };
@@ -290,7 +291,7 @@ export async function cancelOrderAndStornoAction(
     const { data: siparis, error: siparisError } = await supabaseAdmin
       .from('siparisler')
       .select(`
-        id, siparis_durumu, is_test, lexware_invoice_id, lexware_storno_id, lexware_storno_no,
+        id, siparis_durumu, is_test, lexware_proforma_id, lexware_invoice_id, lexware_storno_id, lexware_storno_no,
         firmalar ( id, email, unvan )
       `)
       .eq('id', siparisId)

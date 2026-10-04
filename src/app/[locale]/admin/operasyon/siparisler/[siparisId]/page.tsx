@@ -323,13 +323,13 @@ export default async function OperasyonSiparisDetayPage({ params, searchParams }
                     {/* Lexware E-Fatura Yönetimi */}
                     <LexwareFaturaPaneli
                         siparisId={siparis.id}
-                        invoiceId={siparis.lexware_invoice_id}
-                        invoiceNo={siparis.lexware_invoice_no}
-                        pdfUrl={siparis.lexware_pdf_url}
+                        proformaId={siparis.lexware_proforma_id}
+                        proformaNo={siparis.lexware_proforma_no}
+                        pdfUrl={siparis.lexware_proforma_pdf_url}
                         stornoId={siparis.lexware_storno_id}
                         stornoNo={siparis.lexware_storno_no}
                         stornoPdfUrl={siparis.lexware_storno_pdf_url}
-                        faturaDurumu={siparis.fatura_durumu}
+                        proformaDurumu={siparis.proforma_durumu}
                         siparisDurumu={siparis.siparis_durumu}
                         odemeDurumu={siparis.odeme_durumu}
                     />
