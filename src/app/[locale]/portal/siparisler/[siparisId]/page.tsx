@@ -149,16 +149,6 @@ export default async function PartnerSiparisDetayPage({ params }: PageProps) {
                             #{siparis.id.slice(0, 8).toUpperCase()}
                         </h1>
 
-                        {/* Lieferschein Yazdır */}
-                        <Link
-                            href={`/${locale}/print/lieferschein/${siparis.id}`}
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-100 transition-colors shadow-2xs"
-                            title={locale === 'de' ? 'Lieferschein drucken' : 'Teslimat İrsaliyesi (Lieferschein) Yazdır'}
-                        >
-                            <Printer size={14} />
-                            <span>{locale === 'de' ? 'Lieferschein' : 'Lieferschein Yazdır'}</span>
-                        </Link>
 
                         {/* Faturayı İndir (PDF) */}
                         {hasInvoice && (
@@ -546,14 +536,6 @@ export default async function PartnerSiparisDetayPage({ params }: PageProps) {
                                 </a>
                             )}
 
-                            <Link
-                                href={`/${locale}/print/lieferschein/${siparis.id}`}
-                                target="_blank"
-                                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-2xs hover:shadow-xs active:scale-95"
-                            >
-                                <Printer size={14} />
-                                <span>{locale === 'de' ? 'Lieferschein drucken' : 'İrsaliye Yazdır (Lieferschein)'}</span>
-                            </Link>
                         </div>
                     </div>
 

@@ -64,7 +64,7 @@ export default function TopluGuncellemeTab({
   }
 
   const inferProductLine = (product: ProductLite): ProductLineKey | null => {
-    if (isProductLineKey(product.urun_gami)) return product.urun_gami;
+    if (product.urun_gami && product.urun_gami.length > 0 && isProductLineKey(product.urun_gami[0])) return product.urun_gami[0] as ProductLineKey;
     return inferProductLineFromCategoryId(kategoriler as any, product.kategori_id);
   };
 

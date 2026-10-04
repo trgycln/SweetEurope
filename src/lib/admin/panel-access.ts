@@ -82,7 +82,7 @@ const PANEL_ROUTE_PREFIXES: Record<AdminPanelKey, string[]> = {
   samples: ['/admin/operasyon/numune-talepleri'],
   tasks: ['/admin/gorevler'],
   documents: ['/admin/belgeleri-yonet'],
-  products: ['/admin/urun-yonetimi/urunler', '/admin/urun-yonetimi/kategoriler'],
+  products: ['/admin/urun-yonetimi/urunler', '/admin/urun-yonetimi/kategoriler', '/admin/urun-yonetimi/dahili-cikis'],
   pricing: [
     '/admin/urun-yonetimi/fiyatlandirma-hub',
     '/admin/urun-yonetimi/tir-girisi',

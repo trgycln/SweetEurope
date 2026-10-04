@@ -76,11 +76,11 @@ export default function GBPAutomationDashboard() {
 
       // Fetch Posts
       const { data: dbPosts } = await supabase.from('google_business_posts').select('*').order('created_at', { ascending: false }).limit(20);
-      if (dbPosts) setPosts(dbPosts);
+      if (dbPosts) setPosts(dbPosts as any);
 
       // Fetch Reviews
       const { data: dbReviews } = await supabase.from('google_business_reviews').select('*').order('created_at', { ascending: false }).limit(20);
-      if (dbReviews) setReviews(dbReviews);
+      if (dbReviews) setReviews(dbReviews as any);
 
       // Fetch Product Count
       const { count } = await supabase.from('urunler').select('*', { count: 'exact', head: true }).eq('aktif', true);

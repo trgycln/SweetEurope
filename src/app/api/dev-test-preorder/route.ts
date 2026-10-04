@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     // Test amaçlı, ürün stoklarını kontrol etmiyoruz, direkt çeviriyoruz.
 
     // 2. Stripe URL Oluşturma (Aksiyonun içindeki kodun birebir aynısı)
-    let stripePaymentUrl = null;
+    let stripePaymentUrl: string | null = null;
     try {
         const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
         

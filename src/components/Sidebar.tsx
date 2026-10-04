@@ -118,6 +118,7 @@ export function Sidebar({ isOpen, setIsOpen, userRole, dictionary, allowedPanels
             title: sidebarContent.productManagement || 'Ürün Yönetimi',
             links: [
                 { name: sidebarContent.products, href: '/admin/urun-yonetimi/urunler', icon: FiBox, roles: ['Yönetici', 'Personel'] as UserRole[], panelKey: 'products' },
+                { name: 'Dahili Çıkış (Numune vb.)', href: '/admin/urun-yonetimi/dahili-cikis', icon: FiBox, roles: ['Yönetici', 'Personel'] as UserRole[], panelKey: 'products' },
                 { 
                     name: sidebarContent.productRequests || 'Produktanfragen', 
                     href: '/admin/urun-yonetimi/urun-talepleri', 

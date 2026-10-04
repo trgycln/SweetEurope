@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET } from '../src/app/api/invoices/[siparisId]/pdf/route';
+import { GET } from '../src/app/api/invoices/[siparisId]/proforma-pdf/route';
 import { NextRequest } from 'next/server';
 
 // Mock Dependencies

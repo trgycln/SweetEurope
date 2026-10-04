@@ -218,7 +218,7 @@ export async function siparisOlusturAction(payload: {
             try {
                 const { data: profil } = await supabase
                     .from('profiller')
-                    .select('ad_soyad')
+                    .select('tam_ad')
                     .eq('id', user.id)
                     .single();
                 const { data: firma2 } = await supabase
@@ -237,7 +237,7 @@ export async function siparisOlusturAction(payload: {
                     // if (!payload.isTest) {
                         await sendOrderConfirmationEmail({
                         to: user.email,
-                        recipientName: profil?.ad_soyad || null,
+                        recipientName: profil?.tam_ad || null,
                         firmName: firma2?.unvan || null,
                         orderId: newOrderId,
                         orderType: (isTestOrder && !isPreOrder) ? 'normal' : 'on_siparis',
@@ -340,7 +340,7 @@ export async function siparisOlusturAction(payload: {
         try {
             const { data: profil } = await supabase
                 .from('profiller')
-                .select('ad_soyad')
+                .select('tam_ad')
                 .eq('id', user.id)
                 .single();
             const { data: firma2 } = await supabase
@@ -359,7 +359,7 @@ export async function siparisOlusturAction(payload: {
                 // if (!payload.isTest) {
                     await sendOrderConfirmationEmail({
                         to: user.email,
-                        recipientName: profil?.ad_soyad || null,
+                        recipientName: profil?.tam_ad || null,
                         firmName: firma2?.unvan || null,
                         orderId: newOrderId,
                         orderType: 'normal',
@@ -748,7 +748,7 @@ export async function onSiparisiNormalSipariseDonusturAction(
     }
 
     // 6. Stripe Payment Link Generate (Opsiyonel)
-    let stripePaymentUrl = null;
+    let stripePaymentUrl: string | null = null;
     try {
         const { stripe } = await import('@/lib/stripe');
         const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -804,8 +804,8 @@ export async function onSiparisiNormalSipariseDonusturAction(
         if (to) {
             const { data: profil } = await adminClient
                 .from('profiller')
-                .select('ad_soyad')
-                .eq('id', siparis.olusturan_kullanici_id)
+                .select('tam_ad')
+                .eq('id', String(siparis.olusturan_kullanici_id))
                 .single();
                 
             const emailItems = detaylar.map((item: any) => {
@@ -821,7 +821,7 @@ export async function onSiparisiNormalSipariseDonusturAction(
             
             await sendOrderConfirmationEmail({
                 to,
-                recipientName: profil?.ad_soyad || null,
+                recipientName: profil?.tam_ad || null,
                 firmName: (siparis.firmalar as any)?.unvan || null,
                 orderId: siparisId,
                 orderType: 'normal',

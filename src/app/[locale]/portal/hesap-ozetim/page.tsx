@@ -58,7 +58,7 @@ export default async function HesapOzetimPage({ params }: PageProps) {
         favoriSayisiRes,
     ] = await Promise.all([
         supabase.from('firmalar')
-            .select('unvan, created_at, vkn_tckn, vergi_dairesi')
+            .select('unvan, created_at, vergi_no, vergi_dairesi')
             .eq('id', profile.firma_id)
             .single(),
 
@@ -214,8 +214,8 @@ export default async function HesapOzetimPage({ params }: PageProps) {
                             {firma?.vergi_dairesi && (
                                 <p>{locale === 'de' ? 'Finanzamt' : 'V.D.'}: {firma.vergi_dairesi}</p>
                             )}
-                            {firma?.vkn_tckn && (
-                                <p>{locale === 'de' ? 'Steuernummer' : 'VKN'}: {firma.vkn_tckn}</p>
+                            {firma?.vergi_no && (
+                                <p>{locale === 'de' ? 'Steuernummer' : 'VKN'}: {firma.vergi_no}</p>
                             )}
                         </div>
                     </div>

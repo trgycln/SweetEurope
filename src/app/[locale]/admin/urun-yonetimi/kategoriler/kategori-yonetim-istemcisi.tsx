@@ -570,8 +570,8 @@ export function KategoriYonetimIstemcisi({ serverKategoriler, serverSablonlar, l
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-0.5">Ürün Gamı</p>
                     <p className="text-sm text-gray-600">
-                      {seciliKategori.urun_gami === 'frozen-desserts' ? 'Frozen Desserts'
-                        : seciliKategori.urun_gami === 'barista-bakery-essentials' ? 'Barista & Bakery'
+                      {seciliKategori.urun_gami?.includes('frozen-desserts') ? 'Frozen Desserts'
+                        : seciliKategori.urun_gami?.includes('barista-bakery-essentials') ? 'Barista & Bakery'
                         : <span className="text-gray-300">—</span>}
                     </p>
                   </div>

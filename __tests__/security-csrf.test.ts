@@ -54,14 +54,14 @@ describe('CSRF Security - verifyCsrfOrigin', () => {
   });
 
   it('should allow localhost in development mode', () => {
-    process.env.NODE_ENV = 'development';
+    vi.stubEnv('NODE_ENV', 'development');
     const req = createMockRequest('http://localhost:3000', null);
     const result = verifyCsrfOrigin(req);
     expect(result).toBe(true);
   });
 
   it('should block localhost in production mode', () => {
-    process.env.NODE_ENV = 'production';
+    vi.stubEnv('NODE_ENV', 'production');
     const req = createMockRequest('http://localhost:3000', null);
     const result = verifyCsrfOrigin(req);
     expect(result).toBe(false);

@@ -5,7 +5,7 @@ vi.mock('../src/lib/supabase/service', () => {
     let mockProduct = {
         id: 'test-urun-123',
         stok_miktari: 10,
-        stok_tukenme_tarihi: null
+        stok_tukenme_tarihi: null as string | null
     };
 
     const eqFn = vi.fn().mockImplementation((col, val) => {
@@ -67,8 +67,8 @@ describe('Database Trigger Tests', () => {
             .eq('id', 'test-urun-123')
             .single();
 
-        expect(outOfStockProduct.stok_miktari).toBe(0);
-        expect(outOfStockProduct.stok_tukenme_tarihi).not.toBeNull();
+        expect(outOfStockProduct!.stok_miktari).toBe(0);
+        expect(outOfStockProduct!.stok_tukenme_tarihi).not.toBeNull();
 
         // 2. Stoku 10'a çıkarıyoruz (İthalat partisi onayı simülasyonu)
         await supabaseAdmin
@@ -83,7 +83,7 @@ describe('Database Trigger Tests', () => {
             .eq('id', 'test-urun-123')
             .single();
 
-        expect(inStockProduct.stok_miktari).toBe(10);
-        expect(inStockProduct.stok_tukenme_tarihi).toBeNull();
+        expect(inStockProduct!.stok_miktari).toBe(10);
+        expect(inStockProduct!.stok_tukenme_tarihi).toBeNull();
     });
 });

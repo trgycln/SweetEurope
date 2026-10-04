@@ -23,6 +23,7 @@ import {
   cancelOrderAndStornoAction,
   createAndSendInvoiceAction,
   getInvoicePreviewAction,
+  generateLexwareDeliveryNoteAction,
   type InvoicePreview,
 } from '@/app/actions/siparis-muhasebe-actions';
 import { toast } from 'sonner';
@@ -42,6 +43,9 @@ interface Props {
   proformaDurumu?: string | null;
   siparisDurumu?: string | null;
   odemeDurumu?: string | null;
+  deliveryNoteId?: string | null;
+  deliveryNoteNo?: string | null;
+  deliveryNotePdfUrl?: string | null;
 }
 
 export default function LexwareFaturaPaneli({
@@ -55,6 +59,9 @@ export default function LexwareFaturaPaneli({
   proformaDurumu,
   siparisDurumu,
   odemeDurumu,
+  deliveryNoteId,
+  deliveryNoteNo,
+  deliveryNotePdfUrl,
 }: Props) {
   const [isPending, startTransition] = useTransition();
   const [localProformaNo, setLocalProformaNo] = useState(proformaNo);
@@ -62,6 +69,8 @@ export default function LexwareFaturaPaneli({
   const [localStornoNo, setLocalStornoNo] = useState(stornoNo);
   const [localStornoPdfUrl, setLocalStornoPdfUrl] = useState(stornoPdfUrl);
   const [localOdemeDurumu, setLocalOdemeDurumu] = useState(odemeDurumu);
+  const [localDeliveryNoteNo, setLocalDeliveryNoteNo] = useState(deliveryNoteNo);
+  const [localDeliveryNotePdfUrl, setLocalDeliveryNotePdfUrl] = useState(deliveryNotePdfUrl);
 
   const hasInvoice = Boolean(localProformaNo || proformaId);
   const hasStorno = Boolean(localStornoNo || stornoId);
@@ -148,6 +157,27 @@ export default function LexwareFaturaPaneli({
         toast.success(`Lexware proforma faturası başarıyla oluşturuldu (${res.invoiceNo})!`);
       } else {
         toast.error(res.error || 'Proforma oluşturulamadı.');
+      }
+    });
+  };
+
+  // -------------------------------------------------------------------
+  // "İrsaliye (Lieferschein) Oluştur"
+  // -------------------------------------------------------------------
+  const handleIrsaliyeOlustur = () => {
+    if (!window.confirm(
+      'Lexware üzerinde bu sipariş için Lieferschein (İrsaliye) oluşturulacaktır.\n' +
+      'Devam etmek istiyor musunuz?'
+    )) return;
+
+    startTransition(async () => {
+      const res = await generateLexwareDeliveryNoteAction(siparisId);
+      if (res.success) {
+        setLocalDeliveryNoteNo('Oluşturuldu');
+        setLocalDeliveryNotePdfUrl(res.pdfUrl || null);
+        toast.success(`Lexware İrsaliyesi başarıyla oluşturuldu!`);
+      } else {
+        toast.error(res.error || 'İrsaliye oluşturulamadı.');
       }
     });
   };
@@ -255,6 +285,18 @@ export default function LexwareFaturaPaneli({
             >
               <FiDownload size={14} /> Proforma Faturayı Görüntüle / İndir (PDF)
             </a>
+
+            {/* İrsaliye PDF İndir (eğer varsa) */}
+            {localDeliveryNotePdfUrl && (
+              <a
+                href={localDeliveryNotePdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
+              >
+                <FiDownload size={14} /> İrsaliye Görüntüle / İndir (Lieferschein PDF)
+              </a>
+            )}
 
             {/* Storno butonu — sadece storno kesilmemişse */}
             {!hasStorno && (
@@ -407,6 +449,19 @@ export default function LexwareFaturaPaneli({
           >
             Sadece Lexware'de oluştur (müşteriye e-posta gönderme)
           </button>
+
+          {/* İrsaliye Oluştur Butonu */}
+          {!localDeliveryNotePdfUrl && (
+            <button
+              type="button"
+              onClick={handleIrsaliyeOlustur}
+              disabled={isPending}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+            >
+              {isPending ? <FiLoader className="animate-spin" size={13} /> : <FiFileText size={13} />}
+              Lexware İrsaliyesi (Lieferschein) Oluştur
+            </button>
+          )}
 
           {/* İptal Et butonu (fatura olmasa da siparişi iptal etmek mümkün) */}
           {siparisDurumu !== 'İptal Edildi' && (

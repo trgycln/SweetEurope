@@ -160,6 +160,40 @@ export async function createAndSendInvoiceAction(siparisId: string): Promise<{
 }
 
 // -------------------------------------------------------------------
+// generateLexwareDeliveryNoteAction — Lexware'de Lieferschein (İrsaliye) oluşturur
+// -------------------------------------------------------------------
+export async function generateLexwareDeliveryNoteAction(siparisId: string): Promise<{
+  success: boolean;
+  pdfUrl?: string;
+  error?: string;
+}> {
+  try {
+    const { user, error: authError } = await requireAdminRole();
+    if (authError || !user) return { success: false, error: authError! };
+
+    const { createLexwareDeliveryNoteForOrder } = await import('@/lib/lexware/delivery-notes');
+    
+    // 1. İrsaliye kes
+    const result = await createLexwareDeliveryNoteForOrder(siparisId);
+
+    // 2. Cache temizle ve dön
+    revalidatePath('/[locale]/admin/operasyon/siparisler/[siparisId]', 'page');
+    revalidatePath('/[locale]/portal/siparisler/[siparisId]', 'page');
+
+    return {
+      success: true,
+      pdfUrl: result.pdfUrl
+    };
+  } catch (error: any) {
+    console.error('[muhasebe] generateLexwareDeliveryNoteAction beklenmeyen hata:', error);
+    return {
+      success: false,
+      error: error?.message || 'İrsaliye oluşturulurken beklenmeyen bir hata oluştu.',
+    };
+  }
+}
+
+// -------------------------------------------------------------------
 // -------------------------------------------------------------------
 // processOrderPaymentAction — Havale/Vorkasse: sadece "Ödendi" işaretler (fatura KESMEZ)
 // -------------------------------------------------------------------
@@ -350,7 +384,7 @@ export async function cancelOrderAndStornoAction(
     // 3. STOK BÜTÜNLÜĞÜ: Stokları geri yükle (test siparişlerinde stok düşülmediği için atılır)
     if ((siparis as any).is_test !== true) {
     try {
-      await supabaseAdmin.rpc('restore_order_stock', { p_siparis_id: siparisId });
+      await supabaseAdmin.rpc('restore_order_stock' as any, { p_siparis_id: siparisId });
     } catch (stockErr: any) {
       console.error('[muhasebe] Stok geri yükleme hatası:', stockErr);
       // Stok hatası da uyarı olarak ilet ama akışı durdurma

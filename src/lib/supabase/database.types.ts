@@ -761,6 +761,60 @@ export type Database = {
         }
         Relationships: []
       }
+      dahili_stok_hareketleri: {
+        Row: {
+          aciklama: string | null
+          created_at: string | null
+          firma_id: string | null
+          id: string
+          lexware_belge_id: string | null
+          lexware_belge_no: string | null
+          miktar: number
+          neden_kodu: string
+          olusturan_kullanici_id: string | null
+          urun_id: string
+        }
+        Insert: {
+          aciklama?: string | null
+          created_at?: string | null
+          firma_id?: string | null
+          id?: string
+          lexware_belge_id?: string | null
+          lexware_belge_no?: string | null
+          miktar: number
+          neden_kodu: string
+          olusturan_kullanici_id?: string | null
+          urun_id: string
+        }
+        Update: {
+          aciklama?: string | null
+          created_at?: string | null
+          firma_id?: string | null
+          id?: string
+          lexware_belge_id?: string | null
+          lexware_belge_no?: string | null
+          miktar?: number
+          neden_kodu?: string
+          olusturan_kullanici_id?: string | null
+          urun_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dahili_stok_hareketleri_firma_id_fkey"
+            columns: ["firma_id"]
+            isOneToOne: false
+            referencedRelation: "firmalar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dahili_stok_hareketleri_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "urunler"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       degerlendirme_oylari: {
         Row: {
           created_at: string | null
@@ -2902,6 +2956,9 @@ export type Database = {
           kargo_tutari_net: number
           kargo_yontemi: string
           kdv_orani: number
+          lexware_delivery_note_id: string | null
+          lexware_delivery_note_no: string | null
+          lexware_delivery_note_pdf_url: string | null
           lexware_invoice_id: string | null
           lexware_invoice_no: string | null
           lexware_pdf_url: string | null
@@ -2940,6 +2997,9 @@ export type Database = {
           kargo_tutari_net?: number
           kargo_yontemi?: string
           kdv_orani: number
+          lexware_delivery_note_id?: string | null
+          lexware_delivery_note_no?: string | null
+          lexware_delivery_note_pdf_url?: string | null
           lexware_invoice_id?: string | null
           lexware_invoice_no?: string | null
           lexware_pdf_url?: string | null
@@ -2980,6 +3040,9 @@ export type Database = {
           kargo_tutari_net?: number
           kargo_yontemi?: string
           kdv_orani?: number
+          lexware_delivery_note_id?: string | null
+          lexware_delivery_note_no?: string | null
+          lexware_delivery_note_pdf_url?: string | null
           lexware_invoice_id?: string | null
           lexware_invoice_no?: string | null
           lexware_pdf_url?: string | null
@@ -4300,7 +4363,3 @@ export const Constants = {
     },
   },
 } as const
-
-
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
-export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T];
