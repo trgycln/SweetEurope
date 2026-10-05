@@ -54,8 +54,9 @@ export const KatalogDownloadButton = () => {
     setQrModal({ isOpen: true, locale });
   };
 
-  // URL oluştur
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://elysonsweets.de';
+  // URL oluştur - Müşteri matbaaya göndereceği için HER ZAMAN canlı site adresini kullanmalıyız.
+  // Localhost'ta test ederken indirilen QR kodun bozuk (localhost) olmaması için window.location KULLANMIYORUZ.
+  const baseUrl = 'https://elysonsweets.de'; 
   const qrUrl = qrModal.locale ? `${baseUrl}/api/katalog/${qrModal.locale}` : '';
 
   return (
