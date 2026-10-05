@@ -33,8 +33,8 @@ export async function GET(
     headers.set('Cache-Control', 'no-store, max-age=0');
     
     return new NextResponse(pdfBuffer, { status: 200, headers });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Katalog API Error:', error);
-    return new NextResponse('Katalog olusturulurken hata meydana geldi.', { status: 500 });
+    return new NextResponse(`Katalog olusturulurken hata meydana geldi: ${error.message || error.toString()}`, { status: 500 });
   }
 }
