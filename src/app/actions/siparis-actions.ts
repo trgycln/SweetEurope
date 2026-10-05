@@ -493,6 +493,15 @@ export async function topluSiparisOlusturAction(payload: {
         mesaj = "Ön sipariş talebiniz başarıyla kaydedildi.";
     }
 
+    // +++ OTOMATİK LEXWARE LIEFERSCHEIN (İRSALİYE) OLUŞTURMA +++
+    if (normalOrderId) {
+        import('@/lib/lexware/delivery-notes').then(m => {
+            m.createLexwareDeliveryNoteForOrder(normalOrderId!).catch(err => {
+                console.error('[siparis-actions] Lieferschein otomatik oluşturulamadı:', err);
+            });
+        });
+    }
+
     
     if (payload.paymentMethod === 'stripe') {
         const activeStripe = payload.isTest ? stripeTest : stripe;

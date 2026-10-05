@@ -266,3 +266,28 @@ export async function createLexwareDeliveryNoteForOrder(
     pdfUrl
   };
 }
+
+/**
+ * İrsaliyenin PDF dosyasını indirir.
+ */
+export async function getLexwareDeliveryNotePdfBuffer(deliveryNoteId: string, isTest: boolean = false): Promise<{ buffer: Buffer; filename: string }> {
+  const docInfo = await lexwareFetch<any>(`/v1/delivery-notes/${deliveryNoteId}/document`, { isTest });
+  const fileId = docInfo?.documentFileId;
+
+  if (!fileId) {
+    throw new Error(`Belge için PDF bulunamadı [ID: ${deliveryNoteId}]`);
+  }
+
+  const blob = await lexwareFetch<Blob>(`/v1/files/${fileId}`, {
+    isTest,
+    headers: {
+      Accept: 'application/pdf',
+    },
+  });
+
+  const arrayBuffer = await blob.arrayBuffer();
+  return {
+    buffer: Buffer.from(arrayBuffer),
+    filename: `Lieferschein-${deliveryNoteId}`,
+  };
+}

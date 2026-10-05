@@ -71,6 +71,7 @@ export default function LexwareFaturaPaneli({
   const [localOdemeDurumu, setLocalOdemeDurumu] = useState(odemeDurumu);
   const [localDeliveryNoteNo, setLocalDeliveryNoteNo] = useState(deliveryNoteNo);
   const [localDeliveryNotePdfUrl, setLocalDeliveryNotePdfUrl] = useState(deliveryNotePdfUrl);
+  const [localDeliveryNoteId, setLocalDeliveryNoteId] = useState(deliveryNoteId);
 
   const hasInvoice = Boolean(localProformaNo || proformaId);
   const hasStorno = Boolean(localStornoNo || stornoId);
@@ -112,17 +113,20 @@ export default function LexwareFaturaPaneli({
     });
   };
 
+  const [isLoadingInvoice, setIsLoadingInvoice] = useState(false);
+
   // -------------------------------------------------------------------
   // "Faturayı Kes & Müşteriye Gönder" — kontrol sonrası manuel tetik
   // -------------------------------------------------------------------
-  const handleFaturaGonder = () => {
+  const handleFaturaGonder = async () => {
     if (!window.confirm(
       'Lexware\'de PROFORMA fatura (Auftragsbestätigung) kesilecek ' +
       've PDF müşteriye e-posta ile gönderilecektir.\n\n' +
       'Önizlemedeki kalemleri kontrol ettiniz mi?'
     )) return;
 
-    startTransition(async () => {
+    setIsLoadingInvoice(true);
+    try {
       const res = await createAndSendInvoiceAction(siparisId);
       if (res.success) {
         if (res.invoiceNo) {
@@ -137,7 +141,11 @@ export default function LexwareFaturaPaneli({
       } else {
         toast.error(res.error || 'Proforma oluşturulamadı.');
       }
-    });
+    } catch (err: any) {
+      toast.error(err?.message || 'Beklenmeyen bir hata oluştu');
+    } finally {
+      setIsLoadingInvoice(false);
+    }
   };
 
   // -------------------------------------------------------------------
@@ -175,6 +183,7 @@ export default function LexwareFaturaPaneli({
       if (res.success) {
         setLocalDeliveryNoteNo('Oluşturuldu');
         setLocalDeliveryNotePdfUrl(res.pdfUrl || null);
+        setLocalDeliveryNoteId('generated');
         toast.success(`Lexware İrsaliyesi başarıyla oluşturuldu!`);
       } else {
         toast.error(res.error || 'İrsaliye oluşturulamadı.');
@@ -286,17 +295,7 @@ export default function LexwareFaturaPaneli({
               <FiDownload size={14} /> Proforma Faturayı Görüntüle / İndir (PDF)
             </a>
 
-            {/* İrsaliye PDF İndir (eğer varsa) */}
-            {localDeliveryNotePdfUrl && (
-              <a
-                href={localDeliveryNotePdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors"
-              >
-                <FiDownload size={14} /> İrsaliye Görüntüle / İndir (Lieferschein PDF)
-              </a>
-            )}
+            {/* Lieferschein PDF butonunu buradan sildim çünkü aşağıya, genel kısma taşıdım */}
 
             {/* Storno butonu — sadece storno kesilmemişse */}
             {!hasStorno && (
@@ -426,10 +425,10 @@ export default function LexwareFaturaPaneli({
           <button
             type="button"
             onClick={handleFaturaGonder}
-            disabled={isPending || !preview}
+            disabled={isLoadingInvoice || !preview}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors disabled:opacity-50"
           >
-            {isPending ? (
+            {isLoadingInvoice ? (
               <>
                 <FiLoader className="animate-spin" size={14} /> Proforma Oluşturuluyor...
               </>
@@ -451,7 +450,7 @@ export default function LexwareFaturaPaneli({
           </button>
 
           {/* İrsaliye Oluştur Butonu */}
-          {!localDeliveryNotePdfUrl && (
+          {!localDeliveryNoteId && (
             <button
               type="button"
               onClick={handleIrsaliyeOlustur}
@@ -475,6 +474,20 @@ export default function LexwareFaturaPaneli({
               Siparişi İptal Et (Stok Geri Yükle)
             </button>
           )}
+        </div>
+      )}
+      
+      {/* İrsaliye Görüntüle Butonu (Proforma olsun veya olmasın her zaman gösterilir) */}
+      {(localDeliveryNoteId || deliveryNoteId) && (
+        <div className="pt-2 border-t border-gray-100 flex justify-end">
+          <a
+            href={`/api/invoices/${siparisId}/delivery-note-pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
+          >
+            <FiDownload size={14} /> İrsaliye Görüntüle / İndir (Lieferschein PDF)
+          </a>
         </div>
       )}
     </div>
