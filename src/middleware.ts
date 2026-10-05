@@ -274,6 +274,6 @@ export const config = {
     matcher: [
         // Matcher schließt statische Dateien, Bilder und API-Routen aus.
         // Auth-Routen werden im Code oben behandelt.
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|katalog).*)',
     ],
 };
