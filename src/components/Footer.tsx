@@ -26,7 +26,7 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
         </p>
       </div>
 
-      <div className="container mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
 
           {/* Column 1: Company info */}

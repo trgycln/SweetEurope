@@ -921,3 +921,105 @@ export async function sendShippingEmail({
   }
 }
 
+/**
+ * Müşteriye genel "Sipariş İptal Edildi" bildirim e-postasını Almanca gönderir.
+ * Eğer fatura (storno) yoksa bu e-posta gönderilir.
+ */
+export async function sendOrderCancellationEmail({
+  to,
+  orderNo,
+  reason,
+}: {
+  to: string;
+  orderNo: string;
+  reason?: string;
+}): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('[email] RESEND_API_KEY tanımlı değil — sipariş iptal e-postası gönderilmedi.');
+    return;
+  }
+
+  const subject = `Stornierung Ihrer Bestellung #${orderNo} – Elysonsweets GmbH`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; padding: 40px 15px; color: #1e293b; margin: 0;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+
+    <!-- Header -->
+    <div style="background-color: #0f172a; padding: 36px 30px; text-align: center; border-bottom: 3px solid #e11d48;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 2px;">ELYSONSWEETS GMBH</h1>
+      <p style="color: #94a3b8; margin: 6px 0 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;">Bestellung Storniert</p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 36px 32px;">
+      <h2 style="margin: 0 0 16px; color: #0f172a; font-size: 20px; font-weight: 700;">Sehr geehrte Damen und Herren,</h2>
+
+      <p style="font-size: 15px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
+        Ihre Bestellung <strong>#${orderNo}</strong> wurde storniert.
+      </p>
+
+      <!-- Storno Info Card -->
+      <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+        <h3 style="margin: 0 0 14px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #9f1239; font-weight: 700;">Storno-Details</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600; width: 200px;">Bestellnummer:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700; font-family: monospace;">#${orderNo}</td>
+          </tr>
+          ${reason ? `
+          <tr>
+            <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Grund:</td>
+            <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">${reason}</td>
+          </tr>
+          ` : ''}
+        </table>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 16px;">
+        <p style="font-size: 13px; color: #64748b; line-height: 1.6; margin: 0;">
+          Sollten Sie bereits Zahlungen geleistet haben, werden diese umgehend erstattet.<br>
+          Bei Fragen stehen wir Ihnen unter <a href="mailto:info@elysonsweets.de" style="color: #0f172a; font-weight: 600; text-decoration: underline;">info@elysonsweets.de</a> gerne zur Verfügung.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+      <p style="font-size: 11px; color: #94a3b8; margin: 0;">
+        © Elysonsweets GmbH • <a href="https://elysonsweets.de" style="color: #94a3b8; text-decoration: none;">elysonsweets.de</a>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Elysonsweets GmbH <info@elysonsweets.de>',
+      to,
+      subject,
+      html,
+      replyTo: 'info@elysonsweets.de',
+    });
+    if (error) {
+      console.error('[email] Genel iptal e-postası Resend hatası:', error);
+      throw new Error(error.message);
+    } else {
+      console.log('[email] Genel iptal e-postası iletildi:', data?.id);
+    }
+  } catch (err) {
+    console.error('[email] Genel iptal e-postası gönderim hatası:', err);
+    throw err;
+  }
+}
+

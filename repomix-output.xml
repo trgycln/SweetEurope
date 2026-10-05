@@ -86,6 +86,7 @@ src/
     lexware/
       client.ts
       contacts.ts
+      delivery-notes.ts
       invoices.ts
       order-confirmations.ts
     pricing/
@@ -170,6 +171,7 @@ supabase/
     is_ortaklari_kargo_teklifleri.sql
     tedarikci_fiyat_loglari.sql
 supabase-migrations/
+  20261004_dahili_stok_hareketleri.sql
   add_branch_count_triggers.sql
   add_branch_support_to_firmalar.sql
   add_document_type_column.sql
@@ -249,6 +251,7 @@ eslint.config.mjs
 fix_bug.js
 fix.js
 knip_report.txt
+musteriportalbakim.md
 next.config.ts
 package.json
 plan-safe-testing.md
@@ -2261,6 +2264,188 @@ export async function autoFillLocationFromUrl(url: string): Promise<Partial<Addr
     if (!address) return {};
 
     return address;
+}
+</file>
+
+<file path="src/lib/plzLookup.ts">
+// src/lib/plzLookup.ts
+// ===================================================================
+// TAM VE EKSİKSİZ KÖLN + BONN PLZ HARİTASI
+// Kaynak: Resmi Köln.de ve Deutsche Post PLZ listesi, 2024
+// ===================================================================
+
+export interface PlzInfo {
+  city: string;
+  cityPart?: string;
+  district: string;
+  zone: 'koln' | 'bonn';
+}
+
+// -----------------------------------------------------------------------
+// KÖLN — 46 resmi PLZ (50xxx linksrheinisch + 51xxx rechtsrheinisch)
+// -----------------------------------------------------------------------
+export const KOLN_PLZ_MAP: Record<string, PlzInfo> = {
+
+  // === INNENSTADT (Stadtbezirk 1) ===
+  "50667": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord", zone: "koln" },
+  "50668": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord", zone: "koln" },
+  "50670": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord", zone: "koln" },
+  "50672": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord", zone: "koln" },
+  "50674": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd", zone: "koln" },
+  "50676": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd", zone: "koln" },
+  "50677": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd", zone: "koln" },
+  "50678": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd", zone: "koln" },
+  "50679": { city: "Köln", cityPart: "Innenstadt", district: "Deutz", zone: "koln" },
+
+  // === RODENKIRCHEN (Stadtbezirk 2) ===
+  "50968": { city: "Köln", cityPart: "Rodenkirchen", district: "Bayenthal / Raderberg", zone: "koln" },
+  "50969": { city: "Köln", cityPart: "Rodenkirchen", district: "Zollstock / Raderthal", zone: "koln" },
+  "50996": { city: "Köln", cityPart: "Rodenkirchen", district: "Rodenkirchen / Rondorf", zone: "koln" },
+  "50997": { city: "Köln", cityPart: "Rodenkirchen", district: "Godorf / Hahnwald", zone: "koln" },
+  "50999": { city: "Köln", cityPart: "Rodenkirchen", district: "Sürth / Weiß / Immendorf / Meschenich", zone: "koln" },
+
+  // === LINDENTHAL (Stadtbezirk 3) ===
+  "50931": { city: "Köln", cityPart: "Lindenthal", district: "Lindenthal", zone: "koln" },
+  "50933": { city: "Köln", cityPart: "Lindenthal", district: "Braunsfeld / Müngersdorf", zone: "koln" },
+  "50935": { city: "Köln", cityPart: "Lindenthal", district: "Sülz / Klettenberg", zone: "koln" },
+  "50937": { city: "Köln", cityPart: "Lindenthal", district: "Klettenberg / Sülz", zone: "koln" },
+  "50939": { city: "Köln", cityPart: "Lindenthal", district: "Sülz / Deckstein / Junkersdorf", zone: "koln" },
+
+  // === EHRENFELD (Stadtbezirk 4) ===
+  "50823": { city: "Köln", cityPart: "Ehrenfeld", district: "Ehrenfeld", zone: "koln" },
+  "50825": { city: "Köln", cityPart: "Ehrenfeld", district: "Neuehrenfeld", zone: "koln" },
+  "50827": { city: "Köln", cityPart: "Ehrenfeld", district: "Bickendorf / Vogelsang", zone: "koln" },
+  "50829": { city: "Köln", cityPart: "Ehrenfeld", district: "Ossendorf / Vogelsang", zone: "koln" },
+  "50858": { city: "Köln", cityPart: "Ehrenfeld", district: "Müngersdorf / Junkersdorf", zone: "koln" },
+  "50859": { city: "Köln", cityPart: "Ehrenfeld", district: "Weiden / Lövenich", zone: "koln" },
+
+  // === NIPPES (Stadtbezirk 5) ===
+  "50733": { city: "Köln", cityPart: "Nippes", district: "Nippes / Riehl", zone: "koln" },
+  "50735": { city: "Köln", cityPart: "Nippes", district: "Riehl / Mauenheim", zone: "koln" },
+  "50737": { city: "Köln", cityPart: "Nippes", district: "Weidenpesch / Volkhoven", zone: "koln" },
+  "50739": { city: "Köln", cityPart: "Nippes", district: "Bilderstöckchen / Longerich", zone: "koln" },
+
+  // === CHORWEILER (Stadtbezirk 6) ===
+  "50765": { city: "Köln", cityPart: "Chorweiler", district: "Volkhoven-Weiler / Seeberg", zone: "koln" },
+  "50767": { city: "Köln", cityPart: "Chorweiler", district: "Chorweiler / Blumenberg", zone: "koln" },
+  "50769": { city: "Köln", cityPart: "Chorweiler", district: "Roggendorf / Worringen / Merkenich", zone: "koln" },
+
+  // === PORZ (Stadtbezirk 7 — rechtsrheinisch, 51xxx) ===
+  "51143": { city: "Köln", cityPart: "Porz", district: "Porz / Elsdorf", zone: "koln" },
+  "51145": { city: "Köln", cityPart: "Porz", district: "Urbach / Zündorf", zone: "koln" },
+  "51147": { city: "Köln", cityPart: "Porz", district: "Wahn / Wahnheide", zone: "koln" },
+  "51149": { city: "Köln", cityPart: "Porz", district: "Ensen / Gremberghoven", zone: "koln" },
+
+  // === KALK (Stadtbezirk 8 — rechtsrheinisch, 51xxx) ===
+  "51103": { city: "Köln", cityPart: "Kalk", district: "Kalk / Humboldt-Gremberg", zone: "koln" },
+  "51105": { city: "Köln", cityPart: "Kalk", district: "Poll / Vingst", zone: "koln" },
+  "51107": { city: "Köln", cityPart: "Kalk", district: "Ostheim / Neubrück", zone: "koln" },
+  "51109": { city: "Köln", cityPart: "Kalk", district: "Merheim / Rath-Heumar", zone: "koln" },
+
+  // === MÜLHEIM (Stadtbezirk 9 — rechtsrheinisch, 51xxx) ===
+  "51061": { city: "Köln", cityPart: "Mülheim", district: "Stammheim / Flittard", zone: "koln" },
+  "51063": { city: "Köln", cityPart: "Mülheim", district: "Mülheim / Buchforst", zone: "koln" },
+  "51065": { city: "Köln", cityPart: "Mülheim", district: "Buchheim / Höhenberg", zone: "koln" },
+  "51067": { city: "Köln", cityPart: "Mülheim", district: "Holweide / Dünnwald", zone: "koln" },
+  "51069": { city: "Köln", cityPart: "Mülheim", district: "Dellbrück / Dennenbrück", zone: "koln" },
+};
+
+// -----------------------------------------------------------------------
+// BONN — 15 PLZ (531xx linksrheinisch) + 3 PLZ Beuel (532xx rechtsrheinisch)
+// -----------------------------------------------------------------------
+export const BONN_PLZ_MAP: Record<string, PlzInfo> = {
+
+  // === STADTBEZIRK BONN (Zentrum, Nordstadt, Südstadt, etc.) ===
+  "53111": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Innenstadt / Altstadt", zone: "bonn" },
+  "53113": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Gronau / Kessenich", zone: "bonn" },
+  "53115": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Südstadt / Poppelsdorf", zone: "bonn" },
+  "53117": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Nordstadt / Buschdorf / Lessenich", zone: "bonn" },
+  "53119": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Auerberg / Tannenbusch / Nordstadt", zone: "bonn" },
+
+  // === STADTBEZIRK HARDTBERG (Duisdorf, Endenich, Röttgen, etc.) ===
+  "53121": { city: "Bonn", cityPart: "Hardtberg", district: "Endenich / Dransdorf", zone: "bonn" },
+  "53123": { city: "Bonn", cityPart: "Hardtberg", district: "Duisdorf / Medinghoven", zone: "bonn" },
+  "53125": { city: "Bonn", cityPart: "Hardtberg", district: "Hardthöhe / Ückesdorf", zone: "bonn" },
+  "53127": { city: "Bonn", cityPart: "Hardtberg", district: "Lengsdorf / Lessenich / Dottendorf", zone: "bonn" },
+  "53129": { city: "Bonn", cityPart: "Hardtberg", district: "Röttgen / Ippendorf", zone: "bonn" },
+
+  // === STADTBEZIRK BAD GODESBERG ===
+  "53173": { city: "Bonn", cityPart: "Bad Godesberg", district: "Alt-Godesberg / Plittersdorf / Rüngsdorf", zone: "bonn" },
+  "53175": { city: "Bonn", cityPart: "Bad Godesberg", district: "Friesdorf / Godesberg-Nord / Hochkreuz", zone: "bonn" },
+  "53177": { city: "Bonn", cityPart: "Bad Godesberg", district: "Heiderhof / Lannesdorf / Muffendorf / Schweinheim", zone: "bonn" },
+  "53179": { city: "Bonn", cityPart: "Bad Godesberg", district: "Mehlem / Pennenfeld / Rüngsdorf", zone: "bonn" },
+
+  // === STADTBEZIRK BEUEL (rechtsrheinisch, 532xx) ===
+  "53225": { city: "Bonn", cityPart: "Beuel", district: "Beuel-Mitte / Vilich / Schwarzrheindorf", zone: "bonn" },
+  "53227": { city: "Bonn", cityPart: "Beuel", district: "Beuel-Ost / Küdinghoven / Oberkassel", zone: "bonn" },
+  "53229": { city: "Bonn", cityPart: "Beuel", district: "Pützchen / Holzlar / Holtorf", zone: "bonn" },
+};
+
+// -----------------------------------------------------------------------
+// Birleşik harita (her iki şehir)
+// -----------------------------------------------------------------------
+export const KOLN_BONN_PLZ_MAP: Record<string, PlzInfo> = {
+  ...KOLN_PLZ_MAP,
+  ...BONN_PLZ_MAP,
+};
+
+// -----------------------------------------------------------------------
+// Zone Tespiti: Adres Köln/Bonn yerel teslimat bölgesinde mi?
+// -----------------------------------------------------------------------
+export function isKolnBonnArea(plz?: string | null): boolean {
+  if (!plz) return false;
+  const cleanPlz = plz.trim();
+
+  // 1. Tam eşleşme haritasına bak
+  if (KOLN_BONN_PLZ_MAP[cleanPlz]) return true;
+
+  // 2. Köln prefix kontrolü (50xxx ve 51xxx)
+  if (cleanPlz.startsWith('50') || cleanPlz.startsWith('51')) return true;
+
+  // 3. Bonn prefix kontrolü (531xx linksrheinisch + 532xx Beuel rechtsrheinisch)
+  if (cleanPlz.startsWith('531') || cleanPlz.startsWith('532')) return true;
+
+  return false;
+}
+
+/**
+ * @deprecated isKolnBonnArea kullanın
+ * Geriye dönük uyumluluk için bırakıldı
+ */
+export function isKolnArea(plz?: string | null): boolean {
+  return isKolnBonnArea(plz);
+}
+
+// -----------------------------------------------------------------------
+// PLZ'den şehir/semt bilgisi al (statik harita veya API)
+// -----------------------------------------------------------------------
+export async function fetchLocationByPlz(plz: string): Promise<{ city: string, district: string } | null> {
+  const cleanPlz = plz.trim();
+
+  // 1. Önce birleşik statik haritaya bak
+  const entry = KOLN_BONN_PLZ_MAP[cleanPlz];
+  if (entry) {
+    return { city: entry.city, district: entry.district };
+  }
+
+  // 2. Listede yoksa Zippopotam.us API ile sorgula (tüm Almanya)
+  try {
+    const response = await fetch(`https://api.zippopotam.us/de/${cleanPlz}`);
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (data.places && data.places.length > 0) {
+      const place = data.places[0];
+      return {
+        city: place['place name'],
+        district: ''
+      };
+    }
+  } catch (error) {
+    console.error("PLZ API Error:", error);
+  }
+
+  return null;
 }
 </file>
 
@@ -9281,7 +9466,7 @@ const PANEL_ROUTE_PREFIXES: Record<AdminPanelKey, string[]> = {
   samples: ['/admin/operasyon/numune-talepleri'],
   tasks: ['/admin/gorevler'],
   documents: ['/admin/belgeleri-yonet'],
-  products: ['/admin/urun-yonetimi/urunler', '/admin/urun-yonetimi/kategoriler'],
+  products: ['/admin/urun-yonetimi/urunler', '/admin/urun-yonetimi/kategoriler', '/admin/urun-yonetimi/dahili-cikis'],
   pricing: [
     '/admin/urun-yonetimi/fiyatlandirma-hub',
     '/admin/urun-yonetimi/tir-girisi',
@@ -9939,185 +10124,290 @@ export function createSupabaseBrowserClient() {
 }
 </file>
 
-<file path="src/lib/plzLookup.ts">
-// src/lib/plzLookup.ts
-// ===================================================================
-// TAM VE EKSİKSİZ KÖLN + BONN PLZ HARİTASI
-// Kaynak: Resmi Köln.de ve Deutsche Post PLZ listesi, 2024
-// ===================================================================
+<file path="src/lib/metaPixelEvents.ts">
+'use client';
 
-export interface PlzInfo {
-  city: string;
-  cityPart?: string;
-  district: string;
-  zone: 'koln' | 'bonn';
+/**
+ * Meta Pixel (Facebook Pixel) Merkezi Event Yönetimi
+ * --------------------------------------------------
+ * Tüm Pixel event'leri bu dosyadan çağrılır.
+ * DSGVO uyumu: Cookie onayı olmadan Pixel yüklenmiyor (MetaPixel.tsx tarafından kontrol edilir).
+ * Bu helper'lar yalnızca Pixel başlatıldıktan sonra çalışır — güvenli window.fbq kontrolü dahil.
+ */
+
+declare global {
+  interface Window {
+    fbq?: (...args: unknown[]) => void;
+  }
 }
 
-// -----------------------------------------------------------------------
-// KÖLN — 46 resmi PLZ (50xxx linksrheinisch + 51xxx rechtsrheinisch)
-// -----------------------------------------------------------------------
-export const KOLN_PLZ_MAP: Record<string, PlzInfo> = {
+/** Güvenli fbq çağırıcı — Pixel yüklenmemişse sessizce geçer */
+function fbq(event: string, eventName: string, params?: Record<string, unknown>) {
+  if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+    window.fbq(event, eventName, params);
+  }
+}
 
-  // === INNENSTADT (Stadtbezirk 1) ===
-  "50667": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord", zone: "koln" },
-  "50668": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Nord", zone: "koln" },
-  "50670": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord", zone: "koln" },
-  "50672": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Nord", zone: "koln" },
-  "50674": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd", zone: "koln" },
-  "50676": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd", zone: "koln" },
-  "50677": { city: "Köln", cityPart: "Innenstadt", district: "Neustadt-Süd", zone: "koln" },
-  "50678": { city: "Köln", cityPart: "Innenstadt", district: "Altstadt-Süd", zone: "koln" },
-  "50679": { city: "Köln", cityPart: "Innenstadt", district: "Deutz", zone: "koln" },
+// ─── Standart E-Ticaret Eventleri ───────────────────────────────────────────
 
-  // === RODENKIRCHEN (Stadtbezirk 2) ===
-  "50968": { city: "Köln", cityPart: "Rodenkirchen", district: "Bayenthal / Raderberg", zone: "koln" },
-  "50969": { city: "Köln", cityPart: "Rodenkirchen", district: "Zollstock / Raderthal", zone: "koln" },
-  "50996": { city: "Köln", cityPart: "Rodenkirchen", district: "Rodenkirchen / Rondorf", zone: "koln" },
-  "50997": { city: "Köln", cityPart: "Rodenkirchen", district: "Godorf / Hahnwald", zone: "koln" },
-  "50999": { city: "Köln", cityPart: "Rodenkirchen", district: "Sürth / Weiß / Immendorf / Meschenich", zone: "koln" },
-
-  // === LINDENTHAL (Stadtbezirk 3) ===
-  "50931": { city: "Köln", cityPart: "Lindenthal", district: "Lindenthal", zone: "koln" },
-  "50933": { city: "Köln", cityPart: "Lindenthal", district: "Braunsfeld / Müngersdorf", zone: "koln" },
-  "50935": { city: "Köln", cityPart: "Lindenthal", district: "Sülz / Klettenberg", zone: "koln" },
-  "50937": { city: "Köln", cityPart: "Lindenthal", district: "Klettenberg / Sülz", zone: "koln" },
-  "50939": { city: "Köln", cityPart: "Lindenthal", district: "Sülz / Deckstein / Junkersdorf", zone: "koln" },
-
-  // === EHRENFELD (Stadtbezirk 4) ===
-  "50823": { city: "Köln", cityPart: "Ehrenfeld", district: "Ehrenfeld", zone: "koln" },
-  "50825": { city: "Köln", cityPart: "Ehrenfeld", district: "Neuehrenfeld", zone: "koln" },
-  "50827": { city: "Köln", cityPart: "Ehrenfeld", district: "Bickendorf / Vogelsang", zone: "koln" },
-  "50829": { city: "Köln", cityPart: "Ehrenfeld", district: "Ossendorf / Vogelsang", zone: "koln" },
-  "50858": { city: "Köln", cityPart: "Ehrenfeld", district: "Müngersdorf / Junkersdorf", zone: "koln" },
-  "50859": { city: "Köln", cityPart: "Ehrenfeld", district: "Weiden / Lövenich", zone: "koln" },
-
-  // === NIPPES (Stadtbezirk 5) ===
-  "50733": { city: "Köln", cityPart: "Nippes", district: "Nippes / Riehl", zone: "koln" },
-  "50735": { city: "Köln", cityPart: "Nippes", district: "Riehl / Mauenheim", zone: "koln" },
-  "50737": { city: "Köln", cityPart: "Nippes", district: "Weidenpesch / Volkhoven", zone: "koln" },
-  "50739": { city: "Köln", cityPart: "Nippes", district: "Bilderstöckchen / Longerich", zone: "koln" },
-
-  // === CHORWEILER (Stadtbezirk 6) ===
-  "50765": { city: "Köln", cityPart: "Chorweiler", district: "Volkhoven-Weiler / Seeberg", zone: "koln" },
-  "50767": { city: "Köln", cityPart: "Chorweiler", district: "Chorweiler / Blumenberg", zone: "koln" },
-  "50769": { city: "Köln", cityPart: "Chorweiler", district: "Roggendorf / Worringen / Merkenich", zone: "koln" },
-
-  // === PORZ (Stadtbezirk 7 — rechtsrheinisch, 51xxx) ===
-  "51143": { city: "Köln", cityPart: "Porz", district: "Porz / Elsdorf", zone: "koln" },
-  "51145": { city: "Köln", cityPart: "Porz", district: "Urbach / Zündorf", zone: "koln" },
-  "51147": { city: "Köln", cityPart: "Porz", district: "Wahn / Wahnheide", zone: "koln" },
-  "51149": { city: "Köln", cityPart: "Porz", district: "Ensen / Gremberghoven", zone: "koln" },
-
-  // === KALK (Stadtbezirk 8 — rechtsrheinisch, 51xxx) ===
-  "51103": { city: "Köln", cityPart: "Kalk", district: "Kalk / Humboldt-Gremberg", zone: "koln" },
-  "51105": { city: "Köln", cityPart: "Kalk", district: "Poll / Vingst", zone: "koln" },
-  "51107": { city: "Köln", cityPart: "Kalk", district: "Ostheim / Neubrück", zone: "koln" },
-  "51109": { city: "Köln", cityPart: "Kalk", district: "Merheim / Rath-Heumar", zone: "koln" },
-
-  // === MÜLHEIM (Stadtbezirk 9 — rechtsrheinisch, 51xxx) ===
-  "51061": { city: "Köln", cityPart: "Mülheim", district: "Stammheim / Flittard", zone: "koln" },
-  "51063": { city: "Köln", cityPart: "Mülheim", district: "Mülheim / Buchforst", zone: "koln" },
-  "51065": { city: "Köln", cityPart: "Mülheim", district: "Buchheim / Höhenberg", zone: "koln" },
-  "51067": { city: "Köln", cityPart: "Mülheim", district: "Holweide / Dünnwald", zone: "koln" },
-  "51069": { city: "Köln", cityPart: "Mülheim", district: "Dellbrück / Dennenbrück", zone: "koln" },
-};
-
-// -----------------------------------------------------------------------
-// BONN — 15 PLZ (531xx linksrheinisch) + 3 PLZ Beuel (532xx rechtsrheinisch)
-// -----------------------------------------------------------------------
-export const BONN_PLZ_MAP: Record<string, PlzInfo> = {
-
-  // === STADTBEZIRK BONN (Zentrum, Nordstadt, Südstadt, etc.) ===
-  "53111": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Innenstadt / Altstadt", zone: "bonn" },
-  "53113": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Gronau / Kessenich", zone: "bonn" },
-  "53115": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Südstadt / Poppelsdorf", zone: "bonn" },
-  "53117": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Nordstadt / Buschdorf / Lessenich", zone: "bonn" },
-  "53119": { city: "Bonn", cityPart: "Bonn-Zentrum", district: "Auerberg / Tannenbusch / Nordstadt", zone: "bonn" },
-
-  // === STADTBEZIRK HARDTBERG (Duisdorf, Endenich, Röttgen, etc.) ===
-  "53121": { city: "Bonn", cityPart: "Hardtberg", district: "Endenich / Dransdorf", zone: "bonn" },
-  "53123": { city: "Bonn", cityPart: "Hardtberg", district: "Duisdorf / Medinghoven", zone: "bonn" },
-  "53125": { city: "Bonn", cityPart: "Hardtberg", district: "Hardthöhe / Ückesdorf", zone: "bonn" },
-  "53127": { city: "Bonn", cityPart: "Hardtberg", district: "Lengsdorf / Lessenich / Dottendorf", zone: "bonn" },
-  "53129": { city: "Bonn", cityPart: "Hardtberg", district: "Röttgen / Ippendorf", zone: "bonn" },
-
-  // === STADTBEZIRK BAD GODESBERG ===
-  "53173": { city: "Bonn", cityPart: "Bad Godesberg", district: "Alt-Godesberg / Plittersdorf / Rüngsdorf", zone: "bonn" },
-  "53175": { city: "Bonn", cityPart: "Bad Godesberg", district: "Friesdorf / Godesberg-Nord / Hochkreuz", zone: "bonn" },
-  "53177": { city: "Bonn", cityPart: "Bad Godesberg", district: "Heiderhof / Lannesdorf / Muffendorf / Schweinheim", zone: "bonn" },
-  "53179": { city: "Bonn", cityPart: "Bad Godesberg", district: "Mehlem / Pennenfeld / Rüngsdorf", zone: "bonn" },
-
-  // === STADTBEZIRK BEUEL (rechtsrheinisch, 532xx) ===
-  "53225": { city: "Bonn", cityPart: "Beuel", district: "Beuel-Mitte / Vilich / Schwarzrheindorf", zone: "bonn" },
-  "53227": { city: "Bonn", cityPart: "Beuel", district: "Beuel-Ost / Küdinghoven / Oberkassel", zone: "bonn" },
-  "53229": { city: "Bonn", cityPart: "Beuel", district: "Pützchen / Holzlar / Holtorf", zone: "bonn" },
-};
-
-// -----------------------------------------------------------------------
-// Birleşik harita (her iki şehir)
-// -----------------------------------------------------------------------
-export const KOLN_BONN_PLZ_MAP: Record<string, PlzInfo> = {
-  ...KOLN_PLZ_MAP,
-  ...BONN_PLZ_MAP,
-};
-
-// -----------------------------------------------------------------------
-// Zone Tespiti: Adres Köln/Bonn yerel teslimat bölgesinde mi?
-// -----------------------------------------------------------------------
-export function isKolnBonnArea(plz?: string | null): boolean {
-  if (!plz) return false;
-  const cleanPlz = plz.trim();
-
-  // 1. Tam eşleşme haritasına bak
-  if (KOLN_BONN_PLZ_MAP[cleanPlz]) return true;
-
-  // 2. Köln prefix kontrolü (50xxx ve 51xxx)
-  if (cleanPlz.startsWith('50') || cleanPlz.startsWith('51')) return true;
-
-  // 3. Bonn prefix kontrolü (531xx linksrheinisch + 532xx Beuel rechtsrheinisch)
-  if (cleanPlz.startsWith('531') || cleanPlz.startsWith('532')) return true;
-
-  return false;
+/**
+ * Ürün detay sayfası açıldığında çağrılır.
+ * Meta Ads bu event'i "Ürün görüntüleme" olarak sayar.
+ */
+export function trackViewContent(params: {
+  content_ids: string[];
+  content_name: string;
+  content_category?: string;
+  content_type?: string;
+  currency?: string;
+  value?: number;
+}) {
+  fbq('track', 'ViewContent', {
+    content_type: 'product',
+    currency: 'EUR',
+    ...params,
+  });
 }
 
 /**
- * @deprecated isKolnBonnArea kullanın
- * Geriye dönük uyumluluk için bırakıldı
+ * Kullanıcı arama yaptığında çağrılır.
  */
-export function isKolnArea(plz?: string | null): boolean {
-  return isKolnBonnArea(plz);
+export function trackSearch(searchString: string) {
+  fbq('track', 'Search', {
+    search_string: searchString,
+  });
 }
 
-// -----------------------------------------------------------------------
-// PLZ'den şehir/semt bilgisi al (statik harita veya API)
-// -----------------------------------------------------------------------
-export async function fetchLocationByPlz(plz: string): Promise<{ city: string, district: string } | null> {
-  const cleanPlz = plz.trim();
+/**
+ * Kayıt / Üyelik formu tamamlandığında çağrılır.
+ * B2B portal başvurusu için kullanılır.
+ */
+export function trackLead(params?: {
+  content_name?: string;
+  content_category?: string;
+  currency?: string;
+  value?: number;
+}) {
+  fbq('track', 'Lead', params);
+}
 
-  // 1. Önce birleşik statik haritaya bak
-  const entry = KOLN_BONN_PLZ_MAP[cleanPlz];
-  if (entry) {
-    return { city: entry.city, district: entry.district };
-  }
+/**
+ * WhatsApp butonu tıklandığında çağrılır.
+ * Meta Ads bunu "İletişim kurma niyeti" olarak değerlendirir.
+ */
+export function trackContact() {
+  fbq('track', 'Contact');
+}
 
-  // 2. Listede yoksa Zippopotam.us API ile sorgula (tüm Almanya)
-  try {
-    const response = await fetch(`https://api.zippopotam.us/de/${cleanPlz}`);
-    if (!response.ok) return null;
+/**
+ * Sipariş tamamlandığında çağrılır (ileride kullanım için).
+ */
+export function trackPurchase(params: {
+  value: number;
+  currency?: string;
+  content_ids?: string[];
+  num_items?: number;
+  is_test?: boolean;
+}) {
+  if (params.is_test) return;
 
-    const data = await response.json();
-    if (data.places && data.places.length > 0) {
-      const place = data.places[0];
-      return {
-        city: place['place name'],
-        district: ''
-      };
+  fbq('track', 'Purchase', {
+    currency: 'EUR',
+    ...params,
+  });
+}
+
+/**
+ * Portal kayıt tamamlama (CompleteRegistration) eventi.
+ */
+export function trackCompleteRegistration(params?: {
+  status?: string;
+  content_name?: string;
+  currency?: string;
+  value?: number;
+}) {
+  fbq('track', 'CompleteRegistration', params);
+}
+</file>
+
+<file path="src/lib/notificationUtils.ts">
+import {
+    AppUserRole,
+    InternalNotificationKey,
+    isInternalUserRole,
+    normalizeInternalNotificationPreferences,
+} from '@/lib/admin/panel-access';
+import { Enums } from '@/lib/supabase/database.types';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
+import { sendWebPushToUser } from '@/lib/web-push';
+
+type NotificationRecipient = {
+    id: string;
+    rol: AppUserRole;
+};
+
+interface SendNotificationParams {
+    aliciId?: string;
+    aliciRol?: Enums<'user_role'> | Enums<'user_role'>[];
+    aliciFirmaId?: string;
+    icerik: string;
+    link?: string;
+    preferenceKey?: InternalNotificationKey;
+    supabaseClient?: Awaited<ReturnType<typeof createSupabaseServerClient>>;
+}
+
+async function filterRecipientsByInternalPreference(
+    recipients: NotificationRecipient[],
+    preferenceKey: InternalNotificationKey
+): Promise<NotificationRecipient[]> {
+    const internalRecipients = recipients.filter((recipient) => isInternalUserRole(recipient.rol));
+
+    if (internalRecipients.length === 0) {
+        return recipients;
     }
-  } catch (error) {
-    console.error("PLZ API Error:", error);
-  }
 
-  return null;
+    try {
+        const supabaseAdmin = createSupabaseServiceClient();
+        const { data: authUsersData, error: authUsersError } = await supabaseAdmin.auth.admin.listUsers({
+            page: 1,
+            perPage: 1000,
+        });
+
+        if (authUsersError) {
+            console.warn('[sendNotification] Bildirim tercihleri okunamadı, varsayılan davranış kullanılacak:', authUsersError);
+            return recipients;
+        }
+
+        const authUserMap = new Map((authUsersData?.users || []).map((authUser) => [authUser.id, authUser]));
+
+        return recipients.filter((recipient) => {
+            if (!isInternalUserRole(recipient.rol)) {
+                return true;
+            }
+
+            const authUser = authUserMap.get(recipient.id);
+            const preferences = normalizeInternalNotificationPreferences(authUser?.user_metadata?.internal_notification_preferences);
+            const prefValue = preferences[preferenceKey];
+            return prefValue !== undefined ? prefValue : true;
+        });
+    } catch (error) {
+        console.warn('[sendNotification] Bildirim tercihleri sorgulanırken hata oluştu, bildirim gönderimi devam ediyor:', error);
+        return recipients;
+    }
+}
+
+export async function sendNotification(
+    params: SendNotificationParams
+): Promise<{ success: boolean; error?: unknown; skipped?: boolean; recipientCount?: number }> {
+    const { aliciId, aliciRol, aliciFirmaId, icerik, link, preferenceKey, supabaseClient } = params;
+    const supabase = supabaseClient || (await createSupabaseServerClient(await cookies()));
+    let recipients: NotificationRecipient[] = [];
+
+    if (!icerik?.trim()) {
+        return { success: false, error: 'Bildirim içeriği boş olamaz.' };
+    }
+
+    try {
+        if (aliciId) {
+            const { data: recipientProfile, error: recipientError } = await supabase
+                .from('profiller')
+                .select('id, rol')
+                .eq('id', aliciId)
+                .maybeSingle();
+
+            if (recipientError) {
+                console.error('[sendNotification] Tekil alıcı profili okunamadı:', recipientError);
+                throw recipientError;
+            }
+
+            recipients = recipientProfile
+                ? [{ id: recipientProfile.id, rol: recipientProfile.rol as AppUserRole }]
+                : [{ id: aliciId, rol: null }];
+        } else if (aliciRol) {
+            const roller = Array.isArray(aliciRol) ? aliciRol : [aliciRol];
+            const { data: usersInRole, error: roleError } = await supabase
+                .from('kullanici_segment_bilgileri')
+                .select('id, rol')
+                .in('rol', roller);
+
+            if (roleError) {
+                console.error('[sendNotification] Rol bazlı kullanıcı arama hatası:', roleError);
+                throw roleError;
+            }
+
+            recipients = (usersInRole || []).map((user: any) => ({
+                id: user.id || '',
+                rol: (user.rol ?? null) as AppUserRole,
+            })).filter(u => u.id !== '');
+        } else if (aliciFirmaId) {
+            const { data: usersInFirma, error: firmaError } = await supabase
+                .from('profiller')
+                .select('id, rol')
+                .eq('firma_id', aliciFirmaId)
+                .in('rol', ['Müşteri', 'Alt Bayi']);
+
+            if (firmaError) {
+                console.error('[sendNotification] Firma bazlı kullanıcı arama hatası:', firmaError);
+                throw firmaError;
+            }
+
+            recipients = (usersInFirma || []).map((user) => ({
+                id: user.id,
+                rol: (user.rol ?? null) as AppUserRole,
+            }));
+        }
+
+        const uniqueRecipients = Array.from(new Map(recipients.map((recipient) => [recipient.id, recipient])).values());
+
+        if (uniqueRecipients.length === 0) {
+            return { success: true, skipped: true, recipientCount: 0 };
+        }
+
+        const filteredRecipients = preferenceKey
+            ? await filterRecipientsByInternalPreference(uniqueRecipients, preferenceKey)
+            : uniqueRecipients;
+
+        if (filteredRecipients.length === 0) {
+            return { success: true, skipped: true, recipientCount: 0 };
+        }
+
+        const { error: insertError } = await supabase.from('bildirimler').insert(
+            filteredRecipients.map((recipient) => ({
+                alici_id: recipient.id,
+                icerik,
+                link: link || null,
+                okundu_mu: false,
+            }))
+        );
+
+        if (insertError) {
+            console.error('[sendNotification] Bildirim ekleme hatası:', insertError);
+            throw insertError;
+        }
+
+        // --- PWA Web Push Bildirimi Tetikleme (Fire-and-forget) ---
+        // Veritabanı işlemi başarılı oldu; push bildirimlerini arka planda gönderiyoruz, ana akışı bekletmiyoruz.
+        Promise.all(
+            filteredRecipients.map((recipient) =>
+                sendWebPushToUser(recipient.id, {
+                    title: 'Elyson Sweets',
+                    body: icerik,
+                    url: link || '/portal/dashboard',
+                }).catch((pushErr) => {
+                    console.warn(`[sendNotification] Web push gönderim uyarısı (${recipient.id}):`, pushErr);
+                })
+            )
+        ).catch((err) => {
+            console.warn('[sendNotification] Web push genel gönderim uyarısı:', err);
+        });
+
+        return { success: true, recipientCount: filteredRecipients.length };
+    } catch (error) {
+        console.error('[sendNotification] Fonksiyon içinde genel hata:', error);
+        return { success: false, error };
+    }
 }
 </file>
 
@@ -10219,6 +10509,195 @@ export function getI18nAlternates(path: string = ''): Metadata['alternates'] {
     canonical: `${BASE_URL}${pathSuffix}`, // Dil parametresi olmayan, ana canonical (veya mevcut dilin URL'si, Next.js bunu otomatik çözer)
     languages,
   };
+}
+</file>
+
+<file path="src/lib/shippingUtils.ts">
+// src/lib/shippingUtils.ts
+// ===================================================================
+// KARGO HESAPLAMA — TAM REVİZYON
+// Alman Vergi Hukuku UStG Nebenleistung Prensibi:
+//   - Gıda ürünleri %7 KDV → Kargo da %7 KDV
+//   - Bölge A: Köln + Bonn öz teslimat (kendi araçla)
+//   - Bölge B: Almanya geneli DHL/Spedition ağırlık bazlı
+// ===================================================================
+
+import { isKolnBonnArea } from './plzLookup';
+
+// Kargo KDV oranı sabit: Nebenleistung = ana ürün oranı = gıda %7
+export const SHIPPING_VAT_RATE = 0.07;
+
+// -----------------------------------------------------------------------
+// Kargo Tarife Ayarları (varsayılan değerler — admin panelinden override edilir)
+// -----------------------------------------------------------------------
+export interface ShippingSettings {
+  // Köln + Bonn yerel teslimat
+  kolnBonnFreeThreshold: number;   // ≥ X € net → ücretsiz (varsayılan: 150)
+  kolnBonnFlatRateNet: number;      // < eşik → bu net ücret (varsayılan: 10)
+
+  // Almanya Geneli DHL/Spedition — ağırlık dilimleri (net ücretler)
+  dilim1MaxKg: number;              // 0 – X kg arası (varsayılan: 5)
+  dilim1Net: number;                // (varsayılan: 6.99)
+  dilim2MaxKg: number;              // X – Y kg arası (varsayılan: 15)
+  dilim2Net: number;                // (varsayılan: 12.49)
+  dilim3MaxKg: number;              // Y – Z kg arası (varsayılan: 31.5)
+  dilim3Net: number;                // (varsayılan: 19.99)
+  speditionNet: number;             // > Z kg Spedition (varsayılan: 49.99)
+
+  // NOT: Ulusal kargo için ücretsiz eşik YOKTUR (her zaman ağırlık bazlı ücret alınır)
+  // B2B gıda dağıtımında standart uygulama budur — ağır ürünlerde maliyet ciddi olabilir
+}
+
+export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
+  kolnBonnFreeThreshold: 150,
+  kolnBonnFlatRateNet: 10,
+  dilim1MaxKg: 5,
+  dilim1Net: 6.99,
+  dilim2MaxKg: 15,
+  dilim2Net: 12.49,
+  dilim3MaxKg: 31.5,
+  dilim3Net: 19.99,
+  speditionNet: 49.99,
+};
+
+// -----------------------------------------------------------------------
+// Sonuç Tipi — KDV ayrıştırılmış
+// -----------------------------------------------------------------------
+export interface ShippingCalculationResult {
+  /** Teslimat bölgesi */
+  zone: 'koln_bonn_local' | 'germany_national';
+  /** Kendi aracımızla mı? (Köln/Bonn) */
+  isLocalDelivery: boolean;
+  /** Kargo ücretsiz mi? */
+  isFreeShipping: boolean;
+  /** Ücretsiz kargo eşiği (yalnızca yerel bölge için geçerli) */
+  freeShippingThreshold: number;
+  /** Kargo ücreti KDV hariç (net) */
+  shippingCostNet: number;
+  /** Kargo KDV oranı (0.07 = %7, sabit) */
+  shippingVatRate: number;
+  /** Kargo KDV tutarı */
+  shippingVatAmount: number;
+  /** Kargo ücreti KDV dahil (brüt) */
+  shippingCostGross: number;
+  /** Teslimat yöntemi adı */
+  shippingMethodName: string;
+  /** Kargo açıklaması */
+  description: string;
+  /** Kullanılan ağırlık bilgisi (kg) */
+  weightKg?: number;
+  /** Eski uyumluluk alanı — shippingCostGross ile aynı */
+  shippingCost: number;
+  /** Eski uyumluluk alanı — isLocalDelivery ile aynı */
+  isKolnArea: boolean;
+}
+
+// -----------------------------------------------------------------------
+// Yardımcı: Net ücret → KDV ayrıştırılmış sonuç oluştur
+// -----------------------------------------------------------------------
+function buildResult(
+  params: {
+    zone: ShippingCalculationResult['zone'];
+    netCost: number;
+    freeThreshold: number;
+    isFree: boolean;
+    methodName: string;
+    description: string;
+    weightKg?: number;
+  }
+): ShippingCalculationResult {
+  const costUnrounded = params.isFree ? 0 : params.netCost;
+  const cost = Number(Math.round(Number(costUnrounded + 'e2')) + 'e-2');
+  const vatAmount = Number(Math.round(Number((cost * SHIPPING_VAT_RATE) + 'e2')) + 'e-2');
+  const grossCost = Number(Math.round(Number((cost + vatAmount) + 'e2')) + 'e-2');
+  const isLocal = params.zone === 'koln_bonn_local';
+
+  return {
+    zone: params.zone,
+    isLocalDelivery: isLocal,
+    isFreeShipping: params.isFree,
+    freeShippingThreshold: params.freeThreshold,
+    shippingCostNet: cost,
+    shippingVatRate: SHIPPING_VAT_RATE,
+    shippingVatAmount: vatAmount,
+    shippingCostGross: grossCost,
+    shippingMethodName: params.methodName,
+    description: params.description,
+    weightKg: params.weightKg,
+    // Geriye dönük uyumluluk
+    shippingCost: grossCost,
+    isKolnArea: isLocal,
+  };
+}
+
+// -----------------------------------------------------------------------
+// Ana Hesaplama Fonksiyonu
+// -----------------------------------------------------------------------
+/**
+ * Kargo ücretini hesaplar.
+ *
+ * @param orderSubtotalNet  - Siparişin net ürün tutarı (KDV hariç)
+ * @param plz               - Teslimat adresi PLZ kodu
+ * @param totalWeightKg     - Toplam ağırlık (kg) — ulusal kargo için gerekli
+ * @param settings          - Kargo tarifeleri (system_settings'den gelir, yoksa varsayılan)
+ */
+export function calculateShipping(
+  orderSubtotalNet: number,
+  plz?: string | null,
+  totalWeightKg?: number,
+  settings?: Partial<ShippingSettings>
+): ShippingCalculationResult {
+  const cfg: ShippingSettings = { ...DEFAULT_SHIPPING_SETTINGS, ...settings };
+  const inKolnBonn = isKolnBonnArea(plz);
+
+  // ─── BÖLGE A: Köln + Bonn — Öz Teslimat ───────────────────────────
+  if (inKolnBonn) {
+    const isFree = orderSubtotalNet >= cfg.kolnBonnFreeThreshold;
+    const methodName = 'Köln & Bonn Direktauslieferung';
+
+    return buildResult({
+      zone: 'koln_bonn_local',
+      netCost: cfg.kolnBonnFlatRateNet,
+      freeThreshold: cfg.kolnBonnFreeThreshold,
+      isFree,
+      methodName,
+      description: isFree
+        ? `Kostenlose Lieferung (ab ${cfg.kolnBonnFreeThreshold} € Netto-Bestellwert im Köln & Bonn Liefergebiet)`
+        : `Lokale Zustellpauschale Köln & Bonn: ${cfg.kolnBonnFlatRateNet.toFixed(2)} € (zzgl. ${(SHIPPING_VAT_RATE * 100).toFixed(0)}% MwSt.)`,
+    });
+  }
+
+  // ─── BÖLGE B: Almanya Geneli — Ağırlık Bazlı ──────────────────────
+  // NOT: Ulusal kargo için ücretsiz eşik uygulanmaz (B2B gıda standardı)
+  const weightKg = totalWeightKg ?? 0;
+  let netCost: number;
+  let weightLabel: string;
+
+  if (weightKg <= cfg.dilim1MaxKg) {
+    netCost = cfg.dilim1Net;
+    weightLabel = `bis ${cfg.dilim1MaxKg} kg`;
+  } else if (weightKg <= cfg.dilim2MaxKg) {
+    netCost = cfg.dilim2Net;
+    weightLabel = `${cfg.dilim1MaxKg}–${cfg.dilim2MaxKg} kg`;
+  } else if (weightKg <= cfg.dilim3MaxKg) {
+    netCost = cfg.dilim3Net;
+    weightLabel = `${cfg.dilim2MaxKg}–${cfg.dilim3MaxKg} kg`;
+  } else {
+    netCost = cfg.speditionNet;
+    weightLabel = `über ${cfg.dilim3MaxKg} kg (Spedition)`;
+  }
+
+  const methodName = 'DHL / Spedition — Deutschlandweit';
+
+  return buildResult({
+    zone: 'germany_national',
+    netCost,
+    freeThreshold: 0, // Ulusal için ücretsiz eşik yok
+    isFree: false,    // Her zaman ücretli
+    methodName,
+    description: `Versandpauschale Deutschlandweit (${weightLabel}): ${netCost.toFixed(2)} € (zzgl. ${(SHIPPING_VAT_RATE * 100).toFixed(0)}% MwSt.)`,
+    weightKg,
+  });
 }
 </file>
 
@@ -10927,6 +11406,63 @@ BEGIN
     END LOOP;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+</file>
+
+<file path="supabase-migrations/20261004_dahili_stok_hareketleri.sql">
+-- Dahili Stok Hareketleri Tablosu
+CREATE TABLE public.dahili_stok_hareketleri (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    urun_id UUID NOT NULL REFERENCES public.urunler(id),
+    miktar INTEGER NOT NULL CHECK (miktar > 0),
+    neden_kodu VARCHAR(50) NOT NULL, -- '101_numune', '102_ofis_tuketim', '103_sahsi_kullanim', '104_fire', '105_diger'
+    firma_id UUID REFERENCES public.firmalar(id), -- Numune verildiyse hangi firmaya verildi? (Opsiyonel)
+    aciklama TEXT,
+    olusturan_kullanici_id UUID REFERENCES auth.users(id),
+    lexware_belge_id VARCHAR(255),
+    lexware_belge_no VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- RLS Politikaları
+ALTER TABLE public.dahili_stok_hareketleri ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Yöneticiler ve personeller tüm hareketleri görebilir" 
+    ON public.dahili_stok_hareketleri FOR SELECT 
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiller
+            WHERE profiller.id = auth.uid() 
+            AND profiller.rol IN ('Yönetici', 'Personel')
+        )
+    );
+
+CREATE POLICY "Sadece personeller ve yöneticiler ekleyebilir" 
+    ON public.dahili_stok_hareketleri FOR INSERT 
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM public.profiller
+            WHERE profiller.id = auth.uid() 
+            AND profiller.rol IN ('Yönetici', 'Personel')
+        )
+    );
+
+-- Stok Düşümü İçin Trigger
+CREATE OR REPLACE FUNCTION dahili_cikis_stok_dus()
+RETURNS TRIGGER AS \$\$
+BEGIN
+    -- Urunler tablosundaki stoğu düş
+    UPDATE public.urunler
+    SET stok_miktari = GREATEST(0, stok_miktari - NEW.miktar)
+    WHERE id = NEW.urun_id;
+    
+    RETURN NEW;
+END;
+\$\$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tr_dahili_cikis_stok_dus
+AFTER INSERT ON public.dahili_stok_hareketleri
+FOR EACH ROW
+EXECUTE FUNCTION dahili_cikis_stok_dus();
 </file>
 
 <file path="supabase-migrations/auto_finance_and_stock_on_siparis_teslim.sql">
@@ -12394,6 +12930,49 @@ ProductDietaryBadges|DietaryBadgeList  src/components/DietaryStickers.tsx
 info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
 </file>
 
+<file path="musteriportalbakim.md">
+# BAĞLAM (CONTEXT)
+Bu görev, aktif olarak çalışan ve ciro üreten B2B Müşteri Portalı'nın (özellikle Katalog ve Siparişler sayfalarının) performans optimizasyonunu içermektedir. Sistemde DOM şişmesi, gereksiz re-render'lar (yeniden çizimler) ve ana thread'i bloke eden ağır istemci tarafı hesaplamaları tespit edilmiştir. 
+**Hedef:** Hiçbir iş kuralını (fiyatlandırma, sepet mantığı, sipariş oluşturma) bozmadan, React optimizasyon teknikleri (Memoization, Debouncing, Lazy Rendering/Infinite Scroll) kullanarak sayfa akıcılığını (FPS) ve yanıt süresini maksimize etmektir.
+
+# BAĞIMLILIKLAR (DEPENDENCIES)
+- `use-debounce` (Zaten `package.json` içinde mevcut, arama optimizasyonu için kullanılacak).
+- `react` ( `useMemo`, `useCallback`, `memo`, `useEffect`, `useState`, `useRef` hook'ları).
+- Ekstra bir sanallaştırma (virtualization) kütüphanesi EKLENMEYECEKTİR. CSS Grid yapılarını bozmamak adına "Client-Side Lazy Rendering (Infinite Scroll)" yöntemi kullanılacaktır.
+
+# ADIM ADIM İŞ AKIŞI (IMPLEMENTATION STEPS)
+
+- [ ] **Adım 1: Katalog Sayfası Arama Optimizasyonu (Debouncing)**
+  - `src/app/[locale]/portal/katalog/KatalogClient.tsx` (veya ilgili Katalog Client bileşeni) dosyasını aç.
+  - Kullanıcının arama kutusuna girdiği metni tutan state'i (örn. `searchTerm`) `use-debounce` kütüphanesindeki `useDebounce` hook'u ile sarmala (örn. `const [debouncedSearchTerm] = useDebounce(searchTerm, 300);`).
+  - Ürün filtreleme mantığını (`filteredProducts`) `searchTerm` yerine KESİNLİKLE `debouncedSearchTerm` kullanarak çalıştır. Bu sayede her harf basımında 500 ürün baştan filtrelenmeyecek.
+
+- [ ] **Adım 2: Katalog Sayfası DOM Optimizasyonu (Client-Side Lazy Rendering)**
+  - `KatalogClient.tsx` içinde, filtrelenmiş ürünlerin tamamını tek seferde DOM'a basmak yerine bir `visibleCount` state'i oluştur (başlangıç değeri: 20).
+  - Ürünleri listelerken `.slice(0, visibleCount)` kullan.
+  - Listenin en sonuna görünmez bir `div` (ref ile) ekle ve `IntersectionObserver` kullanarak bu `div` ekrana girdikçe `visibleCount` değerini 20 artır. Bu sayede CSS Grid yapısı bozulmadan DOM şişmesi engellenecektir.
+
+- [ ] **Adım 3: Ürün Kartı Re-render Optimizasyonu (React.memo)**
+  - Katalog sayfasında listelenen her bir ürün kartı bileşenini (örn. `KatalogProductCard` veya `ProduktGridCard`) `React.memo` ile sarmala.
+  - **Kritik Nokta:** `PortalContext`'ten gelen `warenkorb` (sepet) array'ini doğrudan karta prop olarak GEÇME. Bunun yerine, sadece o ürüne ait sepetteki miktarı (`cartQuantity`) hesaplayıp karta primitive (number) bir prop olarak geç.
+  - Böylece sepete A ürünü eklendiğinde, B, C ve D ürünlerinin kartları gereksiz yere re-render olmayacaktır.
+
+- [ ] **Adım 4: Fiyat Hesaplama Motorunun Hafızaya Alınması (useMemo)**
+  - Ürün kartı bileşeni içinde `pricingUtils.ts`'den çağrılan `hesaplaBirimFiyat` veya `hesaplaSepetSatiri` fonksiyonlarını `useMemo` içine al.
+  - Bağımlılık dizisine (dependency array) sadece `urun`, `secilenBirim`, `cartQuantity` ve `userRole` ekle. Bu sayede fiyatlar sadece miktar veya birim değiştiğinde yeniden hesaplanır, her render'da işlemci yorulmaz.
+
+- [ ] **Adım 5: Siparişler Sayfası Optimizasyonu**
+  - `src/app/[locale]/portal/siparisler/SiparislerClient.tsx` (veya ilgili bileşen) dosyasını aç.
+  - Adım 1 ve Adım 2'deki mantığı (Debounced Search ve Lazy Rendering / Pagination) geçmiş siparişler listesi için de uygula.
+  - Sipariş satırlarını/kartlarını `React.memo` ile sarmala. Genişletme/Daraltma (Accordion) state'lerini global değil, satırın kendi lokal state'inde veya optimize edilmiş bir ID listesi ile yönet.
+
+# KATI KURALLAR VE ANTİ-PATTERN'LER
+- **KESİNLİKLE YAPMA:** `PortalContext.tsx` içindeki `warenkorb` state yapısını veya `addToWarenkorb` fonksiyonlarının iş mantığını DEĞİŞTİRME. Sepet ve sipariş akışı kusursuz çalışmaktadır, sadece tüketen (consumer) bileşenleri optimize etmelisin.
+- **KESİNLİKLE YAPMA:** `pricingUtils.ts` içindeki matematiksel formüllere veya KDV hesaplamalarına DOKUNMA.
+- **KESİNLİKLE YAPMA:** CSS Grid veya Flexbox yapılarını bozacak, responsive tasarımı kıracak harici kütüphaneler (örn. `react-window` grid modülü) KULLANMA. Lazy rendering (slice + IntersectionObserver) en güvenli yoldur.
+- **ZORUNLULUK:** `React.memo` kullanırken, bileşene geçilen fonksiyon proplarının (örn. `onAddToCart`) `useCallback` ile sarmalandığından emin ol. Aksi takdirde referans değişeceği için `memo` işe yaramaz.
+</file>
+
 <file path="plan-safe-testing.md">
 # BAĞLAM (CONTEXT)
 Sistem canlıya geçiş aşamasındadır. Gerçek veriler (stoklar, faturalar, giderler, analitikler) veritabanına işlenmektedir. Test siparişlerinin gerçek stokları düşmesini, Lexware'de fatura kesmesini, Stripe'tan para çekmesini, müşterilere e-posta/bildirim atmasını ve Meta Pixel verilerini bozmasını engellemek için sisteme `is_test` bayrağı (flag) entegre edilecektir.
@@ -12953,6 +13532,302 @@ export async function getDriveFolderIdForKategori(
 }
 </file>
 
+<file path="src/lib/lexware/delivery-notes.ts">
+import { lexwareFetch } from './client';
+import { getOrCreateLexwareContact } from './contacts';
+import { createSupabaseServiceClient } from '@/lib/supabase/service';
+import type { DahiliCikisPayload } from '@/app/actions/dahili-stok-actions';
+
+const INTERNAL_CONTACT_NAME = 'Elyson Sweets - Interner Beleg';
+
+/** Dahili (firmasız) çıkışlar için Lexware'de tek bir iç müşteri kartı bulur veya oluşturur. */
+async function getOrCreateInternalContact(isTest: boolean): Promise<string> {
+  try {
+    const found = await lexwareFetch<any>(
+      `/v1/contacts?name=${encodeURIComponent(INTERNAL_CONTACT_NAME)}`,
+      { isTest }
+    );
+    const existing = found?.content?.find((c: any) => c?.company?.name === INTERNAL_CONTACT_NAME);
+    if (existing?.id) return existing.id;
+  } catch {
+    // arama başarısızsa yeni oluşturmayı dene
+  }
+  const created = await lexwareFetch<any>('/v1/contacts', {
+    method: 'POST',
+    body: JSON.stringify({
+      version: 0,
+      roles: { customer: {} },
+      company: { name: INTERNAL_CONTACT_NAME },
+      addresses: { billing: [{ street: 'Interne Buchung', zip: '50667', city: 'Köln', countryCode: 'DE' }] },
+    }),
+    isTest,
+  });
+  if (!created?.id) throw new Error('Interner Lexware-Kontakt konnte nicht erstellt werden.');
+  return created.id;
+}
+
+/**
+ * Dahili çıkışlar (Numune, Fire, Özel Tüketim) için Lexware Lieferschein (İrsaliye) veya Eigenbeleg oluşturur.
+ */
+export async function createLexwareDeliveryNoteForInternalIssue(
+  hareketId: string,
+  payload: DahiliCikisPayload,
+  isTest: boolean = false
+): Promise<{ id: string; voucherNumber: string }> {
+  
+  const supabase = createSupabaseServiceClient();
+
+  // 1. Ürün bilgilerini çek
+  const { data: urun } = await supabase
+    .from('urunler')
+    .select('id, ad, stok_kodu')
+    .eq('id', payload.urunId)
+    .single();
+
+  const productName = urun?.ad 
+    ? (typeof urun.ad === 'object' ? ((urun.ad as any).de || (urun.ad as any).tr) : String(urun.ad)) 
+    : 'Produkt';
+
+  // 2. Lexware Müşterisi Belirle (Firma seçilmişse o firma, seçilmemişse Elyson Sweets "Eigenbeleg" hesabı)
+  let contactId = '';
+  let addressName = 'Elyson Sweets (Eigenbeleg/Interne Bewegung)';
+  let street = 'Interne Adresse';
+  let zip = '50667';
+  let city = 'Köln';
+
+  if (payload.firmaId) {
+    // Müşteriye numune bırakılıyorsa o firmanın contact bilgilerini al
+    const { data: firma } = await supabase.from('firmalar').select('*').eq('id', payload.firmaId).single();
+    if (firma) {
+      contactId = await getOrCreateLexwareContact(firma.id, isTest);
+      addressName = firma.unvan || addressName;
+      street = firma.adres || street;
+      zip = firma.posta_kodu || zip;
+      city = firma.sehir || city;
+    }
+  }
+
+  if (!contactId) {
+    contactId = await getOrCreateInternalContact(isTest);
+    addressName = INTERNAL_CONTACT_NAME;
+  }
+
+  // 3. Neden Koduna Göre Açıklama ve Başlık
+  let title = 'Lieferschein / Eigenbeleg';
+  let intro = `Interne Warenbewegung (ID: ${hareketId.substring(0,8)})\n\n`;
+  let remark = '';
+
+  switch (payload.nedenKodu) {
+    case '101_numune':
+        title = 'Lieferschein (Muster)'; // Max 25 chars required by Lexware
+        intro += 'Die nachfolgenden Artikel werden als Muster / Warenprobe (Unverkäuflich) überlassen.';
+        remark = 'Zweck: Werbeaufwand / Streuartikel.';
+        break;
+    case '102_ofis_tuketimi':
+        title = 'Eigenbeleg (Betrieb)';
+        intro += 'Entnahme für den betrieblichen Eigenbedarf (Kundenbewirtung / Mitarbeiter).';
+        remark = 'Kein Verkauf.';
+        break;
+    case '103_sahsi_kullanim':
+        title = 'Eigenbeleg (Privat)';
+        intro += 'Entnahme für private Zwecke (Privatentnahme). USt.-Pflichtig prüfen.';
+        break;
+    case '104_fire':
+        title = 'Eigenbeleg (Bruch)';
+        intro += 'Ausbuchung wegen Bruch, Verderb oder Qualitätsmängeln.';
+        break;
+    default:
+        title = 'Lieferschein (Intern)';
+        break;
+  }
+
+  if (payload.aciklama) {
+    intro += `\nNotiz: ${payload.aciklama}`;
+  }
+
+  const nowIso = new Date().toISOString();
+
+  // 4. Lexware Lieferschein (Delivery Note) Payload'u
+  const deliveryNotePayload = {
+    voucherDate: nowIso,
+    address: {
+      contactId,
+      name: addressName,
+      street: street,
+      zip: zip,
+      city: city,
+      countryCode: 'DE',
+    },
+    lineItems: [
+      {
+        type: 'custom',
+        name: productName,
+        description: urun?.stok_kodu ? `Art.-Nr.: ${urun.stok_kodu}` : '',
+        quantity: payload.miktar,
+        unitName: 'Stück'
+        // Lieferschein'da fiyat olmaz, adet belirtilir.
+      }
+    ],
+    title: title,
+    introduction: intro,
+    remark: remark,
+    taxConditions: { taxType: 'net' },
+    shippingConditions: { shippingDate: nowIso, shippingType: 'delivery' },
+  };
+
+  // Lexware Delivery Notes Endpoint'ine POST (finalize: belge numarası alınsın)
+  const result = await lexwareFetch<any>('/v1/delivery-notes?finalize=true', {
+    method: 'POST',
+    body: JSON.stringify(deliveryNotePayload),
+    isTest: isTest,
+  });
+
+  let voucherNumber = result.voucherNumber;
+  if (!voucherNumber) {
+    try {
+      const fetched = await lexwareFetch<any>(`/v1/delivery-notes/${result.id}`, { isTest });
+      voucherNumber = fetched.voucherNumber || `LS-${hareketId.slice(0, 6).toUpperCase()}`;
+    } catch {
+      voucherNumber = `LS-${hareketId.slice(0, 6).toUpperCase()}`;
+    }
+  }
+
+  return {
+    id: result.id,
+    voucherNumber: voucherNumber
+  };
+}
+
+/**
+ * Normal siparişler için Lexware'de Lieferschein (İrsaliye) oluşturur.
+ */
+export async function createLexwareDeliveryNoteForOrder(
+  siparisId: string,
+  options: { finalize?: boolean } = { finalize: true }
+): Promise<{ id: string; voucherNumber: string; pdfUrl: string }> {
+  const supabase = createSupabaseServiceClient();
+
+  const { data: siparis, error } = await supabase
+    .from('siparisler')
+    .select(`
+      *,
+      firmalar (*),
+      siparis_detay (
+        id, urun_id, miktar,
+        urunler ( id, ad, stok_kodu )
+      )
+    `)
+    .eq('id', siparisId)
+    .single();
+
+  if (error || !siparis) {
+    throw new Error(`Sipariş bulunamadı [ID: ${siparisId}]: ${error?.message}`);
+  }
+
+  const firma = siparis.firmalar;
+  if (!firma) {
+    throw new Error(`Siparişe bağlı firma kaydı bulunamadı [Sipariş ID: ${siparisId}]`);
+  }
+
+  const contactId = await getOrCreateLexwareContact(firma.id, siparis.is_test === true);
+
+  const lineItems = (siparis.siparis_detay || []).map((item: any) => {
+    const rawName = item.urunler?.ad;
+    const productName = typeof rawName === 'object' && rawName !== null
+      ? rawName.de || rawName.tr || Object.values(rawName)[0]
+      : String(rawName || 'Produkt');
+
+    return {
+      type: 'custom',
+      name: productName,
+      description: item.urunler?.stok_kodu ? `Art.-Nr.: ${item.urunler.stok_kodu}` : undefined,
+      quantity: Number(item.miktar) || 1,
+      unitName: 'Stück'
+    };
+  });
+
+  const nowIso = new Date().toISOString();
+  const finalizeParam = options.finalize !== false ? '?finalize=true' : '';
+
+  const deliveryNotePayload = {
+    voucherDate: nowIso,
+    address: {
+      contactId,
+      name: firma.unvan?.trim() || 'B2B Kunde',
+      street: firma.adres?.trim() || undefined,
+      zip: firma.posta_kodu?.trim() || '50667',
+      city: firma.sehir?.trim() || 'Köln',
+      countryCode: 'DE',
+    },
+    lineItems,
+    title: 'Lieferschein',
+    introduction: `Lieferschein für Ihre Bestellung #${siparis.id.slice(0, 8).toUpperCase()}`,
+    taxConditions: { taxType: 'net' },
+    shippingConditions: { shippingDate: nowIso, shippingType: 'delivery' },
+  };
+
+  const result = await lexwareFetch<any>(`/v1/delivery-notes${finalizeParam}`, {
+    method: 'POST',
+    body: JSON.stringify(deliveryNotePayload),
+    isTest: siparis.is_test === true,
+  });
+
+  if (!result || !result.id) {
+    throw new Error('Lexware Lieferschein oluşturulamadı: API yanıtı geçersiz.');
+  }
+
+  let voucherNumber = result.voucherNumber || '';
+  if (!voucherNumber && options.finalize !== false) {
+    try {
+      const fetched = await lexwareFetch<any>(`/v1/delivery-notes/${result.id}`, { isTest: siparis.is_test === true });
+      voucherNumber = fetched.voucherNumber || '';
+    } catch (e) {}
+  }
+
+  const pdfUrl = `https://api.lexwareoffice.de/v1/delivery-notes/${result.id}/document`;
+
+  await supabase
+    .from('siparisler')
+    .update({
+      lexware_delivery_note_id: result.id,
+      lexware_delivery_note_no: voucherNumber,
+      lexware_delivery_note_pdf_url: pdfUrl
+    })
+    .eq('id', siparisId);
+
+  return {
+    id: result.id,
+    voucherNumber,
+    pdfUrl
+  };
+}
+
+/**
+ * İrsaliyenin PDF dosyasını indirir.
+ */
+export async function getLexwareDeliveryNotePdfBuffer(deliveryNoteId: string, isTest: boolean = false): Promise<{ buffer: Buffer; filename: string }> {
+  const docInfo = await lexwareFetch<any>(`/v1/delivery-notes/${deliveryNoteId}/document`, { isTest });
+  const fileId = docInfo?.documentFileId;
+
+  if (!fileId) {
+    throw new Error(`Belge için PDF bulunamadı [ID: ${deliveryNoteId}]`);
+  }
+
+  const blob = await lexwareFetch<Blob>(`/v1/files/${fileId}`, {
+    isTest,
+    headers: {
+      Accept: 'application/pdf',
+    },
+  });
+
+  const arrayBuffer = await blob.arrayBuffer();
+  return {
+    buffer: Buffer.from(arrayBuffer),
+    filename: `Lieferschein-${deliveryNoteId}`,
+  };
+}
+</file>
+
 <file path="src/lib/lexware/order-confirmations.ts">
 /**
  * Lexware Office Order Confirmations API Handler
@@ -13425,482 +14300,6 @@ export function summarizeIncomingStock(items: ImportBatchItemInput[]) {
     },
     { totalLines: 0, totalQuantity: 0, totalWeightKg: 0 }
   );
-}
-</file>
-
-<file path="src/lib/metaPixelEvents.ts">
-'use client';
-
-/**
- * Meta Pixel (Facebook Pixel) Merkezi Event Yönetimi
- * --------------------------------------------------
- * Tüm Pixel event'leri bu dosyadan çağrılır.
- * DSGVO uyumu: Cookie onayı olmadan Pixel yüklenmiyor (MetaPixel.tsx tarafından kontrol edilir).
- * Bu helper'lar yalnızca Pixel başlatıldıktan sonra çalışır — güvenli window.fbq kontrolü dahil.
- */
-
-declare global {
-  interface Window {
-    fbq?: (...args: unknown[]) => void;
-  }
-}
-
-/** Güvenli fbq çağırıcı — Pixel yüklenmemişse sessizce geçer */
-function fbq(event: string, eventName: string, params?: Record<string, unknown>) {
-  if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-    window.fbq(event, eventName, params);
-  }
-}
-
-// ─── Standart E-Ticaret Eventleri ───────────────────────────────────────────
-
-/**
- * Ürün detay sayfası açıldığında çağrılır.
- * Meta Ads bu event'i "Ürün görüntüleme" olarak sayar.
- */
-export function trackViewContent(params: {
-  content_ids: string[];
-  content_name: string;
-  content_category?: string;
-  content_type?: string;
-  currency?: string;
-  value?: number;
-}) {
-  fbq('track', 'ViewContent', {
-    content_type: 'product',
-    currency: 'EUR',
-    ...params,
-  });
-}
-
-/**
- * Kullanıcı arama yaptığında çağrılır.
- */
-export function trackSearch(searchString: string) {
-  fbq('track', 'Search', {
-    search_string: searchString,
-  });
-}
-
-/**
- * Kayıt / Üyelik formu tamamlandığında çağrılır.
- * B2B portal başvurusu için kullanılır.
- */
-export function trackLead(params?: {
-  content_name?: string;
-  content_category?: string;
-  currency?: string;
-  value?: number;
-}) {
-  fbq('track', 'Lead', params);
-}
-
-/**
- * WhatsApp butonu tıklandığında çağrılır.
- * Meta Ads bunu "İletişim kurma niyeti" olarak değerlendirir.
- */
-export function trackContact() {
-  fbq('track', 'Contact');
-}
-
-/**
- * Sipariş tamamlandığında çağrılır (ileride kullanım için).
- */
-export function trackPurchase(params: {
-  value: number;
-  currency?: string;
-  content_ids?: string[];
-  num_items?: number;
-  is_test?: boolean;
-}) {
-  if (params.is_test) return;
-
-  fbq('track', 'Purchase', {
-    currency: 'EUR',
-    ...params,
-  });
-}
-
-/**
- * Portal kayıt tamamlama (CompleteRegistration) eventi.
- */
-export function trackCompleteRegistration(params?: {
-  status?: string;
-  content_name?: string;
-  currency?: string;
-  value?: number;
-}) {
-  fbq('track', 'CompleteRegistration', params);
-}
-</file>
-
-<file path="src/lib/notificationUtils.ts">
-import {
-    AppUserRole,
-    InternalNotificationKey,
-    isInternalUserRole,
-    normalizeInternalNotificationPreferences,
-} from '@/lib/admin/panel-access';
-import { Enums } from '@/lib/supabase/database.types';
-import { createSupabaseServiceClient } from '@/lib/supabase/service';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { sendWebPushToUser } from '@/lib/web-push';
-
-type NotificationRecipient = {
-    id: string;
-    rol: AppUserRole;
-};
-
-interface SendNotificationParams {
-    aliciId?: string;
-    aliciRol?: Enums<'user_role'> | Enums<'user_role'>[];
-    aliciFirmaId?: string;
-    icerik: string;
-    link?: string;
-    preferenceKey?: InternalNotificationKey;
-    supabaseClient?: Awaited<ReturnType<typeof createSupabaseServerClient>>;
-}
-
-async function filterRecipientsByInternalPreference(
-    recipients: NotificationRecipient[],
-    preferenceKey: InternalNotificationKey
-): Promise<NotificationRecipient[]> {
-    const internalRecipients = recipients.filter((recipient) => isInternalUserRole(recipient.rol));
-
-    if (internalRecipients.length === 0) {
-        return recipients;
-    }
-
-    try {
-        const supabaseAdmin = createSupabaseServiceClient();
-        const { data: authUsersData, error: authUsersError } = await supabaseAdmin.auth.admin.listUsers({
-            page: 1,
-            perPage: 1000,
-        });
-
-        if (authUsersError) {
-            console.warn('[sendNotification] Bildirim tercihleri okunamadı, varsayılan davranış kullanılacak:', authUsersError);
-            return recipients;
-        }
-
-        const authUserMap = new Map((authUsersData?.users || []).map((authUser) => [authUser.id, authUser]));
-
-        return recipients.filter((recipient) => {
-            if (!isInternalUserRole(recipient.rol)) {
-                return true;
-            }
-
-            const authUser = authUserMap.get(recipient.id);
-            const preferences = normalizeInternalNotificationPreferences(authUser?.user_metadata?.internal_notification_preferences);
-            const prefValue = preferences[preferenceKey];
-            return prefValue !== undefined ? prefValue : true;
-        });
-    } catch (error) {
-        console.warn('[sendNotification] Bildirim tercihleri sorgulanırken hata oluştu, bildirim gönderimi devam ediyor:', error);
-        return recipients;
-    }
-}
-
-export async function sendNotification(
-    params: SendNotificationParams
-): Promise<{ success: boolean; error?: unknown; skipped?: boolean; recipientCount?: number }> {
-    const { aliciId, aliciRol, aliciFirmaId, icerik, link, preferenceKey, supabaseClient } = params;
-    const supabase = supabaseClient || (await createSupabaseServerClient(await cookies()));
-    let recipients: NotificationRecipient[] = [];
-
-    if (!icerik?.trim()) {
-        return { success: false, error: 'Bildirim içeriği boş olamaz.' };
-    }
-
-    try {
-        if (aliciId) {
-            const { data: recipientProfile, error: recipientError } = await supabase
-                .from('profiller')
-                .select('id, rol')
-                .eq('id', aliciId)
-                .maybeSingle();
-
-            if (recipientError) {
-                console.error('[sendNotification] Tekil alıcı profili okunamadı:', recipientError);
-                throw recipientError;
-            }
-
-            recipients = recipientProfile
-                ? [{ id: recipientProfile.id, rol: recipientProfile.rol as AppUserRole }]
-                : [{ id: aliciId, rol: null }];
-        } else if (aliciRol) {
-            const roller = Array.isArray(aliciRol) ? aliciRol : [aliciRol];
-            const { data: usersInRole, error: roleError } = await supabase
-                .from('kullanici_segment_bilgileri')
-                .select('id, rol')
-                .in('rol', roller);
-
-            if (roleError) {
-                console.error('[sendNotification] Rol bazlı kullanıcı arama hatası:', roleError);
-                throw roleError;
-            }
-
-            recipients = (usersInRole || []).map((user: any) => ({
-                id: user.id || '',
-                rol: (user.rol ?? null) as AppUserRole,
-            })).filter(u => u.id !== '');
-        } else if (aliciFirmaId) {
-            const { data: usersInFirma, error: firmaError } = await supabase
-                .from('profiller')
-                .select('id, rol')
-                .eq('firma_id', aliciFirmaId)
-                .in('rol', ['Müşteri', 'Alt Bayi']);
-
-            if (firmaError) {
-                console.error('[sendNotification] Firma bazlı kullanıcı arama hatası:', firmaError);
-                throw firmaError;
-            }
-
-            recipients = (usersInFirma || []).map((user) => ({
-                id: user.id,
-                rol: (user.rol ?? null) as AppUserRole,
-            }));
-        }
-
-        const uniqueRecipients = Array.from(new Map(recipients.map((recipient) => [recipient.id, recipient])).values());
-
-        if (uniqueRecipients.length === 0) {
-            return { success: true, skipped: true, recipientCount: 0 };
-        }
-
-        const filteredRecipients = preferenceKey
-            ? await filterRecipientsByInternalPreference(uniqueRecipients, preferenceKey)
-            : uniqueRecipients;
-
-        if (filteredRecipients.length === 0) {
-            return { success: true, skipped: true, recipientCount: 0 };
-        }
-
-        const { error: insertError } = await supabase.from('bildirimler').insert(
-            filteredRecipients.map((recipient) => ({
-                alici_id: recipient.id,
-                icerik,
-                link: link || null,
-                okundu_mu: false,
-            }))
-        );
-
-        if (insertError) {
-            console.error('[sendNotification] Bildirim ekleme hatası:', insertError);
-            throw insertError;
-        }
-
-        // --- PWA Web Push Bildirimi Tetikleme (Fire-and-forget) ---
-        // Veritabanı işlemi başarılı oldu; push bildirimlerini arka planda gönderiyoruz, ana akışı bekletmiyoruz.
-        Promise.all(
-            filteredRecipients.map((recipient) =>
-                sendWebPushToUser(recipient.id, {
-                    title: 'Elyson Sweets',
-                    body: icerik,
-                    url: link || '/portal/dashboard',
-                }).catch((pushErr) => {
-                    console.warn(`[sendNotification] Web push gönderim uyarısı (${recipient.id}):`, pushErr);
-                })
-            )
-        ).catch((err) => {
-            console.warn('[sendNotification] Web push genel gönderim uyarısı:', err);
-        });
-
-        return { success: true, recipientCount: filteredRecipients.length };
-    } catch (error) {
-        console.error('[sendNotification] Fonksiyon içinde genel hata:', error);
-        return { success: false, error };
-    }
-}
-</file>
-
-<file path="src/lib/shippingUtils.ts">
-// src/lib/shippingUtils.ts
-// ===================================================================
-// KARGO HESAPLAMA — TAM REVİZYON
-// Alman Vergi Hukuku UStG Nebenleistung Prensibi:
-//   - Gıda ürünleri %7 KDV → Kargo da %7 KDV
-//   - Bölge A: Köln + Bonn öz teslimat (kendi araçla)
-//   - Bölge B: Almanya geneli DHL/Spedition ağırlık bazlı
-// ===================================================================
-
-import { isKolnBonnArea } from './plzLookup';
-
-// Kargo KDV oranı sabit: Nebenleistung = ana ürün oranı = gıda %7
-export const SHIPPING_VAT_RATE = 0.07;
-
-// -----------------------------------------------------------------------
-// Kargo Tarife Ayarları (varsayılan değerler — admin panelinden override edilir)
-// -----------------------------------------------------------------------
-export interface ShippingSettings {
-  // Köln + Bonn yerel teslimat
-  kolnBonnFreeThreshold: number;   // ≥ X € net → ücretsiz (varsayılan: 150)
-  kolnBonnFlatRateNet: number;      // < eşik → bu net ücret (varsayılan: 10)
-
-  // Almanya Geneli DHL/Spedition — ağırlık dilimleri (net ücretler)
-  dilim1MaxKg: number;              // 0 – X kg arası (varsayılan: 5)
-  dilim1Net: number;                // (varsayılan: 6.99)
-  dilim2MaxKg: number;              // X – Y kg arası (varsayılan: 15)
-  dilim2Net: number;                // (varsayılan: 12.49)
-  dilim3MaxKg: number;              // Y – Z kg arası (varsayılan: 31.5)
-  dilim3Net: number;                // (varsayılan: 19.99)
-  speditionNet: number;             // > Z kg Spedition (varsayılan: 49.99)
-
-  // NOT: Ulusal kargo için ücretsiz eşik YOKTUR (her zaman ağırlık bazlı ücret alınır)
-  // B2B gıda dağıtımında standart uygulama budur — ağır ürünlerde maliyet ciddi olabilir
-}
-
-export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
-  kolnBonnFreeThreshold: 150,
-  kolnBonnFlatRateNet: 10,
-  dilim1MaxKg: 5,
-  dilim1Net: 6.99,
-  dilim2MaxKg: 15,
-  dilim2Net: 12.49,
-  dilim3MaxKg: 31.5,
-  dilim3Net: 19.99,
-  speditionNet: 49.99,
-};
-
-// -----------------------------------------------------------------------
-// Sonuç Tipi — KDV ayrıştırılmış
-// -----------------------------------------------------------------------
-export interface ShippingCalculationResult {
-  /** Teslimat bölgesi */
-  zone: 'koln_bonn_local' | 'germany_national';
-  /** Kendi aracımızla mı? (Köln/Bonn) */
-  isLocalDelivery: boolean;
-  /** Kargo ücretsiz mi? */
-  isFreeShipping: boolean;
-  /** Ücretsiz kargo eşiği (yalnızca yerel bölge için geçerli) */
-  freeShippingThreshold: number;
-  /** Kargo ücreti KDV hariç (net) */
-  shippingCostNet: number;
-  /** Kargo KDV oranı (0.07 = %7, sabit) */
-  shippingVatRate: number;
-  /** Kargo KDV tutarı */
-  shippingVatAmount: number;
-  /** Kargo ücreti KDV dahil (brüt) */
-  shippingCostGross: number;
-  /** Teslimat yöntemi adı */
-  shippingMethodName: string;
-  /** Kargo açıklaması */
-  description: string;
-  /** Kullanılan ağırlık bilgisi (kg) */
-  weightKg?: number;
-  /** Eski uyumluluk alanı — shippingCostGross ile aynı */
-  shippingCost: number;
-  /** Eski uyumluluk alanı — isLocalDelivery ile aynı */
-  isKolnArea: boolean;
-}
-
-// -----------------------------------------------------------------------
-// Yardımcı: Net ücret → KDV ayrıştırılmış sonuç oluştur
-// -----------------------------------------------------------------------
-function buildResult(
-  params: {
-    zone: ShippingCalculationResult['zone'];
-    netCost: number;
-    freeThreshold: number;
-    isFree: boolean;
-    methodName: string;
-    description: string;
-    weightKg?: number;
-  }
-): ShippingCalculationResult {
-  const costUnrounded = params.isFree ? 0 : params.netCost;
-  const cost = Number(Math.round(Number(costUnrounded + 'e2')) + 'e-2');
-  const vatAmount = Number(Math.round(Number((cost * SHIPPING_VAT_RATE) + 'e2')) + 'e-2');
-  const grossCost = Number(Math.round(Number((cost + vatAmount) + 'e2')) + 'e-2');
-  const isLocal = params.zone === 'koln_bonn_local';
-
-  return {
-    zone: params.zone,
-    isLocalDelivery: isLocal,
-    isFreeShipping: params.isFree,
-    freeShippingThreshold: params.freeThreshold,
-    shippingCostNet: cost,
-    shippingVatRate: SHIPPING_VAT_RATE,
-    shippingVatAmount: vatAmount,
-    shippingCostGross: grossCost,
-    shippingMethodName: params.methodName,
-    description: params.description,
-    weightKg: params.weightKg,
-    // Geriye dönük uyumluluk
-    shippingCost: grossCost,
-    isKolnArea: isLocal,
-  };
-}
-
-// -----------------------------------------------------------------------
-// Ana Hesaplama Fonksiyonu
-// -----------------------------------------------------------------------
-/**
- * Kargo ücretini hesaplar.
- *
- * @param orderSubtotalNet  - Siparişin net ürün tutarı (KDV hariç)
- * @param plz               - Teslimat adresi PLZ kodu
- * @param totalWeightKg     - Toplam ağırlık (kg) — ulusal kargo için gerekli
- * @param settings          - Kargo tarifeleri (system_settings'den gelir, yoksa varsayılan)
- */
-export function calculateShipping(
-  orderSubtotalNet: number,
-  plz?: string | null,
-  totalWeightKg?: number,
-  settings?: Partial<ShippingSettings>
-): ShippingCalculationResult {
-  const cfg: ShippingSettings = { ...DEFAULT_SHIPPING_SETTINGS, ...settings };
-  const inKolnBonn = isKolnBonnArea(plz);
-
-  // ─── BÖLGE A: Köln + Bonn — Öz Teslimat ───────────────────────────
-  if (inKolnBonn) {
-    const isFree = orderSubtotalNet >= cfg.kolnBonnFreeThreshold;
-    const methodName = 'Köln & Bonn Direktauslieferung';
-
-    return buildResult({
-      zone: 'koln_bonn_local',
-      netCost: cfg.kolnBonnFlatRateNet,
-      freeThreshold: cfg.kolnBonnFreeThreshold,
-      isFree,
-      methodName,
-      description: isFree
-        ? `Kostenlose Lieferung (ab ${cfg.kolnBonnFreeThreshold} € Netto-Bestellwert im Köln & Bonn Liefergebiet)`
-        : `Lokale Zustellpauschale Köln & Bonn: ${cfg.kolnBonnFlatRateNet.toFixed(2)} € (zzgl. ${(SHIPPING_VAT_RATE * 100).toFixed(0)}% MwSt.)`,
-    });
-  }
-
-  // ─── BÖLGE B: Almanya Geneli — Ağırlık Bazlı ──────────────────────
-  // NOT: Ulusal kargo için ücretsiz eşik uygulanmaz (B2B gıda standardı)
-  const weightKg = totalWeightKg ?? 0;
-  let netCost: number;
-  let weightLabel: string;
-
-  if (weightKg <= cfg.dilim1MaxKg) {
-    netCost = cfg.dilim1Net;
-    weightLabel = `bis ${cfg.dilim1MaxKg} kg`;
-  } else if (weightKg <= cfg.dilim2MaxKg) {
-    netCost = cfg.dilim2Net;
-    weightLabel = `${cfg.dilim1MaxKg}–${cfg.dilim2MaxKg} kg`;
-  } else if (weightKg <= cfg.dilim3MaxKg) {
-    netCost = cfg.dilim3Net;
-    weightLabel = `${cfg.dilim2MaxKg}–${cfg.dilim3MaxKg} kg`;
-  } else {
-    netCost = cfg.speditionNet;
-    weightLabel = `über ${cfg.dilim3MaxKg} kg (Spedition)`;
-  }
-
-  const methodName = 'DHL / Spedition — Deutschlandweit';
-
-  return buildResult({
-    zone: 'germany_national',
-    netCost,
-    freeThreshold: 0, // Ulusal için ücretsiz eşik yok
-    isFree: false,    // Her zaman ücretli
-    methodName,
-    description: `Versandpauschale Deutschlandweit (${weightLabel}): ${netCost.toFixed(2)} € (zzgl. ${(SHIPPING_VAT_RATE * 100).toFixed(0)}% MwSt.)`,
-    weightKg,
-  });
 }
 </file>
 
@@ -15144,288 +15543,6 @@ export async function markOrderPaidFromStripe(orderId: string): Promise<{
 }
 </file>
 
-<file path="src/middleware.ts">
-// src/middleware.ts (Mit Logging)
-
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
-import { canAccessAdminPath, normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
-
-const locales = ['de', 'en', 'tr', 'ar'];
-const defaultLocale = 'de';
-
-// Update function for handling cookies within middleware
-async function updateSession(request: NextRequest) {
-    console.log("--- updateSession gestartet ---"); // Log Start
-    let response = NextResponse.next({
-        request: {
-            headers: request.headers,
-        },
-    });
-
-    // Wichtig: In Middleware MUSS createServerClient OHNE await cookies()
-    // verwendet werden, da die Cookies direkt vom 'request'-Objekt kommen.
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) {
-                    return request.cookies.get(name)?.value;
-                },
-                set(name: string, value: string, options: CookieOptions) {
-                    // Wichtig: Request UND Response Cookies aktualisieren
-                    request.cookies.set({ name, value, ...options });
-                    response = NextResponse.next({ // Response neu erstellen, um aktualisierte Request-Cookies zu haben
-                        request: { headers: request.headers },
-                    });
-                    response.cookies.set({ name, value, ...options });
-                },
-                remove(name: string, options: CookieOptions) {
-                    request.cookies.set({ name, value: '', ...options });
-                    response = NextResponse.next({
-                        request: { headers: request.headers },
-                    });
-                    response.cookies.set({ name, value: '', ...options });
-                },
-            },
-        }
-    );
-
-    // Session aktualisieren
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser(); // Session Refresh
-        if (error) {
-             console.error("Fehler in updateSession bei getUser:", error);
-        } else {
-             console.log("updateSession getUser erfolgreich:", user ? `User ID: ${user.id}` : "Kein User (Session Refresh)");
-        }
-    } catch (e) {
-        console.error("Kritischer Fehler in updateSession bei getUser:", e);
-    }
-
-    console.log("--- updateSession beendet ---"); // Log Ende
-    return response;
-}
-
-
-export async function middleware(req: NextRequest) {
-    console.log(`--- Middleware gestartet für Pfad: ${req.nextUrl.pathname} ---`); // Log Start
-
-    // Session aktualisieren und Response erhalten
-    const res = await updateSession(req);
-    const pathname = req.nextUrl.pathname;
-
-    // Statische Dateien, API-Routen und Auth-Routen überspringen
-    if (
-        pathname.startsWith('/api') ||
-        pathname.startsWith('/_next') ||
-        pathname.includes('.') || // Prüft auf Dateiendungen wie .css, .js, .png etc.
-        pathname.startsWith('/auth/') // Auth-Callback Routen etc.
-       ) {
-        console.log(`--- Middleware übersprungen (statisch/api/auth): ${pathname} ---`);
-        return res; // Wichtig: 'res' (die Response von updateSession) zurückgeben, nicht 'NextResponse.next()'
-    }
-
-    // Supabase Client *nur zum Lesen* des Benutzers erstellen (nach updateSession)
-    // Nutzt die aktualisierten Cookies aus 'req' (die von updateSession modifiziert wurden)
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return req.cookies.get(name)?.value; },
-                // set/remove sind hier nicht nötig
-            },
-        }
-    );
-    const { data: { user } } = await supabase.auth.getUser();
-    console.log("Middleware getUser nach updateSession:", user ? `User ID: ${user.id}` : "Kein User");
-
-    // Geschützte Routen erkennen (auch mit Locale-Präfix)
-    const pathSegments = pathname.split('/').filter(Boolean); // ['', 'de', 'admin', 'dashboard'] -> ['de','admin','dashboard']
-    const possibleLocale = pathSegments[0];
-    const hasLocalePrefix = locales.includes(possibleLocale);
-    const effectivePath = hasLocalePrefix ? `/${pathSegments.slice(1).join('/')}` : pathname; // '/admin/dashboard'
-    const isProtectedRoute = effectivePath.startsWith('/admin') || effectivePath.startsWith('/portal');
-    if (!user && isProtectedRoute) {
-        const requestedLocale = pathname.split('/')[1] || defaultLocale; // Locale aus Pfad holen oder Default
-        console.log(`-> Middleware: Nicht eingeloggter Zugriff auf ${pathname}. Redirect zu /${requestedLocale}/login`);
-        const loginUrl = new URL(`/${requestedLocale}/login`, req.url);
-        loginUrl.searchParams.set('next', pathname); // Optional: Nach Login zurückleiten
-        return NextResponse.redirect(loginUrl);
-    }
-
-    // Schutz für Login-Seite (wenn bereits eingeloggt) & Rollen-basierte Weiterleitung
-    const isLoginPage = pathname.endsWith('/login'); // Prüft auf /de/login, /en/login etc.
-    if (user && isLoginPage) {
-        const hasError = req.nextUrl.searchParams.has('error');
-        if (!hasError) {
-            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
-            const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
-            const userRole = profile?.rol;
-            const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
-                ? '/admin/dashboard'
-                : '/portal/dashboard';
-                
-            let targetLocale = defaultLocale; // Eğer kullanıcının özel bir dil seçimi yoksa varsayılan dili (de) zorla
-            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
-                targetLocale = profile.tercih_edilen_dil;
-            }
-                
-            console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
-            return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
-        } else {
-            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite mit Fehler. Kein Redirect.`);
-        }
-    }
-
-    if (user && effectivePath.startsWith('/admin')) {
-        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();
-        const userRole = profile?.rol;
-        const allowedPanels = normalizeAllowedAdminPanels(user.user_metadata?.allowed_admin_panels);
-
-        if (!canAccessAdminPath(userRole, effectivePath, allowedPanels)) {
-            const currentLocale = pathname.split('/')[1] || defaultLocale;
-            console.log(`-> Middleware: Admin panel access denied for role '${userRole}' on '${effectivePath}'.`);
-            
-            const isAdminRole = userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi';
-            const redirectPath = isAdminRole ? '/admin/dashboard' : '/portal/dashboard';
-            
-            if (effectivePath === redirectPath) {
-                return NextResponse.redirect(new URL(`/${currentLocale}/login`, req.url));
-            }
-            return NextResponse.redirect(new URL(`/${currentLocale}${redirectPath}`, req.url));
-        }
-    }
-
-    // Portal Erişim Kontrolü: Firma durumu PASİF veya REDDEDİLDİ ise oturum düşür
-    if (user && effectivePath.startsWith('/portal')) {
-        const { data: profile } = await supabase.from('profiller').select('firma_id').eq('id', user.id).maybeSingle();
-        if (profile?.firma_id) {
-            const { data: firma } = await supabase.from('firmalar').select('status').eq('id', profile.firma_id).maybeSingle();
-            const status = firma?.status?.toUpperCase();
-            
-            if (status === 'PASİF' || status === 'REDDEDİLDİ') {
-                console.log(`-> Middleware: Portal access revoked for user ${user.id} (Firma Status: ${status}). Logging out.`);
-                await supabase.auth.signOut();
-                
-                // Çerezleri temizlemek için response'u sıfırdan oluşturalım veya signOut yeterli olabilir.
-                // Supabase SSR'de signOut() cookie'leri client'ta temizler ama NextResponse ile override etmek daha güvenlidir.
-                const currentLocale = pathname.split('/')[1] || defaultLocale;
-                const redirectUrl = new URL(`/${currentLocale}/login?error=access_revoked`, req.url);
-                const logoutResponse = NextResponse.redirect(redirectUrl);
-                
-                // Remove auth cookies from redirect response
-                logoutResponse.cookies.delete('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1].split('.')[0] + '-auth-token');
-                
-                return logoutResponse;
-            }
-        }
-    }
-
-    // Hier könnte optional noch die Rollen-basierte Zugriffskontrolle eingefügt werden,
-    // um z.B. 'Müşteri' am Zugriff auf '/admin/*' zu hindern, falls nötig.
-
-    // --- i18n Logik (Locale-Präfix hinzufügen, wenn fehlt) ---
-    const pathnameHasLocale = locales.some(
-        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-    );
-
-    // Wenn Locale fehlt, hinzufügen und neu schreiben
-    if (!pathnameHasLocale) {
-        // Regel:
-        // - Geschützte Routen (/admin, /portal): Profil tercih edilen dil kullanılmaya çalışılır, yoksa defaultLocale
-        // - Public Routen: Her zaman defaultLocale (de)
-        let localeToAdd = defaultLocale;
-
-        if (isProtectedRoute && user) {
-            try {
-                const { data: profile } = await supabase
-                    .from('profiller')
-                    .select('tercih_edilen_dil')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
-                    localeToAdd = profile.tercih_edilen_dil;
-                    console.log(`-> Middleware: (Protected) Benutzer bevorzugte Sprache: ${localeToAdd}`);
-                } else {
-                    console.log(`-> Middleware: (Protected) Bevorzugte Sprache nicht gesetzt, defaultLocale verwendet: ${localeToAdd}`);
-                }
-            } catch (error) {
-                console.error("Fehler beim Abrufen der bevorzugten Sprache (Protected Pfad):", error);
-            }
-        } else {
-            // Public: immer defaultLocale
-            console.log(`-> Middleware: (Public) Locale fehlt, defaultLocale verwendet: ${defaultLocale}`);
-        }
-
-        console.log(`-> Middleware: Locale fehlt für ${pathname}. Redirect zu '${localeToAdd}' hinzu.`);
-        return NextResponse.redirect(
-            new URL(`/${localeToAdd}${pathname.startsWith('/') ? '' : '/'}${pathname}`, req.url)
-        );
-    }
-
-    // Für eingeloggte Benutzer auf geschützten Routen: Aktuelle Locale mit bevorzugter Sprache erzwingen
-    if (user && pathnameHasLocale && isProtectedRoute) {
-        try {
-            const { data: profile } = await supabase.from('profiller').select('tercih_edilen_dil').eq('id', user.id).single();
-            const currentUrlLocale = pathname.split('/')[1];
-            
-            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil) && currentUrlLocale !== profile.tercih_edilen_dil) {
-                // Nur das erste Vorkommen der Locale ersetzen, um Probleme bei z.B. /de/admin/de-stuff zu vermeiden
-                const newPath = `/${profile.tercih_edilen_dil}${pathname.substring(currentUrlLocale.length + 1)}`;
-                console.log(`-> Middleware: (Protected) Falsche Sprache (${currentUrlLocale}). Redirect zu ${newPath}`);
-                const redirectUrl = new URL(newPath, req.url);
-                redirectUrl.search = req.nextUrl.search; // Suchparameter beibehalten
-                return NextResponse.redirect(redirectUrl);
-            } else if (!profile?.tercih_edilen_dil && currentUrlLocale !== defaultLocale) {
-                // Wenn keine bevorzugte Sprache gesetzt ist, immer defaultLocale erzwingen
-                const newPath = `/${defaultLocale}${pathname.substring(currentUrlLocale.length + 1)}`;
-                console.log(`-> Middleware: (Protected) Keine bevorzugte Sprache gesetzt. Erzwinge Default (${defaultLocale}). Redirect zu ${newPath}`);
-                const redirectUrl = new URL(newPath, req.url);
-                redirectUrl.search = req.nextUrl.search;
-                return NextResponse.redirect(redirectUrl);
-            }
-        } catch (error) {
-            console.error("Fehler beim Abrufen der bevorzugten Sprache für Redirect:", error);
-        }
-    }
-
-    // x-locale header: root layout html lang attribute icin (Dem Request hinzufügen!)
-    const localeFromPath = pathname.split('/')[1];
-    if (locales.includes(localeFromPath)) {
-        res.headers.set('x-locale', localeFromPath); // Bleibt für Response (falls nützlich)
-        req.headers.set('x-locale', localeFromPath); // WICHTIG: Setze es im Request für Server Components
-    }
-
-    console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
-    
-    // Wir müssen die aktualisierten Request-Header an Next.js weitergeben
-    const finalRes = NextResponse.next({
-        request: {
-            headers: req.headers,
-        }
-    });
-
-    // Cookies aus der Supabase-Antwort (res) in die finale Antwort übernehmen
-    res.cookies.getAll().forEach(cookie => {
-        finalRes.cookies.set(cookie.name, cookie.value, cookie);
-    });
-    
-    return finalRes;
-}
-
-export const config = {
-    matcher: [
-        // Matcher schließt statische Dateien, Bilder und API-Routen aus.
-        // Auth-Routen werden im Code oben behandelt.
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    ],
-};
-</file>
-
 <file path=".gitignore">
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
@@ -15819,90 +15936,286 @@ export function hesaplaSepetSatiri(
 }
 </file>
 
-<file path="next.config.ts">
-// next.config.ts
-import withSerwistInit from '@serwist/next';
+<file path="src/middleware.ts">
+// src/middleware.ts (Mit Logging)
 
-const withSerwist = withSerwistInit({
-  // Service Worker kaynak dosyası (TypeScript)
-  swSrc: 'src/app/sw.ts',
-  // Derlenmiş SW çıktısı (public klasörüne)
-  swDest: 'public/sw.js',
-  // GELİŞTİRME ortamında SW'yi devre dışı bırak (debug kolaylığı)
-  disable: process.env.NODE_ENV === 'development',
-});
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
+import { canAccessAdminPath, normalizeAllowedAdminPanels } from '@/lib/admin/panel-access';
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  serverExternalPackages: ['@supabase/ssr', '@supabase/supabase-js'],
-  
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+const locales = ['de', 'en', 'tr', 'ar'];
+const defaultLocale = 'de';
 
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '15mb',
-    },
-    optimizePackageImports: ['lucide-react', 'react-icons', 'date-fns'],
-  },
+// Update function for handling cookies within middleware
+async function updateSession(request: NextRequest) {
+    console.log("--- updateSession gestartet ---"); // Log Start
+    let response = NextResponse.next({
+        request: {
+            headers: request.headers,
+        },
+    });
 
-  images: {
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 31536000, // 1 yıl cache (Tarayıcı önbellekleme)
-    remotePatterns: [
-      // Supabase Storage Hostnames
-      {
-        protocol: 'https',
-        hostname: 'szuhjzgyhhlrydyllrcd.supabase.co',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.supabase.co',
-      },
-      {
-        protocol: 'https',
-        hostname: 'atydffkpyvxcmzxyibhj.supabase.co',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.pexels.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'drive.google.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'elysonsweets.de',
-      },
+    // Wichtig: In Middleware MUSS createServerClient OHNE await cookies()
+    // verwendet werden, da die Cookies direkt vom 'request'-Objekt kommen.
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    return request.cookies.get(name)?.value;
+                },
+                set(name: string, value: string, options: CookieOptions) {
+                    // Wichtig: Request UND Response Cookies aktualisieren
+                    request.cookies.set({ name, value, ...options });
+                    response = NextResponse.next({ // Response neu erstellen, um aktualisierte Request-Cookies zu haben
+                        request: { headers: request.headers },
+                    });
+                    response.cookies.set({ name, value, ...options });
+                },
+                remove(name: string, options: CookieOptions) {
+                    request.cookies.set({ name, value: '', ...options });
+                    response = NextResponse.next({
+                        request: { headers: request.headers },
+                    });
+                    response.cookies.set({ name, value: '', ...options });
+                },
+            },
+        }
+    );
+
+    // Session aktualisieren
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(); // Session Refresh
+        if (error) {
+             console.error("Fehler in updateSession bei getUser:", error);
+        } else {
+             console.log("updateSession getUser erfolgreich:", user ? `User ID: ${user.id}` : "Kein User (Session Refresh)");
+        }
+    } catch (e) {
+        console.error("Kritischer Fehler in updateSession bei getUser:", e);
+    }
+
+    console.log("--- updateSession beendet ---"); // Log Ende
+    return response;
+}
+
+
+export async function middleware(req: NextRequest) {
+    console.log(`--- Middleware gestartet für Pfad: ${req.nextUrl.pathname} ---`); // Log Start
+
+    // Session aktualisieren und Response erhalten
+    const res = await updateSession(req);
+    const pathname = req.nextUrl.pathname;
+
+    // Statische Dateien, API-Routen und Auth-Routen überspringen
+    if (
+        pathname.startsWith('/api') ||
+        pathname.startsWith('/_next') ||
+        pathname.includes('.') || // Prüft auf Dateiendungen wie .css, .js, .png etc.
+        pathname.startsWith('/auth/') // Auth-Callback Routen etc.
+       ) {
+        console.log(`--- Middleware übersprungen (statisch/api/auth): ${pathname} ---`);
+        return res; // Wichtig: 'res' (die Response von updateSession) zurückgeben, nicht 'NextResponse.next()'
+    }
+
+    // Supabase Client *nur zum Lesen* des Benutzers erstellen (nach updateSession)
+    // Nutzt die aktualisierten Cookies aus 'req' (die von updateSession modifiziert wurden)
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) { return req.cookies.get(name)?.value; },
+                // set/remove sind hier nicht nötig
+            },
+        }
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log("Middleware getUser nach updateSession:", user ? `User ID: ${user.id}` : "Kein User");
+
+    // Geschützte Routen erkennen (auch mit Locale-Präfix)
+    const pathSegments = pathname.split('/').filter(Boolean); // ['', 'de', 'admin', 'dashboard'] -> ['de','admin','dashboard']
+    const possibleLocale = pathSegments[0];
+    const hasLocalePrefix = locales.includes(possibleLocale);
+    const effectivePath = hasLocalePrefix ? `/${pathSegments.slice(1).join('/')}` : pathname; // '/admin/dashboard'
+    const isProtectedRoute = effectivePath.startsWith('/admin') || effectivePath.startsWith('/portal');
+    if (!user && isProtectedRoute) {
+        const requestedLocale = pathname.split('/')[1] || defaultLocale; // Locale aus Pfad holen oder Default
+        console.log(`-> Middleware: Nicht eingeloggter Zugriff auf ${pathname}. Redirect zu /${requestedLocale}/login`);
+        const loginUrl = new URL(`/${requestedLocale}/login`, req.url);
+        loginUrl.searchParams.set('next', pathname); // Optional: Nach Login zurückleiten
+        return NextResponse.redirect(loginUrl);
+    }
+
+    // Schutz für Login-Seite (wenn bereits eingeloggt) & Rollen-basierte Weiterleitung
+    const isLoginPage = pathname.endsWith('/login'); // Prüft auf /de/login, /en/login etc.
+    if (user && isLoginPage) {
+        const hasError = req.nextUrl.searchParams.has('error');
+        if (!hasError) {
+            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite (${pathname}). Prüfe Rolle...`);
+            const { data: profile } = await supabase.from('profiller').select('rol, tercih_edilen_dil').eq('id', user.id).single();
+            const userRole = profile?.rol;
+            const redirectTo = (userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi')
+                ? '/admin/dashboard'
+                : '/portal/dashboard';
+                
+            let targetLocale = defaultLocale; // Eğer kullanıcının özel bir dil seçimi yoksa varsayılan dili (de) zorla
+            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+                targetLocale = profile.tercih_edilen_dil;
+            }
+                
+            console.log(`-> Middleware: Rolle ist '${userRole}'. Redirect zu /${targetLocale}${redirectTo}`);
+            return NextResponse.redirect(new URL(`/${targetLocale}${redirectTo}`, req.url));
+        } else {
+            console.log(`-> Middleware: Eingeloggter Zugriff auf Login-Seite mit Fehler. Kein Redirect.`);
+        }
+    }
+
+    if (user && effectivePath.startsWith('/admin')) {
+        const { data: profile } = await supabase.from('profiller').select('rol').eq('id', user.id).maybeSingle();
+        const userRole = profile?.rol;
+        const allowedPanels = normalizeAllowedAdminPanels(user.user_metadata?.allowed_admin_panels);
+
+        if (!canAccessAdminPath(userRole, effectivePath, allowedPanels)) {
+            const currentLocale = pathname.split('/')[1] || defaultLocale;
+            console.log(`-> Middleware: Admin panel access denied for role '${userRole}' on '${effectivePath}'.`);
+            
+            const isAdminRole = userRole === 'Yönetici' || userRole === 'Personel' || userRole === 'Ekip Üyesi';
+            const redirectPath = isAdminRole ? '/admin/dashboard' : '/portal/dashboard';
+            
+            if (effectivePath === redirectPath) {
+                return NextResponse.redirect(new URL(`/${currentLocale}/login`, req.url));
+            }
+            return NextResponse.redirect(new URL(`/${currentLocale}${redirectPath}`, req.url));
+        }
+    }
+
+    // Portal Erişim Kontrolü: Firma durumu PASİF veya REDDEDİLDİ ise oturum düşür
+    if (user && effectivePath.startsWith('/portal')) {
+        const { data: profile } = await supabase.from('profiller').select('firma_id').eq('id', user.id).maybeSingle();
+        if (profile?.firma_id) {
+            const { data: firma } = await supabase.from('firmalar').select('status').eq('id', profile.firma_id).maybeSingle();
+            const status = firma?.status?.toUpperCase();
+            
+            if (status === 'PASİF' || status === 'REDDEDİLDİ') {
+                console.log(`-> Middleware: Portal access revoked for user ${user.id} (Firma Status: ${status}). Logging out.`);
+                await supabase.auth.signOut();
+                
+                // Çerezleri temizlemek için response'u sıfırdan oluşturalım veya signOut yeterli olabilir.
+                // Supabase SSR'de signOut() cookie'leri client'ta temizler ama NextResponse ile override etmek daha güvenlidir.
+                const currentLocale = pathname.split('/')[1] || defaultLocale;
+                const redirectUrl = new URL(`/${currentLocale}/login?error=access_revoked`, req.url);
+                const logoutResponse = NextResponse.redirect(redirectUrl);
+                
+                // Remove auth cookies from redirect response
+                logoutResponse.cookies.delete('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1].split('.')[0] + '-auth-token');
+                
+                return logoutResponse;
+            }
+        }
+    }
+
+    // Hier könnte optional noch die Rollen-basierte Zugriffskontrolle eingefügt werden,
+    // um z.B. 'Müşteri' am Zugriff auf '/admin/*' zu hindern, falls nötig.
+
+    // --- i18n Logik (Locale-Präfix hinzufügen, wenn fehlt) ---
+    const pathnameHasLocale = locales.some(
+        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+    );
+
+    // Wenn Locale fehlt, hinzufügen und neu schreiben
+    if (!pathnameHasLocale) {
+        // Regel:
+        // - Geschützte Routen (/admin, /portal): Profil tercih edilen dil kullanılmaya çalışılır, yoksa defaultLocale
+        // - Public Routen: Her zaman defaultLocale (de)
+        let localeToAdd = defaultLocale;
+
+        if (isProtectedRoute && user) {
+            try {
+                const { data: profile } = await supabase
+                    .from('profiller')
+                    .select('tercih_edilen_dil')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil)) {
+                    localeToAdd = profile.tercih_edilen_dil;
+                    console.log(`-> Middleware: (Protected) Benutzer bevorzugte Sprache: ${localeToAdd}`);
+                } else {
+                    console.log(`-> Middleware: (Protected) Bevorzugte Sprache nicht gesetzt, defaultLocale verwendet: ${localeToAdd}`);
+                }
+            } catch (error) {
+                console.error("Fehler beim Abrufen der bevorzugten Sprache (Protected Pfad):", error);
+            }
+        } else {
+            // Public: immer defaultLocale
+            console.log(`-> Middleware: (Public) Locale fehlt, defaultLocale verwendet: ${defaultLocale}`);
+        }
+
+        console.log(`-> Middleware: Locale fehlt für ${pathname}. Redirect zu '${localeToAdd}' hinzu.`);
+        return NextResponse.redirect(
+            new URL(`/${localeToAdd}${pathname.startsWith('/') ? '' : '/'}${pathname}`, req.url)
+        );
+    }
+
+    // Für eingeloggte Benutzer auf geschützten Routen: Aktuelle Locale mit bevorzugter Sprache erzwingen
+    if (user && pathnameHasLocale && isProtectedRoute) {
+        try {
+            const { data: profile } = await supabase.from('profiller').select('tercih_edilen_dil').eq('id', user.id).single();
+            const currentUrlLocale = pathname.split('/')[1];
+            
+            if (profile?.tercih_edilen_dil && locales.includes(profile.tercih_edilen_dil) && currentUrlLocale !== profile.tercih_edilen_dil) {
+                // Nur das erste Vorkommen der Locale ersetzen, um Probleme bei z.B. /de/admin/de-stuff zu vermeiden
+                const newPath = `/${profile.tercih_edilen_dil}${pathname.substring(currentUrlLocale.length + 1)}`;
+                console.log(`-> Middleware: (Protected) Falsche Sprache (${currentUrlLocale}). Redirect zu ${newPath}`);
+                const redirectUrl = new URL(newPath, req.url);
+                redirectUrl.search = req.nextUrl.search; // Suchparameter beibehalten
+                return NextResponse.redirect(redirectUrl);
+            } else if (!profile?.tercih_edilen_dil && currentUrlLocale !== defaultLocale) {
+                // Wenn keine bevorzugte Sprache gesetzt ist, immer defaultLocale erzwingen
+                const newPath = `/${defaultLocale}${pathname.substring(currentUrlLocale.length + 1)}`;
+                console.log(`-> Middleware: (Protected) Keine bevorzugte Sprache gesetzt. Erzwinge Default (${defaultLocale}). Redirect zu ${newPath}`);
+                const redirectUrl = new URL(newPath, req.url);
+                redirectUrl.search = req.nextUrl.search;
+                return NextResponse.redirect(redirectUrl);
+            }
+        } catch (error) {
+            console.error("Fehler beim Abrufen der bevorzugten Sprache für Redirect:", error);
+        }
+    }
+
+    // x-locale header: root layout html lang attribute icin (Dem Request hinzufügen!)
+    const localeFromPath = pathname.split('/')[1];
+    if (locales.includes(localeFromPath)) {
+        res.headers.set('x-locale', localeFromPath); // Bleibt für Response (falls nützlich)
+        req.headers.set('x-locale', localeFromPath); // WICHTIG: Setze es im Request für Server Components
+    }
+
+    console.log(`--- Middleware beendet für Pfad: ${pathname} ---`);
+    
+    // Wir müssen die aktualisierten Request-Header an Next.js weitergeben
+    const finalRes = NextResponse.next({
+        request: {
+            headers: req.headers,
+        }
+    });
+
+    // Cookies aus der Supabase-Antwort (res) in die finale Antwort übernehmen
+    res.cookies.getAll().forEach(cookie => {
+        finalRes.cookies.set(cookie.name, cookie.value, cookie);
+    });
+    
+    return finalRes;
+}
+
+export const config = {
+    matcher: [
+        // Matcher schließt statische Dateien, Bilder und API-Routen aus.
+        // Auth-Routen werden im Code oben behandelt.
+        '/((?!api|_next/static|_next/image|favicon.ico|katalog).*)',
     ],
-  },
 };
-
-module.exports = withSerwist(nextConfig);
 </file>
 
 <file path="vercel.json">
@@ -16292,6 +16605,94 @@ export async function lexwareFetch<T = any>(
   // Binary (örn: PDF dosyası)
   return (await response.blob()) as unknown as T;
 }
+</file>
+
+<file path="next.config.ts">
+// next.config.ts
+import withSerwistInit from '@serwist/next';
+
+const withSerwist = withSerwistInit({
+  // Service Worker kaynak dosyası (TypeScript)
+  swSrc: 'src/app/sw.ts',
+  // Derlenmiş SW çıktısı (public klasörüne)
+  swDest: 'public/sw.js',
+  // GELİŞTİRME ortamında SW'yi devre dışı bırak (debug kolaylığı)
+  disable: process.env.NODE_ENV === 'development',
+});
+
+import { NextConfig } from 'next';
+
+/** @type {import('next').NextConfig} */
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  serverExternalPackages: ['@supabase/ssr', '@supabase/supabase-js'],
+  
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '15mb',
+    },
+    optimizePackageImports: ['lucide-react', 'react-icons', 'date-fns'],
+  },
+
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000, // 1 yıl cache (Tarayıcı önbellekleme)
+    remotePatterns: [
+      // Supabase Storage Hostnames
+      {
+        protocol: 'https',
+        hostname: 'szuhjzgyhhlrydyllrcd.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'atydffkpyvxcmzxyibhj.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'elysonsweets.de',
+      },
+    ],
+  },
+};
+
+module.exports = withSerwist(nextConfig);
 </file>
 
 <file path="src/lib/lexware/invoices.ts">
@@ -17697,6 +18098,7 @@ export interface OrderConfirmationEmailParams {
   locale?: string;
   portalOrderUrl: string;
   paymentMethod?: string | null;
+  stripePaymentUrl?: string | null;
   pdfBuffer?: Buffer | null;
   pdfFilename?: string | null;
 }
@@ -17715,6 +18117,7 @@ export async function sendOrderConfirmationEmail({
   locale = 'de',
   portalOrderUrl,
   paymentMethod,
+  stripePaymentUrl,
   pdfBuffer,
   pdfFilename,
 }: OrderConfirmationEmailParams): Promise<void> {
@@ -17826,6 +18229,18 @@ export async function sendOrderConfirmationEmail({
       <!-- Payment Info -->
       <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 16px 20px; margin-bottom: 28px;">
         <p style="margin: 0 0 8px; font-size: 14px; color: #1e3a8a; font-weight: 700;">Zahlungsinformationen</p>
+        
+        ${stripePaymentUrl ? `
+        <!-- STRIPE BUTTON -->
+        <div style="background-color: #ffffff; border: 1px solid #93c5fd; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 16px;">
+          <p style="margin: 0 0 12px; font-size: 14px; color: #1e40af; font-weight: 600;">Zahlen Sie bequem und sicher online:</p>
+          <a href="${stripePaymentUrl}" style="display: inline-block; background-color: #6366f1; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);">
+            💳 Jetzt mit Karte / SEPA bezahlen
+          </a>
+        </div>
+        <div style="text-align: center; margin: 16px 0; font-size: 13px; color: #64748b; font-weight: 600;">— ODER PER ÜBERWEISUNG —</div>
+        ` : ''}
+        
         <p style="margin: 0 0 12px; font-size: 13px; color: #1e40af; line-height: 1.6;">
           Bitte überweisen Sie den Rechnungsbetrag auf das folgende Bankkonto, damit wir Ihre Bestellung bearbeiten können. Bitte geben Sie als Verwendungszweck unbedingt die <strong>Bestellnummer</strong> an.
         </p>
@@ -19319,6 +19734,60 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      dahili_stok_hareketleri: {
+        Row: {
+          aciklama: string | null
+          created_at: string | null
+          firma_id: string | null
+          id: string
+          lexware_belge_id: string | null
+          lexware_belge_no: string | null
+          miktar: number
+          neden_kodu: string
+          olusturan_kullanici_id: string | null
+          urun_id: string
+        }
+        Insert: {
+          aciklama?: string | null
+          created_at?: string | null
+          firma_id?: string | null
+          id?: string
+          lexware_belge_id?: string | null
+          lexware_belge_no?: string | null
+          miktar: number
+          neden_kodu: string
+          olusturan_kullanici_id?: string | null
+          urun_id: string
+        }
+        Update: {
+          aciklama?: string | null
+          created_at?: string | null
+          firma_id?: string | null
+          id?: string
+          lexware_belge_id?: string | null
+          lexware_belge_no?: string | null
+          miktar?: number
+          neden_kodu?: string
+          olusturan_kullanici_id?: string | null
+          urun_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dahili_stok_hareketleri_firma_id_fkey"
+            columns: ["firma_id"]
+            isOneToOne: false
+            referencedRelation: "firmalar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dahili_stok_hareketleri_urun_id_fkey"
+            columns: ["urun_id"]
+            isOneToOne: false
+            referencedRelation: "urunler"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       degerlendirme_oylari: {
         Row: {
@@ -21461,6 +21930,9 @@ export type Database = {
           kargo_tutari_net: number
           kargo_yontemi: string
           kdv_orani: number
+          lexware_delivery_note_id: string | null
+          lexware_delivery_note_no: string | null
+          lexware_delivery_note_pdf_url: string | null
           lexware_invoice_id: string | null
           lexware_invoice_no: string | null
           lexware_pdf_url: string | null
@@ -21499,6 +21971,9 @@ export type Database = {
           kargo_tutari_net?: number
           kargo_yontemi?: string
           kdv_orani: number
+          lexware_delivery_note_id?: string | null
+          lexware_delivery_note_no?: string | null
+          lexware_delivery_note_pdf_url?: string | null
           lexware_invoice_id?: string | null
           lexware_invoice_no?: string | null
           lexware_pdf_url?: string | null
@@ -21539,6 +22014,9 @@ export type Database = {
           kargo_tutari_net?: number
           kargo_yontemi?: string
           kdv_orani?: number
+          lexware_delivery_note_id?: string | null
+          lexware_delivery_note_no?: string | null
+          lexware_delivery_note_pdf_url?: string | null
           lexware_invoice_id?: string | null
           lexware_invoice_no?: string | null
           lexware_pdf_url?: string | null
@@ -22859,10 +23337,6 @@ export const Constants = {
     },
   },
 } as const
-
-
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
-export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T];
 </file>
 
 <file path="package.json">
@@ -22895,6 +23369,7 @@ export type Enums<T extends keyof Database['public']['Enums']> = Database['publi
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.9.1",
     "@react-pdf/renderer": "^4.9.0",
+    "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.6.1",
     "@serwist/next": "^9.5.12",
     "@stripe/stripe-js": "^9.14.0",
@@ -22903,15 +23378,20 @@ export type Enums<T extends keyof Database['public']['Enums']> = Database['publi
     "@uiw/react-md-editor": "^4.1.1",
     "@vercel/analytics": "^1.6.1",
     "ai": "^7.0.107",
+    "chart.js": "^4.5.1",
     "csv-parse": "^5.6.0",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.43.0",
     "googleapis": "^181.0.0",
     "gsap": "^3.15.0",
     "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.48.0",
     "next": "^15.5.4",
+    "nextjs-toploader": "^3.9.17",
+    "qrcode.react": "^4.2.0",
     "react": "19.1.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.89.0",
     "react-icons": "^5.5.0",

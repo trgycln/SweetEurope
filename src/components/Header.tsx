@@ -109,14 +109,15 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
     };
 
     const headerClasses = isAdminHeader 
-        ? 'sticky top-0 z-40 flex h-20 w-full items-center justify-between border-b px-4 sm:px-6 bg-white border-bg-subtle text-text-main shadow-sm'
-        : `fixed top-0 w-full z-50 transition-all duration-300 flex h-20 items-center justify-between px-4 sm:px-6 ${isScrolled ? 'bg-primary/95 backdrop-blur-md shadow-lg border-b border-white/10' : 'bg-primary border-b border-white/10'} text-white`;
+        ? 'sticky top-0 z-40 w-full bg-white border-b border-bg-subtle text-text-main shadow-sm'
+        : `fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-primary/95 backdrop-blur-md shadow-lg border-b border-white/10' : 'bg-primary border-b border-white/10'} text-white`;
 
     return (
         <>
             <header className={headerClasses}>
-                <div className="flex items-center gap-4">
-                    {isAdminHeader && setIsSidebarOpen && (
+                <div className="max-w-7xl mx-auto w-full h-20 flex items-center justify-between px-4 sm:px-6 relative">
+                    <div className="flex items-center gap-4">
+                        {isAdminHeader && setIsSidebarOpen && (
                         <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden text-text-main/80 hover:text-accent focus:outline-none" aria-label="Admin-Menü öffnen">
                             <FiMenu size={24} />
                         </button>
@@ -238,6 +239,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                             <FiMenu size={24} />
                         </button>
                     )}
+                </div>
                 </div>
             </header>
 

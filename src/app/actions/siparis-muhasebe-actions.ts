@@ -22,7 +22,7 @@ import {
   createLexwareProformaForOrder,
   getLexwareProformaPdfBuffer,
 } from '@/lib/lexware/order-confirmations';
-import { sendInvoiceEmail, sendStornoEmail } from '@/lib/email';
+import { sendInvoiceEmail, sendStornoEmail, sendOrderCancellationEmail } from '@/lib/email';
 
 // -------------------------------------------------------------------
 // Auth yardımcısı: Yönetici/Personel rolü kontrolü
@@ -379,18 +379,59 @@ export async function cancelOrderAndStornoAction(
           }
         }
       }
+    } else {
+      // Fatura yok, sadece iptal e-postası gönder
+      const firma = (siparis as any).firmalar;
+      if (firma?.email) {
+        try {
+          await sendOrderCancellationEmail({
+            to: firma.email,
+            orderNo: siparisId.slice(0, 8).toUpperCase(),
+            reason,
+          });
+        } catch (emailErr: any) {
+          console.error('[muhasebe] İptal e-posta hatası:', emailErr);
+          warningMsg = `Sipariş iptal edildi ancak e-posta gönderilemedi. Hata: ${emailErr?.message}`;
+        }
+      }
     }
 
     // 3. STOK BÜTÜNLÜĞÜ: Stokları geri yükle (test siparişlerinde stok düşülmediği için atılır)
     if ((siparis as any).is_test !== true) {
-    try {
-      await supabaseAdmin.rpc('restore_order_stock' as any, { p_siparis_id: siparisId });
-    } catch (stockErr: any) {
-      console.error('[muhasebe] Stok geri yükleme hatası:', stockErr);
-      // Stok hatası da uyarı olarak ilet ama akışı durdurma
-      warningMsg = (warningMsg ? warningMsg + ' | ' : '') +
-        `Stok geri yüklenemedi: ${stockErr?.message}. Lütfen stokları manuel kontrol edin.`;
-    }
+      try {
+        const { data: rpcRes, error: rpcErr } = await supabaseAdmin.rpc('restore_order_stock' as any, {
+          p_siparis_id: siparisId
+        });
+
+        if (rpcErr || !rpcRes?.success) {
+          // Fallback: siparis_detay kayıtlarını çek ve stoklara ekle
+          const { data: detaylar } = await supabaseAdmin
+              .from('siparis_detay')
+              .select('urun_id, miktar')
+              .eq('siparis_id', siparisId);
+
+          if (detaylar && detaylar.length > 0) {
+              for (const item of detaylar) {
+                  if (item.urun_id && Number(item.miktar) > 0) {
+                      const { data: currentProd } = await supabaseAdmin
+                          .from('urunler')
+                          .select('stok_miktari')
+                          .eq('id', item.urun_id)
+                          .single();
+                      const currentStock = Number(currentProd?.stok_miktari) || 0;
+                      await supabaseAdmin
+                          .from('urunler')
+                          .update({ stok_miktari: currentStock + Number(item.miktar) } as any)
+                          .eq('id', item.urun_id);
+                  }
+              }
+          }
+        }
+      } catch (stockErr: any) {
+        console.error('[muhasebe] Stok geri yükleme hatası:', stockErr);
+        warningMsg = (warningMsg ? warningMsg + ' | ' : '') +
+          `Stok geri yüklenemedi: ${stockErr?.message}. Lütfen stokları manuel kontrol edin.`;
+      }
     }
 
     // 4. Sipariş durumunu 'İptal Edildi' yap
