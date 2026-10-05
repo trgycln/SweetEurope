@@ -124,7 +124,7 @@ export function Header({ dictionary, isAdminHeader = false, setIsSidebarOpen, us
                     
                     <Link href={`/${currentLocale}${isAdminHeader ? '/admin/dashboard' : ''}`} className="flex items-center gap-2" aria-label="Startseite">
                         {!isAdminHeader && (
-                            <div className="hidden sm:flex rounded-full shadow-lg border-4 border-white bg-white mx-auto overflow-hidden items-center justify-center" style={{width: '48px', height: '48px', maxWidth: '60px', marginRight: '0.5rem'}}>
+                            <div className="hidden sm:flex rounded-full shadow-lg border-4 border-white bg-white mx-auto overflow-hidden items-center justify-center" style={{width: '3rem', height: '3rem', maxWidth: '3.75rem', marginRight: '0.5rem'}}>
                                 <Image src="/Logo.jpg" alt="ElysonSweets Logo" width={48} height={48} priority style={{objectFit: 'cover', objectPosition: 'center', transform: 'scale(1.18)', width: '100%', height: '100%'}} />
                             </div>
                         )}

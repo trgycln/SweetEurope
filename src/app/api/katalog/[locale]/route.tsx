@@ -18,6 +18,13 @@ export async function GET(
     // 2. PDF'i stream olarak oluştur
     const stream = await renderToStream(<KatalogPdfDocument data={data} locale={locale as 'de' | 'en'} />);
     
+    // Read the Node.js stream into a Buffer to avoid Vercel edge/node stream compatibility issues
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) {
+      chunks.push(Buffer.from(chunk));
+    }
+    const pdfBuffer = Buffer.concat(chunks);
+    
     // 3. Header'ları ayarla (Tarayıcıda açılsın)
     const headers = new Headers();
     headers.set('Content-Type', 'application/pdf');
@@ -25,8 +32,7 @@ export async function GET(
     // Cache'lenmesini engelleyelim ki her zaman en güncel halini versin.
     headers.set('Cache-Control', 'no-store, max-age=0');
     
-    // @ts-ignore - Next.js NextResponse stream kabul ediyor ama tipi bazen uyuşmuyor
-    return new NextResponse(stream, { status: 200, headers });
+    return new NextResponse(pdfBuffer, { status: 200, headers });
   } catch (error) {
     console.error('Katalog API Error:', error);
     return new NextResponse('Katalog olusturulurken hata meydana geldi.', { status: 500 });

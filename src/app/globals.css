@@ -8,6 +8,25 @@ body {
   @apply bg-secondary text-text-main font-sans overflow-x-hidden;
 }
 
+/* ========================================
+   GLOBAL SCALE FOR ULTRA-WIDE SCREENS
+   Büyük ekranlarda sitenin dağılmasını ve metin/ikonların
+   küçük kalmasını engellemek için kök font boyutunu büyütüyoruz.
+   Tailwind'in rem tabanlı yapısı sayesinde her şey orantılı büyür.
+   ======================================== */
+@media (min-width: 1536px) {
+  html { font-size: 18px; }
+}
+@media (min-width: 1920px) {
+  html { font-size: 22px; }
+}
+@media (min-width: 2560px) {
+  html { font-size: 28px; }
+}
+@media (min-width: 3840px) {
+  html { font-size: 36px; }
+}
+
 h1, h2, h3, h4, h5, h6 {
   @apply font-serif text-primary;
 }

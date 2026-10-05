@@ -56,7 +56,7 @@ export const KatalogDownloadButton = () => {
 
   // URL oluştur - Müşteri matbaaya göndereceği için HER ZAMAN canlı site adresini kullanmalıyız.
   // Localhost'ta test ederken indirilen QR kodun bozuk (localhost) olmaması için window.location KULLANMIYORUZ.
-  const baseUrl = 'https://elysonsweets.de'; 
+  const baseUrl = 'https://www.elysonsweets.de'; 
   const qrUrl = qrModal.locale ? `${baseUrl}/api/katalog/${qrModal.locale}` : '';
 
   return (

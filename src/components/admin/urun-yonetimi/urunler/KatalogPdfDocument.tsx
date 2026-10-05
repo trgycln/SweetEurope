@@ -119,9 +119,9 @@ export const KatalogPdfDocument = ({ data, locale }: { data: any[], locale: 'de'
                   {prod.image ? (
                     <Image 
                       src={
-                        (prod.image.startsWith('/') && typeof window !== 'undefined' ? window.location.origin + prod.image : prod.image)
-                        + (prod.image.includes('?') ? '&' : '?') 
-                        + `t=${Date.now()}`
+                        prod.image.startsWith('/') 
+                          ? `https://elysonsweets.de${prod.image}` 
+                          : prod.image
                       } 
                       style={styles.image} 
                     />
