@@ -59,3 +59,4 @@ scratch_migrations.sql
 
 # supabase temp files
 supabase/.temp/
+playwright-report/
