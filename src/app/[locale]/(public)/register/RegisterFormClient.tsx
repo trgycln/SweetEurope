@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { trackLead } from '@/lib/metaPixelEvents';
 
-export default function RegisterFormClient({ dictionary, locale }: { dictionary: any; locale: string }) {
+export default function RegisterFormClient({ dictionary, locale, onSuccess, submitButtonText, disclaimerText, loadingText, successToastText }: { dictionary: any; locale: string; onSuccess?: () => void; submitButtonText?: string; disclaimerText?: React.ReactNode; loadingText?: string; successToastText?: string }) {
   const content = dictionary.registerPage || {};
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -29,19 +29,26 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
 
         // Success toast
         toast.success(
-          content.toastSuccess || 'Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.',
+          successToastText || content.toastSuccess || 'Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.',
           {
             duration: 8000, // 8 saniye göster (mobilde daha uzun)
           }
         );
         
+        // Set cookie to unlock prices across the site
+        document.cookie = "prices_unlocked=true; path=/; max-age=31536000"; // 1 year expiry
+        
         // Reset form
         form.reset();
         
-        // Optional: redirect after delay
+        // Optional: redirect or callback after delay
         setTimeout(() => {
-          router.push(`/${locale}/`);
-        }, 4000); // 4 saniye sonra yönlendir (toast'ı görmek için yeterli süre)
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            router.push(`/${locale}/`);
+          }
+        }, 3000); // 3 saniye sonra yönlendir (toast'ı görmek için yeterli süre)
       } else {
         // Error toast
         toast.error(
@@ -188,6 +195,11 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
         </p>
 
         {/* Submit */}
+        {disclaimerText && (
+            <div className="bg-sky-50 border border-sky-200 text-sky-800 text-xs p-3 rounded-xl mt-4 mb-2 shadow-sm font-medium">
+                {disclaimerText}
+            </div>
+        )}
         <div className="pt-2 flex justify-end">
             <button
                 type="submit"
@@ -200,7 +212,7 @@ export default function RegisterFormClient({ dictionary, locale }: { dictionary:
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                 )}
-                {isPending ? 'Wird gesendet...' : 'Jetzt Partneranfrage senden →'}
+                {isPending ? (loadingText || 'Wird gesendet...') : (submitButtonText || 'Jetzt Partneranfrage senden →')}
             </button>
         </div>
     </form>

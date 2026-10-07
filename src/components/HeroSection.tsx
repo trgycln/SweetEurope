@@ -4,9 +4,14 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Modal from '@/components/Modal';
+import RegisterFormClient from '@/app/[locale]/(public)/register/RegisterFormClient';
+import { useRouter } from 'next/navigation';
 
 const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary, locale }) => {
   const [videoHasError, setVideoHasError] = useState(false);
+  const [isPriceModalOpen, setPriceModalOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center text-center overflow-hidden bg-primary -mt-20">
@@ -144,6 +149,24 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
             </svg>
             <span className="font-semibold text-white/90">{dictionary.hero.badgeShipping || 'Schneller Versand DE / EU'}</span>
           </div>
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-accent/40 rounded-lg px-3.5 py-1.5 text-xs sm:text-sm">
+            <svg className="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-semibold text-white/90">{dictionary.hero.badgeCertificates || 'BRC, ISO & Halal Certified'}</span>
+          </div>
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-accent/40 rounded-lg px-3.5 py-1.5 text-xs sm:text-sm">
+            <svg className="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
+            <span className="font-semibold text-white/90">{dictionary.hero.badgePremium || 'Premium Quality'}</span>
+          </div>
+          <div className="inline-flex items-center gap-2 bg-accent/20 backdrop-blur-sm border border-accent rounded-lg px-3.5 py-1.5 text-xs sm:text-sm shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+            <svg className="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-bold text-accent">{dictionary.hero.badgeFreeDelivery || 'Free & Same-Day Delivery in Cologne/Bonn'}</span>
+          </div>
         </motion.div>
 
         {/* CTA Buttons */}
@@ -156,20 +179,67 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
           >
             {dictionary.hero.btnProducts || 'Sortiment entdecken'}
           </Link>
-          <Link
-            href={`/${locale}/contact?subject=tasting`}
-            className="w-full sm:w-auto text-center bg-white/15 backdrop-blur-sm text-white font-semibold py-3.5 px-7 rounded-xl border-2 border-white/40 transition-all duration-300 hover:bg-white/25 hover:scale-105 shadow-xl text-base"
+          <button
+            onClick={() => setPriceModalOpen(true)}
+            className="w-full sm:w-auto text-center bg-white/15 backdrop-blur-sm text-white font-semibold py-3.5 px-7 rounded-xl border-2 border-white/40 transition-all duration-300 hover:bg-white/25 hover:scale-105 shadow-xl text-base flex items-center justify-center gap-2"
           >
-            {dictionary.hero.btnTrial || 'Verkostung vor Ort (Köln & Bonn)'}
-          </Link>
+            <span>🔓</span>
+            {dictionary.hero.btnUnlockPrices || 'View Wholesale Prices'}
+          </button>
           <Link
-            href={`/${locale}/contact?subject=pricelist`}
+            href={`/katalog/${locale}`}
+            target="_blank"
             className="w-full sm:w-auto text-center bg-transparent text-white/80 font-medium py-3.5 px-6 rounded-xl border border-white/20 transition-all duration-300 hover:border-accent/80 hover:text-white hover:bg-white/5 text-sm"
           >
             {dictionary.hero.btnPricelist || 'B2B-Preisliste (PDF)'}
           </Link>
         </motion.div>
       </div>
+
+      <Modal 
+        isOpen={isPriceModalOpen} 
+        onClose={() => setPriceModalOpen(false)} 
+        title={dictionary.hero.btnUnlockPrices || 'View Wholesale Prices'}
+      >
+        <div className="mb-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100">
+            {locale === 'tr' && 'Fiyatlarımızı görebilmek için lütfen aşağıdaki işletme bilgilerinizi doldurun. Formu gönderdikten sonra sitemizdeki tüm toptan fiyatlara anında erişebileceksiniz.'}
+            {locale === 'de' && 'Bitte füllen Sie die folgenden Unternehmensdaten aus, um unsere Preise zu sehen. Nach dem Absenden haben Sie sofortigen Zugriff auf alle Großhandelspreise auf unserer Website.'}
+            {locale === 'en' && 'Please fill out your business details below to view our prices. Once submitted, you will have instant access to all wholesale prices on our site.'}
+            {locale === 'ar' && 'يرجى ملء تفاصيل عملك أدناه لعرض أسعارنا. بمجرد الإرسال، سيكون لديك وصول فوري إلى جميع أسعار الجملة على موقعنا.'}
+        </div>
+        <RegisterFormClient 
+          dictionary={dictionary} 
+          locale={locale} 
+          onSuccess={() => {
+            setPriceModalOpen(false);
+            router.push(`/${locale}/products`);
+          }} 
+          submitButtonText={
+              locale === 'tr' ? 'Fiyatları Görüntüle →' :
+              locale === 'de' ? 'Preise jetzt ansehen →' :
+              locale === 'en' ? 'View Prices Now →' :
+              'عرض الأسعار الآن →'
+          }
+          loadingText={
+              locale === 'tr' ? 'Fiyatlar Açılıyor...' :
+              locale === 'de' ? 'Wird freigeschaltet...' :
+              locale === 'en' ? 'Unlocking...' :
+              'جاري الفتح...'
+          }
+          disclaimerText={
+              locale === 'tr' ? 'Formu gönderdiğinizde sitemizdeki tüm toptan fiyatlar sizin için anında görünür olacaktır. Bilgileriniz sadece B2B doğrulama amacıyla alınmaktadır.' :
+              locale === 'de' ? 'Nach dem Absenden werden alle Großhandelspreise für Sie sofort sichtbar. Ihre Daten dienen lediglich der B2B-Verifizierung.' :
+              locale === 'en' ? 'Once submitted, all wholesale prices will be instantly visible to you. Your details are solely used for B2B verification.' :
+              'بمجرد الإرسال، ستصبح جميع أسعار الجملة مرئية لك على الفور. تستخدم بياناتك فقط للتحقق من أنك شركة (B2B).'
+          }
+          successToastText={
+              locale === 'tr' ? 'Harika! Artık sitemizdeki tüm toptan fiyatları ürün kartlarında görebilirsiniz.' :
+              locale === 'de' ? 'Wunderbar! Sie können nun alle Großhandelspreise direkt bei den Produkten einsehen.' :
+              locale === 'en' ? 'Great! You can now view all wholesale prices directly on the product cards.' :
+              'رائع! يمكنك الآن عرض جميع أسعار الجملة مباشرة على بطاقات المنتجات.'
+          }
+        />
+      </Modal>
     </div>
   );
 };

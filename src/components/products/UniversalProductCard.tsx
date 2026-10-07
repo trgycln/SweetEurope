@@ -88,6 +88,15 @@ function UniversalProductCardImpl({
     actionTooltip,
     dictionary,
 }: UniversalProductCardProps) {
+    const [isUnlocked, setIsUnlocked] = React.useState(false);
+    React.useEffect(() => {
+        if (typeof document !== 'undefined') {
+            setIsUnlocked(document.cookie.includes('prices_unlocked=true'));
+        }
+    }, []);
+
+    const showPrices = isLoggedIn || isUnlocked;
+
     const tekniks = (urun.teknik_ozellikler || {}) as Record<string, unknown>;
     const name = typeof urun.ad === 'object'
         ? (urun.ad?.[locale] || urun.ad?.['de'] || urun.ad?.['tr'] || Object.values(urun.ad)[0] || '')
@@ -291,7 +300,7 @@ function UniversalProductCardImpl({
                 {/* Bottom Row: Tiered Pricing Bar & Add To Cart Button */}
                 <div className="mt-3 pt-3 border-t border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                     {/* Pricing Badges / Tiers */}
-                    {isLoggedIn && (
+                    {showPrices && (
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                             {pricingRows.map((row, i) =>
                                 row.price ? (
@@ -508,7 +517,7 @@ function UniversalProductCardImpl({
                 </div>
 
                 {/* Pricing Tiers (Logged in / Wholesale tiers) */}
-                {isLoggedIn && hasAnyPrice && (
+                {showPrices && hasAnyPrice && (
                     <div className="mt-2 space-y-1">
                         {pricingRows.map((row, i) => {
                             if (!row.price || row.price <= 0) return null;
@@ -536,7 +545,7 @@ function UniversalProductCardImpl({
 
                 {/* Card Footer: Always pinned with mt-auto */}
                 <div className="mt-auto pt-3 border-t border-stone-100 flex items-end justify-between gap-1 sm:gap-2">
-                    {!isLoggedIn ? (
+                    {!showPrices ? (
                         /* Guest state: Price on Request + Details CTA */
                         <>
                             <div className="flex flex-col min-w-0">

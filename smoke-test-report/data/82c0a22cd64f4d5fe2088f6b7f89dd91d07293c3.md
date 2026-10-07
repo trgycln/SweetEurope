@@ -1,0 +1,853 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: search-filter.spec.ts >> Search and Filter Flow >> should allow searching for a product and show results
+- Location: e2e\search-filter.spec.ts:4:7
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByPlaceholder(/Suchen...|Search...|Arama.../i).first()
+Expected: visible
+Timeout: 15000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 15000ms
+  - waiting for getByPlaceholder(/Suchen...|Search...|Arama.../i).first()
+
+```
+
+```yaml
+- region "Notifications alt+T"
+- banner:
+  - link "Logo ElysonSweets":
+    - /url: /de
+    - img "Logo"
+    - text: ElysonSweets
+  - navigation:
+    - link "Startseite":
+      - /url: /de
+    - link "Produkte":
+      - /url: /de/products
+    - link "Über uns":
+      - /url: /de/about
+    - link "Kontakt":
+      - /url: /de/contact
+  - button "Suche":
+    - img
+  - button "Deutsch":
+    - img
+    - text: Deutsch
+    - img
+  - link "Partnerportal":
+    - /url: /de/login
+    - button "Partnerportal":
+      - img
+      - text: Partnerportal
+- main:
+  - paragraph: B2B Großhandels-Katalog
+  - heading "Sortiment für Profi-Küchen & Gastronomie" [level=1]
+  - paragraph: Tiefkühl-Desserts, Sirupe, Kaffee und Backzutaten – direkt für Cafés, Hotels und Patisserien.
+  - text: 119 Artikel im Sortiment
+  - link "Preisanfrage":
+    - /url: /de/contact?subject=Preisanfrage%20%2F%20B2B%20Katalog
+    - img
+    - text: Preisanfrage
+  - complementary:
+    - paragraph: Kategorien
+    - link "Alle Kategorien 119":
+      - /url: /de/products
+    - link "HoReCa (Beverages & Sauces) 104":
+      - /url: /de/products?kategori=sauces-and-ingredients
+    - link "Saucen 35":
+      - /url: /de/products?kategori=sauces-and-ingredients&altKategori=cafe-bar-sauces
+    - link "Cocktailsirupe 52":
+      - /url: /de/products?kategori=sauces-and-ingredients&altKategori=syrups
+    - link "Getränkepulver 8":
+      - /url: /de/products?kategori=sauces-and-ingredients&altKategori=powdered-beverages
+    - link "Anatolische Legenden - Fertigmischungen 5":
+      - /url: /de/products?kategori=sauces-and-ingredients&altKategori=anatolian-legends-ready-mixes
+    - link "Gefrorene Pürees 1":
+      - /url: /de/products?kategori=sauces-and-ingredients&altKategori=frozen-purees
+    - link "Eisdiele & Gelateria 13":
+      - /url: /de/products?kategori=ice-cream-gelato
+    - link "Ikonische Produkte 2":
+      - /url: /de/products?kategori=iconic-products
+    - paragraph: Produktserie
+    - link "☕ Barista & Bar":
+      - /url: /de/products?gam=barista
+    - link "🍦 Eis & Gelato":
+      - /url: /de/products?gam=dondurma
+    - link "🥐 Konditorei & Bäckerei":
+      - /url: /de/products?gam=pastaci
+    - link "🥤 Getränke":
+      - /url: /de/products?gam=icecek
+  - paragraph: Für Preise und Bestellungen bitte im Partnerportal anmelden.
+  - link "Jetzt anmelden →":
+    - /url: /de/login
+  - button:
+    - img
+  - img
+  - textbox "Produkt, Art.-Nr. oder EAN suchen…"
+  - button "Gitteransicht":
+    - img
+  - button "Listenansicht":
+    - img
+  - text: "Merkmale:"
+  - combobox:
+    - option "Alle" [selected]
+    - option "🌱 Vegan"
+    - option "🌾 Glutenfrei"
+    - option "🥛 Laktosefrei"
+    - option "🍬 Ohne Zucker"
+    - option "♻️ Bio"
+    - option "✓ Halal"
+  - img
+  - text: "Aroma:"
+  - combobox:
+    - option "Alle" [selected]
+    - option "🍫 Schokolade (7)"
+    - option "🌿 Vanille (7)"
+    - option "🍓 Erdbeere (4)"
+    - option "🍇 Brombeere (3)"
+    - option "🥭 Mango (3)"
+    - option "🍌 Banane (3)"
+    - option "🍑 Pfirsich (2)"
+    - option "🫐 Himbeere (2)"
+    - option "🍍 Ananas (2)"
+    - option "🍮 Karamell (2)"
+    - option "🫐 Blaubeere (2)"
+    - option "🍏 Apfel (1)"
+    - option "🥥 Kokos (1)"
+    - option "🍋 Zitrone (1)"
+  - img
+  - link "Premium-Sirupe 3":
+    - /url: "#cat-group-0"
+  - link "Getränkepulver 2":
+    - /url: "#cat-group-1"
+  - link "Saucen 4":
+    - /url: "#cat-group-2"
+  - link "HoReCa (Beverages & Sauces) 2":
+    - /url: "#cat-group-3"
+  - link "Aromatisierte Cocktailsirupe 3":
+    - /url: "#cat-group-4"
+  - link "Fruchtsaucen (Frozen) 5":
+    - /url: "#cat-group-5"
+  - link "Cocktailsirupe 5":
+    - /url: "#cat-group-6"
+  - text: ⭐ ElysonSweets empfiehlt – persönlich ausgewählt
+  - button "Scroll left":
+    - img
+  - link "Gemischtes Fruchtgetränk-DIONYSOS 800 ml":
+    - /url: /de/products/fo-dionysos-karsk-meyveli-icecek-baz-800-ml
+    - img "Gemischtes Fruchtgetränk-DIONYSOS 800 ml"
+  - text: Anatolische Legenden - Fertigmischungen Auf Anfrage
+  - img
+  - text: "8691123475619"
+  - link "Gemischtes Fruchtgetränk-DIONYSOS 800 ml":
+    - /url: /de/products/fo-dionysos-karsk-meyveli-icecek-baz-800-ml
+    - heading "Gemischtes Fruchtgetränk-DIONYSOS 800 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-dionysos-karsk-meyveli-icecek-baz-800-ml
+    - text: Details
+    - img
+  - link "Pistazien-Spezialsauce 940 g (5%)":
+    - /url: /de/products/antep-fistikli-special-sos-5-940-gr
+    - img "Pistazien-Spezialsauce 940 g (5%)"
+  - text: Saucen Auf Anfrage
+  - img
+  - text: "8691123467454"
+  - link "Pistazien-Spezialsauce 940 g (5%)":
+    - /url: /de/products/antep-fistikli-special-sos-5-940-gr
+    - heading "Pistazien-Spezialsauce 940 g (5%)" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/antep-fistikli-special-sos-5-940-gr
+    - text: Details
+    - img
+  - link "Gemischtes Fruchtgetränk-HERAKLES 800 ml":
+    - /url: /de/products/fo-herakles-karsk-meyveli-icecek-baz-800-ml
+    - img "Gemischtes Fruchtgetränk-HERAKLES 800 ml"
+  - text: Anatolische Legenden - Fertigmischungen Auf Anfrage
+  - img
+  - text: "8691123475640"
+  - link "Gemischtes Fruchtgetränk-HERAKLES 800 ml":
+    - /url: /de/products/fo-herakles-karsk-meyveli-icecek-baz-800-ml
+    - heading "Gemischtes Fruchtgetränk-HERAKLES 800 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-herakles-karsk-meyveli-icecek-baz-800-ml
+    - text: Details
+    - img
+  - link "Razzy-Electric Basis mit Blumen- und Blaubeergeschmack, 700 ml":
+    - /url: /de/products/fo-blue-yaban-mersini-mavi-ahududu-aromal-surup-700-ml
+    - img "Razzy-Electric Basis mit Blumen- und Blaubeergeschmack, 700 ml"
+  - text: Ikonische Produkte Auf Anfrage
+  - img
+  - text: "8691123475152"
+  - link "Razzy-Electric Basis mit Blumen- und Blaubeergeschmack, 700 ml":
+    - /url: /de/products/fo-blue-yaban-mersini-mavi-ahududu-aromal-surup-700-ml
+    - heading "Razzy-Electric Basis mit Blumen- und Blaubeergeschmack, 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-blue-yaban-mersini-mavi-ahududu-aromal-surup-700-ml
+    - text: Details
+    - img
+  - link "Fruchtmischgetränk-ZEUS 800 ml":
+    - /url: /de/products/fo-zeus-karsk-meyveli-icecek-baz-800-ml
+    - img "Fruchtmischgetränk-ZEUS 800 ml"
+  - text: Anatolische Legenden - Fertigmischungen Auf Anfrage
+  - img
+  - text: "8691123475626"
+  - link "Fruchtmischgetränk-ZEUS 800 ml":
+    - /url: /de/products/fo-zeus-karsk-meyveli-icecek-baz-800-ml
+    - heading "Fruchtmischgetränk-ZEUS 800 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-zeus-karsk-meyveli-icecek-baz-800-ml
+    - text: Details
+    - img
+  - link "FO Mango-Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-mango-premium-surup-700-ml-fo1137
+    - img "FO Mango-Fruchtsirup Premium – 700 ml"
+  - text: Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123470973"
+  - link "FO Mango-Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-mango-premium-surup-700-ml-fo1137
+    - heading "FO Mango-Fruchtsirup Premium – 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-mango-premium-surup-700-ml-fo1137
+    - text: Details
+    - img
+  - link "Gemischtes Fruchtgetränk-HELIOS 800 ml":
+    - /url: /de/products/fo-helios-karsk-meyveli-icecek-baz-800-ml
+    - img "Gemischtes Fruchtgetränk-HELIOS 800 ml"
+  - text: Anatolische Legenden - Fertigmischungen Auf Anfrage
+  - img
+  - text: "8691123475633"
+  - link "Gemischtes Fruchtgetränk-HELIOS 800 ml":
+    - /url: /de/products/fo-helios-karsk-meyveli-icecek-baz-800-ml
+    - heading "Gemischtes Fruchtgetränk-HELIOS 800 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-helios-karsk-meyveli-icecek-baz-800-ml
+    - text: Details
+    - img
+  - link "KOI Vegan Cocktail Foamer 100 ml":
+    - /url: /de/products/fo-koi-kokteyl-kopurtucu-100-ml
+    - img "KOI Vegan Cocktail Foamer 100 ml"
+  - text: Ikonische Produkte Auf Anfrage
+  - img
+  - text: "8691123470218"
+  - link "KOI Vegan Cocktail Foamer 100 ml":
+    - /url: /de/products/fo-koi-kokteyl-kopurtucu-100-ml
+    - heading "KOI Vegan Cocktail Foamer 100 ml" [level=3]
+  - img
+  - text: 12 Stk./Ktn. 100 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - img "Zuckerfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-koi-kokteyl-kopurtucu-100-ml
+    - text: Details
+    - img
+  - link "Gemischtes Fruchtgetränk-APOLLO 800 ml":
+    - /url: /de/products/fo-apollo-karsk-meyveli-icecek-baz-800-ml
+    - img "Gemischtes Fruchtgetränk-APOLLO 800 ml"
+  - text: Anatolische Legenden - Fertigmischungen Auf Anfrage
+  - img
+  - text: "8691123475596"
+  - link "Gemischtes Fruchtgetränk-APOLLO 800 ml":
+    - /url: /de/products/fo-apollo-karsk-meyveli-icecek-baz-800-ml
+    - heading "Gemischtes Fruchtgetränk-APOLLO 800 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-apollo-karsk-meyveli-icecek-baz-800-ml
+    - text: Details
+    - img
+  - button "Scroll right":
+    - img
+  - paragraph: 24 Artikel
+  - heading "Premium-Sirupe 3" [level=3]
+  - link "Basissirup mit Mango- und Drachenfruchtgeschmack, 700 ml":
+    - /url: /de/products/mango-ve-ejder-meyvesi-aromali-baz-surup-700-ml
+    - img "Basissirup mit Mango- und Drachenfruchtgeschmack, 700 ml"
+  - text: Premium-Sirupe Auf Anfrage
+  - img
+  - text: "8691123465450"
+  - link "Basissirup mit Mango- und Drachenfruchtgeschmack, 700 ml":
+    - /url: /de/products/mango-ve-ejder-meyvesi-aromali-baz-surup-700-ml
+    - heading "Basissirup mit Mango- und Drachenfruchtgeschmack, 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/mango-ve-ejder-meyvesi-aromali-baz-surup-700-ml
+    - text: Details
+    - img
+  - link "FO Erdbeer-Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-cilek-premium-surup-700ml-fo1131
+    - img "FO Erdbeer-Fruchtsirup Premium – 700 ml"
+  - text: Premium-Sirupe Auf Anfrage
+  - img
+  - text: "8691123470942"
+  - link "FO Erdbeer-Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-cilek-premium-surup-700ml-fo1131
+    - heading "FO Erdbeer-Fruchtsirup Premium – 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-cilek-premium-surup-700ml-fo1131
+    - text: Details
+    - img
+  - link "FO Granatapfel Sirup - Premium 700 ml":
+    - /url: /de/products/fo-srp-prem-nar
+    - img "FO Granatapfel Sirup - Premium 700 ml"
+  - text: Premium-Sirupe Auf Anfrage
+  - img
+  - text: "8691123471024"
+  - link "FO Granatapfel Sirup - Premium 700 ml":
+    - /url: /de/products/fo-srp-prem-nar
+    - heading "FO Granatapfel Sirup - Premium 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-srp-prem-nar
+    - text: Details
+    - img
+  - heading "Getränkepulver 2" [level=3]
+  - link "Bitter-Schokoladen-Getränkepulver – 1 kg":
+    - /url: /de/products/bitter-cikolatali-icecek-tozu-1-kg
+    - img "Bitter-Schokoladen-Getränkepulver – 1 kg"
+  - text: Getränkepulver Auf Anfrage
+  - img
+  - text: "8691123449498"
+  - link "Bitter-Schokoladen-Getränkepulver – 1 kg":
+    - /url: /de/products/bitter-cikolatali-icecek-tozu-1-kg
+    - heading "Bitter-Schokoladen-Getränkepulver – 1 kg" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 540 Ktn./Pal.
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/bitter-cikolatali-icecek-tozu-1-kg
+    - text: Details
+    - img
+  - link "Chai Tea Latte Getränkepulver 1 kg":
+    - /url: /de/products/chai-tea-latte-icecek-tozu-1-kg
+    - img "Chai Tea Latte Getränkepulver 1 kg"
+  - text: Getränkepulver Auf Anfrage
+  - img
+  - text: "8691123461117"
+  - link "Chai Tea Latte Getränkepulver 1 kg":
+    - /url: /de/products/chai-tea-latte-icecek-tozu-1-kg
+    - heading "Chai Tea Latte Getränkepulver 1 kg" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 540 Ktn./Pal.
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/chai-tea-latte-icecek-tozu-1-kg
+    - text: Details
+    - img
+  - heading "Saucen 4" [level=3]
+  - link "Dekorationssauce mit Erdbeergeschmack 750 gr":
+    - /url: /de/products/cilek-aromali-dekor-sos-750-gr
+    - img "Dekorationssauce mit Erdbeergeschmack 750 gr"
+  - text: Saucen Auf Anfrage
+  - img
+  - text: "8691123343000"
+  - link "Dekorationssauce mit Erdbeergeschmack 750 gr":
+    - /url: /de/products/cilek-aromali-dekor-sos-750-gr
+    - heading "Dekorationssauce mit Erdbeergeschmack 750 gr" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/cilek-aromali-dekor-sos-750-gr
+    - text: Details
+    - img
+  - link "Dekorationssauce mit Schokoladengeschmack 750 gr":
+    - /url: /de/products/fo-cikolata-aromali-dekor-sos-750gr
+    - img "Dekorationssauce mit Schokoladengeschmack 750 gr"
+  - text: Saucen Auf Anfrage
+  - img
+  - text: "8691123462244"
+  - link "Dekorationssauce mit Schokoladengeschmack 750 gr":
+    - /url: /de/products/fo-cikolata-aromali-dekor-sos-750gr
+    - heading "Dekorationssauce mit Schokoladengeschmack 750 gr" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-cikolata-aromali-dekor-sos-750gr
+    - text: Details
+    - img
+  - link "Dekorationssauce mit Vanillegeschmack 750 gr":
+    - /url: /de/products/vanilya-aromali-dekor-sos-750-g---yeni
+    - img "Dekorationssauce mit Vanillegeschmack 750 gr"
+  - text: Saucen Auf Anfrage
+  - img
+  - text: "8691123468833"
+  - link "Dekorationssauce mit Vanillegeschmack 750 gr":
+    - /url: /de/products/vanilya-aromali-dekor-sos-750-g---yeni
+    - heading "Dekorationssauce mit Vanillegeschmack 750 gr" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/vanilya-aromali-dekor-sos-750-g---yeni
+    - text: Details
+    - img
+  - link "Erdbeerkornsauce 6 kg":
+    - /url: /de/products/cilek-taneli-sos-6-kg
+    - img "Erdbeerkornsauce 6 kg"
+  - text: Saucen Auf Anfrage
+  - img
+  - text: "8691123469564"
+  - link "Erdbeerkornsauce 6 kg":
+    - /url: /de/products/cilek-taneli-sos-6-kg
+    - heading "Erdbeerkornsauce 6 kg" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 60 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/cilek-taneli-sos-6-kg
+    - text: Details
+    - img
+  - heading "HoReCa (Beverages & Sauces) 2" [level=3]
+  - link "Dubai Kadayıf-Sauce mit Pistazien 6 kg":
+    - /url: /de/products/dubai-antep-fistikli-kadayifli-sos-6-kg-yeni
+    - img "Dubai Kadayıf-Sauce mit Pistazien 6 kg"
+  - text: HoReCa (Beverages & Sauces) Auf Anfrage
+  - img
+  - text: "8691123470065"
+  - link "Dubai Kadayıf-Sauce mit Pistazien 6 kg":
+    - /url: /de/products/dubai-antep-fistikli-kadayifli-sos-6-kg-yeni
+    - heading "Dubai Kadayıf-Sauce mit Pistazien 6 kg" [level=3]
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/dubai-antep-fistikli-kadayifli-sos-6-kg-yeni
+    - text: Details
+    - img
+  - link "FO Cool Lime Mix - Getränk mit Pfefferminz- und Limettenaroma 700 ml":
+    - /url: /de/products/nane-ve-misket-limonu-aromali-icecek-700-ml
+    - img "FO Cool Lime Mix - Getränk mit Pfefferminz- und Limettenaroma 700 ml"
+  - text: HoReCa (Beverages & Sauces) Auf Anfrage
+  - img
+  - text: "8691123462916"
+  - link "FO Cool Lime Mix - Getränk mit Pfefferminz- und Limettenaroma 700 ml":
+    - /url: /de/products/nane-ve-misket-limonu-aromali-icecek-700-ml
+    - heading "FO Cool Lime Mix - Getränk mit Pfefferminz- und Limettenaroma 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/nane-ve-misket-limonu-aromali-icecek-700-ml
+    - text: Details
+    - img
+  - heading "Aromatisierte Cocktailsirupe 3" [level=3]
+  - link "Erdbeersirup (700 ml)":
+    - /url: /de/products/cilekli-surup-700-ml
+    - img "Erdbeersirup (700 ml)"
+  - text: Aromatisierte Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123120700"
+  - link "Erdbeersirup (700 ml)":
+    - /url: /de/products/cilekli-surup-700-ml
+    - heading "Erdbeersirup (700 ml)" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/cilekli-surup-700-ml
+    - text: Details
+    - img
+  - link "FO Basissirup mit Sakura- und weißem Pfirsichgeschmack 700 ml":
+    - /url: /de/products/fo-sakura-ve-beyaz-seftali-aromal-baz-surup-700-ml
+    - img "FO Basissirup mit Sakura- und weißem Pfirsichgeschmack 700 ml"
+  - text: Aromatisierte Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123469663"
+  - link "FO Basissirup mit Sakura- und weißem Pfirsichgeschmack 700 ml":
+    - /url: /de/products/fo-sakura-ve-beyaz-seftali-aromal-baz-surup-700-ml
+    - heading "FO Basissirup mit Sakura- und weißem Pfirsichgeschmack 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-sakura-ve-beyaz-seftali-aromal-baz-surup-700-ml
+    - text: Details
+    - img
+  - link "FO Grüne Minze Sirup 700 ml":
+    - /url: /de/products/fo-srp-spearmint
+    - img "FO Grüne Minze Sirup 700 ml"
+  - text: Aromatisierte Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123120564"
+  - link "FO Grüne Minze Sirup 700 ml":
+    - /url: /de/products/fo-srp-spearmint
+    - heading "FO Grüne Minze Sirup 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-srp-spearmint
+    - text: Details
+    - img
+  - heading "Fruchtsaucen (Frozen) 5" [level=3]
+  - link "Fo Ananasfruchtpüreesauce 1 Kg":
+    - /url: /de/products/fo-ananas-meyveli-pure-sos-1-kg-fo1128
+    - img "Fo Ananasfruchtpüreesauce 1 Kg"
+  - text: Fruchtsaucen (Frozen) Auf Anfrage
+  - img
+  - text: "8691123448620"
+  - link "Fo Ananasfruchtpüreesauce 1 Kg":
+    - /url: /de/products/fo-ananas-meyveli-pure-sos-1-kg-fo1128
+    - heading "Fo Ananasfruchtpüreesauce 1 Kg" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 170 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-ananas-meyveli-pure-sos-1-kg-fo1128
+    - text: Details
+    - img
+  - link "FO Bananenfruchtpüreesauce 1 Kg":
+    - /url: /de/products/fo-muz-meyveli-pure-sos-fo1121
+    - img "FO Bananenfruchtpüreesauce 1 Kg"
+  - text: Fruchtsaucen (Frozen) Auf Anfrage
+  - img
+  - text: "8691123340986"
+  - link "FO Bananenfruchtpüreesauce 1 Kg":
+    - /url: /de/products/fo-muz-meyveli-pure-sos-fo1121
+    - heading "FO Bananenfruchtpüreesauce 1 Kg" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 170 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-muz-meyveli-pure-sos-fo1121
+    - text: Details
+    - img
+  - link "FO Blaubeerfruchtpüreesauce 1 Kg":
+    - /url: /de/products/fo-yaban-mersini-meyveli-pure-sos-1-kg-fo1127
+    - img "FO Blaubeerfruchtpüreesauce 1 Kg"
+  - text: Fruchtsaucen (Frozen) Auf Anfrage
+  - img
+  - text: "8691123444851"
+  - link "FO Blaubeerfruchtpüreesauce 1 Kg":
+    - /url: /de/products/fo-yaban-mersini-meyveli-pure-sos-1-kg-fo1127
+    - heading "FO Blaubeerfruchtpüreesauce 1 Kg" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 170 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-yaban-mersini-meyveli-pure-sos-1-kg-fo1127
+    - text: Details
+    - img
+  - link "FO Brombeerfruchtpüreesauce":
+    - /url: /de/products/fo-bogurtlen-meyveli-pure-sos-fo1113
+    - img "FO Brombeerfruchtpüreesauce"
+  - text: Fruchtsaucen (Frozen) Auf Anfrage
+  - img
+  - text: "8691123340795"
+  - link "FO Brombeerfruchtpüreesauce":
+    - /url: /de/products/fo-bogurtlen-meyveli-pure-sos-fo1113
+    - heading "FO Brombeerfruchtpüreesauce" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 170 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-bogurtlen-meyveli-pure-sos-fo1113
+    - text: Details
+    - img
+  - link "FO Erdbeerfruchtpüreesauce 1 Kg":
+    - /url: /de/products/fo-cilek-meyveli-pure-sos-fo1110
+    - img "FO Erdbeerfruchtpüreesauce 1 Kg"
+  - text: Fruchtsaucen (Frozen) Auf Anfrage
+  - img
+  - text: "8691123340764"
+  - link "FO Erdbeerfruchtpüreesauce 1 Kg":
+    - /url: /de/products/fo-cilek-meyveli-pure-sos-fo1110
+    - heading "FO Erdbeerfruchtpüreesauce 1 Kg" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 170 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-cilek-meyveli-pure-sos-fo1110
+    - text: Details
+    - img
+  - heading "Cocktailsirupe 5" [level=3]
+  - link "FO Ananassirup 700 ml":
+    - /url: /de/products/fo-ananas-surubu-fo1201
+    - img "FO Ananassirup 700 ml"
+  - text: Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123120663"
+  - link "FO Ananassirup 700 ml":
+    - /url: /de/products/fo-ananas-surubu-fo1201
+    - heading "FO Ananassirup 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-ananas-surubu-fo1201
+    - text: Details
+    - img
+  - link "FO Bananensirup":
+    - /url: /de/products/fo-muz-surubu-fo1165
+    - img "FO Bananensirup"
+  - text: Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123120076"
+  - link "FO Bananensirup":
+    - /url: /de/products/fo-muz-surubu-fo1165
+    - heading "FO Bananensirup" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-muz-surubu-fo1165
+    - text: Details
+    - img
+  - link "FO Brombeer-Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-bogurtlen-meyveli-premium-surup-700ml-fo1149
+    - img "FO Brombeer-Fruchtsirup Premium – 700 ml"
+  - text: Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123473707"
+  - link "FO Brombeer-Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-bogurtlen-meyveli-premium-surup-700ml-fo1149
+    - heading "FO Brombeer-Fruchtsirup Premium – 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-bogurtlen-meyveli-premium-surup-700ml-fo1149
+    - text: Details
+    - img
+  - link "FO Granatapfel-Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-nar-premium-surup-700-ml-fo1138
+    - img "FO Granatapfel-Fruchtsirup Premium – 700 ml"
+  - text: Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123120014"
+  - link "FO Granatapfel-Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-nar-premium-surup-700-ml-fo1138
+    - heading "FO Granatapfel-Fruchtsirup Premium – 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-nar-premium-surup-700-ml-fo1138
+    - text: Details
+    - img
+  - link "FO Grüner Apfel Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-yesil-elma-premium-surup-700ml-fo1134
+    - img "FO Grüner Apfel Fruchtsirup Premium – 700 ml"
+  - text: Cocktailsirupe Auf Anfrage
+  - img
+  - text: "8691123471871"
+  - link "FO Grüner Apfel Fruchtsirup Premium – 700 ml":
+    - /url: /de/products/fo-yesil-elma-premium-surup-700ml-fo1134
+    - heading "FO Grüner Apfel Fruchtsirup Premium – 700 ml" [level=3]
+  - img
+  - text: 6 Stk./Ktn. 125 Ktn./Pal.
+  - img "Vegan"
+  - img "Laktosefrei"
+  - img "Glutenfrei"
+  - paragraph: Preis für Partner
+  - link "Details":
+    - /url: /de/products/fo-yesil-elma-premium-surup-700ml-fo1134
+    - text: Details
+    - img
+  - navigation:
+    - link "‹" [disabled]:
+      - /url: "#"
+    - link "1":
+      - /url: /de/products?page=1&limit=24
+    - link "2":
+      - /url: /de/products?page=2&limit=24
+    - link "3":
+      - /url: /de/products?page=3&limit=24
+    - text: …
+    - link "5":
+      - /url: /de/products?page=5&limit=24
+    - link "›":
+      - /url: /de/products?page=2&limit=24
+  - heading "Frequently Asked Questions" [level=2]
+  - paragraph: Frequently asked questions about our coffee syrups and pastry products
+  - heading "• What are the varieties of Fo coffee syrup?" [level=3]
+  - paragraph: The Fo brand offers a wide range of syrups for cafes and baristas. The most preferred flavors include Vanilla, Caramel, Hazelnut, Chocolate, Irish Cream, Mint, Strawberry, and White Chocolate.
+  - heading "• Which Fo syrup flavors are most preferred for cafes?" [level=3]
+  - paragraph: The syrups most frequently used by baristas to create signature coffees are Caramel, Vanilla, and Hazelnut. For cold drinks and cocktails, Blue Curaçao, Grenadine, and Fruit Purees are in high demand.
+  - heading "• Where can I buy wholesale Fo syrup in Germany?" [level=3]
+  - paragraph: ElysonSweets provides wholesale Fo syrup supply to HORECA (Hotel, Restaurant, Cafe) businesses in Europe, primarily in Germany. You can order original products from our site with affordable prices and fast shipping.
+- contentinfo:
+  - paragraph: Verkauf ausschließlich an Gewerbetreibende gem. §14 BGB. Alle Preise verstehen sich netto, zzgl. gesetzlicher MwSt., zzgl. Versand.
+  - img "Logo"
+  - heading "ElysonSweets" [level=3]
+  - paragraph: Ihr B2B-Partner für FO-Markensortiment – Premium-Sirupe, Soßen und Backzutaten für Cafés, Hotels und Patisserien.
+  - link "📍 Köln, Deutschland":
+    - /url: https://maps.google.com/?q=Wilhelm-Ruppert-Stra%C3%9Fe+38%2C+51147+K%C3%B6ln%2C+Deutschland
+  - link "✉ info@elysonsweets.de":
+    - /url: mailto:info@elysonsweets.de
+  - link "Instagram":
+    - /url: https://instagram.com/elysonsweets.de
+    - img
+  - link "LinkedIn":
+    - /url: https://linkedin.com/company/elysonsweets
+    - img
+  - heading "Sortiment" [level=4]
+  - navigation:
+    - link "HoReCa – Gesamtsortiment":
+      - /url: /de/products?kategori=sauces-and-ingredients
+    - link "Sirupe & Barista-Basen":
+      - /url: /de/products?kategori=syrups
+    - link "Saucen & Fruchtpürees":
+      - /url: /de/products?kategori=cafe-bar-sauces
+    - link "Getränkepulver & Frappés":
+      - /url: /de/products?kategori=powdered-beverages
+    - link "Eisdiele & Gelateria":
+      - /url: /de/products?kategori=ice-cream-gelato
+  - heading "Geschäftskunden" [level=4]
+  - navigation:
+    - link "Partner werden":
+      - /url: /de/register
+    - link "Probierpaket anfragen":
+      - /url: /de/contact
+    - link "Preisliste anfordern":
+      - /url: /de/contact
+    - link "Anfrage senden":
+      - /url: /de/contact
+    - link "FAQ":
+      - /url: /de/contact
+  - heading "Rechtliches" [level=4]
+  - navigation:
+    - link "Impressum":
+      - /url: /de/impressum
+    - link "Datenschutz":
+      - /url: /de/datenschutz
+    - link "AGB (B2B)":
+      - /url: /de/agb
+    - link "Widerrufsbelehrung":
+      - /url: /de/widerruf
+  - paragraph: "Widerrufsbelehrung: Für Käufe durch Gewerbetreibende i.S.v. §14 BGB gelten abweichende Regelungen."
+  - paragraph: © 2025 ElysonSweets Germany. Alle Rechte vorbehalten.
+  - text: Vorkasse Rechnung 5 Tage netto HACCP BRC · Halal
+- alert
+- heading "Wir verwenden Cookies" [level=3]
+- paragraph:
+  - text: Wir nutzen Cookies und ähnliche Technologien, um die ordnungsgemäße Funktion unserer Website zu gewährleisten, Inhalte und Anzeigen zu personalisieren, Funktionen für soziale Medien anbieten zu können und die Zugriffe auf unsere Website zu analysieren.
+  - link "Datenschutz":
+    - /url: /de/datenschutz
+- button "Nur notwendige"
+- button "Alle akzeptieren"
+```

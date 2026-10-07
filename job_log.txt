@@ -1,0 +1,371 @@
+﻿2026-10-07T01:58:29.1372886Z Current runner version: '2.337.0'
+2026-10-07T01:58:29.1396850Z ##[group]Runner Image Provisioner
+2026-10-07T01:58:29.1397732Z Hosted Compute Agent
+2026-10-07T01:58:29.1398259Z Version: 20260901.588
+2026-10-07T01:58:29.1398938Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-07T01:58:29.1399602Z Build Date: 2026-09-01T19:56:44Z
+2026-10-07T01:58:29.1400213Z Worker ID: {157b123c-b7a1-4713-9776-53a225cb166f}
+2026-10-07T01:58:29.1400855Z Azure Region: westus3
+2026-10-07T01:58:29.1401416Z ##[endgroup]
+2026-10-07T01:58:29.1402924Z ##[group]Operating System
+2026-10-07T01:58:29.1403484Z Ubuntu
+2026-10-07T01:58:29.1403983Z 24.04.5
+2026-10-07T01:58:29.1404469Z LTS
+2026-10-07T01:58:29.1404924Z ##[endgroup]
+2026-10-07T01:58:29.1405431Z ##[group]Runner Image
+2026-10-07T01:58:29.1406190Z Image: ubuntu-24.04
+2026-10-07T01:58:29.1406806Z Version: 20260927.320.1
+2026-10-07T01:58:29.1408005Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260927.320/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-07T01:58:29.1409379Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260927.320
+2026-10-07T01:58:29.1410233Z ##[endgroup]
+2026-10-07T01:58:29.1411329Z ##[group]GITHUB_TOKEN Permissions
+2026-10-07T01:58:29.1413354Z Contents: read
+2026-10-07T01:58:29.1413955Z Metadata: read
+2026-10-07T01:58:29.1414463Z Packages: read
+2026-10-07T01:58:29.1414958Z ##[endgroup]
+2026-10-07T01:58:29.1417176Z Secret source: Actions
+2026-10-07T01:58:29.1417997Z Cache mode: write
+2026-10-07T01:58:29.1419001Z Prepare workflow directory
+2026-10-07T01:58:29.1771935Z Prepare all required actions
+2026-10-07T01:58:29.1818845Z Getting action download info
+2026-10-07T01:58:29.4911420Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-07T01:58:29.5590733Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-07T01:58:29.6309889Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-07T01:58:29.8035392Z Complete job name: smoke-test
+2026-10-07T01:58:29.8790550Z ##[group]Run actions/checkout@v4
+2026-10-07T01:58:29.8791295Z with:
+2026-10-07T01:58:29.8791685Z   repository: trgycln/SweetEurope
+2026-10-07T01:58:29.8795244Z   token: ***
+2026-10-07T01:58:29.8795606Z   ssh-strict: true
+2026-10-07T01:58:29.8796237Z   ssh-user: git
+2026-10-07T01:58:29.8796690Z   persist-credentials: true
+2026-10-07T01:58:29.8797121Z   clean: true
+2026-10-07T01:58:29.8797530Z   sparse-checkout-cone-mode: true
+2026-10-07T01:58:29.8797985Z   fetch-depth: 1
+2026-10-07T01:58:29.8798357Z   fetch-tags: false
+2026-10-07T01:58:29.8798746Z   show-progress: true
+2026-10-07T01:58:29.8799130Z   lfs: false
+2026-10-07T01:58:29.8799482Z   submodules: false
+2026-10-07T01:58:29.8799864Z   set-safe-directory: true
+2026-10-07T01:58:29.8800294Z   allow-unsafe-pr-checkout: false
+2026-10-07T01:58:29.8801006Z ##[endgroup]
+2026-10-07T01:58:29.9736830Z Syncing repository: trgycln/SweetEurope
+2026-10-07T01:58:29.9738518Z ##[group]Getting Git version info
+2026-10-07T01:58:29.9739245Z Working directory is '/home/runner/work/SweetEurope/SweetEurope'
+2026-10-07T01:58:29.9740162Z [command]/usr/bin/git version
+2026-10-07T01:58:29.9811031Z git version 2.55.0
+2026-10-07T01:58:29.9830966Z ##[endgroup]
+2026-10-07T01:58:29.9845649Z Temporarily overriding HOME='/home/runner/work/_temp/f487c89d-edca-4f56-9682-b22c4273bda6' before making global git config changes
+2026-10-07T01:58:29.9848062Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T01:58:29.9855289Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SweetEurope/SweetEurope
+2026-10-07T01:58:29.9904447Z Deleting the contents of '/home/runner/work/SweetEurope/SweetEurope'
+2026-10-07T01:58:29.9910371Z ##[group]Initializing the repository
+2026-10-07T01:58:29.9913927Z [command]/usr/bin/git init /home/runner/work/SweetEurope/SweetEurope
+2026-10-07T01:58:29.9982361Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-07T01:58:29.9985012Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-07T01:58:29.9986780Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-07T01:58:29.9989163Z hint: call:
+2026-10-07T01:58:29.9989851Z hint:
+2026-10-07T01:58:29.9990697Z hint: 	git config --global init.defaultBranch <name>
+2026-10-07T01:58:29.9991973Z hint:
+2026-10-07T01:58:29.9993148Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-07T01:58:29.9994754Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-07T01:58:29.9996203Z hint:
+2026-10-07T01:58:29.9996916Z hint: 	git branch -m <name>
+2026-10-07T01:58:29.9997908Z hint:
+2026-10-07T01:58:29.9999018Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-07T01:58:30.0000882Z Initialized empty Git repository in /home/runner/work/SweetEurope/SweetEurope/.git/
+2026-10-07T01:58:30.0003918Z [command]/usr/bin/git remote add origin https://github.com/trgycln/SweetEurope
+2026-10-07T01:58:30.0030441Z ##[endgroup]
+2026-10-07T01:58:30.0031745Z ##[group]Disabling automatic garbage collection
+2026-10-07T01:58:30.0034375Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-07T01:58:30.0058107Z ##[endgroup]
+2026-10-07T01:58:30.0059331Z ##[group]Setting up auth
+2026-10-07T01:58:30.0064334Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T01:58:30.0091730Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T01:58:30.0374284Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T01:58:30.0405693Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T01:58:30.0596007Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T01:58:30.0626413Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T01:58:30.0796935Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-07T01:58:30.0828282Z ##[endgroup]
+2026-10-07T01:58:30.0829138Z ##[group]Fetching the repository
+2026-10-07T01:58:30.0837293Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +0b15d44e1113ff4071da05046d7ee98868889de3:refs/remotes/origin/main
+2026-10-07T01:58:34.9267808Z From https://github.com/trgycln/SweetEurope
+2026-10-07T01:58:34.9270126Z  * [new ref]         0b15d44e1113ff4071da05046d7ee98868889de3 -> origin/main
+2026-10-07T01:58:34.9274502Z ##[endgroup]
+2026-10-07T01:58:34.9276585Z ##[group]Determining the checkout info
+2026-10-07T01:58:34.9278787Z ##[endgroup]
+2026-10-07T01:58:34.9282898Z [command]/usr/bin/git sparse-checkout disable
+2026-10-07T01:58:34.9326022Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-07T01:58:34.9352209Z ##[group]Checking out the ref
+2026-10-07T01:58:34.9356868Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-10-07T01:58:35.4944192Z Switched to a new branch 'main'
+2026-10-07T01:58:35.4946997Z branch 'main' set up to track 'origin/main'.
+2026-10-07T01:58:35.4976798Z ##[endgroup]
+2026-10-07T01:58:35.5015313Z [command]/usr/bin/git log -1 --format=%H
+2026-10-07T01:58:35.5037212Z 0b15d44e1113ff4071da05046d7ee98868889de3
+2026-10-07T01:58:35.5375389Z ##[group]Run actions/setup-node@v4
+2026-10-07T01:58:35.5376701Z with:
+2026-10-07T01:58:35.5377519Z   node-version: lts/*
+2026-10-07T01:58:35.5378459Z   always-auth: false
+2026-10-07T01:58:35.5379363Z   check-latest: false
+2026-10-07T01:58:35.5389008Z   token: ***
+2026-10-07T01:58:35.5389835Z ##[endgroup]
+2026-10-07T01:58:35.6695627Z Attempt to resolve LTS alias from manifest...
+2026-10-07T01:58:35.6797795Z (node:2330) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T01:58:36.7258717Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T01:58:36.7297803Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-07T01:58:36.7301599Z ##[group]Environment details
+2026-10-07T01:58:37.0837246Z node: v24.21.0
+2026-10-07T01:58:37.0837858Z npm: 11.19.0
+2026-10-07T01:58:37.0846781Z yarn: 1.22.22
+2026-10-07T01:58:37.0847990Z ##[endgroup]
+2026-10-07T01:58:37.0975075Z ##[group]Run npm ci
+2026-10-07T01:58:37.0975433Z [36;1mnpm ci[0m
+2026-10-07T01:58:37.1148368Z shell: /usr/bin/bash -e {0}
+2026-10-07T01:58:37.1148675Z ##[endgroup]
+2026-10-07T01:58:43.4407597Z npm error code EUSAGE
+2026-10-07T01:58:43.4519562Z npm error
+2026-10-07T01:58:43.4521113Z npm error `npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Please update your lock file with `npm install` before continuing.
+2026-10-07T01:58:43.4522207Z npm error
+2026-10-07T01:58:43.4522755Z npm error Missing: fsevents@2.3.3 from lock file
+2026-10-07T01:58:43.4523583Z npm error Missing: lightningcss-android-arm64@1.33.0 from lock file
+2026-10-07T01:58:43.4524493Z npm error Missing: lightningcss-darwin-arm64@1.33.0 from lock file
+2026-10-07T01:58:43.4525646Z npm error Missing: lightningcss-darwin-x64@1.33.0 from lock file
+2026-10-07T01:58:43.4526781Z npm error Missing: lightningcss-freebsd-x64@1.33.0 from lock file
+2026-10-07T01:58:43.4527384Z npm error Missing: lightningcss-linux-arm-gnueabihf@1.33.0 from lock file
+2026-10-07T01:58:43.4527938Z npm error Missing: lightningcss-linux-arm64-gnu@1.33.0 from lock file
+2026-10-07T01:58:43.4528466Z npm error Missing: lightningcss-linux-arm64-musl@1.33.0 from lock file
+2026-10-07T01:58:43.4528986Z npm error Missing: lightningcss-linux-x64-gnu@1.33.0 from lock file
+2026-10-07T01:58:43.4529512Z npm error Missing: lightningcss-linux-x64-musl@1.33.0 from lock file
+2026-10-07T01:58:43.4530040Z npm error Missing: lightningcss-win32-arm64-msvc@1.33.0 from lock file
+2026-10-07T01:58:43.4530607Z npm error Missing: @oxc-parser/binding-android-arm-eabi@0.150.0 from lock file
+2026-10-07T01:58:43.4531182Z npm error Missing: @oxc-parser/binding-android-arm64@0.150.0 from lock file
+2026-10-07T01:58:43.4531721Z npm error Missing: @oxc-parser/binding-darwin-arm64@0.150.0 from lock file
+2026-10-07T01:58:43.4532260Z npm error Missing: @oxc-parser/binding-darwin-x64@0.150.0 from lock file
+2026-10-07T01:58:43.4532796Z npm error Missing: @oxc-parser/binding-freebsd-x64@0.150.0 from lock file
+2026-10-07T01:58:43.4533368Z npm error Missing: @oxc-parser/binding-linux-arm-gnueabihf@0.150.0 from lock file
+2026-10-07T01:58:43.4533977Z npm error Missing: @oxc-parser/binding-linux-arm-musleabihf@0.150.0 from lock file
+2026-10-07T01:58:43.4534564Z npm error Missing: @oxc-parser/binding-linux-arm64-gnu@0.150.0 from lock file
+2026-10-07T01:58:43.4535128Z npm error Missing: @oxc-parser/binding-linux-arm64-musl@0.150.0 from lock file
+2026-10-07T01:58:43.4535694Z npm error Missing: @oxc-parser/binding-linux-ppc64-gnu@0.150.0 from lock file
+2026-10-07T01:58:43.4536463Z npm error Missing: @oxc-parser/binding-linux-riscv64-gnu@0.150.0 from lock file
+2026-10-07T01:58:43.4537087Z npm error Missing: @oxc-parser/binding-linux-riscv64-musl@0.150.0 from lock file
+2026-10-07T01:58:43.4537660Z npm error Missing: @oxc-parser/binding-linux-s390x-gnu@0.150.0 from lock file
+2026-10-07T01:58:43.4538214Z npm error Missing: @oxc-parser/binding-linux-x64-gnu@0.150.0 from lock file
+2026-10-07T01:58:43.4538796Z npm error Missing: @oxc-parser/binding-linux-x64-musl@0.150.0 from lock file
+2026-10-07T01:58:43.4539398Z npm error Missing: @oxc-parser/binding-openharmony-arm64@0.150.0 from lock file
+2026-10-07T01:58:43.4539957Z npm error Missing: @oxc-parser/binding-win32-arm64-msvc@0.150.0 from lock file
+2026-10-07T01:58:43.4541211Z npm error Missing: @oxc-parser/binding-win32-ia32-msvc@0.150.0 from lock file
+2026-10-07T01:58:43.4541790Z npm error Missing: @oxc-resolver/binding-android-arm-eabi@11.24.2 from lock file
+2026-10-07T01:58:43.4542389Z npm error Missing: @oxc-resolver/binding-android-arm64@11.24.2 from lock file
+2026-10-07T01:58:43.4542943Z npm error Missing: @oxc-resolver/binding-darwin-arm64@11.24.2 from lock file
+2026-10-07T01:58:43.4543482Z npm error Missing: @oxc-resolver/binding-darwin-x64@11.24.2 from lock file
+2026-10-07T01:58:43.4544021Z npm error Missing: @oxc-resolver/binding-freebsd-x64@11.24.2 from lock file
+2026-10-07T01:58:43.4544759Z npm error Missing: @oxc-resolver/binding-linux-arm-gnueabihf@11.24.2 from lock file
+2026-10-07T01:58:43.4545392Z npm error Missing: @oxc-resolver/binding-linux-arm-musleabihf@11.24.2 from lock file
+2026-10-07T01:58:43.4546164Z npm error Missing: @oxc-resolver/binding-linux-arm64-gnu@11.24.2 from lock file
+2026-10-07T01:58:43.4546757Z npm error Missing: @oxc-resolver/binding-linux-arm64-musl@11.24.2 from lock file
+2026-10-07T01:58:43.4547334Z npm error Missing: @oxc-resolver/binding-linux-ppc64-gnu@11.24.2 from lock file
+2026-10-07T01:58:43.4547921Z npm error Missing: @oxc-resolver/binding-linux-riscv64-gnu@11.24.2 from lock file
+2026-10-07T01:58:43.4548511Z npm error Missing: @oxc-resolver/binding-linux-riscv64-musl@11.24.2 from lock file
+2026-10-07T01:58:43.4549092Z npm error Missing: @oxc-resolver/binding-linux-s390x-gnu@11.24.2 from lock file
+2026-10-07T01:58:43.4549651Z npm error Missing: @oxc-resolver/binding-linux-x64-gnu@11.24.2 from lock file
+2026-10-07T01:58:43.4550214Z npm error Missing: @oxc-resolver/binding-linux-x64-musl@11.24.2 from lock file
+2026-10-07T01:58:43.4550796Z npm error Missing: @oxc-resolver/binding-openharmony-arm64@11.24.2 from lock file
+2026-10-07T01:58:43.4551358Z npm error Missing: @oxc-resolver/binding-wasm32-wasi@11.24.2 from lock file
+2026-10-07T01:58:43.4551910Z npm error Missing: @oxc-resolver/binding-win32-arm64-msvc@11.24.2 from lock file
+2026-10-07T01:58:43.4552396Z npm error Missing: @emnapi/core@1.11.2 from lock file
+2026-10-07T01:58:43.4552814Z npm error Missing: @emnapi/runtime@1.11.2 from lock file
+2026-10-07T01:58:43.4553261Z npm error Missing: @napi-rs/wasm-runtime@1.2.5 from lock file
+2026-10-07T01:58:43.4553726Z npm error Missing: @emnapi/wasi-threads@1.2.2 from lock file
+2026-10-07T01:58:43.4554167Z npm error Missing: @tybys/wasm-util@0.10.4 from lock file
+2026-10-07T01:58:43.4554572Z npm error Missing: fsevents@2.3.2 from lock file
+2026-10-07T01:58:43.4555063Z npm error Missing: @rolldown/binding-android-arm-eabi@1.2.5 from lock file
+2026-10-07T01:58:43.4555612Z npm error Missing: @rolldown/binding-android-arm64@1.2.5 from lock file
+2026-10-07T01:58:43.4556490Z npm error Missing: @rolldown/binding-darwin-arm64@1.2.5 from lock file
+2026-10-07T01:58:43.4557017Z npm error Missing: @rolldown/binding-darwin-x64@1.2.5 from lock file
+2026-10-07T01:58:43.4557599Z npm error Missing: @rolldown/binding-freebsd-x64@1.2.5 from lock file
+2026-10-07T01:58:43.4558168Z npm error Missing: @rolldown/binding-linux-arm-gnueabihf@1.2.5 from lock file
+2026-10-07T01:58:43.4558736Z npm error Missing: @rolldown/binding-linux-arm64-gnu@1.2.5 from lock file
+2026-10-07T01:58:43.4559287Z npm error Missing: @rolldown/binding-linux-arm64-musl@1.2.5 from lock file
+2026-10-07T01:58:43.4559878Z npm error Missing: @rolldown/binding-linux-ppc64-gnu@1.2.5 from lock file
+2026-10-07T01:58:43.4560476Z npm error Missing: @rolldown/binding-linux-s390x-gnu@1.2.5 from lock file
+2026-10-07T01:58:43.4561018Z npm error Missing: @rolldown/binding-linux-x64-gnu@1.2.5 from lock file
+2026-10-07T01:58:43.4561570Z npm error Missing: @rolldown/binding-linux-x64-musl@1.2.5 from lock file
+2026-10-07T01:58:43.4562124Z npm error Missing: @rolldown/binding-openharmony-arm64@1.2.5 from lock file
+2026-10-07T01:58:43.4562683Z npm error Missing: @rolldown/binding-win32-arm64-msvc@1.2.5 from lock file
+2026-10-07T01:58:43.4563205Z npm error Missing: @img/sharp-darwin-arm64@0.34.5 from lock file
+2026-10-07T01:58:43.4563839Z npm error Missing: @img/sharp-darwin-x64@0.34.5 from lock file
+2026-10-07T01:58:43.4564354Z npm error Missing: @img/sharp-libvips-darwin-arm64@1.2.4 from lock file
+2026-10-07T01:58:43.4564907Z npm error Missing: @img/sharp-libvips-darwin-x64@1.2.4 from lock file
+2026-10-07T01:58:43.4565441Z npm error Missing: @img/sharp-libvips-linux-arm@1.2.4 from lock file
+2026-10-07T01:58:43.4566067Z npm error Missing: @img/sharp-libvips-linux-arm64@1.2.4 from lock file
+2026-10-07T01:58:43.4566600Z npm error Missing: @img/sharp-libvips-linux-ppc64@1.2.4 from lock file
+2026-10-07T01:58:43.4567218Z npm error Missing: @img/sharp-libvips-linux-riscv64@1.2.4 from lock file
+2026-10-07T01:58:43.4567777Z npm error Missing: @img/sharp-libvips-linux-s390x@1.2.4 from lock file
+2026-10-07T01:58:43.4568303Z npm error Missing: @img/sharp-libvips-linux-x64@1.2.4 from lock file
+2026-10-07T01:58:43.4568838Z npm error Missing: @img/sharp-libvips-linuxmusl-arm64@1.2.4 from lock file
+2026-10-07T01:58:43.4569385Z npm error Missing: @img/sharp-libvips-linuxmusl-x64@1.2.4 from lock file
+2026-10-07T01:58:43.4569887Z npm error Missing: @img/sharp-linux-arm@0.34.5 from lock file
+2026-10-07T01:58:43.4570373Z npm error Missing: @img/sharp-linux-arm64@0.34.5 from lock file
+2026-10-07T01:58:43.4570858Z npm error Missing: @img/sharp-linux-ppc64@0.34.5 from lock file
+2026-10-07T01:58:43.4571341Z npm error Missing: @img/sharp-linux-riscv64@0.34.5 from lock file
+2026-10-07T01:58:43.4571820Z npm error Missing: @img/sharp-linux-s390x@0.34.5 from lock file
+2026-10-07T01:58:43.4572282Z npm error Missing: @img/sharp-linux-x64@0.34.5 from lock file
+2026-10-07T01:58:43.4572769Z npm error Missing: @img/sharp-linuxmusl-arm64@0.34.5 from lock file
+2026-10-07T01:58:43.4573279Z npm error Missing: @img/sharp-linuxmusl-x64@0.34.5 from lock file
+2026-10-07T01:58:43.4573752Z npm error Missing: @img/sharp-wasm32@0.34.5 from lock file
+2026-10-07T01:58:43.4574207Z npm error Missing: @img/sharp-win32-arm64@0.34.5 from lock file
+2026-10-07T01:58:43.4574670Z npm error Missing: @img/sharp-win32-ia32@0.34.5 from lock file
+2026-10-07T01:58:43.4575156Z npm error Missing: @supabase/cli-darwin-arm64@2.101.0 from lock file
+2026-10-07T01:58:43.4575663Z npm error Missing: @supabase/cli-darwin-x64@2.101.0 from lock file
+2026-10-07T01:58:43.4576236Z npm error Missing: @supabase/cli-linux-arm64@2.101.0 from lock file
+2026-10-07T01:58:43.4576755Z npm error Missing: @supabase/cli-linux-arm64-musl@2.101.0 from lock file
+2026-10-07T01:58:43.4577349Z npm error Missing: @supabase/cli-linux-x64@2.101.0 from lock file
+2026-10-07T01:58:43.4577866Z npm error Missing: @supabase/cli-linux-x64-musl@2.101.0 from lock file
+2026-10-07T01:58:43.4578395Z npm error Missing: @supabase/cli-windows-arm64@2.101.0 from lock file
+2026-10-07T01:58:43.4578750Z npm error
+2026-10-07T01:58:43.4579029Z npm error Clean install a project
+2026-10-07T01:58:43.4579276Z npm error
+2026-10-07T01:58:43.4579475Z npm error Usage:
+2026-10-07T01:58:43.4579689Z npm error npm ci
+2026-10-07T01:58:43.4579897Z npm error
+2026-10-07T01:58:43.4580119Z npm error Options:
+2026-10-07T01:58:43.4580584Z npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+2026-10-07T01:58:43.4581238Z npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+2026-10-07T01:58:43.4581897Z npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+2026-10-07T01:58:43.4582492Z npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts]
+2026-10-07T01:58:43.4583063Z npm error [--allow-directory <all|none|root>] [--allow-file <all|none|root>]
+2026-10-07T01:58:43.4583633Z npm error [--allow-git <all|none|root>] [--allow-remote <all|none|root>]
+2026-10-07T01:58:43.4584207Z npm error [--allow-scripts <package-list> [--allow-scripts <package-list> ...]]
+2026-10-07T01:58:43.4584833Z npm error [--strict-allow-scripts] [--dangerously-allow-all-scripts] [--no-audit]
+2026-10-07T01:58:43.4585338Z npm error [--no-bin-links] [--no-fund] [--dry-run]
+2026-10-07T01:58:43.4586058Z npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+2026-10-07T01:58:43.4586639Z npm error [--workspaces] [--include-workspace-root] [--install-links]
+2026-10-07T01:58:43.4586983Z npm error
+2026-10-07T01:58:43.4587252Z npm error   --install-strategy
+2026-10-07T01:58:43.4587691Z npm error     Sets the strategy for installing packages in node_modules.
+2026-10-07T01:58:43.4588034Z npm error
+2026-10-07T01:58:43.4588261Z npm error   --legacy-bundling
+2026-10-07T01:58:43.4588765Z npm error     Instead of hoisting package installs in `node_modules`, install packages
+2026-10-07T01:58:43.4589155Z npm error
+2026-10-07T01:58:43.4589437Z npm error   --global-style
+2026-10-07T01:58:43.4589888Z npm error     Only install direct dependencies in the top level `node_modules`,
+2026-10-07T01:58:43.4590257Z npm error
+2026-10-07T01:58:43.4590465Z npm error   --omit
+2026-10-07T01:58:43.4590884Z npm error     Dependency types to omit from the installation tree on disk.
+2026-10-07T01:58:43.4591235Z npm error
+2026-10-07T01:58:43.4591441Z npm error   --include
+2026-10-07T01:58:43.4591904Z npm error     Option that allows for defining which types of dependencies to install.
+2026-10-07T01:58:43.4592291Z npm error
+2026-10-07T01:58:43.4592544Z npm error   --strict-peer-deps
+2026-10-07T01:58:43.4593006Z npm error     If set to `true`, and `--legacy-peer-deps` is not set, then _any_
+2026-10-07T01:58:43.4593358Z npm error
+2026-10-07T01:58:43.4593619Z npm error   --foreground-scripts
+2026-10-07T01:58:43.4594053Z npm error     Run all build scripts (ie, `preinstall`, `install`, and
+2026-10-07T01:58:43.4594380Z npm error
+2026-10-07T01:58:43.4594604Z npm error   --ignore-scripts
+2026-10-07T01:58:43.4595073Z npm error     If true, npm does not run scripts specified in package.json files.
+2026-10-07T01:58:43.4595439Z npm error
+2026-10-07T01:58:43.4595658Z npm error   --allow-directory
+2026-10-07T01:58:43.4596223Z npm error     Limits the ability for npm to install dependencies from directories.
+2026-10-07T01:58:43.4596598Z npm error
+2026-10-07T01:58:43.4596813Z npm error   --allow-file
+2026-10-07T01:58:43.4597292Z npm error     Limits the ability for npm to install dependencies from tarball files.
+2026-10-07T01:58:43.4597676Z npm error
+2026-10-07T01:58:43.4597982Z npm error   --allow-git
+2026-10-07T01:58:43.4598482Z npm error     Limits the ability for npm to fetch dependencies from git references.
+2026-10-07T01:58:43.4598864Z npm error
+2026-10-07T01:58:43.4599088Z npm error   --allow-remote
+2026-10-07T01:58:43.4599536Z npm error     Limits the ability for npm to fetch dependencies from urls.
+2026-10-07T01:58:43.4599890Z npm error
+2026-10-07T01:58:43.4600110Z npm error   --allow-scripts
+2026-10-07T01:58:43.4600605Z npm error     Comma-separated list of packages whose install-time lifecycle scripts
+2026-10-07T01:58:43.4601001Z npm error
+2026-10-07T01:58:43.4601264Z npm error   --strict-allow-scripts
+2026-10-07T01:58:43.4601749Z npm error     If `true`, turn the install-script policy from a warning into a hard
+2026-10-07T01:58:43.4602122Z npm error
+2026-10-07T01:58:43.4602409Z npm error   --dangerously-allow-all-scripts
+2026-10-07T01:58:43.4602903Z npm error     If `true`, bypass the `allowScripts` policy entirely and run every
+2026-10-07T01:58:43.4603263Z npm error
+2026-10-07T01:58:43.4603463Z npm error   --audit
+2026-10-07T01:58:43.4603934Z npm error     When "true" submit audit reports alongside the current npm command to the
+2026-10-07T01:58:43.4604317Z npm error
+2026-10-07T01:58:43.4604528Z npm error   --bin-links
+2026-10-07T01:58:43.4604994Z npm error     Tells npm to create symlinks (or `.cmd` shims on Windows) for package
+2026-10-07T01:58:43.4605368Z npm error
+2026-10-07T01:58:43.4605568Z npm error   --fund
+2026-10-07T01:58:43.4606072Z npm error     When "true" displays the message at the end of each `npm install`
+2026-10-07T01:58:43.4606431Z npm error
+2026-10-07T01:58:43.4606634Z npm error   --dry-run
+2026-10-07T01:58:43.4607100Z npm error     Indicates that you don't want npm to make any changes and that it should
+2026-10-07T01:58:43.4607590Z npm error
+2026-10-07T01:58:43.4607808Z npm error   -w|--workspace
+2026-10-07T01:58:43.4608310Z npm error     Enable running a command in the context of the configured workspaces of the
+2026-10-07T01:58:43.4608708Z npm error
+2026-10-07T01:58:43.4608929Z npm error   --workspaces
+2026-10-07T01:58:43.4609379Z npm error     Set to true to run the command in the context of **all** configured
+2026-10-07T01:58:43.4609739Z npm error
+2026-10-07T01:58:43.4610011Z npm error   --include-workspace-root
+2026-10-07T01:58:43.4610526Z npm error     Include the workspace root when workspaces are enabled for a command.
+2026-10-07T01:58:43.4610971Z npm error
+2026-10-07T01:58:43.4611199Z npm error   --install-links
+2026-10-07T01:58:43.4611674Z npm error     When set file: protocol dependencies will be packed and installed as
+2026-10-07T01:58:43.4612052Z npm error
+2026-10-07T01:58:43.4612237Z npm error
+2026-10-07T01:58:43.4612607Z npm error aliases: clean-install, ic, install-clean, isntall-clean
+2026-10-07T01:58:43.4612961Z npm error
+2026-10-07T01:58:43.4613236Z npm error Run "npm help ci" for more info
+2026-10-07T01:58:43.4613917Z npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-10-07T01_58_37_171Z-debug-0.log
+2026-10-07T01:58:43.4768779Z ##[error]Process completed with exit code 1.
+2026-10-07T01:58:43.4855277Z ##[group]Run echo "::error title=Smoke Test Failed::Production smoke test failed! The site might be down or degraded."
+2026-10-07T01:58:43.4856820Z [36;1mecho "::error title=Smoke Test Failed::Production smoke test failed! The site might be down or degraded."[0m
+2026-10-07T01:58:43.4858195Z [36;1mcurl -X POST -H 'Content-type: application/json' --data '{"text":"🚨 *CRITICAL ALERT:* Production Smoke Test Failed! The site might be down or degraded. Please check GitHub Actions logs immediately."}' [0m
+2026-10-07T01:58:43.4897967Z shell: /usr/bin/bash -e {0}
+2026-10-07T01:58:43.4898248Z ##[endgroup]
+2026-10-07T01:58:43.4963836Z ##[error]Production smoke test failed! The site might be down or degraded.
+2026-10-07T01:58:43.5010924Z curl: (2) no URL specified
+2026-10-07T01:58:43.5011694Z curl: try 'curl --help' or 'curl --manual' for more information
+2026-10-07T01:58:43.5018229Z ##[error]Process completed with exit code 2.
+2026-10-07T01:58:43.5073437Z ##[group]Run actions/upload-artifact@v4
+2026-10-07T01:58:43.5073734Z with:
+2026-10-07T01:58:43.5074041Z   name: smoke-test-report
+2026-10-07T01:58:43.5074293Z   path: playwright-report/
+2026-10-07T01:58:43.5074518Z   retention-days: 30
+2026-10-07T01:58:43.5074805Z   if-no-files-found: warn
+2026-10-07T01:58:43.5075127Z   compression-level: 6
+2026-10-07T01:58:43.5075332Z   overwrite: false
+2026-10-07T01:58:43.5075689Z   include-hidden-files: false
+2026-10-07T01:58:43.5076093Z ##[endgroup]
+2026-10-07T01:58:43.6650146Z (node:2379) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T01:58:43.6651326Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T01:58:43.6717184Z With the provided path, there will be 6 files uploaded
+2026-10-07T01:58:43.6726994Z Artifact name is valid!
+2026-10-07T01:58:43.6733596Z Root directory input is valid!
+2026-10-07T01:58:44.0155764Z Beginning upload of artifact content to blob storage
+2026-10-07T01:58:44.0601305Z (node:2379) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-07T01:58:44.4366695Z Uploaded bytes 216061
+2026-10-07T01:58:44.4934697Z Finished uploading artifact content to blob storage!
+2026-10-07T01:58:44.4936020Z SHA256 digest of uploaded artifact zip is 797094ea5d371a5ea9d28f2afd4def583ddcc935122e9a9e0050c4245ada544a
+2026-10-07T01:58:44.4938553Z Finalizing artifact upload
+2026-10-07T01:58:44.7726318Z Artifact smoke-test-report.zip successfully finalized. Artifact ID 11456815198
+2026-10-07T01:58:44.7728023Z Artifact smoke-test-report has been successfully uploaded! Final size is 216061 bytes. Artifact ID is 11456815198
+2026-10-07T01:58:44.7734236Z Artifact download URL: https://github.com/trgycln/SweetEurope/actions/runs/37559705204/artifacts/11456815198
+2026-10-07T01:58:44.7975423Z Post job cleanup.
+2026-10-07T01:58:44.8797201Z [command]/usr/bin/git version
+2026-10-07T01:58:44.8832274Z git version 2.55.0
+2026-10-07T01:58:44.8875799Z Temporarily overriding HOME='/home/runner/work/_temp/a2419af9-f682-4824-9f6f-e0dca79aebd1' before making global git config changes
+2026-10-07T01:58:44.8877394Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T01:58:44.8883588Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/SweetEurope/SweetEurope
+2026-10-07T01:58:44.8917772Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T01:58:44.8948151Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T01:58:44.9147123Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T01:58:44.9170708Z http.https://github.com/.extraheader
+2026-10-07T01:58:44.9180501Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-07T01:58:44.9210158Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T01:58:44.9407926Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T01:58:44.9428827Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T01:58:44.9772389Z Cleaning up orphan processes
+2026-10-07T01:58:44.9992028Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
