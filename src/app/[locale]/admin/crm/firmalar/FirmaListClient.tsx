@@ -269,6 +269,11 @@ function FirmaCard({
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${badge}`}>{label}</span>
                     </div>
                     <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                        {firma.kaynak?.toLowerCase() === 'web' && (
+                            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1 flex-shrink-0" title="Web Sitesinden Gelen Başvuru">
+                                🌐 Web Başvurusu
+                            </span>
+                        )}
                         {firma.ust_bayi?.unvan && (
                             <span className="text-[10px] font-bold text-purple-800 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded-md flex items-center gap-1 flex-shrink-0" title="Bağlı Olduğu Alt Bayi">
                                 🤝 {firma.ust_bayi.unvan}
@@ -484,6 +489,11 @@ function FirmaTableRow({
                     <Link href={`${baseDetailPath}/${firma.id}`}
                         onClick={e => e.stopPropagation()}
                         className="font-bold text-slate-900 hover:text-blue-600 text-sm">{firma.unvan}</Link>
+                    {firma.kaynak?.toLowerCase() === 'web' && (
+                        <span className="text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-md whitespace-nowrap inline-flex items-center gap-1" title="Web Sitesinden Gelen Başvuru">
+                            🌐 Web Başvurusu
+                        </span>
+                    )}
                     {firma.ust_bayi?.unvan && (
                         <span className="text-[10px] font-bold text-purple-800 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded-md whitespace-nowrap inline-flex items-center gap-1" title="Bağlı Olduğu Alt Bayi">
                             🤝 {firma.ust_bayi.unvan}
@@ -994,10 +1004,16 @@ export default function FirmaListClient({
                                 const p = new URLSearchParams(searchParams.toString());
                                 if (kaynakFilter === 'web') {
                                     p.delete('kaynak');
-                                    p.delete('status');
+                                    p.set('status', 'ALL');
                                 } else {
                                     p.set('kaynak', 'web');
-                                    p.delete('status');
+                                    p.set('status', 'ALL');
+                                    p.delete('portal_status');
+                                    p.delete('bayi_firma_id');
+                                    p.delete('city');
+                                    p.delete('district');
+                                    p.delete('posta_kodu');
+                                    p.delete('temassiz');
                                 }
                                 router.replace(`${pathname}?${p.toString()}`);
                             }}
@@ -1015,7 +1031,11 @@ export default function FirmaListClient({
                         <button type="button"
                             onClick={() => {
                                 const p = new URLSearchParams(searchParams.toString());
-                                p.set('temassiz', '1'); p.delete('status');
+                                p.set('temassiz', '1'); 
+                                p.set('status', 'ALL');
+                                p.delete('portal_status');
+                                p.delete('bayi_firma_id');
+                                p.delete('kaynak');
                                 router.replace(`${pathname}?${p.toString()}`);
                             }}
                             className="text-red-500 hover:text-red-700 flex items-center gap-1 font-medium">
