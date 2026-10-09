@@ -35,7 +35,7 @@ export async function generateTextWithFallback(
   const models = [
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
     { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
-    { name: 'Gemini 1.5 Flash', model: google('gemini-1.5-flash') },
+    { name: 'Gemini 3.8 Flash Lite', model: google('gemini-3.8-flash') },
   ];
 
   let lastError: any;
@@ -87,7 +87,7 @@ export async function generateObjectWithFallback(
   const models = [
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
     { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
-    { name: 'Gemini 1.5 Flash', model: google('gemini-1.5-flash') },
+    { name: 'Gemini 3.8 Flash Lite', model: google('gemini-3.8-flash') },
   ];
 
   let allErrors: any[] = [];

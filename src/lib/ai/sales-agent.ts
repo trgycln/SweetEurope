@@ -6,7 +6,6 @@ import {
   calculateB2BPricing,
   checkSampleKitEligibility,
   getCategories,
-  createDraftOrder,
 } from './tools/catalog-tools';
 
 function getApiKey(): string {
@@ -14,9 +13,9 @@ function getApiKey(): string {
 }
 
 const CANDIDATE_MODELS = [
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-flash',
+  'gemini-3.1-flash-lite',
+  'gemini-3.8-flash',
+  'gemini-3.5-flash',
 ];
 
 const FALLBACK_UNAVAILABLE: Record<string, string> = {
@@ -99,33 +98,6 @@ const TOOLS_SPEC = [
           properties: {},
         },
       },
-      {
-        name: 'createDraftOrder',
-        description: 'Erstellt eine offizielle B2B-Bestellung (Vorkasse) als Entwurf im System. Nutze dieses Tool nur, wenn der Kunde explizit kaufen möchte und alle Firmendaten bereitgestellt hat.',
-        parameters: {
-          type: 'OBJECT',
-          properties: {
-            companyName: { type: 'STRING', description: 'Offizieller Firmenname des Kunden' },
-            email: { type: 'STRING', description: 'E-Mail-Adresse für den Rechnungsversand' },
-            phone: { type: 'STRING', description: 'Telefonnummer (optional)' },
-            address: { type: 'STRING', description: 'Lieferadresse' },
-            taxId: { type: 'STRING', description: 'USt-IdNr / Steuernummer (optional)' },
-            items: {
-              type: 'ARRAY',
-              description: 'Liste der bestellten Produkte',
-              items: {
-                type: 'OBJECT',
-                properties: {
-                  slugOrId: { type: 'STRING' },
-                  cases: { type: 'NUMBER', description: 'Menge in Kartons (Koli)' },
-                },
-                required: ['slugOrId', 'cases'],
-              },
-            },
-          },
-          required: ['companyName', 'email', 'items'],
-        },
-      },
     ],
   },
 ];
@@ -145,8 +117,6 @@ async function executeTool(name: string, args: Record<string, any>) {
       return checkSampleKitEligibility(args.city, args.postalCode);
     case 'getCategories':
       return await getCategories();
-    case 'createDraftOrder':
-      return await createDraftOrder(args as any);
     default:
       return { error: `Unknown tool: ${name}` };
   }

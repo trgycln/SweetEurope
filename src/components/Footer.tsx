@@ -140,6 +140,7 @@ const Footer: React.FC<{ dictionary: any; locale?: string }> = ({ dictionary, lo
           <div className="flex flex-wrap items-center gap-3 text-xs text-secondary/50">
             <span className="border border-secondary/20 rounded px-2 py-0.5">{f.badgePrepayment}</span>
             <span className="border border-secondary/20 rounded px-2 py-0.5">{f.badgeInvoice}</span>
+            {f.badgeCod && <span className="border border-secondary/20 rounded px-2 py-0.5">{f.badgeCod}</span>}
             <span className="border border-secondary/20 rounded px-2 py-0.5">HACCP</span>
             <span className="border border-secondary/20 rounded px-2 py-0.5">
               {locale === 'ar' ? 'حلال · BRC' : locale === 'tr' ? 'BRC · Helal' : 'BRC · Halal'}

@@ -198,6 +198,17 @@ export default function WhatsAppButton({ locale = 'de' }: WhatsAppButtonProps) {
     };
   }, [isOpen]);
 
+  // Clear chat history when closed
+  useEffect(() => {
+    if (!isOpen) {
+      const timer = setTimeout(() => {
+        setMessages([]);
+        setInputMessage('');
+      }, 300); // Wait for exit animation
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   const openWhatsApp = (customText?: string) => {
     const textToSend = (customText || inputMessage || t.defaultMessage).trim();
     const url = `https://wa.me/${PHONE_NUMBER_INTL}?text=${encodeURIComponent(textToSend)}`;

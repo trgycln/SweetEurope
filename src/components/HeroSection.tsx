@@ -119,6 +119,12 @@ const HeroSection: React.FC<{ dictionary: any; locale: string }> = ({ dictionary
           <p className="text-xs sm:text-sm md:text-base text-white/95 font-medium leading-relaxed text-center">
             {dictionary.hero.valueProposition}
           </p>
+          {dictionary.hero.easyOrderingText && (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-accent text-sm md:text-base font-semibold mt-4 pt-4 border-t border-white/20">
+              <span className="text-lg">📦</span>
+              <span>{dictionary.hero.easyOrderingText}</span>
+            </div>
+          )}
         </motion.div>
 
         {/* B2B Info Badges */}

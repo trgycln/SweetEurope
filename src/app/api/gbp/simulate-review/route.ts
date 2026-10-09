@@ -39,7 +39,7 @@ export async function GET(req: Request) {
     };
 
     const { text: fiveStarReply } = await generateText({
-      model: google('gemini-1.5-flash'),
+      model: google('gemini-3.8-flash'),
       system: systemPromptBase,
       prompt: `Müşteri Puanı: 5\nMüşteri Yorumu: ${fiveStarReview.comment}\nMüşteri Adı: ${fiveStarReview.reviewer_name}\nLütfen uygun yanıtı ALMANCA (German) dilinde oluştur.`,
     });
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
     };
 
     const { text: oneStarReply } = await generateText({
-      model: google('gemini-1.5-flash'),
+      model: google('gemini-3.8-flash'),
       system: systemPromptBase,
       prompt: `Müşteri Puanı: 1\nMüşteri Yorumu: ${oneStarReview.comment}\nMüşteri Adı: ${oneStarReview.reviewer_name}\nLütfen uygun yanıtı ALMANCA (German) dilinde oluştur.`,
     });
