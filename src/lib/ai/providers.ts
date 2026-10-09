@@ -33,9 +33,9 @@ export async function generateTextWithFallback(
   options: Omit<Parameters<typeof generateText>[0], 'model'>
 ) {
   const models = [
+    { name: 'Gemini 3.1 Flash Lite', model: google('gemini-3.1-flash-lite') },
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
     { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
-    { name: 'Gemini 3.8 Flash Lite', model: google('gemini-3.8-flash') },
   ];
 
   let lastError: any;
@@ -85,9 +85,9 @@ export async function generateObjectWithFallback(
   options: Omit<Parameters<typeof generateObject>[0], 'model'>
 ) {
   const models = [
+    { name: 'Gemini 3.1 Flash Lite', model: google('gemini-3.1-flash-lite') },
     { name: 'Groq GPT-OSS 120B', model: groq('openai/gpt-oss-120b') },
     { name: 'Groq Qwen 3.8 27B', model: groq('qwen/qwen3.8-27b') },
-    { name: 'Gemini 3.8 Flash Lite', model: google('gemini-3.8-flash') },
   ];
 
   let allErrors: any[] = [];

@@ -68,6 +68,7 @@ Return ONLY a valid JSON string in the exact same format, no markdown tags.`;
   const { text } = await generateTextWithFallback({
     prompt,
     temperature: 0.7,
+    maxTokens: 4000,
   });
   
   return parseAiJson(text);
@@ -89,6 +90,7 @@ export async function GET(req: Request) {
     const { text: deText } = await generateTextWithFallback({
       prompt: dePrompt,
       temperature: 0.7,
+      maxTokens: 4000,
     });
     
     const deData = parseAiJson(deText);
@@ -145,12 +147,10 @@ export async function GET(req: Request) {
         meta_description: typeof deData.meta_description === 'object' ? deData.meta_description.de : deData.meta_description,
       };
 
-      const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
-      console.log('Çeviriler başlatılıyor...');
       const [enData, trData, arData] = await Promise.all([
         translateJson(baseGermanPayload, 'English', 'en', 'Barista AI Recipe Assistant', 'FO Cocktail Syrups'),
-        sleep(3000).then(() => translateJson(baseGermanPayload, 'Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları')),
-        sleep(6000).then(() => translateJson(baseGermanPayload, 'Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO')),
+        translateJson(baseGermanPayload, 'Turkish', 'tr', 'Barista AI Reçete Sihirbazı', 'FO Kokteyl Şurupları'),
+        translateJson(baseGermanPayload, 'Arabic', 'ar', 'مساعد وصفات باريستا الذكي', 'شراب كوكتيل FO'),
       ]);
 
       finalTitle = { de: baseGermanPayload.title, en: enData.title, tr: trData.title, ar: arData.title };
